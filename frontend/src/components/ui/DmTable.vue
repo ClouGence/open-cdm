@@ -10,6 +10,7 @@
     :pagination="false"
     :scroll="scroll"
     :row-key="rowKey"
+    :row-selection="rowSelection"
     :locale="tableLocale"
   >
     <template #bodyCell="{ column, record, index }">
@@ -65,6 +66,10 @@ export default {
     rowKey: {
       type: [String, Function],
       default: (_, index) => index
+    },
+    rowSelection: {
+      type: Object,
+      default: undefined
     }
   },
   computed: {

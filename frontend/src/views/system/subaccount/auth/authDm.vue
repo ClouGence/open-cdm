@@ -3,6 +3,10 @@
     <div v-if="pageLoading" class="page-loading-mask">
       <a-spin size="large" tip="加载中..." />
     </div>
+    <div v-if="isBatchUserAuth" class="batch-auth-context">
+      <span class="batch-auth-context__title">{{ $t('yi-xuan-ze-n-ge-zhang-hao', [batchTargetUids.length]) }}</span>
+      <span class="batch-auth-context__description">{{ $t(batchAuthDescriptionKey) }}</span>
+    </div>
     <div class="auth-content">
       <div class="auth-container">
         <div class="auth" @mousemove="handleMouseMove" @mouseup="stopDragging">
@@ -192,7 +196,7 @@
                   <div class="label-title">
                     {{ $t('xuan-xiang') }}
                   </div>
-                  <section class="option-section">
+                  <section v-if="!isBatchRevoke" class="option-section">
                     <div class="option-section-title option-section-title--required">
                       <span class="required-title">
                         <span class="required-mark">*</span>
@@ -248,7 +252,9 @@
                         v-model="authTarget.resourceManage"
                         @on-change="handleResourceManageChange"
                       />
-                      <div class="all-resource-tip">{{ $t('shou-quan-quan-bu-zi-yuan-gei-yong-hu') }}</div>
+                      <div class="all-resource-tip">
+                        {{ isBatchRevoke ? $t('yi-chu-yong-hu-de-quan-bu-zi-yuan-quan-xian') : $t('shou-quan-quan-bu-zi-yuan-gei-yong-hu') }}
+                      </div>
                     </div>
                   </section>
                 </div>
@@ -288,10 +294,10 @@
       <!--        {{ $t("pei-zhi") }}-->
       <!--      </Button>-->
       <Button @click="handlePreviewForDm" type="primary" v-if="!previewMode && isEdit" style="margin-right: 10px">
-        {{ $t('shou-quan-yu-lan') }}
+        {{ isBatchRevoke ? $t('yi-chu-yu-lan') : $t('shou-quan-yu-lan') }}
       </Button>
       <Button type="primary" @click="handleSubmit" v-if="previewMode" style="margin-right: 10px">
-        {{ $t('bao-cun') }}
+        {{ isBatchUserAuth ? $t('que-ren') : $t('bao-cun') }}
       </Button>
     </div>
     <a-modal v-model="showAuthedTreeModal" v-if="showAuthedTreeModal" :title="$t('shou-quan-que-ren')" :width="800">
@@ -340,6 +346,9 @@ export default {
       authedData: {},
       showAuthedTreeModal: false,
       batchMode: false,
+      isBatchUserAuth: false,
+      batchTargetUids: [],
+      batchAuthOperation: 'GRANT',
       previewMode: false,
       uid: '',
       isEdit: false,
@@ -467,6 +476,12 @@ export default {
     resourceManageDisabled() {
       return !this.isEdit || this.previewMode || this.authTarget.disable || this.resourceManageLoading || !this.myAuth.includes('RDP_AUTH_MANAGE');
     },
+    isBatchRevoke() {
+      return this.isBatchUserAuth && this.batchAuthOperation === 'REVOKE';
+    },
+    batchAuthDescriptionKey() {
+      return this.isBatchRevoke ? 'pi-liang-shou-quan-yi-chu-shuo-ming' : 'pi-liang-shou-quan-zhui-jia-shuo-ming';
+    },
     datasourceTreeSearchKey: {
       get() {
         return this.activeAuthType === 'datasource' ? this.datasource.searchKey : this.task.searchKey;
@@ -578,6 +593,9 @@ export default {
     '$route.params.uid': {
       async handler(newVal, oldVal) {
         if (newVal !== oldVal) {
+          // Batch initialization is driven by the query watcher. Avoid loading the
+          // placeholder `batch` route param as though it were a real account uid.
+          if (this.$route.query.type === 'batch') return;
           this.uid = this.isEdit || this.isView ? this.$route.params.uid : this.userInfo.uid;
           this.subAccount = this.isEdit || this.isView ? this.$route.query.name : '';
           await this.listLevelsForDM(null, true);
@@ -605,10 +623,31 @@ export default {
     async initData() {
       this.pageLoading = true;
       try {
-        this.isEdit = this.$route.query.type === 'edit';
+        this.isBatchUserAuth = this.$route.query.type === 'batch';
+        const batchAuthOperation = String(this.$route.query.operation || '').toUpperCase();
+        this.batchAuthOperation = ['GRANT', 'REVOKE'].includes(batchAuthOperation) ? batchAuthOperation : 'GRANT';
+        this.batchTargetUids = this.isBatchUserAuth
+          ? String(this.$route.query.uids || '')
+              .split(',')
+              .filter(Boolean)
+          : [];
+        if (this.isBatchUserAuth && !this.batchTargetUids.length) {
+          this.$Message.warning(this.$t('zhi-shao-xuan-ze-yi-ge-zhang-hao'));
+          this.goSubAccountPage();
+          return;
+        }
+        this.isEdit = this.$route.query.type === 'edit' || this.isBatchUserAuth;
         this.isView = this.$route.query.type === 'view';
-        this.uid = this.isEdit || this.isView ? this.$route.params.uid : this.userInfo.uid;
-        this.subAccount = this.isEdit || this.isView ? this.$route.query.name : '';
+        if (this.isBatchUserAuth) {
+          this.uid = this.batchTargetUids[0];
+          this.subAccount = '';
+        } else if (this.isEdit || this.isView) {
+          this.uid = this.$route.params.uid;
+          this.subAccount = this.$route.query.name;
+        } else {
+          this.uid = this.userInfo.uid;
+          this.subAccount = '';
+        }
         this.authTime = {
           startTime: null,
           endTime: null
@@ -669,6 +708,11 @@ export default {
         await this.loadGlobalResourceAuth();
         return;
       }
+      if (this.isBatchUserAuth) {
+        this.authTarget.username = this.$t('yi-xuan-ze-n-ge-zhang-hao', [this.batchTargetUids.length]);
+        await this.loadGlobalResourceAuth();
+        return;
+      }
       const res = await this.$services.rdpUserManagerListSubAccounts({
         data: {
           roleId: 0,
@@ -692,6 +736,10 @@ export default {
       this.globalResourceOriginalEnabled = false;
       this.globalResourceOriginalStartTime = null;
       this.globalResourceOriginalEndTime = null;
+      if (this.isBatchUserAuth) {
+        this.authTarget.resourceManage = false;
+        return;
+      }
       const res = await this.$services.rdpAuthListUserAuthOfRes({
         data: {
           authKind: 'DataSource',
@@ -872,14 +920,32 @@ export default {
       });
     },
     async handleSubmit() {
-      const submitData = {};
-      submitData.authKind = this.activeAuthTab;
-      submitData.targetUid = this.uid;
       const authData = this.getSubmitAuthData();
+      if (this.isBatchUserAuth) {
+        const res = await this.$services.rdpAuthBatchModifyUserAuth({
+          data: {
+            authKind: this.activeAuthTab,
+            targetUids: this.batchTargetUids,
+            operation: this.batchAuthOperation,
+            changes: authData.appends
+          }
+        });
+        if (res?.success) {
+          const successKey = this.isBatchRevoke ? 'pi-liang-yi-chu-quan-xian-cheng-gong-0' : 'pi-liang-shou-quan-cheng-gong-0';
+          this.$message.success(this.$t(successKey, [res.data]));
+          this.goSubAccountPage();
+        }
+        return;
+      }
+
       const res = await this.$services.rdpAuthModifyUserAuth({
-        data: { ...submitData, ...authData }
+        data: {
+          authKind: this.activeAuthTab,
+          targetUid: this.uid,
+          ...authData
+        }
       });
-      if (res?.data) {
+      if (res?.success) {
         this.$message.success(this.$t('shu-ju-ku-shou-quan-cheng-gong'));
         this.previewMode = false;
         this.isEdit = true;
@@ -1117,7 +1183,7 @@ export default {
         color: '#000'
       };
       if (this.previewMode && node?.isLeaf) {
-        if (node?.action === 'deletes') {
+        if (node?.action === 'deletes' || (this.isBatchRevoke && node?.action === 'appends')) {
           style.color = 'red';
         } else if (node?.action === 'appends') {
           style.color = 'green';
@@ -1587,7 +1653,7 @@ export default {
                 ...config
               })
             );
-            if (this.isEdit && res?.success) {
+            if (this.isEdit && !this.isBatchUserAuth && res?.success) {
               if (resPaths.length === 0) {
                 // res1: Accessible resources for users, requested only once
                 let res1 = {};
@@ -2198,7 +2264,7 @@ export default {
                 this.authMap[item.key] = item.i18nName;
               }
             });
-            if (this.findSchemaNodeId(node)) {
+            if (this.findSchemaNodeId(node) && !this.isBatchUserAuth) {
               hasAutn = await this.$services.rdpAuthListUserAuthOfRes({
                 data: {
                   authKind: this.activeAuthTab,
@@ -2834,6 +2900,32 @@ export default {
   padding-bottom: 0;
   overflow: hidden;
   background: #fff;
+
+  .batch-auth-context {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+
+    &__title {
+      flex-shrink: 0;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    &__description {
+      flex: 1 1 320px;
+      min-width: 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 20px;
+    }
+  }
 
   .auth-content {
     flex: 1;

@@ -21,6 +21,7 @@ import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_A
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -154,6 +155,22 @@ public class RdpResAuthController {
             .getTargetUid(), fo, SecurityLevel.HIGH, AuditType.MODIFY_SUB_ACCOUNT_AUTH, ResourceType.ACCOUNT);
 
         return ResWebDataUtils.buildSuccess(true);
+    }
+
+    @RequestAuth(checkOpPassword = true, value = RDP_AUTH_MANAGE)
+    @RequestMapping(value = "/batchModifyUserAuth", method = RequestMethod.POST)
+    public ResWebData<?> batchModifyUserAuth(@Valid @RequestBody BatchModifyUserAuthFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        List<String> targetUids = new ArrayList<>(new LinkedHashSet<>(fo.getTargetUids()));
+
+        targetUids.forEach(targetUid -> authServiceForBiz.checkOperateOtherUserAuth(uid, targetUid));
+        authServiceForManage.batchModifyUserAuth(puid, fo);
+
+        targetUids.forEach(targetUid -> opAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request
+            .getRemoteAddr(), targetUid, fo, SecurityLevel.HIGH, AuditType.MODIFY_SUB_ACCOUNT_AUTH, ResourceType.ACCOUNT));
+
+        return ResWebDataUtils.buildSuccess(targetUids.size());
     }
 
     // --------------------------------

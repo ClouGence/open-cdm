@@ -36,6 +36,7 @@ export const authApi = {
   rdpAuthListMyAuthOfRes: '/api/entry/auth/listMyAuthOfRes',
   rdpAuthListMyAuthRes: '/api/entry/auth/listMyAuthRes',
   rdpAuthModifyUserAuth: '/api/entry/auth/modifyUserAuth',
+  rdpAuthBatchModifyUserAuth: '/api/entry/auth/batchModifyUserAuth',
   rdpAuthListUserAuthOfRes: '/api/entry/auth/listUserAuthOfRes',
 
   //dm
