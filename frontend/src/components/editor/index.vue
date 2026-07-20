@@ -92,7 +92,12 @@ export default {
         getLanguage(this.currentTab.dsType)
       );
       this.defaultOpts.language = this.currentTab.language;
-      this.defaultOpts.value = this.currentTab.text;
+      let editorText = this.currentTab.text;
+      if (typeof editorText !== 'string') {
+        editorText = '';
+        this.currentTab.text = editorText;
+      }
+      this.defaultOpts.value = editorText;
       this.defaultOpts.theme = 'vs';
       if (this.monacoEditor) {
         this.handleDispose();
