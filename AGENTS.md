@@ -109,6 +109,7 @@ cd frontend && npm run check-i18n
 ```
 
 - 前端使用 `package-lock.json`，默认使用 `npm`，不要擅自切换到其他包管理器。
+- 修改任何前端源码后，必须从仓库根目录执行 `cd package && ./all_build.sh web`，且命令必须成功（退出码为 0）；若构建失败，必须修复所有阻塞错误后才能认定任务完成，不得以“既有问题”或“与本次改动无关”为由跳过。
 - 修改用户可见文案时，同步维护 `frontend/src/locales/`。
 
 ## 编码规则

@@ -5,8 +5,7 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
-              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px"
-                      @on-change="handleChangeAuditLogType">
+              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
                 <Option value="operation" :label="$t('cao-zuo-shen-ji')">
                   <span>{{ $t('cao-zuo-shen-ji') }}</span>
                 </Option>
@@ -23,8 +22,7 @@
                 class="log-time-range"
                 @change="handleTimeRangeChange"
               />
-              <Select v-model="searchType" style="width: 100px; margin-right: 10px"
-                      @on-change="handleChangeSearchType">
+              <Select v-model="searchType" style="width: 100px; margin-right: 10px" @on-change="handleChangeSearchType">
                 <Option value="user" :label="$t('cao-zuo-ren')">
                   <span>{{ $t('cao-zuo-ren') }}</span>
                 </Option>
@@ -44,11 +42,9 @@
                   <span>{{ $t('sql-zhuang-tai') }}</span>
                 </Option>
               </Select>
-              <Select v-if="searchType === 'user'" v-model="searchData.userUid" style="width: 250px"
-                      clearable @on-change="handleRefresh">
+              <Select v-if="searchType === 'user'" v-model="searchData.userUid" style="width: 250px" clearable @on-change="handleRefresh">
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
-                <Option v-for="user in operateUserList" :key="user.userUid" :value="user.userUid"
-                        :label="user.userName">
+                <Option v-for="user in operateUserList" :key="user.userUid" :value="user.userUid" :label="user.userName">
                   {{ user.userName }}
                 </Option>
               </Select>
@@ -59,17 +55,14 @@
                 style="width: 250px"
                 clearable
               />
-              <Select v-if="searchType === 'dsId'" v-model="searchData.dsId" style="width: 200px"
-                      clearable>
+              <Select v-if="searchType === 'dsId'" v-model="searchData.dsId" style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
-                <Option v-for="ds in dsList" :key="ds.objId" :value="ds.objId"
-                        :label="ds.objAttr.dsInstance">
-                  <CustomIcon :type="ds.objAttr.dsType"/>
+                <Option v-for="ds in dsList" :key="ds.objId" :value="ds.objId" :label="ds.objAttr.dsInstance">
+                  <CustomIcon :type="ds.objAttr.dsType" />
                   {{ ds.objAttr.dsInstance }}
                 </Option>
               </Select>
-              <Select v-if="searchType === 'sqlKind'" v-model="searchData.sqlKind"
-                      style="width: 200px" clearable>
+              <Select v-if="searchType === 'sqlKind'" v-model="searchData.sqlKind" style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
                 <Option value="CREATE" label="CREATE">CREATE</Option>
                 <Option value="ALTER" label="ALTER">ALTER</Option>
@@ -79,8 +72,7 @@
                 <Option value="CALL" label="CALL">CALL</Option>
                 <Option value="OTHER" label="OTHER">OTHER</Option>
               </Select>
-              <Select v-if="searchType === 'requester'" v-model="searchData.requester"
-                      style="width: 200px" clearable>
+              <Select v-if="searchType === 'requester'" v-model="searchData.requester" style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
                 <Option value="CONSOLE" :label="$t('sql-requester-console')">
                   {{ $t('sql-requester-console') }}
@@ -92,8 +84,7 @@
                   {{ $t('sql-requester-change') }}
                 </Option>
               </Select>
-              <Select v-if="searchType === 'status'" v-model="searchData.status"
-                      style="width: 200px" clearable>
+              <Select v-if="searchType === 'status'" v-model="searchData.status" style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
                 <Option value="RUNNING" label="RUNNING">RUNNING</Option>
                 <Option value="SUCCESS" label="SUCCESS">SUCCESS</Option>
@@ -102,24 +93,20 @@
                 <Option value="FAILURE" label="FAILURE">FAILURE</Option>
                 <Option value="ERROR" label="ERROR">ERROR</Option>
               </Select>
-              <Button type="primary" ghost @click="handleRefresh" :loading="refreshLoading"
-                      style="margin-left: 10px">
+              <Button type="primary" ghost @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
                 {{ $t('cha-xun') }}
               </Button>
             </div>
             <div class="right">
-              <Tooltip v-if="canReadUserConfig" transfer :content="$t('shen-ji-ri-zhi-she-zhi')"
-                       placement="bottom">
-                <Button type="default" style="margin-right: 6px" @click="handleOpenRetentionSetting"
-                        :loading="retentionLoading">
-                  <CustomIcon type="icon-v2-preference" v-if="!retentionLoading"/>
+              <Tooltip v-if="canReadUserConfig" transfer :content="$t('shen-ji-ri-zhi-she-zhi')" placement="bottom">
+                <Button type="default" style="margin-right: 6px" @click="handleOpenRetentionSetting" :loading="retentionLoading">
+                  <CustomIcon type="icon-v2-preference" v-if="!retentionLoading" />
                 </Button>
               </Tooltip>
             </div>
           </div>
           <div class="table-container audit-log-table">
-            <Table size="small" border :columns="logColumn" :data="logData"
-                   :loading="refreshLoading" :scroll="tableScroll">
+            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading" :scroll="tableScroll">
               <template #operator="{ row }">
                 <div class="operator-cell">
                   <div>{{ row.userName }}</div>
@@ -129,7 +116,7 @@
               <template #datasource="{ row }">
                 <div class="datasource-cell">
                   <div class="datasource-id">
-                    <CustomIcon :type="row.dataSourceType"/>
+                    <CustomIcon :type="row.dataSourceType" />
                     <span>{{ row.dsResourceId }}</span>
                   </div>
                   <div class="datasource-desc">{{ formatDsRemark(row.dsRemark) }}</div>
@@ -167,8 +154,7 @@
         />
       </div>
     </div>
-    <CCModal v-model="showSqlModal" title="SQL" width="1000px" @on-ok="handleCloseSqlModal"
-             @on-cancel="handleCloseSqlModal">
+    <CCModal v-model="showSqlModal" title="SQL" width="1000px" @on-ok="handleCloseSqlModal" @on-cancel="handleCloseSqlModal">
       <div v-if="showSqlModal">
         <ReadOnlyDiffEditor
           v-if="selectedRow.rewrite"
@@ -177,22 +163,18 @@
           :ds-type="selectedRow.dataSourceType"
           style="height: 400px"
         />
-        <ReadOnlyEditor v-else :text="selectedRow?.execSql" :ds-type="selectedRow.dataSourceType"
-                        style="height: 400px"/>
+        <ReadOnlyEditor v-else :text="selectedRow?.execSql" :ds-type="selectedRow.dataSourceType" style="height: 400px" />
       </div>
     </CCModal>
     <CCModal v-model="showRetentionSetting" :title="$t('shen-ji-ri-zhi-she-zhi')" width="520px">
-      <Form ref="retentionFormRef" :model="retentionForm" :rules="retentionRules"
-            :label-width="150">
+      <Form ref="retentionFormRef" :model="retentionForm" :rules="retentionRules" :label-width="150">
         <FormItem :label="$t('shen-ji-ri-zhi-bao-cun-tian-shu')" prop="sqlAuditRetentionDays">
-          <Input v-model="retentionForm.sqlAuditRetentionDays" type="number"
-                 :disabled="!canEditUserConfig"/>
+          <Input v-model="retentionForm.sqlAuditRetentionDays" type="number" :disabled="!canEditUserConfig" />
         </FormItem>
       </Form>
       <template #footer>
         <Button @click="handleCloseRetentionSetting">{{ $t('guan-bi') }}</Button>
-        <Button v-if="canEditUserConfig" type="primary" :loading="retentionSaveLoading"
-                @click="handleSaveRetentionSetting">
+        <Button v-if="canEditUserConfig" type="primary" :loading="retentionSaveLoading" @click="handleSaveRetentionSetting">
           {{ $t('bao-cun') }}
         </Button>
       </template>
@@ -202,8 +184,8 @@
 
 <script>
 import fecha from 'fecha';
-import {mapState} from 'vuex';
-import {h, resolveComponent} from 'vue';
+import { mapState } from 'vuex';
+import { h, resolveComponent } from 'vue';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import ReadOnlyDiffEditor from '@/components/editor/ReadOnlyDiffEditor.vue';
 import dayjs from '@/utils/dayjsSetup';
@@ -212,7 +194,7 @@ const SQL_AUDIT_RETENTION_DAYS_KEY = 'sqlAuditRetentionDays';
 
 export default {
   name: 'SqlLog',
-  components: {ReadOnlyDiffEditor, ReadOnlyEditor},
+  components: { ReadOnlyDiffEditor, ReadOnlyEditor },
   data() {
     return {
       auditLogType: 'sql',
@@ -299,32 +281,36 @@ export default {
             } else if (row.status === 'RUNNING') {
               color = '#faad14';
             }
-            const statusNode = h('div', {
-              style: {
-                color,
-                display: 'flex',
-                'align-items': 'center'
-              }
-            }, [
-              h('span', row.status),
-              (row.status === 'FAILURE' || row?.status === 'ERROR') && row?.message
-                ? h(
-                  resolveComponent('Tooltip'),
-                  {
-                    content: row.message,
-                    placement: 'top',
-                    transfer: true
-                  },
-                  [
-                    h(resolveComponent('CustomIcon'), {
-                      type: 'help',
-                      size: 16,
-                      style: {color: '#aaa', marginLeft: '4px', cursor: 'pointer'}
-                    })
-                  ]
-                )
-                : null
-            ]);
+            const statusNode = h(
+              'div',
+              {
+                style: {
+                  color,
+                  display: 'flex',
+                  'align-items': 'center'
+                }
+              },
+              [
+                h('span', row.status),
+                (row.status === 'FAILURE' || row?.status === 'ERROR') && row?.message
+                  ? h(
+                      resolveComponent('Tooltip'),
+                      {
+                        content: row.message,
+                        placement: 'top',
+                        transfer: true
+                      },
+                      [
+                        h(resolveComponent('CustomIcon'), {
+                          type: 'help',
+                          size: 16,
+                          style: { color: '#aaa', marginLeft: '4px', cursor: 'pointer' }
+                        })
+                      ]
+                    )
+                  : null
+              ]
+            );
             return statusNode;
           }
         },
@@ -404,7 +390,7 @@ export default {
       const scrollX = this.logColumn.reduce((sum, column) => {
         return sum + (column.width || column.minWidth || 0);
       }, 0);
-      return {x: scrollX};
+      return { x: scrollX };
     },
     pageSize() {
       return this.searchData.pageData.pageSize;
@@ -503,13 +489,13 @@ export default {
 
       const value = String(Number(this.retentionForm.sqlAuditRetentionDays));
       const hasCreatedConfig = this.retentionConfig && !this.retentionConfig.needCreated;
-      const updateConfigs = hasCreatedConfig ? {[SQL_AUDIT_RETENTION_DAYS_KEY]: value} : {};
-      const needCreateConfigs = hasCreatedConfig ? {} : {[SQL_AUDIT_RETENTION_DAYS_KEY]: value};
+      const updateConfigs = hasCreatedConfig ? { [SQL_AUDIT_RETENTION_DAYS_KEY]: value } : {};
+      const needCreateConfigs = hasCreatedConfig ? {} : { [SQL_AUDIT_RETENTION_DAYS_KEY]: value };
 
       this.retentionSaveLoading = true;
       try {
         const res = await this.$services.rdpUserConfigUpsertUserConfigs({
-          data: {updateConfigs, needCreateConfigs}
+          data: { updateConfigs, needCreateConfigs }
         });
         if (!res.success) {
           this.$Message.error(res.msg || this.$t('cao-zuo-shi-bai'));
