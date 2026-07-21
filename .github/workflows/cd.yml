@@ -208,10 +208,94 @@ jobs:
               "${tag_args[@]}" \
               docker-ctx
 
+  export-images:
+    name: Export images ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    needs: [build-tgz, docker]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # The three tgz artifacts are named cgdm-alone.tar.gz / cgdm-console.tar.gz / cgdm-sidecar.tar.gz.
+      # Merge them into one context dir so all three Dockerfiles can build from it.
+      - name: Download tgz artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: cgdm-*.tar.gz
+          merge-multiple: true
+          path: docker-ctx
+
+      - name: Stage docker build context
+        run: cp -r package/docker/shared docker-ctx/shared
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Expose GitHub Actions runtime for buildx cache
+        uses: crazy-max/ghaction-github-runtime@v4
+
+      # The base image lives in the private China registry; needed to pull on a cache miss.
+      - name: Log in to China registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.CHINA_REGISTRY }}
+          username: ${{ secrets.CGDM_DOCKER_CHINA_USERNAME }}
+          password: ${{ secrets.CGDM_DOCKER_CHINA_PASSWORD }}
+
+      - name: Build, save and gzip images
+        env:
+          VERSION: ${{ inputs.version }}
+          ARCH: ${{ matrix.arch }}
+          IMAGE_PREFIX: ${{ env.GLOBAL_IMAGE_PREFIX }}
+        run: |
+          set -euo pipefail
+          case "$ARCH" in
+            x86_64) platform=linux/amd64 ;;
+            arm64)  platform=linux/arm64 ;;
+          esac
+          for svc in alone console sidecar; do
+            docker buildx build \
+              --file "package/docker/${svc}.Dockerfile" \
+              --platform "$platform" \
+              --provenance=false \
+              --load \
+              --cache-from "type=gha,scope=docker-${svc}" \
+              --tag "${IMAGE_PREFIX}-${svc}:${VERSION}" \
+              docker-ctx
+          done
+          mkdir -p out
+          docker save "${IMAGE_PREFIX}-alone:${VERSION}" \
+            | gzip > "out/cgdm-alone-${ARCH}-${VERSION}.tar.gz"
+          docker save "${IMAGE_PREFIX}-console:${VERSION}" "${IMAGE_PREFIX}-sidecar:${VERSION}" \
+            | gzip > "out/cgdm-console-sidecar-${ARCH}-${VERSION}.tar.gz"
+
+      - name: Upload alone image artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: out/cgdm-alone-${{ matrix.arch }}-${{ inputs.version }}.tar.gz
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload console-sidecar image artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: out/cgdm-console-sidecar-${{ matrix.arch }}-${{ inputs.version }}.tar.gz
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
+
   release:
     name: Publish GitHub Release
     runs-on: ubuntu-latest
-    needs: [build-tgz, docker]
+    needs: [build-tgz, docker, export-images]
     permissions:
       contents: write
     steps:
