@@ -266,8 +266,8 @@
     </div>
     <div class="option-wrap">
       <!-- main ,previous flow -->
-      <Button @click="goSubAccountPage" v-if="!previewMode && isEdit" style="margin-right: 10px">
-        {{ $t('fan-hui-zi-zhang-hao-lie-biao') }}
+      <Button @click="handleAuthPageBack" v-if="!previewMode && isEdit" style="margin-right: 10px">
+        {{ isBatchUserAuth ? $t('shang-yi-bu') : $t('fan-hui-zi-zhang-hao-lie-biao') }}
       </Button>
       <!--      <Button-->
       <!--        @click="cancelAuth"-->
@@ -633,7 +633,7 @@ export default {
           : [];
         if (this.isBatchUserAuth && !this.batchTargetUids.length) {
           this.$Message.warning(this.$t('zhi-shao-xuan-ze-yi-ge-zhang-hao'));
-          this.goSubAccountPage();
+          this.goBatchAuthorizationPage();
           return;
         }
         this.isEdit = this.$route.query.type === 'edit' || this.isBatchUserAuth;
@@ -2822,6 +2822,22 @@ export default {
     goSubAccountPage() {
       this.$router.push({ name: 'Management_Accounts_Account' });
     },
+    goBatchAuthorizationPage() {
+      this.$router.push({
+        name: 'Management_Accounts_Batch_Authorization',
+        query: {
+          operation: this.batchAuthOperation,
+          uids: this.batchTargetUids.join(',')
+        }
+      });
+    },
+    handleAuthPageBack() {
+      if (this.isBatchUserAuth) {
+        this.goBatchAuthorizationPage();
+        return;
+      }
+      this.goSubAccountPage();
+    },
     handleGoAuth() {
       this.$router.push({
         path: `/system/account/authdm/${this.uid}`,
@@ -2896,10 +2912,8 @@ export default {
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  padding: 16px;
-  padding-bottom: 0;
   overflow: hidden;
-  background: #fff;
+  background: var(--bg-card);
 
   .batch-auth-context {
     flex-shrink: 0;
@@ -2907,7 +2921,7 @@ export default {
     align-items: center;
     flex-wrap: wrap;
     gap: 8px 16px;
-    margin-bottom: 12px;
+    margin: 16px 24px 0;
     padding: 12px 16px;
     background: var(--bg-secondary);
     border-radius: 6px;
@@ -2930,6 +2944,7 @@ export default {
   .auth-content {
     flex: 1;
     min-height: 0;
+    padding: 16px 24px;
 
     .auth-container {
       display: flex;
@@ -2954,16 +2969,15 @@ export default {
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          background: #fff;
-          border: 1px solid #e6eaf0;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+          background: var(--bg-card);
+          border: 1px solid var(--border-light);
+          border-radius: 6px;
 
           > .search {
             display: flex;
             flex-shrink: 0;
             height: 36px;
-            border-bottom: 1px solid #eef1f5;
+            border-bottom: 1px solid var(--border-light);
 
             :deep(.ant-select) {
               height: 100%;
@@ -2974,7 +2988,7 @@ export default {
               display: flex !important;
               align-items: center !important;
               border: 0 !important;
-              border-right: 1px solid #eef1f5 !important;
+              border-right: 1px solid var(--border-light) !important;
               border-radius: 0 !important;
               box-shadow: none !important;
             }
@@ -3021,7 +3035,7 @@ export default {
               width: 36px;
               padding: 0;
               border: 0 !important;
-              border-left: 1px solid #eef1f5 !important;
+              border-left: 1px solid var(--border-light) !important;
               border-radius: 0 !important;
               display: flex;
               align-items: center;
@@ -3087,12 +3101,10 @@ export default {
               display: flex;
               align-items: center;
               justify-content: flex-start;
-              min-height: 82px;
-              padding: 16px 22px;
-              background: #fff;
-              border: 1px solid #e0f3e9;
-              border-radius: 8px;
-              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+              min-height: 72px;
+              padding: 12px 16px;
+              background: var(--bg-secondary);
+              border-radius: 6px;
 
               &__main {
                 min-width: 0;
@@ -3100,7 +3112,7 @@ export default {
 
               &__label {
                 margin-bottom: 8px;
-                color: #6b778c;
+                color: var(--text-secondary);
                 font-size: 13px;
                 line-height: 18px;
               }
@@ -3109,7 +3121,7 @@ export default {
                 display: flex;
                 align-items: center;
                 min-width: 0;
-                color: #27364b;
+                color: var(--text-primary);
                 font-size: 15px;
                 line-height: 22px;
                 white-space: nowrap;
@@ -3126,7 +3138,7 @@ export default {
               &__separator {
                 flex: none;
                 margin: 0 7px;
-                color: #33c785;
+                color: var(--primary-color);
                 font-weight: 600;
               }
             }
@@ -3137,10 +3149,9 @@ export default {
               display: flex;
               flex-direction: column;
               overflow: hidden;
-              background: #fff;
-              border: 1px solid #e6eaf0;
-              border-radius: 8px;
-              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+              background: var(--bg-card);
+              border: 1px solid var(--border-light);
+              border-radius: 6px;
             }
 
             .auth-tabs {
@@ -3150,7 +3161,7 @@ export default {
               flex-shrink: 0;
               min-height: 58px;
               padding: 0 22px;
-              border-bottom: 1px solid #edf1f5;
+              border-bottom: 1px solid var(--border-light);
 
               &__items {
                 display: flex;
@@ -3275,10 +3286,9 @@ export default {
               flex: 0 0 320px;
               min-height: 0;
               overflow: hidden;
-              background: #fff;
-              border: 1px solid #e6eaf0;
-              border-radius: 8px;
-              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+              background: var(--bg-card);
+              border: 1px solid var(--border-light);
+              border-radius: 6px;
 
               .setting {
                 height: 100%;
@@ -3291,8 +3301,8 @@ export default {
                 flex-shrink: 0;
                 height: 58px;
                 padding: 18px 22px;
-                border-bottom: 1px solid #edf1f5;
-                color: #253044;
+                border-bottom: 1px solid var(--border-light);
+                color: var(--text-primary);
                 font-size: 16px;
                 font-weight: 600;
                 line-height: 22px;
@@ -3301,7 +3311,7 @@ export default {
               .option-section {
                 flex-shrink: 0;
                 padding: 20px 22px;
-                border-bottom: 1px solid #edf1f5;
+                border-bottom: 1px solid var(--border-light);
               }
 
               .option-section-title {
@@ -3309,7 +3319,7 @@ export default {
                 align-items: center;
                 justify-content: space-between;
                 margin-bottom: 14px;
-                color: #253044;
+                color: var(--text-primary);
                 font-size: 14px;
                 font-weight: 600;
 
@@ -3451,13 +3461,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 72px;
-  margin: 12px 0 16px;
-  padding: 14px 16px;
-  background: #fff;
-  border: 1px solid #e6eaf0;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+  min-height: 64px;
+  padding: 16px 24px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-light);
 }
 
 :deep(.node-wrap) {
@@ -3522,23 +3529,19 @@ export default {
 }
 
 .divider {
-  width: 3px;
-  background: linear-gradient(to bottom, #e0e0e0, #f8f8f8, #e0e0e0);
+  width: 1px;
+  background: var(--border-light);
   cursor: col-resize;
-  transition:
-    background 0.2s,
-    box-shadow 0.2s;
+  transition: background-color 0.12s ease;
   user-select: none;
 }
 
 .divider:hover {
-  background: linear-gradient(to bottom, #c8c8c8, #eaeaea, #c8c8c8);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  background: var(--border-primary);
 }
 
 .divider:active {
-  background: #b0b0b0;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15) inset;
+  background: var(--primary-color);
 }
 
 .page-loading-mask {

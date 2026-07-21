@@ -22,26 +22,9 @@
               </Button>
             </div>
             <div class="right">
-              <Dropdown
-                v-if="myAuth.includes('RDP_AUTH_MANAGE')"
-                :disabled="selectedSubAccounts.length === 0"
-                trigger="click"
-                transfer
-                placement="bottom-start"
-                @on-click="handleBatchPermissionAction"
-                style="margin-right: 10px"
-              >
-                <Button :disabled="selectedSubAccounts.length === 0">
-                  {{ $t('pi-liang-cao-zuo') }}
-                  <Icon type="ios-arrow-down" />
-                </Button>
-                <template #list>
-                  <DropdownMenu>
-                    <DropdownItem name="GRANT">{{ $t('zhui-jia-quan-xian') }}</DropdownItem>
-                    <DropdownItem name="REVOKE">{{ $t('yi-chu-quan-xian') }}</DropdownItem>
-                  </DropdownMenu>
-                </template>
-              </Dropdown>
+              <Button v-if="myAuth.includes('RDP_AUTH_MANAGE')" style="margin-right: 10px" @click="goBatchAuthorizationPage">
+                {{ $t('pi-liang-shou-quan') }}
+              </Button>
               <Button @click="handleClickAddBtn" type="primary" style="margin-right: 10px" icon="md-add">
                 {{ $t('tian-jia-zi-zhang-hao') }}
               </Button>
@@ -51,8 +34,6 @@
             <Table
               :columns="accountTableColumns"
               :data="accountTableData"
-              :row-selection="accountRowSelection"
-              row-key="uid"
               :locale="{ emptyText: $t('zan-wu-shu-ju') }"
               :loading="subAccountListLoading"
               size="small"
@@ -318,24 +299,6 @@ export default {
     },
     accountTableData() {
       return this.showSubAccountList;
-    },
-    accountRowSelection() {
-      if (!this.myAuth.includes('RDP_AUTH_MANAGE')) {
-        return undefined;
-      }
-      return {
-        selectedRowKeys: this.selectedSubAccountUids,
-        preserveSelectedRowKeys: true,
-        columnWidth: 52,
-        getCheckboxProps: (record) => ({
-          disabled: record.disable
-        }),
-        onChange: this.handleSubAccountSelectionChange
-      };
-    },
-    selectedSubAccounts() {
-      const selectedUids = new Set(this.selectedSubAccountUids);
-      return this.subAccountList.filter((item) => selectedUids.has(item.uid));
     }
   },
   data() {
@@ -405,7 +368,6 @@ export default {
       pageNum: 1,
       subAccountList: [],
       showSubAccountList: [],
-      selectedSubAccountUids: [],
       roleList: [],
       passwordRule: {
         strongPolicy: false,
@@ -645,30 +607,8 @@ export default {
         }
       });
     },
-    handleSubAccountSelectionChange(selectedRowKeys) {
-      const visibleUids = new Set(this.showSubAccountList.map((item) => item.uid));
-      const selectedUids = new Set(this.selectedSubAccountUids);
-      visibleUids.forEach((uid) => selectedUids.delete(uid));
-      selectedRowKeys.forEach((uid) => {
-        const account = this.subAccountList.find((item) => item.uid === uid);
-        if (account && !account.disable) {
-          selectedUids.add(uid);
-        }
-      });
-      this.selectedSubAccountUids = Array.from(selectedUids);
-    },
-    handleBatchPermissionAction(operation) {
-      if (!this.selectedSubAccounts.length) {
-        return;
-      }
-      this.$router.push({
-        path: '/system/account/authdm/batch',
-        query: {
-          type: 'batch',
-          uids: this.selectedSubAccounts.map((item) => item.uid).join(','),
-          operation
-        }
-      });
+    goBatchAuthorizationPage() {
+      this.$router.push({ name: 'Management_Accounts_Batch_Authorization' });
     },
     handleShowDeleteConfirm(subAccount) {
       this.$Modal.confirm({
@@ -765,7 +705,6 @@ export default {
       this.subAccountListLoading = false;
       if (res.success) {
         this.subAccountList = generateData(res.data);
-        this.selectedSubAccountUids = [];
         this.total = this.subAccountList.length;
         this.setTableShowData(searchType);
       }
