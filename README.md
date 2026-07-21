@@ -123,13 +123,15 @@ When `/data/cgdm/conf` is empty, CloudDM initializes it with the default configu
 
 ### Offline Image Deployment
 
-When the host cannot reach an image registry, download the architecture-specific archive `cgdm-alone-<arch>-<version>.tar.gz` from the [GitHub Release](https://github.com/ClouGence/open-cdm/releases), load it on the target host, and start it as shown above.
+When the host cannot reach an image registry, download the architecture-specific archive `cgdm-alone-image-<arch>.tar.gz` from the [GitHub Release](https://github.com/ClouGence/open-cdm/releases), load it on the target host, and start it as shown above.
 
 ```bash
-gunzip -c cgdm-alone-<arch>-<version>.tar.gz | docker load
+gunzip -c cgdm-alone-image-<arch>.tar.gz | docker load
 ```
 
 This loads the image `bladepipe/cgdm-alone:<version>`. Then start it with the `docker run` commands shown above.
+
+For cluster deployment, use `cgdm-cluster-image-<arch>.tar.gz`. It contains the versioned Console and Sidecar images together with `mysql:8.0`.
 
 ### Upgrade
 

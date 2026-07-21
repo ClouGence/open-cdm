@@ -249,6 +249,13 @@ jobs:
           username: ${{ secrets.CGDM_DOCKER_CHINA_USERNAME }}
           password: ${{ secrets.CGDM_DOCKER_CHINA_PASSWORD }}
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.GLOBAL_REGISTRY }}
+          username: ${{ secrets.CGDM_DOCKER_GLOBAL_USERNAME }}
+          password: ${{ secrets.CGDM_DOCKER_GLOBAL_PASSWORD }}
+
       - name: Build, save and gzip images
         env:
           VERSION: ${{ inputs.version }}
@@ -270,24 +277,25 @@ jobs:
               --tag "${IMAGE_PREFIX}-${svc}:${VERSION}" \
               docker-ctx
           done
+          docker pull --platform "$platform" mysql:8.0
           mkdir -p out
           docker save "${IMAGE_PREFIX}-alone:${VERSION}" \
-            | gzip > "out/cgdm-alone-${ARCH}-${VERSION}.tar.gz"
-          docker save "${IMAGE_PREFIX}-console:${VERSION}" "${IMAGE_PREFIX}-sidecar:${VERSION}" \
-            | gzip > "out/cgdm-console-sidecar-${ARCH}-${VERSION}.tar.gz"
+            | gzip > "out/cgdm-alone-image-${ARCH}.tar.gz"
+          docker save "${IMAGE_PREFIX}-console:${VERSION}" "${IMAGE_PREFIX}-sidecar:${VERSION}" mysql:8.0 \
+            | gzip > "out/cgdm-cluster-image-${ARCH}.tar.gz"
 
       - name: Upload alone image artifact
         uses: actions/upload-artifact@v7
         with:
-          path: out/cgdm-alone-${{ matrix.arch }}-${{ inputs.version }}.tar.gz
+          path: out/cgdm-alone-image-${{ matrix.arch }}.tar.gz
           archive: false
           if-no-files-found: error
           retention-days: 14
 
-      - name: Upload console-sidecar image artifact
+      - name: Upload cluster image artifact
         uses: actions/upload-artifact@v7
         with:
-          path: out/cgdm-console-sidecar-${{ matrix.arch }}-${{ inputs.version }}.tar.gz
+          path: out/cgdm-cluster-image-${{ matrix.arch }}.tar.gz
           archive: false
           if-no-files-found: error
           retention-days: 14

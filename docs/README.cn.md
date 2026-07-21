@@ -124,13 +124,15 @@ docker run -d --name cgdm-alone \
 
 ### 离线镜像部署
 
-内网无法访问镜像仓库时，可从 [GitHub Release](https://github.com/ClouGence/open-cdm/releases) 下载对应架构的镜像归档 `cgdm-alone-<arch>-<version>.tar.gz`，在目标主机加载后按上述方式启动。
+内网无法访问镜像仓库时，可从 [GitHub Release](https://github.com/ClouGence/open-cdm/releases) 下载对应架构的镜像归档 `cgdm-alone-image-<arch>.tar.gz`，在目标主机加载后按上述方式启动。
 
 ```bash
-gunzip -c cgdm-alone-<arch>-<version>.tar.gz | docker load
+gunzip -c cgdm-alone-image-<arch>.tar.gz | docker load
 ```
 
 加载得到镜像 `bladepipe/cgdm-alone:<version>`，随后使用该镜像按上文的 `docker run` 启动即可。
+
+集群部署请使用 `cgdm-cluster-image-<arch>.tar.gz`，其中包含对应版本的 Console、Sidecar 镜像以及 `mysql:8.0`。
 
 ### 升级
 
