@@ -122,6 +122,16 @@ docker run -d --name cgdm-alone \
 
 当 `/data/cgdm/conf` 是空目录时，CloudDM 会在启动时自动写入默认配置文件。
 
+### 离线镜像部署
+
+内网无法访问镜像仓库时，可从 [GitHub Release](https://github.com/ClouGence/open-cdm/releases) 下载对应架构的镜像归档 `cgdm-alone-<arch>-<version>.tar.gz`，在目标主机加载后按上述方式启动。
+
+```bash
+gunzip -c cgdm-alone-<arch>-<version>.tar.gz | docker load
+```
+
+加载得到镜像 `bladepipe/cgdm-alone:<version>`，随后使用该镜像按上文的 `docker run` 启动即可。
+
 ### 升级
 
 升级前建议先备份 Docker 卷或数据库数据。升级时删除旧容器并使用相同卷启动新版本镜像即可保留已有数据。

@@ -121,6 +121,16 @@ docker run -d --name cgdm-alone \
 
 When `/data/cgdm/conf` is empty, CloudDM initializes it with the default configuration files on startup.
 
+### Offline Image Deployment
+
+When the host cannot reach an image registry, download the architecture-specific archive `cgdm-alone-<arch>-<version>.tar.gz` from the [GitHub Release](https://github.com/ClouGence/open-cdm/releases), load it on the target host, and start it as shown above.
+
+```bash
+gunzip -c cgdm-alone-<arch>-<version>.tar.gz | docker load
+```
+
+This loads the image `bladepipe/cgdm-alone:<version>`. Then start it with the `docker run` commands shown above.
+
 ### Upgrade
 
 Before upgrading, back up Docker volumes or database data. To upgrade, remove the old container and start the new image with the same volumes.
