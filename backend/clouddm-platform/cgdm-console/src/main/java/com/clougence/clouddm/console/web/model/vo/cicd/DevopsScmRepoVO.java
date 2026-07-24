@@ -22,10 +22,14 @@ import lombok.Setter;
 @Setter
 public class DevopsScmRepoVO {
 
-    private long   scmId;
-    private String repoSpace;
-    private String repoName;
-    private String repoUrl;
-    private String repoHome;
-    private String repoBranch;
+    private long    scmId;
+    private String  repoId;
+    private String  repoPath;
+    private String  repoSpace;
+    private String  repoName;
+    private String  repoUrl;
+    private String  repoHome;
+    private String  repoBranch;
+    private boolean archived;
+    private boolean empty;
 }

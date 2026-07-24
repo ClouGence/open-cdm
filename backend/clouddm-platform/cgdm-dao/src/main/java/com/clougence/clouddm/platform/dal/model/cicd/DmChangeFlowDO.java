@@ -16,6 +16,7 @@
 package com.clougence.clouddm.platform.dal.model.cicd;
 
 import java.util.Date;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
@@ -65,6 +66,8 @@ public class DmChangeFlowDO {
     private ScmType                  refScmType;
     @TableField("scm_repo_space")
     private String                   scmRepoSpace;
+    @TableField("scm_repo_identifier")
+    private String                   scmRepoIdentifier;
     @TableField("scm_repo_name")
     private String                   scmRepoName;
     @TableField("scm_repo_url")
@@ -77,6 +80,8 @@ public class DmChangeFlowDO {
     private String                   scmRepoScript;
     @TableField("scm_repo_hook_pwd")
     private String                   scmBindWebhookPwd;
+    @TableField("scm_repo_hook_signing_token")
+    private String                   scmBindWebhookSigningToken;
     @TableField("enable_hook")
     private boolean                  enableWebhook;
     @TableField("enable_trigger")
@@ -121,6 +126,10 @@ public class DmChangeFlowDO {
     private boolean                  enable;
     @TableField("deleted")
     private boolean                  deleted;
+    @TableField(exist = false)
+    private String                   scmValidatedCommitId;
+    @TableField(exist = false)
+    private List<String>             scmPreflightWarnings;
 
     public ChangeFlowStatus getChangeFlowStatus() { return flowStatus; }
 

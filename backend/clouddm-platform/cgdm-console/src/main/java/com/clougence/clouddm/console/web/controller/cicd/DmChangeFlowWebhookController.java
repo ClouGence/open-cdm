@@ -15,9 +15,9 @@
  */
 package com.clougence.clouddm.console.web.controller.cicd;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,25 +29,24 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.console.web.component.cicd.ChangeFlowConstants;
+import com.clougence.clouddm.console.web.component.cicd.ChangeFlowWebhookPolicy;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.service.cicd.DmChangeService;
 import com.clougence.clouddm.console.web.service.cicd.DmScmService;
+import com.clougence.clouddm.console.web.service.cicd.domain.ChangeTriggerContext;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmBranchDef;
+import com.clougence.clouddm.console.web.util.ScmWebhookRequestUtils;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.scm.ScmEvent;
-import com.clougence.clouddm.sdk.scm.ScmEventStatus;
-import com.clougence.clouddm.sdk.scm.ScmProviderNames;
-import com.clougence.clouddm.sdk.scm.ScmProviderSpi;
+import com.clougence.clouddm.sdk.scm.*;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.io.IOUtils;
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,81 +73,95 @@ public class DmChangeFlowWebhookController {
         return Long.parseLong(flowId);
     }
 
-    private void verify(String owner, String flow, String config) {
-        if (StringUtils.isBlank(owner)) {
-            throw new ErrorMessageException("invalid args.");
-        }
-        long flowId = resolveFlowId(flow, config);
-
-        DmChangeFlowDO flowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(owner, flowId);
-        if (flowDO == null) {
-            throw new ErrorMessageException("not found config.");
-        } else {
-            this.dmChangeService.verifyFlow(owner, flowDO.getId());
+    @RequestMapping(value = "/event", method = RequestMethod.POST)
+    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    public ResponseEntity<ResWebData<?>> callback(@RequestParam String owner, @RequestParam(value = "flow", required = false) String flow,
+                                                  @RequestParam(value = "config", required = false) String config, @RequestParam ScmProviderNames provider,
+                                                  HttpServletRequest request) {
+        try {
+            long flowId = resolveWebhookFlowId(owner, flow, config);
+            DmChangeFlowDO gitOpsFlowDO = requireWebhookFlow(owner, flowId, provider);
+            ScmEvent eventInfo = readWebhookEvent(owner, provider, request, gitOpsFlowDO);
+            return processWebhookEvent(owner, flowId, gitOpsFlowDO, eventInfo);
+        } catch (ScmWebhookException e) {
+            return webhookResponse(e.getStatusCode(), false, e.getMessage());
+        } catch (Exception e) {
+            log.error("webhook processing failed for owner={}, flow={}", owner, flow, e);
+            return webhookResponse(500, false, "webhook processing failed");
         }
     }
 
-    @RequestMapping(value = "/event", method = RequestMethod.POST)
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    public ResWebData<?> callback(@RequestParam String owner,               //
-                                  @RequestParam(value = "flow", required = false) String flow,//
-                                  @RequestParam(value = "config", required = false) String config,//
-                                  @RequestParam ScmProviderNames provider,//
-                                  HttpServletRequest request) throws IOException {
-        this.verify(owner, flow, config);
-        long flowId = resolveFlowId(flow, config);
-
-        // parser event
-        Map<String, List<String>> headers = new HashMap<>();
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            Enumeration<String> headerData = request.getHeaders(headerName);
-            List<String> data = new ArrayList<>();
-            while (headerData.hasMoreElements()) {
-                data.add(headerData.nextElement());
-            }
-            headers.put(headerName, data);
+    private long resolveWebhookFlowId(String owner, String flow, String config) {
+        if (StringUtils.isBlank(owner)) {
+            throw new ScmWebhookException(400, "invalid owner");
         }
-        String jsonBody;
-        try (ServletInputStream in = request.getInputStream(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            IOUtils.copy(in, out);
-            jsonBody = out.toString();
-        }
-
-        DmChangeFlowDO gitOpsFlowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(owner, flowId);
-        String repoPath = gitOpsFlowDO.getScmRepoSpace();
-        String repoName = gitOpsFlowDO.getScmRepoName();
-        String bindWebhookPwd = gitOpsFlowDO.getScmBindWebhookPwd();
-        ScmProviderSpi service = PluginManager.findSpi(ScmProviderSpi.class, provider.name());
-        DmGitOpsScmDO scmDO = this.dmScmService.queryScmById(owner, gitOpsFlowDO.getRefScmId());
-        ScmEvent eventInfo = service.readEvent(scmDO.getScmServiceUrl(), scmDO.getScmAccessToken(), repoPath, repoName, bindWebhookPwd, headers, jsonBody);
-        if (eventInfo == null) {
-            return ResWebDataUtils.buildError("invalid event.");
-        }
-
-        // filter event
-        if (filterEvent(eventInfo, gitOpsFlowDO)) {
-            return ResWebDataUtils.buildSuccess("change filtered.");
-        }
-
-        // create
         try {
-            return this.dmChangeService.triggerChangeSuggest(owner, gitOpsFlowDO.getId(), eventInfo.getEventId());
+            return resolveFlowId(flow, config);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return ResWebDataUtils.buildError("change failed, " + e.getMessage());
+            throw new ScmWebhookException(400, "invalid flow");
         }
+    }
+
+    private DmChangeFlowDO requireWebhookFlow(String owner, long flowId, ScmProviderNames provider) {
+        DmChangeFlowDO flow = changeFlowDal.flowMapper().queryByOwnerAndId(owner, flowId);
+        if (flow == null || flow.isDeleted()) {
+            throw new ScmWebhookException(404, "flow not found");
+        }
+        if (flow.getRefScmType() == null || flow.getRefScmType().getProviderType() != provider) {
+            throw new ScmWebhookException(400, "provider does not match flow");
+        }
+        return flow;
+    }
+
+    private ScmEvent readWebhookEvent(String owner, ScmProviderNames provider, HttpServletRequest request, DmChangeFlowDO flow) throws IOException {
+        DmGitOpsScmDO scm = dmScmService.queryScmById(owner, flow.getRefScmId());
+        ScmProviderSpi providerSpi = PluginManager.findSpi(ScmProviderSpi.class, provider.name());
+        if (scm == null || providerSpi == null) {
+            throw new ScmWebhookException(404, "SCM provider not found");
+        }
+
+        Map<String, List<String>> headers = ScmWebhookRequestUtils.readHeaders(request);
+        String jsonBody = ScmWebhookRequestUtils.readUtf8Body(request, ChangeFlowConstants.MAX_WEBHOOK_BODY_BYTES);
+        return providerSpi.readEvent(scm.getScmServiceUrl(), scm.getScmAccessToken(), flow.getScmRepoIdentifier(), flow.getScmRepoSpace(), flow.getScmRepoName(), flow
+            .getScmBindWebhookPwd(), flow.getScmBindWebhookSigningToken(), headers, jsonBody);
+    }
+
+    private ResponseEntity<ResWebData<?>> processWebhookEvent(String owner, long flowId, DmChangeFlowDO flow, ScmEvent event) {
+        if (event == null || filterEvent(event, flow)) {
+            return webhookResponse(200, true, "event filtered");
+        }
+        if (!ChangeFlowWebhookPolicy.isCommitShaValid(event.getEventId())) {
+            throw new ScmWebhookException(400, "event commit SHA is missing or invalid");
+        }
+        if (!ChangeFlowWebhookPolicy.isDeliveryIdValid(event.getDeliveryId())) {
+            throw new ScmWebhookException(400, "webhook delivery identifier is too long");
+        }
+        // Provider authentication has completed; invalid requests must not consume the authenticated flow quota.
+        if (!ChangeFlowWebhookPolicy.allowRequest(owner, flowId)) {
+            throw new ScmWebhookException(429, "webhook rate limit exceeded");
+        }
+        try {
+            dmChangeService.verifyFlow(owner, flowId);
+        } catch (ErrorMessageException e) {
+            throw new ScmWebhookException(400, e.getMessage());
+        }
+        refreshRepoMetadata(owner, flowId, event, flow);
+
+        ChangeTriggerContext triggerContext = ChangeTriggerContext.webhook(event.getEventId(), event.getDeliveryId(), event.getEventType());
+        ResWebData<String> result = dmChangeService.triggerChangeSuggest(owner, flowId, triggerContext);
+        return ResponseEntity.ok(result.isSuccess() ? result : ResWebDataUtils.buildSuccess(result.getData()));
     }
 
     // keep create.
     private static boolean filterEvent(ScmEvent eventInfo, DmChangeFlowDO gitOpsFlowDO) {
-        boolean eqRepoPath = StringUtils.equals(eventInfo.getTarRepoPath(), gitOpsFlowDO.getScmRepoSpace());
-        boolean eqRepoName = StringUtils.equals(eventInfo.getTarRepoName(), gitOpsFlowDO.getScmRepoName());
+        boolean hasStableId = StringUtils.isNotBlank(gitOpsFlowDO.getScmRepoIdentifier());
+        boolean eqRepoId = !hasStableId || StringUtils.equals(eventInfo.getTarRepoId(), gitOpsFlowDO.getScmRepoIdentifier());
+        boolean eqRepoPath = hasStableId || StringUtils.equals(eventInfo.getTarRepoPath(), gitOpsFlowDO.getScmRepoSpace());
+        boolean eqRepoName = hasStableId || StringUtils.equals(eventInfo.getTarRepoName(), gitOpsFlowDO.getScmRepoName());
         boolean eqRepoBranch = StringUtils.equals(eventInfo.getTarRepoBranch(), gitOpsFlowDO.getScmRepoBranch());
         //boolean eqBind = StringUtils.equals(eventInfo.getHookId(), gitOpsFlowDO.getScmBindWebhook());
         boolean eqEvent = eventInfo.getEventType() == gitOpsFlowDO.getScmRepoEvent();
-        if (!eqRepoPath || !eqRepoName || !eqRepoBranch || !eqEvent) {
+        if (!eqRepoId || !eqRepoPath || !eqRepoName || !eqRepoBranch || !eqEvent) {
             return true;
         }
 
@@ -165,14 +178,33 @@ public class DmChangeFlowWebhookController {
         return false;
     }
 
+    private void refreshRepoMetadata(String owner, long flowId, ScmEvent event, DmChangeFlowDO flow) {
+        if (!StringUtils.equals(event.getTarRepoId(), flow.getScmRepoIdentifier())) {
+            return;
+        }
+        if (!StringUtils.equals(event.getTarRepoPath(), flow.getScmRepoSpace()) || !StringUtils.equals(event.getTarRepoName(), flow.getScmRepoName())
+            || (StringUtils.isNotBlank(event.getTarRepoUrl()) && !StringUtils.equals(event.getTarRepoUrl(), flow.getScmRepoUrl()))) {
+            changeFlowDal.flowMapper()
+                .updateScmRepoMetadata(owner, flowId, event.getTarRepoPath(), event
+                    .getTarRepoName(), StringUtils.isBlank(event.getTarRepoUrl()) ? flow.getScmRepoUrl() : event.getTarRepoUrl());
+        }
+    }
+
+    private static ResponseEntity<ResWebData<?>> webhookResponse(int status, boolean success, String message) {
+        ResWebData<?> body = success ? ResWebDataUtils.buildSuccess(message) : ResWebDataUtils.buildError(message);
+        return ResponseEntity.status(status).body(body);
+    }
+
     @RequestMapping(value = "/trigger", method = RequestMethod.GET)
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     public ResponseEntity<String> trigger(@RequestParam String owner, @RequestParam(value = "flow", required = false) String flow,
                                           @RequestParam(value = "config", required = false) String config, @RequestParam String token, @RequestParam String format) {
         try {
-            this.verify(owner, flow, config);
             long flowId = resolveFlowId(flow, config);
             DmChangeFlowDO gitOpsFlowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(owner, flowId);
+            if (gitOpsFlowDO == null) {
+                return this.responseData(format, false, "flow not found.", 404);
+            }
             if (!gitOpsFlowDO.isEnableTrigger()) {
                 return this.responseData(format, false, "trigger is disable.", 500);
             }
@@ -183,13 +215,15 @@ public class DmChangeFlowWebhookController {
             String ownerUid = gitOpsFlowDO.getOwnerUid();
 
             this.dmChangeService.verifyFlow(ownerUid, gitOpsFlowDO.getId());
-            DmBranchDef branch = this.dmScmService.fetchBranchByScmAndRepo(ownerUid, gitOpsFlowDO.getRefScmId(), gitOpsFlowDO.getScmRepoName(), gitOpsFlowDO.getScmRepoBranch());
+            DmBranchDef branch = this.dmScmService.fetchBranchByScmAndRepo(ownerUid, gitOpsFlowDO.getRefScmId(), gitOpsFlowDO.getScmRepoIdentifier(), gitOpsFlowDO
+                .getScmRepoSpace(), gitOpsFlowDO.getScmRepoName(), gitOpsFlowDO.getScmRepoBranch());
             if (branch == null) {
                 return this.responseData(format, false, "branch not exist.", 500);
             }
 
             // create
-            ResWebData<String> res = this.dmChangeService.triggerChangeSuggest(ownerUid, gitOpsFlowDO.getId(), branch.getBranchCommitId());
+            ChangeTriggerContext triggerContext = ChangeTriggerContext.remote(branch.getBranchCommitId());
+            ResWebData<String> res = this.dmChangeService.triggerChangeSuggest(ownerUid, gitOpsFlowDO.getId(), triggerContext);
             if (res.isSuccess()) {
                 return this.responseData(format, true, res.getData(), 200);
             } else {

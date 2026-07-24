@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -34,6 +36,8 @@ public interface DmChangeFlowMapper extends BaseMapper<DmChangeFlowDO> {
     List<DmChangeFlowDO> queryByIds(String ownerUid, Collection<Long> flowIds);
 
     DmChangeFlowDO queryByOwnerAndId(String ownerUid, long flowId);
+
+    DmChangeFlowDO queryByOwnerAndIdForUpdate(String ownerUid, long flowId);
 
     List<DmChangeFlowDO> queryEnabledByOwnerAndDsId(String ownerUid, long dsId);
 
@@ -76,4 +80,9 @@ public interface DmChangeFlowMapper extends BaseMapper<DmChangeFlowDO> {
     void configCallBackByOwnerAndId(String ownerUid, long flowId, boolean enable, String httpMethod, String httpUrl);
 
     void configTriggerByOwnerAndId(String ownerUid, long flowId, boolean enable, String token);
+
+    void updateScmRepoMetadata(@Param("ownerUid") String ownerUid, @Param("flowId") long flowId, @Param("repoSpace") String repoSpace, @Param("repoName") String repoName,
+                               @Param("repoUrl") String repoUrl);
+
+    void updateWebhookSigningToken(@Param("ownerUid") String ownerUid, @Param("flowId") long flowId, @Param("signingToken") String signingToken);
 }

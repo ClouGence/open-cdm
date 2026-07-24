@@ -96,6 +96,7 @@
     "@vue/cli-plugin-unit-jest": "5.0.8",
     "@vue/cli-plugin-vuex": "5.0.8",
     "@vue/cli-service": "5.0.8",
+    "@vue/vue3-jest": "27.0.0-alpha.3",
     "babel-loader": "9.2.1",
     "babel-plugin-import": "^1.13.3",
     "babel-plugin-transform-remove-console": "6.9.4",

@@ -56,7 +56,12 @@
           <div class="release-grid pipeline-overview">
             <div class="release-panel">
               <div class="panel-subheading">
-                <CustomIcon :type="scmIconType" size="24px" />
+                <CustomIcon
+                  :resource="getScmIconResource(primaryDevops?.scmType)"
+                  :type="scmIconType"
+                  :alt="getScmDisplayName(primaryDevops?.scmType)"
+                  size="24px"
+                />
                 <span>{{ $t('cicd-git-cang-ku') }}</span>
               </div>
               <div class="endpoint-row">
@@ -152,17 +157,30 @@
           <FormItem :label="$t('fu-wu-shang')" prop="repoScmId" key="repoScmId">
             <Select v-model="formModal.repoScmId" class="flow-base" @on-change="handleDevopsScmSelected">
               <Option v-for="item in devopsScmList" :value="item.scmId" :key="item.scmId">
-                <CustomIcon :type="item.scmType" rightMargin />
+                <CustomIcon :resource="getScmIconResource(item.scmType)" :type="item.scmType" :alt="item.scmTypeI18n || ''" rightMargin />
                 {{ item.scmDisplay }}
               </Option>
             </Select>
           </FormItem>
-          <FormItem :label="$t('xuan-ze-cang-ku')" prop="repoName" key="repoName">
+          <FormItem :label="$t('xuan-ze-cang-ku')" prop="repoSelectionKey" key="repoSelectionKey">
             <div style="display: flex; align-items: center">
-              <Select class="flow-base" v-model="formModal.repoName" :disabled="!devopsScmSelected" @on-change="handleDevopsRepoSelected" filterable>
+              <Select
+                class="flow-base"
+                v-model="formModal.repoSelectionKey"
+                :disabled="!devopsScmSelected"
+                @on-change="handleDevopsRepoSelected"
+                filterable
+              >
                 <OptionGroup v-for="(repoGroup, namespace) in devopsRepoListByGroup" :label="namespace" :key="namespace">
-                  <Option v-for="repo in repoGroup" :value="repo.repoName" :key="repo.repoUrl" :label="repo.repoName">
+                  <Option
+                    v-for="repo in repoGroup"
+                    :value="getRepoSelectionKey(repo)"
+                    :key="getRepoSelectionKey(repo)"
+                    :label="repo.repoPath || repo.repoName"
+                    :disabled="repo.empty"
+                  >
                     <span>{{ repo.repoName }}</span>
+                    <span v-if="repo.empty">（{{ $t('kong-cang-ku') }}）</span>
                     <span style="float: right">
                       <CustomIcon type="icon-v2-jicheng" @click.native.stop="handleDevopsJumpToRepo(repo.repoHome)" />
                     </span>
@@ -315,7 +333,9 @@
       <template #footer>
         <div class="config-modal-footer">
           <Button @click="handleCloseAllDrawer">{{ $t('qu-xiao') }}</Button>
-          <Button type="primary" @click="handleImSubmit" :disabled="isImSubmitDisabled">{{ $t('bao-cun') }}</Button>
+          <Button type="primary" @click="handleImSubmit" :disabled="isImSubmitDisabled">
+            {{ $t('bao-cun') }}
+          </Button>
         </div>
       </template>
     </CCModal>
@@ -335,7 +355,9 @@
               <Radio label="Suggest">{{ SQL_REVIEW_MAP.suggest }}</Radio>
               <Radio label="Failure">{{ SQL_REVIEW_MAP.failure }}</Radio>
             </RadioGroup>
-            <div class="execution-config-desc">{{ fetchChangeFlowDescription('check', flowOption.checkStrategy) }}</div>
+            <div class="execution-config-desc">
+              {{ fetchChangeFlowDescription('check', flowOption.checkStrategy) }}
+            </div>
           </div>
           <div class="execution-config-row">
             <div class="execution-config-name">
@@ -348,7 +370,9 @@
               <Radio label="Enable">{{ APPROVE_MAP.Enable }}</Radio>
               <Radio label="Disable">{{ APPROVE_MAP.Disable }}</Radio>
             </RadioGroup>
-            <div class="execution-config-desc">{{ fetchChangeFlowDescription('approve', flowOption.approveStrategy) }}</div>
+            <div class="execution-config-desc">
+              {{ fetchChangeFlowDescription('approve', flowOption.approveStrategy) }}
+            </div>
           </div>
           <div class="execution-config-row">
             <div class="execution-config-name">
@@ -362,7 +386,9 @@
               <Radio label="Manual">{{ PUBLISH_MAP.manual }}</Radio>
               <Radio label="Disabled">{{ PUBLISH_MAP.disabled }}</Radio>
             </RadioGroup>
-            <div class="execution-config-desc">{{ fetchChangeFlowDescription('execute', flowOption.executeStrategy) }}</div>
+            <div class="execution-config-desc">
+              {{ fetchChangeFlowDescription('execute', flowOption.executeStrategy) }}
+            </div>
           </div>
           <div class="execution-config-row">
             <div class="execution-config-name">
@@ -389,7 +415,9 @@
               <Radio label="RETRY" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.retry }}</Radio>
               <Radio label="SKIP" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.ignore }}</Radio>
             </RadioGroup>
-            <div class="execution-config-desc">{{ fetchChangeFlowDescription('error', flowOption.errorStrategy) }}</div>
+            <div class="execution-config-desc">
+              {{ fetchChangeFlowDescription('error', flowOption.errorStrategy) }}
+            </div>
           </div>
         </div>
       </div>
@@ -412,7 +440,9 @@
                 <div class="config-modal-control">
                   <i-switch true-color="#52C41A" v-model="trigger.hookEnable" />
                 </div>
-                <div class="config-modal-desc">{{ trigger.hookEnable ? $t('yi-kai-qi') : $t('wei-qi-yong') }}</div>
+                <div class="config-modal-desc">
+                  {{ trigger.hookEnable ? $t('yi-kai-qi') : $t('wei-qi-yong') }}
+                </div>
               </div>
               <div class="config-modal-row">
                 <div class="config-modal-label">{{ $t('cang-ku') }}</div>
@@ -447,6 +477,22 @@
                 </div>
                 <div class="config-modal-desc">{{ $t('cicd-webhook-password-desc') }}</div>
               </div>
+              <div v-if="triggerOriginal.scmType === 'Gitlab'" class="config-modal-row">
+                <div class="config-modal-label">{{ $t('gitlab-signing-token') }}</div>
+                <div class="config-modal-control signing-token-control">
+                  <Input
+                    v-model="trigger.hookSigningToken"
+                    type="password"
+                    autocomplete="new-password"
+                    :disabled="!trigger.hookEnable || trigger.clearHookSigningToken"
+                    :placeholder="trigger.hookSigningTokenConfigured ? $t('gitlab-signing-token-configured') : ''"
+                  />
+                  <Checkbox v-if="trigger.hookSigningTokenConfigured" v-model="trigger.clearHookSigningToken">
+                    {{ $t('clear-signing-token') }}
+                  </Checkbox>
+                </div>
+                <div class="config-modal-desc">{{ $t('gitlab-signing-token-hint') }}</div>
+              </div>
             </div>
           </TabPane>
           <TabPane :label="triggerTabLabel('TriggerUrl')" name="TriggerUrl">
@@ -457,7 +503,9 @@
                 <div class="config-modal-control">
                   <i-switch true-color="#52C41A" v-model="trigger.triggerEnable" />
                 </div>
-                <div class="config-modal-desc">{{ trigger.triggerEnable ? $t('yi-kai-qi') : $t('wei-qi-yong') }}</div>
+                <div class="config-modal-desc">
+                  {{ trigger.triggerEnable ? $t('yi-kai-qi') : $t('wei-qi-yong') }}
+                </div>
               </div>
               <div class="config-modal-row">
                 <div class="config-modal-label">{{ $t('token') }}</div>
@@ -541,7 +589,9 @@
             <div class="config-modal-control">
               <i-switch true-color="#52C41A" v-model="callbackData.enable" />
             </div>
-            <div class="config-modal-desc">{{ callbackData.enable ? $t('yi-kai-qi') : $t('wei-qi-yong') }}</div>
+            <div class="config-modal-desc">
+              {{ callbackData.enable ? $t('yi-kai-qi') : $t('wei-qi-yong') }}
+            </div>
           </div>
           <div class="config-modal-row callback-config-row">
             <div class="config-modal-label">{{ $t('callback-method') }}</div>
@@ -569,7 +619,9 @@
       <template #footer>
         <div class="config-modal-footer">
           <Button @click="showCallbackModal = false">{{ $t('qu-xiao') }}</Button>
-          <Button @click="handleJumpUrl('https://clougence.com/dm-doc/devops/devops_callback')">{{ $t('cha-kan-wen-dang') }}</Button>
+          <Button @click="handleJumpUrl('https://clougence.com/dm-doc/devops/devops_callback')">
+            {{ $t('cha-kan-wen-dang') }}
+          </Button>
           <Button type="primary" @click="handleSaveCallBack">{{ $t('bao-cun') }}</Button>
         </div>
       </template>
@@ -600,7 +652,7 @@ import {
   PUBLISH_MAP,
   SQL_REVIEW_MAP
 } from './constant';
-import { DEFAULT_FLOW_OPTION, groupByRepoNamespace } from './utils';
+import { DEFAULT_FLOW_OPTION, getRepoSelectionKey, getScmDisplayName, getScmIconResource, groupByRepoNamespace } from './utils';
 
 export default {
   name: 'cicd-flow',
@@ -706,7 +758,12 @@ export default {
           status: statusText(this.triggerConfigured),
           statusClass: statusClass(this.triggerConfigured),
           desc: this.$t('cicd-pei-zhi-chu-fa-tiao-jian-yu-zhi-xing-ce-lve'),
-          actions: [{ label: this.$t('cha-kan-pei-zhi'), type: this.triggerConfigured ? 'viewTrigger' : 'editTrigger' }]
+          actions: [
+            {
+              label: this.$t('cha-kan-pei-zhi'),
+              type: this.triggerConfigured ? 'viewTrigger' : 'editTrigger'
+            }
+          ]
         },
         {
           key: 'callback',
@@ -803,6 +860,9 @@ export default {
         hookEnable: false,
         hookUrl: '',
         hookPassword: '',
+        hookSigningToken: '',
+        hookSigningTokenConfigured: false,
+        clearHookSigningToken: false,
         hookRepoUrl: '',
         hookHelpUrl: '',
         triggerEnable: false,
@@ -821,7 +881,7 @@ export default {
       },
       //
       changeList: [],
-      pageTotal: null,
+      pageTotal: 0,
       pageNum: 1,
       pageSize: 10,
       keyword: '',
@@ -847,6 +907,9 @@ export default {
     this.init();
   },
   methods: {
+    getRepoSelectionKey,
+    getScmDisplayName,
+    getScmIconResource,
     groupByRepoNamespace,
     handleCopy,
     init() {
@@ -1258,27 +1321,40 @@ export default {
       const res = await this.$services.dmCicdDevopsScmList();
 
       if (res.success) {
-        this.devopsScmList = res.data;
+        this.devopsScmList = res.data || [];
       }
     },
     async handleDevopsScmSelected() {
-      this.devopsScmSelected = this.devopsScmList.find((scm) => scm.scmId === this.formModal.repoScmId);
+      this.devopsScmSelected = this.devopsScmList.find((scm) => String(scm.scmId) === String(this.formModal.repoScmId)) || null;
+      this.formModal.repoSelectionKey = '';
+      this.formModal.repoId = '';
+      this.formModal.repoPath = '';
+      this.formModal.repoName = '';
+      this.formModal.repoScmUrl = '';
+      this.formModal.repoBranch = '';
+      this.formModal.repoSpace = '';
+      this.devopsRepoSelected = null;
+      this.devopsRepoList = [];
+      this.devopsRepoListByGroup = {};
       if (this.formModal.repoScmId) {
         await this.fetchDevopsScmRepos();
       }
     },
     async fetchDevopsScmRepos() {
       this.repoLoading = true;
-      const res = await this.$services.dmCicdDevopsRepos({
-        data: {
-          scmId: this.formModal.repoScmId
-        }
-      });
-      this.repoLoading = false;
+      try {
+        const res = await this.$services.dmCicdDevopsRepos({
+          data: {
+            scmId: this.formModal.repoScmId
+          }
+        });
 
-      if (res.success) {
-        this.devopsRepoList = res.data;
-        this.devopsRepoListByGroup = this.groupByRepoNamespace(res.data || []);
+        if (res.success) {
+          this.devopsRepoList = res.data || [];
+          this.devopsRepoListByGroup = this.groupByRepoNamespace(this.devopsRepoList);
+        }
+      } finally {
+        this.repoLoading = false;
       }
     },
     handleDevopsJumpToRepo(url) {
@@ -1287,8 +1363,11 @@ export default {
       }
     },
     handleDevopsRepoSelected() {
-      this.devopsRepoSelected = this.devopsRepoList.find((repo) => repo.repoName === this.formModal.repoName);
+      this.devopsRepoSelected = this.devopsRepoList.find((repo) => this.getRepoSelectionKey(repo) === this.formModal.repoSelectionKey) || null;
       if (this.devopsRepoSelected) {
+        this.formModal.repoId = this.devopsRepoSelected.repoId;
+        this.formModal.repoPath = this.devopsRepoSelected.repoPath;
+        this.formModal.repoName = this.devopsRepoSelected.repoName;
         this.formModal.repoScmUrl = this.devopsRepoSelected.repoUrl;
         this.formModal.repoBranch = this.devopsRepoSelected.repoBranch;
         this.formModal.repoSpace = this.devopsRepoSelected.repoSpace;
@@ -1393,6 +1472,8 @@ export default {
         pipeline: {
           repoScmId: this.formModal.repoScmId,
           repoScmUrl: this.formModal.repoScmUrl,
+          repoId: this.formModal.repoId,
+          repoPath: this.formModal.repoPath,
           repoSpace: this.formModal.repoSpace,
           repoName: this.formModal.repoName,
           repoBranch: this.formModal.repoBranch,
@@ -1452,6 +1533,9 @@ export default {
         hookEnable: item.webHookEnable,
         hookUrl: item.webHookUrl,
         hookPassword: item.webHookPwd,
+        hookSigningToken: '',
+        hookSigningTokenConfigured: item.webHookSigningTokenConfigured,
+        clearHookSigningToken: false,
         hookHelpUrl: item.webHookHelpUrl,
         hookRepoUrl: item.repoUrl,
         triggerEnable: item.triggerEnable,
@@ -1510,6 +1594,8 @@ export default {
           updateHook: this.triggerTab === 'WebHook',
           updateTrigger: this.triggerTab === 'TriggerUrl',
           hookEnable: this.trigger.hookEnable,
+          hookSigningToken: this.trigger.clearHookSigningToken ? '' : this.trigger.hookSigningToken,
+          clearHookSigningToken: this.trigger.clearHookSigningToken,
           triggerEnable: this.trigger.triggerEnable
         }
       });
@@ -1563,10 +1649,16 @@ export default {
       });
 
       this.loading = false;
-      this.changeList = res.data.records;
-      this.pageNum = res.data.current;
-      this.pageSize = res.data.size;
-      this.pageTotal = res.data.total;
+      if (!res.success || !res.data) {
+        this.changeList = [];
+        this.pageTotal = 0;
+        return;
+      }
+
+      this.changeList = res.data.records || [];
+      this.pageNum = res.data.current || this.pageNum;
+      this.pageSize = res.data.size || this.pageSize;
+      this.pageTotal = res.data.total || 0;
     },
     changeStepColor(step, row) {
       if (row.currentStep === 'INIT_SNAPSHOT') {
@@ -2806,6 +2898,11 @@ export default {
     align-items: center;
     cursor: pointer;
   }
+}
+
+.signing-token-control {
+  display: grid;
+  gap: 8px;
 }
 
 .config-modal-radio {

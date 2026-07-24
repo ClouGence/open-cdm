@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.component.cicd.action;
 
 import java.io.File;
-import java.io.FileReader;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -26,19 +25,16 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.component.cicd.CicdSqlFileUtils;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.scm.ScmProvider;
-import com.clougence.clouddm.sdk.scm.ScmProviderSpi;
-import com.clougence.clouddm.sdk.scm.ScmRepo;
-import com.clougence.clouddm.sdk.scm.ScmSaveTo;
+import com.clougence.clouddm.sdk.scm.*;
 import com.clougence.utils.i18n.I18nUtils;
 import com.clougence.utils.io.FileUtils;
-import com.clougence.utils.io.IOUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,7 +75,7 @@ public class ChangeActionForInitSnapshot extends AbstractChangeAction {
         // foreach local file script
         File scriptPath = new File(checkoutPath, gitOpsFlowDO.getScmRepoScript());
         List<File> files = FileUtils.walkDown(scriptPath, file -> {
-            return file.isDirectory() || (file.isFile() && file.getName().endsWith(".sql"));
+            return file.isDirectory() || (file.isFile() && file.getName().toLowerCase(Locale.ROOT).endsWith(".sql"));
         }).stream().filter(File::isFile).collect(Collectors.toList());
 
         // fileMap for new
@@ -88,16 +84,14 @@ public class ChangeActionForInitSnapshot extends AbstractChangeAction {
         files.sort(Comparator.comparing(File::getName));
         for (File file : files) {
             String fileName = file.getAbsolutePath().substring(basePathLength + 1);
-            try (FileReader reader = new FileReader(file)) {
-                DmChangeFlowItemDO itemDO = new DmChangeFlowItemDO();
-                itemDO.setOwnerUid(change.getOwnerUid());
-                itemDO.setRefFlowId(change.getRefFlowId());
-                itemDO.setRefFlowId(gitOpsFlowDO.getId());
-                itemDO.setContentName(fileName);
-                itemDO.setContentIndex(i++);
-                itemDO.setContent(IOUtils.toString(reader));
-                this.changeFlowDal.flowItemMapper().insert(itemDO);
-            }
+            DmChangeFlowItemDO itemDO = new DmChangeFlowItemDO();
+            itemDO.setOwnerUid(change.getOwnerUid());
+            itemDO.setRefFlowId(change.getRefFlowId());
+            itemDO.setRefFlowId(gitOpsFlowDO.getId());
+            itemDO.setContentName(fileName);
+            itemDO.setContentIndex(i++);
+            itemDO.setContent(CicdSqlFileUtils.readUtf8(file));
+            this.changeFlowDal.flowItemMapper().insert(itemDO);
         }
 
         changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.FINISH, "");
@@ -130,9 +124,15 @@ public class ChangeActionForInitSnapshot extends AbstractChangeAction {
         scm.setAccessToken(scmDO.getScmAccessToken());
         scm.setServiceUrl(scmDO.getScmServiceUrl());
         ScmRepo repo = new ScmRepo();
+        String repoSpace = gitOpsFlowDO.getScmRepoSpace();
+        String repoName = gitOpsFlowDO.getScmRepoName();
+        repo.setRepoId(gitOpsFlowDO.getScmRepoIdentifier());
+        repo.setRepoPath(ScmPathUtils.buildRepoPath(repoSpace, repoName));
+        repo.setRepoSpace(repoSpace);
         repo.setRepoUrl(gitOpsFlowDO.getScmRepoUrl());
-        repo.setRepoName(gitOpsFlowDO.getScmRepoName());
+        repo.setRepoName(repoName);
         repo.setBranchName(gitOpsFlowDO.getScmRepoBranch());
+        repo.setCommitId(change.getLastCommitId());
         ScmSaveTo saveTo = new ScmSaveTo();
         saveTo.setSaveToLocal(checkoutPath);
         saveTo.setTempPath(tempPath);

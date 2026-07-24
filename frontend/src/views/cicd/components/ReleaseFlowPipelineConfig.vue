@@ -4,7 +4,7 @@
     <div class="release-grid">
       <div class="release-panel">
         <div class="panel-subheading">
-          <CustomIcon type="icon-v2-Gitee" size="20px" />
+          <CustomIcon :resource="getScmIconResource(sourceScmType)" size="20px" />
           <span>{{ $t('fa-bu-yuan') }}</span>
         </div>
 
@@ -20,8 +20,7 @@
                 :aria-pressed="sourceScmType === sourceType.value"
                 @click="$emit('source-type-select', sourceType.value)"
               >
-                <CustomIcon v-if="sourceType.iconResource" :resource="sourceType.iconResource" :alt="sourceType.label" size="18px" />
-                <CustomIcon v-else :type="sourceType.iconType" size="18px" />
+                <CustomIcon :resource="sourceType.iconResource || getScmIconResource(sourceType.value)" :alt="sourceType.label" size="18px" />
                 <span>{{ sourceType.label }}</span>
               </button>
             </div>
@@ -41,18 +40,18 @@
               @on-open-change="$emit('select-open-change', $event, $refs.gitOpsSelect)"
             >
               <Option v-for="item in filteredDevopsScmList" :value="item.scmId" :key="item.scmId" :label="item.scmDisplay">
-                <CustomIcon :type="item.scmType" rightMargin />
+                <CustomIcon :resource="getScmIconResource(item.scmType)" :type="item.scmType" :alt="item.scmTypeI18n || ''" rightMargin />
                 {{ item.scmDisplay }}
               </Option>
             </Select>
             <Button v-else type="text" @click="$emit('add-scm')">{{ $t('qu-pei-zhi') }}</Button>
           </FormItem>
 
-          <FormItem :label="$t('cang-ku')" prop="repoName">
+          <FormItem :label="$t('cang-ku')" prop="repoSelectionKey">
             <div class="inline-control repo-control">
               <Select
                 ref="repoSelect"
-                v-model="flowGitOpsForm.repoName"
+                v-model="flowGitOpsForm.repoSelectionKey"
                 :disabled="!devopsScmSelected"
                 placement="bottom-start"
                 transfer
@@ -64,8 +63,15 @@
                 :not-found-text="$t('zan-wu-shu-ju')"
               >
                 <OptionGroup v-for="(repoGroup, namespace) in devopsRepoListByGroup" :label="namespace" :key="namespace">
-                  <Option v-for="repo in repoGroup" :value="repo.repoName" :key="repo.repoUrl" :label="repo.repoName">
+                  <Option
+                    v-for="repo in repoGroup"
+                    :value="getRepoSelectionKey(repo)"
+                    :key="getRepoSelectionKey(repo)"
+                    :label="repo.repoPath || repo.repoName"
+                    :disabled="repo.empty"
+                  >
                     <span>{{ repo.repoName }}</span>
+                    <span v-if="repo.empty" class="repo-empty-label">{{ $t('kong-cang-ku') }}</span>
                     <span class="repo-link">
                       <CustomIcon type="icon-v2-jicheng" @click.stop="$emit('repo-jump', repo.repoHome)" />
                     </span>
@@ -237,7 +243,9 @@
                     {{ item.label }}
                   </Radio>
                 </RadioGroup>
-                <div class="field-hint init-radio-hint">{{ flowGitOpsDescription(flowGitOpsForm.initScript) }}</div>
+                <div class="field-hint init-radio-hint">
+                  {{ flowGitOpsDescription(flowGitOpsForm.initScript) }}
+                </div>
               </div>
             </div>
           </FormItem>
@@ -248,6 +256,8 @@
 </template>
 
 <script>
+import { getRepoSelectionKey, getScmIconResource } from '../utils';
+
 export default {
   name: 'ReleaseFlowPipelineConfig',
   props: {
@@ -302,6 +312,8 @@ export default {
     'ds-setting'
   ],
   methods: {
+    getRepoSelectionKey,
+    getScmIconResource,
     handleDatabaseTypeSelect(type) {
       this.databaseTypeSearchKeyword = '';
       this.$emit('database-type-select', type);
@@ -331,3 +343,11 @@ export default {
   }
 };
 </script>
+
+<style lang="less" scoped>
+.repo-empty-label {
+  margin-left: 8px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+</style>

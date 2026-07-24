@@ -30,6 +30,7 @@ import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
+import com.clougence.clouddm.console.web.service.cicd.domain.ChangeTriggerContext;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggest;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeItemDO;
@@ -68,6 +69,8 @@ public interface DmChangeService {
 
     void skipExecTask(String ownerUid, String curUid, long changeId, long taskId);
 
+    void continueExecTask(String ownerUid, long changeId, long taskId);
+
     void retryChange(String ownerUid, String curUid, long changeId);
 
     void restartChange(String ownerUid, String curUid, long changeId);
@@ -78,5 +81,5 @@ public interface DmChangeService {
 
     CreateSuggest createChangeSuggest(String ownerUid, long flowId, String commitId);
 
-    ResWebData<String> triggerChangeSuggest(String ownerUid, long flowId, String commitId);
+    ResWebData<String> triggerChangeSuggest(String ownerUid, long flowId, ChangeTriggerContext triggerContext);
 }

@@ -20,7 +20,8 @@ import com.clougence.utils.StringUtils;
 public enum ScmProviderNames {
 
     Gitee,
-    Github,;
+    Github,
+    Gitlab,;
 
     public static ScmProviderNames valueOfCode(String code) {
         if (StringUtils.isBlank(code)) {

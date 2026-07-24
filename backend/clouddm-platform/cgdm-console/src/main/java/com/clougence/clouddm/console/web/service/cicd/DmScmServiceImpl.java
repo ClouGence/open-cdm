@@ -17,13 +17,11 @@ package com.clougence.clouddm.console.web.service.cicd;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
@@ -34,13 +32,13 @@ import com.clougence.clouddm.console.web.model.fo.cicd.DevopsScmUpdateFO;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmBranchDef;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmRepoDef;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmScmDef;
+import com.clougence.clouddm.console.web.service.cicd.domain.ScmConnectionTestResult;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.scm.ScmBranch;
-import com.clougence.clouddm.sdk.scm.ScmProviderSpi;
-import com.clougence.clouddm.sdk.scm.ScmRepo;
+import com.clougence.clouddm.sdk.scm.*;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -119,6 +117,9 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
             fo.setDisplay(scmTypeI18n + "-" + nowStr);
         }
 
+        fo.setServiceUrl(normalizeAndValidateUrl(fo.getScmType(), fo.getServiceUrl(), fo.isPlainHttpAcknowledged()));
+        testScmByConfig(ownerUid, fo);
+
         DmGitOpsScmDO scmDO = new DmGitOpsScmDO();
         scmDO.setOwnerUid(ownerUid);
         scmDO.setScmType(fo.getScmType());
@@ -135,16 +136,53 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
     }
 
     @Override
-    public void updateScmById(String ownerUid, DevopsScmUpdateFO fo) {
+    @Transactional(rollbackFor = Throwable.class)
+    public List<Long> updateScmById(String ownerUid, DevopsScmUpdateFO fo) {
+        DmGitOpsScmDO current = queryScmById(ownerUid, fo.getScmId());
+        if (current == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
+        }
+        String serviceUrl = current.getScmServiceUrl();
+        if (StringUtils.isNotBlank(fo.getNewServiceUrl())) {
+            boolean currentHttpUrl = StringUtils.equals(fo.getNewServiceUrl().trim(), current.getScmServiceUrl());
+            serviceUrl = normalizeAndValidateUrl(current.getScmType(), fo.getNewServiceUrl(), currentHttpUrl || fo.isPlainHttpAcknowledged());
+        }
+        String accessToken = StringUtils.isBlank(fo.getNewAccessToken()) ? current.getScmAccessToken() : fo.getNewAccessToken();
+        boolean urlChanged = !StringUtils.equals(serviceUrl, current.getScmServiceUrl());
+        boolean tokenChanged = StringUtils.isNotBlank(fo.getNewAccessToken());
+        List<DmChangeFlowDO> activeFlows = changeFlowDal.flowMapper().queryEnabledByOwnerAndScmId(ownerUid, fo.getScmId());
+        List<Long> affectedFlowIds = activeFlows.stream().map(DmChangeFlowDO::getId).collect(Collectors.toList());
+
+        ScmProviderSpi provider = provider(current.getScmType());
+        if (urlChanged && !activeFlows.isEmpty() && !fo.isForce()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_URL_CHANGE_INUSE.name(), affectedFlowIds));
+        }
+        if (urlChanged || tokenChanged) {
+            provider.fetchRepoList(serviceUrl, accessToken, null);
+        }
+        if (tokenChanged && !urlChanged) {
+            for (DmChangeFlowDO flow : activeFlows) {
+                ScmRepo repo = toScmRepo(flow);
+                List<ScmBranch> branches = provider.fetchBranchList(serviceUrl, accessToken, repo, flow.getScmRepoBranch(), true);
+                if (findExactBranch(branches, flow.getScmRepoBranch()) == null) {
+                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_BRANCH_NOT_EXIST_ERROR.name()));
+                }
+            }
+        }
+
         if (StringUtils.isNotBlank(fo.getNewDisplay())) {
             this.changeFlowDal.scmMapper().updateDisplayByOwnerAndId(ownerUid, fo.getScmId(), fo.getNewDisplay());
         }
-        if (StringUtils.isNotBlank(fo.getNewServiceUrl())) {
-            this.changeFlowDal.scmMapper().updateUrlByOwnerAndId(ownerUid, fo.getScmId(), fo.getNewServiceUrl());
+        if (urlChanged) {
+            this.changeFlowDal.scmMapper().updateUrlByOwnerAndId(ownerUid, fo.getScmId(), serviceUrl);
+            if (!activeFlows.isEmpty()) {
+                this.changeFlowDal.flowMapper().disableByOwnerAndScmId(ownerUid, fo.getScmId());
+            }
         }
         if (StringUtils.isNotBlank(fo.getNewAccessToken())) {
             this.changeFlowDal.scmMapper().updateTokenByOwnerAndId(ownerUid, fo.getScmId(), fo.getNewAccessToken());
         }
+        return urlChanged ? affectedFlowIds : Collections.emptyList();
     }
 
     @Override
@@ -164,17 +202,21 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
         return repos.stream().map(repo -> {
             DmRepoDef def = new DmRepoDef();
             def.setScmId(scmDO.getId());
+            def.setRepoId(repo.getRepoId());
+            def.setRepoPath(repo.getRepoPath());
             def.setRepoSpace(repo.getRepoSpace());
             def.setRepoName(repo.getRepoName());
             def.setRepoUrl(repo.getRepoUrl());
             def.setRepoHome(repo.getRepoHome());
             def.setBranch(repo.getBranchName());
+            def.setArchived(repo.isArchived());
+            def.setEmpty(repo.isEmpty());
             return def;
         }).collect(Collectors.toList());
     }
 
     @Override
-    public DmBranchDef fetchBranchByScmAndRepo(String ownerUid, long scmId, String repoName, String branch) {
+    public DmBranchDef fetchBranchByScmAndRepo(String ownerUid, long scmId, String repoId, String repoSpace, String repoName, String branch) {
         DmGitOpsScmDO scmDO = changeFlowDal.scmMapper().queryByOwnerAndId(ownerUid, scmId);
         if (scmDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
@@ -186,22 +228,36 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_MISSING_PROVIDER.name(), scmTypeI18n));
         }
 
-        List<ScmBranch> repos = service.fetchBranchList(scmDO.getScmServiceUrl(), scmDO.getScmAccessToken(), repoName, branch, true);
-        if (repos.isEmpty()) {
+        ScmRepo repo = new ScmRepo();
+        String repoPath = ScmPathUtils.buildRepoPath(repoSpace, repoName);
+        repo.setRepoId(StringUtils.isBlank(repoId) ? repoPath : repoId);
+        repo.setRepoPath(repoPath);
+        repo.setRepoSpace(repoSpace);
+        repo.setRepoName(repoName);
+        List<ScmBranch> repos = service.fetchBranchList(scmDO.getScmServiceUrl(), scmDO.getScmAccessToken(), repo, branch, true);
+        ScmBranch exactBranch = findExactBranch(repos, branch);
+        if (exactBranch == null) {
             return null;
         } else {
-            ScmBranch b = repos.get(0);
             DmBranchDef def = new DmBranchDef();
             def.setScmId(scmDO.getId());
+            def.setRepoId(repo.getRepoId());
             def.setRepoName(repoName);
-            def.setBranch(b.getBranchName());
-            def.setBranchCommitId(b.getCommitId());
+            def.setBranch(exactBranch.getBranchName());
+            def.setBranchCommitId(exactBranch.getCommitId());
             return def;
         }
     }
 
+    private static ScmBranch findExactBranch(List<ScmBranch> branches, String branchName) {
+        if (branches == null) {
+            return null;
+        }
+        return branches.stream().filter(branch -> branch != null && StringUtils.equals(branchName, branch.getBranchName())).findFirst().orElse(null);
+    }
+
     @Override
-    public void testScmByConfig(String ownerUid, DevopsScmAddFO fo) {
+    public ScmConnectionTestResult testScmByConfig(String ownerUid, DevopsScmAddFO fo) {
         if (StringUtils.isBlank(fo.getAccessToken())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NEED_ACCESS_TOKEN.name()));
         }
@@ -209,12 +265,48 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_NEED_PROVIDER_TYPE.name()));
         }
 
-        ScmProviderSpi service = PluginManager.findSpi(ScmProviderSpi.class, fo.getScmType().getProviderType().name());
+        fo.setServiceUrl(normalizeAndValidateUrl(fo.getScmType(), fo.getServiceUrl(), fo.isPlainHttpAcknowledged()));
+        ScmProviderSpi provider = provider(fo.getScmType());
+        List<ScmRepo> projects = provider.fetchRepoList(fo.getServiceUrl(), fo.getAccessToken(), null);
+        ScmConnectionTestResult result = new ScmConnectionTestResult();
+        result.setProjectCount(projects.size());
+        result.setServerVersion(provider.fetchServerVersion(fo.getServiceUrl(), fo.getAccessToken()));
+        if (projects.isEmpty()) {
+            result.setWarning(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NO_PROJECT_WARNING.name()));
+        }
+        return result;
+    }
+
+    private ScmProviderSpi provider(ScmType scmType) {
+        ScmProviderSpi service = PluginManager.findSpi(ScmProviderSpi.class, scmType.getProviderType().name());
         if (service == null) {
-            String scmTypeI18n = DmI18nUtils.getMessage(fo.getScmType().getI18nKey());
+            String scmTypeI18n = DmI18nUtils.getMessage(scmType.getI18nKey());
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_MISSING_PROVIDER.name(), scmTypeI18n));
         }
+        return service;
+    }
 
-        service.fetchRepoList(fo.getServiceUrl(), fo.getAccessToken(), null);
+    private String normalizeAndValidateUrl(ScmType type, String serviceUrl, boolean httpAcknowledged) {
+        String result = serviceUrl;
+        if (type == ScmType.Gitlab) {
+            try {
+                result = ScmUrlUtils.normalizeGitlabWebUrl(serviceUrl);
+            } catch (IllegalArgumentException e) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_URL_INVALID.name()));
+            }
+            if (StringUtils.startsWithIgnoreCase(result, "http://") && !httpAcknowledged) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_HTTP_ACK_REQUIRED.name()));
+            }
+        }
+        return result;
+    }
+
+    private static ScmRepo toScmRepo(DmChangeFlowDO flow) {
+        ScmRepo repo = new ScmRepo();
+        repo.setRepoId(flow.getScmRepoIdentifier());
+        repo.setRepoSpace(flow.getScmRepoSpace());
+        repo.setRepoName(flow.getScmRepoName());
+        repo.setRepoPath(ScmPathUtils.buildRepoPath(flow.getScmRepoSpace(), flow.getScmRepoName()));
+        return repo;
     }
 }

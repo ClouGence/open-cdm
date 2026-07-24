@@ -25,6 +25,7 @@ import lombok.Setter;
 public class ScmEvent {
 
     private String         hookId;
+    private String         deliveryId;
     private ScmEventType   eventType;
     private Date           eventTime;
     private String         eventId;
@@ -33,7 +34,9 @@ public class ScmEvent {
     private String         userName;
     private String         userEmail;
     private String         tarRepoPath;
+    private String         tarRepoId;
     private String         tarRepoName;
+    private String         tarRepoUrl;
     private String         tarRepoBranch;
 
     private ScmEventTarget target;
@@ -41,6 +44,7 @@ public class ScmEvent {
 
     // source (only PR)
     private String         srcRepoPath;
+    private String         srcRepoId;
     private String         srcRepoName;
     private String         srcRepoBranch;
 

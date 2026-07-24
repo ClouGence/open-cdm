@@ -29,5 +29,7 @@ public interface ChangeFlowDal {
 
     DmChangeVersionMapper versionMapper();
 
+    DmChangeTriggerReceiptMapper triggerReceiptMapper();
+
     DmGitOpsScmMapper scmMapper();
 }

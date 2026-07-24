@@ -1,5 +1,5 @@
 <template>
-  <section v-if="isCreateMode" class="page-section basic-info-section">
+  <section v-if="createMode" class="page-section basic-info-section">
     <div class="page-section__title">{{ $t('ji-ben-xin-xi') }}</div>
     <Form ref="basicForm" :model="flowBasicForm" :rules="basicRules" label-position="top" class="basic-form">
       <FormItem :label="$t('xiang-mu-ming-cheng')" prop="flowName">
@@ -35,7 +35,7 @@
 export default {
   name: 'ReleaseFlowBasicInfo',
   props: {
-    isCreateMode: {
+    createMode: {
       type: Boolean,
       required: true
     },

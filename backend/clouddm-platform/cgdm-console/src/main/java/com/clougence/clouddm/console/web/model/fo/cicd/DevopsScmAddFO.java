@@ -29,4 +29,5 @@ public class DevopsScmAddFO {
     private String  display;
     private String  serviceUrl;
     private String  accessToken;
+    private boolean plainHttpAcknowledged;
 }

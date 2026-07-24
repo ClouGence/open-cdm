@@ -346,6 +346,88 @@
   }
 }
 
+@media (max-width: 767px) {
+  .app-sidebar {
+    width: 64px;
+
+    .app-sidebar-brand {
+      justify-content: center;
+      padding: 18px 8px 14px;
+
+      .app-brand-logo__img {
+        width: 48px;
+        height: auto;
+        max-width: 48px;
+      }
+    }
+
+    .app-sidebar-section {
+      padding: 0 8px;
+    }
+
+    .app-sidebar-divider {
+      margin: 8px 12px;
+    }
+
+    .app-sidebar-item,
+    .app-sidebar-group-toggle,
+    .app-sidebar-subgroup-toggle {
+      justify-content: center;
+      min-height: 38px;
+      padding: 0;
+      gap: 0;
+
+      span {
+        display: none;
+      }
+    }
+
+    .app-sidebar-group-body,
+    .app-sidebar-subgroup-body {
+      display: none !important;
+    }
+
+    .app-sidebar-footer {
+      justify-content: center;
+      padding: 12px 8px 14px;
+    }
+
+    .app-sidebar-version-chip {
+      width: 8px;
+      min-width: 8px;
+      height: 8px;
+      min-height: 8px;
+      padding: 0;
+      border-radius: 50%;
+      color: transparent;
+      overflow: hidden;
+    }
+  }
+
+  .app-main-body {
+    padding: 8px 8px 8px 0;
+  }
+
+  .app-content-header {
+    min-height: 48px;
+    padding: 10px 12px;
+
+    &__right {
+      gap: 8px;
+    }
+
+    &__link {
+      width: 32px;
+      padding: 0;
+      justify-content: center;
+
+      span {
+        display: none;
+      }
+    }
+  }
+}
+
 // ─── SQL fullscreen layout ─────────────────────────────────────────────────────
 
 .sql-layout {

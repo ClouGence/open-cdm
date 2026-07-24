@@ -4,7 +4,7 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const { codeInspectorPlugin } = require('code-inspector-plugin');
 
-const LOCAL_HOST_DM = 'http://localhost:8222';
+const LOCAL_HOST_DM = process.env.CLOUDDM_BACKEND_URL || 'http://localhost:8222';
 // const LOCAL_HOST_DM = 'http://192.168.0.168:8222';
 // const LOCAL_HOST = 'http://192.168.10.118:8222';
 // const LOCAL_HOST = 'http://192.168.0.183:8222';

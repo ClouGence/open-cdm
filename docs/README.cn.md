@@ -24,27 +24,27 @@
 
 ## 项目信息
 
-| 字段 | 内容 |
-|------|------|
-| 项目名称 | CloudDM |
-| 代码仓库 | https://github.com/ClouGence/open-cdm |
-| 国内镜像 | https://gitee.com/clougence/open-cdm |
-| 官网 | https://www.cdmgr.com/ |
-| 文档 | https://www.cdmgr.com/docs/intro/product_intro |
-| 开源协议 | Apache License 2.0 |
-| 当前版本 | 4.0.1 |
-| 主要语言 | Java、JavaScript / TypeScript |
-| 部署模式 | 单机模式（Alone）、集群模式（Console + Sidecar） |
-| 部署方式 | 安装包、Docker、Kubernetes |
+| 字段   | 内容                                             |
+|------|------------------------------------------------|
+| 项目名称 | CloudDM                                        |
+| 代码仓库 | https://github.com/ClouGence/open-cdm          |
+| 国内镜像 | https://gitee.com/clougence/open-cdm           |
+| 官网   | https://www.cdmgr.com/                         |
+| 文档   | https://www.cdmgr.com/docs/intro/product_intro |
+| 开源协议 | Apache License 2.0                             |
+| 当前版本 | 4.0.1                                          |
+| 主要语言 | Java、JavaScript / TypeScript                   |
+| 部署模式 | 单机模式（Alone）、集群模式（Console + Sidecar）            |
+| 部署方式 | 安装包、Docker、Kubernetes                          |
 
 ## 核心能力
 
 ### 数据查询
 
 - 支持丰富的数据源类型
-  - MySQL、Oracle、MariaDB、PostgreSQL、IBM DB2、SQL Server、OceanBase
-  - SAP Hana、StarRocks、Doris、SelectDB、ClickHouse、PolarDB、TiDB、Greenplum
-  - Hologres、达梦、高斯数据库、AnalyticDB MySQL、MaxCompute、Redis、MongoDB
+    - MySQL、Oracle、MariaDB、PostgreSQL、IBM DB2、SQL Server、OceanBase
+    - SAP Hana、StarRocks、Doris、SelectDB、ClickHouse、PolarDB、TiDB、Greenplum
+    - Hologres、达梦、高斯数据库、AnalyticDB MySQL、MaxCompute、Redis、MongoDB
 - 通过统一 Web 控制台访问数据库，支持事务、隔离级别和查询计划
 - 提供查询编辑器、语法高亮、智能提示、执行计划、结果导出等能力
 
@@ -64,12 +64,12 @@
 ### 数据库 CI/CD
 
 - 提供 **Git Push**、**Web Hook**、**HttpCall** 三种方式触发 CI/CD 流程
-- 支持 Gitee 作为变更仓库
+- 支持 Gitee 和 [GitLab Self-Managed](guides/gitlab-cicd.cn.md) 作为变更仓库
 
 ### SQL 审核
 
 - 支持 **审核规则**、**安全规范** 和 **数据脱敏**
-  - 内置 54 条规则，并支持通过规则脚本自定义扩展
+    - 内置 54 条规则，并支持通过规则脚本自定义扩展
 - 支持在 SQL 执行前进行 SQL 预检，提示风险或阻断执行
 
 ### 协同与流程
@@ -82,9 +82,12 @@
 ## 快速开始
 
 ### 安装
-CloudDM 支持 **单机模式（Alone）** 和 **集群模式（Console + Sidecar）**，同时支持 **安装包**、**Docker**、**Kubernetes** 多种部署方式。
 
-下面以单机模式部署来展示如何使用。如果你需要安装包部署、集群部署或 Kubernetes 部署，可使用本地打包后生成的安装包和 yml 文件继续部署。完整部署说明请参考 [deployment.cn.md](guides/deployment.cn.md)。
+CloudDM 支持 **单机模式（Alone）** 和 **集群模式（Console + Sidecar）**，同时支持 **安装包**、**Docker**、**Kubernetes**
+多种部署方式。
+
+下面以单机模式部署来展示如何使用。如果你需要安装包部署、集群部署或 Kubernetes 部署，可使用本地打包后生成的安装包和 yml
+文件继续部署。完整部署说明请参考 [deployment.cn.md](guides/deployment.cn.md)。
 
 ```bash
 # 快速启动，默认镜像
@@ -124,7 +127,8 @@ docker run -d --name cgdm-alone \
 
 ### 离线镜像部署
 
-内网无法访问镜像仓库时，可从 [GitHub Release](https://github.com/ClouGence/open-cdm/releases) 下载对应架构的镜像归档 `cgdm-alone-image-<arch>.tar.gz`，在目标主机加载后按上述方式启动。
+内网无法访问镜像仓库时，可从 [GitHub Release](https://github.com/ClouGence/open-cdm/releases) 下载对应架构的镜像归档
+`cgdm-alone-image-<arch>.tar.gz`，在目标主机加载后按上述方式启动。
 
 ```bash
 gunzip -c cgdm-alone-image-<arch>.tar.gz | docker load
@@ -171,7 +175,7 @@ http://localhost:8222
 ```
 
 > 首次部署访问会进入初始化向导；升级时会进入升级向导。
-> 
+>
 > 如果你并未修改过账号，则默认为 **admin@cdmgr.com**
 
 ### 添加数据源
@@ -184,4 +188,5 @@ http://localhost:8222
 
 ## 开源协议
 
-CloudDM 使用商业友好的 [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) 许可协议，详见 [LICENSE.txt](../LICENSE.txt)。
+CloudDM 使用商业友好的 [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html)
+许可协议，详见 [LICENSE.txt](../LICENSE.txt)。

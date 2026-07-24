@@ -10,6 +10,8 @@
           v-for="item in sidebarMenu.primary"
           :key="item.key"
           :href="item.href"
+          :aria-label="item.label"
+          :title="item.label"
           class="app-sidebar-item"
           :class="{ 'is-active': activeKey === item.key }"
         >
@@ -26,6 +28,8 @@
               type="button"
               class="app-sidebar-group-toggle"
               :class="{ 'is-expanded': isGroupExpanded(groupItem.key) }"
+              :aria-label="groupItem.label"
+              :title="groupItem.label"
               @click="toggleGroup(groupItem.key)"
             >
               <CustomIcon :type="groupItem.iconName" size="16px" />
@@ -37,6 +41,8 @@
                 v-for="child in groupItem.children"
                 :key="child.key"
                 :href="child.href"
+                :aria-label="child.label"
+                :title="child.label"
                 class="app-sidebar-item app-sidebar-item--depth-1"
                 :class="{ 'is-active': activeKey === child.key }"
               >

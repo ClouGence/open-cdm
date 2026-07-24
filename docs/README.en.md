@@ -23,52 +23,54 @@
 
 ## Project Facts
 
-| Field | Value |
-|------|-------|
-| Project name | CloudDM |
-| Repository | https://github.com/ClouGence/open-cdm |
-| Mirror | https://gitee.com/clougence/open-cdm |
-| Homepage | https://www.cdmgr.com/ |
-| Documentation | https://www.cdmgr.com/docs/intro/product_intro |
-| License | Apache License 2.0 |
-| Current version | 4.0.1 |
-| Main languages | Java, JavaScript / TypeScript |
-| Deployment modes | Standalone (Alone), Cluster (Console + Sidecar) |
-| Deployment targets | Install package, Docker, Kubernetes |
+| Field              | Value                                           |
+|--------------------|-------------------------------------------------|
+| Project name       | CloudDM                                         |
+| Repository         | https://github.com/ClouGence/open-cdm           |
+| Mirror             | https://gitee.com/clougence/open-cdm            |
+| Homepage           | https://www.cdmgr.com/                          |
+| Documentation      | https://www.cdmgr.com/docs/intro/product_intro  |
+| License            | Apache License 2.0                              |
+| Current version    | 4.0.1                                           |
+| Main languages     | Java, JavaScript / TypeScript                   |
+| Deployment modes   | Standalone (Alone), Cluster (Console + Sidecar) |
+| Deployment targets | Install package, Docker, Kubernetes             |
 
 ## Core Capabilities
 
 ### Data Query
 
 - Rich data source support covering many database types
-  - MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase
-  - SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum
-  - Hologres, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB
+    - MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase
+    - SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum
+    - Hologres, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB
 - Unified web console access to databases, with support for transactions, isolation levels, and execution plans
 - Query editor, syntax highlighting, intelligent suggestions, execution plans, and result export
 
 ### Database Management
 
-- Supported database objects include databases, schemas, tables, columns, indexes, views, functions, stored procedures, triggers, users, roles, and more
+- Supported database objects include databases, schemas, tables, columns, indexes, views, functions, stored procedures,
+  triggers, users, roles, and more
 - Visual management of database objects such as create, delete, modify, and inspect properties
 - Management of different data sources through environments and clusters
 
 ### Access Control
 
 - Authorization model that separates **resources** and **functions**
-  - Resource permissions can be granted at the instance, database, schema, and table levels, depending on the statement type
-  - Function authorization uses role-based access control (RBAC) by granting roles to users
+    - Resource permissions can be granted at the instance, database, schema, and table levels, depending on the
+      statement type
+    - Function authorization uses role-based access control (RBAC) by granting roles to users
 - Supports **permission requests**, **permission grants**, and **temporary permissions**
 
 ### Database CI/CD
 
 - Provides three ways to trigger CI/CD workflows: **Git Push**, **Web Hook**, and **HttpCall**
-- Supports Gitee as the change repository
+- Supports Gitee and [GitLab Self-Managed](guides/gitlab-cicd.en.md) as change repositories
 
 ### SQL Auditing
 
 - Supports **audit rules**, **security policies**, and **data masking**
-  - Includes 54 built-in rules and supports custom extensions through rule scripts
+    - Includes 54 built-in rules and supports custom extensions through rule scripts
 - Supports SQL pre-checks before execution to warn about or block risky statements
 
 ### Collaboration and Workflow
@@ -81,9 +83,13 @@
 ## Quick Start
 
 ### Install
-CloudDM supports **Standalone (Alone)** and **Cluster (Console + Sidecar)** modes, and also supports **install packages**, **Docker**, and **Kubernetes** deployment methods.
 
-The example below demonstrates how to use standalone deployment. If you need install-package deployment, cluster deployment, or Kubernetes deployment, you can continue deploying with the install packages and yml files generated after local packaging. For complete deployment instructions, see [deployment.en.md](guides/deployment.en.md).
+CloudDM supports **Standalone (Alone)** and **Cluster (Console + Sidecar)** modes, and also supports **install packages
+**, **Docker**, and **Kubernetes** deployment methods.
+
+The example below demonstrates how to use standalone deployment. If you need install-package deployment, cluster
+deployment, or Kubernetes deployment, you can continue deploying with the install packages and yml files generated after
+local packaging. For complete deployment instructions, see [deployment.en.md](guides/deployment.en.md).
 
 ```bash
 # Quick start, default image
@@ -123,7 +129,9 @@ When `/data/cgdm/conf` is empty, CloudDM initializes it with the default configu
 
 ### Offline Image Deployment
 
-When the host cannot reach an image registry, download the architecture-specific archive `cgdm-alone-image-<arch>.tar.gz` from the [GitHub Release](https://github.com/ClouGence/open-cdm/releases), load it on the target host, and start it as shown above.
+When the host cannot reach an image registry, download the architecture-specific archive
+`cgdm-alone-image-<arch>.tar.gz` from the [GitHub Release](https://github.com/ClouGence/open-cdm/releases), load it on
+the target host, and start it as shown above.
 
 ```bash
 gunzip -c cgdm-alone-image-<arch>.tar.gz | docker load
@@ -131,11 +139,13 @@ gunzip -c cgdm-alone-image-<arch>.tar.gz | docker load
 
 This loads the image `bladepipe/cgdm-alone:<version>`. Then start it with the `docker run` commands shown above.
 
-For cluster deployment, use `cgdm-cluster-image-<arch>.tar.gz`. It contains the versioned Console and Sidecar images together with `mysql:8.0`.
+For cluster deployment, use `cgdm-cluster-image-<arch>.tar.gz`. It contains the versioned Console and Sidecar images
+together with `mysql:8.0`.
 
 ### Upgrade
 
-Before upgrading, back up Docker volumes or database data. To upgrade, remove the old container and start the new image with the same volumes.
+Before upgrading, back up Docker volumes or database data. To upgrade, remove the old container and start the new image
+with the same volumes.
 
 ```bash
 # Default image
@@ -169,7 +179,8 @@ Access the product in your browser:
 http://localhost:8222
 ```
 
-> On first access after a fresh deployment, the initialization wizard will open; during an upgrade, the upgrade wizard will open.
+> On first access after a fresh deployment, the initialization wizard will open; during an upgrade, the upgrade wizard
+> will open.
 >
 > If you not change the account, the default account is **admin@cdmgr.com**
 
@@ -183,4 +194,5 @@ http://localhost:8222
 
 ## Open Source License
 
-CloudDM is released under the business-friendly [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html). See [LICENSE.txt](../LICENSE.txt) for details.
+CloudDM is released under the business-friendly [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
+See [LICENSE.txt](../LICENSE.txt) for details.
