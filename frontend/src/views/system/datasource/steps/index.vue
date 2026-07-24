@@ -49,6 +49,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import { CLUSTER_ENV, WHITE_LIST_ADD_TYPE } from '@/const';
 import Steps from '@/views/system/components/Steps';
 import One from './One';
@@ -83,7 +84,7 @@ export default {
       const { region, instanceId, instanceDesc, auth, whiteList, ticket } = ds;
       const privateHost = ds.privateHost ? `${ds.privateHost.connectionString}:${ds.privateHost.port}` : '';
       const publicHost = ds.publicHost ? `${ds.publicHost.connectionString}:${ds.publicHost.port}` : '';
-      console.log(ds.defaultHost);
+      appLogger.debug(ds.defaultHost);
       const defaultHost = ds.defaultHost === this.$t('nei-wang') ? privateHost : publicHost;
       const addIpWhiteList = whiteList.addIpWhiteList;
 

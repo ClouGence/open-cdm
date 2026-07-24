@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import i18n from '../i18n';
 
 const exportMonitorMixin = {
@@ -65,7 +66,7 @@ const exportMonitorMixin = {
     },
     async handleExportMonitorImg(filename) {
       try {
-        console.log('handleExportMonitorImg');
+        appLogger.debug('handleExportMonitorImg');
         this.exportImgLoading = true;
 
         // Waiting for Vue to complete DOM update to make sure status display
@@ -110,7 +111,7 @@ const exportMonitorMixin = {
         this.exportImgLoading = false;
       } catch (error) {
         this.exportImgLoading = false;
-        console.error(this.$t('shi-bai'), error);
+        appLogger.error(this.$t('shi-bai'), error);
         // alert('Chart export failed, please try again');
         this.$Modal.error({
           title: this.$t('cao-zuo-shi-bai'),

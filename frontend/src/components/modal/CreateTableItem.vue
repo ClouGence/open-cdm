@@ -1,4 +1,5 @@
 <script>
+import appLogger from '@/utils/logger';
 import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import { TAB_TYPE } from '@/const';
@@ -324,7 +325,7 @@ export default {
       this.selectedTemplateIndex = this.selectedColumn[schema.field].length - 1;
     },
     handleDeleteTemplate(parentSchema, schema) {
-      console.log(this.selectedData[parentSchema.field], parentSchema.field, schema.field, this.selectedColumnIndex, this.selectedTemplateIndex);
+      appLogger.debug(this.selectedData[parentSchema.field], parentSchema.field, schema.field, this.selectedColumnIndex, this.selectedTemplateIndex);
       this.selectedData[parentSchema.field][this.selectedColumnIndex][schema.field].splice(this.selectedTemplateIndex, 1);
       this.selectedTemplate = {};
       this.selectedTemplateIndex = -1;
@@ -334,7 +335,7 @@ export default {
       this.selectedTemplate = template;
     },
     async handleReferenceSchemaOpenChange(open) {
-      console.log(open);
+      appLogger.debug(open);
       if (open) {
         const res = await this.$services.dmBrowseListLevels({
           data: {
@@ -430,14 +431,14 @@ export default {
       this.inputVisible = false;
     },
     async generateOptionSchema(options, value, schema) {
-      console.log('generateOptionSchema', value);
+      appLogger.debug('generateOptionSchema', value);
       for (let i = 0; i < options.length; i++) {
         const option = options[i];
         if (option.value === value && option.children && option.children.length) {
           schema.children = option.children;
           for (let j = 0; j < option.children.length; j++) {
             const child = option.children[j];
-            console.log(child.type);
+            appLogger.debug(child.type);
 
             if (!(child.field in this.selectedData)) {
               this.selectedData[child.field] = child.defaultVal;

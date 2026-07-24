@@ -136,6 +136,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import StepDb from './StepDb.vue';
 import StepSecurity from './StepSecurity.vue';
@@ -575,7 +576,7 @@ export default {
           this.executionScripts = upsertExecutionScriptItem(this.executionScripts, payload.object);
         }
       } catch (e) {
-        console.error('Failed to parse install log message', e);
+        appLogger.error('Failed to parse install log message', e);
       }
     },
 
@@ -617,7 +618,7 @@ export default {
           return;
         }
       } catch (e) {
-        console.error('Preview execution scripts failed', e);
+        appLogger.error('Preview execution scripts failed', e);
       }
 
       this.executionScripts = (this.upgradeScripts || []).map(normalizeExecutionScriptItem);
@@ -691,7 +692,7 @@ export default {
         }
         this.errorMessage = res.msg || 'Failed to load initialization config';
       } catch (e) {
-        console.error('Failed to load field defs', e);
+        appLogger.error('Failed to load field defs', e);
         this.errorMessage = 'Failed to load initialization config';
       }
       return false;
@@ -782,7 +783,7 @@ export default {
         }
       } catch (e) {
         this.$message.error(this.$t('ce-shi-lian-jie-shi-bai'));
-        console.error('Test DB failed', e);
+        appLogger.error('Test DB failed', e);
       } finally {
         this.testingDb = false;
       }
@@ -977,7 +978,7 @@ export default {
         this.applying = false;
         this.disconnectInstallLogSocket();
       } catch (e) {
-        console.error('Apply config failed', e);
+        appLogger.error('Apply config failed', e);
         this.executionPhaseStatusType = '';
         this.executionPhaseStatusMessage = '';
         this.restartStatusType = 'error';

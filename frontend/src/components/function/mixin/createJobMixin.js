@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import {
   isDb2,
   isES,
@@ -132,7 +133,7 @@ export default {
           schemaMapping = mapping.serializeMapping;
         }
       });
-      console.log('dbMethod', dbMethod, dbMapping);
+      appLogger.debug('dbMethod', dbMethod, dbMapping);
 
       // Process ANY SCHEMA Map (MQ source to hasSchema opposite)
       if (dbMethod === 'ANY_SCHEMA') {
@@ -179,7 +180,7 @@ export default {
         });
       }
 
-      console.log('targetDb', targetDb);
+      appLogger.debug('targetDb', targetDb);
       Object.keys(schemaMapping).forEach((theMapping) => {
         let theKey = {
           value: db.db
@@ -209,7 +210,7 @@ export default {
       };
     },
     parseExistSchemaData(data) {
-      console.log('parseExist', data);
+      appLogger.debug('parseExist', data);
       this.taskInfo.dbMap = [];
       const sourceSchemaJson = JSON.parse(data.sourceSchema);
       const mappingJson = JSON.parse(data.mappingConfig);
@@ -229,7 +230,7 @@ export default {
       } else {
         schema = sourceSchemaJson;
       }
-      console.log('schema', schema);
+      appLogger.debug('schema', schema);
       if (isMQ(this.taskInfo.sourceType) && isMQ(this.taskInfo.sinkType)) {
         const dbMapItem = {
           sourceDb: '',
@@ -245,7 +246,7 @@ export default {
         this.taskInfo.dbMap.push(dbMapItem);
       } else {
         schema.forEach((db) => {
-          console.log('db', db);
+          appLogger.debug('db', db);
           const whiteTabs = [];
           if (isHasSchema(this.taskInfo.sourceType)) {
             if (isOracle(this.taskInfo.sourceType)) {
@@ -584,7 +585,7 @@ export default {
           columnMapping.commonGenRule = 'MIRROR';
         }
         list.forEach((db) => {
-          console.log(db);
+          appLogger.debug(db);
           const sourceDbSchema = {};
           const targetDbSchema = {};
 
@@ -1248,7 +1249,7 @@ export default {
                         queuePattern: ''
                       });
                     } else {
-                      console.log(3);
+                      appLogger.debug(3);
                       targetTopics.push({
                         topic: table.sinkTable ? table.sinkTable : table.targetTable,
                         topicPattern: '',
@@ -1294,7 +1295,7 @@ export default {
                       queuePattern: ''
                     });
                   } else {
-                    console.log(4);
+                    appLogger.debug(4);
                     topics.push({
                       topic: table.sinkTable ? table.sinkTable : table.targetTable,
                       topicPattern: '',
@@ -1321,7 +1322,7 @@ export default {
                         idFields.push(field.fieldName);
                       }
                     });
-                    console.log('source es', fileds);
+                    appLogger.debug('source es', fileds);
 
                     sourceEsIndex.push({
                       indexName: table.sourceTable,
@@ -1339,7 +1340,7 @@ export default {
                       suffixFields: table.suffixFields || []
                     });
                   } else if (DataSourceGroup.es.indexOf(sinkType) > -1) {
-                    console.log('sinkES');
+                    appLogger.debug('sinkES');
                     let fileds = [];
                     if (indexMetaMap[table.sinkTable || table.targetTable]) {
                       fileds = indexMetaMap[table.sinkTable || table.targetTable].fieldMetaList;
@@ -1633,7 +1634,7 @@ export default {
                   };
 
                   columnMapping.serializeMapping[JSON.stringify(key)] = JSON.stringify(value);
-                  console.log('columnMapping112', columnMapping);
+                  appLogger.debug('columnMapping112', columnMapping);
                 }
               } else {
                 targetSchemaTable.inBlackList = true;
@@ -1681,7 +1682,7 @@ export default {
                     if (column.selected) {
                       targetColumns.inBlackList = false;
                       sourceColumns.inBlackList = false;
-                      console.log('column.sourceColumn', column.sourceColumn, column.sinkColumn);
+                      appLogger.debug('column.sourceColumn', column.sourceColumn, column.sinkColumn);
 
                       const isMapiing =
                         column.sourceColumn !== column.sinkColumn
@@ -1841,7 +1842,7 @@ export default {
                           structMigration = true;
                         }
                       }
-                      console.log('push columns 1');
+                      appLogger.debug('push columns 1');
                       sourceSchemaTable.columns.push(sourceColumns);
                       targetSchemaTable.columns.push(targetColumns);
                       if (DataSourceGroup.es.indexOf(sinkType) > -1 && column._checked) {
@@ -1863,7 +1864,7 @@ export default {
                       targetColumns.inBlackList = false;
 
                       sourceColumns.inBlackList = false;
-                      console.log('column.sourceColumn', column.sourceColumn, column.sinkColumn);
+                      appLogger.debug('column.sourceColumn', column.sourceColumn, column.sinkColumn);
                       const isMapiing =
                         column.sourceColumn !== column.sinkColumn
                           ? column.sinkColumn
@@ -2027,7 +2028,7 @@ export default {
                       }
                     }
 
-                    console.log('push columns 2');
+                    appLogger.debug('push columns 2');
                     sourceSchemaTable.columns.push(sourceColumns);
                     targetSchemaTable.columns.push(targetColumns);
                     if (DataSourceGroup.es.indexOf(sinkType) > -1 && column._checked) {
@@ -2060,7 +2061,7 @@ export default {
                     queuePattern: ''
                   });
                 } else {
-                  console.log(5);
+                  appLogger.debug(5);
                   topics.push({
                     topic: table.sourceTable,
                     topicPattern: '',
@@ -2102,7 +2103,7 @@ export default {
                     queuePattern: ''
                   });
                 } else {
-                  console.log(6, 'targetTopics');
+                  appLogger.debug(6, 'targetTopics');
                   topics.push({
                     topic: table.sinkTable ? table.sinkTable : table.targetTable,
                     topicPattern: '',
@@ -2271,7 +2272,7 @@ export default {
         let parseSchema = [];
         if (this.taskInfo.processType === 'edit' && type !== 'newData' && this.currentStep !== 2) {
           const { newData } = this.taskInfo;
-          console.log(newData);
+          appLogger.debug(newData);
 
           if (isES(sourceType)) {
             parseSchema = JSON.parse(finalSourceSchema);
@@ -2292,7 +2293,7 @@ export default {
                   if (isOracle(this.taskInfo.sourceType)) {
                     schema.tableSpaces.forEach((tableSpace) => {
                       tableSpace.tables = tableSpace.tables.filter((table) => {
-                        console.log(table, tableSpace, newData[schema.db].selectedTables[table.table]);
+                        appLogger.debug(table, tableSpace, newData[schema.db].selectedTables[table.table]);
                         return (
                           !newData[schema.db].selectedTables[table.table] ||
                           (newData[schema.db].selectedTables[table.table] &&
@@ -2303,7 +2304,7 @@ export default {
                   } else {
                     schema.schemas.forEach((s) => {
                       s.tables = s.tables.filter((table) => {
-                        console.log(table, s, newData[schema.db].selectedTables[table.table]);
+                        appLogger.debug(table, s, newData[schema.db].selectedTables[table.table]);
                         return (
                           !newData[schema.db].selectedTables[table.table] ||
                           (newData[schema.db].selectedTables[table.table] && s.schema !== newData[schema.db].selectedTables[table.table].sourceSchema)
@@ -2357,7 +2358,7 @@ export default {
           mappingDef
         };
       } catch (e) {
-        console.log('err', e);
+        appLogger.debug('err', e);
       }
     },
     setColumns(column, db, table, dbName, columnMapping, structMigration, sourceSchemaTable, targetSchemaTable, indexMetaMap, isVirtual) {

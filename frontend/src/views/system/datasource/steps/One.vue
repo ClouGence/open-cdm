@@ -73,6 +73,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import * as Vue from 'vue';
 import { CLUSTER_ENV } from '@/const';
@@ -190,7 +191,7 @@ export default {
       }
     },
     handleChangeDsType(type) {
-      console.log(type);
+      appLogger.debug(type);
       this.stepOneData.dataSourceType = type;
     },
     handleNext() {
@@ -223,7 +224,7 @@ export default {
       dataSourceType: this.stepOneData.dataSourceType,
       deployEnvType: this.stepOneData.deployEnvType
     });
-    console.log('this.stepDataIfDeskTop', this.stepDataIfDeskTop);
+    appLogger.debug('this.stepDataIfDeskTop', this.stepDataIfDeskTop);
     if (this.isDesktop) {
       this.stepDataIfDeskTop[0].bindClusterId = this.stepOneData.bindClusterId;
       this.stepDataIfDeskTop[0].envId = this.stepOneData.envId;

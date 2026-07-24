@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 const STORAGE_KEY = 'dm:lastWorkbenchRoute';
 
 function getStorageKey(uid) {
@@ -66,7 +67,7 @@ export function saveLastWorkbenchRoute(route, uid) {
       })
     );
   } catch (e) {
-    console.warn('saveLastWorkbenchRoute failed', e);
+    appLogger.warn('saveLastWorkbenchRoute failed', e);
   }
 }
 

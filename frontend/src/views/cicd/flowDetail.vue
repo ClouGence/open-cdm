@@ -629,6 +629,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
@@ -1053,7 +1054,7 @@ export default {
       try {
         return CHANGE_FLOW_DESCRIPTION[type][option];
       } catch (e) {
-        console.error(e);
+        appLogger.error(e);
         return this.$t('zan-wu-miao-shu');
       }
     },
@@ -1251,7 +1252,7 @@ export default {
       try {
         return GITOPS_DESCRIPTION[option];
       } catch (e) {
-        console.error(e);
+        appLogger.error(e);
         return this.$t('zan-wu-miao-shu');
       }
     },

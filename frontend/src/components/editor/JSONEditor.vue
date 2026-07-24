@@ -1,4 +1,5 @@
 <script>
+import appLogger from '@/utils/logger';
 import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
 import Toast from '@/utils/toast';
@@ -46,7 +47,7 @@ export default {
     createEditor() {
       if (this.text) {
         if (this.monacoEditor) {
-          console.log('set', this.text);
+          appLogger.debug('set', this.text);
           this.monacoEditor.getModel().setValue(this.text);
           // this.updateDecorations();
         } else {
@@ -255,7 +256,7 @@ export default {
 
         this.parsedJson = jsonObjects;
       } catch (e) {
-        console.error('JSON 解析失败:', e);
+        appLogger.error('JSON 解析失败:', e);
         this.parsedJson = null;
       }
     },
@@ -431,7 +432,7 @@ export default {
           try {
             document.execCommand('copy');
           } catch (err) {
-            console.error('复制失败:', err);
+            appLogger.error('复制失败:', err);
             Toast.error('复制失败');
             return;
           } finally {
@@ -441,7 +442,7 @@ export default {
 
         Toast.success(message);
       } catch (err) {
-        console.error('复制失败:', err);
+        appLogger.error('复制失败:', err);
         Toast.error('复制失败');
       }
     }

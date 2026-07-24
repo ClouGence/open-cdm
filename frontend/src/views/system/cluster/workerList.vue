@@ -259,6 +259,7 @@
 </template>
 
 <script lang="js">
+import appLogger from '@/utils/logger';
 import { cloneDeep } from '@/utils/lodash';
 import AddMachineModal from '@/views/system/cluster/components/AddMachineModal';
 // import { Modal } from 'view-ui-plus';
@@ -392,7 +393,7 @@ export default {
     },
     handleClickAddBtn() {
       this.showAddWorkerModal = true;
-      console.log('showAddWorkerModal', this.showAddWorkerModal);
+      appLogger.debug('showAddWorkerModal', this.showAddWorkerModal);
     },
     canStart(worker) {
       return (

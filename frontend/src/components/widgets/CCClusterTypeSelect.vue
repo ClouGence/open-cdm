@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { CLUSTER_ENV } from '@/const';
 
 export default {
@@ -31,9 +32,9 @@ export default {
     };
   },
   created() {
-    console.log('cluster', this.cluster);
+    appLogger.debug('cluster', this.cluster);
     this.selectedClusterEnv = this.__selected_cluster_env__ || CLUSTER_ENV.ALIBABA_CLOUD_HOSTED;
-    console.log('selectedClusterEnv', this.selectedClusterEnv);
+    appLogger.debug('selectedClusterEnv', this.selectedClusterEnv);
   },
   methods: {
     handleSelectClusterEnv(env) {
@@ -43,7 +44,7 @@ export default {
   watch: {
     selectedClusterEnv(value) {
       this.$emit('__handle_select_cluster_env__', value);
-      console.log('value', value);
+      appLogger.debug('value', value);
     }
   }
 };

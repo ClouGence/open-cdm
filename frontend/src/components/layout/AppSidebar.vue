@@ -61,6 +61,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
 import { findSidebarParentKeys } from '@/utils/buildSidebarMenu';
@@ -191,7 +192,7 @@ export default {
           this.sidebarVersion = resolveDisplayVersion(res.data);
         }
       } catch (error) {
-        console.error(error);
+        appLogger.error(error);
       }
     },
     handleGoHome() {

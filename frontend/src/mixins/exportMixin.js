@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 const exportMixin = {
   data() {
     return {
@@ -7,7 +8,7 @@ const exportMixin = {
   },
   methods: {
     exportTableData(exportType, data, columns, indexes) {
-      console.log(exportType, data, columns, indexes);
+      appLogger.debug(exportType, data, columns, indexes);
 
       this.exportType = exportType;
     }

@@ -396,6 +396,7 @@
   </div>
 </template>
 <script lang="jsx">
+import appLogger from '@/utils/logger';
 import dayjs from 'dayjs';
 import { Modal, Tooltip } from 'ant-design-vue';
 import { mysqlInsert, pgInsert } from '@/views/sql/components/typeGroup';
@@ -666,7 +667,7 @@ export default {
   },
   methods: {
     handleClickCostPop() {
-      console.warn(123, this.tab);
+      appLogger.warn(123, this.tab);
     },
     handleResize(e, column) {
       const startX = e.clientX;
@@ -711,7 +712,7 @@ export default {
       return (page - 1) * pageSize + index + 1;
     },
     onContextmenu(event, tab) {
-      console.log(event, tab);
+      appLogger.debug(event, tab);
       this.contextData = tab;
       ContextMenu.showContextMenu({
         zIndex: 999,
@@ -730,7 +731,7 @@ export default {
       });
     },
     handleCloseResultTab(type, key) {
-      console.log(type, key);
+      appLogger.debug(type, key);
       if (type === 'current') {
         const deleteIndex = this.tab.result.list.findIndex((tab) => tab.resultId === key);
         const closingTab = this.tab.result.list[deleteIndex];
@@ -782,7 +783,7 @@ export default {
       };
 
       this.$services.dmQueryCloseResultWindow(params).catch((error) => {
-        console.error('err:', error);
+        appLogger.error('err:', error);
       });
     },
     handleResultTabChange(activeKey) {
@@ -980,7 +981,7 @@ export default {
           }
         }
       } catch (err) {
-        console.log('获取单元格 complete 字段失败:', err);
+        appLogger.debug('获取单元格 complete 字段失败:', err);
       }
       return true;
     },
@@ -1058,7 +1059,7 @@ export default {
           }
         }
       } catch (err) {
-        console.log('获取单元格原始数据失败:', err);
+        appLogger.debug('获取单元格原始数据失败:', err);
       }
 
       this.$bus.emit('showCellDetailModal', {
@@ -1116,7 +1117,7 @@ export default {
         }
       });
 
-      console.log(`INSERT INTO ${left}${tableName}${right} (${keyStr}) VALUES (${valueStr})`);
+      appLogger.debug(`INSERT INTO ${left}${tableName}${right} (${keyStr}) VALUES (${valueStr})`);
 
       return `INSERT INTO ${left}${tableName}${right} (${keyStr}) VALUES (${valueStr})`;
     },
@@ -1271,7 +1272,7 @@ export default {
             tab.rowSetCache[page] = rowSet; // Save raw data from the current page
           }
         } catch (error) {
-          console.error('获取分页数据失败:', error);
+          appLogger.error('获取分页数据失败:', error);
           this.$Message.error(this.$t('huo-qu-fen-ye-shu-ju-shi-bai'));
         }
       } else if (receiveMode === 'STREAM') {
@@ -1435,7 +1436,7 @@ export default {
           throw new Error(res.message);
         }
       } catch (error) {
-        console.error('err:', error);
+        appLogger.error('err:', error);
       }
     },
     async confirmExportOption() {
@@ -1512,7 +1513,7 @@ export default {
           throw new Error(res.message);
         }
       } catch (error) {
-        console.error('err:', error);
+        appLogger.error('err:', error);
       }
     },
     async downloadExportedFile() {
@@ -1542,7 +1543,7 @@ export default {
           const disposition = typeof dispositionRaw === 'string' ? dispositionRaw.trim() : '';
           fileName = disposition.split('filename=')[1];
         } catch (e) {
-          console.log(e);
+          appLogger.debug(e);
         }
 
         const url = window.URL.createObjectURL(blob);
@@ -1554,7 +1555,7 @@ export default {
         a.remove();
         window.URL.revokeObjectURL(url);
       } catch (error) {
-        console.error('err:', error);
+        appLogger.error('err:', error);
         if (this.selectedTab.exportState) {
           // this.selectedTab.exportState.exporting = false;
         }

@@ -191,6 +191,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import fecha from 'fecha';
 import Mapping from '@/views/util';
 import { mapState } from 'vuex';
@@ -601,7 +602,7 @@ export default {
         })
         .then((res) => {
           if (res.success) {
-            console.log('res', res);
+            appLogger.debug('res', res);
             this.auditLogDetail = res.data;
             this.selectedRow = row;
             this.showAuditDetail = true;

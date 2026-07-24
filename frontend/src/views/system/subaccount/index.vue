@@ -244,6 +244,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { mapState, mapGetters } from 'vuex';
 import { generateData } from '@/utils';
 import copyMixin from '@/mixins/copyMixin';
@@ -679,7 +680,7 @@ export default {
       this.accountFormVisible = false;
     },
     handlePageChange(pageNum) {
-      console.log(pageNum);
+      appLogger.debug(pageNum);
       this.pageNum = pageNum;
       this.setTableShowData();
     },

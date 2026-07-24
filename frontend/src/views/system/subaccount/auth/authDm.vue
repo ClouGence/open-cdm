@@ -310,6 +310,7 @@
 </template>
 
 <script lang="jsx">
+import appLogger from '@/utils/logger';
 import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
@@ -2784,7 +2785,7 @@ export default {
 
         this.curRightTreeTab = 'Instance';
       } catch (err) {
-        console.log(err);
+        appLogger.debug(err);
       }
     },
     async handleSwitchBatchMode(needSwitch = true) {

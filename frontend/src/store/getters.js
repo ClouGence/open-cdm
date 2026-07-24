@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import { EDITIONS, VERIFY_TYPE } from '@/const/ccIndex';
 import { supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
 import { resolveVersionBadgeText } from '@/utils/version';
@@ -107,7 +108,7 @@ export default {
   },
   getMatchModeList: (state) => (ruleKind) => state.ruleSetting[RULE_KIND_CONF_MAP[ruleKind]].matchMode,
   getScopeListByInstance: (state) => (ruleKind, matchMode, dsType) => {
-    console.log(state.ruleSetting[RULE_KIND_CONF_MAP[ruleKind]].scopeByMatchMode[matchMode][dsType]);
+    appLogger.debug(state.ruleSetting[RULE_KIND_CONF_MAP[ruleKind]].scopeByMatchMode[matchMode][dsType]);
     const scope = state.ruleSetting[RULE_KIND_CONF_MAP[ruleKind]].scopeByMatchMode[matchMode][dsType];
     return scope || [];
   },
