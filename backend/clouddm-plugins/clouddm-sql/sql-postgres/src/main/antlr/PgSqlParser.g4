@@ -25,7 +25,8 @@ options {
 }
 
 @header {
-import com.clougence.sql.postgres.base.PgSqlParserBase;
+import com.clougence.sql.postgres.analysis.security.base.PgSqlParserBase;
+import com.clougence.sql.postgres.parser.PostgresVersion;
 }
 
 // Insert here @header for C++ parser.
@@ -130,6 +131,7 @@ stmt
     | droptransformstmt
     | droprolestmt
     | dropuserstmt
+    | dropgroupstmt
     | dropusermappingstmt
     | dropdbstmt
     | dropschemastmt
@@ -226,7 +228,7 @@ in_database_
     ;
 
 alterrolesetstmt
-    : ALTER (ROLE | USER) ALL? rolespec in_database_? setresetclause
+    : ALTER (ROLE | USER) (rolespec | ALL) in_database_? setresetclause
     ;
 
 droprolestmt
@@ -235,6 +237,10 @@ droprolestmt
 
 dropuserstmt
     : DROP USER if_exists_? role_list
+    ;
+
+dropgroupstmt
+    : DROP GROUP_P if_exists_? role_list
     ;
 
 creategroupstmt
@@ -416,7 +422,8 @@ alter_table_cmds
 
 partition_cmd
     : ATTACH PARTITION qualified_name partitionboundspec
-    | DETACH PARTITION qualified_name
+    | DETACH PARTITION qualified_name concurrently_?
+    | DETACH PARTITION qualified_name FINALIZE
     ;
 
 index_partition_cmd
@@ -431,13 +438,15 @@ alter_table_cmd
     | ALTER column_? colid alter_column_default                         #alterColumn
     | ALTER column_? colid DROP NOT NULL_P                              #alterColumn
     | ALTER column_? colid SET NOT NULL_P                               #alterColumn
+    | ALTER column_? colid SET EXPRESSION AS OPEN_PAREN a_expr CLOSE_PAREN #alterColumn
     | ALTER column_? colid DROP EXPRESSION                              #alterColumn
     | ALTER column_? colid DROP EXPRESSION IF_P EXISTS                  #alterColumn
-    | ALTER column_? colid SET STATISTICS signediconst                  #alterColumn
+    | ALTER column_? colid SET STATISTICS set_statistics_value          #alterColumn
 //    | ALTER column_? iconst SET STATISTICS signediconst                 #alterColumn
     | ALTER column_? colid SET reloptions                               #alterColumn
     | ALTER column_? colid RESET reloptions                             #alterColumn
-    | ALTER column_? colid SET STORAGE colid                            #alterColumn
+    | ALTER column_? colid SET column_storage                           #alterColumn
+    | ALTER column_? colid SET column_compression                       #alterColumn
     | ALTER column_? colid ADD_P GENERATED generated_when AS IDENTITY_P optparenthesizedseqoptlist? #alterColumn
     | ALTER column_? colid alter_identity_column_option_list            #alterColumn
     | ALTER column_? colid DROP IDENTITY_P                              #alterColumn
@@ -448,6 +457,7 @@ alter_table_cmd
     | ALTER column_? colid alter_generic_options                        #alterColumn
     | ADD_P tableconstraint                                             #addConstraint
     | ALTER CONSTRAINT name constraintattributespec                     #alterConstaint
+    | ALTER CONSTRAINT name INHERIT                                     #alterConstaint
     | VALIDATE CONSTRAINT name                                          #validateConstraint
     | DROP CONSTRAINT IF_P EXISTS name drop_behavior_?                  #dropConstraint
     | DROP CONSTRAINT name drop_behavior_?                              #dropConstraint
@@ -473,6 +483,7 @@ alter_table_cmd
     | OF any_name      #unsupportAlterTableStatement
     | NOT OF      #unsupportAlterTableStatement
     | OWNER TO rolespec      #unsupportAlterTableStatement
+    | SET ACCESS METHOD (name | DEFAULT)      #unsupportAlterTableStatement
     | SET TABLESPACE name      #unsupportAlterTableStatement
     | SET reloptions      #unsupportAlterTableStatement
     | RESET reloptions      #unsupportAlterTableStatement
@@ -510,6 +521,19 @@ replica_identity
     | FULL
     | DEFAULT
     | USING INDEX name
+    ;
+
+set_statistics_value
+    : signediconst
+    | DEFAULT
+    ;
+
+column_storage
+    : STORAGE (colid | DEFAULT)
+    ;
+
+column_compression
+    : COMPRESSION (colid | DEFAULT)
     ;
 
 reloptions
@@ -725,13 +749,13 @@ colconstraint
 colconstraintelem
     : NOT NULL_P                                #constraintNotNull
     | NULL_P                                    #constraintNull
-    | UNIQUE definition_? optconstablespace?    #constraintUnique
+    | UNIQUE unique_null_treatment_? definition_? optconstablespace?    #constraintUnique
     | PRIMARY KEY definition_? optconstablespace?   #constraintPrimary
     | CHECK OPEN_PAREN a_expr CLOSE_PAREN no_inherit_?  #constraintCheck
     | DEFAULT b_expr                                    #constraintDefault
     | GENERATED generated_when AS (
         IDENTITY_P optparenthesizedseqoptlist?
-        | OPEN_PAREN a_expr CLOSE_PAREN STORED
+        | OPEN_PAREN a_expr CLOSE_PAREN (STORED | VIRTUAL)?
     )                                                   #constraintGenerated
     | REFERENCES qualified_name column_list_? key_match? key_actions? #constraintReference
     ;
@@ -774,7 +798,7 @@ tableconstraint
 
 constraintelem
     : CHECK OPEN_PAREN a_expr CLOSE_PAREN constraintattributespec
-    | UNIQUE (
+    | UNIQUE unique_null_treatment_? (
         OPEN_PAREN columnlist CLOSE_PAREN c_include_? definition_? optconstablespace? constraintattributespec
         | existingindex constraintattributespec
     )
@@ -784,7 +808,7 @@ constraintelem
     )
     | EXCLUDE access_method_clause? OPEN_PAREN exclusionconstraintlist CLOSE_PAREN c_include_? definition_? optconstablespace? exclusionwhereclause?
         constraintattributespec
-    | FOREIGN KEY OPEN_PAREN columnlist CLOSE_PAREN REFERENCES qualified_name column_list_? key_match? key_actions? constraintattributespec
+    | FOREIGN KEY column_and_period_list REFERENCES qualified_name column_and_period_list_? key_match? key_actions? constraintattributespec
     ;
 
 no_inherit_
@@ -802,7 +826,19 @@ columnlist
     ;
 
 columnElem
-    : colid
+    : colid without_overlaps_?
+    ;
+
+without_overlaps_
+    : WITHOUT OVERLAPS
+    ;
+
+column_and_period_list
+    : OPEN_PAREN columnlist (COMMA PERIOD columnElem)? CLOSE_PAREN
+    ;
+
+column_and_period_list_
+    : column_and_period_list
     ;
 
 c_include_
@@ -916,11 +952,12 @@ existingindex
     ;
 
 createstatsstmt
-    : CREATE STATISTICS (IF_P NOT EXISTS)? any_name name_list_? ON expr_list FROM from_list
+    : CREATE STATISTICS IF_P NOT EXISTS any_name name_list_? ON expr_list FROM from_list
+    | CREATE STATISTICS any_name? name_list_? ON expr_list FROM from_list
     ;
 
 alterstatsstmt
-    : ALTER STATISTICS (IF_P EXISTS)? any_name SET STATISTICS signediconst
+    : ALTER STATISTICS (IF_P EXISTS)? any_name SET STATISTICS set_statistics_value
     ;
 
 createasstmt
@@ -980,6 +1017,7 @@ seqoptelem
     | CACHE numericonly
     | CYCLE
     | INCREMENT by_? numericonly
+    | LOGGED
     | MAXVALUE numericonly
     | MINVALUE numericonly
     | NO (MAXVALUE | MINVALUE | CYCLE)
@@ -987,6 +1025,7 @@ seqoptelem
     | SEQUENCE NAME_P any_name
     | START with_? numericonly
     | RESTART with_? numericonly?
+    | UNLOGGED
     ;
 
 by_
@@ -1063,7 +1102,7 @@ create_extension_opt_list
 
 create_extension_opt_item
     : SCHEMA name
-    | VERSION_P nonreservedword_or_sconst
+    | (VERSION_P | VERSION) nonreservedword_or_sconst
     | FROM nonreservedword_or_sconst
     | CASCADE
     ;
@@ -1168,7 +1207,7 @@ type_
     ;
 
 foreign_server_version
-    : VERSION_P (sconst | NULL_P)
+    : (VERSION_P | VERSION) (sconst | NULL_P)
     ;
 
 foreign_server_version_
@@ -1228,6 +1267,8 @@ createpolicystmt
 
 alterpolicystmt
     : ALTER POLICY name ON qualified_name rowsecurityoptionaltorole? rowsecurityoptionalexpr? rowsecurityoptionalwithcheck?
+    | ALTER POLICY name ON qualified_name RENAME TO name
+    | ALTER POLICY IF_P EXISTS name ON qualified_name RENAME TO name
     ;
 
 rowsecurityoptionalexpr
@@ -1278,7 +1319,7 @@ am_type
     ;
 
 createtrigstmt
-    : CREATE TRIGGER name triggeractiontime triggerevents ON qualified_name triggerreferencing? triggerforspec? triggerwhen? EXECUTE
+    : CREATE or_replace_? TRIGGER name triggeractiontime triggerevents ON qualified_name triggerreferencing? triggerforspec? triggerwhen? EXECUTE
         function_or_procedure func_name OPEN_PAREN triggerfuncargs CLOSE_PAREN
     | CREATE CONSTRAINT TRIGGER name AFTER triggerevents ON qualified_name optconstrfromtable? constraintattributespec FOR EACH ROW triggerwhen? EXECUTE
         function_or_procedure func_name OPEN_PAREN triggerfuncargs CLOSE_PAREN
@@ -1381,6 +1422,8 @@ constraintattributeElem
     | INITIALLY DEFERRED
     | NOT VALID
     | NO INHERIT
+    | NOT ENFORCED
+    | ENFORCED
     ;
 
 createeventtrigstmt
@@ -1573,6 +1616,8 @@ dropstmt
     | DROP TYPE_P IF_P EXISTS type_name_list drop_behavior_?
     | DROP DOMAIN_P type_name_list drop_behavior_?
     | DROP DOMAIN_P IF_P EXISTS type_name_list drop_behavior_?
+    | DROP INDEX any_name_list_ drop_behavior_?
+    | DROP INDEX IF_P EXISTS any_name_list_ drop_behavior_?
     | DROP INDEX CONCURRENTLY any_name_list_ drop_behavior_?
     | DROP INDEX CONCURRENTLY IF_P EXISTS any_name_list_ drop_behavior_?
     ;
@@ -1651,22 +1696,21 @@ restart_seqs_
 commentstmt
     : comment_table_stmt
     | comment_column_stmt
-//    COMMENT ON object_type_any_name any_name IS comment_text
-//    | COMMENT ON COLUMN any_name IS comment_text
-//    | COMMENT ON object_type_name name IS comment_text
+    | COMMENT ON object_type_any_name any_name IS comment_text
+    | COMMENT ON object_type_name name IS comment_text
 //    | COMMENT ON TYPE_P typename IS comment_text
 //    | COMMENT ON DOMAIN_P typename IS comment_text
-//    | COMMENT ON AGGREGATE aggregate_with_argtypes IS comment_text
+    | COMMENT ON AGGREGATE aggregate_with_argtypes IS comment_text
 //    | COMMENT ON FUNCTION function_with_argtypes IS comment_text
-//    | COMMENT ON OPERATOR operator_with_argtypes IS comment_text
-//    | COMMENT ON CONSTRAINT name ON any_name IS comment_text
+    | COMMENT ON OPERATOR operator_with_argtypes IS comment_text
+    | COMMENT ON CONSTRAINT name ON any_name IS comment_text
 //    | COMMENT ON CONSTRAINT name ON DOMAIN_P any_name IS comment_text
-//    | COMMENT ON object_type_name_on_any_name name ON any_name IS comment_text
+    | COMMENT ON object_type_name_on_any_name name ON any_name IS comment_text
 //    | COMMENT ON PROCEDURE function_with_argtypes IS comment_text
 //    | COMMENT ON ROUTINE function_with_argtypes IS comment_text
 //    | COMMENT ON TRANSFORM FOR typename LANGUAGE name IS comment_text
-//    | COMMENT ON OPERATOR CLASS any_name USING name IS comment_text
-//    | COMMENT ON OPERATOR FAMILY any_name USING name IS comment_text
+    | COMMENT ON OPERATOR CLASS any_name USING name IS comment_text
+    | COMMENT ON OPERATOR FAMILY any_name USING name IS comment_text
 //    | COMMENT ON LARGE_P OBJECT_P numericonly IS comment_text
 //    | COMMENT ON CAST OPEN_PAREN typename AS typename CLOSE_PAREN IS comment_text
     ;
@@ -1859,14 +1903,18 @@ defacl_privilege_target
 
 indexstmt
     : CREATE unique_? INDEX concurrently_? index_name_? ON relation_expr access_method_clause? OPEN_PAREN index_params CLOSE_PAREN include_?
-        reloptions_? opttablespace? where_clause?
+        unique_null_treatment_? reloptions_? opttablespace? where_clause?
     | CREATE unique_? INDEX concurrently_? IF_P NOT EXISTS name ON relation_expr access_method_clause? OPEN_PAREN index_params CLOSE_PAREN
-        include_? reloptions_? opttablespace? where_clause?
+        include_? unique_null_treatment_? reloptions_? opttablespace? where_clause?
     ;
 
 unique_
     : UNIQUE
 
+    ;
+
+unique_null_treatment_
+    : NULLS_P NOT? DISTINCT
     ;
 
 single_name_
@@ -2149,7 +2197,8 @@ oper_argtypes
     ;
 
 any_operator
-    : (colid DOT)* all_op
+    : all_op
+    | colid DOT any_operator
     ;
 
 operator_with_argtypes_list
@@ -2236,61 +2285,61 @@ altertblspcstmt
 
 renamestmt
     :
-//    ALTER AGGREGATE aggregate_with_argtypes RENAME TO name
-//    | ALTER COLLATION any_name RENAME TO name
-//    | ALTER CONVERSION_P any_name RENAME TO name
-     rename_database_stmt
-//    | ALTER DOMAIN_P any_name RENAME TO name
-//    | ALTER DOMAIN_P any_name RENAME CONSTRAINT name TO name
-//    | ALTER FOREIGN DATA_P WRAPPER name RENAME TO name
+    ALTER AGGREGATE aggregate_with_argtypes RENAME TO name
+    | ALTER COLLATION any_name RENAME TO name
+    | ALTER CONVERSION_P any_name RENAME TO name
+    | rename_database_stmt
+    | ALTER DOMAIN_P any_name RENAME TO name
+    | ALTER DOMAIN_P any_name RENAME CONSTRAINT name TO name
+    | ALTER FOREIGN DATA_P WRAPPER name RENAME TO name
 //    | ALTER FUNCTION function_with_argtypes RENAME TO name
-//    | ALTER GROUP_P roleid RENAME TO roleid
+    | ALTER GROUP_P roleid RENAME TO roleid
 //    | ALTER procedural_? LANGUAGE name RENAME TO name
-//    | ALTER OPERATOR CLASS any_name USING name RENAME TO name
-//    | ALTER OPERATOR FAMILY any_name USING name RENAME TO name
+    | ALTER OPERATOR CLASS any_name USING name RENAME TO name
+    | ALTER OPERATOR FAMILY any_name USING name RENAME TO name
 //    | ALTER POLICY name ON qualified_name RENAME TO name
 //    | ALTER POLICY IF_P EXISTS name ON qualified_name RENAME TO name
 //    | ALTER PROCEDURE function_with_argtypes RENAME TO name
-//    | ALTER PUBLICATION name RENAME TO name
+    | ALTER PUBLICATION name RENAME TO name
 //    | ALTER ROUTINE function_with_argtypes RENAME TO name
     | rename_schema_stmt
-//    | ALTER SERVER name RENAME TO name
-//    | ALTER SUBSCRIPTION name RENAME TO name
+    | ALTER SERVER name RENAME TO name
+    | ALTER SUBSCRIPTION name RENAME TO name
     | rename_table_stmt
 //    | ALTER TABLE IF_P EXISTS relation_expr RENAME TO name
-//    | ALTER SEQUENCE qualified_name RENAME TO name
-//    | ALTER SEQUENCE IF_P EXISTS qualified_name RENAME TO name
-//    | ALTER VIEW qualified_name RENAME TO name
-//    | ALTER VIEW IF_P EXISTS qualified_name RENAME TO name
-//    | ALTER MATERIALIZED VIEW qualified_name RENAME TO name
-//    | ALTER MATERIALIZED VIEW IF_P EXISTS qualified_name RENAME TO name
+    | ALTER SEQUENCE qualified_name RENAME TO name
+    | ALTER SEQUENCE IF_P EXISTS qualified_name RENAME TO name
+    | ALTER VIEW qualified_name RENAME TO name
+    | ALTER VIEW IF_P EXISTS qualified_name RENAME TO name
+    | ALTER MATERIALIZED VIEW qualified_name RENAME TO name
+    | ALTER MATERIALIZED VIEW IF_P EXISTS qualified_name RENAME TO name
 //    | ALTER INDEX qualified_name RENAME TO name
 //    | ALTER INDEX IF_P EXISTS qualified_name RENAME TO name
 //    | ALTER FOREIGN TABLE relation_expr RENAME TO name
 //    | ALTER FOREIGN TABLE IF_P EXISTS relation_expr RENAME TO name
     | rename_column_stmt
 //    | ALTER TABLE IF_P EXISTS relation_expr RENAME column_? name TO name
-//    | ALTER VIEW qualified_name RENAME column_? name TO name
-//    | ALTER VIEW IF_P EXISTS qualified_name RENAME column_? name TO name
-//    | ALTER MATERIALIZED VIEW qualified_name RENAME column_? name TO name
-//    | ALTER MATERIALIZED VIEW IF_P EXISTS qualified_name RENAME column_? name TO name
+    | ALTER VIEW qualified_name RENAME column_? name TO name
+    | ALTER VIEW IF_P EXISTS qualified_name RENAME column_? name TO name
+    | ALTER MATERIALIZED VIEW qualified_name RENAME column_? name TO name
+    | ALTER MATERIALIZED VIEW IF_P EXISTS qualified_name RENAME column_? name TO name
 //    | ALTER TABLE relation_expr RENAME CONSTRAINT name TO name
 //    | ALTER TABLE IF_P EXISTS relation_expr RENAME CONSTRAINT name TO name
 //    | ALTER FOREIGN TABLE relation_expr RENAME column_? name TO name
 //    | ALTER FOREIGN TABLE IF_P EXISTS relation_expr RENAME column_? name TO name
-//    | ALTER RULE name ON qualified_name RENAME TO name
-//    | ALTER TRIGGER name ON qualified_name RENAME TO name
-//    | ALTER EVENT TRIGGER name RENAME TO name
-//    | ALTER ROLE roleid RENAME TO roleid
-//    | ALTER USER roleid RENAME TO roleid
-//    | ALTER TABLESPACE name RENAME TO name
-//    | ALTER STATISTICS any_name RENAME TO name
-//    | ALTER TEXT_P SEARCH PARSER any_name RENAME TO name
-//    | ALTER TEXT_P SEARCH DICTIONARY any_name RENAME TO name
-//    | ALTER TEXT_P SEARCH TEMPLATE any_name RENAME TO name
-//    | ALTER TEXT_P SEARCH CONFIGURATION any_name RENAME TO name
-//    | ALTER TYPE_P any_name RENAME TO name
-//    | ALTER TYPE_P any_name RENAME ATTRIBUTE name TO name drop_behavior_?
+    | ALTER RULE name ON qualified_name RENAME TO name
+    | ALTER TRIGGER name ON qualified_name RENAME TO name
+    | ALTER EVENT TRIGGER name RENAME TO name
+    | ALTER ROLE roleid RENAME TO roleid
+    | ALTER USER roleid RENAME TO roleid
+    | ALTER TABLESPACE name RENAME TO name
+    | ALTER STATISTICS any_name RENAME TO name
+    | ALTER TEXT_P SEARCH PARSER any_name RENAME TO name
+    | ALTER TEXT_P SEARCH DICTIONARY any_name RENAME TO name
+    | ALTER TEXT_P SEARCH TEMPLATE any_name RENAME TO name
+    | ALTER TEXT_P SEARCH CONFIGURATION any_name RENAME TO name
+    | ALTER TYPE_P any_name RENAME TO name
+    | ALTER TYPE_P any_name RENAME ATTRIBUTE name TO name drop_behavior_?
     ;
 
 rename_table_stmt:
@@ -2425,19 +2474,53 @@ publication_for_tables_
     ;
 
 publication_for_tables
-    : FOR TABLE relation_expr_list
-    | FOR ALL TABLES
+    : FOR publication_object_list
+    | FOR publication_all_object_list
+    ;
+
+publication_object_list
+    : publication_object (COMMA publication_object)*
+    ;
+
+publication_object
+    : TABLE relation_expr column_list_? where_clause?
+    | TABLES IN_P SCHEMA publication_schema_name_list
+    | relation_expr column_list_? where_clause?
+    ;
+
+publication_schema_name_list
+    : publication_schema_name (COMMA publication_schema_name)*
+    ;
+
+publication_schema_name
+    : name
+    | CURRENT_SCHEMA
+    ;
+
+publication_all_object_list
+    : publication_all_object (COMMA publication_all_object)*
+    ;
+
+publication_all_object
+    : ALL TABLES publication_except_clause?
+    | ALL SEQUENCES
+    ;
+
+publication_except_clause
+    : EXCEPT OPEN_PAREN TABLE relation_expr_list CLOSE_PAREN
     ;
 
 alterpublicationstmt
     : ALTER PUBLICATION name SET definition
-    | ALTER PUBLICATION name ADD_P TABLE relation_expr_list
-    | ALTER PUBLICATION name SET TABLE relation_expr_list
-    | ALTER PUBLICATION name DROP TABLE relation_expr_list
+    | ALTER PUBLICATION name ADD_P publication_object_list
+    | ALTER PUBLICATION name SET publication_object_list
+    | ALTER PUBLICATION name SET publication_all_object_list
+    | ALTER PUBLICATION name DROP publication_object_list
     ;
 
 createsubscriptionstmt
     : CREATE SUBSCRIPTION name CONNECTION sconst PUBLICATION publication_name_list definition_?
+    | CREATE SUBSCRIPTION name SERVER name PUBLICATION publication_name_list definition_?
     ;
 
 publication_name_list
@@ -2451,10 +2534,15 @@ publication_name_item
 altersubscriptionstmt
     : ALTER SUBSCRIPTION name SET definition
     | ALTER SUBSCRIPTION name CONNECTION sconst
+    | ALTER SUBSCRIPTION name SERVER name
     | ALTER SUBSCRIPTION name REFRESH PUBLICATION definition_?
+    | ALTER SUBSCRIPTION name REFRESH SEQUENCES
+    | ALTER SUBSCRIPTION name ADD_P PUBLICATION publication_name_list definition_?
+    | ALTER SUBSCRIPTION name DROP PUBLICATION publication_name_list definition_?
     | ALTER SUBSCRIPTION name SET PUBLICATION publication_name_list definition_?
     | ALTER SUBSCRIPTION name ENABLE_P
     | ALTER SUBSCRIPTION name DISABLE_P
+    | ALTER SUBSCRIPTION name SKIP_P definition
     ;
 
 dropsubscriptionstmt
@@ -2646,11 +2734,12 @@ drop_option
     ;
 
 altercollationstmt
-    : ALTER COLLATION any_name REFRESH VERSION_P
+    : ALTER COLLATION any_name REFRESH (VERSION_P | VERSION)
     ;
 
 altersystemstmt
-    : ALTER SYSTEM_P (SET | RESET) generic_set
+    : ALTER SYSTEM_P SET generic_set
+    | ALTER SYSTEM_P RESET generic_reset
     ;
 
 createdomainstmt
@@ -2714,11 +2803,8 @@ vacuumstmt
     ;
 
 analyzestmt
-    : analyze_keyword verbose_? schema=colid? table=colid
-    | analyze_keyword OPEN_PAREN vac_analyze_option_list CLOSE_PAREN schema=colid? table=colid
-//
-//    : analyze_keyword verbose_? vacuum_relation_list_?
-//    | analyze_keyword OPEN_PAREN vac_analyze_option_list CLOSE_PAREN vacuum_relation_list_?
+    : analyze_keyword verbose_? vacuum_relation_list_?
+    | analyze_keyword OPEN_PAREN vac_analyze_option_list CLOSE_PAREN vacuum_relation_list_?
     ;
 
 utility_option_list
@@ -2814,6 +2900,7 @@ explainablestmt
     | insertstmt
     | updatestmt
     | deletestmt
+    | mergestmt
     | declarecursorstmt
     | createasstmt
     | creatematviewstmt
@@ -2854,6 +2941,7 @@ preparablestmt
     | insertstmt
     | updatestmt
     | deletestmt
+    | mergestmt
     ;
 
 executestmt
@@ -2916,28 +3004,57 @@ conf_expr_
     ;
 
 returning_clause
-    : RETURNING target_list
+    : RETURNING returning_with_clause_? target_list
 
+    ;
+
+returning_with_clause_
+    : WITH OPEN_PAREN returning_options CLOSE_PAREN
+    ;
+
+returning_options
+    : returning_option (COMMA returning_option)*
+    ;
+
+returning_option
+    : (OLD | NEW) AS colid
     ;
 
 // https://www.postgresql.org/docs/current/sql-merge.html
 mergestmt
-    : MERGE INTO? qualified_name alias_clause? USING (select_with_parens | qualified_name) alias_clause? ON a_expr (
-        merge_insert_clause merge_update_clause?
-        | merge_update_clause merge_insert_clause?
-    ) merge_delete_clause?
+    : with_clause_? MERGE INTO relation_expr_opt_alias USING table_ref ON a_expr merge_when_clause+ returning_clause?
     ;
 
-merge_insert_clause
-    : WHEN NOT MATCHED (AND a_expr)? THEN? INSERT (OPEN_PAREN insert_column_list CLOSE_PAREN)? values_clause
+merge_when_clause
+    : merge_when_tgt_matched (AND a_expr)? THEN (merge_update | merge_delete | DO NOTHING)
+    | merge_when_tgt_not_matched (AND a_expr)? THEN (merge_insert | DO NOTHING)
     ;
 
-merge_update_clause
-    : WHEN MATCHED (AND a_expr)? THEN? UPDATE SET set_clause_list
+merge_when_tgt_matched
+    : WHEN MATCHED
+    | WHEN NOT MATCHED BY SOURCE
     ;
 
-merge_delete_clause
-    : WHEN MATCHED THEN? DELETE_P
+merge_when_tgt_not_matched
+    : WHEN NOT MATCHED (BY TARGET)?
+    ;
+
+merge_update
+    : UPDATE SET set_clause_list
+    ;
+
+merge_delete
+    : DELETE_P
+    ;
+
+merge_insert
+    : INSERT (OPEN_PAREN insert_column_list CLOSE_PAREN)? (OVERRIDING override_kind VALUE_P)? merge_values_clause
+    | INSERT (OVERRIDING override_kind VALUE_P)? merge_values_clause
+    | INSERT DEFAULT VALUES
+    ;
+
+merge_values_clause
+    : VALUES OPEN_PAREN expr_list CLOSE_PAREN
     ;
 
 deletestmt
@@ -3006,7 +3123,7 @@ cursor_name
     ;
 
 cursor_options
-    : (NO SCROLL | SCROLL | BINARY | INSENSITIVE)*
+    : (NO SCROLL | SCROLL | BINARY | ASENSITIVE | INSENSITIVE)*
     ;
 
 hold_
@@ -3035,12 +3152,10 @@ select_with_parens
     ;
 
 select_no_parens
-    : select_clause sort_clause_? (
-        for_locking_clause  for_locking_clause_?
-    )?
-    | with_clause select_clause sort_clause_? (
-        for_locking_clause for_locking_clause_?
-    )?
+    : select_clause sort_clause_? select_limit_? (for_locking_clause for_locking_clause_?)?
+    | select_clause sort_clause_? (for_locking_clause for_locking_clause_?) select_limit_?
+    | with_clause select_clause sort_clause_? select_limit_? (for_locking_clause for_locking_clause_?)?
+    | with_clause select_clause sort_clause_? (for_locking_clause for_locking_clause_?) select_limit_?
     ;
 
 select_clause
@@ -3064,7 +3179,7 @@ simple_select_pramary
             )
             into_clause? from_clause? where_clause? group_clause? sort_clause? having_clause? window_clause? select_limit?
       )
-//    | values_clause
+    | values_clause
     | TABLE relation_expr
     | select_with_parens
     ;
@@ -3078,7 +3193,25 @@ cte_list
     ;
 
 common_table_expr
-    : name name_list_? AS materialized_? OPEN_PAREN preparablestmt CLOSE_PAREN
+    : name name_list_? AS materialized_? OPEN_PAREN preparablestmt CLOSE_PAREN search_clause_? cycle_clause_?
+    ;
+
+search_clause_
+    : SEARCH search_order FIRST_P BY columnlist SET colid
+    ;
+
+search_order
+    : DEPTH
+    | BREADTH
+    | { _input.LT(1).getText().equalsIgnoreCase("depth") || _input.LT(1).getText().equalsIgnoreCase("breadth") }? identifier
+    ;
+
+cycle_clause_
+    : CYCLE columnlist SET colid cycle_mark_values_? USING colid
+    ;
+
+cycle_mark_values_
+    : TO a_expr DEFAULT a_expr
     ;
 
 materialized_
@@ -3198,7 +3331,9 @@ first_or_next
     ;
 
 group_clause
-    : GROUP_P BY group_by_list
+    : GROUP_P BY ALL group_by_list?
+    | GROUP_P BY DISTINCT group_by_list
+    | GROUP_P BY group_by_list
 
     ;
 
@@ -3277,12 +3412,14 @@ from_list
 
 table_ref
     : (
-        relation_expr alias_clause? tablesample_clause?
+        json_table alias_clause?
+        | relation_expr alias_clause? tablesample_clause?
         | func_table func_alias_clause?
         | xmltable alias_clause?
         | select_with_parens alias_clause?
         | LATERAL_P (
             xmltable alias_clause?
+            | json_table alias_clause?
             | func_table func_alias_clause?
             | select_with_parens alias_clause?
         )
@@ -3324,8 +3461,13 @@ join_type
     ;
 
 join_qual
-    : USING OPEN_PAREN name_list CLOSE_PAREN
+    : USING OPEN_PAREN name_list CLOSE_PAREN join_using_alias_?
     | ON a_expr
+    ;
+
+join_using_alias_
+    : AS colid
+
     ;
 
 relation_expr
@@ -3419,6 +3561,7 @@ xmltable_column_option_list
 
 xmltable_column_option_el
     : DEFAULT a_expr
+    | PATH a_expr
     | identifier a_expr
     | NOT NULL_P
     | NULL_P
@@ -3431,6 +3574,96 @@ xml_namespace_list
 xml_namespace_el
     : b_expr AS colLabel
     | DEFAULT b_expr
+    ;
+
+json_table
+    : JSON_TABLE OPEN_PAREN json_value_expr COMMA a_expr json_table_path_name_? json_passing_clause?
+        COLUMNS OPEN_PAREN json_table_column_definition_list CLOSE_PAREN json_table_plan_clause_? json_table_on_error_clause_?
+      CLOSE_PAREN
+    ;
+
+json_table_path_name_
+    : AS name
+    ;
+
+json_table_column_definition_list
+    : json_table_column_definition (COMMA json_table_column_definition)*
+    ;
+
+json_table_column_definition
+    : colid FOR ORDINALITY
+    | colid typename json_format_clause? json_table_column_path_clause_? json_wrapper_behavior json_quotes_clause? json_behavior_clause?
+    | colid typename EXISTS json_table_column_path_clause_? json_on_error_clause?
+    | NESTED path_? sconst json_table_path_name_? COLUMNS OPEN_PAREN json_table_column_definition_list CLOSE_PAREN
+    ;
+
+path_
+    : PATH
+    ;
+
+json_table_column_path_clause_
+    : PATH sconst
+    ;
+
+json_table_plan_clause_
+    : PLAN OPEN_PAREN json_table_plan CLOSE_PAREN
+    | PLAN DEFAULT OPEN_PAREN json_table_default_plan_choices CLOSE_PAREN
+    ;
+
+json_table_plan
+    : json_table_plan_simple
+    | json_table_plan_outer
+    | json_table_plan_inner
+    | json_table_plan_union
+    | json_table_plan_cross
+    ;
+
+json_table_plan_simple
+    : name
+    ;
+
+json_table_plan_outer
+    : json_table_plan_simple OUTER_P json_table_plan_primary
+    ;
+
+json_table_plan_inner
+    : json_table_plan_simple INNER_P json_table_plan_primary
+    ;
+
+json_table_plan_union
+    : json_table_plan_primary UNION json_table_plan_primary
+    | json_table_plan_union UNION json_table_plan_primary
+    ;
+
+json_table_plan_cross
+    : json_table_plan_primary CROSS json_table_plan_primary
+    | json_table_plan_cross CROSS json_table_plan_primary
+    ;
+
+json_table_plan_primary
+    : json_table_plan_simple
+    | OPEN_PAREN json_table_plan CLOSE_PAREN
+    ;
+
+json_table_default_plan_choices
+    : json_table_default_plan_inner_outer
+    | json_table_default_plan_union_cross
+    | json_table_default_plan_inner_outer COMMA json_table_default_plan_union_cross
+    | json_table_default_plan_union_cross COMMA json_table_default_plan_inner_outer
+    ;
+
+json_table_default_plan_inner_outer
+    : INNER_P
+    | OUTER_P
+    ;
+
+json_table_default_plan_union_cross
+    : UNION
+    | CROSS
+    ;
+
+json_table_on_error_clause_
+    : (ERROR | EMPTY_P ARRAY?) ON ERROR
     ;
 
 typename
@@ -3703,6 +3936,7 @@ a_expr_is_not
             | OF OPEN_PAREN type_list CLOSE_PAREN
             | DOCUMENT_P
             | unicode_normal_form? NORMALIZED
+            | json_predicate_type_constraint json_key_uniqueness_constraint?
         )
     )?
     ;
@@ -3761,7 +3995,7 @@ a_expr_unary_sign
 /* 3*/
 
 a_expr_at_time_zone
-    : a_expr_collate (AT TIME ZONE a_expr)?
+    : a_expr_collate (AT (TIME ZONE a_expr | {atLeast(PostgresVersion.POSTGRES_17)}? LOCAL))?
     ;
 
 /* 2*/
@@ -3835,11 +4069,13 @@ star_context
 
 func_expr
     : func_application within_group_clause? filter_clause? over_clause?
+    | json_aggregate_func filter_clause? over_clause?
     | func_expr_common_subexpr
     ;
 
 func_expr_windowless
     : func_application
+    | json_aggregate_func
     | func_expr_common_subexpr
     ;
 
@@ -3867,16 +4103,24 @@ func_expr_common_subexpr
     | TRIM OPEN_PAREN (BOTH | LEADING | TRAILING)? trim_list CLOSE_PAREN
     | NULLIF OPEN_PAREN a_expr COMMA a_expr CLOSE_PAREN
     | COALESCE OPEN_PAREN expr_list CLOSE_PAREN
+    | EVERY OPEN_PAREN func_arg_list CLOSE_PAREN
     | GREATEST OPEN_PAREN expr_list CLOSE_PAREN
     | LEAST OPEN_PAREN expr_list CLOSE_PAREN
+    | XMLAGG OPEN_PAREN func_arg_list sort_clause_? CLOSE_PAREN
     | XMLCONCAT OPEN_PAREN expr_list CLOSE_PAREN
-    | XMLELEMENT OPEN_PAREN NAME_P colLabel (COMMA (xml_attributes | expr_list))? CLOSE_PAREN
+    | XMLELEMENT OPEN_PAREN NAME_P colLabel (COMMA xml_attributes (COMMA expr_list)? | COMMA expr_list)? CLOSE_PAREN
+    | XMLCOMMENT OPEN_PAREN a_expr CLOSE_PAREN
     | XMLEXISTS OPEN_PAREN c_expr xmlexists_argument CLOSE_PAREN
     | XMLFOREST OPEN_PAREN xml_attribute_list CLOSE_PAREN
+    | XML_IS_WELL_FORMED OPEN_PAREN func_arg_list CLOSE_PAREN
+    | XML_IS_WELL_FORMED_CONTENT OPEN_PAREN func_arg_list CLOSE_PAREN
+    | XML_IS_WELL_FORMED_DOCUMENT OPEN_PAREN func_arg_list CLOSE_PAREN
     | XMLPARSE OPEN_PAREN document_or_content a_expr xml_whitespace_option? CLOSE_PAREN
     | XMLPI OPEN_PAREN NAME_P colLabel (COMMA a_expr)? CLOSE_PAREN
-    | XMLROOT OPEN_PAREN XML_P a_expr COMMA xml_root_version xml_root_standalone_? CLOSE_PAREN
-    | XMLSERIALIZE OPEN_PAREN document_or_content a_expr AS simpletypename CLOSE_PAREN
+    | XMLROOT OPEN_PAREN a_expr COMMA xml_root_version xml_root_standalone_? CLOSE_PAREN
+    | XMLSERIALIZE OPEN_PAREN document_or_content a_expr AS simpletypename xml_indent_option? CLOSE_PAREN
+    | XPATH OPEN_PAREN func_arg_list CLOSE_PAREN
+    | XPATH_EXISTS OPEN_PAREN func_arg_list CLOSE_PAREN
     | JSON_OBJECT OPEN_PAREN (func_arg_list
 		| json_name_and_value_list
 		  json_object_constructor_null_clause?
@@ -3918,14 +4162,18 @@ func_expr_common_subexpr
 /* SQL/XML support */
 
 xml_root_version
-    : VERSION_P a_expr
-    | VERSION_P NO VALUE_P
+    : (VERSION_P | VERSION) a_expr
+    | (VERSION_P | VERSION) NO VALUE_P
     ;
 
 xml_root_standalone_
     : COMMA STANDALONE_P YES_P
     | COMMA STANDALONE_P NO
     | COMMA STANDALONE_P NO VALUE_P
+    ;
+
+xml_indent_option
+    : NO? INDENT
     ;
 
 xml_attributes
@@ -4274,8 +4522,8 @@ json_value_expr:
 		;
 
 json_format_clause:
-			FORMAT_LA JSON ENCODING name
-			| FORMAT_LA JSON
+			(FORMAT_LA | FORMAT) JSON ENCODING name
+			| (FORMAT_LA | FORMAT) JSON
 		;
 
 
@@ -4352,13 +4600,13 @@ json_aggregate_func:
 				json_name_and_value
 				json_object_constructor_null_clause?
 				json_key_uniqueness_constraint?
-				json_returning_clause
+				json_returning_clause?
 			')'
 			| JSON_ARRAYAGG '('
 				json_value_expr
 				json_array_aggregate_order_by_clause?
 				json_array_constructor_null_clause?
-				json_returning_clause
+				json_returning_clause?
 			')'
 		;
 
@@ -4621,6 +4869,7 @@ unreserved_keyword
     | DATA_P
     | DATABASE
     | DAY_P
+    | DEBUG
     | DEALLOCATE
     | DECLARE
     | DEFAULTS
@@ -4644,6 +4893,7 @@ unreserved_keyword
     | ENABLE_P
     | ENCODING
     | ENCRYPTED
+    | ENFORCED
     | ENUM_P
     | ERROR
     | ESCAPE
@@ -4875,9 +5125,11 @@ unreserved_keyword
     | VALIDATOR
     | VALUE_P
     | VARYING
+    | VERSION
     | VERSION_P
     | VIEW
     | VIEWS
+    | VIRTUAL
     | VOLATILE
     | WHITESPACE_P
     | WITHIN
@@ -5539,17 +5791,23 @@ bare_label_keyword
     | WRAPPER
     | WRITE
     | XML_P
+    | XMLAGG
     | XMLATTRIBUTES
     | XMLCONCAT
     | XMLELEMENT
     | XMLEXISTS
     | XMLFOREST
+    | XML_IS_WELL_FORMED
+    | XML_IS_WELL_FORMED_CONTENT
+    | XML_IS_WELL_FORMED_DOCUMENT
     | XMLNAMESPACES
     | XMLPARSE
     | XMLPI
     | XMLROOT
     | XMLSERIALIZE
     | XMLTABLE
+    | XPATH
+    | XPATH_EXISTS
     | YES_P
     | ZONE
     ;

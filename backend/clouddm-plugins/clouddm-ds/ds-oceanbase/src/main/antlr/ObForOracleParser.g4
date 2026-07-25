@@ -20,7 +20,7 @@
 parser grammar ObForOracleParser;
 
 @header {
-    import com.clougence.sql.oracle.base.PlSqlParserBase;
+    import com.clougence.sql.oracle.analysis.security.base.PlSqlParserBase;
 }
 
 options {

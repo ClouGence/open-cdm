@@ -19,7 +19,7 @@ lexer grammar ObForOracleLexer;
 // Insert here @header for C++ lexer.
 
 @header {
-    import com.clougence.sql.oracle.base.PlSqlLexerBase;
+    import com.clougence.sql.oracle.analysis.security.base.PlSqlLexerBase;
 }
 options { superClass = PlSqlLexerBase; }
 

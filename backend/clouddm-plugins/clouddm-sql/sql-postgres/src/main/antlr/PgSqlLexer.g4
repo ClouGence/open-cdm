@@ -54,7 +54,7 @@ options {
 }
 
 @header {
-import com.clougence.sql.postgres.base.PgSqlLexerBase;
+import com.clougence.sql.postgres.analysis.security.base.PgSqlLexerBase;
 }
 
 // Insert here @header for C++ lexer.
@@ -392,6 +392,7 @@ EACH: E A C H;
 ENABLE_P: E N A B L E;
 ENCODING: E N C O D I N  G;
 ENCRYPTED: E N C R Y P T E D;
+ENFORCED: E N F O R C E D;
 ENUM_P: E N U M;
 ESCAPE: E S C A P E;
 EVENT: E V E N T;
@@ -570,6 +571,7 @@ VALIDATOR: V A L I D A T O R;
 VARYING: V A R Y I N G;
 VERSION_P: V E R S I O N;
 VIEW: V I E W;
+VIRTUAL: V I R T U A L;
 VOLATILE: V O L A T I L E;
 WHITESPACE_P: W H I T E S P A C E;
 WITHOUT: W I T H O  U T;
@@ -881,7 +883,7 @@ MetaCommand: '\\' -> pushMode(META), more ;
 
 ErrorCharacter: .;
 mode EscapeStringConstantMode;
-EscapeStringConstant: EscapeStringText '\'' -> mode (AfterEscapeStringConstantMode);
+EscapeStringConstant: EscapeStringText '\'' -> popMode;
 UnterminatedEscapeStringConstant:
     EscapeStringText
     // Handle a final unmatched \ character appearing at the end of the file
@@ -902,7 +904,7 @@ fragment EscapeStringText :
         | ~ ['\\]
     )*
 ;
-InvalidEscapeStringConstant: InvalidEscapeStringText '\'' -> mode (AfterEscapeStringConstantMode);
+InvalidEscapeStringConstant: InvalidEscapeStringText '\'' -> popMode;
 InvalidUnterminatedEscapeStringConstant:
     InvalidEscapeStringText
     // Handle a final unmatched \ character appearing at the end of the file

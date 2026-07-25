@@ -21,7 +21,7 @@
 lexer grammar PlSqlLexer;
 
 @header {
-    import com.clougence.sql.oracle.base.PlSqlLexerBase;
+    import com.clougence.sql.oracle.analysis.security.base.PlSqlLexerBase;
 }
 
 options {
