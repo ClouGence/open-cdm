@@ -56,7 +56,6 @@ public class MarSqlDsFactory implements DsFactory<Connection> {
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
 
-        String mySqlMode = dsConfig.getProperty(DsConfigKeys.MY_SQL_MODE.getConfigKey());
         String myMaxAllowedPacket = dsConfig.getProperty(DsConfigKeys.MY_MAX_ALLOWED_PACKET.getConfigKey());
         String sessionVariables = props.getProperty("sessionVariables");
 
@@ -81,10 +80,6 @@ public class MarSqlDsFactory implements DsFactory<Connection> {
         if (StringUtils.isNotBlank(clientName)) {
             props.put("connectionAttributes", "client_name:" + clientName);
         }
-        if (StringUtils.isNotBlank(mySqlMode)) {
-            String sqlMode = "EMPTY".equalsIgnoreCase(mySqlMode) ? "" : mySqlMode;
-            sessionVariables = appendSessionVariable(sessionVariables, "sql_mode", sqlMode);
-        }
         if (StringUtils.isNotBlank(myMaxAllowedPacket)) {
             props.put("maxAllowedPacket", myMaxAllowedPacket);
         }
@@ -105,18 +100,6 @@ public class MarSqlDsFactory implements DsFactory<Connection> {
             log.error("create connection instanceID(MariaDB)=" + id + " ,jdbcUrl= " + jdbcUrl + ", error:" + e.getMessage());
             throw e;
         }
-    }
-
-    private String appendSessionVariable(String sessionVariables, String key, String value) {
-        if (StringUtils.isBlank(value)) {
-            return sessionVariables;
-        }
-
-        String variable = key + "=" + value;
-        if (StringUtils.isBlank(sessionVariables)) {
-            return variable;
-        }
-        return sessionVariables + "," + variable;
     }
 
     private String safeString(String value) {
