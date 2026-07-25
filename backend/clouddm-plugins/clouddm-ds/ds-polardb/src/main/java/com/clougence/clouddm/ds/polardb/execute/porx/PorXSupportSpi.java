@@ -81,9 +81,4 @@ public class PorXSupportSpi implements RdbSupportSpi {
     public List<RdbIsolation> supportIsolation() {
         return Collections.emptyList();
     }
-
-    @Override
-    public boolean supportMultiStatement(boolean isDesktop) {
-        return true;
-    }
 }

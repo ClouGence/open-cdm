@@ -94,11 +94,6 @@ public class ChSupportSpi implements RdbSupportSpi {
         return Collections.emptyList();
     }
 
-    @Override
-    public boolean supportMultiStatement(boolean isDesktop) {
-        return true;
-    }
-
     private boolean supportTransaction(DataSourceConfig dsConfig) {
         return StringUtils.contains(dsConfig.getDriverVersion(), DRIVER_FAMILY_NATIVE_JDBC);
     }
