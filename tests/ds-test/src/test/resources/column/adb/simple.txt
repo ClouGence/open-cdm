@@ -1,0 +1,123 @@
+[AdsParseColumnSimpleTest.test1]
+sql:
+select * from table1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test1_1]
+sql:
+select * from (select * from table1)
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test1_2]
+sql:
+select * from (select * from table1) c
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test2]
+sql:
+select * from table1 a
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test3]
+sql:
+select column1 from table1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test4]
+sql:
+select column1 as test from table1 a
+expect:
+{
+  "test" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test5]
+sql:
+select * from schema2.table1
+expect:
+{
+  "column1" : [ "/catalog1/schema2/table1/column1/" ],
+  "column2" : [ "/catalog1/schema2/table1/column2/" ],
+  "column3" : [ "/catalog1/schema2/table1/column3/" ],
+  "column4" : [ "/catalog1/schema2/table1/column4/" ],
+  "column5" : [ "/catalog1/schema2/table1/column5/" ],
+  "column6" : [ "/catalog1/schema2/table1/column6/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test6]
+sql:
+select * from schema2.table1 a
+expect:
+{
+  "column1" : [ "/catalog1/schema2/table1/column1/" ],
+  "column2" : [ "/catalog1/schema2/table1/column2/" ],
+  "column3" : [ "/catalog1/schema2/table1/column3/" ],
+  "column4" : [ "/catalog1/schema2/table1/column4/" ],
+  "column5" : [ "/catalog1/schema2/table1/column5/" ],
+  "column6" : [ "/catalog1/schema2/table1/column6/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test7]
+sql:
+select column1 from schema2.table1
+expect:
+{
+  "column1" : [ "/catalog1/schema2/table1/column1/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test8]
+sql:
+select column1 as test from schema2.table1 a
+expect:
+{
+  "test" : [ "/catalog1/schema2/table1/column1/" ]
+}
+----------
+[AdsParseColumnSimpleTest.test9]
+sql:
+select *,test(column1) as s from schema2.table1
+expect:
+{
+  "column1" : [ "/catalog1/schema2/table1/column1/" ],
+  "column2" : [ "/catalog1/schema2/table1/column2/" ],
+  "column3" : [ "/catalog1/schema2/table1/column3/" ],
+  "column4" : [ "/catalog1/schema2/table1/column4/" ],
+  "column5" : [ "/catalog1/schema2/table1/column5/" ],
+  "column6" : [ "/catalog1/schema2/table1/column6/" ],
+  "s" : [ "/catalog1/schema2/table1/column1/" ]
+}

@@ -1,0 +1,60 @@
+DROP SCHEMA IF EXISTS split_pg18 CASCADE;
+CREATE SCHEMA split_pg18;
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+CREATE TABLE split_pg18.generated_virtual_table (
+    id integer,
+    amount integer,
+    doubled integer GENERATED ALWAYS AS (amount * 2) VIRTUAL,
+    CONSTRAINT amount_positive CHECK (amount > 0) NOT ENFORCED
+);
+CREATE TABLE split_pg18.temporal_parent (
+    account_id integer NOT NULL,
+    valid_at tstzrange NOT NULL,
+    status text,
+    PRIMARY KEY (account_id, valid_at WITHOUT OVERLAPS)
+);
+CREATE TABLE split_pg18.temporal_child (
+    account_id integer NOT NULL,
+    valid_at tstzrange NOT NULL,
+    note text,
+    FOREIGN KEY (account_id, PERIOD valid_at) REFERENCES split_pg18.temporal_parent (account_id, PERIOD valid_at)
+);
+DROP TABLE IF EXISTS split_pg18.temporal_child;
+DROP TABLE IF EXISTS split_pg18.temporal_parent;
+DROP TABLE IF EXISTS split_pg18.generated_virtual_table;
+DROP SCHEMA IF EXISTS split_pg18 CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_pg18 CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_pg18;
+----------
+[CREATE_LIBRARY] CREATE EXTENSION IF NOT EXISTS btree_gist;
+----------
+[CREATE_TABLE] CREATE TABLE split_pg18.generated_virtual_table (
+    id integer,
+    amount integer,
+    doubled integer GENERATED ALWAYS AS (amount * 2) VIRTUAL,
+    CONSTRAINT amount_positive CHECK (amount > 0) NOT ENFORCED
+);
+----------
+[CREATE_TABLE] CREATE TABLE split_pg18.temporal_parent (
+    account_id integer NOT NULL,
+    valid_at tstzrange NOT NULL,
+    status text,
+    PRIMARY KEY (account_id, valid_at WITHOUT OVERLAPS)
+);
+----------
+[CREATE_TABLE] CREATE TABLE split_pg18.temporal_child (
+    account_id integer NOT NULL,
+    valid_at tstzrange NOT NULL,
+    note text,
+    FOREIGN KEY (account_id, PERIOD valid_at) REFERENCES split_pg18.temporal_parent (account_id, PERIOD valid_at)
+);
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_pg18.temporal_child;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_pg18.temporal_parent;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_pg18.generated_virtual_table;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_pg18 CASCADE;

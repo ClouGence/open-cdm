@@ -89,7 +89,8 @@ export default {
         monaco,
         this.currentTab.dsType,
         this.getDsSettings(),
-        getLanguage(this.currentTab.dsType)
+        getLanguage(this.currentTab.dsType),
+        this.getDsLanguageCapability()
       );
       this.defaultOpts.language = this.currentTab.language;
       this.defaultOpts.value = this.currentTab.text;
@@ -509,7 +510,7 @@ export default {
       });
     },
     getDsLanguageCapability() {
-      return this.getCurrentDsSetting()?.language || null;
+      return this.currentTab?.support?.language || null;
     },
     isDsLanguageSupport(support, language = this.getDsLanguageCapability()) {
       if (!language?.supported) {
@@ -1028,6 +1029,7 @@ export default {
         object: {
           languageType,
           requestId: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          sessionId: this.currentTab.sessionId,
           levels: this.getLanguageRequestLevels(),
           basicCodeLine: startPosition.lineNumber,
           basicCodeColumn: startPosition.columnNumber,

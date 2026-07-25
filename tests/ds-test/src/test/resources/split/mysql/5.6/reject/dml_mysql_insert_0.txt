@@ -1,0 +1,42 @@
+insert into `table2` with tab1Cnt as (select id,name from table1) select * from tab1Cnt;
+INSERT INTO ptab PARTITION (p0) (id, name, val) VALUES ROW(3, 'row-one', 30), ROW(4, 'row-two', 40);
+INSERT INTO ptab PARTITION (p0) SET id = 6, name = 'set-alias', val = 60 AS new ON DUPLICATE KEY UPDATE name = new.name;
+INSERT INTO ptab PARTITION (p0) (id, name, val) VALUES (5, 'alias', 50) AS new(nid, nname, nval) ON DUPLICATE KEY UPDATE name = new.nname, val = new.nval;
+INSERT INTO target (id, name, val) TABLE src;
+INSERT INTO target_t SELECT 1 WHERE 1;
+INSERT INTO split_dml_dst PARTITION(p0)(id,v)
+  WITH c AS (SELECT id,v FROM split_dml_src WHERE id<100)
+  SELECT id,v FROM c ORDER BY id LIMIT 2
+  ON DUPLICATE KEY UPDATE v=split_dml_dst.v+1;
+INSERT INTO t0 SET a=1,b=20 AS n(na,nb) ON DUPLICATE KEY UPDATE b=n.nb;
+REPLACE INTO dst (id,v) TABLE src;
+INSERT INTO t0 VALUES (1,5),(2,7) AS t0 ON DUPLICATE KEY UPDATE b=t0.a;
+INSERT INTO t0 VALUES (1,5),(2,7) AS n(a,a) ON DUPLICATE KEY UPDATE b=n.a;
+INSERT INTO t0 VALUES (1,5),(2,7) AS n(a) ON DUPLICATE KEY UPDATE b=n.a;
+------------------------------------------------------------------------------------------
+[INSERT|SELECT] insert into `table2` with tab1Cnt as (select id,name from table1) select * from tab1Cnt;
+----------
+[INSERT|SELECT] INSERT INTO ptab PARTITION (p0) (id, name, val) VALUES ROW(3, 'row-one', 30), ROW(4, 'row-two', 40);
+----------
+[MERGE] INSERT INTO ptab PARTITION (p0) SET id = 6, name = 'set-alias', val = 60 AS new ON DUPLICATE KEY UPDATE name = new.name;
+----------
+[MERGE] INSERT INTO ptab PARTITION (p0) (id, name, val) VALUES (5, 'alias', 50) AS new(nid, nname, nval) ON DUPLICATE KEY UPDATE name = new.nname, val = new.nval;
+----------
+[INSERT|SELECT] INSERT INTO target (id, name, val) TABLE src;
+----------
+[INSERT|SELECT] INSERT INTO target_t SELECT 1 WHERE 1;
+----------
+[MERGE|SELECT] INSERT INTO split_dml_dst PARTITION(p0)(id,v)
+  WITH c AS (SELECT id,v FROM split_dml_src WHERE id<100)
+  SELECT id,v FROM c ORDER BY id LIMIT 2
+  ON DUPLICATE KEY UPDATE v=split_dml_dst.v+1;
+----------
+[MERGE] INSERT INTO t0 SET a=1,b=20 AS n(na,nb) ON DUPLICATE KEY UPDATE b=n.nb;
+----------
+[MERGE|SELECT] REPLACE INTO dst (id,v) TABLE src;
+----------
+[MERGE] INSERT INTO t0 VALUES (1,5),(2,7) AS t0 ON DUPLICATE KEY UPDATE b=t0.a;
+----------
+[MERGE] INSERT INTO t0 VALUES (1,5),(2,7) AS n(a,a) ON DUPLICATE KEY UPDATE b=n.a;
+----------
+[MERGE] INSERT INTO t0 VALUES (1,5),(2,7) AS n(a) ON DUPLICATE KEY UPDATE b=n.a;

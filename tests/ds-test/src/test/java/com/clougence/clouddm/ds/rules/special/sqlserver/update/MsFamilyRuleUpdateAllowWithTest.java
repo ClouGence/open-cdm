@@ -1,7 +1,0 @@
-package com.clougence.clouddm.ds.rules.special.sqlserver.update;
-
-import com.clougence.clouddm.ds.rules.rdb.using_ms.update.MsRuleUpdateAllowWithTest;
-
-public class MsFamilyRuleUpdateAllowWithTest extends MsRuleUpdateAllowWithTest {
-
-}

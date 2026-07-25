@@ -1,0 +1,89 @@
+[createView]
+type: createView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql",
+    "comment": "test_comment"
+  }
+}
+expect:
+<<<
+create view "test_schema"."test_name"
+as
+test_sql;
+>>>
+----------
+
+[createViewWithLOCAL]
+type: createView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql",
+    "comment": "test_comment",
+    "rdbpg_viewco": "local"
+  }
+}
+expect:
+<<<
+create view "test_schema"."test_name"
+with(check_option = local)
+as
+test_sql;
+>>>
+----------
+
+[createViewWithBarrier]
+type: createView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql",
+    "comment": "test_comment",
+    "rdbpg_viewsb": "true"
+  }
+}
+expect:
+<<<
+create view "test_schema"."test_name"
+with(security_barrier)
+as
+test_sql;
+>>>
+----------
+
+[createViewWithBarrierAndLocal]
+type: createView
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "test_sql",
+    "comment": "test_comment",
+    "rdbpg_viewsb": "true",
+    "rdbpg_viewco": "local"
+  }
+}
+expect:
+<<<
+create view "test_schema"."test_name"
+with(security_barrier,check_option = local)
+as
+test_sql;
+>>>

@@ -1,0 +1,15 @@
+PFADD hll
+PFADD hll a b c d e f g
+PFCOUNT hll
+PFCOUNT hll key2
+PFMERGE hll3 hll1 hll2
+------------------------------------------------------------------------------------------
+[MERGE] PFADD hll
+----------
+[MERGE] PFADD hll a b c d e f g
+----------
+[SELECT] PFCOUNT hll
+----------
+[SELECT] PFCOUNT hll key2
+----------
+[MERGE|SELECT] PFMERGE hll3 hll1 hll2

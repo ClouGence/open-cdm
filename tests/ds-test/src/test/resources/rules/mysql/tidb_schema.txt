@@ -1,0 +1,297 @@
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_1#001]
+rule: _rules/schema/my-schema-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+sql:
+alter schema abc default character set utf8mb4;
+----------
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_1#002]
+rule: _rules/schema/my-schema-character-set.rule
+expect: false
+vars:
+  character_set: utf8mb4
+sql:
+alter schema abc default character set utf8;
+----------
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_1#003]
+rule: _rules/schema/my-schema-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+sql:
+create schema abc default character set utf8mb4;
+----------
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_1#004]
+rule: _rules/schema/my-schema-character-set.rule
+expect: false
+vars:
+  character_set: utf8mb4
+sql:
+create schema abc default character set utf8;
+----------
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_1#005]
+rule: _rules/schema/my-schema-character-set.rule
+expect: false
+vars:
+  character_set: utf8mb4
+sql:
+create schema abc;
+----------
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_2#001]
+rule: _rules/schema/my-schema-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: false
+sql:
+alter schema abc default character set utf8mb4;
+----------
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_2#002]
+rule: _rules/schema/my-schema-character-set.rule
+expect: false
+vars:
+  character_set: utf8mb4
+  require: false
+sql:
+alter schema abc default character set utf8;
+----------
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_2#003]
+rule: _rules/schema/my-schema-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: false
+sql:
+create schema abc default character set utf8mb4;
+----------
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_2#004]
+rule: _rules/schema/my-schema-character-set.rule
+expect: false
+vars:
+  character_set: utf8mb4
+  require: false
+sql:
+create schema abc default character set utf8;
+----------
+[MyRuleSchemaCharacterSetTestFamily#schemaCharacterSet_2#005]
+rule: _rules/schema/my-schema-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: false
+sql:
+create schema abc;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_1#001]
+rule: _rules/schema/my-schema-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+sql:
+alter schema abc default collate utf8mb4_unicode_ci;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_1#002]
+rule: _rules/schema/my-schema-collate.rule
+expect: false
+vars:
+  collate: utf8mb4_unicode_ci
+sql:
+alter schema abc default collate utf8_unicode_ci;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_1#003]
+rule: _rules/schema/my-schema-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+sql:
+create schema abc default collate utf8mb4_unicode_ci;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_1#004]
+rule: _rules/schema/my-schema-collate.rule
+expect: false
+vars:
+  collate: utf8mb4_unicode_ci
+sql:
+create schema abc default collate utf8_unicode_ci;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_1#005]
+rule: _rules/schema/my-schema-collate.rule
+expect: false
+vars:
+  collate: utf8mb4_unicode_ci
+sql:
+create schema abc;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_2#001]
+rule: _rules/schema/my-schema-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: false
+sql:
+alter schema abc default collate utf8mb4_unicode_ci;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_2#002]
+rule: _rules/schema/my-schema-collate.rule
+expect: false
+vars:
+  collate: utf8mb4_unicode_ci
+  require: false
+sql:
+alter schema abc default collate utf8_unicode_ci;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_2#003]
+rule: _rules/schema/my-schema-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: false
+sql:
+create schema abc default collate utf8mb4_unicode_ci;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_2#004]
+rule: _rules/schema/my-schema-collate.rule
+expect: false
+vars:
+  collate: utf8mb4_unicode_ci
+  require: false
+sql:
+create schema abc default collate utf8_unicode_ci;
+----------
+[MyRuleSchemaCollateTestFamily#schemaCollate_2#005]
+rule: _rules/schema/my-schema-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: false
+sql:
+create schema abc;
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_1#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema abc_test
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_1#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create schema ABC_TEST
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_1#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema abcTest
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_1#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create schema AbcTest
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_2#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create schema abc_test
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_2#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema ABC_TEST
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_2#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema abcTest
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_2#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create schema AbcTest
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_3#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema abc_test
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_3#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema ABC_TEST
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_3#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create schema abcTest
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_3#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create schema AbcTest
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_4#001]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema abc_test
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_4#002]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema ABC_TEST
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_4#003]
+rule: _rules/schema/schema-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create schema abcTest
+----------
+[MyRuleSchemaNameCaseTypeTestFamily#createSchemaNameCaseType_4#004]
+rule: _rules/schema/schema-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create schema AbcTest

@@ -1,0 +1,208 @@
+SELECT id,
+       decimal_value+numeric_value+fixed_value AS exact_sum,
+       decimal_value*numeric_value AS exact_product,
+       float_value+double_value+real_value AS approximate_sum,
+       double_value/NULLIF(float_value,0) AS approximate_ratio
+FROM numeric_lifecycle
+WHERE decimal_value BETWEEN fixed_value AND numeric_value
+   OR ABS(float_value-double_value)>0;
+SELECT exact_row.id,approximate_row.id,
+       exact_row.decimal_value,approximate_row.double_value
+FROM numeric_lifecycle AS exact_row
+JOIN numeric_lifecycle AS approximate_row
+  ON exact_row.decimal_value=approximate_row.numeric_value
+ OR exact_row.float_value<=>approximate_row.double_value
+WHERE exact_row.fixed_value<=approximate_row.real_value;
+SELECT id,
+       (SELECT MAX(inner_numeric.decimal_value)
+        FROM numeric_lifecycle AS inner_numeric
+        WHERE inner_numeric.numeric_value<=outer_numeric.numeric_value) AS correlated_decimal,
+       (SELECT AVG(inner_numeric.double_value)
+        FROM numeric_lifecycle AS inner_numeric
+        WHERE inner_numeric.id<>outer_numeric.id) AS correlated_double
+FROM numeric_lifecycle AS outer_numeric
+WHERE outer_numeric.fixed_value > ALL (
+  SELECT inner_numeric.float_value
+  FROM numeric_lifecycle AS inner_numeric
+  WHERE inner_numeric.id<>outer_numeric.id
+);
+SELECT id,
+       CASE
+         WHEN decimal_value<0 THEN fixed_value
+         WHEN float_value<0 THEN double_value
+         ELSE numeric_value
+       END AS chosen_numeric,
+       COALESCE(NULLIF(decimal_value,0),numeric_value,fixed_value) AS chosen_exact,
+       IF(real_value IS NULL,float_value,double_value) AS chosen_approximate
+FROM numeric_lifecycle;
+SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value
+FROM numeric_lifecycle
+WHERE decimal_value>=0
+UNION ALL
+SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value
+FROM numeric_lifecycle
+WHERE double_value<0
+ORDER BY id;
+SELECT derived.sign_group,
+       COUNT(*) AS row_count,
+       SUM(derived.exact_total) AS exact_total,
+       AVG(derived.approximate_total) AS approximate_average,
+       MIN(derived.minimum_value),
+       MAX(derived.maximum_value)
+FROM (
+  SELECT decimal_value<0 AS sign_group,
+         decimal_value+numeric_value+fixed_value AS exact_total,
+         float_value+double_value+real_value AS approximate_total,
+         LEAST(decimal_value,numeric_value,fixed_value,float_value,double_value,real_value) AS minimum_value,
+         GREATEST(decimal_value,numeric_value,fixed_value,float_value,double_value,real_value) AS maximum_value
+  FROM numeric_lifecycle
+) AS derived
+GROUP BY derived.sign_group
+HAVING SUM(derived.exact_total) IS NOT NULL
+ORDER BY exact_total DESC;
+SELECT id,
+       CAST(decimal_value AS DECIMAL(30,10)),
+       CAST(float_value AS DECIMAL(20,8)),
+       CONVERT(double_value,DECIMAL(30,10)),
+       CAST(real_value AS SIGNED),
+       CAST(fixed_value AS UNSIGNED)
+FROM numeric_lifecycle
+WHERE ROW(decimal_value,float_value) <= ROW(numeric_value,double_value);
+WITH numeric_cte AS (
+  SELECT id,decimal_value,float_value,double_value,exact_total,approximate_total
+  FROM numeric_generated
+  WHERE decimal_value BETWEEN -100 AND 100
+)
+SELECT id,exact_total,approximate_total
+FROM numeric_cte
+WHERE double_value >= (SELECT AVG(double_value) FROM numeric_cte)
+ORDER BY exact_total,id;
+SELECT id,decimal_value,float_value,double_value,
+       SUM(decimal_value) OVER (
+         ORDER BY id
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS running_decimal,
+       AVG(double_value) OVER (
+         PARTITION BY decimal_value<0
+         ORDER BY id
+       ) AS running_double,
+       STDDEV_POP(float_value) OVER () AS float_stddev
+FROM numeric_generated;
+WITH RECURSIVE numeric_sequence(n,decimal_value,float_value,double_value) AS (
+  SELECT 1,CAST(1.25 AS DECIMAL(20,6)),CAST(2.5 AS DECIMAL(20,8)),3.75e0
+  UNION ALL
+  SELECT n+1,decimal_value+1.25,float_value*1.5,double_value/2
+  FROM numeric_sequence
+  WHERE n<4
+)
+SELECT n,decimal_value,float_value,double_value
+FROM numeric_sequence;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT id,
+       decimal_value+numeric_value+fixed_value AS exact_sum,
+       decimal_value*numeric_value AS exact_product,
+       float_value+double_value+real_value AS approximate_sum,
+       double_value/NULLIF(float_value,0) AS approximate_ratio
+FROM numeric_lifecycle
+WHERE decimal_value BETWEEN fixed_value AND numeric_value
+   OR ABS(float_value-double_value)>0;
+----------
+[SELECT] SELECT exact_row.id,approximate_row.id,
+       exact_row.decimal_value,approximate_row.double_value
+FROM numeric_lifecycle AS exact_row
+JOIN numeric_lifecycle AS approximate_row
+  ON exact_row.decimal_value=approximate_row.numeric_value
+ OR exact_row.float_value<=>approximate_row.double_value
+WHERE exact_row.fixed_value<=approximate_row.real_value;
+----------
+[SELECT] SELECT id,
+       (SELECT MAX(inner_numeric.decimal_value)
+        FROM numeric_lifecycle AS inner_numeric
+        WHERE inner_numeric.numeric_value<=outer_numeric.numeric_value) AS correlated_decimal,
+       (SELECT AVG(inner_numeric.double_value)
+        FROM numeric_lifecycle AS inner_numeric
+        WHERE inner_numeric.id<>outer_numeric.id) AS correlated_double
+FROM numeric_lifecycle AS outer_numeric
+WHERE outer_numeric.fixed_value > ALL (
+  SELECT inner_numeric.float_value
+  FROM numeric_lifecycle AS inner_numeric
+  WHERE inner_numeric.id<>outer_numeric.id
+);
+----------
+[SELECT] SELECT id,
+       CASE
+         WHEN decimal_value<0 THEN fixed_value
+         WHEN float_value<0 THEN double_value
+         ELSE numeric_value
+       END AS chosen_numeric,
+       COALESCE(NULLIF(decimal_value,0),numeric_value,fixed_value) AS chosen_exact,
+       IF(real_value IS NULL,float_value,double_value) AS chosen_approximate
+FROM numeric_lifecycle;
+----------
+[SELECT] SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value
+FROM numeric_lifecycle
+WHERE decimal_value>=0
+UNION ALL
+SELECT id,decimal_value,numeric_value,fixed_value,float_value,double_value,real_value
+FROM numeric_lifecycle
+WHERE double_value<0
+ORDER BY id;
+----------
+[SELECT] SELECT derived.sign_group,
+       COUNT(*) AS row_count,
+       SUM(derived.exact_total) AS exact_total,
+       AVG(derived.approximate_total) AS approximate_average,
+       MIN(derived.minimum_value),
+       MAX(derived.maximum_value)
+FROM (
+  SELECT decimal_value<0 AS sign_group,
+         decimal_value+numeric_value+fixed_value AS exact_total,
+         float_value+double_value+real_value AS approximate_total,
+         LEAST(decimal_value,numeric_value,fixed_value,float_value,double_value,real_value) AS minimum_value,
+         GREATEST(decimal_value,numeric_value,fixed_value,float_value,double_value,real_value) AS maximum_value
+  FROM numeric_lifecycle
+) AS derived
+GROUP BY derived.sign_group
+HAVING SUM(derived.exact_total) IS NOT NULL
+ORDER BY exact_total DESC;
+----------
+[SELECT] SELECT id,
+       CAST(decimal_value AS DECIMAL(30,10)),
+       CAST(float_value AS DECIMAL(20,8)),
+       CONVERT(double_value,DECIMAL(30,10)),
+       CAST(real_value AS SIGNED),
+       CAST(fixed_value AS UNSIGNED)
+FROM numeric_lifecycle
+WHERE ROW(decimal_value,float_value) <= ROW(numeric_value,double_value);
+----------
+[SELECT] WITH numeric_cte AS (
+  SELECT id,decimal_value,float_value,double_value,exact_total,approximate_total
+  FROM numeric_generated
+  WHERE decimal_value BETWEEN -100 AND 100
+)
+SELECT id,exact_total,approximate_total
+FROM numeric_cte
+WHERE double_value >= (SELECT AVG(double_value) FROM numeric_cte)
+ORDER BY exact_total,id;
+----------
+[SELECT] SELECT id,decimal_value,float_value,double_value,
+       SUM(decimal_value) OVER (
+         ORDER BY id
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS running_decimal,
+       AVG(double_value) OVER (
+         PARTITION BY decimal_value<0
+         ORDER BY id
+       ) AS running_double,
+       STDDEV_POP(float_value) OVER () AS float_stddev
+FROM numeric_generated;
+----------
+[SELECT] WITH RECURSIVE numeric_sequence(n,decimal_value,float_value,double_value) AS (
+  SELECT 1,CAST(1.25 AS DECIMAL(20,6)),CAST(2.5 AS DECIMAL(20,8)),3.75e0
+  UNION ALL
+  SELECT n+1,decimal_value+1.25,float_value*1.5,double_value/2
+  FROM numeric_sequence
+  WHERE n<4
+)
+SELECT n,decimal_value,float_value,double_value
+FROM numeric_sequence;

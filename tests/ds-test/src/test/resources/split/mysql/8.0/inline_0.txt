@@ -1,0 +1,21 @@
+select * from table1;select * from table2;
+    select * from table1     ;     select * from table2     ;
+ -- test 
+   select * from table1  -- test comment  
+ ;  /*comment
+gweg*/   select * from table2   -- ffff  ;  --aaaa
+------------------------------------------------------------------------------------------
+[SELECT] select * from table1;
+----------
+[SELECT] select * from table2;
+----------
+[SELECT] select * from table1     ;
+----------
+[SELECT] select * from table2     ;
+----------
+[SELECT] -- test 
+   select * from table1  -- test comment  
+ ;
+----------
+[SELECT] /*comment
+gweg*/   select * from table2   -- ffff  ;  --aaaa

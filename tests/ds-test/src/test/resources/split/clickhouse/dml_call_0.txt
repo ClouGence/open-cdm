@@ -1,0 +1,6 @@
+select test_function();
+select test_function(test_function1());
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select test_function()
+----------
+[SELECT|CALL_PROG_OBJ] select test_function(test_function1())

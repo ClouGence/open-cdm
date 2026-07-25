@@ -1,0 +1,9 @@
+SELECT NOT 'a' || 'b' = 'ab';
+SELECT NOT '1' || '0' BETWEEN '09' AND '11';
+SELECT NOT 'a' || 'b' LIKE 'ab';
+------------------------------------------------------------------------------------------
+[SELECT] SELECT NOT 'a' || 'b' = 'ab';
+----------
+[SELECT] SELECT NOT '1' || '0' BETWEEN '09' AND '11';
+----------
+[SELECT] SELECT NOT 'a' || 'b' LIKE 'ab';

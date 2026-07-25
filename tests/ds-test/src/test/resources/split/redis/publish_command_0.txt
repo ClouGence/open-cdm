@@ -1,0 +1,96 @@
+PSUBSCRIBE h?llo
+PSUBSCRIBE h*llo
+PSUBSCRIBE h[ae]llo
+PSUBSCRIBE h?llo h*llo h[ae]llo
+PUBLISH 111 message
+PUBLISH abc message
+PUBSUB CHANNELS
+PUBSUB CHANNELS h*llo
+PUBSUB NUMPAT
+PUBSUB NUMSUB
+PUBSUB NUMSUB 11 abc
+PUBSUB SHARDCHANNELS
+PUBSUB SHARDCHANNELS h?llo
+PUBSUB SHARDNUMSUB
+PUBSUB SHARDNUMSUB 11 abc
+PUNSUBSCRIBE
+PUNSUBSCRIBE h[ae]llo
+PUNSUBSCRIBE h?llo h*llo h[ae]llo
+SPUBLISH 111 message
+spublish orders hello
+ssubscribe
+ssubscribe orders
+ssubscribe orders1 orders2
+SUBSCRIBE
+SUBSCRIBE orders
+SUBSCRIBE orders1 orders2
+SUNSUBSCRIBE
+SUNSUBSCRIBE orders
+SUNSUBSCRIBE orders1 orders2
+UNSUBSCRIBE
+UNSUBSCRIBE orders
+UNSUBSCRIBE orders1 orders2
+------------------------------------------------------------------------------------------
+[ADMIN_PUB_SUB] PSUBSCRIBE h?llo
+----------
+[ADMIN_PUB_SUB] PSUBSCRIBE h*llo
+----------
+[ADMIN_PUB_SUB] PSUBSCRIBE h[ae]llo
+----------
+[ADMIN_PUB_SUB] PSUBSCRIBE h?llo h*llo h[ae]llo
+----------
+[ADMIN_PUB_SUB] PUBLISH 111 message
+----------
+[ADMIN_PUB_SUB] PUBLISH abc message
+----------
+[PERFORMANCE] PUBSUB CHANNELS
+----------
+[PERFORMANCE] PUBSUB CHANNELS h*llo
+----------
+[PERFORMANCE] PUBSUB NUMPAT
+----------
+[PERFORMANCE] PUBSUB NUMSUB
+----------
+[PERFORMANCE] PUBSUB NUMSUB 11 abc
+----------
+[PERFORMANCE] PUBSUB SHARDCHANNELS
+----------
+[PERFORMANCE] PUBSUB SHARDCHANNELS h?llo
+----------
+[PERFORMANCE] PUBSUB SHARDNUMSUB
+----------
+[PERFORMANCE] PUBSUB SHARDNUMSUB 11 abc
+----------
+[ADMIN_PUB_SUB] PUNSUBSCRIBE
+----------
+[ADMIN_PUB_SUB] PUNSUBSCRIBE h[ae]llo
+----------
+[ADMIN_PUB_SUB] PUNSUBSCRIBE h?llo h*llo h[ae]llo
+----------
+[ADMIN_PUB_SUB] SPUBLISH 111 message
+----------
+[ADMIN_PUB_SUB] spublish orders hello
+----------
+[ADMIN_PUB_SUB] ssubscribe
+----------
+[ADMIN_PUB_SUB] ssubscribe orders
+----------
+[ADMIN_PUB_SUB] ssubscribe orders1 orders2
+----------
+[ADMIN_PUB_SUB] SUBSCRIBE
+----------
+[ADMIN_PUB_SUB] SUBSCRIBE orders
+----------
+[ADMIN_PUB_SUB] SUBSCRIBE orders1 orders2
+----------
+[ADMIN_PUB_SUB] SUNSUBSCRIBE
+----------
+[ADMIN_PUB_SUB] SUNSUBSCRIBE orders
+----------
+[ADMIN_PUB_SUB] SUNSUBSCRIBE orders1 orders2
+----------
+[ADMIN_PUB_SUB] UNSUBSCRIBE
+----------
+[ADMIN_PUB_SUB] UNSUBSCRIBE orders
+----------
+[ADMIN_PUB_SUB] UNSUBSCRIBE orders1 orders2

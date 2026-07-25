@@ -1,0 +1,3 @@
+DROP TABLE "TESTER"."T_DROP" AS "BIN$T4wcPGCaE6XgYwMAEaxGeQ==$0";
+------------------------------------------------------------------------------------------
+DROP TABLE "TESTER"."T_DROP" AS "BIN$T4wcPGCaE6XgYwMAEaxGeQ==$0";

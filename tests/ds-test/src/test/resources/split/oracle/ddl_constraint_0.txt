@@ -1,0 +1,33 @@
+alter table user_table add primary key (id);
+alter table "user_table" add primary key ("id");
+alter table "test"."user_table" add primary key ("id");
+alter table user_table drop primary key;
+alter table user_table add constraint pk_user primary key (id);
+alter table abc add constraint ptr foreign key (id) references abc2 (id2);
+alter table abc add constraint uq_abc unique (name);
+alter table abc add constraint chk_abc check (score > 0);
+alter table abc drop constraint abc_fk;
+alter table abc drop constraint "abc_fk";
+alter table user_table drop constraint abc_uk;
+------------------------------------------------------------------------------------------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table user_table add primary key (id);
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table "user_table" add primary key ("id");
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table "test"."user_table" add primary key ("id");
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table user_table drop primary key;
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table user_table add constraint pk_user primary key (id);
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table abc add constraint ptr foreign key (id) references abc2 (id2);
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table abc add constraint uq_abc unique (name);
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table abc add constraint chk_abc check (score > 0);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table abc drop constraint abc_fk;
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table abc drop constraint "abc_fk";
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table user_table drop constraint abc_uk;

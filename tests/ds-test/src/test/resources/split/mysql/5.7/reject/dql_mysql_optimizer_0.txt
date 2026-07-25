@@ -1,0 +1,12 @@
+EXPLAIN ANALYZE SELECT * FROM json_op;
+EXPLAIN ANALYZE FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain FOR SCHEMA codex_load_audit_s SELECT 1;
+EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+------------------------------------------------------------------------------------------
+[SELECT] EXPLAIN ANALYZE SELECT * FROM json_op;
+----------
+[SELECT|SESSION_VARIABLE_RW] EXPLAIN ANALYZE FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;
+----------
+[PERFORMANCE|SESSION_VARIABLE_RW] EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain FOR SCHEMA codex_load_audit_s SELECT 1;
+----------
+[PERFORMANCE|SESSION_VARIABLE_RW] EXPLAIN FORMAT=JSON INTO @codex_load_audit_explain SELECT 1;

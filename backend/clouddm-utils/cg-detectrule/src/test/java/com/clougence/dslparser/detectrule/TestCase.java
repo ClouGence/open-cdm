@@ -46,16 +46,12 @@ import com.clougence.utils.CollectionUtils;
 
 public class TestCase {
 
-    static {
-        DslHelper.register("DetectRule", new DetectRuleDslProvider());
-    }
-
     public static Object runScript(String script, Object domainData, Type domainType) {
         return runScript(script, domainData, domainType, null);
     }
 
     public static Object runScript(String script, Object domainData, Type domainType, Map<String, String> vars) {
-        StatementSet statements = DslHelper.parserDsl("DetectRule", script);
+        StatementSet statements = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, script);
 
         EngineOption option = new EngineOption();
         option.setDataTimeValueParser(new DefaultDataTimeValueParser());
@@ -68,7 +64,7 @@ public class TestCase {
     }
 
     public static Object runScript(String script, Object domainData, Type domainType, Map<String, String> vars, DetectRulesFeature[] features) throws IOException {
-        StatementSet statements = DslHelper.parserDsl("DetectRule", script);
+        StatementSet statements = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, script);
 
         EngineOption option = new EngineOption();
         option.setDataTimeValueParser(new DefaultDataTimeValueParser());
@@ -1678,7 +1674,7 @@ public class TestCase {
     @Test
     public void domainExprTest() throws IOException {
         TestRuleDomain domainData = this.createDomain();
-        domainData.getQueryTypes().add(SecQueryType.CREATE_INDEX);
+        domainData.getQueryTypes().add(SecQueryType.ADD_INDEX);
         domainData.getQueryTypes().add(SecQueryType.CREATE_TABLE);
 
         Type domainType = ReflectHelper.resolveDomain(TestRuleDomain.class);

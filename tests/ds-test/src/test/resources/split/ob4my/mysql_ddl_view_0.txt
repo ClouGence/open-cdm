@@ -1,0 +1,30 @@
+create view v_test as select id, name from test;
+create or replace view v_test as select id, name from test;
+create view test.v_test as select id, name from test where id > 0;
+create view v_test (col1, col2) as select id, name from test;
+create algorithm = merge view v_test as select * from test;
+drop view v_test;
+drop view if exists v_test;
+drop view test.v_test;
+alter view v_test as select id, name, age from test;
+alter algorithm = temptable view v_test as select * from test;
+------------------------------------------------------------------------------------------
+[CREATE_VIEW(SELECT)] create view v_test as select id, name from test;
+----------
+[CREATE_VIEW(SELECT)] create or replace view v_test as select id, name from test;
+----------
+[CREATE_VIEW(SELECT)] create view test.v_test as select id, name from test where id > 0;
+----------
+[CREATE_VIEW(SELECT)] create view v_test (col1, col2) as select id, name from test;
+----------
+[CREATE_VIEW(SELECT)] create algorithm = merge view v_test as select * from test;
+----------
+[DROP_VIEW] drop view v_test;
+----------
+[DROP_VIEW] drop view if exists v_test;
+----------
+[DROP_VIEW] drop view test.v_test;
+----------
+[ALTER_VIEW(SELECT)] alter view v_test as select id, name, age from test;
+----------
+[ALTER_VIEW(SELECT)] alter algorithm = temptable view v_test as select * from test;

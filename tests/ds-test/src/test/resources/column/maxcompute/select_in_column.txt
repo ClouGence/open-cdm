@@ -1,0 +1,32 @@
+[supportschema::McParseColumnSelectInColumnTest.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select (select column1 from catalog2.schema1.table2) as ww from table2
+expect:
+{
+  "ww" : [ "/catalog2/schema1/table2/column1/" ]
+}
+
+----------
+[notsupportschema::McParseColumnSelectInColumnTest.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select (select column1 from table2) as ww from table2
+expect:
+{
+  "ww" : [ "/catalog1/default/table2/column1/" ]
+}

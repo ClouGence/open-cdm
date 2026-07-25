@@ -1,0 +1,24 @@
+SELECT crc32('abc'::bytea);
+SELECT crc32c('abc'::bytea);
+SELECT reverse('\xabcd'::bytea);
+SELECT 1234::smallint::bytea;
+SELECT cast(1234 as bytea);
+SELECT cast(-1234 as bytea);
+SELECT '\x8000'::bytea::smallint;
+SELECT '\x8000'::bytea::integer;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT crc32('abc'::bytea);
+----------
+[SELECT] SELECT crc32c('abc'::bytea);
+----------
+[SELECT] SELECT reverse('\xabcd'::bytea);
+----------
+[SELECT] SELECT 1234::smallint::bytea;
+----------
+[SELECT] SELECT cast(1234 as bytea);
+----------
+[SELECT] SELECT cast(-1234 as bytea);
+----------
+[SELECT] SELECT '\x8000'::bytea::smallint;
+----------
+[SELECT] SELECT '\x8000'::bytea::integer;

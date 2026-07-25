@@ -1,0 +1,435 @@
+[select_query_lock_session_variable_rw__001]
+sql:
+SELECT a.id
+FROM split_select_lock_into.t AS a, split_select_lock_into.t AS b
+WHERE a.id = b.id
+FOR SHARE OF a NOWAIT
+FOR UPDATE OF b SKIP LOCKED
+INTO @split_multi;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:29) /test/1/catalog1/split_select_lock_into/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(6:5~6:17) /test/1/split_multi/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw_query_lock__002]
+sql:
+SELECT id INTO @split_pre_update FROM split_select_lock_into.t WHERE id = 1 FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:15~1:32) /test/1/split_pre_update/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:38~1:62) /test/1/catalog1/split_select_lock_into/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw_query_lock__003]
+sql:
+SELECT id FROM split_select_lock_into.t WHERE id = 1 INTO @split_tail_share LOCK IN SHARE MODE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:39) /test/1/catalog1/split_select_lock_into/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:58~1:75) /test/1/split_tail_share/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__004]
+sql:
+SELECT id FROM split_lock_combo.t WHERE id = (SELECT id FROM split_lock_combo.t2 WHERE id=1 FOR UPDATE) FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:33) /test/1/catalog1/split_lock_combo/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:61~1:80) /test/1/catalog1/split_lock_combo/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__005]
+sql:
+SELECT id FROM split_lock_combo.t WHERE EXISTS (SELECT 1 FROM split_lock_combo.t2 WHERE t2.id=t.id LOCK IN SHARE MODE) FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:33) /test/1/catalog1/split_lock_combo/t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:62~1:81) /test/1/catalog1/split_lock_combo/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__006]
+sql:
+SELECT MAX(id) FROM split_lock_combo.t FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:20~1:38) /test/1/catalog1/split_lock_combo/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__007]
+sql:
+SELECT d.id FROM (SELECT id FROM split_lock_combo.t FOR UPDATE) AS d WHERE d.id>0 FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:33~1:51) /test/1/catalog1/split_lock_combo/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__008]
+sql:
+SELECT grp,COUNT(*) FROM split_lock_combo.t GROUP BY grp HAVING COUNT(*)>0 FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:16) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:43) /test/1/catalog1/split_lock_combo/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__009]
+sql:
+WITH c AS (SELECT id FROM split_lock_combo.t2 FOR SHARE) SELECT t.id FROM split_lock_combo.t AS t JOIN c ON c.id=t.id FOR UPDATE OF t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:26~1:45) /test/1/catalog1/split_lock_combo/t2/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:74~1:92) /test/1/catalog1/split_lock_combo/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__010]
+sql:
+SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS rn FROM split_lock_combo.t FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:54~1:72) /test/1/catalog1/split_lock_combo/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__011]
+sql:
+SELECT id FROM t1 WHERE id = 1 FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__012]
+sql:
+SELECT id FROM t1 WHERE id = 1 LOCK IN SHARE MODE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__013]
+sql:
+SELECT t1.id FROM t1, t2 WHERE t1.id = t2.id FOR SHARE OF t1 NOWAIT FOR UPDATE OF t2 SKIP LOCKED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:22~1:24) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__014]
+sql:
+SELECT t1.id FROM t1, t2 WHERE t1.id = t2.id FOR UPDATE OF t1 FOR SHARE OF t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:20) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:22~1:24) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__015]
+sql:
+SELECT a.id FROM qa_t1 AS a,qa_t2 AS b WHERE a.id=b.id LOCK IN SHARE MODE FOR UPDATE OF a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:22) /test/1/catalog1/schema1/qa_t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:28~1:33) /test/1/catalog1/schema1/qa_t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__016]
+sql:
+SELECT a.id FROM qa_t1 AS a JOIN qa_t2 AS b ON a.id=b.id FOR UPDATE OF a,b NOWAIT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:22) /test/1/catalog1/schema1/qa_t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:33~1:38) /test/1/catalog1/schema1/qa_t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__017]
+sql:
+EXPLAIN SELECT * FROM t1 FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:22~1:24) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__018]
+sql:
+(SELECT * FROM t1 FOR UPDATE) LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:17) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__019]
+sql:
+SELECT * FROM t1 FOR UPDATE NOWAIT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__020]
+sql:
+SELECT * FROM t1 FOR SHARE SKIP LOCKED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__021]
+sql:
+SELECT * FROM t1 FOR SHARE OF codex_next_gap.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__022]
+sql:
+SELECT * FROM t1 AS t1a FOR SHARE OF t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__023]
+sql:
+SELECT * FROM t1 FOR UPDATE OF t1 FOR SHARE OF t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__024]
+sql:
+SELECT * FROM t1 FOR UPDATE FOR SHARE OF t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_query_lock__025]
+sql:
+SELECT * FROM t1 LEFT JOIN t2 ON t1.c2=t2.c2 AND t2.c1=1 FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:27~1:29) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}

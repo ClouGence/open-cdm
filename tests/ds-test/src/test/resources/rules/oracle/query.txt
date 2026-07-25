@@ -1,0 +1,535 @@
+[OraRuleQueryAllowAsTest#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-as.rule
+expect: false
+vars:
+  allow: false
+sql:
+select id as a, name from table_1
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-as.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select id as a, name from table_1) t
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_1#003]
+rule: _rules/query/query-allow-as.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id as a from table_1)
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_2#001]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: false
+sql:
+select id, name from table_1
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_2#002]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from (select * from table_1) t
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_2#003]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_3#001]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id as a, name from table_1
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_3#002]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select id as a, name from table_1) t
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_3#003]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id as a from table_1)
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_4#001]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id, name from table_1
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_4#002]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1) t
+----------
+[OraRuleQueryAllowAsTest#selectAndWithTest_4#003]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_1#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_1#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_1#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_2#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 a left join table_2 b on a.id = b.id
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_2#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from (select * from table_1) t
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_2#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_3#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_3#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_3#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_4#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 a left join table_2 b on a.id = b.id
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_4#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1) t
+----------
+[OraRuleQueryAllowCrossInnerTest#joinTest_4#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[OraRuleQueryAllowJoinTest#joinTest_2#001]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1
+----------
+[OraRuleQueryAllowJoinTest#joinTest_2#002]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from (select * from table_1) t
+----------
+[OraRuleQueryAllowJoinTest#joinTest_2#003]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[OraRuleQueryAllowJoinTest#joinTest_3#001]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[OraRuleQueryAllowJoinTest#joinTest_3#002]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[OraRuleQueryAllowJoinTest#joinTest_3#003]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[OraRuleQueryAllowJoinTest#joinTest_4#001]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id, name from table_1
+----------
+[OraRuleQueryAllowJoinTest#joinTest_4#002]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1) t
+----------
+[OraRuleQueryAllowJoinTest#joinTest_4#003]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[OraRuleQueryAllowSubQueryTest#selectHasSelect_1#001]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select id, name from table1;
+----------
+[OraRuleQueryAllowSubQueryTest#selectHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[OraRuleQueryAllowSubQueryTest#selectHasSelect_1#003]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select id, name from table1;
+----------
+[OraRuleQueryAllowSubQueryTest#selectHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[OraRuleQueryAllowSubQueryTest#selectHasSelect_1#005]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: None
+sql:
+select id, name from table1;
+----------
+[OraRuleQueryAllowSubQueryTest#selectHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[OraRuleQueryAllowSubQueryTest#fromHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select t.id, t.name from (select id from bb)  t;
+----------
+[OraRuleQueryAllowSubQueryTest#fromHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select t.id, t.name from (select id from bb)  t;
+----------
+[OraRuleQueryAllowSubQueryTest#fromHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select t.id, t.name from (select id from bb) t;
+----------
+[OraRuleQueryAllowSubQueryTest#whereHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[OraRuleQueryAllowSubQueryTest#whereHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[OraRuleQueryAllowSubQueryTest#whereHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[OraRuleQueryAllowUnionTest#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 union select * from table_2
+----------
+[OraRuleQueryAllowUnionTest#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select * from table_1 union select * from table_2) t
+----------
+[OraRuleQueryAllowUnionTest#selectAndWithTest_1#003]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select id from table_3 where id in (select id from table_1 union select id from table_2)
+----------
+[OraRuleQueryAllowUnionTest#selectAndWithTest_1#004]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1
+----------
+[OraRuleQueryAllowUnionTest#unionQueryTest_1#001]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 union select * from table_2
+----------
+[OraRuleQueryAllowUnionTest#unionQueryTest_1#002]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 union select * from table_2) t
+----------
+[OraRuleQueryAllowUnionTest#unionQueryTest_1#003]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id from table_3 where id in (select id from table_1 union select id from table_2)
+----------
+[OraRuleQueryAllowUnionTest#unionQueryTest_1#004]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1
+----------
+[OraRuleQueryAllowWithTest#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-with.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from abc
+----------
+[OraRuleQueryAllowWithTest#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-with.rule
+expect: false
+vars:
+  allow: false
+sql:
+with one as (select 1) select * from table_1
+----------
+[OraRuleQueryAllowWithTest#selectAndWithTest_2#001]
+rule: _rules/query/query-allow-with.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from abc
+----------
+[OraRuleQueryAllowWithTest#selectAndWithTest_2#002]
+rule: _rules/query/query-allow-with.rule
+expect: true
+vars:
+  allow: true
+sql:
+with one as (select 1) select * from table_1
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_1#001]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from abc
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_1#002]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where 1=1
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_1#003]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where a=a
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_2#001]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from abc
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_2#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1=1
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_2#003]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where a=a
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_3#001]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where 1>1
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_3#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where 1=1 and a = '123'
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_4#001]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1>1
+----------
+[OraRuleQueryEmptyWhereTest#emptyWhereTest_4#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1=1 and a = '123'

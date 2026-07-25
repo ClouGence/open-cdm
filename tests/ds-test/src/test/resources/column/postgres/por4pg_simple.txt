@@ -1,0 +1,160 @@
+[PgParseColumnSimpleTestFamily.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select * from table1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+}
+----------
+[PgParseColumnSimpleTestFamily.test2]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select * from table1 a
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+}
+----------
+[PgParseColumnSimpleTestFamily.test3]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select column1 from table1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[PgParseColumnSimpleTestFamily.test4]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select column1 as test from table1 a
+expect:
+{
+  "test" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[PgParseColumnSimpleTestFamily.test5]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select * from schema2.table1
+expect:
+{
+  "column1" : [ "/catalog1/schema2/table1/column1/" ],
+  "column2" : [ "/catalog1/schema2/table1/column2/" ],
+  "column3" : [ "/catalog1/schema2/table1/column3/" ],
+  "column4" : [ "/catalog1/schema2/table1/column4/" ],
+  "column5" : [ "/catalog1/schema2/table1/column5/" ],
+  "column6" : [ "/catalog1/schema2/table1/column6/" ]
+}
+----------
+[PgParseColumnSimpleTestFamily.test6]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select * from schema2.table1 a
+expect:
+{
+  "column1" : [ "/catalog1/schema2/table1/column1/" ],
+  "column2" : [ "/catalog1/schema2/table1/column2/" ],
+  "column3" : [ "/catalog1/schema2/table1/column3/" ],
+  "column4" : [ "/catalog1/schema2/table1/column4/" ],
+  "column5" : [ "/catalog1/schema2/table1/column5/" ],
+  "column6" : [ "/catalog1/schema2/table1/column6/" ]
+}
+----------
+[PgParseColumnSimpleTestFamily.test7]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select column1 from schema2.table1
+expect:
+{
+  "column1" : [ "/catalog1/schema2/table1/column1/" ]
+}
+----------
+[PgParseColumnSimpleTestFamily.test8]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select column1 as test from schema2.table1 a
+expect:
+{
+  "test" : [ "/catalog1/schema2/table1/column1/" ]
+}
+----------
+[PgParseColumnSimpleTestFamily.test9]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select *,test(column1) as s from schema2.table1
+expect:
+{
+  "column1" : [ "/catalog1/schema2/table1/column1/" ],
+  "column2" : [ "/catalog1/schema2/table1/column2/" ],
+  "column3" : [ "/catalog1/schema2/table1/column3/" ],
+  "column4" : [ "/catalog1/schema2/table1/column4/" ],
+  "column5" : [ "/catalog1/schema2/table1/column5/" ],
+  "column6" : [ "/catalog1/schema2/table1/column6/" ],
+  "s" : [ "/catalog1/schema2/table1/column1/" ]
+}

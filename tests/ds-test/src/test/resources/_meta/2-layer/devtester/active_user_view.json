@@ -1,0 +1,23 @@
+[
+  {
+    "columns": [
+      {
+        "column": "id",
+        "table": "active_user_view",
+        "schema": "devtester"
+      }
+    ],
+    "itemAlias": "id",
+    "icon": "COLUMN-PK"
+  },
+  {
+    "columns": [
+      {
+        "column": "name",
+        "table": "active_user_view",
+        "schema": "devtester"
+      }
+    ],
+    "itemAlias": "name"
+  }
+]

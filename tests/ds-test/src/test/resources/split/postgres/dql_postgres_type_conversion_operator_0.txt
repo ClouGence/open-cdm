@@ -1,0 +1,44 @@
+SELECT text 'Origin' AS "label", point '(0,0)' AS "value";
+SELECT |/ 40 AS "square root of 40";
+SELECT |/ CAST(40 AS double precision) AS "explicit square root";
+SELECT OPERATOR(pg_catalog.|/) CAST(40 AS double precision) AS "qualified square root";
+SELECT text 'abc' || 'def' AS "text and unknown";
+SELECT 'abc' || 'def' AS "unspecified";
+SELECT @ '-4.5' AS "abs";
+SELECT @ '-4.5e500' AS "abs";
+SELECT ~ '20' AS "negation";
+SELECT ~ CAST('20' AS int8) AS "negation";
+SELECT array[1,2] <@ '{1,2,3}' AS "is subset";
+SELECT * FROM split_typeconv.mytable WHERE val = 'foo';
+SELECT * FROM split_typeconv.mytable WHERE val = text 'foo';
+SELECT * FROM split_typeconv.mytable
+WHERE val OPERATOR(split_typeconv.=) text 'foo';
+------------------------------------------------------------------------------------------
+[SELECT] SELECT text 'Origin' AS "label", point '(0,0)' AS "value";
+----------
+[SELECT] SELECT |/ 40 AS "square root of 40";
+----------
+[SELECT] SELECT |/ CAST(40 AS double precision) AS "explicit square root";
+----------
+[SELECT] SELECT OPERATOR(pg_catalog.|/) CAST(40 AS double precision) AS "qualified square root";
+----------
+[SELECT] SELECT text 'abc' || 'def' AS "text and unknown";
+----------
+[SELECT] SELECT 'abc' || 'def' AS "unspecified";
+----------
+[SELECT] SELECT @ '-4.5' AS "abs";
+----------
+[SELECT] SELECT @ '-4.5e500' AS "abs";
+----------
+[SELECT] SELECT ~ '20' AS "negation";
+----------
+[SELECT] SELECT ~ CAST('20' AS int8) AS "negation";
+----------
+[SELECT] SELECT array[1,2] <@ '{1,2,3}' AS "is subset";
+----------
+[SELECT] SELECT * FROM split_typeconv.mytable WHERE val = 'foo';
+----------
+[SELECT] SELECT * FROM split_typeconv.mytable WHERE val = text 'foo';
+----------
+[SELECT] SELECT * FROM split_typeconv.mytable
+WHERE val OPERATOR(split_typeconv.=) text 'foo';

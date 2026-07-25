@@ -1,0 +1,46 @@
+CREATE SCHEMA split_merge18;
+CREATE TABLE split_merge18.inventory (
+    sku text PRIMARY KEY,
+    qty integer NOT NULL DEFAULT 0,
+    note text
+);
+INSERT INTO split_merge18.inventory VALUES ('keep', 10, 'old'), ('remove', 5, 'gone');
+MERGE INTO ONLY split_merge18.inventory AS t
+USING (VALUES ('keep', 3, 'fresh'), ('add', 7, 'new')) AS s(sku, delta, note)
+ON t.sku = s.sku
+WHEN MATCHED AND s.delta > 0 THEN UPDATE SET qty = t.qty + s.delta, note = s.note
+WHEN NOT MATCHED BY TARGET THEN INSERT (sku, qty, note) VALUES (s.sku, s.delta, s.note)
+WHEN NOT MATCHED BY SOURCE AND t.qty < 10 THEN DELETE
+RETURNING WITH (OLD AS o, NEW AS n) merge_action() AS action, o.sku AS old_sku, n.sku AS new_sku, n.qty;
+MERGE INTO split_merge18.inventory * AS t
+USING (VALUES ('skip', 0, 'zero')) AS s(sku, delta, note)
+ON t.sku = s.sku
+WHEN NOT MATCHED AND s.delta = 0 THEN DO NOTHING
+RETURNING merge_action(), t.*;
+DROP SCHEMA split_merge18 CASCADE;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] CREATE SCHEMA split_merge18;
+----------
+[CREATE_TABLE] CREATE TABLE split_merge18.inventory (
+    sku text PRIMARY KEY,
+    qty integer NOT NULL DEFAULT 0,
+    note text
+);
+----------
+[INSERT] INSERT INTO split_merge18.inventory VALUES ('keep', 10, 'old'), ('remove', 5, 'gone');
+----------
+[MERGE|SELECT] MERGE INTO ONLY split_merge18.inventory AS t
+USING (VALUES ('keep', 3, 'fresh'), ('add', 7, 'new')) AS s(sku, delta, note)
+ON t.sku = s.sku
+WHEN MATCHED AND s.delta > 0 THEN UPDATE SET qty = t.qty + s.delta, note = s.note
+WHEN NOT MATCHED BY TARGET THEN INSERT (sku, qty, note) VALUES (s.sku, s.delta, s.note)
+WHEN NOT MATCHED BY SOURCE AND t.qty < 10 THEN DELETE
+RETURNING WITH (OLD AS o, NEW AS n) merge_action() AS action, o.sku AS old_sku, n.sku AS new_sku, n.qty;
+----------
+[MERGE|SELECT] MERGE INTO split_merge18.inventory * AS t
+USING (VALUES ('skip', 0, 'zero')) AS s(sku, delta, note)
+ON t.sku = s.sku
+WHEN NOT MATCHED AND s.delta = 0 THEN DO NOTHING
+RETURNING merge_action(), t.*;
+----------
+[DROP_SCHEMA] DROP SCHEMA split_merge18 CASCADE;

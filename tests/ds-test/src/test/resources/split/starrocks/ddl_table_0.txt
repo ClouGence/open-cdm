@@ -1,0 +1,81 @@
+create table abc(id int auto_increment) properties("x"="z");
+create table abc(id int) engine = olap DUPLICATE KEY(id);
+create table `abc`(`id` int) COMMENT 'desc';
+create external table abc(id int) engine = mysql;
+create table if not exists test.abc(id int);
+create table if not exists abc(id int);
+create temporary table if not exists test.abc(id int);
+create table abc(id int sum);
+create table test.abc(id int(4), name varchar(25) not null,INDEX k1 (id) comment '2322');
+create table test.abc(id int(4), name varchar(25) not null);
+create table test.abc_copy like test.abc;
+create table test.abc_copy like test.abc;
+create table test.abc_copy like test.abc;
+create table abc_copy like abc;
+create table test.abc_select as select * from test.abc;
+ALTER table abc rename cba;
+ALTER table a.abc rename cba;
+ALTER table abc comment = "new comment";
+ALTER table a.abc comment = "new comment";
+ALTER table abc add rollup r1 (k1,v1);
+ALTER table abc set ("a"="b","c" = "d");
+ALTER table abc drop rollup r1;
+drop table abc;
+drop table t1.abc;
+CANCEL ALTER TABLE COLUMN FROM db_name.table_name;
+CANCEL ALTER TABLE COLUMN FROM table_name;
+truncate table t1.abc;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table abc(id int auto_increment) properties("x"="z");
+----------
+[CREATE_TABLE] create table abc(id int) engine = olap DUPLICATE KEY(id);
+----------
+[CREATE_TABLE|COMMENT_TABLE] create table `abc`(`id` int) COMMENT 'desc';
+----------
+[CREATE_TABLE] create external table abc(id int) engine = mysql;
+----------
+[CREATE_TABLE] create table if not exists test.abc(id int);
+----------
+[CREATE_TABLE] create table if not exists abc(id int);
+----------
+[CREATE_TABLE] create temporary table if not exists test.abc(id int);
+----------
+[CREATE_TABLE] create table abc(id int sum);
+----------
+[CREATE_TABLE|COMMENT_INDEX] create table test.abc(id int(4), name varchar(25) not null,INDEX k1 (id) comment '2322');
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25) not null);
+----------
+[CREATE_TABLE] create table test.abc_copy like test.abc;
+----------
+[CREATE_TABLE] create table test.abc_copy like test.abc;
+----------
+[CREATE_TABLE] create table test.abc_copy like test.abc;
+----------
+[CREATE_TABLE] create table abc_copy like abc;
+----------
+[CREATE_TABLE] create table test.abc_select as select * from test.abc;
+----------
+[ALTER_TABLE|RENAME_TABLE] ALTER table abc rename cba;
+----------
+[ALTER_TABLE|RENAME_TABLE] ALTER table a.abc rename cba;
+----------
+[ALTER_TABLE|COMMENT_TABLE] ALTER table abc comment = "new comment";
+----------
+[ALTER_TABLE|COMMENT_TABLE] ALTER table a.abc comment = "new comment";
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER table abc add rollup r1 (k1,v1);
+----------
+[ALTER_TABLE] ALTER table abc set ("a"="b","c" = "d");
+----------
+[ALTER_TABLE|DROP_INDEX] ALTER table abc drop rollup r1;
+----------
+[DROP_TABLE] drop table abc;
+----------
+[DROP_TABLE] drop table t1.abc;
+----------
+[ADMIN_TABLE] CANCEL ALTER TABLE COLUMN FROM db_name.table_name;
+----------
+[ADMIN_TABLE] CANCEL ALTER TABLE COLUMN FROM table_name;
+----------
+[TRUNCATE_TABLE] truncate table t1.abc;

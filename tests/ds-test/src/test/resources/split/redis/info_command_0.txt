@@ -1,0 +1,57 @@
+INFO
+INFO server
+INFO clients
+INFO memory
+INFO persistence
+INFO threads
+INFO stats
+INFO replication
+INFO cpu
+INFO commandstats
+INFO latencystats
+INFO sentinel
+INFO cluster
+INFO modules
+INFO keyspace
+INFO errorstats
+INFO all
+INFO default
+INFO everything
+------------------------------------------------------------------------------------------
+[PERFORMANCE] INFO
+----------
+[PERFORMANCE] INFO server
+----------
+[PERFORMANCE] INFO clients
+----------
+[PERFORMANCE] INFO memory
+----------
+[PERFORMANCE] INFO persistence
+----------
+[PERFORMANCE] INFO threads
+----------
+[PERFORMANCE] INFO stats
+----------
+[PERFORMANCE] INFO replication
+----------
+[PERFORMANCE] INFO cpu
+----------
+[PERFORMANCE] INFO commandstats
+----------
+[PERFORMANCE] INFO latencystats
+----------
+[PERFORMANCE] INFO sentinel
+----------
+[PERFORMANCE] INFO cluster
+----------
+[PERFORMANCE] INFO modules
+----------
+[PERFORMANCE] INFO keyspace
+----------
+[PERFORMANCE] INFO errorstats
+----------
+[PERFORMANCE] INFO all
+----------
+[PERFORMANCE] INFO default
+----------
+[PERFORMANCE] INFO everything

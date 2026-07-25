@@ -1,0 +1,3 @@
+SELECT t1.period FROM split_select_inc_a.t3 = t1 LIMIT 1;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT t1.period FROM split_select_inc_a.t3 = t1 LIMIT 1;

@@ -1,0 +1,30 @@
+SELECT "mode unspecified";
+SELECT 1 || 0 AND 0 AS ambiguous_pipes;
+SELECT 'ab' LIKE 'a%', 'ab' LIKE 'a' || '%';
+SELECT COUNT (1) AS compatible_count;
+SELECT PI(), PI ();
+SELECT split_mode_gap.PI(), split_mode_gap.PI ();
+SELECT "a\\b", "a\\\'b", "a""\\b", "a""\\\'b";
+SELECT /*!50000 "mode unspecified", 1 || 0 AND 0, COUNT (1) */;
+SELECT 'trailing backslash\';
+SELECT /*!50000 'trailing backslash\' */;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT "mode unspecified";
+----------
+[SELECT] SELECT 1 || 0 AND 0 AS ambiguous_pipes;
+----------
+[SELECT] SELECT 'ab' LIKE 'a%', 'ab' LIKE 'a' || '%';
+----------
+[SELECT] SELECT COUNT (1) AS compatible_count;
+----------
+[SELECT] SELECT PI(), PI ();
+----------
+[SELECT] SELECT split_mode_gap.PI(), split_mode_gap.PI ();
+----------
+[SELECT] SELECT "a\\b", "a\\\'b", "a""\\b", "a""\\\'b";
+----------
+[SELECT] SELECT /*!50000 "mode unspecified", 1 || 0 AND 0, COUNT (1) */;
+----------
+[SELECT] SELECT 'trailing backslash\';
+----------
+[SELECT] SELECT /*!50000 'trailing backslash\' */;

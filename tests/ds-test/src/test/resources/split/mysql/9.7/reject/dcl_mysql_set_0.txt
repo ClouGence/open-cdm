@@ -1,0 +1,21 @@
+SET PASSWORD FOR 'split_pw_old'@'%' = OLD_PASSWORD('Old97!');
+SET PASSWORD FOR 'split_pw_password'@'%' = PASSWORD('Password97!');
+SET GLOBAL = DEFAULT;
+SET LOCAL = DEFAULT;
+SET PERSIST = DEFAULT;
+SET PERSIST_ONLY = DEFAULT;
+SET SESSION = DEFAULT;
+------------------------------------------------------------------------------------------
+[ALTER_USER] SET PASSWORD FOR 'split_pw_old'@'%' = OLD_PASSWORD('Old97!');
+----------
+[ALTER_USER] SET PASSWORD FOR 'split_pw_password'@'%' = PASSWORD('Password97!');
+----------
+[SYSTEM_SETTING_WRITE] SET GLOBAL = DEFAULT;
+----------
+[SESSION_SETTING_WRITE] SET LOCAL = DEFAULT;
+----------
+[SYSTEM_SETTING_WRITE] SET PERSIST = DEFAULT;
+----------
+[SYSTEM_SETTING_WRITE] SET PERSIST_ONLY = DEFAULT;
+----------
+[SESSION_SETTING_WRITE] SET SESSION = DEFAULT;

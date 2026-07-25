@@ -1,0 +1,116 @@
+[createTable_basic]
+sql:
+create table abc(id int)
+expect:
+{
+  "contains": [
+    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc", "ifNotExists":false},
+    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int", "typeName":"int", "array":false}
+  ]
+}
+----------
+[createTable_ifNotExists]
+sql:
+create table if not exists abc(id int)
+expect:
+{
+  "contains": [
+    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc", "ifNotExists":true},
+    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int", "typeName":"int"}
+  ]
+}
+----------
+[createTable_withSchema]
+sql:
+create table schema1.abc(id int)
+expect:
+{
+  "contains": [
+    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"schema1", "table":"abc"},
+    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"schema1", "table":"abc", "column":"id", "typeDesc":"int"}
+  ]
+}
+----------
+[createTable_withCatalogSchema]
+sql:
+create table abc.public.abc(id int);
+expect:
+{
+  "contains": [
+    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc"},
+    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int"}
+  ]
+}
+----------
+[createTable_arrayColumn]
+sql:
+create table abc.public.abc(id int[]);
+expect:
+{
+  "contains": [
+    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc"},
+    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int[]", "typeName":"int", "array":true}
+  ]
+}
+----------
+[createTable_defaultValue]
+sql:
+create table abc.public.abc(id int default 1);
+expect:
+{
+  "contains": [
+    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc"},
+    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int", "defaultValue":"1"}
+  ]
+}
+----------
+[createTable_multiColumns]
+sql:
+create table abc(column1 testType.tt, column2 varchar(25),column3 bit,column4 json,column5 interval year,column6 TIMESTAMP);
+expect:
+{
+  "contains": [
+    {
+      "class": "PgTableDomain",
+      "sqlType": "CREATE_TABLE",
+      "auditKind": "CREATE",
+      "table": "abc"
+    },
+    {
+      "class": "PgColumnDomain",
+      "column": "column1",
+      "typeDesc": "testType.tt",
+      "typeName": "testType"
+    },
+    {
+      "class": "PgColumnDomain",
+      "column": "column2",
+      "typeDesc": "varchar(25)",
+      "typeName": "varchar"
+    },
+    {
+      "class": "PgColumnDomain",
+      "column": "column3",
+      "typeDesc": "bit",
+      "typeName": "bit"
+    },
+    {
+      "class": "PgColumnDomain",
+      "column": "column4",
+      "typeDesc": "json",
+      "typeName": "json"
+    },
+    {
+      "class": "PgColumnDomain",
+      "column": "column5",
+      "typeDesc": "interval year",
+      "typeName": "interval"
+    },
+    {
+      "class": "PgColumnDomain",
+      "column": "column6",
+      "typeDesc": "TIMESTAMP",
+      "typeName": "TIMESTAMP"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+SELECT count(*) >= 0 AS logicalmapdir_listed FROM pg_ls_logicalmapdir();
+SELECT count(*) >= 0 AS logicalsnapdir_listed FROM pg_ls_logicalsnapdir();
+SELECT count(*) >= 0 AS replslotdir_listed FROM pg_ls_replslotdir('file_access_slot');
+------------------------------------------------------------------------------------------
+[SELECT] SELECT count(*) >= 0 AS logicalmapdir_listed FROM pg_ls_logicalmapdir();
+----------
+[SELECT] SELECT count(*) >= 0 AS logicalsnapdir_listed FROM pg_ls_logicalsnapdir();
+----------
+[SELECT] SELECT count(*) >= 0 AS replslotdir_listed FROM pg_ls_replslotdir('file_access_slot');

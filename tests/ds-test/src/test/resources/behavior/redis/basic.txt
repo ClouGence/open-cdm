@@ -1,0 +1,43 @@
+[string_commands]
+sql:
+SET k1 v1
+GET k1
+levels:
+/test/1/catalog1/0
+expect:
+{
+  "MERGE" : [
+    {
+      "subject": "Key(1:4~1:6) /test/1/0/k1/",
+      "action" : "MERGE"
+    }
+  ],
+  "SELECT": [
+    {
+      "subject": "Key(2:4~2:6) /test/1/0/k1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[schema_commands_without_keys]
+sql:
+TIME
+SWAPDB 0 1
+levels:
+/test/1/catalog1/0
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Schema(1:0~1:4) /test/1/0/",
+      "action" : "READ"
+    }
+  ],
+  "UNSAFE": [
+    {
+      "subject": "Schema(2:0~2:6) /test/1/0/",
+      "action" : "OTHER"
+    }
+  ]
+}

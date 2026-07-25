@@ -1,0 +1,5 @@
+comment on column abc.column1 is 'ccc';create global temporary table test.abc(id int)
+------------------------------------------------------------------------------------------
+[COMMENT_COLUMN] comment on column abc.column1 is 'ccc';
+----------
+[CREATE_TABLE] create global temporary table test.abc(id int)

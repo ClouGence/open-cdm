@@ -1,0 +1,143 @@
+[MsRuleDeleteAllowMultiTablesTest#deleteMultiTables_1#001]
+rule: _rules/delete/delete-allow-multi-tables.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from test_specify_column where id =1
+----------
+[MsRuleDeleteAllowMultiTablesTest#deleteMultiTables_2#001]
+rule: _rules/delete/delete-allow-multi-tables.rule
+expect: true
+vars:
+  allow: false
+sql:
+delete from test_specify_column where id =1
+----------
+[MsRuleDeleteAllowSubQueryTest#testHasWhereSelect_1#001]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+delete from test_specify_column where id = (select id from text)
+----------
+[MsRuleDeleteAllowSubQueryTest#testHasWhereSelect_1#002]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+delete from test_specify_column where id =1
+----------
+[MsRuleDeleteAllowSubQueryTest#testHasWhereSelect_2#001]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: Where
+sql:
+delete from test_specify_column where id = (select id from text)
+----------
+[MsRuleDeleteAllowSubQueryTest#testHasWhereSelect_2#002]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: Where
+sql:
+delete from test_specify_column where id =1
+----------
+[MsRuleDeleteAllowSubQueryTest#testHasWhereSelect_3#001]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+delete from test_specify_column where id = (select id from text)
+----------
+[MsRuleDeleteAllowSubQueryTest#testHasWhereSelect_3#002]
+rule: _rules/delete/delete-allow-sub-query.rule
+expect: true
+vars:
+  allow: None
+sql:
+delete from test_specify_column where id =1
+----------
+[MsRuleDeleteEmptyWhereTest#emptyWhereTest_1#001]
+rule: _rules/delete/delete-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+delete from abc
+----------
+[MsRuleDeleteEmptyWhereTest#emptyWhereTest_1#002]
+rule: _rules/delete/delete-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+delete from table_1 where 1=1
+----------
+[MsRuleDeleteEmptyWhereTest#emptyWhereTest_1#003]
+rule: _rules/delete/delete-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+delete from table_1 where a=a
+----------
+[MsRuleDeleteEmptyWhereTest#emptyWhereTest_2#001]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from abc
+----------
+[MsRuleDeleteEmptyWhereTest#emptyWhereTest_2#002]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from table_1 where 1=1
+----------
+[MsRuleDeleteEmptyWhereTest#emptyWhereTest_2#003]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from table_1 where a=a
+----------
+[MsRuleDeleteEmptyWhereTest#notEmptyWhereTest_1#001]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+delete from table_1 where 1>1
+----------
+[MsRuleDeleteEmptyWhereTest#notEmptyWhereTest_1#002]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+delete from table_1 where 1=1 and a = '123'
+----------
+[MsRuleDeleteEmptyWhereTest#notEmptyWhereTest_2#001]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from table_1 where 1>1
+----------
+[MsRuleDeleteEmptyWhereTest#notEmptyWhereTest_2#002]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from table_1 where 1=1 and a = '123'

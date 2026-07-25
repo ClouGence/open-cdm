@@ -1,0 +1,9 @@
+alter table user_table modify column address varchar(255);
+alter table user_table modify column address varchar(255) after name;
+alter table user_table modify column address varchar(255) from rollup_name properties ("k" = "v");
+------------------------------------------------------------------------------------------
+[ALTER_TABLE|ALTER_COLUMN] alter table user_table modify column address varchar(255);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table user_table modify column address varchar(255) after name;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table user_table modify column address varchar(255) from rollup_name properties ("k" = "v");

@@ -1,0 +1,11 @@
+ -- test 
+   COMMIT WORK  -- test comment  
+ ;  /*comment
+gweg*/   ROLLBACK WORK   -- ffff  ;  --aaaa
+------------------------------------------------------------------------------------------
+[TRANSACTION] -- test 
+   COMMIT WORK  -- test comment  
+ ;
+----------
+[TRANSACTION] /*comment
+gweg*/   ROLLBACK WORK   -- ffff  ;  --aaaa

@@ -1,0 +1,26 @@
+[insert_on_duplicate_key_update]
+sql:
+INSERT INTO target_tab(id, value_col) VALUES (1, 'new') ON DUPLICATE KEY UPDATE value_col = VALUES(value_col);
+expect:
+{
+  "contains": [
+    {
+      "class": "MyInsertDomain",
+      "sqlType": "MERGE",
+      "conflict": "UPDATE"
+    }
+  ]
+}
+----------
+[replace_into]
+sql:
+REPLACE INTO target_tab(id, value_col) VALUES (1, 'replacement');
+expect:
+{
+  "contains": [
+    {
+      "class": "MyReplaceDomain",
+      "sqlType": "MERGE"
+    }
+  ]
+}

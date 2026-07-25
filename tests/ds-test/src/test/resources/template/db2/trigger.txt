@@ -1,0 +1,174 @@
+[normalTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdb2_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger"
+before insert on "test_schema"."table"
+for each row
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[newAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdb2_trig": "row",
+    "rdbdb2_newal": "new_name"
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger"
+before insert on "test_schema"."table"
+referencing new as "new_name" 
+for each row
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[newAndOldAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdb2_trig": "row",
+    "rdbdb2_newal": "new_name",
+    "rdbdb2_oldal": "old_name"
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger"
+before insert on "test_schema"."table"
+referencing new as "new_name" old as "old_name"
+for each row
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[oldAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdb2_trig": "row",
+    "rdbdb2_oldal": "new_name"
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger"
+before insert on "test_schema"."table"
+referencing old as "new_name"
+for each row
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[conditionTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdb2_cond": "1=1",
+    "rdbdb2_trig": "row"
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger"
+before insert on "test_schema"."table"
+for each row
+when(1=1)
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[updateColumn]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "update"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbdb2_cond": "1=1",
+    "rdbdb2_trig": "statement",
+    "triggerColumns": [
+      "a",
+      "b"
+    ]
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger"
+before update of "a","b" on "test_schema"."table"
+for each statement
+begin insert table tmp values(1,2); end;
+>>>

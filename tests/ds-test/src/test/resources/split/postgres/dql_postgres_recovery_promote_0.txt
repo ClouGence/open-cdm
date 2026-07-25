@@ -1,0 +1,3 @@
+SELECT pg_promote(wait => true, wait_seconds => 300);
+------------------------------------------------------------------------------------------
+[SELECT|ALTER_REPLICATION] SELECT pg_promote(wait => true, wait_seconds => 300);

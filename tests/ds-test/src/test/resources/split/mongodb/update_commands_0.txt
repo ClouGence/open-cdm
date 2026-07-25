@@ -1,0 +1,21 @@
+db.collection.update({name: "john"}, {$set: {age: 31}});
+db.collection.updateOne({name: "john"}, {$set: {age: 31}});
+db.collection.updateMany({status: "active"}, {$set: {lastUpdated: new Date()}});
+db.collection.updateMany({status: "pending"}, {$set: {createdBy: new ObjectId()}});
+db.collection.updateMany({status: "draft"}, {$set: {score: new NumberInt(10)}});
+db.collection.updateMany({status: "review"}, {$set: {rating: new NumberLong("100")}});
+db.collection.replaceOne({name: "john"}, {name: "john doe", age: 32});
+------------------------------------------------------------------------------------------
+[UPDATE] db.collection.update({name: "john"}, {$set: {age: 31}})
+----------
+[UPDATE] db.collection.updateOne({name: "john"}, {$set: {age: 31}})
+----------
+[UPDATE] db.collection.updateMany({status: "active"}, {$set: {lastUpdated: new Date()}})
+----------
+[UPDATE] db.collection.updateMany({status: "pending"}, {$set: {createdBy: new ObjectId()}})
+----------
+[UPDATE] db.collection.updateMany({status: "draft"}, {$set: {score: new NumberInt(10)}})
+----------
+[UPDATE] db.collection.updateMany({status: "review"}, {$set: {rating: new NumberLong("100")}})
+----------
+[UPDATE] db.collection.replaceOne({name: "john"}, {name: "john doe", age: 32})

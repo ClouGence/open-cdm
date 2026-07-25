@@ -1,0 +1,84 @@
+CREATE INDEX idx_name ON test (name);
+CREATE INDEX idx_multi ON test (c1, c2 ASC);
+CREATE INDEX idx_prefix ON test (name(10));
+CREATE INDEX idx_comment ON test (c1, c2 ASC) COMMENT 'test index';
+CREATE UNIQUE INDEX idx_uniq ON test (email);
+CREATE UNIQUE INDEX idx_uniq_multi ON test (c1, c2);
+CREATE INDEX idx_btree ON test (id) USING BTREE;
+CREATE INDEX idx_hash ON test (id) USING HASH;
+CREATE FULLTEXT INDEX idx_ft ON test (content);
+CREATE SPATIAL INDEX idx_sp ON test (geo);
+CREATE INDEX idx_schema ON `test_schema`.`test_table` (c1);
+DROP INDEX idx_test ON test;
+DROP INDEX `idx_test` ON `test_schema`.test;
+ALTER TABLE test ADD INDEX idx_c1 (c1);
+ALTER TABLE test ADD INDEX (c1, c2);
+ALTER TABLE test ADD KEY idx_key (c1);
+ALTER TABLE test ADD KEY www (c1(33),c2(33)) COMMENT 'sss';
+ALTER TABLE test ADD UNIQUE INDEX idx_uniq (email);
+ALTER TABLE test ADD UNIQUE KEY idx_uk (c1, c2);
+ALTER TABLE test ADD UNIQUE (c1);
+ALTER TABLE test ADD FULLTEXT INDEX idx_ft (content);
+ALTER TABLE test ADD SPATIAL INDEX idx_sp (geo);
+ALTER TABLE test DROP INDEX idx_c1;
+ALTER TABLE test DROP KEY idx_key;
+ALTER TABLE test RENAME INDEX old_idx TO new_idx;
+ALTER TABLE test RENAME KEY old_key TO new_key;
+ALTER TABLE test ALTER INDEX idx_c1 VISIBLE;
+ALTER TABLE test ALTER INDEX idx_c1 INVISIBLE;
+------------------------------------------------------------------------------------------
+[ADD_INDEX] CREATE INDEX idx_name ON test (name);
+----------
+[ADD_INDEX] CREATE INDEX idx_multi ON test (c1, c2 ASC);
+----------
+[ADD_INDEX] CREATE INDEX idx_prefix ON test (name(10));
+----------
+[ADD_INDEX|COMMENT_INDEX] CREATE INDEX idx_comment ON test (c1, c2 ASC) COMMENT 'test index';
+----------
+[ADD_INDEX] CREATE UNIQUE INDEX idx_uniq ON test (email);
+----------
+[ADD_INDEX] CREATE UNIQUE INDEX idx_uniq_multi ON test (c1, c2);
+----------
+[ADD_INDEX] CREATE INDEX idx_btree ON test (id) USING BTREE;
+----------
+[ADD_INDEX] CREATE INDEX idx_hash ON test (id) USING HASH;
+----------
+[ADD_INDEX] CREATE FULLTEXT INDEX idx_ft ON test (content);
+----------
+[ADD_INDEX] CREATE SPATIAL INDEX idx_sp ON test (geo);
+----------
+[ADD_INDEX] CREATE INDEX idx_schema ON `test_schema`.`test_table` (c1);
+----------
+[DROP_INDEX] DROP INDEX idx_test ON test;
+----------
+[DROP_INDEX] DROP INDEX `idx_test` ON `test_schema`.test;
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD INDEX idx_c1 (c1);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD INDEX (c1, c2);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD KEY idx_key (c1);
+----------
+[ALTER_TABLE|ADD_INDEX|COMMENT_INDEX] ALTER TABLE test ADD KEY www (c1(33),c2(33)) COMMENT 'sss';
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD UNIQUE INDEX idx_uniq (email);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD UNIQUE KEY idx_uk (c1, c2);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD UNIQUE (c1);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD FULLTEXT INDEX idx_ft (content);
+----------
+[ALTER_TABLE|ADD_INDEX] ALTER TABLE test ADD SPATIAL INDEX idx_sp (geo);
+----------
+[ALTER_TABLE|DROP_INDEX] ALTER TABLE test DROP INDEX idx_c1;
+----------
+[ALTER_TABLE|DROP_INDEX] ALTER TABLE test DROP KEY idx_key;
+----------
+[ALTER_TABLE|RENAME_INDEX] ALTER TABLE test RENAME INDEX old_idx TO new_idx;
+----------
+[ALTER_TABLE|RENAME_INDEX] ALTER TABLE test RENAME KEY old_key TO new_key;
+----------
+[ALTER_TABLE|ALTER_INDEX] ALTER TABLE test ALTER INDEX idx_c1 VISIBLE;
+----------
+[ALTER_TABLE|ALTER_INDEX] ALTER TABLE test ALTER INDEX idx_c1 INVISIBLE;

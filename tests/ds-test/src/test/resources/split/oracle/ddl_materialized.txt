@@ -1,0 +1,39 @@
+CREATE MATERIALIZED VIEW LOG ON customers
+WITH ROWID, SEQUENCE (customer_name)
+INCLUDING NEW VALUES;
+
+CREATE MATERIALIZED VIEW LOG ON orders
+WITH ROWID, SEQUENCE (customer_id, amount, order_date)
+INCLUDING NEW VALUES;
+
+CREATE MATERIALIZED VIEW mv_daily_cust_amount
+BUILD IMMEDIATE
+REFRESH COMPLETE ON DEMAND
+START WITH TRUNC(SYSDATE) + 1        -- 明天 00:00 首次
+NEXT TRUNC(SYSDATE) + 1 + 1/24       -- 之后每小时
+AS
+SELECT c.customer_id, SUM(o.amount) AS daily_amount
+FROM orders o
+JOIN customers c ON c.customer_id = o.customer_id
+WHERE o.order_date >= TRUNC(SYSDATE)
+GROUP BY c.customer_id;
+------------------------------------------------------------------------------------------
+[CREATE_LOG] CREATE MATERIALIZED VIEW LOG ON customers
+WITH ROWID, SEQUENCE (customer_name)
+INCLUDING NEW VALUES;
+----------
+[CREATE_LOG] CREATE MATERIALIZED VIEW LOG ON orders
+WITH ROWID, SEQUENCE (customer_id, amount, order_date)
+INCLUDING NEW VALUES;
+----------
+[CREATE_VIEW(SELECT)] CREATE MATERIALIZED VIEW mv_daily_cust_amount
+BUILD IMMEDIATE
+REFRESH COMPLETE ON DEMAND
+START WITH TRUNC(SYSDATE) + 1        -- 明天 00:00 首次
+NEXT TRUNC(SYSDATE) + 1 + 1/24       -- 之后每小时
+AS
+SELECT c.customer_id, SUM(o.amount) AS daily_amount
+FROM orders o
+JOIN customers c ON c.customer_id = o.customer_id
+WHERE o.order_date >= TRUNC(SYSDATE)
+GROUP BY c.customer_id;

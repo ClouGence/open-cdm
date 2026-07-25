@@ -1,0 +1,201 @@
+EXISTS mykey
+APPEND mykey "Hello"
+APPEND mykey " World"
+GET mykey
+GETRANGE ts 0 3
+GETRANGE ts 4 7
+DECR mykey
+DECRBY mykey 3
+GETDEL mykey
+GETEX mykey
+GETEX mykey EX 60
+GETEX mykey PX 60
+GETEX mykey EXAT 60
+GETEX mykey PXAT 60
+GETEX mykey PERSIST
+GETRANGE mykey 0 3
+GETRANGE mykey -3 -1
+GETRANGE mykey 0 -1
+GETRANGE mykey 10 100
+INCR mycounter
+GETSET mycounter "0"
+INCRBY mykey 5
+INCRBYFLOAT mykey 0.1
+INCRBYFLOAT mykey -5
+INCRBYFLOAT mykey 2.0e2
+MSET key1 ohmytext key2 mynewtext
+MGET key1 key2 nonexisting
+MSET key1 "Hello" key2 "World"
+LCS key1 key2
+LCS key1 key2 LEN
+LCS key1 key2 LEN IDX
+LCS key1 key2 LEN IDX MINMATCHLEN 4
+LCS key1 key2 LEN IDX MINMATCHLEN 4 WITHMATCHLEN
+LCS key1 key2 IDX
+LCS key1 key2 IDX MINMATCHLEN 4
+LCS key1 key2 IDX MINMATCHLEN 4 WITHMATCHLEN
+LCS key1 key2 MINMATCHLEN 4
+LCS key1 key2 MINMATCHLEN 4 WITHMATCHLEN
+LCS key1 key2 MINMATCHLEN 4
+LCS key1 key2 WITHMATCHLEN
+LCS key1 key2 LEN IDX WITHMATCHLEN
+MSETNX key1 "Hello" key2 "there"
+MSETNX key2 "new" key3 "world"
+PSETEX mykey 1000 "Hello"
+SET mykey "Hello"
+SET anotherkey "Hello Word" NX
+SET anotherkey "Hello Word" XX
+SET anotherkey "Hello Word" GET
+SET anotherkey "Hello Word" EX 60
+SET anotherkey "Hello Word" PX 60
+SET anotherkey "Hello Word" EXAT 60
+SET anotherkey "Hello Word" PXAT 60
+SET anotherkey "Hello Word" KEEPTTL
+SET anotherkey "will expire in a minute" NX GET
+SET anotherkey "will expire in a minute" NX GET EX 60
+SET anotherkey "will expire in a minute" NX EX 60
+SET anotherkey "will expire in a minute" EX 60
+SETEX mykey 10 "Hello"
+SET mykey value EX 60
+SETNX mykey "Hello"
+SETNX mykey "World"
+SETRANGE key1 6 "Redis"
+STRLEN mykey
+SUBSTR mykey 0 3
+SUBSTR mykey -3 -1
+SUBSTR mykey 0 -1
+SUBSTR mykey 10 100
+------------------------------------------------------------------------------------------
+[SELECT] EXISTS mykey
+----------
+[MERGE] APPEND mykey "Hello"
+----------
+[MERGE] APPEND mykey " World"
+----------
+[SELECT] GET mykey
+----------
+[SELECT] GETRANGE ts 0 3
+----------
+[SELECT] GETRANGE ts 4 7
+----------
+[MERGE] DECR mykey
+----------
+[MERGE] DECRBY mykey 3
+----------
+[DELETE] GETDEL mykey
+----------
+[SELECT] GETEX mykey
+----------
+[UPDATE] GETEX mykey EX 60
+----------
+[UPDATE] GETEX mykey PX 60
+----------
+[UPDATE] GETEX mykey EXAT 60
+----------
+[UPDATE] GETEX mykey PXAT 60
+----------
+[UPDATE] GETEX mykey PERSIST
+----------
+[SELECT] GETRANGE mykey 0 3
+----------
+[SELECT] GETRANGE mykey -3 -1
+----------
+[SELECT] GETRANGE mykey 0 -1
+----------
+[SELECT] GETRANGE mykey 10 100
+----------
+[MERGE] INCR mycounter
+----------
+[MERGE] GETSET mycounter "0"
+----------
+[MERGE] INCRBY mykey 5
+----------
+[MERGE] INCRBYFLOAT mykey 0.1
+----------
+[MERGE] INCRBYFLOAT mykey -5
+----------
+[MERGE] INCRBYFLOAT mykey 2.0e2
+----------
+[MERGE] MSET key1 ohmytext key2 mynewtext
+----------
+[SELECT] MGET key1 key2 nonexisting
+----------
+[MERGE] MSET key1 "Hello" key2 "World"
+----------
+[SELECT] LCS key1 key2
+----------
+[SELECT] LCS key1 key2 LEN
+----------
+[SELECT] LCS key1 key2 LEN IDX
+----------
+[SELECT] LCS key1 key2 LEN IDX MINMATCHLEN 4
+----------
+[SELECT] LCS key1 key2 LEN IDX MINMATCHLEN 4 WITHMATCHLEN
+----------
+[SELECT] LCS key1 key2 IDX
+----------
+[SELECT] LCS key1 key2 IDX MINMATCHLEN 4
+----------
+[SELECT] LCS key1 key2 IDX MINMATCHLEN 4 WITHMATCHLEN
+----------
+[SELECT] LCS key1 key2 MINMATCHLEN 4
+----------
+[SELECT] LCS key1 key2 MINMATCHLEN 4 WITHMATCHLEN
+----------
+[SELECT] LCS key1 key2 MINMATCHLEN 4
+----------
+[SELECT] LCS key1 key2 WITHMATCHLEN
+----------
+[SELECT] LCS key1 key2 LEN IDX WITHMATCHLEN
+----------
+[INSERT] MSETNX key1 "Hello" key2 "there"
+----------
+[INSERT] MSETNX key2 "new" key3 "world"
+----------
+[MERGE] PSETEX mykey 1000 "Hello"
+----------
+[MERGE] SET mykey "Hello"
+----------
+[INSERT] SET anotherkey "Hello Word" NX
+----------
+[UPDATE] SET anotherkey "Hello Word" XX
+----------
+[MERGE] SET anotherkey "Hello Word" GET
+----------
+[MERGE] SET anotherkey "Hello Word" EX 60
+----------
+[MERGE] SET anotherkey "Hello Word" PX 60
+----------
+[MERGE] SET anotherkey "Hello Word" EXAT 60
+----------
+[MERGE] SET anotherkey "Hello Word" PXAT 60
+----------
+[MERGE] SET anotherkey "Hello Word" KEEPTTL
+----------
+[INSERT] SET anotherkey "will expire in a minute" NX GET
+----------
+[INSERT] SET anotherkey "will expire in a minute" NX GET EX 60
+----------
+[INSERT] SET anotherkey "will expire in a minute" NX EX 60
+----------
+[MERGE] SET anotherkey "will expire in a minute" EX 60
+----------
+[MERGE] SETEX mykey 10 "Hello"
+----------
+[MERGE] SET mykey value EX 60
+----------
+[INSERT] SETNX mykey "Hello"
+----------
+[INSERT] SETNX mykey "World"
+----------
+[MERGE] SETRANGE key1 6 "Redis"
+----------
+[SELECT] STRLEN mykey
+----------
+[SELECT] SUBSTR mykey 0 3
+----------
+[SELECT] SUBSTR mykey -3 -1
+----------
+[SELECT] SUBSTR mykey 0 -1
+----------
+[SELECT] SUBSTR mykey 10 100

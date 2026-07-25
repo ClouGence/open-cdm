@@ -1,0 +1,112 @@
+[normalTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end"
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger" 
+before insert 
+on "test_schema"."table"
+for each row 
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[newAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbor_newal": "new_name"
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger" 
+before insert 
+on "test_schema"."table"
+referencing new as new_name
+for each row 
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[oldAliasTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbor_oldal": "new_name"
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger" 
+before insert 
+on "test_schema"."table"
+referencing old as new_name
+for each row 
+begin insert table tmp values(1,2); end;
+>>>
+----------
+
+[conditionTest]
+type: createTrigger
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_trigger",
+    "triggerTable": "table",
+    "triggerTime": "before",
+    "triggerEvent": [
+      "insert"
+    ],
+    "sql": "begin insert table tmp values(1,2); end",
+    "rdbor_cond": "1=1"
+  }
+}
+expect:
+<<<
+create trigger "test_schema"."test_trigger" 
+before insert 
+on "test_schema"."table"
+for each row 
+when(1=1)
+begin insert table tmp values(1,2); end;
+>>>

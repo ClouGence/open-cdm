@@ -1,0 +1,1629 @@
+[admin_CREATE_USER_1]
+sql:
+-- mysql_admin_statements.sql
+-- 示例：administrationStatement 各类语句集合
+-- 包含：ALTER USER, CREATE USER, DROP USER, GRANT/REVOKE, CREATE/DROP ROLE,
+-- GRANT/REVOKE PROXY, RENAME USER, ANALYZE/CHECK/CHECKSUM/OPTIMIZE/REPAIR TABLE,
+-- CREATE UDF, INSTALL/UNINSTALL PLUGIN, SET / SHOW / BINLOG / FLUSH / KILL / RESET / SHUTDOWN 等
+
+-- 注意：部分语句需要管理员权限（root）并在合适的 MySQL 版本下执行。
+
+-- 1) CREATE USER
+CREATE USER 'app_user'@'localhost' IDENTIFIED BY 'S3cureP@ss';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_USER",
+      "auditKind": "CREATE",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_CREATE_USER_2]
+sql:
+CREATE USER 'readonly'@'%' IDENTIFIED WITH mysql_native_password BY 'readonlypwd';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_USER",
+      "auditKind": "CREATE",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_ALTER_USER_3]
+sql:
+-- 2) ALTER USER
+ALTER USER 'app_user'@'localhost' IDENTIFIED BY 'N3wP@ssw0rd';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_USER",
+      "auditKind": "ADMIN",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_ALTER_USER_4]
+sql:
+ALTER USER 'app_user'@'localhost' PASSWORD EXPIRE;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_USER",
+      "auditKind": "ADMIN",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_ALTER_USER_5]
+sql:
+-- 强制密码过期（某些版本）
+ALTER USER 'readonly'@'%' IDENTIFIED WITH caching_sha2_password BY 'newreadonly';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_USER",
+      "auditKind": "ADMIN",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_DROP_USER_6]
+sql:
+-- 3) DROP USER
+DROP USER IF EXISTS 'temp'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_USER",
+      "auditKind": "DROP",
+      "user": "temp",
+      "ifExists": true,
+      "host": "localhost",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_RENAME_USER_7]
+sql:
+-- 4) RENAME USER
+RENAME USER 'old_user'@'localhost' TO 'new_user'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "RENAME_USER",
+      "auditKind": "ADMIN",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_CREATE_ROLE_8]
+sql:
+-- 5) CREATE ROLE / DROP ROLE
+CREATE ROLE 'reporting_role';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_ROLE",
+      "auditKind": "CREATE",
+      "role": "'reporting_role'",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_CREATE_ROLE_9]
+sql:
+CREATE ROLE 'devops';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_ROLE",
+      "auditKind": "CREATE",
+      "role": "'devops'",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_DROP_ROLE_10]
+sql:
+DROP ROLE IF EXISTS 'old_role';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_ROLE",
+      "auditKind": "DROP",
+      "role": "'old_role'",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_GRANT_11]
+sql:
+-- 6) GRANT / REVOKE（权限管理）
+GRANT SELECT, INSERT, UPDATE ON example_db.* TO 'app_user'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "GRANT",
+      "auditKind": "ALTER",
+      "name": "app_user",
+      "withGrantOption": false,
+      "host": "localhost",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_GRANT_12]
+sql:
+GRANT ALL PRIVILEGES ON example_db.* TO 'admin_user'@'localhost' WITH GRANT OPTION;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "GRANT",
+      "auditKind": "ALTER",
+      "name": "admin_user",
+      "withGrantOption": false,
+      "host": "localhost",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_REVOKE_13]
+sql:
+REVOKE INSERT ON example_db.* FROM 'app_user'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "REVOKE",
+      "auditKind": "ALTER",
+      "name": "app_user",
+      "host": "localhost",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_REVOKE_14]
+sql:
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'admin_user'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "REVOKE",
+      "auditKind": "ALTER",
+      "name": "admin_user",
+      "host": "localhost",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_GRANT_15]
+sql:
+-- 7) GRANT ROLE / REVOKE ROLE
+GRANT 'reporting_role' TO 'analyst'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "GRANT",
+      "auditKind": "ALTER",
+      "name": "'reporting_role'",
+      "withGrantOption": false,
+      "sqlTarget": "UserOrRole"
+    },
+    {
+      "sqlType": "GRANT",
+      "auditKind": "ALTER",
+      "name": "analyst",
+      "withGrantOption": false,
+      "host": "localhost",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_REVOKE_16]
+sql:
+REVOKE 'reporting_role' FROM 'analyst'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "REVOKE",
+      "auditKind": "ALTER",
+      "name": "analyst",
+      "host": "localhost",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_GRANT_17]
+sql:
+-- 8) GRANT PROXY / REVOKE PROXY（代理权限）
+GRANT PROXY ON 'target_user'@'localhost' TO 'proxy_user'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "GRANT",
+      "auditKind": "ADMIN",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_REVOKE_18]
+sql:
+REVOKE PROXY ON 'target_user'@'localhost' FROM 'proxy_user'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "REVOKE",
+      "auditKind": "ADMIN",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_GRANT_19]
+sql:
+-- 9) GRANT PROXY WITH ROLE（示例：授予并限定代理）
+GRANT PROXY ON 'target_user'@'localhost' TO 'proxy_user'@'localhost' WITH GRANT OPTION;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "GRANT",
+      "auditKind": "ADMIN",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_20]
+sql:
+-- 10) SHOW 权限相关
+SHOW GRANTS FOR 'app_user'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "GRANTS",
+      "target": "UserOrRole",
+      "userOrRole": "'app_user'@'localhost'",
+      "showKind": "PRIVILEGE",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_21]
+sql:
+SHOW GRANTS FOR CURRENT_USER();
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "GRANTS",
+      "target": "UserOrRole",
+      "userOrRole": "CURRENT_USER",
+      "showKind": "PRIVILEGE",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_ANALYZE_22]
+sql:
+-- 11) ANALYZE / CHECK / CHECKSUM / OPTIMIZE / REPAIR TABLE
+ANALYZE TABLE posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ANALYZE",
+      "auditKind": "OTHER",
+      "name": "posts",
+      "target": "Table",
+      "needSupply": true,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_CHECK_TABLE_23]
+sql:
+CHECK TABLE posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CHECK_TABLE",
+      "auditKind": "ALTER",
+      "name": "posts",
+      "target": "Table",
+      "needSupply": true,
+      "sqlTarget": "Table"
+    }
+  ]
+}
+----------
+
+[admin_CHECK_TABLE_24]
+sql:
+CHECKSUM TABLE posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CHECK_TABLE",
+      "auditKind": "OTHER",
+      "name": "posts",
+      "target": "Table",
+      "needSupply": true,
+      "sqlTarget": "Table"
+    }
+  ]
+}
+----------
+
+[admin_OPTIMIZE_25]
+sql:
+OPTIMIZE TABLE posts;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "OPTIMIZE",
+      "auditKind": "OTHER",
+      "name": "posts",
+      "target": "Table",
+      "needSupply": true,
+      "sqlTarget": "Table"
+    }
+  ]
+}
+----------
+
+[admin_REPAIR_26]
+sql:
+REPAIR TABLE archive_table;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "REPAIR",
+      "auditKind": "OTHER",
+      "name": "archive_table",
+      "target": "Table",
+      "needSupply": true,
+      "sqlTarget": "Table"
+    }
+  ]
+}
+----------
+
+[admin_ALTER_TABLE_27]
+sql:
+-- 12) ALTER TABLE ... ANALYZE / OPTIMIZE 示例（管理操作）
+ALTER TABLE posts ENGINE=InnoDB;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_TABLE",
+      "auditKind": "ALTER",
+      "table": "posts",
+      "hasPrimary": false,
+      "hasUnique": false,
+      "hasForeignKey": false,
+      "hasIndex": false,
+      "virtual": false,
+      "ifNotExists": false,
+      "ifExists": false,
+      "engine": "InnoDB",
+      "temporary": false,
+      "sqlTarget": "Table"
+    }
+  ]
+}
+----------
+
+[admin_CREATE_UDF_FUNCTION_28]
+sql:
+-- 仅示例，改变存储引擎需管理员或合理场景
+
+-- 13) CREATE UDF（用户自定义函数 — 依赖共享库）
+-- 需要提前把共享库放置到服务器可加载路径并且有相应的 C/C++ 编译实现
+CREATE FUNCTION example_udf RETURNS INTEGER SONAME 'example_udf.so';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_UDF_FUNCTION",
+      "auditKind": "CREATE",
+      "target": "Function",
+      "needSupply": false,
+      "sqlTarget": "Function"
+    }
+  ]
+}
+----------
+
+[admin_DROP_FUNCTION_29]
+sql:
+DROP FUNCTION IF EXISTS example_udf;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_PROG_OBJ",
+      "auditKind": "DROP",
+      "name": "example_udf",
+      "sqlTarget": "Function"
+    }
+  ]
+}
+----------
+
+[admin_INSTALL_PLUGIN_30]
+sql:
+-- 14) INSTALL / UNINSTALL PLUGIN
+INSTALL PLUGIN auth_socket SONAME 'auth_socket.so';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSTALL_PLUGIN",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_UNINSTALL_PLUGIN_31]
+sql:
+UNINSTALL PLUGIN auth_socket;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UNINSTALL_PLUGIN",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_INSTALL_PLUGIN_32]
+sql:
+INSTALL PLUGIN validate_password SONAME 'validate_password.so';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSTALL_PLUGIN",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_UNINSTALL_PLUGIN_33]
+sql:
+UNINSTALL PLUGIN validate_password;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UNINSTALL_PLUGIN",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_CONFIG_WRITE_34]
+sql:
+-- 15) SET 语句（SESSION / GLOBAL / PERSIST）
+SET SESSION sql_mode = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "sql_mode",
+      "type": "SESSION",
+      "sqlTarget": "ConfigKey"
+    }
+  ]
+}
+----------
+
+[admin_CONFIG_WRITE_35]
+sql:
+SET GLOBAL max_connections = 500;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "max_connections",
+      "type": "GLOBAL",
+      "sqlTarget": "ConfigKey"
+    }
+  ]
+}
+----------
+
+[admin_CONFIG_WRITE_36]
+sql:
+-- MySQL 8+: PERSIST 将值写入 mysqld_auto.cnf
+SET PERSIST innodb_buffer_pool_size = 2147483648;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CONFIG_WRITE",
+      "auditKind": "OTHER",
+      "configKey": "innodb_buffer_pool_size",
+      "type": "GLOBAL",
+      "sqlTarget": "ConfigKey"
+    }
+  ]
+}
+----------
+
+[admin_ALTER_USER_37]
+sql:
+SET PASSWORD FOR 'app_user'@'localhost' = 'AnotherP@ss';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_USER",
+      "auditKind": "ALTER",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_38]
+sql:
+-- 16) SHOW 语句（诊断/状态/变量）
+SHOW VARIABLES LIKE 'max_connections';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "VARIABLES",
+      "target": "Environment",
+      "showKind": "ENVIRONMENT",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_39]
+sql:
+SHOW GLOBAL STATUS LIKE 'Threads_connected';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "STATUS",
+      "target": "Environment",
+      "showKind": "ENVIRONMENT",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_40]
+sql:
+SHOW PROCESSLIST;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "PROCESSLIST",
+      "target": "Environment",
+      "showKind": "PERFORMANCE",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_41]
+sql:
+SHOW SLAVE STATUS;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "SALVE_STATUS",
+      "target": "Environment",
+      "showKind": "ENVIRONMENT",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_42]
+sql:
+-- 在旧版本中（复制状态）
+SHOW REPLICA STATUS;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "REPLICA_STATUS",
+      "target": "Environment",
+      "showKind": "REPLICATION",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_43]
+sql:
+-- 新版本别名
+SHOW BINARY LOGS;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "BINARY_LOGS",
+      "target": "Environment",
+      "showKind": "REPLICATION",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_44]
+sql:
+SHOW BINLOG EVENTS IN 'mysql-bin.000003';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "BINLOG_EVENTS",
+      "target": "Environment",
+      "showKind": "REPLICATION",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_RESET_45]
+sql:
+-- 17) BINLOG 相关（CHANGE MASTER / START REPLICA / RESET MASTER / PURGE）
+-- 配置复制（示意，需替换参数）
+-- STOP REPLICA;
+-- CHANGE REPLICA SOURCE TO SOURCE_HOST='master.example', SOURCE_USER='repl', SOURCE_PASSWORD='pwd', SOURCE_AUTO_POSITION=1;
+-- START REPLICA;
+RESET MASTER;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "RESET",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_PURGE_46]
+sql:
+-- 删除二进制日志索引与日志（谨慎）
+PURGE BINARY LOGS TO 'mysql-bin.000010';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "PURGE",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_PURGE_47]
+sql:
+PURGE BINARY LOGS BEFORE NOW() - INTERVAL 7 DAY;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "PURGE",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_MYSQL_FLUSH_48]
+sql:
+-- 18) FLUSH 语句
+FLUSH PRIVILEGES;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MYSQL_FLUSH",
+      "auditKind": "OTHER",
+      "flushType": "PRIVILEGES",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_MYSQL_FLUSH_49]
+sql:
+-- 刷新权限表
+FLUSH LOGS;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MYSQL_FLUSH",
+      "auditKind": "OTHER",
+      "flushType": "LOGS",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_MYSQL_FLUSH_50]
+sql:
+-- 刷新日志文件
+FLUSH TABLES;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MYSQL_FLUSH",
+      "auditKind": "OTHER",
+      "flushType": "TABLES",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_MYSQL_FLUSH_51]
+sql:
+-- 关闭并刷新表
+FLUSH HOSTS;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MYSQL_FLUSH",
+      "auditKind": "OTHER",
+      "flushType": "HOSTS",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_MYSQL_FLUSH_52]
+sql:
+-- 清理被阻止的主机
+FLUSH STATUS;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MYSQL_FLUSH",
+      "auditKind": "OTHER",
+      "flushType": "STATUS",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_LOAD_INDEX_INTO_CACHE_53]
+sql:
+-- 重置状态统计
+
+-- 19) CACHE/LOAD INDEX INTO CACHE / CACHE INDEX 操作
+LOAD INDEX INTO CACHE posts INDEX (idx_user_published);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "LOAD_INDEX_INTO_CACHE",
+      "auditKind": "OTHER",
+      "target": "Index",
+      "needSupply": false,
+      "sqlTarget": "Index"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_54]
+sql:
+-- LOAD INDEX INTO CACHE tbl_name [(index_list)] [ENGINE_OPTION]
+-- MySQL 8+: 该语句主要用于 MyISAM；InnoDB 无效
+
+-- 20) KILL 语句（终止连接或查询）
+SHOW PROCESSLIST;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "PROCESSLIST",
+      "target": "Environment",
+      "showKind": "PERFORMANCE",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_KILL_55]
+sql:
+KILL CONNECTION 12345;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "KILL",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_KILL_56]
+sql:
+-- 终止指定 connection id
+KILL QUERY 12346;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "KILL",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_RESET_57]
+sql:
+-- 终止正在运行的查询，但保留连接
+
+-- 21) RESET 语句（RESET MASTER / RESET SLAVE）
+RESET MASTER;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "RESET",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_RESET_58]
+sql:
+-- 重置主服务器二进制日志
+RESET REPLICA;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "RESET",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_RESET_59]
+sql:
+-- 8.0+: 重置从库复制通道状态
+RESET SLAVE ALL;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "RESET",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_CREATE_USER_60]
+sql:
+-- 旧版本：删除复制通道信息（谨慎）
+
+-- 22) SHUTDOWN
+-- 仅由具有 SHUTDOWN 权限的用户执行
+-- SHUTDOWN; -- 关闭 MySQL 服务（谨慎）
+
+-- 23) CREATE USER WITH RESOURCE/ACCOUNT OPTIONS 示例（部分版本）
+CREATE USER 'limited'@'localhost' IDENTIFIED BY 'pwd' PASSWORD EXPIRE DEFAULT ACCOUNT UNLOCK;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_USER",
+      "auditKind": "CREATE",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_ALTER_USER_61]
+sql:
+ALTER USER 'limited'@'localhost' ACCOUNT LOCK;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_USER",
+      "auditKind": "ADMIN",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_ALTER_USER_62]
+sql:
+ALTER USER 'limited'@'localhost' ACCOUNT UNLOCK;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_USER",
+      "auditKind": "ADMIN",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_CREATE_USER_63]
+sql:
+-- 24) CREATE USER WITH REQUIRE SSL / X509
+CREATE USER 'ssl_user'@'%' REQUIRE SSL;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_USER",
+      "auditKind": "CREATE",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_CREATE_USER_64]
+sql:
+CREATE USER 'x509_user'@'%' REQUIRE X509;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_USER",
+      "auditKind": "CREATE",
+      "target": "UserOrRole",
+      "needSupply": false,
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_65]
+sql:
+-- 25) SHOW PLUGINS / SHOW PLUGIN STATUS
+SHOW PLUGINS;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "PLUGINS",
+      "target": "Environment",
+      "showKind": "COMPATIBILITY",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_ALTER_TABLE_66]
+sql:
+-- 26) INSTALL/UNINSTALL COMPONENTS（示例，插件管理）
+-- INSTALL COMPONENT 'file_key_management' SONAME 'file_key_management.so';
+-- UNINSTALL COMPONENT 'file_key_management';
+
+-- 27) CACHE INDEX / ALTER INDEX 示例（可见性）
+ALTER TABLE products ALTER INDEX idx_products_price_invis VISIBLE;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_INDEX",
+      "auditKind": "ALTER",
+      "tableName": "products",
+      "name": "idx_products_price_invis",
+      "visible": true,
+      "sqlTarget": "Index"
+    }
+  ]
+}
+----------
+
+[admin_ALTER_TABLE_67]
+sql:
+-- 切换索引可见性（8.0+）
+ALTER TABLE products ALTER INDEX idx_products_price_invis INVISIBLE;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_INDEX",
+      "auditKind": "ALTER",
+      "tableName": "products",
+      "name": "idx_products_price_invis",
+      "visible": false,
+      "sqlTarget": "Index"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_68]
+sql:
+-- 29) Diagnostic: SHOW ENGINE INNODB STATUS / PERFORMANCE_SCHEMA 查询
+SHOW ENGINE INNODB STATUS;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "ENGINE",
+      "target": "Environment",
+      "showKind": "COMPATIBILITY",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SELECT_69]
+sql:
+SELECT * FROM performance_schema.threads LIMIT 10;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": true,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[admin_MYSQL_FLUSH_70]
+sql:
+-- 31) 示例：LOAD DATA 并配合 FLUSH/ANALYZE
+-- LOAD DATA INFILE '/tmp/import.csv' INTO TABLE posts FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' (user_id,title,body);
+FLUSH TABLES WITH READ LOCK;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "MYSQL_FLUSH",
+      "auditKind": "OTHER",
+      "flushType": "TABLES",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_TRANSACTION_71]
+sql:
+-- 配合备份使用
+UNLOCK TABLES;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "TRANSACTION",
+      "auditKind": "QUERY",
+      "target": "Unknown",
+      "needSupply": true,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SELECT_72]
+sql:
+-- 32) 使用 SHOW to inspect grants / users
+SELECT User, Host FROM mysql.user LIMIT 20;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [
+        "User",
+        "Host"
+      ],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": true,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_73]
+sql:
+SHOW GRANTS FOR 'ssl_user'@'%';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "GRANTS",
+      "target": "UserOrRole",
+      "userOrRole": "'ssl_user'@'%'",
+      "showKind": "PRIVILEGE",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_SHOW_74]
+sql:
+-- 33) 备份相关（用 SQL 管理）
+-- 使用 mysqldump 工具更常见；以下示例为 SQL 层提示
+-- FLUSH TABLES WITH READ LOCK; -- 冻结表以做一致性备份
+-- SHOW MASTER STATUS; -- 获取二进制日志位点
+-- UNLOCK TABLES;
+
+-- 34) 触发器/事件管理（administration 相关）
+SHOW EVENTS;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "EVENTS",
+      "target": "Event",
+      "showKind": "METADATA",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_CREATE_EVENT_75]
+sql:
+CREATE EVENT ev_cleanup_old_logs
+ON SCHEDULE EVERY 1 DAY DO DELETE FROM logs WHERE created_date < DATE_SUB(CURDATE(), INTERVAL 365 DAY);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_EVENT",
+      "auditKind": "CREATE",
+      "name": "ev_cleanup_old_logs",
+      "sqlTarget": "Event"
+    }
+  ]
+}
+----------
+
+[admin_DROP_EVENT_76]
+sql:
+DROP EVENT IF EXISTS ev_cleanup_old_logs;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_EVENT",
+      "auditKind": "DROP",
+      "name": "ev_cleanup_old_logs",
+      "sqlTarget": "Event"
+    }
+  ]
+}
+----------
+
+[admin_SELECT_77]
+sql:
+-- 35) PERFORMANCE_SCHEMA/INFORMATION_SCHEMA 管理示例
+SELECT * FROM information_schema.global_status WHERE VARIABLE_NAME = 'Threads_connected';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "VARIABLE_NAME"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[admin_SELECT_78]
+sql:
+SELECT * FROM performance_schema.events_statements_summary_by_digest ORDER BY COUNT_STAR DESC LIMIT 10;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": true,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[admin_REVOKE_79]
+sql:
+-- 36) 安全相关命令示例：REVOKE GRANT OPTION
+REVOKE GRANT OPTION ON example_db.* FROM 'someuser'@'localhost';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "REVOKE",
+      "auditKind": "ALTER",
+      "name": "someuser",
+      "host": "localhost",
+      "sqlTarget": "UserOrRole"
+    }
+  ]
+}
+----------
+
+[admin_SELECT_80]
+sql:
+-- 37) 代理、角色审计示例（查看 ROLE 的成员）
+SELECT * FROM mysql.role_edges LIMIT 20;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": true,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[admin_INSTALL_PLUGIN_81]
+sql:
+-- 内置表视图，视 MySQL 版本而定
+
+-- 38) INSTALL PLUGIN with initialization
+INSTALL PLUGIN keyring_file SONAME 'keyring_file.so';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "INSTALL_PLUGIN",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[admin_UNINSTALL_PLUGIN_82]
+sql:
+UNINSTALL PLUGIN keyring_file;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "UNINSTALL_PLUGIN",
+      "auditKind": "OTHER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+

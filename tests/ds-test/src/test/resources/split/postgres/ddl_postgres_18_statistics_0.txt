@@ -1,0 +1,52 @@
+CREATE SCHEMA split_stats_next;
+CREATE TABLE split_stats_next.items (
+    id integer,
+    category text,
+    amount numeric,
+    created_at timestamp
+);
+CREATE STATISTICS split_stats_next.items_dep (dependencies) ON id, category FROM split_stats_next.items;
+CREATE STATISTICS IF NOT EXISTS split_stats_next.items_expr (ndistinct, mcv) ON lower(category), (amount + 1) FROM split_stats_next.items;
+CREATE STATISTICS ON (date_trunc('day', created_at)) FROM split_stats_next.items;
+ALTER STATISTICS split_stats_next.items_dep SET STATISTICS 100;
+ALTER STATISTICS IF EXISTS split_stats_next.items_dep SET STATISTICS DEFAULT;
+ALTER STATISTICS split_stats_next.items_expr OWNER TO CURRENT_USER;
+ALTER STATISTICS split_stats_next.items_expr RENAME TO items_expr_renamed;
+CREATE SCHEMA split_stats_move;
+ALTER STATISTICS split_stats_next.items_expr_renamed SET SCHEMA split_stats_move;
+DROP STATISTICS IF EXISTS split_stats_next.items_dep, split_stats_move.items_expr_renamed RESTRICT;
+DROP SCHEMA split_stats_move;
+DROP SCHEMA split_stats_next CASCADE;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] CREATE SCHEMA split_stats_next;
+----------
+[CREATE_TABLE] CREATE TABLE split_stats_next.items (
+    id integer,
+    category text,
+    amount numeric,
+    created_at timestamp
+);
+----------
+[ADMIN_PERFORMANCE] CREATE STATISTICS split_stats_next.items_dep (dependencies) ON id, category FROM split_stats_next.items;
+----------
+[ADMIN_PERFORMANCE] CREATE STATISTICS IF NOT EXISTS split_stats_next.items_expr (ndistinct, mcv) ON lower(category), (amount + 1) FROM split_stats_next.items;
+----------
+[ADMIN_PERFORMANCE] CREATE STATISTICS ON (date_trunc('day', created_at)) FROM split_stats_next.items;
+----------
+[ADMIN_PERFORMANCE] ALTER STATISTICS split_stats_next.items_dep SET STATISTICS 100;
+----------
+[ADMIN_PERFORMANCE] ALTER STATISTICS IF EXISTS split_stats_next.items_dep SET STATISTICS DEFAULT;
+----------
+[TRANSFER_PRIVILEGE] ALTER STATISTICS split_stats_next.items_expr OWNER TO CURRENT_USER;
+----------
+[ADMIN_PERFORMANCE] ALTER STATISTICS split_stats_next.items_expr RENAME TO items_expr_renamed;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_stats_move;
+----------
+[ADMIN_PERFORMANCE] ALTER STATISTICS split_stats_next.items_expr_renamed SET SCHEMA split_stats_move;
+----------
+[ADMIN_PERFORMANCE] DROP STATISTICS IF EXISTS split_stats_next.items_dep, split_stats_move.items_expr_renamed RESTRICT;
+----------
+[DROP_SCHEMA] DROP SCHEMA split_stats_move;
+----------
+[DROP_SCHEMA] DROP SCHEMA split_stats_next CASCADE;

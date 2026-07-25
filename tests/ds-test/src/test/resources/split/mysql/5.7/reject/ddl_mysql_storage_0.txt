@@ -1,0 +1,27 @@
+ALTER TABLESPACE split_general_a AUTOEXTEND_SIZE=32M;
+ALTER TABLESPACE split_general_a RENAME TO split_general_b;
+ALTER TABLESPACE split_ts_modern ENCRYPTION='N';
+ALTER TABLESPACE split_ts_modern ENGINE_ATTRIBUTE='{}';
+CREATE TABLESPACE split_ts_modern ADD DATAFILE 'split_ts_modern.ibd' ENCRYPTION='N' ENGINE=InnoDB;
+CREATE TABLESPACE split_ts_modern ADD DATAFILE 'split_ts_modern.ibd' ENGINE_ATTRIBUTE='{}' ENGINE=InnoDB;
+ALTER UNDO TABLESPACE split_undo_57 SET INACTIVE ENGINE=InnoDB;
+CREATE UNDO TABLESPACE split_undo_57 ADD DATAFILE 'split_undo_57.ibu' ENGINE=InnoDB;
+DROP UNDO TABLESPACE split_undo_57 ENGINE InnoDB;
+------------------------------------------------------------------------------------------
+[ALTER_TABLESPACE] ALTER TABLESPACE split_general_a AUTOEXTEND_SIZE=32M;
+----------
+[ALTER_TABLESPACE|RENAME_TABLESPACE] ALTER TABLESPACE split_general_a RENAME TO split_general_b;
+----------
+[ALTER_TABLESPACE] ALTER TABLESPACE split_ts_modern ENCRYPTION='N';
+----------
+[ALTER_TABLESPACE] ALTER TABLESPACE split_ts_modern ENGINE_ATTRIBUTE='{}';
+----------
+[CREATE_TABLESPACE] CREATE TABLESPACE split_ts_modern ADD DATAFILE 'split_ts_modern.ibd' ENCRYPTION='N' ENGINE=InnoDB;
+----------
+[CREATE_TABLESPACE] CREATE TABLESPACE split_ts_modern ADD DATAFILE 'split_ts_modern.ibd' ENGINE_ATTRIBUTE='{}' ENGINE=InnoDB;
+----------
+[ALTER_TABLESPACE] ALTER UNDO TABLESPACE split_undo_57 SET INACTIVE ENGINE=InnoDB;
+----------
+[CREATE_TABLESPACE] CREATE UNDO TABLESPACE split_undo_57 ADD DATAFILE 'split_undo_57.ibu' ENGINE=InnoDB;
+----------
+[DROP_TABLESPACE] DROP UNDO TABLESPACE split_undo_57 ENGINE InnoDB;

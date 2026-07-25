@@ -1,0 +1,15 @@
+SELECT pg_drop_replication_slot(slot_name)
+FROM pg_replication_slots
+WHERE slot_name = 'split_14_twophase_slot';
+SELECT slot_name, lsn IS NOT NULL AS twophase_slot_lsn_present
+FROM pg_create_logical_replication_slot('split_14_twophase_slot', 'test_decoding', false, true);
+SELECT pg_drop_replication_slot('split_14_twophase_slot');
+------------------------------------------------------------------------------------------
+[SELECT|DROP_REPLICATION] SELECT pg_drop_replication_slot(slot_name)
+FROM pg_replication_slots
+WHERE slot_name = 'split_14_twophase_slot';
+----------
+[SELECT|CREATE_REPLICATION] SELECT slot_name, lsn IS NOT NULL AS twophase_slot_lsn_present
+FROM pg_create_logical_replication_slot('split_14_twophase_slot', 'test_decoding', false, true);
+----------
+[SELECT|DROP_REPLICATION] SELECT pg_drop_replication_slot('split_14_twophase_slot');

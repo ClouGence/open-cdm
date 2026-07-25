@@ -1,0 +1,132 @@
+EVAL "return ARGV[1]" 0 hello
+EVAL "return redis.call('GET', KEYS[1])" 1 mykey arg1
+EVAL "return redis.call('GET', KEYS[1])" 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+EVAL_RO "return ARGV[1]" 0 hello
+EVAL_RO "return redis.call('GET', KEYS[1])" 1 mykey arg1
+EVAL_RO "return redis.call('GET', KEYS[1])" 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+EVALSHA 123123123 0 hello
+EVALSHA 123123123 1 mykey arg1
+EVALSHA 123123123 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+EVALSHA_RO 123123123 0 hello
+EVALSHA_RO 123123123 1 mykey arg1
+EVALSHA_RO 123123123 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+FCALL myfunc 0 hello
+FCALL myfunc 1 mykey arg1
+FCALL myfunc 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+FCALL_RO myfunc 0 hello
+FCALL_RO myfunc 1 mykey arg1
+FCALL_RO myfunc 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+FUNCTION DELETE mylib
+FUNCTION DUMP
+FUNCTION FLUSH
+FUNCTION FLUSH ASYNC
+FUNCTION FLUSH SYNC
+FUNCTION KILL
+FUNCTION LIST LIBRARYNAME abc
+FUNCTION LIST LIBRARYNAME abc**
+FUNCTION LIST LIBRARYNAME abc** withcode
+FUNCTION LOAD "#!lua name=mylib \n redis.register_function('myfunc', function(keys, args) return 'hello' end)"
+FUNCTION LOAD REPLACE "#!lua name=mylib \n redis.register_function('myfunc', function(keys, args) return args[1] end)"
+FUNCTION RESTORE "ssfsdfa"
+FUNCTION RESTORE "ssfsdfa" FLUSH
+FUNCTION RESTORE "ssfsdfa" APPEND
+FUNCTION RESTORE "ssfsdfa" REPLACE
+FUNCTION STATS
+SCRIPT DEBUG YES
+SCRIPT DEBUG SYNC
+SCRIPT DEBUG NO
+SCRIPT EXISTS sha1
+SCRIPT EXISTS sha1 sha2 sha3
+SCRIPT FLUSH
+SCRIPT FLUSH ASYNC
+SCRIPT FLUSH SYNC
+SCRIPT KILL
+SCRIPT LOAD "#!lua name=mylib \n redis.register_function('myfunc', function(keys, args) return 'hello' end)"
+------------------------------------------------------------------------------------------
+[UNSAFE] EVAL "return ARGV[1]" 0 hello
+----------
+[UNSAFE] EVAL "return redis.call('GET', KEYS[1])" 1 mykey arg1
+----------
+[UNSAFE] EVAL "return redis.call('GET', KEYS[1])" 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+----------
+[UNSAFE] EVAL_RO "return ARGV[1]" 0 hello
+----------
+[UNSAFE] EVAL_RO "return redis.call('GET', KEYS[1])" 1 mykey arg1
+----------
+[UNSAFE] EVAL_RO "return redis.call('GET', KEYS[1])" 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+----------
+[UNSAFE] EVALSHA 123123123 0 hello
+----------
+[UNSAFE] EVALSHA 123123123 1 mykey arg1
+----------
+[UNSAFE] EVALSHA 123123123 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+----------
+[UNSAFE] EVALSHA_RO 123123123 0 hello
+----------
+[UNSAFE] EVALSHA_RO 123123123 1 mykey arg1
+----------
+[UNSAFE] EVALSHA_RO 123123123 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+----------
+[CALL_PROG_OBJ] FCALL myfunc 0 hello
+----------
+[CALL_PROG_OBJ] FCALL myfunc 1 mykey arg1
+----------
+[CALL_PROG_OBJ] FCALL myfunc 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+----------
+[CALL_PROG_OBJ] FCALL_RO myfunc 0 hello
+----------
+[CALL_PROG_OBJ] FCALL_RO myfunc 1 mykey arg1
+----------
+[CALL_PROG_OBJ] FCALL_RO myfunc 3 mykey1 mykey2 mykey3 arg1 arg2 arg3
+----------
+[DROP_PROG_OBJ] FUNCTION DELETE mylib
+----------
+[METADATA] FUNCTION DUMP
+----------
+[DROP_PROG_OBJ] FUNCTION FLUSH
+----------
+[DROP_PROG_OBJ] FUNCTION FLUSH ASYNC
+----------
+[DROP_PROG_OBJ] FUNCTION FLUSH SYNC
+----------
+[ADMIN_PROG_OBJ] FUNCTION KILL
+----------
+[METADATA] FUNCTION LIST LIBRARYNAME abc
+----------
+[METADATA] FUNCTION LIST LIBRARYNAME abc**
+----------
+[METADATA] FUNCTION LIST LIBRARYNAME abc** withcode
+----------
+[CREATE_PROG_OBJ|UNSAFE] FUNCTION LOAD "#!lua name=mylib \n redis.register_function('myfunc', function(keys, args) return 'hello' end)"
+----------
+[ALTER_PROG_OBJ|UNSAFE] FUNCTION LOAD REPLACE "#!lua name=mylib \n redis.register_function('myfunc', function(keys, args) return args[1] end)"
+----------
+[CREATE_PROG_OBJ|UNSAFE] FUNCTION RESTORE "ssfsdfa"
+----------
+[CREATE_PROG_OBJ|DROP_PROG_OBJ|UNSAFE] FUNCTION RESTORE "ssfsdfa" FLUSH
+----------
+[CREATE_PROG_OBJ|UNSAFE] FUNCTION RESTORE "ssfsdfa" APPEND
+----------
+[UNSAFE] FUNCTION RESTORE "ssfsdfa" REPLACE
+----------
+[PERFORMANCE] FUNCTION STATS
+----------
+[SESSION_SETTING_WRITE] SCRIPT DEBUG YES
+----------
+[SESSION_SETTING_WRITE] SCRIPT DEBUG SYNC
+----------
+[SESSION_SETTING_WRITE] SCRIPT DEBUG NO
+----------
+[METADATA] SCRIPT EXISTS sha1
+----------
+[METADATA] SCRIPT EXISTS sha1 sha2 sha3
+----------
+[DROP_PROG_OBJ] SCRIPT FLUSH
+----------
+[DROP_PROG_OBJ] SCRIPT FLUSH ASYNC
+----------
+[DROP_PROG_OBJ] SCRIPT FLUSH SYNC
+----------
+[ADMIN_PROG_OBJ] SCRIPT KILL
+----------
+[CREATE_PROG_OBJ|UNSAFE] SCRIPT LOAD "#!lua name=mylib \n redis.register_function('myfunc', function(keys, args) return 'hello' end)"

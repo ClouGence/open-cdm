@@ -1,0 +1,1931 @@
+[select__001]
+sql:
+SELECT 1 <=> 2 <=> 2, (1 <=> 2) <=> 2, 1 <=> (2 <=> 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select_session_variable_rw__002]
+sql:
+SELECT @audit_a := 0 OR @audit_b := 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:15) /test/1/audit_a/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:24~1:32) /test/1/audit_b/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__003]
+sql:
+SELECT @assign_left := @assign_right := 7, @assign_left, @assign_right;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:19) /test/1/assign_left/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:23~1:36) /test/1/assign_right/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__004]
+sql:
+SELECT @assign_scalar := (SELECT MAX(c1) FROM assignment_t), @assign_scalar;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:21) /test/1/assign_scalar/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:33~1:36) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:46~1:58) /test/1/catalog1/schema1/assignment_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__005]
+sql:
+SELECT 0 BETWEEN 0 AND 0 IS FALSE, (0 BETWEEN 0 AND 0) IS FALSE, 0 BETWEEN 0 AND (0 IS FALSE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__006]
+sql:
+SELECT HEX(CAST(X'0F' AS BINARY(1)) & CAST(X'F0' AS BINARY(1))), HEX(CAST(X'0F' AS BINARY(1)) | CAST(X'F0' AS BINARY(1))), HEX(CAST(X'0F' AS BINARY(1)) ^ CAST(X'F0' AS BINARY(1))), HEX(~CAST(X'0F' AS BINARY(1)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:11~1:15) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__007]
+sql:
+SELECT HEX(BIT_AND(v)), HEX(BIT_OR(v)), HEX(BIT_XOR(v)) FROM (SELECT CAST(X'0F' AS BINARY(1)) AS v UNION ALL SELECT CAST(X'F3' AS BINARY(1))) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:11~1:18) /test/1/catalog1/schema1/BIT_AND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:34) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:51) /test/1/catalog1/schema1/BIT_XOR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:69~1:73) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT LENGTH(BIT_OR(v)) FROM (SELECT CAST(REPEAT('a',511) AS BINARY(511)) AS v UNION ALL SELECT CAST(REPEAT('b',511) AS BINARY(511))) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:20) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:49) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT LENGTH(BIT_OR(v)) FROM (SELECT CAST(REPEAT('a',512) AS BINARY(512)) AS v UNION ALL SELECT CAST(REPEAT('b',512) AS BINARY(512))) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:20) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:38~1:42) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:49) /test/1/catalog1/schema1/REPEAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT HEX(BIT_OR(v)) FROM (SELECT CAST(X'0F' AS BINARY(1)) AS v UNION ALL SELECT CAST(X'00F0' AS BINARY(2))) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/HEX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:11~1:17) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT INTERVAL(23,1,15,17,30,44,200), ISNULL(NULL), ISNULL(0), 1 IS NOT TRUE, 0 IS NOT FALSE, NULL IS NOT UNKNOWN, ROW(1,2) < ROW(2,1), ROW(1,NULL) <=> ROW(1,NULL), ROW(1,2) IN (ROW(1,2),ROW(3,4));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/INTERVAL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:45) /test/1/catalog1/schema1/ISNULL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:116~1:119) /test/1/catalog1/schema1/ROW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__012]
+sql:
+SELECT ROW(2,3) BETWEEN ROW(1,9) AND ROW(3,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ROW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__013]
+sql:
+SELECT 1 < 2 < 3, (1 < 2) < 3, 1 < (2 < 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__014]
+sql:
+SELECT 15 / 5 / 3, (15 / 5) / 3, 15 / (5 / 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[performance__015]
+sql:
+EXPLAIN SELECT 1+1,1-1,1+1*2,8/5,8%5,MOD(8,5),MOD(8,5)|0,-(1+1)*-2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:66) /test/1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:37~1:40) /test/1/catalog1/schema1/MOD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[performance__016]
+sql:
+EXPLAIN SELECT 1 | (1+1),5 & 3,BIT_COUNT(7);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:43) /test/1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:31~1:40) /test/1/catalog1/schema1/BIT_COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__017]
+sql:
+SELECT
+  1 + 2, 5 - 3, 2 * 4, 7 / 2, 7 DIV 2, 7 % 2, 7 MOD 2,
+  +1, -1, ~1, 1 << 2, 8 >> 1, 6 & 3, 6 | 3, 6 ^ 3,
+  1 = 1, 1 <> 2, 1 != 2, 1 <=> NULL, 1 < 2, 2 <= 2, 3 > 2, 3 >= 3,
+  1 AND 0, 1 && 1, 0 OR 1, 0 || 1, 1 XOR 0, NOT 0, !0,
+  2 BETWEEN 1 AND 3, 4 NOT BETWEEN 1 AND 3,
+  2 IN (1,2,3), 4 NOT IN (1,2,3),
+  NULL IS NULL, 1 IS NOT NULL, 1 IS TRUE, 0 IS FALSE, NULL IS UNKNOWN,
+  'abc' LIKE 'a%' ESCAPE '=', 'abc' NOT LIKE 'z%',
+  'abc' REGEXP '^a', 'abc' RLIKE '^a', 'hello' SOUNDS LIKE 'hallo',
+  BINARY 'A' = BINARY 'a',
+  _utf8mb4'a' COLLATE utf8mb4_general_ci = 'A',
+  ROW(1,2) = ROW(1,2),
+  CASE 1 WHEN 1 THEN 'one' ELSE 'other' END,
+  CASE WHEN 1 = 1 THEN 'yes' ELSE 'no' END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(13:2~13:5) /test/1/catalog1/schema1/ROW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__018]
+sql:
+SELECT @split_expr := 1, @split_expr + 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "ConfigKey(1:7~1:18) /test/1/split_expr/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__019]
+sql:
+SELECT
+  CURRENT_DATE, CURRENT_DATE(), CURRENT_TIME, CURRENT_TIME(),
+  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP(), LOCALTIME, LOCALTIME(),
+  UTC_TIMESTAMP, UTC_TIMESTAMP(), CURRENT_USER, CURRENT_USER(), SCHEMA(),
+  DATE '2020-01-01', TIMESTAMP '2020-01-01 00:00:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:2~2:14) /test/1/catalog1/schema1/CURRENT_DATE/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:32~2:44) /test/1/catalog1/schema1/CURRENT_TIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:19) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:42~3:51) /test/1/catalog1/schema1/LOCALTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:2~4:15) /test/1/catalog1/schema1/UTC_TIMESTAMP/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:34~4:46) /test/1/catalog1/schema1/CURRENT_USER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:64~4:70) /test/1/catalog1/schema1/SCHEMA/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__020]
+sql:
+SELECT
+  CAST('12' AS SIGNED), CAST('12' AS UNSIGNED),
+  CONVERT('abc', CHAR), CONVERT('abc' USING utf8mb4),
+  CHAR(77,121,83,81,76 USING utf8mb4),
+  POSITION('b' IN 'abc'), SUBSTRING('abcdef' FROM 2 FOR 3),
+  TRIM(BOTH 'x' FROM 'xxabcxx'),
+  EXTRACT(YEAR_MONTH FROM DATE '2020-02-03'),
+  GET_FORMAT(DATE, 'ISO');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:2~2:6) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:9) /test/1/catalog1/schema1/CONVERT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:2~4:6) /test/1/catalog1/schema1/CHAR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:2~5:10) /test/1/catalog1/schema1/POSITION/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:26~5:35) /test/1/catalog1/schema1/SUBSTRING/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(6:2~6:6) /test/1/catalog1/schema1/TRIM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(7:2~7:9) /test/1/catalog1/schema1/EXTRACT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(8:2~8:12) /test/1/catalog1/schema1/GET_FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[block__021]
+sql:
+DO 1 BETWEEN TO_BASE64(PERIOD_ADD(1207980960, 2383)) AND 0x43c98093;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:13~1:22) /test/1/catalog1/schema1/TO_BASE64/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:33) /test/1/catalog1/schema1/PERIOD_ADD/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__022]
+sql:
+SELECT i1 = -129, u1 <> 256, i2 < -32769, u2 >= 65536, i3 <= 8388608, u3 > 16777215, i4 = -2147483649, u4 <> 4294967296, i8 < -9223372036854775809, u8 >= 18446744073709551616 FROM comparison_integer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:180~1:198) /test/1/catalog1/schema1/comparison_integer/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__023]
+sql:
+SELECT i8 = 9223372036854775807, i8 <> 9223372036854775807.0, i8 < 9223372036854775807.0e0, i8 >= '9223372036854775807', u8 <= 18446744073709551615, u8 > '18446744073709551615' FROM comparison_integer;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:182~1:200) /test/1/catalog1/schema1/comparison_integer/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__024]
+sql:
+SELECT f4 = -3.40282347e+38, f8 <> '-1.797693134862315708e+308', f4 < 1.17549435e-38, f8 >= '2.225073858507201383e-308', f4 <= 3.40282347e+38, f8 > '0' FROM comparison_float;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:157~1:173) /test/1/catalog1/schema1/comparison_float/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__025]
+sql:
+SELECT dc1 = -99999999.9999, dc2 <> '-.999999999999999999999999999999', dc3 < 99999999999999999999999999999999999999999999999999999999999999999, dc4 >= '99999999999999999999999999999999999.999999999999999999999999999999', dc1 <= 99999999.9999, dc2 > '0' FROM comparison_decimal;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:259~1:277) /test/1/catalog1/schema1/comparison_decimal/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__026]
+sql:
+SELECT fc = '', vc <> '', fc < 'beta', vc >= 'alpha', fc <= 'omega', vc > 'alpha' FROM comparison_character;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:87~1:107) /test/1/catalog1/schema1/comparison_character/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__027]
+sql:
+SELECT d = '2017-01-01', d <> 20170101, d < '2017-01-01 00:00:00.000000', d >= 20170101000000.0, d <= '9999-12-31', d > 00010101 FROM comparison_date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:134~1:149) /test/1/catalog1/schema1/comparison_date/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__028]
+sql:
+SELECT d = -20010101, d <> 'abc' FROM comparison_date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:38~1:53) /test/1/catalog1/schema1/comparison_date/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__029]
+sql:
+SELECT t1 = '-838:59:59.000000', t2 <> -8385959.000000, t1 < '00:00:00.000000', t2 >= 0.000000, t1 <= '838:59:59.000000', t2 > 235959.999999 FROM comparison_time;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:146~1:161) /test/1/catalog1/schema1/comparison_time/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__030]
+sql:
+SELECT dt1 = '2017-01-01', dt2 <> '2017-01-01 11:59:59.555555', dt1 < 20170101, dt2 >= 20170101115959.555555, dt1 <= '9999-12-31 23:59:59.999999', dt2 > 00010101000000.000000 FROM comparison_datetime;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:180~1:199) /test/1/catalog1/schema1/comparison_datetime/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__031]
+sql:
+SELECT col_smallint, col_int, col_float FROM comparison_row WHERE (col_smallint, col_int, col_float) <=> (SELECT NULL, 3, NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:45~1:59) /test/1/catalog1/schema1/comparison_row/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__032]
+sql:
+SELECT 0<=>0.0, 0.0<=>0E0, 0E0<=>'0', 10.0<=>1E1, 10<=>10.0, 10<=>1E1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__033]
+sql:
+SELECT * FROM t1 WHERE a = '4828532208463511553';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__034]
+sql:
+SELECT * FROM t1 WHERE a IN ('4828532208463511553');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__035]
+sql:
+SELECT 0<=>0,0.0<=>0.0,0E0=0E0,'A'<=>'A',NULL<=>NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__036]
+sql:
+SELECT 1<=>0,0<=>NULL,NULL<=>0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__037]
+sql:
+SELECT 1.0<=>0.0,0.0<=>NULL,NULL<=>0.0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__038]
+sql:
+SELECT 'A'<>'B','A'<=>NULL,NULL<=>'A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__039]
+sql:
+SELECT 1.0<=>0E1,10<=>NULL,NULL<=>0.0,NULL<=>0E0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__040]
+sql:
+SELECT t1.*,t2.*,t1.value_col<=>t2.value_col FROM t1,t2 WHERE t1.id=t2.id AND t1.id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:50~1:52) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:53~1:55) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__041]
+sql:
+SELECT * FROM t1 WHERE id<=>id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__042]
+sql:
+SELECT * FROM t1 WHERE value_col<=>value_col;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__043]
+sql:
+SELECT * FROM t1 WHERE id<=>value_col OR value_col<=>id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__044]
+sql:
+SELECT BIT_COUNT(29), b'11110001' & b'01001111', b'11110001' | b'01001111', b'11110001' ^ b'01001111', ~b'00000001', b'00000001' << 3, b'10000000' >> 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/BIT_COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__045]
+sql:
+SELECT BIT_AND(x), BIT_OR(x), BIT_XOR(x) FROM (SELECT 1 AS x UNION ALL SELECT 3) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/BIT_AND/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:25) /test/1/catalog1/schema1/BIT_OR/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:37) /test/1/catalog1/schema1/BIT_XOR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__046]
+sql:
+SELECT MBREQUAL(ST_GEOMFROMTEXT('POINT(1 1)'),ST_GEOMFROMTEXT('POINT(1 1)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/MBREQUAL/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/schema1/ST_GEOMFROMTEXT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__047]
+sql:
+SELECT NOT NULL, !NULL, 1 AND NULL, 0 AND NULL, NULL AND 0, 1 && NULL, 0 OR NULL, 1 OR NULL, NULL OR NULL, 0 || NULL, 1 XOR NULL, 1 XOR 1 XOR 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__048]
+sql:
+SELECT !(1+1), !1+1, NOT 1+1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__049]
+sql:
+SELECT 1 NOT IN (1) IS FALSE, (1 NOT IN (1)) IS FALSE, 1 NOT IN ((1) IS FALSE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__050]
+sql:
+SELECT 1+2*3, (1+2)*3, ~1<<2+1, 8>>1+1, 1|2&4, 1^3&1, 1=1 AND 0=1 OR 1=1, 1 XOR 1 AND 0, NOT 1 BETWEEN 0 AND 2, NOT 2 IN(1,2), 1=1 IS TRUE, NULL<=>NULL IS TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__051]
+sql:
+SELECT DATE '2020-01-01' + INTERVAL 1+1 DAY, BINARY 'a' = 'A', _utf8mb4'a' COLLATE utf8mb4_bin = _utf8mb4'A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__052]
+sql:
+SELECT !-1, !~0, -1^1, -(1^1), ~1^3, ~(1^3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__053]
+sql:
+SELECT 20 DIV 3*2, 20 DIV (3*2), 20 MOD 6+1, 20 MOD (6+1), 1+2<<1, 1+(2<<1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__054]
+sql:
+SELECT 4&1=0, (4&1)=0, 4&(1=0), 4|1=5, (4|1)=5, 4|(1=5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__055]
+sql:
+SELECT CASE WHEN 0 OR 1 THEN 10 ELSE 20 END + 1, 2 BETWEEN 1 AND 2 AND 0 OR 1, NOT 2 BETWEEN 1 AND 3 AND 0, 1 IS NOT FALSE, NULL IS UNKNOWN, NULL IS NOT UNKNOWN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [  ]
+}
+----------
+[select__056]
+sql:
+SELECT 1 LIKE 2 XOR 2 LIKE 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__057]
+sql:
+SELECT 5 BETWEEN 0 AND 10 BETWEEN 0 AND 1,(5 BETWEEN 0 AND 10) BETWEEN 0 AND 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__058]
+sql:
+SELECT 1 AND 2 BETWEEN 2 AND 10,2 BETWEEN 2 AND 10 AND 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__059]
+sql:
+SELECT 1 AND 0 OR 2,2 OR 1 AND 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__060]
+sql:
+SELECT 3^11,1^1,1^0,1^NULL,NULL^1,1 XOR 1,1 XOR 0,NULL XOR 1,1 XOR NULL,0 XOR NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__061]
+sql:
+SELECT 18446744073709551615,18446744073709551615 DIV 1,18446744073709551615 DIV 2,(1<<64)-1,((1<<64)-1) DIV 1,((1<<64)-1) DIV 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__062]
+sql:
+SELECT 'abc' NOT REGEXP '^z', 'abc' NOT RLIKE '^z';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__063]
+sql:
+SELECT 4 << 3 << 2, (4 << 3) << 2, 4 << (3 << 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__064]
+sql:
+SELECT 10 - 3 - 2, (10 - 3) - 2, 10 - (3 - 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__065]
+sql:
+SELECT INTERVAL 1 DAY + DATE '2024-01-01';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__066]
+sql:
+SELECT DATE '2024-01-01' + INTERVAL ? DAY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__067]
+sql:
+SELECT 1 & 1 << 1, (1 & 1) << 1, 1 & (1 << 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__068]
+sql:
+SELECT 2 * 3 ^ 2, (2 * 3) ^ 2, 2 * (3 ^ 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__069]
+sql:
+SELECT * FROM char_id WHERE id=000000000001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:21) /test/1/catalog1/schema1/char_id/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__070]
+sql:
+SELECT 'a\0' < 'a', 'a\0' < 'a ', 'a\t' < 'a', 'a\t' < 'a ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__071]
+sql:
+SELECT CHAR(31) = '', '' = CHAR(31), CHAR(30) = '', '' = CHAR(30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CHAR/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__072]
+sql:
+SELECT * FROM binary_cmp WHERE a=b AND b=0x01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:24) /test/1/catalog1/schema1/binary_cmp/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__073]
+sql:
+SELECT CONCAT(b,c), CONCAT(b,c) = '0101' FROM zero_cmp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:46~1:54) /test/1/catalog1/schema1/zero_cmp/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__074]
+sql:
+SELECT a,(SELECT COUNT(*) FROM zero_cmp WHERE b=outer_cmp.a AND CONCAT(b,c)=CONCAT('0',outer_cmp.a,'01')) AS x FROM outer_cmp ORDER BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:17~1:22) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:31~1:39) /test/1/catalog1/schema1/zero_cmp/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:64~1:70) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:116~1:125) /test/1/catalog1/schema1/outer_cmp/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__075]
+sql:
+SELECT * FROM timestamp_cmp WHERE a > '2008-01-01' AND a = '0000-00-00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:27) /test/1/catalog1/schema1/timestamp_cmp/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__076]
+sql:
+SELECT 1 FROM in_cmp WHERE in_cmp.a IN (1,in_cmp.a) AND in_cmp.a=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/in_cmp/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__077]
+sql:
+SELECT DATE_FORMAT(plage2,'%H:%i:%s') < plage, plage > DATE_FORMAT(plage2,'%H:%i:%s'), DATE_FORMAT(plage2,'%H:%i:%s') < plage COLLATE utf8_general_ci FROM time_cmp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/DATE_FORMAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:155~1:163) /test/1/catalog1/schema1/time_cmp/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__078]
+sql:
+SELECT ROW('1','1') > ROW(a,'1'), ROW(a,'1') > ROW('1','1') FROM row_cmp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ROW/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:65~1:72) /test/1/catalog1/schema1/row_cmp/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[session_variable_rw__079]
+sql:
+SET @maxint=18446744073709551615;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_VARIABLE_RW": [
+    {
+      "subject": "ConfigKey(1:4~1:11) /test/1/maxint/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_session_variable_rw__080]
+sql:
+SELECT * FROM max_cmp WHERE a < @maxint OR 0 < @maxint;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:21) /test/1/catalog1/schema1/max_cmp/",
+      "action" : "READ"
+    },
+    {
+      "subject": "ConfigKey(1:32~1:39) /test/1/maxint/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__081]
+sql:
+SELECT 2*3+(~1&255)<<1&127^2|1 AS v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__082]
+sql:
+SELECT NOT 2 BETWEEN 1 AND 3 XOR 1 AND 0 OR NULL <=> NULL AS v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__083]
+sql:
+SELECT CASE WHEN 4&1=0 OR 8>>1=4 AND 3^1=2 THEN 10 ELSE 20 END+2*3 AS score;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [  ]
+}
+----------
+[select__084]
+sql:
+SELECT _utf8mb4'A' COLLATE utf8mb4_bin=BINARY _utf8mb4'a' OR _utf8mb4'a' LIKE _utf8mb4'A' AND TRUE AS v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__085]
+sql:
+SELECT 'abc123' REGEXP '^[a-z]+' AND NOT 'abc123' REGEXP '[^0-9]$' XOR FALSE AS v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__086]
+sql:
+SELECT ROW(2,3)>ROW(1,9) AND ROW(2,NULL)<=>ROW(2,NULL) XOR ROW(2,3) IN (ROW(1,9),ROW(2,3)) AS v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ROW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__087]
+sql:
+SELECT id,d+INTERVAL n*2+1 DAY AS due FROM (SELECT 1 id,DATE '2024-01-01' d,2 n UNION ALL SELECT 2,DATE '2024-01-10',-1) s WHERE d+INTERVAL n*2+1 DAY BETWEEN DATE '2024-01-01' AND DATE '2024-01-31' ORDER BY due;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__088]
+sql:
+SELECT t.* FROM (SELECT 1 id,2 a,3 b UNION ALL SELECT 2,NULL,4 UNION ALL SELECT 3,5,1) t WHERE NOT a+b*2 BETWEEN id AND 10 AND b IS NOT NULL XOR a<=>NULL ORDER BY a IS NULL,a+b*id DESC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__089]
+sql:
+SELECT a%2 grp,SUM(b*2+a) total,COUNT(*) cnt FROM (SELECT 1 a,2 b UNION ALL SELECT 2,3 UNION ALL SELECT 3,4) s GROUP BY a%2 HAVING NOT SUM(b*2+a) BETWEEN 8 AND 10 XOR COUNT(*)=1 ORDER BY total+cnt*2 DESC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:15~1:18) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:37) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__090]
+sql:
+SELECT o.id,(SELECT MAX(i.v*2-o.v) FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) i WHERE i.id<=o.id AND NOT i.v BETWEEN o.v-1 AND o.v+1) score FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) o ORDER BY score IS NULL,score DESC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:23) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__091]
+sql:
+SELECT o.id FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) o WHERE EXISTS (SELECT 1 FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) i WHERE i.id<o.id AND i.v*2+1>o.v) XOR o.v BETWEEN 2 AND 3 ORDER BY o.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__092]
+sql:
+SELECT grp,GROUP_CONCAT(CASE WHEN v%2=0 XOR v=3 THEN v*10 ELSE -v END ORDER BY v+grp*2 DESC SEPARATOR ':') packed FROM (SELECT 1 grp,2 v UNION ALL SELECT 1,3 UNION ALL SELECT 2,4) s GROUP BY grp ORDER BY grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:23) /test/1/catalog1/schema1/GROUP_CONCAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__093]
+sql:
+SELECT o.id FROM (SELECT 1 id,3 v UNION ALL SELECT 2,5 UNION ALL SELECT 3,2) o WHERE o.v+1>ALL (SELECT i.v*2-o.id FROM (SELECT 1 id,1 v UNION ALL SELECT 2,2) i WHERE i.id<=o.id) OR o.id=1 AND NOT o.v BETWEEN 2 AND 4 ORDER BY o.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__094]
+sql:
+SELECT 1/3,1/3=0.3333,1/3=0.333333333;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__095]
+sql:
+SELECT 2/3,2/3=0.6667,2/3=0.666666666;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__096]
+sql:
+SELECT c0 IN (1,-(NULL>CAST(-1147964344 AS DECIMAL))) FROM codex_decimal_in_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:23~1:27) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:59~1:82) /test/1/catalog1/schema1/codex_decimal_in_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__097]
+sql:
+SELECT c0 IN (1,-(NULL>-1147964344)) FROM codex_decimal_in_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:42~1:65) /test/1/catalog1/schema1/codex_decimal_in_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__098]
+sql:
+SELECT c0 IN (1,-(NULL>1.0E0)) FROM codex_decimal_in_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:59) /test/1/catalog1/schema1/codex_decimal_in_source/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__099]
+sql:
+SELECT 10.;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__100]
+sql:
+SELECT .1e+2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__101]
+sql:
+SELECT 6e-16;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__102]
+sql:
+SELECT --6e-16;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__103]
+sql:
+SELECT 1.e1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__104]
+sql:
+SELECT CASE BINARY 'b' WHEN 'a' THEN 1 WHEN 'B' THEN 2 WHEN 'b' THEN 'ok' END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [  ]
+}
+----------
+[select__105]
+sql:
+SELECT CASE 'b' WHEN 'a' THEN 1 WHEN BINARY 'B' THEN 2 WHEN 'b' THEN 'ok' END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [  ]
+}
+----------
+[select__106]
+sql:
+SELECT (CASE 'two' WHEN 'one' THEN '1' WHEN 'two' THEN '2' END) | 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [  ]
+}
+----------
+[select__107]
+sql:
+SELECT (CASE 'two' WHEN 'one' THEN 1.00 WHEN 'two' THEN 2.00 END) + 0.0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [  ]
+}
+----------
+[select__108]
+sql:
+SELECT CASE a WHEN 1 THEN 2 WHEN 2 THEN 3 ELSE 0 END AS fcase, COUNT(*) FROM case_t GROUP BY fcase;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:63~1:68) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:77~1:83) /test/1/catalog1/schema1/case_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__109]
+sql:
+SELECT MAX(CASE col WHEN 1 THEN val ELSE NULL END) AS color FROM case_t GROUP BY `row_no`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MAX/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:65~1:71) /test/1/catalog1/schema1/case_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__110]
+sql:
+SELECT CASE _latin1'a' COLLATE latin1_general_ci WHEN _latin1'A' THEN '1' ELSE 2 END, CASE _latin1'a' COLLATE latin1_bin WHEN _latin1'A' THEN '1' ELSE 2 END, CASE _latin1'a' WHEN _latin1'A' COLLATE latin1_swedish_ci THEN '1' ELSE 2 END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [  ]
+}
+----------
+[select__111]
+sql:
+SELECT 1 FROM case_t WHERE a=1 AND CASE 1 WHEN a THEN 1 ELSE 1 END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:20) /test/1/catalog1/schema1/case_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__112]
+sql:
+SELECT CASE(c3->'') WHEN FROM_UNIXTIME(36) THEN c4 ELSE c3 END FROM json_case_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:25~1:38) /test/1/catalog1/schema1/FROM_UNIXTIME/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:68~1:79) /test/1/catalog1/schema1/json_case_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__113]
+sql:
+SELECT b FROM json_case_t WHERE (CASE WHEN a THEN NOW(2) WHEN b->'w' THEN a < b ELSE b <= 1 END) <=> c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:25) /test/1/catalog1/schema1/json_case_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:50~1:53) /test/1/catalog1/schema1/NOW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__114]
+sql:
+SELECT FALSE IS NULL IS NULL IS NULL,TRUE IS NOT NULL IS NOT NULL IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__115]
+sql:
+SELECT 1 <=> 2 <=> 2,1 = 2 = 2,1 != 2 != 3,1 <> 2 <> 3,3 <= 2 <= 1,1 > 2 > 3,1 >= 2 >= 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__116]
+sql:
+SELECT 0xFF >> 4 << 2,0x0F << 4 >> 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__117]
+sql:
+SELECT 1 + 2 - 3,1 - 2 + 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__118]
+sql:
+SELECT 0xFF ^ 0xF0 * 2,0xFF ^ 0xF0 / 2,0xFF ^ 0xF0 % 0x20,0xFF ^ 0xF0 DIV 2,0xFF ^ 0xF0 MOD 0x20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__119]
+sql:
+SELECT 120 / 3 DIV 2 % 7 MOD 3 * 5,((((120 / 3) DIV 2) % 7) MOD 3) * 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__120]
+sql:
+SELECT NOT 'x' SOUNDS LIKE 'y' AND 'hello' SOUNDS LIKE 'hallo' IS TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__121]
+sql:
+SELECT 1 BETWEEN 0 AND 'hello' SOUNDS LIKE 'hallo';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__122]
+sql:
+SELECT q.interval,q.select,q.external,q.library;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__123]
+sql:
+SELECT duality,files,guided,header,materialized,parameters,policy,relational,sets,uri,validate,vector,verify_key_constraints;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__124]
+sql:
+SELECT t.timestamp,TIMESTAMP'2024-01-02 03:04:05' FROM (SELECT 7 AS timestamp) AS t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__125]
+sql:
+SELECT _utf8mb4'A' COLLATE utf8mb4_bin LIKE BINARY _utf8mb4'a' ESCAPE BINARY '=' IS TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__126]
+sql:
+SELECT 1 > '6x', 7 > '6x', 0 > 'x6', 0 = 'x6';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__127]
+sql:
+SELECT * FROM conversion_strings WHERE c3 = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:32) /test/1/catalog1/schema1/conversion_strings/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__128]
+sql:
+SELECT '9223372036854775807'=9223372036854775807,'9223372036854775807'=9223372036854775806;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__129]
+sql:
+SELECT * FROM temporal_conversion WHERE dt=(SELECT 20200101);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:33) /test/1/catalog1/schema1/temporal_conversion/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__130]
+sql:
+SELECT * FROM temporal_conversion WHERE dt=CAST((SELECT 20200101) AS DATETIME);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:33) /test/1/catalog1/schema1/temporal_conversion/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:43~1:47) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__131]
+sql:
+SELECT 10+'10',10.0+'10',10E+0+'10',10+'a',10.0+CAST('a' AS DECIMAL),10E+0+'a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:48~1:52) /test/1/catalog1/schema1/CAST/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__132]
+sql:
+SELECT BINARY DATE '2024-01-01' + INTERVAL 1 DAY, DATE '2024-01-01' + INTERVAL BINARY 1 DAY, ! BINARY '0', ! _utf8mb4'0' COLLATE utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__133]
+sql:
+SELECT ROW(2,2) != ROW(2,3), (2,2) != (2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ROW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__134]
+sql:
+SELECT (3,4) NOT IN ((1,2),(3,5));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__135]
+sql:
+SELECT ROW(2,2) >= (SELECT 1,2), ROW(2,2) <= (SELECT 2,3), ROW(2,2) <> (SELECT 1,2), ROW(2,2) != (SELECT 1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ROW/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__136]
+sql:
+SELECT 2 != ANY (SELECT 1 UNION ALL SELECT 2), 2 != SOME (SELECT 1 UNION ALL SELECT 3), 2 != ALL (SELECT 1 UNION ALL SELECT 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__137]
+sql:
+SELECT 'a%' LIKE 'a%' ESCAPE '', 'a%' NOT LIKE 'b%' ESCAPE '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}

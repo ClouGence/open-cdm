@@ -1,0 +1,72 @@
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE DOMAIN split_cov.positive_int AS integer CHECK (VALUE > 0);
+CREATE TYPE split_cov.mood AS ENUM ('sad','ok','happy');
+CREATE TYPE split_cov.address_type AS (city text, zip text);
+CREATE TYPE split_cov.int4_pair_range AS RANGE (subtype = integer);
+CREATE SEQUENCE split_cov.seq_test AS bigint START WITH 10 INCREMENT BY 5;
+ALTER SEQUENCE split_cov.seq_test RESTART WITH 20;
+CREATE TABLE split_cov.parent_table (id integer PRIMARY KEY, code text UNIQUE);
+CREATE TABLE split_cov.child_table (
+    id integer GENERATED ALWAYS AS IDENTITY,
+    parent_id integer REFERENCES split_cov.parent_table(id),
+    mood split_cov.mood,
+    tags text[],
+    doc jsonb,
+    embedding vector(3),
+    created_at timestamptz DEFAULT now(),
+    amount numeric GENERATED ALWAYS AS (parent_id * 2) STORED
+);
+CREATE UNLOGGED TABLE split_cov.unlogged_table (LIKE split_cov.parent_table INCLUDING ALL);
+CREATE TEMP TABLE temp_cov_table (id integer) ON COMMIT DROP;
+CREATE TABLE split_cov.part_table (id int, created_on date) PARTITION BY RANGE (created_on);
+CREATE TABLE split_cov.part_table_2026 PARTITION OF split_cov.part_table FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+CREATE INDEX idx_child_embedding_hnsw ON split_cov.child_table USING hnsw (embedding vector_l2_ops);
+CREATE INDEX idx_child_doc_gin ON split_cov.child_table USING gin (doc jsonb_path_ops) WHERE doc ? 'kind';
+CREATE VIEW split_cov.child_view WITH (security_barrier = true) AS SELECT id, parent_id FROM split_cov.child_table WHERE parent_id IS NOT NULL;
+CREATE MATERIALIZED VIEW split_cov.child_mv AS SELECT parent_id, count(*) AS total FROM split_cov.child_table GROUP BY parent_id WITH NO DATA;
+REFRESH MATERIALIZED VIEW split_cov.child_mv;
+------------------------------------------------------------------------------------------
+[CREATE_LIBRARY] CREATE EXTENSION IF NOT EXISTS vector;
+----------
+[CREATE_TYPE] CREATE DOMAIN split_cov.positive_int AS integer CHECK (VALUE > 0);
+----------
+[CREATE_TYPE] CREATE TYPE split_cov.mood AS ENUM ('sad','ok','happy');
+----------
+[CREATE_TYPE] CREATE TYPE split_cov.address_type AS (city text, zip text);
+----------
+[CREATE_TYPE] CREATE TYPE split_cov.int4_pair_range AS RANGE (subtype = integer);
+----------
+[CREATE_SEQUENCE] CREATE SEQUENCE split_cov.seq_test AS bigint START WITH 10 INCREMENT BY 5;
+----------
+[ALTER_SEQUENCE] ALTER SEQUENCE split_cov.seq_test RESTART WITH 20;
+----------
+[CREATE_TABLE] CREATE TABLE split_cov.parent_table (id integer PRIMARY KEY, code text UNIQUE);
+----------
+[CREATE_TABLE] CREATE TABLE split_cov.child_table (
+    id integer GENERATED ALWAYS AS IDENTITY,
+    parent_id integer REFERENCES split_cov.parent_table(id),
+    mood split_cov.mood,
+    tags text[],
+    doc jsonb,
+    embedding vector(3),
+    created_at timestamptz DEFAULT now(),
+    amount numeric GENERATED ALWAYS AS (parent_id * 2) STORED
+);
+----------
+[CREATE_TABLE] CREATE UNLOGGED TABLE split_cov.unlogged_table (LIKE split_cov.parent_table INCLUDING ALL);
+----------
+[CREATE_TABLE] CREATE TEMP TABLE temp_cov_table (id integer) ON COMMIT DROP;
+----------
+[CREATE_TABLE] CREATE TABLE split_cov.part_table (id int, created_on date) PARTITION BY RANGE (created_on);
+----------
+[CREATE_TABLE] CREATE TABLE split_cov.part_table_2026 PARTITION OF split_cov.part_table FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+----------
+[ADD_INDEX] CREATE INDEX idx_child_embedding_hnsw ON split_cov.child_table USING hnsw (embedding vector_l2_ops);
+----------
+[ADD_INDEX] CREATE INDEX idx_child_doc_gin ON split_cov.child_table USING gin (doc jsonb_path_ops) WHERE doc ? 'kind';
+----------
+[CREATE_VIEW(SELECT)] CREATE VIEW split_cov.child_view WITH (security_barrier = true) AS SELECT id, parent_id FROM split_cov.child_table WHERE parent_id IS NOT NULL;
+----------
+[CREATE_VIEW(SELECT)] CREATE MATERIALIZED VIEW split_cov.child_mv AS SELECT parent_id, count(*) AS total FROM split_cov.child_table GROUP BY parent_id WITH NO DATA;
+----------
+[ADMIN] REFRESH MATERIALIZED VIEW split_cov.child_mv;

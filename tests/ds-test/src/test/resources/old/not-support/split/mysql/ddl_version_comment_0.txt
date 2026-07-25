@@ -1,0 +1,15 @@
+CREATE TABLE t_vc (id INT PRIMARY KEY, name VARCHAR(50), internal_flag INT /*!80000 INVISIBLE */ DEFAULT 0, hidden_data VARCHAR(200) /*!80000 INVISIBLE */);
+ALTER TABLE t_alter ADD COLUMN secret_key VARCHAR(64) /*!80000 INVISIBLE */;
+ALTER TABLE t_alter MODIFY COLUMN age INT /*!80000 INVISIBLE */;
+ALTER TABLE t_alter ADD COLUMN hidden_flag TINYINT(1) NOT NULL /*!80000 INVISIBLE */ DEFAULT 0;
+CREATE TABLE t_vc2 (id BIGINT NOT NULL AUTO_INCREMENT, status TINYINT(1) NOT NULL DEFAULT 1, secret_token VARCHAR(128) /*!80000 INVISIBLE */ DEFAULT '', PRIMARY KEY (id));
+------------------------------------------------------------------------------------------
+CREATE TABLE t_vc (id INT PRIMARY KEY, name VARCHAR(50), internal_flag INT /*!80000 INVISIBLE */ DEFAULT 0, hidden_data VARCHAR(200) /*!80000 INVISIBLE */);
+----------
+ALTER TABLE t_alter ADD COLUMN secret_key VARCHAR(64) /*!80000 INVISIBLE */;
+----------
+ALTER TABLE t_alter MODIFY COLUMN age INT /*!80000 INVISIBLE */;
+----------
+ALTER TABLE t_alter ADD COLUMN hidden_flag TINYINT(1) NOT NULL /*!80000 INVISIBLE */ DEFAULT 0;
+----------
+CREATE TABLE t_vc2 (id BIGINT NOT NULL AUTO_INCREMENT, status TINYINT(1) NOT NULL DEFAULT 1, secret_token VARCHAR(128) /*!80000 INVISIBLE */ DEFAULT '', PRIMARY KEY (id));

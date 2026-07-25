@@ -1,0 +1,212 @@
+[other_object_ddl_CREATE_OBJECT_1]
+sql:
+-- 创建 InnoDB 通用表空间
+CREATE TABLESPACE `my_innodb_ts`
+ADD DATAFILE 'my_innodb_ts.ibd'
+ENGINE = InnoDB;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_OBJECT",
+      "auditKind": "CREATE",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_CREATE_OBJECT_2]
+sql:
+CREATE TABLESPACE `my_innodb_ts`
+ADD DATAFILE '/path/to/data/my_innodb_ts.ibd'
+ENGINE = InnoDB;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_OBJECT",
+      "auditKind": "CREATE",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_CREATE_OBJECT_3]
+sql:
+CREATE TABLESPACE `my_innodb_ts`
+ADD DATAFILE 'my_innodb_ts.ibd'
+FILE_BLOCK_SIZE = 8192
+ENGINE = InnoDB;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_OBJECT",
+      "auditKind": "CREATE",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_CREATE_OBJECT_4]
+sql:
+CREATE LOGFILE GROUP my_log_group
+ADD UNDOFILE 'undo_001.dat'
+INITIAL_SIZE = 100M
+UNDO_BUFFER_SIZE = 8M
+ENGINE = NDBCLUSTER;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_OBJECT",
+      "auditKind": "CREATE",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_CREATE_OBJECT_5]
+sql:
+CREATE TABLESPACE `my_ndb_ts`
+ADD DATAFILE 'data_001.dat'
+USE LOGFILE GROUP my_log_group
+EXTENT_SIZE = 1M
+ENGINE = NDBCLUSTER;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_OBJECT",
+      "auditKind": "CREATE",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_ALTER_OBJECT_6]
+sql:
+ALTER LOGFILE GROUP my_log_group
+ADD UNDOFILE 'undo_002.dat'
+INITIAL_SIZE = 128M
+ENGINE = NDBCLUSTER;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_OBJECT",
+      "auditKind": "ALTER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_ALTER_OBJECT_7]
+sql:
+ALTER TABLESPACE old_ts_name RENAME TO new_ts_name;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_OBJECT",
+      "auditKind": "ALTER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_ALTER_OBJECT_8]
+sql:
+-- 假设已有表空间 ts_ndb
+ALTER TABLESPACE ts_ndb
+ADD DATAFILE 'data_002.dat'
+INITIAL_SIZE = 256M
+ENGINE = NDBCLUSTER;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "ALTER_OBJECT",
+      "auditKind": "ALTER",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_DROP_OBJECT_9]
+sql:
+DROP TABLESPACE tablespace_name;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_OBJECT",
+      "auditKind": "DROP",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_DROP_OBJECT_10]
+sql:
+DROP TABLESPACE tablespace_name
+ENGINE = NDBCLUSTER;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_OBJECT",
+      "auditKind": "DROP",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[other_object_ddl_DROP_OBJECT_11]
+sql:
+DROP LOGFILE GROUP logfile_group_name
+ENGINE = NDBCLUSTER;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_OBJECT",
+      "auditKind": "DROP",
+      "target": "Unknown",
+      "needSupply": false,
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+

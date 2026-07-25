@@ -1,0 +1,219 @@
+DROP EVENT TRIGGER IF EXISTS split_event_helper_ddl_end;
+DROP EVENT TRIGGER IF EXISTS split_event_helper_sql_drop;
+DROP EVENT TRIGGER IF EXISTS split_event_helper_table_rewrite;
+DROP SCHEMA IF EXISTS split_event_helper CASCADE;
+CREATE SCHEMA split_event_helper;
+CREATE TABLE split_event_helper.ddl_log (
+    classid oid,
+    objid oid,
+    objsubid integer,
+    command_tag text,
+    object_type text,
+    schema_name text,
+    object_identity text,
+    in_extension boolean
+);
+CREATE TABLE split_event_helper.drop_log (
+    classid oid,
+    objid oid,
+    objsubid integer,
+    original boolean,
+    normal boolean,
+    is_temporary boolean,
+    object_type text,
+    schema_name text,
+    object_name text,
+    object_identity text,
+    address_names text[],
+    address_args text[]
+);
+CREATE TABLE split_event_helper.rewrite_log (
+    relation_oid oid,
+    reason integer
+);
+CREATE FUNCTION split_event_helper.capture_ddl_commands()
+RETURNS event_trigger
+LANGUAGE plpgsql
+AS $event$
+BEGIN
+    INSERT INTO split_event_helper.ddl_log (
+        classid, objid, objsubid, command_tag, object_type,
+        schema_name, object_identity, in_extension
+    )
+    SELECT
+        classid, objid, objsubid, command_tag, object_type,
+        schema_name, object_identity, in_extension
+    FROM pg_event_trigger_ddl_commands();
+END;
+$event$;
+CREATE FUNCTION split_event_helper.capture_dropped_objects()
+RETURNS event_trigger
+LANGUAGE plpgsql
+AS $event$
+BEGIN
+    INSERT INTO split_event_helper.drop_log (
+        classid, objid, objsubid, original, normal, is_temporary,
+        object_type, schema_name, object_name, object_identity,
+        address_names, address_args
+    )
+    SELECT
+        classid, objid, objsubid, original, normal, is_temporary,
+        object_type, schema_name, object_name, object_identity,
+        address_names, address_args
+    FROM pg_event_trigger_dropped_objects();
+END;
+$event$;
+CREATE FUNCTION split_event_helper.capture_table_rewrite()
+RETURNS event_trigger
+LANGUAGE plpgsql
+AS $event$
+BEGIN
+    INSERT INTO split_event_helper.rewrite_log(relation_oid, reason)
+    VALUES (
+        pg_event_trigger_table_rewrite_oid(),
+        pg_event_trigger_table_rewrite_reason()
+    );
+END;
+$event$;
+CREATE EVENT TRIGGER split_event_helper_ddl_end
+    ON ddl_command_end
+    WHEN TAG IN ('CREATE TABLE', 'ALTER TABLE')
+    EXECUTE FUNCTION split_event_helper.capture_ddl_commands();
+CREATE EVENT TRIGGER split_event_helper_sql_drop
+    ON sql_drop
+    WHEN TAG IN ('DROP TABLE')
+    EXECUTE FUNCTION split_event_helper.capture_dropped_objects();
+CREATE EVENT TRIGGER split_event_helper_table_rewrite
+    ON table_rewrite
+    WHEN TAG IN ('ALTER TABLE')
+    EXECUTE FUNCTION split_event_helper.capture_table_rewrite();
+CREATE TABLE split_event_helper.rewrite_probe (
+    payload integer
+);
+ALTER TABLE split_event_helper.rewrite_probe
+    ALTER COLUMN payload TYPE bigint USING payload::bigint;
+DROP TABLE split_event_helper.rewrite_probe;
+DROP EVENT TRIGGER split_event_helper_ddl_end;
+DROP EVENT TRIGGER split_event_helper_sql_drop;
+DROP EVENT TRIGGER split_event_helper_table_rewrite;
+DROP SCHEMA split_event_helper CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_TRIGGER] DROP EVENT TRIGGER IF EXISTS split_event_helper_ddl_end;
+----------
+[DROP_TRIGGER] DROP EVENT TRIGGER IF EXISTS split_event_helper_sql_drop;
+----------
+[DROP_TRIGGER] DROP EVENT TRIGGER IF EXISTS split_event_helper_table_rewrite;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_event_helper CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_event_helper;
+----------
+[CREATE_TABLE] CREATE TABLE split_event_helper.ddl_log (
+    classid oid,
+    objid oid,
+    objsubid integer,
+    command_tag text,
+    object_type text,
+    schema_name text,
+    object_identity text,
+    in_extension boolean
+);
+----------
+[CREATE_TABLE] CREATE TABLE split_event_helper.drop_log (
+    classid oid,
+    objid oid,
+    objsubid integer,
+    original boolean,
+    normal boolean,
+    is_temporary boolean,
+    object_type text,
+    schema_name text,
+    object_name text,
+    object_identity text,
+    address_names text[],
+    address_args text[]
+);
+----------
+[CREATE_TABLE] CREATE TABLE split_event_helper.rewrite_log (
+    relation_oid oid,
+    reason integer
+);
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_event_helper.capture_ddl_commands()
+RETURNS event_trigger
+LANGUAGE plpgsql
+AS $event$
+BEGIN
+    INSERT INTO split_event_helper.ddl_log (
+        classid, objid, objsubid, command_tag, object_type,
+        schema_name, object_identity, in_extension
+    )
+    SELECT
+        classid, objid, objsubid, command_tag, object_type,
+        schema_name, object_identity, in_extension
+    FROM pg_event_trigger_ddl_commands();
+END;
+$event$;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_event_helper.capture_dropped_objects()
+RETURNS event_trigger
+LANGUAGE plpgsql
+AS $event$
+BEGIN
+    INSERT INTO split_event_helper.drop_log (
+        classid, objid, objsubid, original, normal, is_temporary,
+        object_type, schema_name, object_name, object_identity,
+        address_names, address_args
+    )
+    SELECT
+        classid, objid, objsubid, original, normal, is_temporary,
+        object_type, schema_name, object_name, object_identity,
+        address_names, address_args
+    FROM pg_event_trigger_dropped_objects();
+END;
+$event$;
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_event_helper.capture_table_rewrite()
+RETURNS event_trigger
+LANGUAGE plpgsql
+AS $event$
+BEGIN
+    INSERT INTO split_event_helper.rewrite_log(relation_oid, reason)
+    VALUES (
+        pg_event_trigger_table_rewrite_oid(),
+        pg_event_trigger_table_rewrite_reason()
+    );
+END;
+$event$;
+----------
+[CREATE_TRIGGER(CALL_PROG_OBJ)] CREATE EVENT TRIGGER split_event_helper_ddl_end
+    ON ddl_command_end
+    WHEN TAG IN ('CREATE TABLE', 'ALTER TABLE')
+    EXECUTE FUNCTION split_event_helper.capture_ddl_commands();
+----------
+[CREATE_TRIGGER(CALL_PROG_OBJ)] CREATE EVENT TRIGGER split_event_helper_sql_drop
+    ON sql_drop
+    WHEN TAG IN ('DROP TABLE')
+    EXECUTE FUNCTION split_event_helper.capture_dropped_objects();
+----------
+[CREATE_TRIGGER(CALL_PROG_OBJ)] CREATE EVENT TRIGGER split_event_helper_table_rewrite
+    ON table_rewrite
+    WHEN TAG IN ('ALTER TABLE')
+    EXECUTE FUNCTION split_event_helper.capture_table_rewrite();
+----------
+[CREATE_TABLE] CREATE TABLE split_event_helper.rewrite_probe (
+    payload integer
+);
+----------
+[ALTER_TABLE|ALTER_COLUMN] ALTER TABLE split_event_helper.rewrite_probe
+    ALTER COLUMN payload TYPE bigint USING payload::bigint;
+----------
+[DROP_TABLE] DROP TABLE split_event_helper.rewrite_probe;
+----------
+[DROP_TRIGGER] DROP EVENT TRIGGER split_event_helper_ddl_end;
+----------
+[DROP_TRIGGER] DROP EVENT TRIGGER split_event_helper_sql_drop;
+----------
+[DROP_TRIGGER] DROP EVENT TRIGGER split_event_helper_table_rewrite;
+----------
+[DROP_SCHEMA] DROP SCHEMA split_event_helper CASCADE;

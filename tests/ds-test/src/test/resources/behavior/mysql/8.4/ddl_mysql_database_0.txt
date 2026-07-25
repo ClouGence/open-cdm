@@ -1,0 +1,229 @@
+[alter_schema__001]
+sql:
+ALTER DATABASE audit_admin_db READ ONLY = 1 READ ONLY = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:29) /test/1/catalog1/audit_admin_db/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__002]
+sql:
+ALTER DATABASE DEFAULT CHARACTER SET = utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:0~1:46) /test/1/catalog1/schema1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__003]
+sql:
+ALTER DATABASE audit_admin_db READ ONLY = 1 READ ONLY = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:29) /test/1/catalog1/audit_admin_db/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__004]
+sql:
+ALTER SCHEMA DEFAULT COLLATE = utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:0~1:42) /test/1/catalog1/schema1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_schema__005]
+sql:
+DROP DATABASE IF EXISTS split84_db_a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:24~1:36) /test/1/catalog1/split84_db_a/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_schema__006]
+sql:
+DROP SCHEMA IF EXISTS split84_db_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:34) /test/1/catalog1/split84_db_b/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_schema__007]
+sql:
+CREATE DATABASE IF NOT EXISTS split84_db_a
+  DEFAULT CHARACTER SET = utf8mb4
+  DEFAULT COLLATE = utf8mb4_0900_ai_ci
+  DEFAULT ENCRYPTION = 'N';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:30~1:42) /test/1/catalog1/split84_db_a/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_schema__008]
+sql:
+ALTER DATABASE split84_db_a READ ONLY = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:27) /test/1/catalog1/split84_db_a/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__009]
+sql:
+ALTER DATABASE split84_db_a READ ONLY = 0 DEFAULT COLLATE utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:27) /test/1/catalog1/split84_db_a/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_schema__010]
+sql:
+CREATE SCHEMA IF NOT EXISTS split84_db_b
+  CHARSET utf8mb4
+  ENCRYPTION 'N';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:28~1:40) /test/1/catalog1/split84_db_b/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_schema__011]
+sql:
+ALTER SCHEMA split84_db_b DEFAULT ENCRYPTION = 'N' READ ONLY = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:13~1:25) /test/1/catalog1/split84_db_b/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_schema__012]
+sql:
+DROP DATABASE split84_db_a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:26) /test/1/catalog1/split84_db_a/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_schema__013]
+sql:
+DROP SCHEMA IF EXISTS split84_db_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:34) /test/1/catalog1/split84_db_b/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_schema__014]
+sql:
+CREATE DATABASE db345678901234567890123456789012345678901234567890123456789012345;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:81) /test/1/catalog1/db345678901234567890123456789012345678901234567890123456789012345/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__015]
+sql:
+CREATE DATABASE db34567890123456789012345678901234567890123456789012345678901234;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:80) /test/1/catalog1/db34567890123456789012345678901234567890123456789012345678901234/",
+      "action" : "CREATE"
+    }
+  ]
+}

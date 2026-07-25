@@ -1,0 +1,69 @@
+SELECT (SELECT EXISTS(SELECT * LIMIT 1 ORDER BY VALUES (c00)));
+SELECT '' IN (SELECT '1' c FROM t1 ORDER BY '' ORDER BY '') FROM t1;
+SELECT 1 AS $$;
+SELECT 1 AS $hi$;
+SELECT 1 AS $1$;
+SELECT 1 AS $h$i;
+SELECT $one$two;
+SELECT $$id;
+SELECT $$alpha$$;
+SELECT $tag$alpha$tag$;
+SELECT $$alpha;
+SELECT $tag$alpha$other$;
+SELECT /*!8000 1 */;
+SELECT 1 /*!080410*/;
+SELECT 1 */;
+SELECT 1 /*!80000 + 1;
+SELECT .t1.i FROM t1;
+SELECT LOG(1, 2, 3);
+SELECT LOG();
+SELECT 1/*!2*/;
+SELECT 1/*!000002*/;
+SELECT TRUE IS TRUE IS TRUE IS TRUE;
+SELECT FALSE IS NOT TRUE IS NOT TRUE IS NOT TRUE;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT (SELECT EXISTS(SELECT * LIMIT 1 ORDER BY VALUES (c00)));
+----------
+[SELECT] SELECT '' IN (SELECT '1' c FROM t1 ORDER BY '' ORDER BY '') FROM t1;
+----------
+[SELECT] SELECT 1 AS $$;
+----------
+[SELECT] SELECT 1 AS $hi$;
+----------
+[SELECT] SELECT 1 AS $1$;
+----------
+[SELECT] SELECT 1 AS $h$i;
+----------
+[SELECT] SELECT $one$two;
+----------
+[SELECT] SELECT $$id;
+----------
+[SELECT] SELECT $$alpha$$;
+----------
+[SELECT] SELECT $tag$alpha$tag$;
+----------
+[SELECT] SELECT $$alpha;
+----------
+[SELECT] SELECT $tag$alpha$other$;
+----------
+[SELECT] SELECT /*!8000 1 */;
+----------
+[SELECT] SELECT 1 /*!080410*/;
+----------
+[SELECT] SELECT 1 */;
+----------
+[SELECT] SELECT 1 /*!80000 + 1;
+----------
+[SELECT] SELECT .t1.i FROM t1;
+----------
+[SELECT] SELECT LOG(1, 2, 3);
+----------
+[SELECT] SELECT LOG();
+----------
+[SELECT] SELECT 1/*!2*/;
+----------
+[SELECT] SELECT 1/*!000002*/;
+----------
+[SELECT] SELECT TRUE IS TRUE IS TRUE IS TRUE;
+----------
+[SELECT] SELECT FALSE IS NOT TRUE IS NOT TRUE IS NOT TRUE;

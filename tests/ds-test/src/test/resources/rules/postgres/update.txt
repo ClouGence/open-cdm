@@ -1,0 +1,247 @@
+[PgRuleUpdateAllowMultiTest#testLimit_1#001]
+rule: _rules/update/update-allow-multi.rule
+expect: true
+vars:
+  allow: false
+sql:
+update table1 t1 set t1.a=1
+----------
+[PgRuleUpdateAllowSubQueryTest#setHasSelect_1#001]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+update table1 t1 set t1.a=(select id from bb)
+----------
+[PgRuleUpdateAllowSubQueryTest#setHasSelect_1#002]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+update table1 t1 set t1.a=1
+----------
+[PgRuleUpdateAllowSubQueryTest#setHasSelect_1#003]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: Set,Where
+sql:
+update table1 t1 set t1.a=(select id from bb)
+----------
+[PgRuleUpdateAllowSubQueryTest#setHasSelect_1#004]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: Set,Where
+sql:
+update table1 t1 set t1.a=1
+----------
+[PgRuleUpdateAllowSubQueryTest#setHasSelect_1#005]
+rule: _rules/update/update-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+update table1 t1 set t1.a=(select id from bb)
+----------
+[PgRuleUpdateAllowSubQueryTest#setHasSelect_1#006]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: None
+sql:
+update table1 t1 set t1.a=1
+----------
+[PgRuleUpdateAllowSubQueryTest#whereHasSelect_1#001]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+update table1 t1 set t1.a=1 where id in (select id from bb)
+----------
+[PgRuleUpdateAllowSubQueryTest#whereHasSelect_1#002]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+update table1 t1 set t1.a=1 where id =1
+----------
+[PgRuleUpdateAllowSubQueryTest#whereHasSelect_1#003]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: Set,Where
+sql:
+update table1 t1 set t1.a=1 where id in (select id from bb)
+----------
+[PgRuleUpdateAllowSubQueryTest#whereHasSelect_1#004]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: Set,Where
+sql:
+update table1 t1 set t1.a=1 where id =1
+----------
+[PgRuleUpdateAllowSubQueryTest#whereHasSelect_1#005]
+rule: _rules/update/update-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+update table1 t1 set t1.a=1 where id in (select id from bb)
+----------
+[PgRuleUpdateAllowSubQueryTest#whereHasSelect_1#006]
+rule: _rules/update/update-allow-sub-query.rule
+expect: true
+vars:
+  allow: None
+sql:
+update table1 t1 set t1.a=1 where id =1
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_1#001]
+rule: _rules/update/update-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+update abc set name = '11'
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_1#002]
+rule: _rules/update/update-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+update abc set name = '11' where 1=1
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_1#003]
+rule: _rules/update/update-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+update abc set name = '11' where a=a
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_2#001]
+rule: _rules/update/update-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+update abc set name = '11'
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_2#002]
+rule: _rules/update/update-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+update abc set name = '11' where 1=1
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_2#003]
+rule: _rules/update/update-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+update abc set name = '11' where a=a
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_3#001]
+rule: _rules/update/update-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+update abc set name = '11' where 1>1
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_3#002]
+rule: _rules/update/update-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+update abc set name = '11' where 1=1 and a = '123'
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_4#001]
+rule: _rules/update/update-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+update abc set name = '11' where 1>1
+----------
+[PgRuleUpdateEmptyWhereTest#emptyWhereTest_4#002]
+rule: _rules/update/update-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+update abc set name = '11' where 1=1 and a = '123'
+----------
+[PgRuleUpdateEmptyWhereTest#testUpdateHasWhere_1#001]
+rule: _rules/update/update-empty-where.rule
+expect: true
+vars:
+{}
+sql:
+update table1 t1 set t1.a=1 where t1.id=(select id from bb)
+----------
+[PgRuleUpdateEmptyWhereTest#testUpdateHasWhere_1#002]
+rule: _rules/update/update-empty-where.rule
+expect: false
+vars:
+{}
+sql:
+update table1 t1 set t1.a=1
+----------
+[PgRuleUpdateRequireColumnsTest#requireColumns_1#001]
+rule: _rules/update/update-require-columns.rule
+expect: true
+vars:
+{}
+sql:
+update table1 t1 set t1.a=1
+----------
+[PgRuleUpdateRequireColumnsTest#requireColumns_1#002]
+rule: _rules/update/update-require-columns.rule
+expect: true
+vars:
+{}
+sql:
+update table1 set id=1,create_gmt=3
+----------
+[PgRuleUpdateRequireColumnsTest#requireColumns_1#003]
+rule: _rules/update/update-require-columns.rule
+expect: true
+vars:
+{}
+sql:
+update table1 set id=1,create_gmt=3,modify_gmt=3
+----------
+[PgRuleUpdateRequireColumnsTest#requireColumns_2#001]
+rule: _rules/update/update-require-columns.rule
+expect: false
+vars:
+  columns: modify_gmt
+sql:
+update table1 t1 set t1.a=1
+----------
+[PgRuleUpdateRequireColumnsTest#requireColumns_2#002]
+rule: _rules/update/update-require-columns.rule
+expect: false
+vars:
+  columns: modify_gmt
+sql:
+update table1 set id=1,create_gmt=3
+----------
+[PgRuleUpdateRequireColumnsTest#requireColumns_2#003]
+rule: _rules/update/update-require-columns.rule
+expect: true
+vars:
+  columns: modify_gmt
+sql:
+update table1 set id=1,create_gmt=3,modify_gmt=3

@@ -1,0 +1,33 @@
+SELECT point '(0,0)' <<| point '(0,1)';
+SELECT point '(0,1)' |>> point '(0,0)';
+SELECT point '(0,0)' <^ point '(0,1)';
+SELECT point '(0,1)' >^ point '(0,0)';
+SELECT polygon(circle '<(0,0),2>');
+SELECT (point '(23.4,-44.5)')[0];
+SELECT (point '(23.4,-44.5)')[1];
+SELECT (box '(1,1),(0,0)')[0];
+SELECT (box '(1,1),(0,0)')[1];
+SELECT (lseg '[(1,1),(0,0)]')[0];
+SELECT (lseg '[(1,1),(0,0)]')[1];
+------------------------------------------------------------------------------------------
+[SELECT] SELECT point '(0,0)' <<| point '(0,1)';
+----------
+[SELECT] SELECT point '(0,1)' |>> point '(0,0)';
+----------
+[SELECT] SELECT point '(0,0)' <^ point '(0,1)';
+----------
+[SELECT] SELECT point '(0,1)' >^ point '(0,0)';
+----------
+[SELECT] SELECT polygon(circle '<(0,0),2>');
+----------
+[SELECT] SELECT (point '(23.4,-44.5)')[0];
+----------
+[SELECT] SELECT (point '(23.4,-44.5)')[1];
+----------
+[SELECT] SELECT (box '(1,1),(0,0)')[0];
+----------
+[SELECT] SELECT (box '(1,1),(0,0)')[1];
+----------
+[SELECT] SELECT (lseg '[(1,1),(0,0)]')[0];
+----------
+[SELECT] SELECT (lseg '[(1,1),(0,0)]')[1];

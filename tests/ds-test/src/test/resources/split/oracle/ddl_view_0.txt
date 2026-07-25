@@ -1,0 +1,30 @@
+create view v_test as select id, name from test;
+create or replace view v_test as select id, name from test;
+create view test.v_test as select id, name from test where id > 0;
+create view v_test (col1, col2) as select id, name from test;
+CREATE OR REPLACE FORCE VIEW "SCOTT"."V_EMP" AS SELECT EMPNO, ENAME FROM SCOTT.EMP;
+alter view v_test compile;
+alter view "SCOTT"."V_EMP" compile;
+drop view v_test;
+drop view test.v_test;
+drop view "SCOTT"."V_EMP";
+------------------------------------------------------------------------------------------
+[CREATE_VIEW(SELECT)] create view v_test as select id, name from test;
+----------
+[CREATE_VIEW(SELECT)] create or replace view v_test as select id, name from test;
+----------
+[CREATE_VIEW(SELECT)] create view test.v_test as select id, name from test where id > 0;
+----------
+[CREATE_VIEW(SELECT)] create view v_test (col1, col2) as select id, name from test;
+----------
+[CREATE_VIEW(SELECT)] CREATE OR REPLACE FORCE VIEW "SCOTT"."V_EMP" AS SELECT EMPNO, ENAME FROM SCOTT.EMP;
+----------
+[ALTER_VIEW] alter view v_test compile;
+----------
+[ALTER_VIEW] alter view "SCOTT"."V_EMP" compile;
+----------
+[DROP_VIEW] drop view v_test;
+----------
+[DROP_VIEW] drop view test.v_test;
+----------
+[DROP_VIEW] drop view "SCOTT"."V_EMP";

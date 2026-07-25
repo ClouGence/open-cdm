@@ -1,0 +1,69 @@
+SELECT d.x, d.g FROM (SELECT id, grp FROM t) AS d(x, g) ORDER BY d.x;
+SELECT * FROM (SELECT a INTO @codex_load_audit_v FROM codex_load_audit_s.t) AS codex_load_audit_d;
+SELECT * FROM (TABLE t1) AS d;
+SELECT * FROM (VALUES ROW(1, 2), ROW(3, 4)) AS v(a, b);
+SELECT EXISTS(TABLE t1);
+SELECT EXISTS(VALUES ROW(1));
+SELECT 1 IN (TABLE t1);
+SELECT 1 IN (VALUES ROW(1), ROW(2));
+SELECT (TABLE t1);
+SELECT (VALUES ROW(1));
+SELECT 1 FROM t1 WHERE f1 IN (SELECT MIN(f2) FROM (t1 AS t2) WHERE NOT EXISTS (SELECT ROW_NUMBER() OVER () FROM t1 AS t3 WHERE 1=t2.f2));
+(SELECT 1 AS n UNION SELECT 2 LIMIT 2) LIMIT 1;
+SELECT 1 WHERE 2 >ANY (SELECT val FROM it);
+SELECT COUNT(table1.col_datetime) FROM split_subquery_bugs_1220.q1 AS table1 RIGHT JOIN split_subquery_bugs_1220.q1 AS table2 ON table1.col_varchar_key=table2.col_char WHERE table1.col_char_key IN (SELECT sq2_t1.col_real_key FROM split_subquery_bugs_1220.q2 AS sq2_t1 JOIN split_subquery_bugs_1220.q3 AS sq2_t2 JOIN split_subquery_bugs_1220.q1 AS sq2_t3 ON INSTR(sq2_t3.col_tinyint,'K')=sq2_t2.col_varchar ON sq2_t3.col_varchar_key=sq2_t2.col_varchar_key WHERE sq2_t1.col_mediumint IN (SELECT sq1_t1.col_varchar_key FROM split_subquery_bugs_1220.q1 AS sq1_t1 JOIN split_subquery_bugs_1220.q1 AS sq1_t2 ON sq1_t2.col_tinyint_key=table1.col_tinyint_key)) OR RTRIM(table1.col_tinyint_key) IS NOT NULL;
+SELECT 1 WHERE (SELECT 1 FROM split_subquery_bugs_mid.c1 LEFT JOIN split_subquery_bugs_mid.c1 AS t2 ON 'f' IN (SELECT f1 FROM split_subquery_bugs_mid.c1) WHERE EXISTS (SELECT * FROM split_subquery_bugs_mid.c1 LEFT JOIN split_subquery_bugs_mid.c1 AS t3 ON t3.f1='a'));
+SELECT 1 FROM split_subquery_bugs_860.alias_t AS table2 LEFT JOIN (SELECT 'c') AS table3(f1) ON table3.f1=table2.f1 WHERE table2.f1 IN (SELECT 1 FROM (SELECT 1314830897) AS t1(pk) WHERE t1.pk<=ANY(SELECT 5)) AND FALSE;
+SELECT 1 AS col FROM (SELECT 1) AS y(y) JOIN (SELECT 1) AS z(z) ON (SELECT 1 FROM (SELECT 1) AS x(x) HAVING 1 IN (SELECT MIN(x.x) FROM (SELECT 1) AS w(w))) WHERE 1=2;
+SELECT lat_t.a FROM split_subquery_bugs_1550.lat_t,LATERAL (SELECT lat_t.a FROM split_subquery_bugs_1550.lat_t AS inner_t LIMIT 1) AS d1 WHERE 1 IN (SELECT a FROM split_subquery_bugs_1550.lat_t) ORDER BY a;
+SELECT 1 WHERE 7 IN (SELECT COUNT(*) FROM split_subquery_bugs_delta.count_t AS t1,split_subquery_bugs_delta.count_t AS t2 WHERE t1.x=t2.x AND t1.x<t2.x);
+SELECT f1 FROM rank_t WHERE (f1=ANY(SELECT f1 FROM rank_t)) OR (f1 IN (SELECT RANK() OVER () FROM rank_t));
+SELECT 1 AS x FROM split_subquery_bugs_delta.table_t WHERE i IN (SELECT i FROM (TABLE split_subquery_bugs_delta.table_t) AS dt WHERE i<2) GROUP BY x WITH ROLLUP;
+SELECT CAST(NULL<ANY (VALUES ROW(1),ROW(2)) AS SIGNED);
+SELECT 1 FROM (SELECT 5) AS d(c0) WHERE EXISTS(VALUES ROW(1),ROW(2));
+------------------------------------------------------------------------------------------
+[SELECT] SELECT d.x, d.g FROM (SELECT id, grp FROM t) AS d(x, g) ORDER BY d.x;
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT * FROM (SELECT a INTO @codex_load_audit_v FROM codex_load_audit_s.t) AS codex_load_audit_d;
+----------
+[SELECT] SELECT * FROM (TABLE t1) AS d;
+----------
+[SELECT] SELECT * FROM (VALUES ROW(1, 2), ROW(3, 4)) AS v(a, b);
+----------
+[SELECT] SELECT EXISTS(TABLE t1);
+----------
+[SELECT] SELECT EXISTS(VALUES ROW(1));
+----------
+[SELECT] SELECT 1 IN (TABLE t1);
+----------
+[SELECT] SELECT 1 IN (VALUES ROW(1), ROW(2));
+----------
+[SELECT] SELECT (TABLE t1);
+----------
+[SELECT] SELECT (VALUES ROW(1));
+----------
+[SELECT] SELECT 1 FROM t1 WHERE f1 IN (SELECT MIN(f2) FROM (t1 AS t2) WHERE NOT EXISTS (SELECT ROW_NUMBER() OVER () FROM t1 AS t3 WHERE 1=t2.f2));
+----------
+[SELECT] (SELECT 1 AS n UNION SELECT 2 LIMIT 2) LIMIT 1;
+----------
+[SELECT] SELECT 1 WHERE 2 >ANY (SELECT val FROM it);
+----------
+[SELECT] SELECT COUNT(table1.col_datetime) FROM split_subquery_bugs_1220.q1 AS table1 RIGHT JOIN split_subquery_bugs_1220.q1 AS table2 ON table1.col_varchar_key=table2.col_char WHERE table1.col_char_key IN (SELECT sq2_t1.col_real_key FROM split_subquery_bugs_1220.q2 AS sq2_t1 JOIN split_subquery_bugs_1220.q3 AS sq2_t2 JOIN split_subquery_bugs_1220.q1 AS sq2_t3 ON INSTR(sq2_t3.col_tinyint,'K')=sq2_t2.col_varchar ON sq2_t3.col_varchar_key=sq2_t2.col_varchar_key WHERE sq2_t1.col_mediumint IN (SELECT sq1_t1.col_varchar_key FROM split_subquery_bugs_1220.q1 AS sq1_t1 JOIN split_subquery_bugs_1220.q1 AS sq1_t2 ON sq1_t2.col_tinyint_key=table1.col_tinyint_key)) OR RTRIM(table1.col_tinyint_key) IS NOT NULL;
+----------
+[SELECT] SELECT 1 WHERE (SELECT 1 FROM split_subquery_bugs_mid.c1 LEFT JOIN split_subquery_bugs_mid.c1 AS t2 ON 'f' IN (SELECT f1 FROM split_subquery_bugs_mid.c1) WHERE EXISTS (SELECT * FROM split_subquery_bugs_mid.c1 LEFT JOIN split_subquery_bugs_mid.c1 AS t3 ON t3.f1='a'));
+----------
+[SELECT] SELECT 1 FROM split_subquery_bugs_860.alias_t AS table2 LEFT JOIN (SELECT 'c') AS table3(f1) ON table3.f1=table2.f1 WHERE table2.f1 IN (SELECT 1 FROM (SELECT 1314830897) AS t1(pk) WHERE t1.pk<=ANY(SELECT 5)) AND FALSE;
+----------
+[SELECT] SELECT 1 AS col FROM (SELECT 1) AS y(y) JOIN (SELECT 1) AS z(z) ON (SELECT 1 FROM (SELECT 1) AS x(x) HAVING 1 IN (SELECT MIN(x.x) FROM (SELECT 1) AS w(w))) WHERE 1=2;
+----------
+[SELECT] SELECT lat_t.a FROM split_subquery_bugs_1550.lat_t,LATERAL (SELECT lat_t.a FROM split_subquery_bugs_1550.lat_t AS inner_t LIMIT 1) AS d1 WHERE 1 IN (SELECT a FROM split_subquery_bugs_1550.lat_t) ORDER BY a;
+----------
+[SELECT] SELECT 1 WHERE 7 IN (SELECT COUNT(*) FROM split_subquery_bugs_delta.count_t AS t1,split_subquery_bugs_delta.count_t AS t2 WHERE t1.x=t2.x AND t1.x<t2.x);
+----------
+[SELECT] SELECT f1 FROM rank_t WHERE (f1=ANY(SELECT f1 FROM rank_t)) OR (f1 IN (SELECT RANK() OVER () FROM rank_t));
+----------
+[SELECT] SELECT 1 AS x FROM split_subquery_bugs_delta.table_t WHERE i IN (SELECT i FROM (TABLE split_subquery_bugs_delta.table_t) AS dt WHERE i<2) GROUP BY x WITH ROLLUP;
+----------
+[SELECT] SELECT CAST(NULL<ANY (VALUES ROW(1),ROW(2)) AS SIGNED);
+----------
+[SELECT] SELECT 1 FROM (SELECT 5) AS d(c0) WHERE EXISTS(VALUES ROW(1),ROW(2));

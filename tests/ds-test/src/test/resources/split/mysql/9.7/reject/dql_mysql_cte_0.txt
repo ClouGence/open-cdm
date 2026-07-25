@@ -1,0 +1,12 @@
+WITH test.qn AS (SELECT 'with') SELECT * FROM test.qn;
+WITH qn AS (SELECT 'with' AS a) WITH qn2 AS (SELECT 'with' AS a) SELECT a FROM test.qn;
+WITH qn AS (SELECT 'with' AS a), WITH qn2 AS (SELECT 'with' AS a) SELECT a FROM test.qn;
+WITH qn () AS (SELECT 1) SELECT * FROM qn,qn AS qn1;
+------------------------------------------------------------------------------------------
+[SELECT] WITH test.qn AS (SELECT 'with') SELECT * FROM test.qn;
+----------
+[SELECT] WITH qn AS (SELECT 'with' AS a) WITH qn2 AS (SELECT 'with' AS a) SELECT a FROM test.qn;
+----------
+[SELECT] WITH qn AS (SELECT 'with' AS a), WITH qn2 AS (SELECT 'with' AS a) SELECT a FROM test.qn;
+----------
+[SELECT] WITH qn () AS (SELECT 1) SELECT * FROM qn,qn AS qn1;

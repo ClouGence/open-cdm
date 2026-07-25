@@ -1,0 +1,6 @@
+CREATE TABLE split_mode_gap.`COUNT` (i INT);
+CREATE TABLE split_mode_gap.COUNT (i INT);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_mode_gap.`COUNT` (i INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_mode_gap.COUNT (i INT);

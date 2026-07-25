@@ -1,0 +1,78 @@
+DROP SCHEMA IF EXISTS split_cursor_next CASCADE;
+CREATE SCHEMA split_cursor_next;
+CREATE TABLE split_cursor_next.items (id integer PRIMARY KEY, note text);
+INSERT INTO split_cursor_next.items VALUES (1, 'a'), (2, 'b'), (3, 'c'), (4, 'd');
+BEGIN;
+DECLARE split_cursor_dirs ASENSITIVE SCROLL CURSOR WITHOUT HOLD FOR SELECT id, note FROM split_cursor_next.items ORDER BY id;
+FETCH FIRST FROM split_cursor_dirs;
+FETCH LAST IN split_cursor_dirs;
+FETCH ABSOLUTE -2 FROM split_cursor_dirs;
+FETCH RELATIVE 1 FROM split_cursor_dirs;
+FETCH 2 FROM split_cursor_dirs;
+FETCH ALL FROM split_cursor_dirs;
+FETCH BACKWARD 2 FROM split_cursor_dirs;
+FETCH BACKWARD ALL FROM split_cursor_dirs;
+MOVE NEXT FROM split_cursor_dirs;
+MOVE FIRST FROM split_cursor_dirs;
+MOVE LAST IN split_cursor_dirs;
+MOVE RELATIVE -1 FROM split_cursor_dirs;
+MOVE FORWARD FROM split_cursor_dirs;
+MOVE FORWARD 0 FROM split_cursor_dirs;
+MOVE BACKWARD FROM split_cursor_dirs;
+MOVE BACKWARD 0 FROM split_cursor_dirs;
+CLOSE split_cursor_dirs;
+COMMIT;
+DROP TABLE IF EXISTS split_cursor_next.items;
+DROP SCHEMA IF EXISTS split_cursor_next CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_cursor_next CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_cursor_next;
+----------
+[CREATE_TABLE] CREATE TABLE split_cursor_next.items (id integer PRIMARY KEY, note text);
+----------
+[INSERT] INSERT INTO split_cursor_next.items VALUES (1, 'a'), (2, 'b'), (3, 'c'), (4, 'd');
+----------
+[TRANSACTION] BEGIN;
+----------
+[SELECT|PROGRAM_CONTROL] DECLARE split_cursor_dirs ASENSITIVE SCROLL CURSOR WITHOUT HOLD FOR SELECT id, note FROM split_cursor_next.items ORDER BY id;
+----------
+[SELECT|PROGRAM_CONTROL] FETCH FIRST FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] FETCH LAST IN split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] FETCH ABSOLUTE -2 FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] FETCH RELATIVE 1 FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] FETCH 2 FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] FETCH ALL FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] FETCH BACKWARD 2 FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] FETCH BACKWARD ALL FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] MOVE NEXT FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] MOVE FIRST FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] MOVE LAST IN split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] MOVE RELATIVE -1 FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] MOVE FORWARD FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] MOVE FORWARD 0 FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] MOVE BACKWARD FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] MOVE BACKWARD 0 FROM split_cursor_dirs;
+----------
+[SELECT|PROGRAM_CONTROL] CLOSE split_cursor_dirs;
+----------
+[TRANSACTION] COMMIT;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_cursor_next.items;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_cursor_next CASCADE;

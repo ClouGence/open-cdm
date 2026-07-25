@@ -1,0 +1,35 @@
+[Db2RuleColumnTypesTest#columnTypes_1#001]
+rule: _rules/column/column-types.rule
+expect: true
+vars:
+  ruleType: AllowList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id int)
+----------
+[Db2RuleColumnTypesTest#columnTypes_1#002]
+rule: _rules/column/column-types.rule
+expect: false
+vars:
+  ruleType: AllowList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id varchar(4))
+----------
+[Db2RuleColumnTypesTest#columnTypes_2#001]
+rule: _rules/column/column-types.rule
+expect: false
+vars:
+  ruleType: BlockList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id int)
+----------
+[Db2RuleColumnTypesTest#columnTypes_2#002]
+rule: _rules/column/column-types.rule
+expect: true
+vars:
+  ruleType: BlockList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id varchar(4))

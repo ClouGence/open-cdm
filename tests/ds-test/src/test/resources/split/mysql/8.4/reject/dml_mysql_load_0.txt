@@ -1,0 +1,21 @@
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS DATE FORMAT '%Y-%m-%d';
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS DATETIME FORMAT '%Y-%m-%d %H:%i:%s';
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS EMPTY VALUE '';
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS NOT ENCLOSED;
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS NULL AS 'NULL';
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS TIME FORMAT '%H:%i:%s';
+LOAD DATA FROM URI 'https://example.invalid/split.csv' INTO TABLE load_innodb;
+------------------------------------------------------------------------------------------
+[DATA_IMPORT] LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS DATE FORMAT '%Y-%m-%d';
+----------
+[DATA_IMPORT] LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS DATETIME FORMAT '%Y-%m-%d %H:%i:%s';
+----------
+[DATA_IMPORT] LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS EMPTY VALUE '';
+----------
+[DATA_IMPORT] LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS NOT ENCLOSED;
+----------
+[DATA_IMPORT] LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS NULL AS 'NULL';
+----------
+[DATA_IMPORT] LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb COLUMNS TIME FORMAT '%H:%i:%s';
+----------
+[DATA_IMPORT] LOAD DATA FROM URI 'https://example.invalid/split.csv' INTO TABLE load_innodb;

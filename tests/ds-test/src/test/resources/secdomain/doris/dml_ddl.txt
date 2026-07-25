@@ -1,0 +1,73 @@
+[createTable_basic]
+sql:
+create table `test_db`.`abc`(id int, name varchar(100))
+expect:
+{
+  "contains": [
+    {"class":"DrTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"test_db", "table":"abc"},
+    {"class":"DrColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test_db", "table":"abc", "column":"id", "typeDesc":"int"}
+  ]
+}
+----------
+[insert_basic]
+sql:
+insert into test_sch.table2 (id, b) values (2, 1)
+expect:
+{
+  "contains": [
+    {"class":"DrInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"test_sch", "table":"table2"}
+  ]
+}
+----------
+[insert_withSubQuery]
+sql:
+insert into test_schema.table2 (id, b) values ((select id from table1 limit 1), 1)
+expect:
+{
+  "contains": [
+    {"class":"DrInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[update_basic]
+sql:
+update test_sch.table1 set name='x' where id=1
+expect:
+{
+  "contains": [
+    {"class":"DrUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"test_sch", "table":"table1"}
+  ]
+}
+----------
+[delete_basic]
+sql:
+delete from test_sch.table1 where id=1
+expect:
+{
+  "contains": [
+    {"class":"DrDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"test_sch", "table":"table1"}
+  ]
+}
+----------
+[select_basic]
+sql:
+select * from test_sch.table1
+expect:
+{
+  "contains": [
+    {"class":"DrSelectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "childrenSize":1},
+    {"class":"RdbTableDomain", "table":"table1"}
+  ]
+}
+----------
+[select_join]
+sql:
+select t1.* from test_sch.table1 t1 join test_sch.table2 t2 on t1.id=t2.id
+expect:
+{
+  "contains": [
+    {"class":"DrSelectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "childrenSize":2},
+    {"class":"RdbTableDomain", "table":"table1"},
+    {"class":"RdbTableDomain", "table":"table2"}
+  ]
+}

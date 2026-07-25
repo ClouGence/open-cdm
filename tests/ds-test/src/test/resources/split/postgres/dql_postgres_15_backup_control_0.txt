@@ -1,0 +1,14 @@
+SELECT pg_backup_start('open_cdm_split_backup', true);
+SELECT lsn IS NOT NULL AS backup_stop_lsn, labelfile LIKE '%open_cdm_split_backup%' AS backup_label_seen, spcmapfile IS NOT NULL AS spcmapfile_returned
+FROM pg_backup_stop(false);
+SELECT pg_backup_start(label => 'open_cdm_split_backup_named', fast => false);
+SELECT (pg_backup_stop(wait_for_archive => false)).lsn IS NOT NULL AS backup_stop_named_lsn;
+------------------------------------------------------------------------------------------
+[SELECT|ADMIN] SELECT pg_backup_start('open_cdm_split_backup', true);
+----------
+[SELECT|ADMIN] SELECT lsn IS NOT NULL AS backup_stop_lsn, labelfile LIKE '%open_cdm_split_backup%' AS backup_label_seen, spcmapfile IS NOT NULL AS spcmapfile_returned
+FROM pg_backup_stop(false);
+----------
+[SELECT|ADMIN] SELECT pg_backup_start(label => 'open_cdm_split_backup_named', fast => false);
+----------
+[SELECT|ADMIN] SELECT (pg_backup_stop(wait_for_archive => false)).lsn IS NOT NULL AS backup_stop_named_lsn;

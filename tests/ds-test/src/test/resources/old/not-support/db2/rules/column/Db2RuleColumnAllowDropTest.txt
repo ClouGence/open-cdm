@@ -1,0 +1,15 @@
+[Db2RuleColumnAllowDropTest#dropColumn_1#001]
+rule: _rules/column/column-allow-drop.rule
+expect: true
+vars:
+  allow: true
+sql:
+alter table test.abc drop column id;
+----------
+[Db2RuleColumnAllowDropTest#dropColumn_2#001]
+rule: _rules/column/column-allow-drop.rule
+expect: false
+vars:
+  allow: false
+sql:
+alter table test.abc drop column id;

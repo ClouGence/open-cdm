@@ -1,0 +1,150 @@
+CREATE TABLE dollar_column_a ($one$two INT);
+CREATE TABLE dollar_column_b ($$id INT);
+CREATE TABLE dollar_column_c ($$alpha$$ INT);
+CREATE TABLE dollar_column_d ($tag$alpha$tag$ INT);
+CREATE TABLE dollar_column_e ($$alpha INT);
+CREATE TABLE dollar_column_f ($tag$alpha$other$ INT);
+CREATE TABLE $one$two (id INT);
+CREATE TABLE $$id (id INT);
+CREATE TABLE $$alpha$$ (id INT);
+CREATE TABLE $tag$alpha$tag$ (id INT);
+CREATE TABLE $$alpha (id INT);
+CREATE TABLE $tag$alpha$other$ (id INT);
+CREATE TABLE audit_ident_cube (cube INT);
+CREATE PROCEDURE audit_label_cube() cube: BEGIN LEAVE cube; END;
+CREATE PROCEDURE audit_label_external() external: BEGIN LEAVE external; END;
+CREATE PROCEDURE audit_label_library() library: BEGIN LEAVE library; END;
+CREATE PROCEDURE split_keywords.p_label_binlog()
+binlog: BEGIN
+  LEAVE binlog;
+END binlog;
+CREATE TABLE t1 (.i INT);
+CREATE TABLE .t2 (i INT);
+CREATE TABLE split_keywords.reject_cume_dist (cume_dist INT);
+CREATE TABLE split_keywords.reject_dense_rank (dense_rank INT);
+CREATE TABLE split_keywords.reject_empty (empty INT);
+CREATE TABLE split_keywords.reject_except (except INT);
+CREATE TABLE split_keywords.reject_external (external INT);
+CREATE TABLE split_keywords.reject_first_value (first_value INT);
+CREATE TABLE split_keywords.reject_grouping (grouping INT);
+CREATE TABLE split_keywords.reject_groups (groups INT);
+CREATE TABLE split_keywords.reject_json_table (json_table INT);
+CREATE TABLE split_keywords.reject_lag (lag INT);
+CREATE TABLE split_keywords.reject_last_value (last_value INT);
+CREATE TABLE split_keywords.reject_lateral (lateral INT);
+CREATE TABLE split_keywords.reject_lead (lead INT);
+CREATE TABLE split_keywords.reject_library (library INT);
+CREATE TABLE split_keywords.reject_manual (manual INT);
+CREATE TABLE split_keywords.reject_nth_value (nth_value INT);
+CREATE TABLE split_keywords.reject_ntile (ntile INT);
+CREATE TABLE split_keywords.reject_of (of INT);
+CREATE TABLE split_keywords.reject_over (over INT);
+CREATE TABLE split_keywords.reject_parallel (parallel INT);
+CREATE TABLE split_keywords.reject_percent_rank (percent_rank INT);
+CREATE TABLE split_keywords.reject_qualify (qualify INT);
+CREATE TABLE split_keywords.reject_rank (rank INT);
+CREATE TABLE split_keywords.reject_recursive (recursive INT);
+CREATE TABLE split_keywords.reject_row_number (row_number INT);
+CREATE TABLE split_keywords.reject_system (system INT);
+CREATE TABLE split_keywords.reject_tablesample (tablesample INT);
+CREATE TABLE split_keywords.reject_window (window INT);
+CREATE PROCEDURE p_of() BEGIN of: LOOP LEAVE of; END LOOP of; END;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE dollar_column_a ($one$two INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE dollar_column_b ($$id INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE dollar_column_c ($$alpha$$ INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE dollar_column_d ($tag$alpha$tag$ INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE dollar_column_e ($$alpha INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE dollar_column_f ($tag$alpha$other$ INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE $one$two (id INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE $$id (id INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE $$alpha$$ (id INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE $tag$alpha$tag$ (id INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE $$alpha (id INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE $tag$alpha$other$ (id INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE audit_ident_cube (cube INT);
+----------
+[CREATE_PROG_OBJ] CREATE PROCEDURE audit_label_cube() cube: BEGIN LEAVE cube; END;
+----------
+[CREATE_PROG_OBJ] CREATE PROCEDURE audit_label_external() external: BEGIN LEAVE external; END;
+----------
+[CREATE_PROG_OBJ] CREATE PROCEDURE audit_label_library() library: BEGIN LEAVE library; END;
+----------
+[CREATE_PROG_OBJ] CREATE PROCEDURE split_keywords.p_label_binlog()
+binlog: BEGIN
+  LEAVE binlog;
+END binlog;
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE t1 (.i INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE .t2 (i INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_cume_dist (cume_dist INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_dense_rank (dense_rank INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_empty (empty INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_except (except INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_external (external INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_first_value (first_value INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_grouping (grouping INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_groups (groups INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_json_table (json_table INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_lag (lag INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_last_value (last_value INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_lateral (lateral INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_lead (lead INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_library (library INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_manual (manual INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_nth_value (nth_value INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_ntile (ntile INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_of (of INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_over (over INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_parallel (parallel INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_percent_rank (percent_rank INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_qualify (qualify INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_rank (rank INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_recursive (recursive INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_row_number (row_number INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_system (system INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_tablesample (tablesample INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE split_keywords.reject_window (window INT);
+----------
+[CREATE_PROG_OBJ] CREATE PROCEDURE p_of() BEGIN of: LOOP LEAVE of; END LOOP of; END;

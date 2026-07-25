@@ -1,0 +1,84 @@
+create table abc(id int) engine = test order by id;
+create table `abc`(`id` int) engine = MEMORY COMMENT 'desc' ORDER BY tuple();
+create table if not exists test.abc(id int) engine = MEMORY;
+create table if not exists abc(id int) engine = MEMORY;
+create temporary table if not exists test.abc(id int) engine = memory;
+create table test.abc(id int, name varchar,primary key (id)) engine = MergeTree;
+create table test.abc(id int , name varchar   ,PRIMARY KEY id) engine = MergeTree;
+create table test.abc(id int, name varchar) engine = myisam primary key id;
+create table test.abc(id int, name varchar) engine = egr primary key (id);
+create table test.abc(id int, name varchar) engine memory;
+create table test.abc(id int, name varchar) engine = memory  primary key id;
+create table test.abc(id int, name varchar,primary key (id)) engine = memory;
+create table test.abc(id int, name varchar,primary key (id,name)) engine = memory order by id;
+create table test.abc(id int(4), name varchar(25),INDEX idx_name id TYPE minmax GRANULARITY 4) engine = test TTL event_time + INTERVAL 30 DAY PARTITION BY toYYYYMMDD(event_time);
+create table test.abc(id nullable(int(4)), name varchar(25),INDEX idx_name (id,name) TYPE minmax GRANULARITY 4) engine = test PARTITION BY (toYear(event_time), user_id % 10);
+create table test.abc(id nullable(int(4)), name varchar(25),INDEX idx_name (ss(id,name)) TYPE minmax GRANULARITY 4) engine = test PARTITION BY (toYear(event_time), user_id % 10);
+create table test.abc_copy as test.abc engine = ff;
+create table abc_copy as abc engine = gwe;
+create table test.abc_select engine = test as select * from test.abc;
+rename table test.abc to abc_test;
+rename table abc to test.abc_test;
+ALTER TABLE test.abc MODIFY TTL event_time + INTERVAL 60 DAY;
+ALTER TABLE test.abc drop partition 2022;
+ALTER TABLE test.abc remove TTL;
+rename table abc to cba;
+rename table schema1.abc to schema2.cba;
+drop table abc;
+drop table if exists test.abc;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table abc(id int) engine = test order by id
+----------
+[CREATE_TABLE|COMMENT_TABLE] create table `abc`(`id` int) engine = MEMORY COMMENT 'desc' ORDER BY tuple()
+----------
+[CREATE_TABLE] create table if not exists test.abc(id int) engine = MEMORY
+----------
+[CREATE_TABLE] create table if not exists abc(id int) engine = MEMORY
+----------
+[CREATE_TABLE] create temporary table if not exists test.abc(id int) engine = memory
+----------
+[CREATE_TABLE] create table test.abc(id int, name varchar,primary key (id)) engine = MergeTree
+----------
+[CREATE_TABLE] create table test.abc(id int , name varchar   ,PRIMARY KEY id) engine = MergeTree
+----------
+[CREATE_TABLE] create table test.abc(id int, name varchar) engine = myisam primary key id
+----------
+[CREATE_TABLE] create table test.abc(id int, name varchar) engine = egr primary key (id)
+----------
+[CREATE_TABLE] create table test.abc(id int, name varchar) engine memory
+----------
+[CREATE_TABLE] create table test.abc(id int, name varchar) engine = memory  primary key id
+----------
+[CREATE_TABLE] create table test.abc(id int, name varchar,primary key (id)) engine = memory
+----------
+[CREATE_TABLE] create table test.abc(id int, name varchar,primary key (id,name)) engine = memory order by id
+----------
+[CREATE_TABLE] create table test.abc(id int(4), name varchar(25),INDEX idx_name id TYPE minmax GRANULARITY 4) engine = test TTL event_time + INTERVAL 30 DAY PARTITION BY toYYYYMMDD(event_time)
+----------
+[CREATE_TABLE] create table test.abc(id nullable(int(4)), name varchar(25),INDEX idx_name (id,name) TYPE minmax GRANULARITY 4) engine = test PARTITION BY (toYear(event_time), user_id % 10)
+----------
+[CREATE_TABLE|CALL_PROG_OBJ] create table test.abc(id nullable(int(4)), name varchar(25),INDEX idx_name (ss(id,name)) TYPE minmax GRANULARITY 4) engine = test PARTITION BY (toYear(event_time), user_id % 10)
+----------
+[CREATE_TABLE] create table test.abc_copy as test.abc engine = ff
+----------
+[CREATE_TABLE] create table abc_copy as abc engine = gwe
+----------
+[CREATE_TABLE] create table test.abc_select engine = test as select * from test.abc
+----------
+[RENAME_TABLE] rename table test.abc to abc_test
+----------
+[RENAME_TABLE] rename table abc to test.abc_test
+----------
+[ALTER_TABLE] ALTER TABLE test.abc MODIFY TTL event_time + INTERVAL 60 DAY
+----------
+[ALTER_TABLE|DROP_PARTITION] ALTER TABLE test.abc drop partition 2022
+----------
+[ALTER_TABLE] ALTER TABLE test.abc remove TTL
+----------
+[RENAME_TABLE] rename table abc to cba
+----------
+[RENAME_TABLE] rename table schema1.abc to schema2.cba
+----------
+[DROP_TABLE] drop table abc
+----------
+[DROP_TABLE] drop table if exists test.abc

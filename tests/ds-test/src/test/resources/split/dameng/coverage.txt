@@ -1,0 +1,186 @@
+create schema app authorization SYSDBA;
+
+create table app.customer (
+  id int identity(1, 1) primary key,
+  name varchar(100) not null,
+  status char(1) default 'A',
+  amount decimal(18, 2),
+  created_at timestamp default current_timestamp,
+  constraint uk_customer_name unique(name),
+  constraint ck_customer_status check(status in ('A', 'I'))
+);
+
+comment on table app.customer is 'customer master';
+comment on column app.customer.name is 'customer name';
+
+create table app.orders (
+  id bigint identity primary key,
+  customer_id int not null,
+  order_no varchar2(64) not null,
+  order_total number(18, 2) default 0,
+  payload clob,
+  constraint pk_orders primary key(id),
+  constraint fk_orders_customer foreign key(customer_id) references app.customer(id)
+);
+
+create index idx_orders_customer on app.orders(customer_id);
+
+create view app.active_customer_view as
+select id, name from app.customer where status = 'A';
+
+create sequence app.seq_orders start with 1 increment by 1 cache 20;
+
+create table app.order_snapshot as
+select o.id, c.name, o.order_total
+from app.orders o
+join app.customer c on c.id = o.customer_id;
+
+with recent_orders as (
+  select id, customer_id, order_total from app.orders where order_total > 10
+)
+select r.id, c.name
+from recent_orders r
+join app.customer c on c.id = r.customer_id
+where exists (select 1 from app.customer c2 where c2.id = c.id);
+
+insert into app.customer(id, name, status) values(1, 'Alice', 'A');
+update app.customer set status = 'I' where id = 1;
+delete from app.customer where id = 1;
+
+create or replace procedure app.proc_refresh_customer(p_id int) as
+begin
+  update app.customer set status = 'A' where id = p_id;
+end;
+/
+
+create or replace function app.fn_customer_name(p_id int) return varchar as
+  v_name varchar(100);
+begin
+  select name into v_name from app.customer where id = p_id;
+  return v_name;
+end;
+/
+
+create or replace trigger app.trg_customer_bi
+before insert on app.customer
+for each row
+begin
+  if :new.status is null then
+    :new.status := 'A';
+  end if;
+end;
+/
+
+alter table app.customer add email varchar(200);
+alter table app.customer modify email varchar(255);
+alter table app.customer drop column email;
+
+create tablespace ts_dm_test datafile 'ts_dm_test.dbf' size 128;
+create synonym app.syn_customer for app.customer;
+drop synonym app.syn_customer;
+drop sequence app.seq_orders;
+drop view app.active_customer_view;
+drop table app.order_snapshot;
+drop table app.orders;
+drop table app.customer;
+drop schema app;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create schema app authorization SYSDBA;
+----------
+[CREATE_TABLE] create table app.customer (
+  id int identity(1, 1) primary key,
+  name varchar(100) not null,
+  status char(1) default 'A',
+  amount decimal(18, 2),
+  created_at timestamp default current_timestamp,
+  constraint uk_customer_name unique(name),
+  constraint ck_customer_status check(status in ('A', 'I'))
+);
+----------
+[COMMENT_TABLE] comment on table app.customer is 'customer master';
+----------
+[COMMENT_COLUMN] comment on column app.customer.name is 'customer name';
+----------
+[CREATE_TABLE] create table app.orders (
+  id bigint identity primary key,
+  customer_id int not null,
+  order_no varchar2(64) not null,
+  order_total number(18, 2) default 0,
+  payload clob,
+  constraint pk_orders primary key(id),
+  constraint fk_orders_customer foreign key(customer_id) references app.customer(id)
+);
+----------
+[ADD_INDEX] create index idx_orders_customer on app.orders(customer_id);
+----------
+[CREATE_VIEW(SELECT)] create view app.active_customer_view as
+select id, name from app.customer where status = 'A';
+----------
+[CREATE_SEQUENCE] create sequence app.seq_orders start with 1 increment by 1 cache 20;
+----------
+[CREATE_TABLE] create table app.order_snapshot as
+select o.id, c.name, o.order_total
+from app.orders o
+join app.customer c on c.id = o.customer_id;
+----------
+[SELECT] with recent_orders as (
+  select id, customer_id, order_total from app.orders where order_total > 10
+)
+select r.id, c.name
+from recent_orders r
+join app.customer c on c.id = r.customer_id
+where exists (select 1 from app.customer c2 where c2.id = c.id);
+----------
+[INSERT] insert into app.customer(id, name, status) values(1, 'Alice', 'A');
+----------
+[UPDATE] update app.customer set status = 'I' where id = 1;
+----------
+[DELETE] delete from app.customer where id = 1;
+----------
+[CREATE_PROG_OBJ(BLOCK,UPDATE)] create or replace procedure app.proc_refresh_customer(p_id int) as
+begin
+  update app.customer set status = 'A' where id = p_id;
+end;
+/
+----------
+[CREATE_PROG_OBJ(PROGRAM_CONTROL,BLOCK,SELECT)] create or replace function app.fn_customer_name(p_id int) return varchar as
+  v_name varchar(100);
+begin
+  select name into v_name from app.customer where id = p_id;
+  return v_name;
+end;
+/
+----------
+[CREATE_TRIGGER(BLOCK,PROGRAM_CONTROL,UPDATE)] create or replace trigger app.trg_customer_bi
+before insert on app.customer
+for each row
+begin
+  if :new.status is null then
+    :new.status := 'A';
+  end if;
+end;
+/
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.customer add email varchar(200);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.customer modify email varchar(255);
+----------
+[ALTER_TABLE|DROP_COLUMN] alter table app.customer drop column email;
+----------
+[CREATE_TABLESPACE] create tablespace ts_dm_test datafile 'ts_dm_test.dbf' size 128;
+----------
+[CREATE_SYNONYM] create synonym app.syn_customer for app.customer;
+----------
+[DROP_SYNONYM] drop synonym app.syn_customer;
+----------
+[DROP_SEQUENCE] drop sequence app.seq_orders;
+----------
+[DROP_VIEW] drop view app.active_customer_view;
+----------
+[DROP_TABLE] drop table app.order_snapshot;
+----------
+[DROP_TABLE] drop table app.orders;
+----------
+[DROP_TABLE] drop table app.customer;
+----------
+[DROP_SCHEMA] drop schema app;

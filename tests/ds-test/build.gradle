@@ -10,7 +10,6 @@ dependencies {
     testImplementation project(':plus-sec-rules')
     testImplementation project(':cg-detectrule')
     testImplementation project(':cg-dslparser')
-    testImplementation files('../clouddm-ds/lib/druid-1.2.25-SNAPSHOT.jar')
 
     testImplementation(project(':dsc-common'))
     testImplementation(project(':dsc-common-mysql'))
@@ -24,6 +23,9 @@ dependencies {
     testImplementation(project(':sql-doris'))
     testImplementation(project(':sql-redis'))
     testImplementation(project(':sql-mongodb'))
+    testImplementation(project(':sql-iso-sql92'))
+    testImplementation(project(':sql-iso-sql99'))
+    testImplementation(project(':sql-iso-sql2003'))
 
     testImplementation(project(':ds-mysql'))
     testImplementation(project(':ds-mariadb'))
@@ -53,6 +55,7 @@ dependencies {
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.13.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
     testRuntimeOnly "org.slf4j:slf4j-api:${SLF4J_VERSION}"
+    testRuntimeOnly 'com.mysql:mysql-connector-j:9.6.0'
 }
 
 test {

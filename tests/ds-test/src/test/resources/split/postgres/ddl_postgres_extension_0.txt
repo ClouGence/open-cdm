@@ -1,0 +1,57 @@
+DROP EXTENSION IF EXISTS hstore CASCADE;
+DROP SCHEMA IF EXISTS split_extension_next CASCADE;
+DROP SCHEMA IF EXISTS split_extension_next_moved CASCADE;
+CREATE SCHEMA split_extension_next;
+CREATE SCHEMA split_extension_next_moved;
+CREATE EXTENSION hstore WITH SCHEMA split_extension_next VERSION '1.8';
+ALTER EXTENSION hstore UPDATE TO '1.8';
+ALTER EXTENSION hstore SET SCHEMA split_extension_next_moved;
+CREATE TYPE split_extension_next.ext_mood AS ENUM ('on', 'off');
+CREATE DOMAIN split_extension_next.ext_code AS text CHECK (VALUE <> '');
+ALTER EXTENSION hstore ADD TYPE split_extension_next.ext_mood;
+ALTER EXTENSION hstore DROP TYPE split_extension_next.ext_mood;
+ALTER EXTENSION hstore ADD DOMAIN split_extension_next.ext_code;
+ALTER EXTENSION hstore DROP DOMAIN split_extension_next.ext_code;
+DROP TYPE IF EXISTS split_extension_next.ext_mood;
+DROP DOMAIN IF EXISTS split_extension_next.ext_code;
+DROP EXTENSION IF EXISTS hstore RESTRICT;
+DROP SCHEMA IF EXISTS split_extension_next_moved CASCADE;
+DROP SCHEMA IF EXISTS split_extension_next CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_LIBRARY] DROP EXTENSION IF EXISTS hstore CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_extension_next CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_extension_next_moved CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_extension_next;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_extension_next_moved;
+----------
+[CREATE_LIBRARY] CREATE EXTENSION hstore WITH SCHEMA split_extension_next VERSION '1.8';
+----------
+[ALTER_LIBRARY] ALTER EXTENSION hstore UPDATE TO '1.8';
+----------
+[ALTER_LIBRARY] ALTER EXTENSION hstore SET SCHEMA split_extension_next_moved;
+----------
+[CREATE_TYPE] CREATE TYPE split_extension_next.ext_mood AS ENUM ('on', 'off');
+----------
+[CREATE_TYPE] CREATE DOMAIN split_extension_next.ext_code AS text CHECK (VALUE <> '');
+----------
+[ALTER_LIBRARY] ALTER EXTENSION hstore ADD TYPE split_extension_next.ext_mood;
+----------
+[ALTER_LIBRARY] ALTER EXTENSION hstore DROP TYPE split_extension_next.ext_mood;
+----------
+[ALTER_LIBRARY] ALTER EXTENSION hstore ADD DOMAIN split_extension_next.ext_code;
+----------
+[ALTER_LIBRARY] ALTER EXTENSION hstore DROP DOMAIN split_extension_next.ext_code;
+----------
+[DROP_TYPE] DROP TYPE IF EXISTS split_extension_next.ext_mood;
+----------
+[DROP_TYPE] DROP DOMAIN IF EXISTS split_extension_next.ext_code;
+----------
+[DROP_LIBRARY] DROP EXTENSION IF EXISTS hstore RESTRICT;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_extension_next_moved CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_extension_next CASCADE;

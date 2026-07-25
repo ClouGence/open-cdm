@@ -1,0 +1,1340 @@
+SELECT * FROM t WHERE t.`$id` = 0 OR `$id2` = 0 OR b$$lit$$ = 0;
+SELECT 8.0 $p, 8.4$p, .0$p, 8.$p, 8.p;
+SELECT 1 + /*!800001+0 */ + 0 AS should_return_2;
+SELECT (SELECT EXISTS(SELECT * LIMIT 1 ORDER BY VALUES (c00)));
+SELECT '' IN (SELECT '1' c FROM t1 ORDER BY '' ORDER BY '') FROM t1;
+SELECT (NOT FALSE) OR TRUE, NOT (FALSE OR TRUE), NOT FALSE OR TRUE;
+SELECT (NOT NULL) IS TRUE, NOT (NULL IS TRUE), NOT NULL IS TRUE;
+SELECT 0xF0 | 0x0F | 0x55, (0xF0 | 0x0F) | 0x55, 0xF0 | (0x0F | 0x55);
+SELECT 256 >> 3 >> 2, (256 >> 3) >> 2, 256 >> (3 >> 2);
+SELECT 0xF0 & 0x0F | 0x55, (0xF0 & 0x0F) | 0x55, 0xF0 & (0x0F | 0x55);
+SELECT 2 + 3 << 4, (2 + 3) << 4, 2 + (3 << 4);
+SELECT 105 / 5 | 2, (105 / 5) | 2, 105 / (5 | 2);
+SELECT connection FROM (SELECT 1 AS connection) AS kw;
+SELECT authors, contributors FROM (SELECT 1 AS authors, 2 AS contributors) AS kw;
+SELECT binlog FROM (SELECT 1 AS binlog) AS kw;
+SELECT TIME'1 24:00:00', TIME'10:10:10.', TIMESTAMP'2010-01-01 00';
+SELECT TIMESTAMP '2021/07-15 23.01:02';
+SELECT LOCATE(_utf8mb4 0xD091, _utf8mb4 0xD0B0D0B1D0B2 COLLATE utf8mb4_bin);
+SELECT HEX(_utf32 X'44'), HEX(_utf32 X'3344'), HEX(_utf32 X'103344');
+SELECT LEAST(_latin1'a', _latin2'b', _latin5'c' COLLATE latin5_turkish_ci);
+SELECT ADDDATE(?, INTERVAL 1 DAY);
+SELECT SUM(b'1100'),SUM(DISTINCT b'1100');
+SELECT t1.f1,COUNT(DISTINCT t2.f2),COUNT(DISTINCT 1,NULL) FROM t1 LEFT JOIN t2 ON t1.f1=t2.f1 GROUP BY t1.f1;
+SELECT _utf8mb4'a' /* adjacent */ 'b';
+SELECT _koi8r'a'=_koi8r'A' COLLATE koi8r_general_ci,_koi8r'a' COLLATE koi8r_bin=_koi8r'A';
+SELECT STRCMP(_koi8r'a',_koi8r'A' COLLATE koi8r_general_ci),STRCMP(_koi8r'a' COLLATE koi8r_bin,_koi8r'A');
+SELECT _koi8r'a' LIKE _koi8r'A' COLLATE koi8r_general_ci,_koi8r'a' COLLATE koi8r_bin LIKE _koi8r'A';
+SELECT _koi8r'a' COLLATE koi8r_bin=_koi8r'A' COLLATE koi8r_general_ci;
+SELECT STRCMP(_koi8r'a' COLLATE koi8r_general_ci,_koi8r'A' COLLATE koi8r_bin);
+SELECT _koi8r'a' COLLATE koi8r_general_ci LIKE _koi8r'A' COLLATE koi8r_bin;
+SELECT 5--1;
+SELECT 5-- 1
++ 2;
+SELECT 5--	comment
++ 2;
+SELECT 1#comment
++ 2;
+SELECT 1/**/+2, 3/* multi
+line */+4;
+SELECT 1--
++2;
+SELECT 1 /* first */ + /* second */ 2;
+# leading hash
+SELECT 1 /* inline block */ + 2;
+-- leading dash
+SELECT /*+ MAX_EXECUTION_TIME(1000) */ 3;
+/*! SELECT 4 */;
+SELECT dtaa.c AS c FROM (SELECT 1 AS c FROM (SELECT 1 AS c FROM split_derived_80early.t AS ta RIGHT JOIN split_derived_80early.t AS tb ON ta.u<=? WHERE 1 OR ? GROUP BY ta.u) AS dta INNER JOIN split_derived_80early.t AS tbb ON dta.c=tbb.h) AS dtaa RIGHT JOIN split_derived_80early.t AS tbbb ON dtaa.c OR w;
+SELECT 1 AS $$;
+SELECT 1 AS $hi$;
+SELECT 1 AS $h$i;
+SELECT 1 AS $1$;
+SELECT 1 AS $hi;
+SELECT 1 AS h$i;
+SELECT 1 AS h$$i;
+SELECT 1 AS h$i$;
+SELECT $one$two;
+SELECT $$id;
+SELECT $$alpha$$;
+SELECT $tag$alpha$tag$;
+SELECT $$alpha;
+SELECT $tag$alpha$other$;
+SELECT /*!8 + 1 */, /*!80 + 1 */, /*!800 + 1 */, /*!8000 + 1 */;
+SELECT 1 /*!50000+1 */;
+SELECT 1 /*!50000*/;
+SELECT 1 /*!50000
++ 1 */;
+SELECT /*!080410+1 */;
+SELECT 1 + /*!8000012 */ + 1;
+SELECT 1 /*!50000 + 1 */+1;
+SELECT 1 /*!50000 + 1 */ /*!99999 + 10 */;
+SELECT 1 /*!80000 + 1; */;
+SELECT 1 /*!50000 + 1 */ AS active_expr, 10 /*!99999 + 5 */ AS inactive_expr;
+SELECT /*! STRAIGHT_JOIN */ 1;
+SELECT 2 AS expected, /*!01000/**/*/ 2 AS result;
+SELECT 1 AS expected, /*!99998/**/*/ 1 AS result;
+SELECT 7 AS expected, /*!01000 1 + /* 8 + */ 2 + */ 4 AS result;
+SELECT 8 AS expected, /*!99998 1 + /* 2 + */ 4 + */ 8 AS result;
+SELECT 7 AS expected, /*!01000 1 + /*!99998 8 + */ 2 + */ 4 AS result;
+SELECT 4 AS expected, /*!99998 1 + /*!01000 8 + */ 2 + */ 4 AS result;
+SELECT 1 /*!50000
++ 1 */;
+SELECT 1 /*!50000+ 1 */;
+SELECT 1 /*!50000	+ 1 */;
+SELECT 1 /*!50000+ 1 */;
+SELECT 1;
+/*!50500 SELECT 2 */;
+/*!50651 SELECT 3 */;
+/*!50700 SELECT 4 */;
+SELECT 5;
+SELECT id FROM articles WHERE MATCH(title,body) AGAINST(@q IN BOOLEAN MODE);
+SELECT _latin1'1' COLLATE latin1_swedish_ci = _latin1'1' COLLATE latin1_swedish_ci;
+SELECT CONCAT(_latin1'1' COLLATE latin1_swedish_ci, _latin1'2' COLLATE latin1_swedish_ci);
+SELECT _latin1'1' COLLATE latin1_swedish_ci = _latin1'1' COLLATE latin1_general_ci;
+SELECT CONCAT(_latin1'1' COLLATE latin1_swedish_ci, _latin1'2' COLLATE latin1_general_ci);
+SELECT _latin1'1' COLLATE latin1_swedish_ci = _latin1'1';
+SELECT CONCAT(_latin1'1' COLLATE latin1_swedish_ci, _latin1'2');
+SELECT c1 = b0 FROM str_collation_values;
+SELECT CONCAT(c1, b0) FROM str_collation_values;
+SELECT c1 = c0 FROM str_collation_values;
+SELECT CONCAT(c1, c0) FROM str_collation_values;
+SELECT c1 = c2 FROM str_collation_values;
+SELECT CONCAT(c1, c2), COERCIBILITY(CONCAT(c1,c2)) FROM str_collation_values;
+SELECT c1 = c3 FROM str_collation_values;
+SELECT CONCAT(c1, c3) FROM str_collation_values;
+SELECT c1 = c4 FROM str_collation_values;
+SELECT CONCAT(c1, c4) FROM str_collation_values;
+SELECT c1 = c5 FROM str_collation_values;
+SELECT CONCAT(c1, c5) FROM str_collation_values;
+SELECT c1 = c6 FROM str_collation_values;
+SELECT CONCAT(c1, c6) FROM str_collation_values;
+SELECT c1 = c7 FROM str_collation_values;
+SELECT CONCAT(c1, c7) FROM str_collation_values;
+SELECT c1 = c8 FROM str_collation_values;
+SELECT CONCAT(c1, c8) FROM str_collation_values;
+SELECT c7 = c8 FROM str_collation_values;
+SELECT CONCAT(c7, c8) FROM str_collation_values;
+SELECT DATABASE() = _utf8mb4'abc';
+SELECT CONCAT(DATABASE(), _utf8mb4'abc');
+SELECT CONCAT(_utf8mb4'abc', 1);
+SELECT _utf8mb4'abc' = NULL;
+SELECT CONCAT(_utf8mb4'abc', NULL);
+SELECT c3 = CONCAT(c1, c2) FROM str_collation_values;
+SELECT GREATEST(c3, CONCAT(c1, c2)) FROM str_collation_values;
+SELECT COERCIBILITY(CONCAT(c1, c2)) FROM str_collation_values;
+SELECT CONCAT(c1, c2) = CONCAT(c1, c2) FROM str_collation_values;
+SELECT CONCAT(CONCAT(c1, c2), CONCAT(c1, c2)) FROM str_collation_values;
+SELECT 1=_latin1'1', _latin1'1'=1, _latin2'1'=1, 1=_latin2'1';
+SELECT _latin1'1'=_latin2'1';
+SELECT ROW(_latin1'A' COLLATE latin1_bin,_latin1'b',_latin1'c') = ROW(_latin1'a',_latin1'b',_latin1'c');
+SELECT ROW(_latin1'A',_latin1'b',_latin1'c') = ROW(_latin1'a' COLLATE latin1_bin,_latin1'b',_latin1'c');
+SELECT ROW(_latin1'A' COLLATE latin1_general_ci,_latin1'b',_latin1'c') = ROW(_latin1'a' COLLATE latin1_bin,_latin1'b',_latin1'c');
+SELECT CONCAT(_latin1'a',_latin2'a');
+SELECT CONCAT(_latin1'a',_latin2'a',_latin5'a');
+SELECT CONCAT(_latin1'a',_latin2'a',_latin5'a',_latin7'a');
+SELECT CONCAT_WS(_latin1'a',_latin2'a');
+SELECT FIELD(_latin1'b' COLLATE latin1_bin,_latin1'A',_latin1'B');
+SELECT FIELD(_latin2'b',_latin1'A',_latin1'B');
+SELECT FIELD(_latin1'b',_latin2'A',_latin1'B');
+SELECT FIELD('1',_latin2'3','2',1);
+SELECT POSITION(_latin1'B' IN _latin1'abcd');
+SELECT POSITION(_latin1'B' IN _latin1'abcd' COLLATE latin1_bin);
+SELECT POSITION(_latin1'B' COLLATE latin1_bin IN _latin1'abcd');
+SELECT POSITION(_latin1'B' COLLATE latin1_general_ci IN _latin1'abcd' COLLATE latin1_bin);
+SELECT POSITION(_latin1'B' IN _latin2'abcd');
+SELECT FIND_IN_SET(_latin1'B',_latin1'a,b,c,d');
+SELECT FIND_IN_SET(_latin1'B' COLLATE latin1_general_ci,_latin1'a,b,c,d' COLLATE latin1_bin);
+SELECT FIND_IN_SET(_latin1'B',_latin2'a,b,c,d');
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd',_latin1'd',2);
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd' COLLATE latin1_bin,_latin1'd',2);
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd',_latin1'd' COLLATE latin1_bin,2);
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd',_latin2'd',2);
+SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd' COLLATE latin1_general_ci,_latin1'd' COLLATE latin1_bin,2);
+SELECT _latin1'B' BETWEEN _latin1'a' AND _latin1'c';
+SELECT _latin1'B' COLLATE latin1_bin BETWEEN _latin1'a' AND _latin1'c';
+SELECT _latin1'B' BETWEEN _latin1'a' COLLATE latin1_bin AND _latin1'c';
+SELECT _latin2'B' BETWEEN _latin1'a' AND _latin1'b';
+SELECT _latin1'B' COLLATE latin1_general_ci BETWEEN _latin1'a' COLLATE latin1_bin AND _latin1'b';
+SELECT _latin1'B' IN (_latin1'a',_latin1'b');
+SELECT _latin1'B' COLLATE latin1_bin IN (_latin1'a',_latin1'b');
+SELECT _latin1'B' IN (_latin1'a' COLLATE latin1_bin,_latin1'b');
+SELECT _latin2'B' IN (_latin1'a',_latin1'b');
+SELECT _latin1'B' COLLATE latin1_general_ci IN (_latin1'a' COLLATE latin1_bin,_latin1'b');
+SELECT COLLATION(BIN(130)),COERCIBILITY(BIN(130)),COLLATION(OCT(130)),COERCIBILITY(OCT(130)),COLLATION(CONV(130,16,10)),COERCIBILITY(CONV(130,16,10)),COLLATION(HEX(130)),COERCIBILITY(HEX(130)),COLLATION(CHAR(130)),COERCIBILITY(CHAR(130)),COLLATION(FORMAT(130,10)),COERCIBILITY(FORMAT(130,10));
+SELECT COLLATION(LCASE(_latin2'a')),COERCIBILITY(LCASE(_latin2'a')),COLLATION(UCASE(_latin2'a')),COERCIBILITY(UCASE(_latin2'a')),COLLATION(LEFT(_latin2'a',1)),COERCIBILITY(LEFT(_latin2'a',1)),COLLATION(RIGHT(_latin2'a',1)),COERCIBILITY(RIGHT(_latin2'a',1)),COLLATION(SUBSTRING(_latin2'a',1,1)),COERCIBILITY(SUBSTRING(_latin2'a',1,1));
+SELECT COLLATION(CONCAT(_latin2'a',_latin2'b')),COERCIBILITY(CONCAT(_latin2'a',_latin2'b')),COLLATION(LPAD(_latin2'a',4,_latin2'b')),COERCIBILITY(LPAD(_latin2'a',4,_latin2'b')),COLLATION(RPAD(_latin2'a',4,_latin2'b')),COERCIBILITY(RPAD(_latin2'a',4,_latin2'b')),COLLATION(CONCAT_WS(_latin2'a',_latin2'b')),COERCIBILITY(CONCAT_WS(_latin2'a',_latin2'b'));
+SELECT COLLATION(MAKE_SET(255,_latin2'a',_latin2'b',_latin2'c')),COERCIBILITY(MAKE_SET(255,_latin2'a',_latin2'b',_latin2'c')),COLLATION(EXPORT_SET(255,_latin2'y',_latin2'n',_latin2' ')),COERCIBILITY(EXPORT_SET(255,_latin2'y',_latin2'n',_latin2' '));
+SELECT COLLATION(TRIM(_latin2' a ')),COERCIBILITY(TRIM(_latin2' a ')),COLLATION(TRIM(LEADING _latin2' ' FROM _latin2'a')),COERCIBILITY(TRIM(LEADING _latin2' ' FROM _latin2'a')),COLLATION(TRIM(TRAILING _latin2' ' FROM _latin2'a')),COERCIBILITY(TRIM(TRAILING _latin2' ' FROM _latin2'a')),COLLATION(TRIM(BOTH _latin2' ' FROM _latin2'a')),COERCIBILITY(TRIM(BOTH _latin2' ' FROM _latin2'a'));
+SELECT COLLATION(REPEAT(_latin2'a',10)),COERCIBILITY(REPEAT(_latin2'a',10)),COLLATION(REVERSE(_latin2'ab')),COERCIBILITY(REVERSE(_latin2'ab')),COLLATION(QUOTE(_latin2'ab')),COERCIBILITY(QUOTE(_latin2'ab')),COLLATION(SOUNDEX(_latin2'ab')),COERCIBILITY(SOUNDEX(_latin2'ab'));
+SELECT COLLATION(INSERT(_latin2'abcd',2,3,_latin2'ef')),COERCIBILITY(INSERT(_latin2'abcd',2,3,_latin2'ef')),COLLATION(REPLACE(_latin2'abcd',_latin2'b',_latin2'B')),COERCIBILITY(REPLACE(_latin2'abcd',_latin2'b',_latin2'B'));
+SELECT CHARSET(a),COLLATION(a),COERCIBILITY(a) FROM str_nullable;
+SELECT CHARSET(NULL),COLLATION(NULL),COERCIBILITY(NULL);
+SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE COLLATION(str_right.i)=_utf8'binary' ORDER BY str_left.i,str_right.i;
+SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE CHARSET(str_right.i)=_utf8'binary' ORDER BY str_left.i,str_right.i;
+SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE COERCIBILITY(str_right.i)=5 ORDER BY str_left.i,str_right.i;
+SELECT _latin1'B' BETWEEN _latin1'a' AND _latin1'c' COLLATE latin1_bin;
+SELECT _latin1'B' BETWEEN _latin2'a' AND _latin1'b';
+SELECT _latin1'B' BETWEEN _latin1'a' AND _latin2'b';
+SELECT _latin1'B' IN (_latin1'a',_latin1'b' COLLATE latin1_bin);
+SELECT _latin1'B' IN (_latin2'a',_latin1'b');
+SELECT _latin1'B' IN (_latin1'a',_latin2'b');
+SELECT _latin1'B' COLLATE latin1_general_ci IN (_latin1'a',_latin1'b' COLLATE latin1_bin);
+SELECT FIELD(_utf8mb4'abc',x'ff');
+SELECT _utf8'hello' COLLATE UTF8_bin;
+SELECT * FROM customer_demographics WHERE CEILING(customer_demographics.cd_purchase_estimate) BETWEEN '2037' AND (-71 * (-1552207807 * 440370369)) COLLATE utf8mb4_et_0900_as_cs;
+SELECT CONCAT(jahr,'-',monat,'-',tag,' ',zeit) AS date_value,UNIX_TIMESTAMP(CONCAT(jahr,'-',monat,'-',tag,' ',zeit)) AS unix_value FROM timestamp_source;
+SELECT GET_FORMAT(DATE, ?) AS val;
+SELECT `order`.select, `order` . `a-b` FROM split_identifiers . `order`;
+SELECT 1table . 1column FROM split_identifiers . 1table;
+SELECT INTERVAL(5, 10);
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT ?;
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT ?, ?;
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT ? OFFSET ?;
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT 0002;
+SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT 18446744073709551615;
+SELECT X'', x'00ff', 0x0, 0xABC, B'', b'0', 0b0, 0b101010;
+SELECT _latin1'abc', _utf8mb4 X'F09F9880', _binary b'01000001', _utf8mb4'abc' COLLATE utf8mb4_bin;
+SELECT '\0', '\'', '\"', '\b', '\n', '\r', '\t', '\Z', '\\', '\%', '\_';
+SELECT DATE '2020-02-29', TIME '23:59:59.123456', TIMESTAMP '2020-02-29 23:59:59.123456';
+SELECT -9223372036854775808, +9223372036854775807, 1E-3, .5E+2, 1.E-2;
+SELECT 0, 18446744073709551615, 1.25, .5, 1., 1e3, 1.e2, X'4D7953514C', 0x4D7953514C, b'1010', 0b1010, N'national', _utf8mb4'text', _binary'bin', _binary X'41', 'adjacent' ' string', 'a''b', 'a\\nb', "double", TRUE, FALSE, NULL;
+SELECT N'a' 'b';
+SELECT {fn 1 + 2};
+SELECT {t '12:34:56'};
+SELECT {ts '2020-02-29 12:34:56.123456'};
+SELECT ?, ? + 1, -?, ~?, NOT ?, (? BETWEEN ? AND ?), COALESCE(?,0) FROM (SELECT 1 AS id) d WHERE id IN (?,?) AND EXISTS (SELECT ?);
+EXPLAIN SELECT
+(
+  SELECT
+  ROW(t1.b, a) = ROW(ROW(1, t2.c) = ROW(1, d), c) = a
+  FROM t1
+)
+FROM t2 GROUP BY a;
+SELECT CONVERT(CONVERT('',DECIMAL(65,0)), DECIMAL(66,0));
+SELECT .t1.i FROM t1;
+SELECT * FROM full;
+SELECT * FROM full AS full;
+SELECT * FROM `full` full;
+SELECT STR_TO_DATE('10:00 PM', '%h:%i %p') + INTERVAL 10 MINUTE;
+SELECT STR_TO_DATE('10:00 PM', '%h:%i %p') + INTERVAL (INTERVAL(1,2,3) + 1) MINUTE;
+SELECT "1997-12-31 23:59:59" + INTERVAL 1 SECOND;
+SELECT 1 + INTERVAL(1,0,1,2) + 1;
+SELECT INTERVAL(1^1,0,1,2) + 1;
+SELECT INTERVAL(1,0+1,2,3) * 5.5;
+SELECT INTERVAL(3,3,1+3,4+4) / 0.5;
+SELECT (INTERVAL(1,0,1,2) + 5) * 7 + INTERVAL(1,0,1,2) / 2;
+SELECT INTERVAL(1,0,1,2) + 1, 5 * INTERVAL(1,0,1,2);
+SELECT INTERVAL(0,(1*5)/2) + INTERVAL(5,4,3);
+SELECT 1^1 + INTERVAL 1+1 SECOND & 1 + INTERVAL 1+1 SECOND;
+SELECT 1%2 - INTERVAL 1^1 SECOND | 1%2 - INTERVAL 1^1 SECOND;
+SELECT * FROM interval_t WHERE a = INTERVAL(3,2,1) + 1;
+SELECT 1 AS PERSIST, 2 AS PERSIST_ONLY;
+SELECT @@session.parser_max_mem_size;
+SELECT @@global.parser_max_mem_size;
+SELECT 1 FROM
+  t AS t1
+  CROSS JOIN t AS t2
+  CROSS JOIN t AS t3
+  CROSS JOIN t AS t4
+  CROSS JOIN t AS t5
+  CROSS JOIN t AS t6
+  CROSS JOIN t AS t7
+  CROSS JOIN t AS t8
+  CROSS JOIN t AS t9
+  CROSS JOIN t AS t10
+  CROSS JOIN t AS t11
+  CROSS JOIN t AS t12
+  CROSS JOIN t AS t13
+  CROSS JOIN t AS t14
+  CROSS JOIN t AS t15
+  CROSS JOIN t AS t16
+  CROSS JOIN t AS t17
+  CROSS JOIN t AS t18
+  CROSS JOIN t AS t19
+  CROSS JOIN t AS t20
+  CROSS JOIN t AS t21
+  CROSS JOIN t AS t22
+  CROSS JOIN t AS t23
+  CROSS JOIN t AS t24
+  CROSS JOIN t AS t25
+  CROSS JOIN t AS t26
+  CROSS JOIN t AS t27
+  CROSS JOIN t AS t28
+  CROSS JOIN t AS t29
+  CROSS JOIN t AS t30
+  CROSS JOIN t AS t31
+  CROSS JOIN t AS t32
+  CROSS JOIN t AS t33
+  CROSS JOIN t AS t34
+  CROSS JOIN t AS t35
+  CROSS JOIN t AS t36
+  CROSS JOIN t AS t37
+  CROSS JOIN t AS t38
+  CROSS JOIN t AS t39
+  CROSS JOIN t AS t40
+  CROSS JOIN t AS t41
+  CROSS JOIN t AS t42
+  CROSS JOIN t AS t43
+  CROSS JOIN t AS t44
+  CROSS JOIN t AS t45
+  CROSS JOIN t AS t46
+  CROSS JOIN t AS t47
+  CROSS JOIN t AS t48
+  CROSS JOIN t AS t49
+  CROSS JOIN t AS t50
+  CROSS JOIN t AS t51
+  CROSS JOIN t AS t52
+  CROSS JOIN t AS t53
+  CROSS JOIN t AS t54
+  CROSS JOIN t AS t55
+  CROSS JOIN t AS t56
+  CROSS JOIN t AS t57
+  CROSS JOIN t AS t58
+  CROSS JOIN t AS t59
+  CROSS JOIN t AS t60
+  CROSS JOIN t AS t61
+  CROSS JOIN t AS t62
+  CROSS JOIN t AS t63;
+
+SELECT 1 FROM
+  (t AS t1 CROSS JOIN t AS t2),
+  (t AS t3 CROSS JOIN t AS t4),
+  (t AS t5 CROSS JOIN t AS t6),
+  (t AS t7 CROSS JOIN t AS t8),
+  (t AS t9 CROSS JOIN t AS t10),
+  (t AS t11 CROSS JOIN t AS t12),
+  (t AS t13 CROSS JOIN t AS t14),
+  (t AS t15 CROSS JOIN t AS t16),
+  (t AS t17 CROSS JOIN t AS t18),
+  (t AS t19 CROSS JOIN t AS t20),
+  (t AS t21 CROSS JOIN t AS t22),
+  (t AS t23 CROSS JOIN t AS t24),
+  (t AS t25 CROSS JOIN t AS t26),
+  (t AS t27 CROSS JOIN t AS t28),
+  (t AS t29 CROSS JOIN t AS t30),
+  (t AS t31 CROSS JOIN t AS t32),
+  (t AS t33 CROSS JOIN t AS t34),
+  (t AS t35 CROSS JOIN t AS t36),
+  (t AS t37 CROSS JOIN t AS t38),
+  (t AS t39 CROSS JOIN t AS t40),
+  (t AS t41 CROSS JOIN t AS t42),
+  (t AS t43 CROSS JOIN t AS t44),
+  (t AS t45 CROSS JOIN t AS t46),
+  (t AS t47 CROSS JOIN t AS t48),
+  (t AS t49 CROSS JOIN t AS t50),
+  (t AS t51 CROSS JOIN t AS t52),
+  (t AS t53 CROSS JOIN t AS t54),
+  (t AS t55 CROSS JOIN t AS t56),
+  (t AS t57 CROSS JOIN t AS t58),
+  (t AS t59 CROSS JOIN t AS t60),
+  (t AS t61 CROSS JOIN t AS t62);
+
+SELECT 1 FROM
+  ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((t AS t1 CROSS JOIN t AS t2) CROSS JOIN t AS t3) CROSS JOIN t AS t4) CROSS JOIN t AS t5) CROSS JOIN t AS t6) CROSS JOIN t AS t7) CROSS JOIN t AS t8) CROSS JOIN t AS t9) CROSS JOIN t AS t10) CROSS JOIN t AS t11) CROSS JOIN t AS t12) CROSS JOIN t AS t13) CROSS JOIN t AS t14) CROSS JOIN t AS t15) CROSS JOIN t AS t16) CROSS JOIN t AS t17) CROSS JOIN t AS t18) CROSS JOIN t AS t19) CROSS JOIN t AS t20) CROSS JOIN t AS t21) CROSS JOIN t AS t22) CROSS JOIN t AS t23) CROSS JOIN t AS t24) CROSS JOIN t AS t25) CROSS JOIN t AS t26) CROSS JOIN t AS t27) CROSS JOIN t AS t28) CROSS JOIN t AS t29) CROSS JOIN t AS t30) CROSS JOIN t AS t31) CROSS JOIN t AS t32) CROSS JOIN t AS t33) CROSS JOIN t AS t34) CROSS JOIN t AS t35) CROSS JOIN t AS t36) CROSS JOIN t AS t37) CROSS JOIN t AS t38) CROSS JOIN t AS t39) CROSS JOIN t AS t40) CROSS JOIN t AS t41) CROSS JOIN t AS t42) CROSS JOIN t AS t43) CROSS JOIN t AS t44) CROSS JOIN t AS t45) CROSS JOIN t AS t46) CROSS JOIN t AS t47) CROSS JOIN t AS t48) CROSS JOIN t AS t49) CROSS JOIN t AS t50) CROSS JOIN t AS t51) CROSS JOIN t AS t52) CROSS JOIN t AS t53) CROSS JOIN t AS t54) CROSS JOIN t AS t55) CROSS JOIN t AS t56) CROSS JOIN t AS t57) CROSS JOIN t AS t58) CROSS JOIN t AS t59) CROSS JOIN t AS t60) CROSS JOIN t AS t61) CROSS JOIN t AS t62) CROSS JOIN t AS t63);
+
+SELECT COUNT(*) = 0 FROM
+  (SELECT t1.pk FROM t AS t1, t AS t2, t AS t3, t AS t4, t AS t5, t AS t6, t AS t7, t AS t8, t AS t9, t AS t10, t AS t11, t AS t12, t AS t13, t AS t14, t AS t15, t AS t16, t AS t17, t AS t18, t AS t19, t AS t20, t AS t21, t AS t22, t AS t23, t AS t24, t AS t25, t AS t26, t AS t27, t AS t28, t AS t29, t AS t30) AS d1,
+  (SELECT t31.pk FROM t AS t31, t AS t32, t AS t33, t AS t34, t AS t35, t AS t36, t AS t37, t AS t38, t AS t39, t AS t40, t AS t41, t AS t42, t AS t43, t AS t44, t AS t45, t AS t46, t AS t47, t AS t48, t AS t49, t AS t50, t AS t51, t AS t52, t AS t53, t AS t54, t AS t55, t AS t56, t AS t57, t AS t58, t AS t59, t AS t60) AS d2;
+
+SELECT 1 FROM t AS outer_t
+WHERE EXISTS (
+  SELECT 1 FROM t AS t1, t AS t2, t AS t3, t AS t4, t AS t5, t AS t6, t AS t7, t AS t8, t AS t9, t AS t10, t AS t11, t AS t12, t AS t13, t AS t14, t AS t15, t AS t16, t AS t17, t AS t18, t AS t19, t AS t20, t AS t21, t AS t22, t AS t23, t AS t24, t AS t25, t AS t26, t AS t27, t AS t28, t AS t29, t AS t30, t AS t31, t AS t32, t AS t33, t AS t34, t AS t35, t AS t36, t AS t37, t AS t38, t AS t39, t AS t40, t AS t41, t AS t42, t AS t43, t AS t44, t AS t45, t AS t46, t AS t47, t AS t48, t AS t49, t AS t50, t AS t51, t AS t52, t AS t53, t AS t54, t AS t55, t AS t56, t AS t57, t AS t58, t AS t59, t AS t60, t AS t61, t AS t62, t AS t63
+);
+SELECT ABS(3 AS three);
+SELECT ABS(3 three);
+SELECT ABS(3 AS "three");
+SELECT ABS(3 "three");
+SELECT INSTR("foobar" AS p1, "bar");
+SELECT INSTR("foobar" p1, "bar");
+SELECT INSTR("foobar" AS "p1", "bar");
+SELECT INSTR("foobar" "p1", "bar");
+SELECT INSTR(@foobar "p1", "bar");
+SELECT INSTR("foobar", "bar" AS p2);
+SELECT INSTR("foobar", "bar" p2);
+SELECT INSTR("foobar", "bar" AS "p2");
+SELECT INSTR("foobar", "bar" "p2");
+SELECT INSTR("foobar", @bar "p2");
+SELECT INSTR("foobar" AS p1, "bar" AS p2);
+SELECT CONV(255 AS p1, 10, 16);
+SELECT CONV(255 p1, 10, 16);
+SELECT CONV(255 AS "p1", 10, 16);
+SELECT CONV(255 "p1", 10, 16);
+SELECT CONV(255, 10 AS p2, 16);
+SELECT CONV(255, 10 p2, 16);
+SELECT CONV(255, 10 AS "p2", 16);
+SELECT CONV(255, 10 "p2", 16);
+SELECT CONV(255, 10, 16 AS p3);
+SELECT CONV(255, 10, 16 p3);
+SELECT CONV(255, 10, 16 AS "p3");
+SELECT CONV(255, 10, 16 "p3");
+SELECT CONV(255 AS p1, 10 AS p2, 16 AS p3);
+SELECT ATAN(10 AS p1);
+SELECT ATAN(10 p1);
+SELECT ATAN(10 AS "p1");
+SELECT ATAN(10 "p1");
+SELECT ATAN(10 AS p1, 20);
+SELECT ATAN(10 p1, 20);
+SELECT ATAN(10 AS "p1", 20);
+SELECT ATAN(10 "p1", 20);
+SELECT ATAN(10, 20 AS p2);
+SELECT ATAN(10, 20 p2);
+SELECT ATAN(10, 20 AS "p2");
+SELECT ATAN(10, 20 "p2");
+SELECT ATAN(10 AS p1, 20 AS p2);
+SELECT PI(3.14);
+SELECT TAN();
+SELECT TAN(1, 2);
+SELECT MAKEDATE(1);
+SELECT MAKEDATE(1, 2, 3);
+SELECT MAKETIME();
+SELECT MAKETIME(1);
+SELECT MAKETIME(1, 2);
+SELECT MAKETIME(1, 2, 3, 4);
+SELECT ATAN();
+SELECT ATAN2(1, 2, 3);
+SELECT CONCAT_WS();
+SELECT ELT();
+SELECT EXPORT_SET();
+SELECT EXPORT_SET('p1');
+SELECT EXPORT_SET('p1', 'p2');
+SELECT EXPORT_SET('p1', 'p2', 'p3', 'p4', 'p5', 'p6');
+SELECT FIELD();
+SELECT FROM_UNIXTIME();
+SELECT FROM_UNIXTIME(1, 2, 3);
+SELECT UNIX_TIMESTAMP(1, 2);
+SELECT GREATEST();
+SELECT GREATEST(12);
+SELECT LAST_INSERT_ID(1, 2);
+SELECT LEAST();
+SELECT LEAST(12);
+SELECT LOCATE();
+SELECT LOCATE(1, 2, 3, 4);
+SELECT LOG();
+SELECT LOG(1, 2, 3);
+SELECT RAND(1, 2, 3);
+SELECT ROUND(1, 2, 3);
+SELECT YEARWEEK();
+SELECT YEARWEEK(1, 2, 3);
+SELECT ENCRYPT();
+SELECT ENCRYPT(1, 2, 3);
+SELECT DES_ENCRYPT('p1', 'p2', 'not expected');
+SELECT DES_DECRYPT('p1', 'p2', 'not expected');
+SELECT 1 < !(1 XOR TO_BASE64());
+SELECT !('' XOR LENGTH());
+SELECT !((UNHEX() IS NULL));
+SELECT t1.* FROM t1 AS t0, { OJ t2 INNER JOIN t1 ON (t1.a1=t2.a1) } WHERE t0.a3=2;
+SELECT t1.*,t2.* FROM { OJ ((t1 INNER JOIN t2 ON (t1.a1=t2.a2)) LEFT OUTER JOIN t3 ON t3.a3=t2.a1)};
+SELECT t1.*,t2.* FROM { OJ ((t1 LEFT OUTER JOIN t2 ON t1.a3=t2.a2) INNER JOIN t3 ON (t3.a1=t2.a2))};
+SELECT t1.*,t2.* FROM { OJ (t1 LEFT OUTER JOIN t2 ON t1.a1=t2.a2) CROSS JOIN t3 ON (t3.a2=t2.a3)};
+SELECT {fn CONCAT(a1,a2)} FROM t1;
+SELECT a1, a4 FROM t2 WHERE a4 LIKE {fn UCASE('1789-07-14')};
+SELECT MASTER_POS_WAIT();
+SELECT MASTER_POS_WAIT(1);
+SELECT 1 AS parse_gcol_expr;
+SELECT `*` FROM star_t;
+SELECT star_t.`*`, star_t.* FROM star_t;
+SELECT split_parser_identifier.star_t.`*`, split_parser_identifier.star_t.* FROM star_t;
+SELECT "stmt 1";             SELECT "space, stmt 2";
+SELECT "stmt 3";/* comment */SELECT "comment, stmt 4";
+SELECT @'audit-hyphen' := 1, @audit.dot := 2;
+SELECT q."from" AS "order", q.`a``b` AS `tick``alias` FROM "select" AS q;
+SELECT CURRENT_DATE, CURRENT_DATE(), CURDATE(), UTC_DATE, UTC_DATE();
+SELECT CURRENT_TIME, CURRENT_TIME(), CURRENT_TIME(0), CURRENT_TIME(0006), CURTIME(), CURTIME(6), UTC_TIME, UTC_TIME(), UTC_TIME(6);
+SELECT CURRENT_TIMESTAMP, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(0), CURRENT_TIMESTAMP(0006), NOW(), NOW(6), LOCALTIME, LOCALTIME(6), LOCALTIMESTAMP, LOCALTIMESTAMP(6), UTC_TIMESTAMP, UTC_TIMESTAMP(6), SYSDATE(), SYSDATE(6);
+SELECT NOW(7);
+SELECT CURRENT_TIMESTAMP(2147483647);
+DO TIMESTAMP(DATE_FORMAT('2011-11-11', RIGHT('12345' + 1, 3)));
+SELECT UNIX_TIMESTAMP(COUNT(1));
+SELECT @plain.name$, @'hyphen-name', @"space name", @`tick-name`;
+SELECT @@GLOBAL.max_connections, @@SESSION.sql_mode, @@LOCAL.sql_mode, @@sql_mode;
+SELECT @@`sql_mode`, @@GLOBAL.`max_connections`, @@SESSION.`sql_mode`, @@LOCAL.`sql_mode`;
+SELECT _filename'abcd';
+SELECT 1 AS `_filename`;
+SELECT MASTER_SERVER_ID FROM (SELECT 1 AS MASTER_SERVER_ID) AS t;
+SELECT 1--comment
++2;
+SELECT 1 /* ; SELECT 99 */ + 2;
+SELECT @@GLOBAL.hot_cache.key_buffer_size;
+SELECT @@GLOBAL.default.key_buffer_size;
+SET @hs=X'41', @ha=X'41'+0, @hc=CAST(X'41' AS UNSIGNED);
+SELECT @hs,@ha,@hc;
+SELECT CHARSET(X''),LENGTH(X''),X''+0,CAST(X'' AS UNSIGNED);
+SELECT _utf8mb4 X'41' COLLATE utf8mb4_bin, _binary 0x0041;
+SET @'a''b'=1, @"c""d"=2, @`e``f`=3;
+SELECT @'a''b',@"c""d",@`e``f`;
+SET @'semi;name'=1;
+SELECT @'semi;name';
+SELECT `semi;column` FROM `semi;table`;
+SELECT 1e + 3 FROM split_numid;
+SELECT ASCII ('A'), ABS (-2), LENGTH ('abc');
+SELECT split_lang.PI(),PI();
+SELECT `a``b`();
+SELECT {fn LENGTH('hello')}, { date '1997-10-20' };
+SELECT 1 AS sets;
+SET @s1=_latin1'abc',@s2=_latin2'abc';
+SELECT @s1=CONVERT(@s2 USING latin1);
+SET @s=BINARY 'New York';
+SELECT LOWER(@s),LOWER(CONVERT(@s USING utf8mb4));
+SELECT HEX(a),STRCMP(a,'a'),STRCMP(a,'a ') FROM padded_char;
+SELECT DISTINCT latin1_f COLLATE latin1_german2_ci FROM collation_projection;
+SELECT latin1_f,COUNT(*) FROM collation_projection GROUP BY latin1_f COLLATE latin1_german2_ci ORDER BY latin1_f COLLATE latin1_german2_ci;
+SELECT latin1_f COLLATE latin1_german2_ci AS x FROM collation_projection ORDER BY x,HEX(x);
+SELECT COERCIBILITY(NAME_CONST('s1',_utf8'test')),COERCIBILITY(NAME_CONST('s1',_utf8'test' COLLATE utf8_unicode_ci));
+SELECT COERCIBILITY(@a:=_latin2'test'),COERCIBILITY(@a:=_latin2'test' COLLATE latin2_bin);
+SELECT 1 AS 'a' ORDER BY `a`, 'a';
+SELECT _utf8mb4 /* gap */ 'a';
+SELECT _binary /* gap */ X'41';
+------------------------------------------------------------------------------------------
+[SELECT] SELECT * FROM t WHERE t.`$id` = 0 OR `$id2` = 0 OR b$$lit$$ = 0;
+----------
+[SELECT] SELECT 8.0 $p, 8.4$p, .0$p, 8.$p, 8.p;
+----------
+[SELECT] SELECT 1 + /*!800001+0 */ + 0 AS should_return_2;
+----------
+[SELECT] SELECT (SELECT EXISTS(SELECT * LIMIT 1 ORDER BY VALUES (c00)));
+----------
+[SELECT] SELECT '' IN (SELECT '1' c FROM t1 ORDER BY '' ORDER BY '') FROM t1;
+----------
+[SELECT] SELECT (NOT FALSE) OR TRUE, NOT (FALSE OR TRUE), NOT FALSE OR TRUE;
+----------
+[SELECT] SELECT (NOT NULL) IS TRUE, NOT (NULL IS TRUE), NOT NULL IS TRUE;
+----------
+[SELECT] SELECT 0xF0 | 0x0F | 0x55, (0xF0 | 0x0F) | 0x55, 0xF0 | (0x0F | 0x55);
+----------
+[SELECT] SELECT 256 >> 3 >> 2, (256 >> 3) >> 2, 256 >> (3 >> 2);
+----------
+[SELECT] SELECT 0xF0 & 0x0F | 0x55, (0xF0 & 0x0F) | 0x55, 0xF0 & (0x0F | 0x55);
+----------
+[SELECT] SELECT 2 + 3 << 4, (2 + 3) << 4, 2 + (3 << 4);
+----------
+[SELECT] SELECT 105 / 5 | 2, (105 / 5) | 2, 105 / (5 | 2);
+----------
+[SELECT] SELECT connection FROM (SELECT 1 AS connection) AS kw;
+----------
+[SELECT] SELECT authors, contributors FROM (SELECT 1 AS authors, 2 AS contributors) AS kw;
+----------
+[SELECT] SELECT binlog FROM (SELECT 1 AS binlog) AS kw;
+----------
+[SELECT] SELECT TIME'1 24:00:00', TIME'10:10:10.', TIMESTAMP'2010-01-01 00';
+----------
+[SELECT] SELECT TIMESTAMP '2021/07-15 23.01:02';
+----------
+[SELECT] SELECT LOCATE(_utf8mb4 0xD091, _utf8mb4 0xD0B0D0B1D0B2 COLLATE utf8mb4_bin);
+----------
+[SELECT] SELECT HEX(_utf32 X'44'), HEX(_utf32 X'3344'), HEX(_utf32 X'103344');
+----------
+[SELECT] SELECT LEAST(_latin1'a', _latin2'b', _latin5'c' COLLATE latin5_turkish_ci);
+----------
+[SELECT] SELECT ADDDATE(?, INTERVAL 1 DAY);
+----------
+[SELECT] SELECT SUM(b'1100'),SUM(DISTINCT b'1100');
+----------
+[SELECT] SELECT t1.f1,COUNT(DISTINCT t2.f2),COUNT(DISTINCT 1,NULL) FROM t1 LEFT JOIN t2 ON t1.f1=t2.f1 GROUP BY t1.f1;
+----------
+[SELECT] SELECT _utf8mb4'a' /* adjacent */ 'b';
+----------
+[SELECT] SELECT _koi8r'a'=_koi8r'A' COLLATE koi8r_general_ci,_koi8r'a' COLLATE koi8r_bin=_koi8r'A';
+----------
+[SELECT] SELECT STRCMP(_koi8r'a',_koi8r'A' COLLATE koi8r_general_ci),STRCMP(_koi8r'a' COLLATE koi8r_bin,_koi8r'A');
+----------
+[SELECT] SELECT _koi8r'a' LIKE _koi8r'A' COLLATE koi8r_general_ci,_koi8r'a' COLLATE koi8r_bin LIKE _koi8r'A';
+----------
+[SELECT] SELECT _koi8r'a' COLLATE koi8r_bin=_koi8r'A' COLLATE koi8r_general_ci;
+----------
+[SELECT] SELECT STRCMP(_koi8r'a' COLLATE koi8r_general_ci,_koi8r'A' COLLATE koi8r_bin);
+----------
+[SELECT] SELECT _koi8r'a' COLLATE koi8r_general_ci LIKE _koi8r'A' COLLATE koi8r_bin;
+----------
+[SELECT] SELECT 5--1;
+----------
+[SELECT] SELECT 5-- 1
++ 2;
+----------
+[SELECT] SELECT 5--	comment
++ 2;
+----------
+[SELECT] SELECT 1#comment
++ 2;
+----------
+[SELECT] SELECT 1/**/+2, 3/* multi
+line */+4;
+----------
+[SELECT] SELECT 1--
++2;
+----------
+[SELECT] SELECT 1 /* first */ + /* second */ 2;
+----------
+[SELECT] # leading hash
+SELECT 1 /* inline block */ + 2;
+----------
+[SELECT] -- leading dash
+SELECT /*+ MAX_EXECUTION_TIME(1000) */ 3;
+----------
+[SELECT] /*! SELECT 4 */;
+----------
+[SELECT] SELECT dtaa.c AS c FROM (SELECT 1 AS c FROM (SELECT 1 AS c FROM split_derived_80early.t AS ta RIGHT JOIN split_derived_80early.t AS tb ON ta.u<=? WHERE 1 OR ? GROUP BY ta.u) AS dta INNER JOIN split_derived_80early.t AS tbb ON dta.c=tbb.h) AS dtaa RIGHT JOIN split_derived_80early.t AS tbbb ON dtaa.c OR w;
+----------
+[SELECT] SELECT 1 AS $$;
+----------
+[SELECT] SELECT 1 AS $hi$;
+----------
+[SELECT] SELECT 1 AS $h$i;
+----------
+[SELECT] SELECT 1 AS $1$;
+----------
+[SELECT] SELECT 1 AS $hi;
+----------
+[SELECT] SELECT 1 AS h$i;
+----------
+[SELECT] SELECT 1 AS h$$i;
+----------
+[SELECT] SELECT 1 AS h$i$;
+----------
+[SELECT] SELECT $one$two;
+----------
+[SELECT] SELECT $$id;
+----------
+[SELECT] SELECT $$alpha$$;
+----------
+[SELECT] SELECT $tag$alpha$tag$;
+----------
+[SELECT] SELECT $$alpha;
+----------
+[SELECT] SELECT $tag$alpha$other$;
+----------
+[SELECT] SELECT /*!8 + 1 */, /*!80 + 1 */, /*!800 + 1 */, /*!8000 + 1 */;
+----------
+[SELECT] SELECT 1 /*!50000+1 */;
+----------
+[SELECT] SELECT 1 /*!50000*/;
+----------
+[SELECT] SELECT 1 /*!50000
++ 1 */;
+----------
+[SELECT] SELECT /*!080410+1 */;
+----------
+[SELECT] SELECT 1 + /*!8000012 */ + 1;
+----------
+[SELECT] SELECT 1 /*!50000 + 1 */+1;
+----------
+[SELECT] SELECT 1 /*!50000 + 1 */ /*!99999 + 10 */;
+----------
+[SELECT] SELECT 1 /*!80000 + 1; */;
+----------
+[SELECT] SELECT 1 /*!50000 + 1 */ AS active_expr, 10 /*!99999 + 5 */ AS inactive_expr;
+----------
+[SELECT] SELECT /*! STRAIGHT_JOIN */ 1;
+----------
+[SELECT] SELECT 2 AS expected, /*!01000/**/*/ 2 AS result;
+----------
+[SELECT] SELECT 1 AS expected, /*!99998/**/*/ 1 AS result;
+----------
+[SELECT] SELECT 7 AS expected, /*!01000 1 + /* 8 + */ 2 + */ 4 AS result;
+----------
+[SELECT] SELECT 8 AS expected, /*!99998 1 + /* 2 + */ 4 + */ 8 AS result;
+----------
+[SELECT] SELECT 7 AS expected, /*!01000 1 + /*!99998 8 + */ 2 + */ 4 AS result;
+----------
+[SELECT] SELECT 4 AS expected, /*!99998 1 + /*!01000 8 + */ 2 + */ 4 AS result;
+----------
+[SELECT] SELECT 1 /*!50000
++ 1 */;
+----------
+[SELECT] SELECT 1 /*!50000+ 1 */;
+----------
+[SELECT] SELECT 1 /*!50000	+ 1 */;
+----------
+[SELECT] SELECT 1 /*!50000+ 1 */;
+----------
+[SELECT] SELECT 1;
+----------
+[SELECT] /*!50500 SELECT 2 */;
+----------
+[SELECT] /*!50651 SELECT 3 */;
+----------
+[SELECT] SELECT 5;
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT id FROM articles WHERE MATCH(title,body) AGAINST(@q IN BOOLEAN MODE);
+----------
+[SELECT] SELECT _latin1'1' COLLATE latin1_swedish_ci = _latin1'1' COLLATE latin1_swedish_ci;
+----------
+[SELECT] SELECT CONCAT(_latin1'1' COLLATE latin1_swedish_ci, _latin1'2' COLLATE latin1_swedish_ci);
+----------
+[SELECT] SELECT _latin1'1' COLLATE latin1_swedish_ci = _latin1'1' COLLATE latin1_general_ci;
+----------
+[SELECT] SELECT CONCAT(_latin1'1' COLLATE latin1_swedish_ci, _latin1'2' COLLATE latin1_general_ci);
+----------
+[SELECT] SELECT _latin1'1' COLLATE latin1_swedish_ci = _latin1'1';
+----------
+[SELECT] SELECT CONCAT(_latin1'1' COLLATE latin1_swedish_ci, _latin1'2');
+----------
+[SELECT] SELECT c1 = b0 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, b0) FROM str_collation_values;
+----------
+[SELECT] SELECT c1 = c0 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, c0) FROM str_collation_values;
+----------
+[SELECT] SELECT c1 = c2 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, c2), COERCIBILITY(CONCAT(c1,c2)) FROM str_collation_values;
+----------
+[SELECT] SELECT c1 = c3 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, c3) FROM str_collation_values;
+----------
+[SELECT] SELECT c1 = c4 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, c4) FROM str_collation_values;
+----------
+[SELECT] SELECT c1 = c5 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, c5) FROM str_collation_values;
+----------
+[SELECT] SELECT c1 = c6 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, c6) FROM str_collation_values;
+----------
+[SELECT] SELECT c1 = c7 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, c7) FROM str_collation_values;
+----------
+[SELECT] SELECT c1 = c8 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, c8) FROM str_collation_values;
+----------
+[SELECT] SELECT c7 = c8 FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c7, c8) FROM str_collation_values;
+----------
+[SELECT] SELECT DATABASE() = _utf8mb4'abc';
+----------
+[SELECT] SELECT CONCAT(DATABASE(), _utf8mb4'abc');
+----------
+[SELECT] SELECT CONCAT(_utf8mb4'abc', 1);
+----------
+[SELECT] SELECT _utf8mb4'abc' = NULL;
+----------
+[SELECT] SELECT CONCAT(_utf8mb4'abc', NULL);
+----------
+[SELECT] SELECT c3 = CONCAT(c1, c2) FROM str_collation_values;
+----------
+[SELECT] SELECT GREATEST(c3, CONCAT(c1, c2)) FROM str_collation_values;
+----------
+[SELECT] SELECT COERCIBILITY(CONCAT(c1, c2)) FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(c1, c2) = CONCAT(c1, c2) FROM str_collation_values;
+----------
+[SELECT] SELECT CONCAT(CONCAT(c1, c2), CONCAT(c1, c2)) FROM str_collation_values;
+----------
+[SELECT] SELECT 1=_latin1'1', _latin1'1'=1, _latin2'1'=1, 1=_latin2'1';
+----------
+[SELECT] SELECT _latin1'1'=_latin2'1';
+----------
+[SELECT] SELECT ROW(_latin1'A' COLLATE latin1_bin,_latin1'b',_latin1'c') = ROW(_latin1'a',_latin1'b',_latin1'c');
+----------
+[SELECT] SELECT ROW(_latin1'A',_latin1'b',_latin1'c') = ROW(_latin1'a' COLLATE latin1_bin,_latin1'b',_latin1'c');
+----------
+[SELECT] SELECT ROW(_latin1'A' COLLATE latin1_general_ci,_latin1'b',_latin1'c') = ROW(_latin1'a' COLLATE latin1_bin,_latin1'b',_latin1'c');
+----------
+[SELECT] SELECT CONCAT(_latin1'a',_latin2'a');
+----------
+[SELECT] SELECT CONCAT(_latin1'a',_latin2'a',_latin5'a');
+----------
+[SELECT] SELECT CONCAT(_latin1'a',_latin2'a',_latin5'a',_latin7'a');
+----------
+[SELECT] SELECT CONCAT_WS(_latin1'a',_latin2'a');
+----------
+[SELECT] SELECT FIELD(_latin1'b' COLLATE latin1_bin,_latin1'A',_latin1'B');
+----------
+[SELECT] SELECT FIELD(_latin2'b',_latin1'A',_latin1'B');
+----------
+[SELECT] SELECT FIELD(_latin1'b',_latin2'A',_latin1'B');
+----------
+[SELECT] SELECT FIELD('1',_latin2'3','2',1);
+----------
+[SELECT] SELECT POSITION(_latin1'B' IN _latin1'abcd');
+----------
+[SELECT] SELECT POSITION(_latin1'B' IN _latin1'abcd' COLLATE latin1_bin);
+----------
+[SELECT] SELECT POSITION(_latin1'B' COLLATE latin1_bin IN _latin1'abcd');
+----------
+[SELECT] SELECT POSITION(_latin1'B' COLLATE latin1_general_ci IN _latin1'abcd' COLLATE latin1_bin);
+----------
+[SELECT] SELECT POSITION(_latin1'B' IN _latin2'abcd');
+----------
+[SELECT] SELECT FIND_IN_SET(_latin1'B',_latin1'a,b,c,d');
+----------
+[SELECT] SELECT FIND_IN_SET(_latin1'B' COLLATE latin1_general_ci,_latin1'a,b,c,d' COLLATE latin1_bin);
+----------
+[SELECT] SELECT FIND_IN_SET(_latin1'B',_latin2'a,b,c,d');
+----------
+[SELECT] SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd',_latin1'd',2);
+----------
+[SELECT] SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd' COLLATE latin1_bin,_latin1'd',2);
+----------
+[SELECT] SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd',_latin1'd' COLLATE latin1_bin,2);
+----------
+[SELECT] SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd',_latin2'd',2);
+----------
+[SELECT] SELECT SUBSTRING_INDEX(_latin1'abcdabcdabcd' COLLATE latin1_general_ci,_latin1'd' COLLATE latin1_bin,2);
+----------
+[SELECT] SELECT _latin1'B' BETWEEN _latin1'a' AND _latin1'c';
+----------
+[SELECT] SELECT _latin1'B' COLLATE latin1_bin BETWEEN _latin1'a' AND _latin1'c';
+----------
+[SELECT] SELECT _latin1'B' BETWEEN _latin1'a' COLLATE latin1_bin AND _latin1'c';
+----------
+[SELECT] SELECT _latin2'B' BETWEEN _latin1'a' AND _latin1'b';
+----------
+[SELECT] SELECT _latin1'B' COLLATE latin1_general_ci BETWEEN _latin1'a' COLLATE latin1_bin AND _latin1'b';
+----------
+[SELECT] SELECT _latin1'B' IN (_latin1'a',_latin1'b');
+----------
+[SELECT] SELECT _latin1'B' COLLATE latin1_bin IN (_latin1'a',_latin1'b');
+----------
+[SELECT] SELECT _latin1'B' IN (_latin1'a' COLLATE latin1_bin,_latin1'b');
+----------
+[SELECT] SELECT _latin2'B' IN (_latin1'a',_latin1'b');
+----------
+[SELECT] SELECT _latin1'B' COLLATE latin1_general_ci IN (_latin1'a' COLLATE latin1_bin,_latin1'b');
+----------
+[SELECT] SELECT COLLATION(BIN(130)),COERCIBILITY(BIN(130)),COLLATION(OCT(130)),COERCIBILITY(OCT(130)),COLLATION(CONV(130,16,10)),COERCIBILITY(CONV(130,16,10)),COLLATION(HEX(130)),COERCIBILITY(HEX(130)),COLLATION(CHAR(130)),COERCIBILITY(CHAR(130)),COLLATION(FORMAT(130,10)),COERCIBILITY(FORMAT(130,10));
+----------
+[SELECT] SELECT COLLATION(LCASE(_latin2'a')),COERCIBILITY(LCASE(_latin2'a')),COLLATION(UCASE(_latin2'a')),COERCIBILITY(UCASE(_latin2'a')),COLLATION(LEFT(_latin2'a',1)),COERCIBILITY(LEFT(_latin2'a',1)),COLLATION(RIGHT(_latin2'a',1)),COERCIBILITY(RIGHT(_latin2'a',1)),COLLATION(SUBSTRING(_latin2'a',1,1)),COERCIBILITY(SUBSTRING(_latin2'a',1,1));
+----------
+[SELECT] SELECT COLLATION(CONCAT(_latin2'a',_latin2'b')),COERCIBILITY(CONCAT(_latin2'a',_latin2'b')),COLLATION(LPAD(_latin2'a',4,_latin2'b')),COERCIBILITY(LPAD(_latin2'a',4,_latin2'b')),COLLATION(RPAD(_latin2'a',4,_latin2'b')),COERCIBILITY(RPAD(_latin2'a',4,_latin2'b')),COLLATION(CONCAT_WS(_latin2'a',_latin2'b')),COERCIBILITY(CONCAT_WS(_latin2'a',_latin2'b'));
+----------
+[SELECT] SELECT COLLATION(MAKE_SET(255,_latin2'a',_latin2'b',_latin2'c')),COERCIBILITY(MAKE_SET(255,_latin2'a',_latin2'b',_latin2'c')),COLLATION(EXPORT_SET(255,_latin2'y',_latin2'n',_latin2' ')),COERCIBILITY(EXPORT_SET(255,_latin2'y',_latin2'n',_latin2' '));
+----------
+[SELECT] SELECT COLLATION(TRIM(_latin2' a ')),COERCIBILITY(TRIM(_latin2' a ')),COLLATION(TRIM(LEADING _latin2' ' FROM _latin2'a')),COERCIBILITY(TRIM(LEADING _latin2' ' FROM _latin2'a')),COLLATION(TRIM(TRAILING _latin2' ' FROM _latin2'a')),COERCIBILITY(TRIM(TRAILING _latin2' ' FROM _latin2'a')),COLLATION(TRIM(BOTH _latin2' ' FROM _latin2'a')),COERCIBILITY(TRIM(BOTH _latin2' ' FROM _latin2'a'));
+----------
+[SELECT] SELECT COLLATION(REPEAT(_latin2'a',10)),COERCIBILITY(REPEAT(_latin2'a',10)),COLLATION(REVERSE(_latin2'ab')),COERCIBILITY(REVERSE(_latin2'ab')),COLLATION(QUOTE(_latin2'ab')),COERCIBILITY(QUOTE(_latin2'ab')),COLLATION(SOUNDEX(_latin2'ab')),COERCIBILITY(SOUNDEX(_latin2'ab'));
+----------
+[SELECT] SELECT COLLATION(INSERT(_latin2'abcd',2,3,_latin2'ef')),COERCIBILITY(INSERT(_latin2'abcd',2,3,_latin2'ef')),COLLATION(REPLACE(_latin2'abcd',_latin2'b',_latin2'B')),COERCIBILITY(REPLACE(_latin2'abcd',_latin2'b',_latin2'B'));
+----------
+[SELECT] SELECT CHARSET(a),COLLATION(a),COERCIBILITY(a) FROM str_nullable;
+----------
+[SELECT] SELECT CHARSET(NULL),COLLATION(NULL),COERCIBILITY(NULL);
+----------
+[SELECT] SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE COLLATION(str_right.i)=_utf8'binary' ORDER BY str_left.i,str_right.i;
+----------
+[SELECT] SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE CHARSET(str_right.i)=_utf8'binary' ORDER BY str_left.i,str_right.i;
+----------
+[SELECT] SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE COERCIBILITY(str_right.i)=5 ORDER BY str_left.i,str_right.i;
+----------
+[SELECT] SELECT _latin1'B' BETWEEN _latin1'a' AND _latin1'c' COLLATE latin1_bin;
+----------
+[SELECT] SELECT _latin1'B' BETWEEN _latin2'a' AND _latin1'b';
+----------
+[SELECT] SELECT _latin1'B' BETWEEN _latin1'a' AND _latin2'b';
+----------
+[SELECT] SELECT _latin1'B' IN (_latin1'a',_latin1'b' COLLATE latin1_bin);
+----------
+[SELECT] SELECT _latin1'B' IN (_latin2'a',_latin1'b');
+----------
+[SELECT] SELECT _latin1'B' IN (_latin1'a',_latin2'b');
+----------
+[SELECT] SELECT _latin1'B' COLLATE latin1_general_ci IN (_latin1'a',_latin1'b' COLLATE latin1_bin);
+----------
+[SELECT] SELECT FIELD(_utf8mb4'abc',x'ff');
+----------
+[SELECT] SELECT _utf8'hello' COLLATE UTF8_bin;
+----------
+[SELECT] SELECT * FROM customer_demographics WHERE CEILING(customer_demographics.cd_purchase_estimate) BETWEEN '2037' AND (-71 * (-1552207807 * 440370369)) COLLATE utf8mb4_et_0900_as_cs;
+----------
+[SELECT] SELECT CONCAT(jahr,'-',monat,'-',tag,' ',zeit) AS date_value,UNIX_TIMESTAMP(CONCAT(jahr,'-',monat,'-',tag,' ',zeit)) AS unix_value FROM timestamp_source;
+----------
+[SELECT] SELECT GET_FORMAT(DATE, ?) AS val;
+----------
+[SELECT] SELECT `order`.select, `order` . `a-b` FROM split_identifiers . `order`;
+----------
+[SELECT] SELECT 1table . 1column FROM split_identifiers . 1table;
+----------
+[SELECT] SELECT INTERVAL(5, 10);
+----------
+[SELECT] SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT ?;
+----------
+[SELECT] SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT ?, ?;
+----------
+[SELECT] SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT ? OFFSET ?;
+----------
+[SELECT] SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT 0002;
+----------
+[SELECT] SELECT id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS d ORDER BY id LIMIT 18446744073709551615;
+----------
+[SELECT] SELECT X'', x'00ff', 0x0, 0xABC, B'', b'0', 0b0, 0b101010;
+----------
+[SELECT] SELECT _latin1'abc', _utf8mb4 X'F09F9880', _binary b'01000001', _utf8mb4'abc' COLLATE utf8mb4_bin;
+----------
+[SELECT] SELECT '\0', '\'', '\"', '\b', '\n', '\r', '\t', '\Z', '\\', '\%', '\_';
+----------
+[SELECT] SELECT DATE '2020-02-29', TIME '23:59:59.123456', TIMESTAMP '2020-02-29 23:59:59.123456';
+----------
+[SELECT] SELECT -9223372036854775808, +9223372036854775807, 1E-3, .5E+2, 1.E-2;
+----------
+[SELECT] SELECT 0, 18446744073709551615, 1.25, .5, 1., 1e3, 1.e2, X'4D7953514C', 0x4D7953514C, b'1010', 0b1010, N'national', _utf8mb4'text', _binary'bin', _binary X'41', 'adjacent' ' string', 'a''b', 'a\\nb', "double", TRUE, FALSE, NULL;
+----------
+[SELECT] SELECT N'a' 'b';
+----------
+[SELECT] SELECT {fn 1 + 2};
+----------
+[SELECT] SELECT {t '12:34:56'};
+----------
+[SELECT] SELECT {ts '2020-02-29 12:34:56.123456'};
+----------
+[SELECT] SELECT ?, ? + 1, -?, ~?, NOT ?, (? BETWEEN ? AND ?), COALESCE(?,0) FROM (SELECT 1 AS id) d WHERE id IN (?,?) AND EXISTS (SELECT ?);
+----------
+[PERFORMANCE] EXPLAIN SELECT
+(
+  SELECT
+  ROW(t1.b, a) = ROW(ROW(1, t2.c) = ROW(1, d), c) = a
+  FROM t1
+)
+FROM t2 GROUP BY a;
+----------
+[SELECT] SELECT CONVERT(CONVERT('',DECIMAL(65,0)), DECIMAL(66,0));
+----------
+[SELECT] SELECT .t1.i FROM t1;
+----------
+[SELECT] SELECT * FROM full;
+----------
+[SELECT] SELECT * FROM full AS full;
+----------
+[SELECT] SELECT * FROM `full` full;
+----------
+[SELECT] SELECT STR_TO_DATE('10:00 PM', '%h:%i %p') + INTERVAL 10 MINUTE;
+----------
+[SELECT] SELECT STR_TO_DATE('10:00 PM', '%h:%i %p') + INTERVAL (INTERVAL(1,2,3) + 1) MINUTE;
+----------
+[SELECT] SELECT "1997-12-31 23:59:59" + INTERVAL 1 SECOND;
+----------
+[SELECT] SELECT 1 + INTERVAL(1,0,1,2) + 1;
+----------
+[SELECT] SELECT INTERVAL(1^1,0,1,2) + 1;
+----------
+[SELECT] SELECT INTERVAL(1,0+1,2,3) * 5.5;
+----------
+[SELECT] SELECT INTERVAL(3,3,1+3,4+4) / 0.5;
+----------
+[SELECT] SELECT (INTERVAL(1,0,1,2) + 5) * 7 + INTERVAL(1,0,1,2) / 2;
+----------
+[SELECT] SELECT INTERVAL(1,0,1,2) + 1, 5 * INTERVAL(1,0,1,2);
+----------
+[SELECT] SELECT INTERVAL(0,(1*5)/2) + INTERVAL(5,4,3);
+----------
+[SELECT] SELECT 1^1 + INTERVAL 1+1 SECOND & 1 + INTERVAL 1+1 SECOND;
+----------
+[SELECT] SELECT 1%2 - INTERVAL 1^1 SECOND | 1%2 - INTERVAL 1^1 SECOND;
+----------
+[SELECT] SELECT * FROM interval_t WHERE a = INTERVAL(3,2,1) + 1;
+----------
+[SELECT] SELECT 1 AS PERSIST, 2 AS PERSIST_ONLY;
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT @@session.parser_max_mem_size;
+----------
+[SELECT] SELECT @@global.parser_max_mem_size;
+----------
+[SELECT] SELECT 1 FROM
+  t AS t1
+  CROSS JOIN t AS t2
+  CROSS JOIN t AS t3
+  CROSS JOIN t AS t4
+  CROSS JOIN t AS t5
+  CROSS JOIN t AS t6
+  CROSS JOIN t AS t7
+  CROSS JOIN t AS t8
+  CROSS JOIN t AS t9
+  CROSS JOIN t AS t10
+  CROSS JOIN t AS t11
+  CROSS JOIN t AS t12
+  CROSS JOIN t AS t13
+  CROSS JOIN t AS t14
+  CROSS JOIN t AS t15
+  CROSS JOIN t AS t16
+  CROSS JOIN t AS t17
+  CROSS JOIN t AS t18
+  CROSS JOIN t AS t19
+  CROSS JOIN t AS t20
+  CROSS JOIN t AS t21
+  CROSS JOIN t AS t22
+  CROSS JOIN t AS t23
+  CROSS JOIN t AS t24
+  CROSS JOIN t AS t25
+  CROSS JOIN t AS t26
+  CROSS JOIN t AS t27
+  CROSS JOIN t AS t28
+  CROSS JOIN t AS t29
+  CROSS JOIN t AS t30
+  CROSS JOIN t AS t31
+  CROSS JOIN t AS t32
+  CROSS JOIN t AS t33
+  CROSS JOIN t AS t34
+  CROSS JOIN t AS t35
+  CROSS JOIN t AS t36
+  CROSS JOIN t AS t37
+  CROSS JOIN t AS t38
+  CROSS JOIN t AS t39
+  CROSS JOIN t AS t40
+  CROSS JOIN t AS t41
+  CROSS JOIN t AS t42
+  CROSS JOIN t AS t43
+  CROSS JOIN t AS t44
+  CROSS JOIN t AS t45
+  CROSS JOIN t AS t46
+  CROSS JOIN t AS t47
+  CROSS JOIN t AS t48
+  CROSS JOIN t AS t49
+  CROSS JOIN t AS t50
+  CROSS JOIN t AS t51
+  CROSS JOIN t AS t52
+  CROSS JOIN t AS t53
+  CROSS JOIN t AS t54
+  CROSS JOIN t AS t55
+  CROSS JOIN t AS t56
+  CROSS JOIN t AS t57
+  CROSS JOIN t AS t58
+  CROSS JOIN t AS t59
+  CROSS JOIN t AS t60
+  CROSS JOIN t AS t61
+  CROSS JOIN t AS t62
+  CROSS JOIN t AS t63;
+----------
+[SELECT] SELECT 1 FROM
+  (t AS t1 CROSS JOIN t AS t2),
+  (t AS t3 CROSS JOIN t AS t4),
+  (t AS t5 CROSS JOIN t AS t6),
+  (t AS t7 CROSS JOIN t AS t8),
+  (t AS t9 CROSS JOIN t AS t10),
+  (t AS t11 CROSS JOIN t AS t12),
+  (t AS t13 CROSS JOIN t AS t14),
+  (t AS t15 CROSS JOIN t AS t16),
+  (t AS t17 CROSS JOIN t AS t18),
+  (t AS t19 CROSS JOIN t AS t20),
+  (t AS t21 CROSS JOIN t AS t22),
+  (t AS t23 CROSS JOIN t AS t24),
+  (t AS t25 CROSS JOIN t AS t26),
+  (t AS t27 CROSS JOIN t AS t28),
+  (t AS t29 CROSS JOIN t AS t30),
+  (t AS t31 CROSS JOIN t AS t32),
+  (t AS t33 CROSS JOIN t AS t34),
+  (t AS t35 CROSS JOIN t AS t36),
+  (t AS t37 CROSS JOIN t AS t38),
+  (t AS t39 CROSS JOIN t AS t40),
+  (t AS t41 CROSS JOIN t AS t42),
+  (t AS t43 CROSS JOIN t AS t44),
+  (t AS t45 CROSS JOIN t AS t46),
+  (t AS t47 CROSS JOIN t AS t48),
+  (t AS t49 CROSS JOIN t AS t50),
+  (t AS t51 CROSS JOIN t AS t52),
+  (t AS t53 CROSS JOIN t AS t54),
+  (t AS t55 CROSS JOIN t AS t56),
+  (t AS t57 CROSS JOIN t AS t58),
+  (t AS t59 CROSS JOIN t AS t60),
+  (t AS t61 CROSS JOIN t AS t62);
+----------
+[SELECT] SELECT 1 FROM
+  ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((t AS t1 CROSS JOIN t AS t2) CROSS JOIN t AS t3) CROSS JOIN t AS t4) CROSS JOIN t AS t5) CROSS JOIN t AS t6) CROSS JOIN t AS t7) CROSS JOIN t AS t8) CROSS JOIN t AS t9) CROSS JOIN t AS t10) CROSS JOIN t AS t11) CROSS JOIN t AS t12) CROSS JOIN t AS t13) CROSS JOIN t AS t14) CROSS JOIN t AS t15) CROSS JOIN t AS t16) CROSS JOIN t AS t17) CROSS JOIN t AS t18) CROSS JOIN t AS t19) CROSS JOIN t AS t20) CROSS JOIN t AS t21) CROSS JOIN t AS t22) CROSS JOIN t AS t23) CROSS JOIN t AS t24) CROSS JOIN t AS t25) CROSS JOIN t AS t26) CROSS JOIN t AS t27) CROSS JOIN t AS t28) CROSS JOIN t AS t29) CROSS JOIN t AS t30) CROSS JOIN t AS t31) CROSS JOIN t AS t32) CROSS JOIN t AS t33) CROSS JOIN t AS t34) CROSS JOIN t AS t35) CROSS JOIN t AS t36) CROSS JOIN t AS t37) CROSS JOIN t AS t38) CROSS JOIN t AS t39) CROSS JOIN t AS t40) CROSS JOIN t AS t41) CROSS JOIN t AS t42) CROSS JOIN t AS t43) CROSS JOIN t AS t44) CROSS JOIN t AS t45) CROSS JOIN t AS t46) CROSS JOIN t AS t47) CROSS JOIN t AS t48) CROSS JOIN t AS t49) CROSS JOIN t AS t50) CROSS JOIN t AS t51) CROSS JOIN t AS t52) CROSS JOIN t AS t53) CROSS JOIN t AS t54) CROSS JOIN t AS t55) CROSS JOIN t AS t56) CROSS JOIN t AS t57) CROSS JOIN t AS t58) CROSS JOIN t AS t59) CROSS JOIN t AS t60) CROSS JOIN t AS t61) CROSS JOIN t AS t62) CROSS JOIN t AS t63);
+----------
+[SELECT] SELECT COUNT(*) = 0 FROM
+  (SELECT t1.pk FROM t AS t1, t AS t2, t AS t3, t AS t4, t AS t5, t AS t6, t AS t7, t AS t8, t AS t9, t AS t10, t AS t11, t AS t12, t AS t13, t AS t14, t AS t15, t AS t16, t AS t17, t AS t18, t AS t19, t AS t20, t AS t21, t AS t22, t AS t23, t AS t24, t AS t25, t AS t26, t AS t27, t AS t28, t AS t29, t AS t30) AS d1,
+  (SELECT t31.pk FROM t AS t31, t AS t32, t AS t33, t AS t34, t AS t35, t AS t36, t AS t37, t AS t38, t AS t39, t AS t40, t AS t41, t AS t42, t AS t43, t AS t44, t AS t45, t AS t46, t AS t47, t AS t48, t AS t49, t AS t50, t AS t51, t AS t52, t AS t53, t AS t54, t AS t55, t AS t56, t AS t57, t AS t58, t AS t59, t AS t60) AS d2;
+----------
+[SELECT] SELECT 1 FROM t AS outer_t
+WHERE EXISTS (
+  SELECT 1 FROM t AS t1, t AS t2, t AS t3, t AS t4, t AS t5, t AS t6, t AS t7, t AS t8, t AS t9, t AS t10, t AS t11, t AS t12, t AS t13, t AS t14, t AS t15, t AS t16, t AS t17, t AS t18, t AS t19, t AS t20, t AS t21, t AS t22, t AS t23, t AS t24, t AS t25, t AS t26, t AS t27, t AS t28, t AS t29, t AS t30, t AS t31, t AS t32, t AS t33, t AS t34, t AS t35, t AS t36, t AS t37, t AS t38, t AS t39, t AS t40, t AS t41, t AS t42, t AS t43, t AS t44, t AS t45, t AS t46, t AS t47, t AS t48, t AS t49, t AS t50, t AS t51, t AS t52, t AS t53, t AS t54, t AS t55, t AS t56, t AS t57, t AS t58, t AS t59, t AS t60, t AS t61, t AS t62, t AS t63
+);
+----------
+[SELECT] SELECT ABS(3 AS three);
+----------
+[SELECT] SELECT ABS(3 three);
+----------
+[SELECT] SELECT ABS(3 AS "three");
+----------
+[SELECT] SELECT ABS(3 "three");
+----------
+[SELECT] SELECT INSTR("foobar" AS p1, "bar");
+----------
+[SELECT] SELECT INSTR("foobar" p1, "bar");
+----------
+[SELECT] SELECT INSTR("foobar" AS "p1", "bar");
+----------
+[SELECT] SELECT INSTR("foobar" "p1", "bar");
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT INSTR(@foobar "p1", "bar");
+----------
+[SELECT] SELECT INSTR("foobar", "bar" AS p2);
+----------
+[SELECT] SELECT INSTR("foobar", "bar" p2);
+----------
+[SELECT] SELECT INSTR("foobar", "bar" AS "p2");
+----------
+[SELECT] SELECT INSTR("foobar", "bar" "p2");
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT INSTR("foobar", @bar "p2");
+----------
+[SELECT] SELECT INSTR("foobar" AS p1, "bar" AS p2);
+----------
+[SELECT] SELECT CONV(255 AS p1, 10, 16);
+----------
+[SELECT] SELECT CONV(255 p1, 10, 16);
+----------
+[SELECT] SELECT CONV(255 AS "p1", 10, 16);
+----------
+[SELECT] SELECT CONV(255 "p1", 10, 16);
+----------
+[SELECT] SELECT CONV(255, 10 AS p2, 16);
+----------
+[SELECT] SELECT CONV(255, 10 p2, 16);
+----------
+[SELECT] SELECT CONV(255, 10 AS "p2", 16);
+----------
+[SELECT] SELECT CONV(255, 10 "p2", 16);
+----------
+[SELECT] SELECT CONV(255, 10, 16 AS p3);
+----------
+[SELECT] SELECT CONV(255, 10, 16 p3);
+----------
+[SELECT] SELECT CONV(255, 10, 16 AS "p3");
+----------
+[SELECT] SELECT CONV(255, 10, 16 "p3");
+----------
+[SELECT] SELECT CONV(255 AS p1, 10 AS p2, 16 AS p3);
+----------
+[SELECT] SELECT ATAN(10 AS p1);
+----------
+[SELECT] SELECT ATAN(10 p1);
+----------
+[SELECT] SELECT ATAN(10 AS "p1");
+----------
+[SELECT] SELECT ATAN(10 "p1");
+----------
+[SELECT] SELECT ATAN(10 AS p1, 20);
+----------
+[SELECT] SELECT ATAN(10 p1, 20);
+----------
+[SELECT] SELECT ATAN(10 AS "p1", 20);
+----------
+[SELECT] SELECT ATAN(10 "p1", 20);
+----------
+[SELECT] SELECT ATAN(10, 20 AS p2);
+----------
+[SELECT] SELECT ATAN(10, 20 p2);
+----------
+[SELECT] SELECT ATAN(10, 20 AS "p2");
+----------
+[SELECT] SELECT ATAN(10, 20 "p2");
+----------
+[SELECT] SELECT ATAN(10 AS p1, 20 AS p2);
+----------
+[SELECT] SELECT PI(3.14);
+----------
+[SELECT] SELECT TAN();
+----------
+[SELECT] SELECT TAN(1, 2);
+----------
+[SELECT] SELECT MAKEDATE(1);
+----------
+[SELECT] SELECT MAKEDATE(1, 2, 3);
+----------
+[SELECT] SELECT MAKETIME();
+----------
+[SELECT] SELECT MAKETIME(1);
+----------
+[SELECT] SELECT MAKETIME(1, 2);
+----------
+[SELECT] SELECT MAKETIME(1, 2, 3, 4);
+----------
+[SELECT] SELECT ATAN();
+----------
+[SELECT] SELECT ATAN2(1, 2, 3);
+----------
+[SELECT] SELECT CONCAT_WS();
+----------
+[SELECT] SELECT ELT();
+----------
+[SELECT] SELECT EXPORT_SET();
+----------
+[SELECT] SELECT EXPORT_SET('p1');
+----------
+[SELECT] SELECT EXPORT_SET('p1', 'p2');
+----------
+[SELECT] SELECT EXPORT_SET('p1', 'p2', 'p3', 'p4', 'p5', 'p6');
+----------
+[SELECT] SELECT FIELD();
+----------
+[SELECT] SELECT FROM_UNIXTIME();
+----------
+[SELECT] SELECT FROM_UNIXTIME(1, 2, 3);
+----------
+[SELECT] SELECT UNIX_TIMESTAMP(1, 2);
+----------
+[SELECT] SELECT GREATEST();
+----------
+[SELECT] SELECT GREATEST(12);
+----------
+[SELECT|SESSION_SETTING_WRITE] SELECT LAST_INSERT_ID(1, 2);
+----------
+[SELECT] SELECT LEAST();
+----------
+[SELECT] SELECT LEAST(12);
+----------
+[SELECT] SELECT LOCATE();
+----------
+[SELECT] SELECT LOCATE(1, 2, 3, 4);
+----------
+[SELECT] SELECT LOG();
+----------
+[SELECT] SELECT LOG(1, 2, 3);
+----------
+[SELECT] SELECT RAND(1, 2, 3);
+----------
+[SELECT] SELECT ROUND(1, 2, 3);
+----------
+[SELECT] SELECT YEARWEEK();
+----------
+[SELECT] SELECT YEARWEEK(1, 2, 3);
+----------
+[SELECT] SELECT ENCRYPT();
+----------
+[SELECT] SELECT ENCRYPT(1, 2, 3);
+----------
+[SELECT] SELECT DES_ENCRYPT('p1', 'p2', 'not expected');
+----------
+[SELECT] SELECT DES_DECRYPT('p1', 'p2', 'not expected');
+----------
+[SELECT] SELECT 1 < !(1 XOR TO_BASE64());
+----------
+[SELECT] SELECT !('' XOR LENGTH());
+----------
+[SELECT] SELECT !((UNHEX() IS NULL));
+----------
+[SELECT] SELECT t1.* FROM t1 AS t0, { OJ t2 INNER JOIN t1 ON (t1.a1=t2.a1) } WHERE t0.a3=2;
+----------
+[SELECT] SELECT t1.*,t2.* FROM { OJ ((t1 INNER JOIN t2 ON (t1.a1=t2.a2)) LEFT OUTER JOIN t3 ON t3.a3=t2.a1)};
+----------
+[SELECT] SELECT t1.*,t2.* FROM { OJ ((t1 LEFT OUTER JOIN t2 ON t1.a3=t2.a2) INNER JOIN t3 ON (t3.a1=t2.a2))};
+----------
+[SELECT] SELECT t1.*,t2.* FROM { OJ (t1 LEFT OUTER JOIN t2 ON t1.a1=t2.a2) CROSS JOIN t3 ON (t3.a2=t2.a3)};
+----------
+[SELECT] SELECT {fn CONCAT(a1,a2)} FROM t1;
+----------
+[SELECT] SELECT a1, a4 FROM t2 WHERE a4 LIKE {fn UCASE('1789-07-14')};
+----------
+[SELECT|ADMIN_REPLICATION] SELECT MASTER_POS_WAIT();
+----------
+[SELECT|ADMIN_REPLICATION] SELECT MASTER_POS_WAIT(1);
+----------
+[SELECT] SELECT 1 AS parse_gcol_expr;
+----------
+[SELECT] SELECT `*` FROM star_t;
+----------
+[SELECT] SELECT star_t.`*`, star_t.* FROM star_t;
+----------
+[SELECT] SELECT split_parser_identifier.star_t.`*`, split_parser_identifier.star_t.* FROM star_t;
+----------
+[SELECT] SELECT "stmt 1";
+----------
+[SELECT] SELECT "space, stmt 2";
+----------
+[SELECT] SELECT "stmt 3";
+----------
+[SELECT] /* comment */SELECT "comment, stmt 4";
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT @'audit-hyphen' := 1, @audit.dot := 2;
+----------
+[SELECT] SELECT q."from" AS "order", q.`a``b` AS `tick``alias` FROM "select" AS q;
+----------
+[SELECT] SELECT CURRENT_DATE, CURRENT_DATE(), CURDATE(), UTC_DATE, UTC_DATE();
+----------
+[SELECT] SELECT CURRENT_TIME, CURRENT_TIME(), CURRENT_TIME(0), CURRENT_TIME(0006), CURTIME(), CURTIME(6), UTC_TIME, UTC_TIME(), UTC_TIME(6);
+----------
+[SELECT] SELECT CURRENT_TIMESTAMP, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(0), CURRENT_TIMESTAMP(0006), NOW(), NOW(6), LOCALTIME, LOCALTIME(6), LOCALTIMESTAMP, LOCALTIMESTAMP(6), UTC_TIMESTAMP, UTC_TIMESTAMP(6), SYSDATE(), SYSDATE(6);
+----------
+[SELECT] SELECT NOW(7);
+----------
+[SELECT] SELECT CURRENT_TIMESTAMP(2147483647);
+----------
+[BLOCK] DO TIMESTAMP(DATE_FORMAT('2011-11-11', RIGHT('12345' + 1, 3)));
+----------
+[SELECT] SELECT UNIX_TIMESTAMP(COUNT(1));
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT @plain.name$, @'hyphen-name', @"space name", @`tick-name`;
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT @@GLOBAL.max_connections, @@SESSION.sql_mode, @@LOCAL.sql_mode, @@sql_mode;
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT @@`sql_mode`, @@GLOBAL.`max_connections`, @@SESSION.`sql_mode`, @@LOCAL.`sql_mode`;
+----------
+[SELECT] SELECT _filename'abcd';
+----------
+[SELECT] SELECT 1 AS `_filename`;
+----------
+[SELECT] SELECT MASTER_SERVER_ID FROM (SELECT 1 AS MASTER_SERVER_ID) AS t;
+----------
+[SELECT] SELECT 1--comment
++2;
+----------
+[SELECT] SELECT 1 /* ; SELECT 99 */ + 2;
+----------
+[SELECT] SELECT @@GLOBAL.hot_cache.key_buffer_size;
+----------
+[SELECT] SELECT @@GLOBAL.default.key_buffer_size;
+----------
+[SESSION_VARIABLE_RW] SET @hs=X'41', @ha=X'41'+0, @hc=CAST(X'41' AS UNSIGNED);
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT @hs,@ha,@hc;
+----------
+[SELECT] SELECT CHARSET(X''),LENGTH(X''),X''+0,CAST(X'' AS UNSIGNED);
+----------
+[SELECT] SELECT _utf8mb4 X'41' COLLATE utf8mb4_bin, _binary 0x0041;
+----------
+[SESSION_VARIABLE_RW] SET @'a''b'=1, @"c""d"=2, @`e``f`=3;
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT @'a''b',@"c""d",@`e``f`;
+----------
+[SESSION_VARIABLE_RW] SET @'semi;name'=1;
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT @'semi;name';
+----------
+[SELECT] SELECT `semi;column` FROM `semi;table`;
+----------
+[SELECT] SELECT 1e + 3 FROM split_numid;
+----------
+[SELECT] SELECT ASCII ('A'), ABS (-2), LENGTH ('abc');
+----------
+[SELECT|CALL_PROG_OBJ] SELECT split_lang.PI(),PI();
+----------
+[SELECT|CALL_PROG_OBJ] SELECT `a``b`();
+----------
+[SELECT] SELECT {fn LENGTH('hello')}, { date '1997-10-20' };
+
+----------
+[SELECT] SELECT 1 AS sets;
+----------
+[SESSION_VARIABLE_RW] SET @s1=_latin1'abc',@s2=_latin2'abc';
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT @s1=CONVERT(@s2 USING latin1);
+----------
+[SESSION_VARIABLE_RW] SET @s=BINARY 'New York';
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT LOWER(@s),LOWER(CONVERT(@s USING utf8mb4));
+----------
+[SELECT] SELECT HEX(a),STRCMP(a,'a'),STRCMP(a,'a ') FROM padded_char;
+----------
+[SELECT] SELECT DISTINCT latin1_f COLLATE latin1_german2_ci FROM collation_projection;
+----------
+[SELECT] SELECT latin1_f,COUNT(*) FROM collation_projection GROUP BY latin1_f COLLATE latin1_german2_ci ORDER BY latin1_f COLLATE latin1_german2_ci;
+----------
+[SELECT] SELECT latin1_f COLLATE latin1_german2_ci AS x FROM collation_projection ORDER BY x,HEX(x);
+----------
+[SELECT] SELECT COERCIBILITY(NAME_CONST('s1',_utf8'test')),COERCIBILITY(NAME_CONST('s1',_utf8'test' COLLATE utf8_unicode_ci));
+----------
+[SELECT|SESSION_VARIABLE_RW] SELECT COERCIBILITY(@a:=_latin2'test'),COERCIBILITY(@a:=_latin2'test' COLLATE latin2_bin);
+----------
+[SELECT] SELECT 1 AS 'a' ORDER BY `a`, 'a';
+----------
+[SELECT] SELECT _utf8mb4 /* gap */ 'a';
+----------
+[SELECT] SELECT _binary /* gap */ X'41';

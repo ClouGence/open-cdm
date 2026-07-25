@@ -1,0 +1,190 @@
+[supportschema::McParseColumnUnionTest.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select * from table1 union select * from table2
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog1/schema1/table2/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog1/schema1/table2/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog1/schema1/table2/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog1/schema1/table2/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog1/schema1/table2/column6/" ]
+}
+----------
+[supportschema::McParseColumnUnionTest.test2]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select column1 from (select column1  from table1 union select column2 from table2)c
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column2/" ]
+}
+----------
+[supportschema::McParseColumnUnionTest.test3]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select e from (select column1 as e  from table1 union select column2 as x from table2)c
+expect:
+{
+  "e" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column2/" ]
+}
+----------
+[supportschema::McParseColumnUnionTest.test4]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select * from table1 union select * from table2 union select * from schema2.table1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/", "/catalog1/schema2/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog1/schema1/table2/column2/", "/catalog1/schema2/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog1/schema1/table2/column3/", "/catalog1/schema2/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog1/schema1/table2/column4/", "/catalog1/schema2/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog1/schema1/table2/column5/", "/catalog1/schema2/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog1/schema1/table2/column6/", "/catalog1/schema2/table1/column6/" ]
+}
+----------
+[supportschema::McParseColumnUnionTest.test5]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : true
+}
+sql:
+select * from (select * from table1 union select * from table2) c
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog1/schema1/table2/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog1/schema1/table2/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog1/schema1/table2/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog1/schema1/table2/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog1/schema1/table2/column6/" ]
+}
+
+----------
+[notsupportschema::McParseColumnUnionTest.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select * from table2 union select * from table2
+expect:
+{
+  "column1" : [ "/catalog1/default/table2/column1/", "/catalog1/default/table2/column1/" ],
+  "column2" : [ "/catalog1/default/table2/column2/", "/catalog1/default/table2/column2/" ],
+  "column3" : [ "/catalog1/default/table2/column3/", "/catalog1/default/table2/column3/" ],
+  "column4" : [ "/catalog1/default/table2/column4/", "/catalog1/default/table2/column4/" ],
+  "column5" : [ "/catalog1/default/table2/column5/", "/catalog1/default/table2/column5/" ],
+  "column6" : [ "/catalog1/default/table2/column6/", "/catalog1/default/table2/column6/" ]
+}
+----------
+[notsupportschema::McParseColumnUnionTest.test2]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select column1 from (select column1  from table2 union select column2 from table2)c
+expect:
+{
+  "column1" : [ "/catalog1/default/table2/column1/", "/catalog1/default/table2/column2/" ]
+}
+----------
+[notsupportschema::McParseColumnUnionTest.test3]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select e from (select column1 as e  from table2 union select column2 as x from table2)c
+expect:
+{
+  "e" : [ "/catalog1/default/table2/column1/", "/catalog1/default/table2/column2/" ]
+}
+----------
+[notsupportschema::McParseColumnUnionTest.test4]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select * from table2 union select * from table2 union select * from catalog2.table2
+expect:
+{
+  "column1" : [ "/catalog1/default/table2/column1/", "/catalog1/default/table2/column1/", "/catalog2/default/table2/column1/" ],
+  "column2" : [ "/catalog1/default/table2/column2/", "/catalog1/default/table2/column2/", "/catalog2/default/table2/column2/" ],
+  "column3" : [ "/catalog1/default/table2/column3/", "/catalog1/default/table2/column3/", "/catalog2/default/table2/column3/" ],
+  "column4" : [ "/catalog1/default/table2/column4/", "/catalog1/default/table2/column4/", "/catalog2/default/table2/column4/" ],
+  "column5" : [ "/catalog1/default/table2/column5/", "/catalog1/default/table2/column5/", "/catalog2/default/table2/column5/" ],
+  "column6" : [ "/catalog1/default/table2/column6/", "/catalog1/default/table2/column6/", "/catalog2/default/table2/column6/" ]
+}
+----------
+[notsupportschema::McParseColumnUnionTest.test5]
+context:
+{
+  "levels" : {
+    "Schema" : "default",
+    "Catalog" : "catalog1"
+  },
+  "mcSchemaStyle" : false
+}
+sql:
+select * from (select * from table2 union select * from table2) c
+expect:
+{
+  "column1" : [ "/catalog1/default/table2/column1/", "/catalog1/default/table2/column1/" ],
+  "column2" : [ "/catalog1/default/table2/column2/", "/catalog1/default/table2/column2/" ],
+  "column3" : [ "/catalog1/default/table2/column3/", "/catalog1/default/table2/column3/" ],
+  "column4" : [ "/catalog1/default/table2/column4/", "/catalog1/default/table2/column4/" ],
+  "column5" : [ "/catalog1/default/table2/column5/", "/catalog1/default/table2/column5/" ],
+  "column6" : [ "/catalog1/default/table2/column6/", "/catalog1/default/table2/column6/" ]
+}

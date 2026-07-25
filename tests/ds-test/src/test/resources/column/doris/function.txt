@@ -1,0 +1,104 @@
+[DrParseColumnFunctionTest.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select test_function(1) as x from table1
+expect:
+{
+  "x" : []
+}
+----------
+[DrParseColumnFunctionTest.test2]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select test_function(column1) as c from table1
+expect:
+{
+  "c" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[DrParseColumnFunctionTest.test3]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select test_function(32) as z
+expect:
+{
+  "z" : []
+}
+----------
+[DrParseColumnFunctionTest.test4]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select cast(column1 as char) as f from table1
+expect:
+{
+  "f" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[DrParseColumnFunctionTest.test5]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select f from (select cast(column1 as char) as f from table1)c
+expect:
+{
+  "f" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[DrParseColumnFunctionTest.test6]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select test_func((select column1 from catalog2.schema1.table2))  as x from table1
+expect:
+{
+  "x" : [ "/catalog2/schema1/table2/column1/" ]
+}
+----------
+[DrParseColumnFunctionTest.test7]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select test_func((select test_func1((select column1 from schema2.table1),column1) as x from catalog2.schema1.table2),column1) as w from table1
+expect:
+{
+  "w" : [ "/catalog1/schema2/table1/column1/", "/catalog2/schema1/table2/column1/", "/catalog1/schema1/table1/column1/" ]
+}

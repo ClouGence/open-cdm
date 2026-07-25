@@ -1,0 +1,39 @@
+[insertInto_basic]
+sql:
+insert into "pub"."test_schema"."table2" ("id", "b") values (2, 1);
+expect:
+{
+  "contains": [
+    {"class":"PgInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "catalog":"pub", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[insertInto_plain]
+sql:
+insert into pub.test_schema.table2 (id, b) values (2, 1);
+expect:
+{
+  "contains": [
+    {"class":"PgInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "catalog":"pub", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[insertInto_noCatalog]
+sql:
+insert into test_schema.table2 (id, b) values (2, 1);
+expect:
+{
+  "contains": [
+    {"class":"PgInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"test_schema", "table":"table2"}
+  ]
+}
+----------
+[insertValueSelect]
+sql:
+insert into test_schema.table2 (id, b) values ((select id from table1 limit 1), 1);
+expect:
+{
+  "contains": [
+    {"class":"PgInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"test_schema", "table":"table2"}
+  ]
+}

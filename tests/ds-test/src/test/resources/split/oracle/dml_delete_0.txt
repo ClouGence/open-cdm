@@ -1,0 +1,26 @@
+delete from test;
+delete from test where id = 1;
+delete "test" where "id" = 1;
+delete from test1 where id = (select max(id) from test2);
+delete from test1 where id = (with test as (select * from test2)select max(id) from test);
+DELETE product_price_history pp
+WHERE  (product_id, currency_code, effective_from_date)
+   IN (SELECT product_id, currency_code, effective_from_date
+       FROM   product_price_history1
+       GROUP BY product_id, currency_code);
+------------------------------------------------------------------------------------------
+[DELETE] delete from test;
+----------
+[DELETE] delete from test where id = 1;
+----------
+[DELETE] delete "test" where "id" = 1;
+----------
+[DELETE|SELECT] delete from test1 where id = (select max(id) from test2);
+----------
+[DELETE|SELECT] delete from test1 where id = (with test as (select * from test2)select max(id) from test);
+----------
+[DELETE|SELECT] DELETE product_price_history pp
+WHERE  (product_id, currency_code, effective_from_date)
+   IN (SELECT product_id, currency_code, effective_from_date
+       FROM   product_price_history1
+       GROUP BY product_id, currency_code);

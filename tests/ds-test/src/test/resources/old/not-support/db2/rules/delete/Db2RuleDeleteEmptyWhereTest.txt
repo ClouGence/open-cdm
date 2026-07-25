@@ -1,0 +1,79 @@
+[Db2RuleDeleteEmptyWhereTest#emptyWhereTest_1#001]
+rule: _rules/delete/delete-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+delete from abc
+----------
+[Db2RuleDeleteEmptyWhereTest#emptyWhereTest_1#002]
+rule: _rules/delete/delete-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+delete from table_1 where 1=1
+----------
+[Db2RuleDeleteEmptyWhereTest#emptyWhereTest_1#003]
+rule: _rules/delete/delete-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+delete from table_1 where a=a
+----------
+[Db2RuleDeleteEmptyWhereTest#emptyWhereTest_2#001]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from abc
+----------
+[Db2RuleDeleteEmptyWhereTest#emptyWhereTest_2#002]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from table_1 where 1=1
+----------
+[Db2RuleDeleteEmptyWhereTest#emptyWhereTest_2#003]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from table_1 where a=a
+----------
+[Db2RuleDeleteEmptyWhereTest#notEmptyWhereTest_1#001]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+delete from table_1 where 1>1
+----------
+[Db2RuleDeleteEmptyWhereTest#notEmptyWhereTest_1#002]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+delete from table_1 where 1=1 and a = '123'
+----------
+[Db2RuleDeleteEmptyWhereTest#notEmptyWhereTest_2#001]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from table_1 where 1>1
+----------
+[Db2RuleDeleteEmptyWhereTest#notEmptyWhereTest_2#002]
+rule: _rules/delete/delete-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+delete from table_1 where 1=1 and a = '123'

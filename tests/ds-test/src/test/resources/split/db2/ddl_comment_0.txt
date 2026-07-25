@@ -1,0 +1,9 @@
+comment on table app.employee is 'employee table';
+comment on column app.employee.name is 'employee name';
+comment on app.employee (name is 'employee name', title is 'job title');
+------------------------------------------------------------------------------------------
+[COMMENT_TABLE] comment on table app.employee is 'employee table';
+----------
+[COMMENT_COLUMN] comment on column app.employee.name is 'employee name';
+----------
+[COMMENT_COLUMN] comment on app.employee (name is 'employee name', title is 'job title');

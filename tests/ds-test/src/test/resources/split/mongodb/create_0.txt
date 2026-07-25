@@ -1,0 +1,12 @@
+db.createCollection("user_table");
+db.createCollection("products");
+db.createCollection("orders", {capped: true, size: 100000});
+db.createCollection("logs", {capped: true, size: 5242880, max: 5000});
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] db.createCollection("user_table")
+----------
+[CREATE_TABLE] db.createCollection("products")
+----------
+[CREATE_TABLE] db.createCollection("orders", {capped: true, size: 100000})
+----------
+[CREATE_TABLE] db.createCollection("logs", {capped: true, size: 5242880, max: 5000})

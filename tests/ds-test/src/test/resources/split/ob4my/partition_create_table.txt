@@ -1,0 +1,50 @@
+CREATE TABLE test_part (
+  id INT,
+  name VARCHAR(50)
+) PARTITION BY RANGE (id) (
+  PARTITION p0 VALUES LESS THAN (10),
+  PARTITION p1 VALUES LESS THAN (20),
+  PARTITION p2 VALUES LESS THAN MAXVALUE
+);
+CREATE TABLE test_hash (
+  id INT,
+  name VARCHAR(50)
+) PARTITION BY HASH(id) PARTITIONS 4;
+CREATE TABLE test_list (
+  id INT,
+  region VARCHAR(50)
+) PARTITION BY LIST COLUMNS(region) (
+  PARTITION p_east VALUES IN ('east'),
+  PARTITION p_west VALUES IN ('west')
+);
+CREATE TABLE test_key (
+  id INT,
+  name VARCHAR(50)
+) PARTITION BY KEY(id) PARTITIONS 3;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] CREATE TABLE test_part (
+  id INT,
+  name VARCHAR(50)
+) PARTITION BY RANGE (id) (
+  PARTITION p0 VALUES LESS THAN (10),
+  PARTITION p1 VALUES LESS THAN (20),
+  PARTITION p2 VALUES LESS THAN MAXVALUE
+);
+----------
+[CREATE_TABLE] CREATE TABLE test_hash (
+  id INT,
+  name VARCHAR(50)
+) PARTITION BY HASH(id) PARTITIONS 4;
+----------
+[CREATE_TABLE] CREATE TABLE test_list (
+  id INT,
+  region VARCHAR(50)
+) PARTITION BY LIST COLUMNS(region) (
+  PARTITION p_east VALUES IN ('east'),
+  PARTITION p_west VALUES IN ('west')
+);
+----------
+[CREATE_TABLE] CREATE TABLE test_key (
+  id INT,
+  name VARCHAR(50)
+) PARTITION BY KEY(id) PARTITIONS 3;

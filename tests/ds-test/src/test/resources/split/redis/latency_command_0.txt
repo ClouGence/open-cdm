@@ -1,0 +1,168 @@
+latency doctor
+latency reset command
+latency graph command
+latency graph active-defrag-cycle
+latency graph aof-fsync-always
+latency graph aof-stat
+latency graph aof-rewrite-diff-write
+latency graph aof-rename
+latency graph aof-write
+latency graph aof-write-active-child
+latency graph aof-write-alone
+latency graph aof-write-pending-fsync
+latency graph command
+latency graph expire-cycle
+latency graph eviction-cycle
+latency graph eviction-del
+latency graph fast-command
+latency graph fork
+latency graph rdb-unlink-temp-file
+LATENCY HISTOGRAM
+LATENCY HISTOGRAM get
+LATENCY HISTOGRAM get set
+LATENCY HISTORY active-defrag-cycle
+LATENCY HISTORY aof-fsync-always
+LATENCY HISTORY aof-stat
+LATENCY HISTORY aof-rewrite-diff-write
+LATENCY HISTORY aof-rename
+LATENCY HISTORY aof-write
+LATENCY HISTORY aof-write-active-child
+LATENCY HISTORY aof-write-alone
+LATENCY HISTORY aof-write-pending-fsync
+LATENCY HISTORY command
+LATENCY HISTORY expire-cycle
+LATENCY HISTORY eviction-cycle
+LATENCY HISTORY eviction-del
+LATENCY HISTORY fast-command
+LATENCY HISTORY fork
+LATENCY HISTORY rdb-unlink-temp-file
+LATENCY LATEST
+LATENCY RESET
+LATENCY RESET active-defrag-cycle
+LATENCY RESET aof-fsync-always
+LATENCY RESET aof-stat
+LATENCY RESET aof-rewrite-diff-write
+LATENCY RESET aof-rename
+LATENCY RESET aof-write
+LATENCY RESET aof-write-active-child
+LATENCY RESET aof-write-alone
+LATENCY RESET aof-write-pending-fsync
+LATENCY RESET command
+LATENCY RESET expire-cycle
+LATENCY RESET eviction-cycle
+LATENCY RESET eviction-del
+LATENCY RESET fast-command
+LATENCY RESET fork
+LATENCY RESET rdb-unlink-temp-file
+------------------------------------------------------------------------------------------
+[PERFORMANCE] latency doctor
+----------
+[ADMIN_PERFORMANCE] latency reset command
+----------
+[PERFORMANCE] latency graph command
+----------
+[PERFORMANCE] latency graph active-defrag-cycle
+----------
+[PERFORMANCE] latency graph aof-fsync-always
+----------
+[PERFORMANCE] latency graph aof-stat
+----------
+[PERFORMANCE] latency graph aof-rewrite-diff-write
+----------
+[PERFORMANCE] latency graph aof-rename
+----------
+[PERFORMANCE] latency graph aof-write
+----------
+[PERFORMANCE] latency graph aof-write-active-child
+----------
+[PERFORMANCE] latency graph aof-write-alone
+----------
+[PERFORMANCE] latency graph aof-write-pending-fsync
+----------
+[PERFORMANCE] latency graph command
+----------
+[PERFORMANCE] latency graph expire-cycle
+----------
+[PERFORMANCE] latency graph eviction-cycle
+----------
+[PERFORMANCE] latency graph eviction-del
+----------
+[PERFORMANCE] latency graph fast-command
+----------
+[PERFORMANCE] latency graph fork
+----------
+[PERFORMANCE] latency graph rdb-unlink-temp-file
+----------
+[PERFORMANCE] LATENCY HISTOGRAM
+----------
+[PERFORMANCE] LATENCY HISTOGRAM get
+----------
+[PERFORMANCE] LATENCY HISTOGRAM get set
+----------
+[PERFORMANCE] LATENCY HISTORY active-defrag-cycle
+----------
+[PERFORMANCE] LATENCY HISTORY aof-fsync-always
+----------
+[PERFORMANCE] LATENCY HISTORY aof-stat
+----------
+[PERFORMANCE] LATENCY HISTORY aof-rewrite-diff-write
+----------
+[PERFORMANCE] LATENCY HISTORY aof-rename
+----------
+[PERFORMANCE] LATENCY HISTORY aof-write
+----------
+[PERFORMANCE] LATENCY HISTORY aof-write-active-child
+----------
+[PERFORMANCE] LATENCY HISTORY aof-write-alone
+----------
+[PERFORMANCE] LATENCY HISTORY aof-write-pending-fsync
+----------
+[PERFORMANCE] LATENCY HISTORY command
+----------
+[PERFORMANCE] LATENCY HISTORY expire-cycle
+----------
+[PERFORMANCE] LATENCY HISTORY eviction-cycle
+----------
+[PERFORMANCE] LATENCY HISTORY eviction-del
+----------
+[PERFORMANCE] LATENCY HISTORY fast-command
+----------
+[PERFORMANCE] LATENCY HISTORY fork
+----------
+[PERFORMANCE] LATENCY HISTORY rdb-unlink-temp-file
+----------
+[PERFORMANCE] LATENCY LATEST
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET active-defrag-cycle
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET aof-fsync-always
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET aof-stat
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET aof-rewrite-diff-write
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET aof-rename
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET aof-write
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET aof-write-active-child
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET aof-write-alone
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET aof-write-pending-fsync
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET command
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET expire-cycle
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET eviction-cycle
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET eviction-del
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET fast-command
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET fork
+----------
+[ADMIN_PERFORMANCE] LATENCY RESET rdb-unlink-temp-file

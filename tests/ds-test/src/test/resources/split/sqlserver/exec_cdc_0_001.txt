@@ -1,0 +1,7 @@
+exec sys.sp_cdc_enable_db;exec sys.sp_cdc_disable_db;exec dbo.user_defined_proc;
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] exec sys.sp_cdc_enable_db;
+----------
+[CALL_PROG_OBJ] exec sys.sp_cdc_disable_db;
+----------
+[CALL_PROG_OBJ] exec dbo.user_defined_proc;

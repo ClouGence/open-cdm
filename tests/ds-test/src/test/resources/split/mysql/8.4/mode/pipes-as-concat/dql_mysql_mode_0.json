@@ -1,0 +1,4 @@
+{
+  "known": true,
+  "features": ["PIPES_AS_CONCAT"]
+}

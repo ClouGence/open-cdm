@@ -1,0 +1,152 @@
+SELECT id,
+       tiny_signed+small_signed+medium_signed+int_signed+big_signed AS arithmetic_value,
+       (tiny_unsigned|small_unsigned)&int_unsigned AS bit_value,
+       big_unsigned DIV NULLIF(int_unsigned,0) AS division_value,
+       big_unsigned MOD NULLIF(small_unsigned,0) AS modulo_value
+FROM integer_lifecycle
+WHERE (tiny_signed<0 XOR bool_alias) OR boolean_alias;
+SELECT signed_row.id,unsigned_row.id,
+       signed_row.big_signed,unsigned_row.big_unsigned
+FROM integer_lifecycle AS signed_row
+JOIN integer_lifecycle AS unsigned_row
+  ON signed_row.int_signed=CAST(unsigned_row.int_unsigned AS SIGNED)
+ AND signed_row.small_signed<=unsigned_row.small_unsigned
+WHERE signed_row.tiny_signed<>unsigned_row.tiny_unsigned;
+SELECT bool_alias,
+       COUNT(DISTINCT tiny_signed),
+       SUM(small_signed),
+       AVG(medium_unsigned),
+       MIN(int_signed),
+       MAX(big_unsigned),
+       BIT_AND(tiny_unsigned),
+       BIT_OR(small_unsigned),
+       BIT_XOR(int_unsigned)
+FROM integer_lifecycle
+GROUP BY bool_alias
+HAVING SUM(big_signed) IS NOT NULL;
+SELECT outer_integer.id,
+       (SELECT MAX(inner_integer.big_unsigned)
+        FROM integer_lifecycle AS inner_integer
+        WHERE inner_integer.bool_alias=outer_integer.bool_alias
+          AND inner_integer.medium_signed<=outer_integer.medium_signed) AS correlated_max
+FROM integer_lifecycle AS outer_integer
+WHERE outer_integer.int_unsigned > ALL (
+  SELECT inner_integer.int_signed
+  FROM integer_lifecycle AS inner_integer
+  WHERE inner_integer.id<>outer_integer.id
+);
+SELECT id,
+       CASE
+         WHEN tiny_signed<0 THEN big_signed
+         WHEN bool_alias THEN int_signed
+         ELSE medium_signed
+       END AS chosen_signed,
+       COALESCE(NULLIF(big_unsigned,0),int_unsigned,small_unsigned) AS chosen_unsigned,
+       IF(boolean_alias,tiny_unsigned,small_unsigned) AS chosen_boolean
+FROM integer_lifecycle;
+SELECT id,tiny_signed,small_signed,medium_signed,int_signed,big_signed
+FROM integer_lifecycle
+WHERE bool_alias
+UNION ALL
+SELECT id,tiny_signed,small_signed,medium_signed,int_signed,big_signed
+FROM integer_lifecycle
+WHERE NOT boolean_alias
+ORDER BY id;
+SELECT derived.bool_alias,COUNT(*) AS row_count,
+       MIN(derived.smallest),MAX(derived.largest)
+FROM (
+  SELECT bool_alias,
+         LEAST(tiny_signed,small_signed,medium_signed,int_signed,big_signed) AS smallest,
+         GREATEST(tiny_unsigned,small_unsigned,medium_unsigned,int_unsigned,big_unsigned) AS largest
+  FROM integer_lifecycle
+) AS derived
+GROUP BY derived.bool_alias
+ORDER BY row_count DESC
+LIMIT 5;
+SELECT id,
+       CAST(tiny_signed AS SIGNED),
+       CAST(small_unsigned AS UNSIGNED),
+       CONVERT(medium_signed,SIGNED INTEGER),
+       CONVERT(big_unsigned,UNSIGNED INTEGER)
+FROM integer_lifecycle
+WHERE ROW(tiny_signed,small_signed) <= ROW(medium_signed,int_signed);
+------------------------------------------------------------------------------------------
+[SELECT] SELECT id,
+       tiny_signed+small_signed+medium_signed+int_signed+big_signed AS arithmetic_value,
+       (tiny_unsigned|small_unsigned)&int_unsigned AS bit_value,
+       big_unsigned DIV NULLIF(int_unsigned,0) AS division_value,
+       big_unsigned MOD NULLIF(small_unsigned,0) AS modulo_value
+FROM integer_lifecycle
+WHERE (tiny_signed<0 XOR bool_alias) OR boolean_alias;
+----------
+[SELECT] SELECT signed_row.id,unsigned_row.id,
+       signed_row.big_signed,unsigned_row.big_unsigned
+FROM integer_lifecycle AS signed_row
+JOIN integer_lifecycle AS unsigned_row
+  ON signed_row.int_signed=CAST(unsigned_row.int_unsigned AS SIGNED)
+ AND signed_row.small_signed<=unsigned_row.small_unsigned
+WHERE signed_row.tiny_signed<>unsigned_row.tiny_unsigned;
+----------
+[SELECT] SELECT bool_alias,
+       COUNT(DISTINCT tiny_signed),
+       SUM(small_signed),
+       AVG(medium_unsigned),
+       MIN(int_signed),
+       MAX(big_unsigned),
+       BIT_AND(tiny_unsigned),
+       BIT_OR(small_unsigned),
+       BIT_XOR(int_unsigned)
+FROM integer_lifecycle
+GROUP BY bool_alias
+HAVING SUM(big_signed) IS NOT NULL;
+----------
+[SELECT] SELECT outer_integer.id,
+       (SELECT MAX(inner_integer.big_unsigned)
+        FROM integer_lifecycle AS inner_integer
+        WHERE inner_integer.bool_alias=outer_integer.bool_alias
+          AND inner_integer.medium_signed<=outer_integer.medium_signed) AS correlated_max
+FROM integer_lifecycle AS outer_integer
+WHERE outer_integer.int_unsigned > ALL (
+  SELECT inner_integer.int_signed
+  FROM integer_lifecycle AS inner_integer
+  WHERE inner_integer.id<>outer_integer.id
+);
+----------
+[SELECT] SELECT id,
+       CASE
+         WHEN tiny_signed<0 THEN big_signed
+         WHEN bool_alias THEN int_signed
+         ELSE medium_signed
+       END AS chosen_signed,
+       COALESCE(NULLIF(big_unsigned,0),int_unsigned,small_unsigned) AS chosen_unsigned,
+       IF(boolean_alias,tiny_unsigned,small_unsigned) AS chosen_boolean
+FROM integer_lifecycle;
+----------
+[SELECT] SELECT id,tiny_signed,small_signed,medium_signed,int_signed,big_signed
+FROM integer_lifecycle
+WHERE bool_alias
+UNION ALL
+SELECT id,tiny_signed,small_signed,medium_signed,int_signed,big_signed
+FROM integer_lifecycle
+WHERE NOT boolean_alias
+ORDER BY id;
+----------
+[SELECT] SELECT derived.bool_alias,COUNT(*) AS row_count,
+       MIN(derived.smallest),MAX(derived.largest)
+FROM (
+  SELECT bool_alias,
+         LEAST(tiny_signed,small_signed,medium_signed,int_signed,big_signed) AS smallest,
+         GREATEST(tiny_unsigned,small_unsigned,medium_unsigned,int_unsigned,big_unsigned) AS largest
+  FROM integer_lifecycle
+) AS derived
+GROUP BY derived.bool_alias
+ORDER BY row_count DESC
+LIMIT 5;
+----------
+[SELECT] SELECT id,
+       CAST(tiny_signed AS SIGNED),
+       CAST(small_unsigned AS UNSIGNED),
+       CONVERT(medium_signed,SIGNED INTEGER),
+       CONVERT(big_unsigned,UNSIGNED INTEGER)
+FROM integer_lifecycle
+WHERE ROW(tiny_signed,small_signed) <= ROW(medium_signed,int_signed);

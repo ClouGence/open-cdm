@@ -1,0 +1,96 @@
+ALTER DATABASE audit_admin_db READ ONLY = 1 READ ONLY = 0;
+ALTER DATABASE DEFAULT CHARACTER SET = utf8mb4;
+ALTER DATABASE audit_admin_db READ ONLY = 1 READ ONLY = 1;
+ALTER SCHEMA DEFAULT COLLATE = utf8mb4_bin;
+CREATE DATABASE split_db80_modern DEFAULT ENCRYPTION = 'N';
+ALTER DATABASE split_db80_modern READ ONLY = 1;
+ALTER DATABASE split_db80_modern READ ONLY = 0 DEFAULT ENCRYPTION = 'N';
+DROP DATABASE split_db80_modern;
+CREATE DATABASE db345678901234567890123456789012345678901234567890123456789012345;
+CREATE DATABASE db34567890123456789012345678901234567890123456789012345678901234;
+create database `abc`;
+create schema abc;
+create schema `abc`;
+create database abc default collate utf8mb4_unicode_ci;
+create database abc default character set utf8mb4;
+create database abc default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database if not exists abc;
+drop database abc;
+drop database if exists abc;
+drop schema if exists abc;
+alter schema abc default character set utf8mb4;
+alter schema abc default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database test;
+create database if not exists test;
+create database test character set utf8mb4;
+create database test character set utf8mb4 collate utf8mb4_unicode_ci;
+create schema test_schema;
+drop database test;
+drop database if exists test;
+drop schema test_schema;
+alter database test character set utf8mb4;
+alter database test character set utf8mb4 collate utf8mb4_unicode_ci;
+------------------------------------------------------------------------------------------
+[ALTER_SCHEMA] ALTER DATABASE audit_admin_db READ ONLY = 1 READ ONLY = 0;
+----------
+[ALTER_SCHEMA] ALTER DATABASE DEFAULT CHARACTER SET = utf8mb4;
+----------
+[ALTER_SCHEMA] ALTER DATABASE audit_admin_db READ ONLY = 1 READ ONLY = 1;
+----------
+[ALTER_SCHEMA] ALTER SCHEMA DEFAULT COLLATE = utf8mb4_bin;
+----------
+[CREATE_SCHEMA] CREATE DATABASE split_db80_modern DEFAULT ENCRYPTION = 'N';
+----------
+[ALTER_SCHEMA] ALTER DATABASE split_db80_modern READ ONLY = 1;
+----------
+[ALTER_SCHEMA] ALTER DATABASE split_db80_modern READ ONLY = 0 DEFAULT ENCRYPTION = 'N';
+----------
+[DROP_SCHEMA] DROP DATABASE split_db80_modern;
+----------
+[CREATE_SCHEMA] CREATE DATABASE db345678901234567890123456789012345678901234567890123456789012345;
+----------
+[CREATE_SCHEMA] CREATE DATABASE db34567890123456789012345678901234567890123456789012345678901234;
+----------
+[CREATE_SCHEMA] create database `abc`;
+----------
+[CREATE_SCHEMA] create schema abc;
+----------
+[CREATE_SCHEMA] create schema `abc`;
+----------
+[CREATE_SCHEMA] create database abc default collate utf8mb4_unicode_ci;
+----------
+[CREATE_SCHEMA] create database abc default character set utf8mb4;
+----------
+[CREATE_SCHEMA] create database abc default character set utf8mb4 collate utf8mb4_unicode_ci;
+----------
+[CREATE_SCHEMA] create database if not exists abc;
+----------
+[DROP_SCHEMA] drop database abc;
+----------
+[DROP_SCHEMA] drop database if exists abc;
+----------
+[DROP_SCHEMA] drop schema if exists abc;
+----------
+[ALTER_SCHEMA] alter schema abc default character set utf8mb4;
+----------
+[ALTER_SCHEMA] alter schema abc default character set utf8mb4 collate utf8mb4_unicode_ci;
+----------
+[CREATE_SCHEMA] create database test;
+----------
+[CREATE_SCHEMA] create database if not exists test;
+----------
+[CREATE_SCHEMA] create database test character set utf8mb4;
+----------
+[CREATE_SCHEMA] create database test character set utf8mb4 collate utf8mb4_unicode_ci;
+----------
+[CREATE_SCHEMA] create schema test_schema;
+----------
+[DROP_SCHEMA] drop database test;
+----------
+[DROP_SCHEMA] drop database if exists test;
+----------
+[DROP_SCHEMA] drop schema test_schema;
+----------
+[ALTER_SCHEMA] alter database test character set utf8mb4;
+----------
+[ALTER_SCHEMA] alter database test character set utf8mb4 collate utf8mb4_unicode_ci;

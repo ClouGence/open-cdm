@@ -1,0 +1,190 @@
+[OraSecFuncAndProcCreateAndDropTest_dropFunction]
+sql:
+drop function test;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_PROG_OBJ",
+      "auditKind": "DROP",
+      "name": "test",
+      "sqlTarget": "Function"
+    }
+  ]
+}
+----------
+[OraSecFuncAndProcCreateAndDropTest_dropFunction2]
+sql:
+drop function schema1.test;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_PROG_OBJ",
+      "auditKind": "DROP",
+      "schema": "schema1",
+      "name": "test",
+      "sqlTarget": "Function"
+    }
+  ]
+}
+----------
+[OraSecFuncAndProcCreateAndDropTest_dropFunction3]
+sql:
+drop function "schema1"."test";
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_PROG_OBJ",
+      "auditKind": "DROP",
+      "schema": "schema1",
+      "name": "test",
+      "sqlTarget": "Function"
+    }
+  ]
+}
+----------
+[OraSecFuncAndProcCreateAndDropTest_dropProcedure]
+sql:
+drop procedure test;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_PROG_OBJ",
+      "auditKind": "DROP",
+      "name": "test",
+      "sqlTarget": "Procedure"
+    }
+  ]
+}
+----------
+[OraSecFuncAndProcCreateAndDropTest_dropProcedure2]
+sql:
+drop procedure schema1.test;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_PROG_OBJ",
+      "auditKind": "DROP",
+      "schema": "schema1",
+      "name": "test",
+      "sqlTarget": "Procedure"
+    }
+  ]
+}
+----------
+[OraSecFuncAndProcCreateAndDropTest_dropProcedure3]
+sql:
+drop procedure "schema1"."test";
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "DROP_PROG_OBJ",
+      "auditKind": "DROP",
+      "schema": "schema1",
+      "name": "test",
+      "sqlTarget": "Procedure"
+    }
+  ]
+}
+----------
+[OraSecFuncAndProcCreateAndDropTest_createFunction]
+sql:
+CREATE OR REPLACE FUNCTION test (emp_id NUMBER)
+RETURN NUMBER
+IS
+    emp_salary NUMBER;
+BEGIN
+    SELECT salary INTO emp_salary
+    FROM employees
+    WHERE employee_id = emp_id;
+
+    RETURN emp_salary;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+END;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_PROG_OBJ",
+      "auditKind": "CREATE",
+      "name": "test",
+      "sqlTarget": "Function"
+    }
+  ]
+}
+----------
+[OraSecFuncAndProcCreateAndDropTest_createProcedure]
+sql:
+CREATE OR REPLACE PROCEDURE test
+IS
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Hello, Oracle!');
+END;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_PROG_OBJ",
+      "auditKind": "CREATE",
+      "name": "test",
+      "sqlTarget": "Procedure"
+    }
+  ]
+}
+----------
+[OraSecFuncAndProcCreateAndDropTest_createFunction1]
+sql:
+CREATE OR REPLACE FUNCTION "schema1"."test" (emp_id NUMBER)
+RETURN NUMBER
+IS
+    emp_salary NUMBER;
+BEGIN
+    SELECT salary INTO emp_salary
+    FROM employees
+    WHERE employee_id = emp_id;
+
+    RETURN emp_salary;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+END;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_PROG_OBJ",
+      "auditKind": "CREATE",
+      "schema": "schema1",
+      "name": "test",
+      "sqlTarget": "Function"
+    }
+  ]
+}
+----------
+[OraSecFuncAndProcCreateAndDropTest_createProcedure1]
+sql:
+CREATE OR REPLACE PROCEDURE "schema1"."test"
+IS
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Hello, Oracle!');
+END;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CREATE_PROG_OBJ",
+      "auditKind": "CREATE",
+      "schema": "schema1",
+      "name": "test",
+      "sqlTarget": "Procedure"
+    }
+  ]
+}
+----------

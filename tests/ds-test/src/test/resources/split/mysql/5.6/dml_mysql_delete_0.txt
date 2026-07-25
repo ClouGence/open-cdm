@@ -1,0 +1,160 @@
+delete from test;
+delete ignore from test where id = 1;
+delete from test1 where id = (select max(id) from test2);
+delete from test1 where id = (select max(id) from test2 limit 2) limit 1;
+DELETE LOW_PRIORITY QUICK IGNORE FROM ptab PARTITION (p0) WHERE id < 0 ORDER BY id LIMIT 1;
+DELETE LOW_PRIORITY QUICK IGNORE a.*, b.* FROM t1 AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+DELETE LOW_PRIORITY QUICK IGNORE FROM a, b USING t1 AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+DELETE a FROM ptab PARTITION (p0) AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+DELETE FROM articles WHERE MATCH(title,body) AGAINST('+database' IN BOOLEAN MODE);
+DELETE a FROM articles AS a JOIN aux AS b ON a.id=b.id WHERE MATCH(a.title) AGAINST('database');
+DELETE `4.t1` FROM t1 AS `4.t1` WHERE `4.t1`.a = 500;
+DELETE FROM `4.t1` USING t1 AS `4.t1` WHERE `4.t1`.a = 500;
+DELETE FROM t1 WHERE (@a := f1) ORDER BY f1 LIMIT 1;
+DELETE FROM t1.*, codex_delete_native_parallel.t2.*, a.* USING t1, t2, t3 AS a;
+DELETE FROM OUTR1.* USING t1 AS OUTR1 LEFT OUTER JOIN t2 AS OUTR2 ON (OUTR1.a = OUTR2.b) WHERE OUTR1.a < (SELECT t3.c FROM t3 WHERE 1 XOR OUTR2.b IS NOT NULL);
+DELETE IGNORE t1.*, t2.* FROM t1, t2 WHERE c < b OR a != (SELECT 1 UNION SELECT 2);
+DELETE t1, t2, t3, t4 FROM (t1 INNER JOIN t2 USING (a)) LEFT JOIN (t3 INNER JOIN t4 USING (a)) ON t2.b = t4.b;
+DELETE IGNORE QUICK LOW_PRIORITY FROM dml_audit.t WHERE id=999 ORDER BY id LIMIT 1;
+DELETE p1.* FROM split_derived_common.nm AS p1 INNER JOIN (SELECT n FROM split_derived_common.nm GROUP BY n HAVING COUNT(m)>1) AS p2 ON p1.n=p2.n;
+DELETE FROM split_subquery_fifth.del1 WHERE del1.EMPNUM NOT IN (SELECT del2.EMPNUM FROM split_subquery_fifth.del2 WHERE del1.EMPNUM=del2.EMPNUM);
+DELETE FROM part_t PARTITION(p0,p1) WHERE id IN(2,12);
+DELETE d7_t1, d7_t2 FROM d7_t1 PARTITION (pNeg), d7_t3, d7_t2 PARTITION (subp3) WHERE d7_t1.a = d7_t3.a AND d7_t3.b = 'subp3' AND d7_t3.a = d7_t2.a;
+DELETE FROM d8_t2, d8_t3 USING d8_t2 PARTITION (`p0-9`), d8_t3, d8_t1 PARTITION (subp3) WHERE d8_t1.a = d8_t3.a AND d8_t3.b = 'subp3' AND d8_t2.a = d8_t1.a;
+DELETE d9_t1.* FROM d9_t1 FORCE INDEX(by_val) WHERE val > 1 AND val MOD 1000 = 1;
+DELETE s FROM split_dml_src AS s IGNORE INDEX FOR JOIN (idx_v)
+  JOIN split_dml_aux AS a USE INDEX FOR JOIN (PRIMARY) ON a.id=s.id
+  WHERE EXISTS (SELECT 1 FROM split_dml_dst AS d WHERE d.id=a.id);
+DELETE FROM bit_values WHERE b=FALSE OR b BETWEEN b'1' AND b'111';
+DELETE FROM time_widths WHERE t6 IN(TIME'00:00:00.000000',NULL) OR t6 NOT BETWEEN TIME'-24:00:00' AND TIME'24:00:00';
+DELETE FROM str_lifecycle WHERE variable_binary=X'6279746573' OR c BETWEEN 'a' AND 'z';
+DELETE FROM lob_family WHERE b=X'4100' OR t COLLATE utf8mb4_bin BETWEEN 'a' AND 'z';
+DELETE FROM split_type_enum_set.es_core
+    WHERE e_basic IN (
+      SELECT e_basic
+      FROM (SELECT e_basic FROM split_type_enum_set.es_core
+            WHERE FIND_IN_SET('green',s_basic)) AS d
+    )
+      AND (s_basic+0 & 2) <> 0;
+DELETE FROM spatial_lifecycle
+WHERE EXISTS (
+  SELECT 1
+  FROM spatial_lifecycle AS s2
+  WHERE s2.id=spatial_lifecycle.id
+    AND ST_Within(s2.p,ST_Buffer(spatial_lifecycle.p,1))
+);
+DELETE FROM integer_lifecycle
+WHERE int_signed<0
+  AND EXISTS (
+    SELECT 1
+    FROM integer_lifecycle AS inner_integer
+    WHERE inner_integer.id=integer_lifecycle.id
+      AND inner_integer.big_unsigned=integer_lifecycle.big_unsigned
+  );
+DELETE FROM integer_key_partition
+WHERE id IN (0,18446744073709551615);
+DELETE FROM numeric_lifecycle
+WHERE float_value<0
+   OR EXISTS (
+     SELECT 1
+     FROM numeric_lifecycle AS inner_numeric
+     WHERE inner_numeric.id=numeric_lifecycle.id
+       AND inner_numeric.decimal_value=numeric_lifecycle.numeric_value
+   );
+------------------------------------------------------------------------------------------
+[DELETE] delete from test;
+----------
+[DELETE] delete ignore from test where id = 1;
+----------
+[DELETE|SELECT] delete from test1 where id = (select max(id) from test2);
+----------
+[DELETE|SELECT] delete from test1 where id = (select max(id) from test2 limit 2) limit 1;
+----------
+[DELETE] DELETE LOW_PRIORITY QUICK IGNORE FROM ptab PARTITION (p0) WHERE id < 0 ORDER BY id LIMIT 1;
+----------
+[DELETE] DELETE LOW_PRIORITY QUICK IGNORE a.*, b.* FROM t1 AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+----------
+[DELETE] DELETE LOW_PRIORITY QUICK IGNORE FROM a, b USING t1 AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+----------
+[DELETE] DELETE a FROM ptab PARTITION (p0) AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+----------
+[DELETE] DELETE FROM articles WHERE MATCH(title,body) AGAINST('+database' IN BOOLEAN MODE);
+----------
+[DELETE] DELETE a FROM articles AS a JOIN aux AS b ON a.id=b.id WHERE MATCH(a.title) AGAINST('database');
+----------
+[DELETE] DELETE `4.t1` FROM t1 AS `4.t1` WHERE `4.t1`.a = 500;
+----------
+[DELETE] DELETE FROM `4.t1` USING t1 AS `4.t1` WHERE `4.t1`.a = 500;
+----------
+[DELETE|SESSION_VARIABLE_RW] DELETE FROM t1 WHERE (@a := f1) ORDER BY f1 LIMIT 1;
+----------
+[DELETE] DELETE FROM t1.*, codex_delete_native_parallel.t2.*, a.* USING t1, t2, t3 AS a;
+----------
+[DELETE|SELECT] DELETE FROM OUTR1.* USING t1 AS OUTR1 LEFT OUTER JOIN t2 AS OUTR2 ON (OUTR1.a = OUTR2.b) WHERE OUTR1.a < (SELECT t3.c FROM t3 WHERE 1 XOR OUTR2.b IS NOT NULL);
+----------
+[DELETE|SELECT] DELETE IGNORE t1.*, t2.* FROM t1, t2 WHERE c < b OR a != (SELECT 1 UNION SELECT 2);
+----------
+[DELETE] DELETE t1, t2, t3, t4 FROM (t1 INNER JOIN t2 USING (a)) LEFT JOIN (t3 INNER JOIN t4 USING (a)) ON t2.b = t4.b;
+----------
+[DELETE] DELETE IGNORE QUICK LOW_PRIORITY FROM dml_audit.t WHERE id=999 ORDER BY id LIMIT 1;
+----------
+[DELETE|SELECT] DELETE p1.* FROM split_derived_common.nm AS p1 INNER JOIN (SELECT n FROM split_derived_common.nm GROUP BY n HAVING COUNT(m)>1) AS p2 ON p1.n=p2.n;
+----------
+[DELETE|SELECT] DELETE FROM split_subquery_fifth.del1 WHERE del1.EMPNUM NOT IN (SELECT del2.EMPNUM FROM split_subquery_fifth.del2 WHERE del1.EMPNUM=del2.EMPNUM);
+----------
+[DELETE] DELETE FROM part_t PARTITION(p0,p1) WHERE id IN(2,12);
+----------
+[DELETE] DELETE d7_t1, d7_t2 FROM d7_t1 PARTITION (pNeg), d7_t3, d7_t2 PARTITION (subp3) WHERE d7_t1.a = d7_t3.a AND d7_t3.b = 'subp3' AND d7_t3.a = d7_t2.a;
+----------
+[DELETE] DELETE FROM d8_t2, d8_t3 USING d8_t2 PARTITION (`p0-9`), d8_t3, d8_t1 PARTITION (subp3) WHERE d8_t1.a = d8_t3.a AND d8_t3.b = 'subp3' AND d8_t2.a = d8_t1.a;
+----------
+[DELETE] DELETE d9_t1.* FROM d9_t1 FORCE INDEX(by_val) WHERE val > 1 AND val MOD 1000 = 1;
+----------
+[DELETE|SELECT] DELETE s FROM split_dml_src AS s IGNORE INDEX FOR JOIN (idx_v)
+  JOIN split_dml_aux AS a USE INDEX FOR JOIN (PRIMARY) ON a.id=s.id
+  WHERE EXISTS (SELECT 1 FROM split_dml_dst AS d WHERE d.id=a.id);
+----------
+[DELETE] DELETE FROM bit_values WHERE b=FALSE OR b BETWEEN b'1' AND b'111';
+----------
+[DELETE] DELETE FROM time_widths WHERE t6 IN(TIME'00:00:00.000000',NULL) OR t6 NOT BETWEEN TIME'-24:00:00' AND TIME'24:00:00';
+----------
+[DELETE] DELETE FROM str_lifecycle WHERE variable_binary=X'6279746573' OR c BETWEEN 'a' AND 'z';
+----------
+[DELETE] DELETE FROM lob_family WHERE b=X'4100' OR t COLLATE utf8mb4_bin BETWEEN 'a' AND 'z';
+----------
+[DELETE|SELECT] DELETE FROM split_type_enum_set.es_core
+    WHERE e_basic IN (
+      SELECT e_basic
+      FROM (SELECT e_basic FROM split_type_enum_set.es_core
+            WHERE FIND_IN_SET('green',s_basic)) AS d
+    )
+      AND (s_basic+0 & 2) <> 0;
+----------
+[DELETE|SELECT] DELETE FROM spatial_lifecycle
+WHERE EXISTS (
+  SELECT 1
+  FROM spatial_lifecycle AS s2
+  WHERE s2.id=spatial_lifecycle.id
+    AND ST_Within(s2.p,ST_Buffer(spatial_lifecycle.p,1))
+);
+----------
+[DELETE|SELECT] DELETE FROM integer_lifecycle
+WHERE int_signed<0
+  AND EXISTS (
+    SELECT 1
+    FROM integer_lifecycle AS inner_integer
+    WHERE inner_integer.id=integer_lifecycle.id
+      AND inner_integer.big_unsigned=integer_lifecycle.big_unsigned
+  );
+----------
+[DELETE] DELETE FROM integer_key_partition
+WHERE id IN (0,18446744073709551615);
+----------
+[DELETE|SELECT] DELETE FROM numeric_lifecycle
+WHERE float_value<0
+   OR EXISTS (
+     SELECT 1
+     FROM numeric_lifecycle AS inner_numeric
+     WHERE inner_numeric.id=numeric_lifecycle.id
+       AND inner_numeric.decimal_value=numeric_lifecycle.numeric_value
+   );

@@ -1,0 +1,31 @@
+DROP schema sampledb;CREATE schema sampledb;CREATE TABLE employees (
+    id INT NOT NULL,
+    name VARCHAR(100),
+    position VARCHAR(100),
+    salary DECIMAL(10,2),
+    PRIMARY KEY (id)
+);INSERT INTO employees (id, name, position, salary) VALUES (1, '张三', '软件工程师', 75000);UPDATE employees SET salary = 80000 WHERE id = 1;DELETE FROM employees WHERE id = 1;SELECT * FROM employees;CREATE INDEX idx_name ON employees(name);DROP TABLE employees;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP schema sampledb;
+----------
+[CREATE_SCHEMA] CREATE schema sampledb;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] CREATE TABLE employees (
+    id INT NOT NULL,
+    name VARCHAR(100),
+    position VARCHAR(100),
+    salary DECIMAL(10,2),
+    PRIMARY KEY (id)
+);
+----------
+[INSERT] INSERT INTO employees (id, name, position, salary) VALUES (1, '张三', '软件工程师', 75000);
+----------
+[UPDATE] UPDATE employees SET salary = 80000 WHERE id = 1;
+----------
+[DELETE] DELETE FROM employees WHERE id = 1;
+----------
+[SELECT] SELECT * FROM employees;
+----------
+[ADD_INDEX] CREATE INDEX idx_name ON employees(name);
+----------
+[DROP_TABLE] DROP TABLE employees;

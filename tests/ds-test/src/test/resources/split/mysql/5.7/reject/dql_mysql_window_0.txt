@@ -1,0 +1,207 @@
+SELECT (SELECT SUM(q2.id) OVER() FROM split_scalar_corr_a.r AS q2 WHERE q2.id=q1.id) AS aa,q1.v FROM split_scalar_corr_a.q AS q1 GROUP BY aa,q1.v;
+SELECT q1.id,(SELECT SUM(q2.id) OVER win FROM split_scalar_corr_a.r AS q2 WINDOW win AS(ORDER BY q1.id) LIMIT 1) FROM split_scalar_corr_a.q AS q1;
+SELECT s1t1.column1 AS main_id, (SELECT MAX(s2t2.column3) FROM split_cpx57_s2.table2 s2t2 WHERE s2t2.column4=s1t1.column2) AS max_val, RANK() OVER (ORDER BY s1t2.column5 DESC) AS rank_level FROM split_cpx57_s1.table1 s1t1 JOIN split_cpx57_s1.table2 s1t2 ON s1t1.column3=s1t2.column1 LEFT JOIN split_cpx57_s2.table1 s2t1 ON s1t1.column4=s2t1.column5 WHERE s2t1.column6 IN (SELECT DISTINCT column2 FROM split_cpx57_s2.table2 WHERE column4>100);
+SELECT s1t1.column2 AS category, SUM(s2t1.column4) AS total_sum, AVG(s1t2.column5) OVER (PARTITION BY s1t1.column2) AS avg_value, (SELECT COUNT(*) FROM split_cpx57_s2.table2 WHERE column3=s1t1.column3) AS related_count FROM split_cpx57_s1.table1 s1t1 LEFT JOIN split_cpx57_s1.table2 s1t2 ON s1t1.column1=s1t2.column6 RIGHT JOIN split_cpx57_s2.table1 s2t1 ON s1t1.column4=s2t1.column3 GROUP BY s1t1.column2 HAVING total_sum>(SELECT AVG(column4)*1.5 FROM split_cpx57_s2.table1);
+(SELECT s1t1.*,s2t2.column1 AS s2_col1,ROW_NUMBER() OVER (ORDER BY s1t2.column5) AS conflict_alias FROM split_cpx57_s1.table1 s1t1 LEFT JOIN split_cpx57_s2.table2 s2t2 ON s1t1.column6=s2t2.column3 LEFT JOIN split_cpx57_s1.table2 s1t2 ON s1t1.column2=s1t2.column4) UNION (SELECT s2t1.*,s1t2.column2 AS s1_col2,RANK() OVER (PARTITION BY s2t1.column3 ORDER BY s2t1.column4) AS conflict_alias FROM split_cpx57_s2.table1 s2t1 RIGHT JOIN split_cpx57_s1.table2 s1t2 ON s2t1.column5=s1t2.column1 WHERE s2t1.column6 IN (SELECT MAX(column6) FROM split_cpx57_s2.table2 GROUP BY column2)) ORDER BY CASE WHEN conflict_alias>100 THEN column1 ELSE column2 END DESC;
+WITH qn AS (SELECT a,b,c,GROUPING(a) AS grouping_a FROM split_olap_grouping.t GROUP BY a,b,c WITH ROLLUP) SELECT * FROM qn;
+SELECT 1 QUALIFY 1 = 1;
+SELECT AVG(a) OVER () AS avg_value,a+(SELECT SUM(a)+(SELECT COUNT(a) FROM split_scalar80_a.t1) FROM (SELECT * FROM split_scalar80_a.t1) AS t11) AS scalar_value FROM split_scalar80_a.t2;
+SELECT AVG(d2.avg_us) OVER ()+3,d2.avg_us,SUM(d2.avg_us) OVER ()+3,IFNULL(SUM(d1.cnt)/NULLIF((SELECT COUNT(*) FROM split_scalar80_b.digest),0),0) AS percentile FROM split_scalar80_b.digest AS d1 JOIN split_scalar80_b.digest AS d2 ON d1.avg_us<=d2.avg_us GROUP BY d2.avg_us HAVING IFNULL(SUM(d1.cnt)/NULLIF((SELECT COUNT(*) FROM split_scalar80_b.digest),0),0)>0.95 ORDER BY percentile LIMIT 1;
+SELECT COUNT(country),SUM(funds),country,(SELECT SUM(funds) FROM split_scalar80_b.school),ROW_NUMBER() OVER (ORDER BY STDDEV_POP(funds)) FROM split_scalar80_b.school GROUP BY country HAVING AVG(funds)>0 ORDER BY SUM(ABS(funds));
+SELECT COUNT(*),(SELECT 1 FROM split_scalar80_f.q AS q2) FROM split_scalar80_f.q AS q1,(SELECT 1 FROM split_scalar80_f.q AS q3) AS d,split_scalar80_f.q AS q4 ORDER BY ROW_NUMBER() OVER(ORDER BY -q4.v);
+SELECT SUM(q1.v),ROW_NUMBER() OVER(),(SELECT MIN(q2.v) FROM split_scalar80_f.q AS q2) FROM split_scalar80_f.q AS q1 ORDER BY q1.v;
+SELECT SUM(q1.v),ROW_NUMBER() OVER(PARTITION BY q1.v),(SELECT MIN(q2.v) FROM split_scalar80_f.q AS q2) FROM split_scalar80_f.q AS q1;
+SELECT SUM(q1.v),SUM(q1.v) OVER(),q1.v,(SELECT MIN(q2.v) FROM split_scalar80_f.q AS q2) AS sq FROM split_scalar80_f.q AS q1 ORDER BY q1.v;
+SELECT v >=ALL (SELECT val FROM it) AS b,SUM((SELECT b)) OVER () AS s FROM ot;
+SELECT * FROM ot WHERE v >ALL (SELECT MAX(val) OVER () FROM it);
+SELECT v >=ALL (SELECT val FROM it) AS b,SUM((SELECT b)) OVER (PARTITION BY (SELECT b)) AS s FROM ot;
+SELECT * FROM split_subquery_bugs_860.lat AS upper_t JOIN LATERAL (SELECT DISTINCT ROW_NUMBER() OVER () AS rn FROM split_subquery_bugs_860.lat WHERE lat.a>upper_t.a) AS der;
+SELECT DISTINCT * FROM split_subquery_bugs_550.fx ORDER BY UUID_TO_BIN(ST_ISEMPTY(ST_POINTFROMTEXT(ST_ASWKT(NOT EXISTS(SELECT 1 FROM split_subquery_bugs_550.fx WHERE IS_UUID(CAST(SHA(a>>0xA7FE1B22) AS JSON)) WINDOW w1 AS()),'AXIS-ORDER=SRID-DEFINED'),1,'AXIS-ORDER=LONG-LAT')));
+SELECT 1=(SELECT 1 FROM (SELECT 1 FROM split_subquery_bugs_1220.win_t LEFT JOIN (SELECT 1 FROM split_subquery_bugs_1220.win_t WHERE NOT EXISTS (SELECT 1 FROM split_subquery_bugs_1220.win_t WINDOW w1 AS (PARTITION BY a))) AS x ON 1>2) AS z);
+SELECT * FROM (SELECT a,JSON_ARRAYAGG(a) OVER () AS b FROM win_t) AS d1 WHERE (a,b) IN (SELECT a,JSON_ARRAYAGG(a) OVER () AS b FROM win_t);
+SELECT id, SUM(id) OVER (), AVG(id) OVER (), COUNT(*) OVER (), MIN(id) OVER (), MAX(id) OVER (), BIT_AND(id) OVER (), BIT_OR(id) OVER (), BIT_XOR(id) OVER () FROM t;
+SELECT id, SUM(id) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW EXCLUDE CURRENT ROW) FROM t;
+SELECT SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE GROUP) FROM t;
+SELECT SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE NO OTHERS) FROM t;
+SELECT SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE TIES) FROM t;
+SELECT id, NTH_VALUE(val, 1) FROM LAST OVER (ORDER BY id) FROM t;
+SELECT id, SUM(id) OVER (ORDER BY id GROUPS BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM t;
+SELECT id, FIRST_VALUE(val) IGNORE NULLS OVER (ORDER BY id) FROM t;
+SELECT id, LAG(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id), LEAD(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id) FROM t;
+SELECT id, ROW_NUMBER() OVER (PARTITION BY grp, val ORDER BY id) FROM t;
+SELECT id, SUM(id) OVER w2 FROM t WINDOW w AS (PARTITION BY grp), w2 AS (w ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW);
+SELECT id, SUM(id) OVER (ORDER BY id RANGE BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM t;
+SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY id), RANK() OVER (ORDER BY grp), DENSE_RANK() OVER (ORDER BY grp), PERCENT_RANK() OVER (ORDER BY id), CUME_DIST() OVER (ORDER BY id), NTILE(2) OVER (ORDER BY id) FROM t;
+SELECT id, NTH_VALUE(val, 1) FROM FIRST RESPECT NULLS OVER (ORDER BY id) FROM t;
+SELECT id, SUM(id) OVER (ORDER BY id ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM t;
+SELECT id, FIRST_VALUE(val) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING), LAST_VALUE(val) OVER (ORDER BY id ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING), NTH_VALUE(val, 2) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) FROM t;
+WITH totals AS (
+    SELECT grp, SUM(v) AS total FROM t2 GROUP BY grp
+)
+SELECT t.id, totals.total,
+       ROW_NUMBER() OVER (PARTITION BY t.grp ORDER BY t.v DESC) AS rn
+  FROM t1 AS t
+  JOIN totals ON totals.grp = t.grp
+ QUALIFY rn = 1 AND totals.total > 0
+ ORDER BY t.id
+ LIMIT 5;
+SELECT o.id, d.id
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT i.id, ROW_NUMBER() OVER (ORDER BY i.v DESC) AS rn
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       QUALIFY rn = 1
+  ) AS d ON TRUE
+ ORDER BY o.id
+ LIMIT 5;
+WITH sampled AS (
+    SELECT id, grp, v FROM t1 TABLESAMPLE SYSTEM (25)
+)
+SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY v DESC) AS rn
+  FROM sampled
+ QUALIFY rn <= 2
+ ORDER BY id
+ LIMIT 5;
+SELECT id, ROW_NUMBER() OVER (ORDER BY v DESC) AS rn
+  FROM t1
+ QUALIFY rn <= 2
+INTERSECT
+SELECT id, ROW_NUMBER() OVER (ORDER BY v DESC) AS rn
+  FROM t2
+ QUALIFY rn <= 2
+ORDER BY id
+LIMIT 3;
+SELECT SUM(1) OVER (ORDER BY ?);
+SELECT SUM(1) OVER (ORDER BY ? RANGE 2 PRECEDING);
+SELECT LAG(?,?,?) OVER (),LEAD(?,?,?) OVER (),NTH_VALUE(?,?) OVER () FROM (SELECT 1) AS t;
+SELECT ROW_NUMBER() OVER (ROWS BETWEEN UNBOUNDED FOLLOWING AND CURRENT ROW) FROM (SELECT 1 AS a) AS t;
+SELECT ROW_NUMBER() OVER (ROWS BETWEEN CURRENT ROW AND UNBOUNDED PRECEDING) FROM (SELECT 1 AS a) AS t;
+SELECT ROW_NUMBER() OVER (ROWS BETWEEN INTERVAL 2 DAY PRECEDING AND UNBOUNDED FOLLOWING) FROM (SELECT 1 AS a) AS t;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT (SELECT SUM(q2.id) OVER() FROM split_scalar_corr_a.r AS q2 WHERE q2.id=q1.id) AS aa,q1.v FROM split_scalar_corr_a.q AS q1 GROUP BY aa,q1.v;
+----------
+[SELECT] SELECT q1.id,(SELECT SUM(q2.id) OVER win FROM split_scalar_corr_a.r AS q2 WINDOW win AS(ORDER BY q1.id) LIMIT 1) FROM split_scalar_corr_a.q AS q1;
+----------
+[SELECT] SELECT s1t1.column1 AS main_id, (SELECT MAX(s2t2.column3) FROM split_cpx57_s2.table2 s2t2 WHERE s2t2.column4=s1t1.column2) AS max_val, RANK() OVER (ORDER BY s1t2.column5 DESC) AS rank_level FROM split_cpx57_s1.table1 s1t1 JOIN split_cpx57_s1.table2 s1t2 ON s1t1.column3=s1t2.column1 LEFT JOIN split_cpx57_s2.table1 s2t1 ON s1t1.column4=s2t1.column5 WHERE s2t1.column6 IN (SELECT DISTINCT column2 FROM split_cpx57_s2.table2 WHERE column4>100);
+----------
+[SELECT] SELECT s1t1.column2 AS category, SUM(s2t1.column4) AS total_sum, AVG(s1t2.column5) OVER (PARTITION BY s1t1.column2) AS avg_value, (SELECT COUNT(*) FROM split_cpx57_s2.table2 WHERE column3=s1t1.column3) AS related_count FROM split_cpx57_s1.table1 s1t1 LEFT JOIN split_cpx57_s1.table2 s1t2 ON s1t1.column1=s1t2.column6 RIGHT JOIN split_cpx57_s2.table1 s2t1 ON s1t1.column4=s2t1.column3 GROUP BY s1t1.column2 HAVING total_sum>(SELECT AVG(column4)*1.5 FROM split_cpx57_s2.table1);
+----------
+[SELECT] (SELECT s1t1.*,s2t2.column1 AS s2_col1,ROW_NUMBER() OVER (ORDER BY s1t2.column5) AS conflict_alias FROM split_cpx57_s1.table1 s1t1 LEFT JOIN split_cpx57_s2.table2 s2t2 ON s1t1.column6=s2t2.column3 LEFT JOIN split_cpx57_s1.table2 s1t2 ON s1t1.column2=s1t2.column4) UNION (SELECT s2t1.*,s1t2.column2 AS s1_col2,RANK() OVER (PARTITION BY s2t1.column3 ORDER BY s2t1.column4) AS conflict_alias FROM split_cpx57_s2.table1 s2t1 RIGHT JOIN split_cpx57_s1.table2 s1t2 ON s2t1.column5=s1t2.column1 WHERE s2t1.column6 IN (SELECT MAX(column6) FROM split_cpx57_s2.table2 GROUP BY column2)) ORDER BY CASE WHEN conflict_alias>100 THEN column1 ELSE column2 END DESC;
+----------
+[SELECT] WITH qn AS (SELECT a,b,c,GROUPING(a) AS grouping_a FROM split_olap_grouping.t GROUP BY a,b,c WITH ROLLUP) SELECT * FROM qn;
+----------
+[SELECT] SELECT 1 QUALIFY 1 = 1;
+----------
+[SELECT] SELECT AVG(a) OVER () AS avg_value,a+(SELECT SUM(a)+(SELECT COUNT(a) FROM split_scalar80_a.t1) FROM (SELECT * FROM split_scalar80_a.t1) AS t11) AS scalar_value FROM split_scalar80_a.t2;
+----------
+[SELECT] SELECT AVG(d2.avg_us) OVER ()+3,d2.avg_us,SUM(d2.avg_us) OVER ()+3,IFNULL(SUM(d1.cnt)/NULLIF((SELECT COUNT(*) FROM split_scalar80_b.digest),0),0) AS percentile FROM split_scalar80_b.digest AS d1 JOIN split_scalar80_b.digest AS d2 ON d1.avg_us<=d2.avg_us GROUP BY d2.avg_us HAVING IFNULL(SUM(d1.cnt)/NULLIF((SELECT COUNT(*) FROM split_scalar80_b.digest),0),0)>0.95 ORDER BY percentile LIMIT 1;
+----------
+[SELECT] SELECT COUNT(country),SUM(funds),country,(SELECT SUM(funds) FROM split_scalar80_b.school),ROW_NUMBER() OVER (ORDER BY STDDEV_POP(funds)) FROM split_scalar80_b.school GROUP BY country HAVING AVG(funds)>0 ORDER BY SUM(ABS(funds));
+----------
+[SELECT] SELECT COUNT(*),(SELECT 1 FROM split_scalar80_f.q AS q2) FROM split_scalar80_f.q AS q1,(SELECT 1 FROM split_scalar80_f.q AS q3) AS d,split_scalar80_f.q AS q4 ORDER BY ROW_NUMBER() OVER(ORDER BY -q4.v);
+----------
+[SELECT] SELECT SUM(q1.v),ROW_NUMBER() OVER(),(SELECT MIN(q2.v) FROM split_scalar80_f.q AS q2) FROM split_scalar80_f.q AS q1 ORDER BY q1.v;
+----------
+[SELECT] SELECT SUM(q1.v),ROW_NUMBER() OVER(PARTITION BY q1.v),(SELECT MIN(q2.v) FROM split_scalar80_f.q AS q2) FROM split_scalar80_f.q AS q1;
+----------
+[SELECT] SELECT SUM(q1.v),SUM(q1.v) OVER(),q1.v,(SELECT MIN(q2.v) FROM split_scalar80_f.q AS q2) AS sq FROM split_scalar80_f.q AS q1 ORDER BY q1.v;
+----------
+[SELECT] SELECT v >=ALL (SELECT val FROM it) AS b,SUM((SELECT b)) OVER () AS s FROM ot;
+----------
+[SELECT] SELECT * FROM ot WHERE v >ALL (SELECT MAX(val) OVER () FROM it);
+----------
+[SELECT] SELECT v >=ALL (SELECT val FROM it) AS b,SUM((SELECT b)) OVER (PARTITION BY (SELECT b)) AS s FROM ot;
+----------
+[SELECT] SELECT * FROM split_subquery_bugs_860.lat AS upper_t JOIN LATERAL (SELECT DISTINCT ROW_NUMBER() OVER () AS rn FROM split_subquery_bugs_860.lat WHERE lat.a>upper_t.a) AS der;
+----------
+[SELECT] SELECT DISTINCT * FROM split_subquery_bugs_550.fx ORDER BY UUID_TO_BIN(ST_ISEMPTY(ST_POINTFROMTEXT(ST_ASWKT(NOT EXISTS(SELECT 1 FROM split_subquery_bugs_550.fx WHERE IS_UUID(CAST(SHA(a>>0xA7FE1B22) AS JSON)) WINDOW w1 AS()),'AXIS-ORDER=SRID-DEFINED'),1,'AXIS-ORDER=LONG-LAT')));
+----------
+[SELECT] SELECT 1=(SELECT 1 FROM (SELECT 1 FROM split_subquery_bugs_1220.win_t LEFT JOIN (SELECT 1 FROM split_subquery_bugs_1220.win_t WHERE NOT EXISTS (SELECT 1 FROM split_subquery_bugs_1220.win_t WINDOW w1 AS (PARTITION BY a))) AS x ON 1>2) AS z);
+----------
+[SELECT] SELECT * FROM (SELECT a,JSON_ARRAYAGG(a) OVER () AS b FROM win_t) AS d1 WHERE (a,b) IN (SELECT a,JSON_ARRAYAGG(a) OVER () AS b FROM win_t);
+----------
+[SELECT] SELECT id, SUM(id) OVER (), AVG(id) OVER (), COUNT(*) OVER (), MIN(id) OVER (), MAX(id) OVER (), BIT_AND(id) OVER (), BIT_OR(id) OVER (), BIT_XOR(id) OVER () FROM t;
+----------
+[SELECT] SELECT id, SUM(id) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW EXCLUDE CURRENT ROW) FROM t;
+----------
+[SELECT] SELECT SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE GROUP) FROM t;
+----------
+[SELECT] SELECT SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE NO OTHERS) FROM t;
+----------
+[SELECT] SELECT SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE TIES) FROM t;
+----------
+[SELECT] SELECT id, NTH_VALUE(val, 1) FROM LAST OVER (ORDER BY id) FROM t;
+----------
+[SELECT] SELECT id, SUM(id) OVER (ORDER BY id GROUPS BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM t;
+----------
+[SELECT] SELECT id, FIRST_VALUE(val) IGNORE NULLS OVER (ORDER BY id) FROM t;
+----------
+[SELECT] SELECT id, LAG(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id), LEAD(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id) FROM t;
+----------
+[SELECT] SELECT id, ROW_NUMBER() OVER (PARTITION BY grp, val ORDER BY id) FROM t;
+----------
+[SELECT] SELECT id, SUM(id) OVER w2 FROM t WINDOW w AS (PARTITION BY grp), w2 AS (w ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW);
+----------
+[SELECT] SELECT id, SUM(id) OVER (ORDER BY id RANGE BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM t;
+----------
+[SELECT] SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY id), RANK() OVER (ORDER BY grp), DENSE_RANK() OVER (ORDER BY grp), PERCENT_RANK() OVER (ORDER BY id), CUME_DIST() OVER (ORDER BY id), NTILE(2) OVER (ORDER BY id) FROM t;
+----------
+[SELECT] SELECT id, NTH_VALUE(val, 1) FROM FIRST RESPECT NULLS OVER (ORDER BY id) FROM t;
+----------
+[SELECT] SELECT id, SUM(id) OVER (ORDER BY id ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM t;
+----------
+[SELECT] SELECT id, FIRST_VALUE(val) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING), LAST_VALUE(val) OVER (ORDER BY id ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING), NTH_VALUE(val, 2) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) FROM t;
+----------
+[SELECT] WITH totals AS (
+    SELECT grp, SUM(v) AS total FROM t2 GROUP BY grp
+)
+SELECT t.id, totals.total,
+       ROW_NUMBER() OVER (PARTITION BY t.grp ORDER BY t.v DESC) AS rn
+  FROM t1 AS t
+  JOIN totals ON totals.grp = t.grp
+ QUALIFY rn = 1 AND totals.total > 0
+ ORDER BY t.id
+ LIMIT 5;
+----------
+[SELECT] SELECT o.id, d.id
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT i.id, ROW_NUMBER() OVER (ORDER BY i.v DESC) AS rn
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       QUALIFY rn = 1
+  ) AS d ON TRUE
+ ORDER BY o.id
+ LIMIT 5;
+----------
+[SELECT] WITH sampled AS (
+    SELECT id, grp, v FROM t1 TABLESAMPLE SYSTEM (25)
+)
+SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY v DESC) AS rn
+  FROM sampled
+ QUALIFY rn <= 2
+ ORDER BY id
+ LIMIT 5;
+----------
+[SELECT] SELECT id, ROW_NUMBER() OVER (ORDER BY v DESC) AS rn
+  FROM t1
+ QUALIFY rn <= 2
+INTERSECT
+SELECT id, ROW_NUMBER() OVER (ORDER BY v DESC) AS rn
+  FROM t2
+ QUALIFY rn <= 2
+ORDER BY id
+LIMIT 3;
+----------
+[SELECT] SELECT SUM(1) OVER (ORDER BY ?);
+----------
+[SELECT] SELECT SUM(1) OVER (ORDER BY ? RANGE 2 PRECEDING);
+----------
+[SELECT] SELECT LAG(?,?,?) OVER (),LEAD(?,?,?) OVER (),NTH_VALUE(?,?) OVER () FROM (SELECT 1) AS t;
+----------
+[SELECT] SELECT ROW_NUMBER() OVER (ROWS BETWEEN UNBOUNDED FOLLOWING AND CURRENT ROW) FROM (SELECT 1 AS a) AS t;
+----------
+[SELECT] SELECT ROW_NUMBER() OVER (ROWS BETWEEN CURRENT ROW AND UNBOUNDED PRECEDING) FROM (SELECT 1 AS a) AS t;
+----------
+[SELECT] SELECT ROW_NUMBER() OVER (ROWS BETWEEN INTERVAL 2 DAY PRECEDING AND UNBOUNDED FOLLOWING) FROM (SELECT 1 AS a) AS t;

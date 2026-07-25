@@ -1,0 +1,51 @@
+/*!cobar: select,4,ireport.dm_mdm_mem_prod_effect_sdt0.admin_member_seq=201152175*/
+               select product_id,
+                      sum_prod_show_num,
+                      sum_prod_click_num,
+                      sum_prod_fb_num,
+                      total_cnt
+                 from (select product_id,
+                              sum_prod_show_num,
+                              sum_prod_click_num,
+                              sum_prod_fb_num,
+                              count(*) over(order by a,ba,c) as total_cnt
+                         from (select product_id,
+                                      sum_prod_show_num,
+                                      sum_prod_click_num,
+                                      sum_prod_fb_num
+                                 from ireport.dm_mdm_mem_prod_effect_sdt0
+                                where stat_date = '2012-02-19'
+                                  and admin_member_seq = 11) b
+                        Order by sum_prod_show_num desc, product_id desc) a limit 11 offset (11 -1) * 11;
+
+select a.*, stddev_samp(a.idx_yield_day) over(order by a.action_date rows between 60 preceding and current row) as idx_volatility from idx_a a;
+
+SELECT tr.oid as oid, tgname AS name ,relname FROM pg_class AS cla LEFT JOIN pg_namespace AS ns ON cla.relnamespace = ns.oid
+RIGHT JOIN pg_trigger AS tr ON tr.tgrelid = cla.oid WHERE ns.nspname = 'test1' AND cla.relpersistence = 'p' AND cla.relkind = 'r' UNION ALL
+SELECT oid, evtname AS name,null as relname FROM pg_event_trigger  order by relname asc;
+------------------------------------------------------------------------------------------
+[SELECT] /*!cobar: select,4,ireport.dm_mdm_mem_prod_effect_sdt0.admin_member_seq=201152175*/
+               select product_id,
+                      sum_prod_show_num,
+                      sum_prod_click_num,
+                      sum_prod_fb_num,
+                      total_cnt
+                 from (select product_id,
+                              sum_prod_show_num,
+                              sum_prod_click_num,
+                              sum_prod_fb_num,
+                              count(*) over(order by a,ba,c) as total_cnt
+                         from (select product_id,
+                                      sum_prod_show_num,
+                                      sum_prod_click_num,
+                                      sum_prod_fb_num
+                                 from ireport.dm_mdm_mem_prod_effect_sdt0
+                                where stat_date = '2012-02-19'
+                                  and admin_member_seq = 11) b
+                        Order by sum_prod_show_num desc, product_id desc) a limit 11 offset (11 -1) * 11;
+----------
+[SELECT] select a.*, stddev_samp(a.idx_yield_day) over(order by a.action_date rows between 60 preceding and current row) as idx_volatility from idx_a a;
+----------
+[SELECT] SELECT tr.oid as oid, tgname AS name ,relname FROM pg_class AS cla LEFT JOIN pg_namespace AS ns ON cla.relnamespace = ns.oid
+RIGHT JOIN pg_trigger AS tr ON tr.tgrelid = cla.oid WHERE ns.nspname = 'test1' AND cla.relpersistence = 'p' AND cla.relkind = 'r' UNION ALL
+SELECT oid, evtname AS name,null as relname FROM pg_event_trigger  order by relname asc;

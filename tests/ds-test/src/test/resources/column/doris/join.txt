@@ -1,0 +1,168 @@
+[DrParseColumnJoinTest.test1]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select * from table1 left join catalog2.schema1.table2 on table1.column1 = table2.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog2/schema1/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog2/schema1/table2/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog2/schema1/table2/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog2/schema1/table2/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog2/schema1/table2/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog2/schema1/table2/column6/" ]
+}
+----------
+[DrParseColumnJoinTest.test1_1]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select table1.column1,table2.column2 from table1 left join catalog2.schema1.table2 on table1.column1 = table2.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog2/schema1/table2/column2/" ]
+}
+----------
+[DrParseColumnJoinTest.test2]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select * from table1 a left join catalog2.schema1.table2 b on a.column1 = b.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog2/schema1/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog2/schema1/table2/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog2/schema1/table2/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog2/schema1/table2/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog2/schema1/table2/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog2/schema1/table2/column6/" ]
+}
+----------
+[DrParseColumnJoinTest.test3]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select * from table1 left join catalog2.schema2.table2 on table1.column1 = table2.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog2/schema2/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog2/schema2/table2/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog2/schema2/table2/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog2/schema2/table2/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog2/schema2/table2/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog2/schema2/table2/column6/" ]
+}
+----------
+[DrParseColumnJoinTest.test4]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select * from table1 a left join catalog2.schema2.table2 b on a.column1 = b.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog2/schema2/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog2/schema2/table2/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog2/schema2/table2/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog2/schema2/table2/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog2/schema2/table2/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog2/schema2/table2/column6/" ]
+}
+----------
+[DrParseColumnJoinTest.test5]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select a.*,b.* from table1 a left join catalog2.schema2.table2 b on a.column1 = b.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog2/schema2/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog2/schema2/table2/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog2/schema2/table2/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog2/schema2/table2/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog2/schema2/table2/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog2/schema2/table2/column6/" ]
+}
+----------
+[DrParseColumnJoinTest.test6]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select a.*,b.column1 from table1 a left join catalog2.schema2.table2 b on a.column1 = b.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog2/schema2/table2/column1/" ],
+  "column2" : [ "/catalog1/schema1/table1/column2/" ],
+  "column3" : [ "/catalog1/schema1/table1/column3/" ],
+  "column4" : [ "/catalog1/schema1/table1/column4/" ],
+  "column5" : [ "/catalog1/schema1/table1/column5/" ],
+  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+}
+----------
+[DrParseColumnJoinTest.test7]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select column1,d from (select a.*,b.column1 as d from table1 a left join catalog2.schema2.table2 b on a.column1 = b.column1)c
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "d" : [ "/catalog2/schema2/table2/column1/" ]
+}
+----------
+[DrParseColumnJoinTest.test8]
+context:
+{
+  "levels" : {
+    "Schema" : "schema1",
+    "Catalog" : "catalog1"
+  }
+}
+sql:
+select a.column1,b.column2,c.column3 from table1 a left join catalog2.schema1.table2 b on a.column1 = b.column1 left join schema2.table1 c on c.column1 = a.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog2/schema1/table2/column2/" ],
+  "column3" : [ "/catalog1/schema2/table1/column3/" ]
+}

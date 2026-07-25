@@ -1,0 +1,130 @@
+[createFunctionNoParamTest]
+type: createFunction
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "test_name": "test_value",
+    "test_schema": "test_schema_value",
+    "target_name": "target_name_value",
+    "test_sql": "test_sql_value",
+    "name": "test_name",
+    "returnType": "int",
+    "sql": "begin \nreturn 1; end"
+  }
+}
+expect:
+<<<
+create function "test_schema"."test_name"()
+return int
+as
+begin 
+return 1; end;
+>>>
+----------
+
+[createFunctionWithOneParamTest]
+type: createFunction
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "test_name": "test_value",
+    "test_schema": "test_schema_value",
+    "target_name": "target_name_value",
+    "test_sql": "test_sql_value",
+    "name": "test_name",
+    "returnType": "int",
+    "sql": "begin \nreturn 1; end",
+    "params": [
+      {
+        "name": "param1",
+        "paramType": "int"
+      }
+    ]
+  }
+}
+expect:
+<<<
+create function "test_schema"."test_name"(param1 int)
+return int
+as
+begin 
+return 1; end;
+>>>
+----------
+
+[createFunctionWithDefaultValueParamTest]
+type: createFunction
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "test_name": "test_value",
+    "test_schema": "test_schema_value",
+    "target_name": "target_name_value",
+    "test_sql": "test_sql_value",
+    "name": "test_name",
+    "returnType": "int",
+    "sql": "begin \nreturn 1; end",
+    "params": [
+      {
+        "name": "param1",
+        "paramType": "int",
+        "mode": "in",
+        "defaultValue": "12"
+      }
+    ]
+  }
+}
+expect:
+<<<
+create function "test_schema"."test_name"(param1 in int default '12')
+return int
+as
+begin 
+return 1; end;
+>>>
+----------
+
+[createFunctionWithTwoParamTest]
+type: createFunction
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "test_name": "test_value",
+    "test_schema": "test_schema_value",
+    "target_name": "target_name_value",
+    "test_sql": "test_sql_value",
+    "name": "test_name",
+    "returnType": "int",
+    "sql": "begin \nreturn 1; end",
+    "params": [
+      {
+        "name": "param1",
+        "paramType": "int"
+      },
+      {
+        "name": "param2",
+        "paramType": "varchar"
+      }
+    ]
+  }
+}
+expect:
+<<<
+create function "test_schema"."test_name"(param1 int,param2 varchar)
+return int
+as
+begin 
+return 1; end;
+>>>

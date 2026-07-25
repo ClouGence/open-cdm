@@ -1,0 +1,79 @@
+[ChParseColumnExpressionTest.test1]
+sql:
+select 1 + 1 as x
+expect:
+{
+  "x" : []
+}
+----------
+[ChParseColumnExpressionTest.test2]
+sql:
+select 1 + column1 as x from table1
+expect:
+{
+  "x" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[ChParseColumnExpressionTest.test3]
+sql:
+select 1 + column1 + (select column1 from table2 limit 1) as x from table1
+expect:
+{
+  "x" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/" ]
+}
+----------
+[ChParseColumnExpressionTest.test4]
+sql:
+select 1 + column1 + (select column1 from table2 limit 1) + test(column2) as x from table1
+expect:
+{
+  "x" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/", "/catalog1/schema1/table1/column2/" ]
+}
+----------
+[ChParseColumnExpressionTest.test5]
+sql:
+select 32 + column1 + test(2) + (select column1 from table1) as test from schema2.table1 a
+expect:
+{
+  "test" : [ "/catalog1/schema2/table1/column1/", "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[ChParseColumnExpressionTest.test6]
+sql:
+select 1 as x
+expect:
+{
+  "x" : []
+}
+----------
+[ChParseColumnExpressionTest.test7]
+sql:
+select 1 as a
+expect:
+{
+  "a" : []
+}
+----------
+[ChParseColumnExpressionTest.test8]
+sql:
+select 1 as a from table1
+expect:
+{
+  "a" : []
+}
+----------
+[ChParseColumnExpressionTest.test9]
+sql:
+select column1 = 1 as a from table1
+expect:
+{
+  "a" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[ChParseColumnExpressionTest.test10]
+sql:
+select column1 + column2 = 1 as a from table1
+expect:
+{
+  "a" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table1/column2/" ]
+}

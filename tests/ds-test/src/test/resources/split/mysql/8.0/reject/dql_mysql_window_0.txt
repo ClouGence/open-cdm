@@ -1,0 +1,159 @@
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH CUBE;
+SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH CUBE UNION ALL SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP;
+SELECT 1 QUALIFY 1 = 1;
+SELECT CUME_DIST(1);
+SELECT DENSE_RANK(1);
+SELECT FIRST_VALUE();
+SELECT FIRST_VALUE(1);
+SELECT FIRST_VALUE(1,2);
+SELECT LAG();
+SELECT LAG(1,2,3,4);
+SELECT LAG(1);
+SELECT LAST_VALUE();
+SELECT LAST_VALUE(1);
+SELECT LAST_VALUE(1,2);
+SELECT LEAD();
+SELECT LEAD(1,2,3,4);
+SELECT LEAD(1);
+SELECT NTH_VALUE(1);
+SELECT NTH_VALUE(1,2,3);
+SELECT NTH_VALUE(1,1);
+SELECT NTILE();
+SELECT NTILE(1);
+SELECT NTILE(1,2);
+SELECT PERCENT_RANK(1);
+SELECT RANK(1);
+SELECT RANK();
+SELECT ROW_NUMBER(1);
+WITH totals AS (
+    SELECT grp, SUM(v) AS total FROM t2 GROUP BY grp
+)
+SELECT t.id, totals.total,
+       ROW_NUMBER() OVER (PARTITION BY t.grp ORDER BY t.v DESC) AS rn
+  FROM t1 AS t
+  JOIN totals ON totals.grp = t.grp
+ QUALIFY rn = 1 AND totals.total > 0
+ ORDER BY t.id
+ LIMIT 5;
+SELECT o.id, d.id
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT i.id, ROW_NUMBER() OVER (ORDER BY i.v DESC) AS rn
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       QUALIFY rn = 1
+  ) AS d ON TRUE
+ ORDER BY o.id
+ LIMIT 5;
+WITH sampled AS (
+    SELECT id, grp, v FROM t1 TABLESAMPLE SYSTEM (25)
+)
+SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY v DESC) AS rn
+  FROM sampled
+ QUALIFY rn <= 2
+ ORDER BY id
+ LIMIT 5;
+SELECT id, ROW_NUMBER() OVER (ORDER BY v DESC) AS rn
+  FROM t1
+ QUALIFY rn <= 2
+INTERSECT
+SELECT id, ROW_NUMBER() OVER (ORDER BY v DESC) AS rn
+  FROM t2
+ QUALIFY rn <= 2
+ORDER BY id
+LIMIT 3;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH CUBE;
+----------
+[SELECT] SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH CUBE UNION ALL SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP;
+----------
+[SELECT] SELECT 1 QUALIFY 1 = 1;
+----------
+[SELECT] SELECT CUME_DIST(1);
+----------
+[SELECT] SELECT DENSE_RANK(1);
+----------
+[SELECT] SELECT FIRST_VALUE();
+----------
+[SELECT] SELECT FIRST_VALUE(1);
+----------
+[SELECT] SELECT FIRST_VALUE(1,2);
+----------
+[SELECT] SELECT LAG();
+----------
+[SELECT] SELECT LAG(1,2,3,4);
+----------
+[SELECT] SELECT LAG(1);
+----------
+[SELECT] SELECT LAST_VALUE();
+----------
+[SELECT] SELECT LAST_VALUE(1);
+----------
+[SELECT] SELECT LAST_VALUE(1,2);
+----------
+[SELECT] SELECT LEAD();
+----------
+[SELECT] SELECT LEAD(1,2,3,4);
+----------
+[SELECT] SELECT LEAD(1);
+----------
+[SELECT] SELECT NTH_VALUE(1);
+----------
+[SELECT] SELECT NTH_VALUE(1,2,3);
+----------
+[SELECT] SELECT NTH_VALUE(1,1);
+----------
+[SELECT] SELECT NTILE();
+----------
+[SELECT] SELECT NTILE(1);
+----------
+[SELECT] SELECT NTILE(1,2);
+----------
+[SELECT] SELECT PERCENT_RANK(1);
+----------
+[SELECT] SELECT RANK(1);
+----------
+[SELECT] SELECT RANK();
+----------
+[SELECT] SELECT ROW_NUMBER(1);
+----------
+[SELECT] WITH totals AS (
+    SELECT grp, SUM(v) AS total FROM t2 GROUP BY grp
+)
+SELECT t.id, totals.total,
+       ROW_NUMBER() OVER (PARTITION BY t.grp ORDER BY t.v DESC) AS rn
+  FROM t1 AS t
+  JOIN totals ON totals.grp = t.grp
+ QUALIFY rn = 1 AND totals.total > 0
+ ORDER BY t.id
+ LIMIT 5;
+----------
+[SELECT] SELECT o.id, d.id
+  FROM t1 AS o
+  JOIN LATERAL (
+      SELECT i.id, ROW_NUMBER() OVER (ORDER BY i.v DESC) AS rn
+        FROM t2 AS i
+       WHERE i.grp = o.grp
+       QUALIFY rn = 1
+  ) AS d ON TRUE
+ ORDER BY o.id
+ LIMIT 5;
+----------
+[SELECT] WITH sampled AS (
+    SELECT id, grp, v FROM t1 TABLESAMPLE SYSTEM (25)
+)
+SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY v DESC) AS rn
+  FROM sampled
+ QUALIFY rn <= 2
+ ORDER BY id
+ LIMIT 5;
+----------
+[SELECT] SELECT id, ROW_NUMBER() OVER (ORDER BY v DESC) AS rn
+  FROM t1
+ QUALIFY rn <= 2
+INTERSECT
+SELECT id, ROW_NUMBER() OVER (ORDER BY v DESC) AS rn
+  FROM t2
+ QUALIFY rn <= 2
+ORDER BY id
+LIMIT 3;

@@ -1,0 +1,154 @@
+SELECT DISTANCE(STRING_TO_VECTOR('[1,2]'), STRING_TO_VECTOR('[2,3]'), 'EUCLIDEAN');
+SELECT VECTOR_DISTANCE(STRING_TO_VECTOR('[1,2]'), STRING_TO_VECTOR('[2,3]'), 'COSINE');
+SELECT VECTOR_TO_STRING(STRING_TO_VECTOR('[1.05, -17.8, 32]')) AS vector_text;
+SELECT VECTOR_DIM(TO_VECTOR('[2, 3, 5]')) AS dim;
+SELECT FROM_VECTOR(0x00000040000040400000A040) AS vector_text;
+SELECT HEX(STRING_TO_VECTOR('[1,2,3]')) AS vector_hex, LENGTH(STRING_TO_VECTOR('[1,2,3]')) AS vector_bytes, BIT_LENGTH(STRING_TO_VECTOR('[1,2,3]')) AS vector_bits;
+SELECT TO_VECTOR('[1,2]') = TO_VECTOR('[1,2]') AS vector_equal;
+SELECT CAST(TO_VECTOR('[1,2,3]') AS BINARY) AS vector_binary;
+SELECT id,
+       VECTOR_TO_STRING(embedding),
+       VECTOR_DIM(embedding),
+       DISTANCE(embedding,TO_VECTOR('[0,0,0]'),'EUCLIDEAN') AS distance_value
+FROM vector_lifecycle
+ORDER BY distance_value,id;
+SELECT a.id,b.id,
+       VECTOR_DISTANCE(a.embedding,b.embedding,'COSINE') AS cosine_distance
+FROM vector_lifecycle AS a
+JOIN vector_lifecycle AS b
+  ON a.grp=b.grp AND a.id<b.id
+ORDER BY cosine_distance;
+SELECT v.id,
+       (SELECT VECTOR_TO_STRING(v2.embedding)
+        FROM vector_lifecycle AS v2
+        WHERE v2.id=v.id) AS correlated_embedding
+FROM vector_lifecycle AS v
+WHERE EXISTS (
+  SELECT 1 FROM vector_lifecycle AS x
+  WHERE x.grp=v.grp AND x.embedding=v.embedding
+);
+SELECT id,
+       VECTOR_TO_STRING(CASE WHEN embedding IS NULL THEN TO_VECTOR('[0,0,0]') ELSE embedding END),
+       VECTOR_TO_STRING(COALESCE(embedding,embedding_default)),
+       NULLIF(embedding,embedding_default)
+FROM vector_lifecycle;
+SELECT grp,COUNT(embedding),COUNT(DISTINCT embedding)
+FROM vector_lifecycle
+GROUP BY grp
+HAVING COUNT(embedding)>=0;
+SELECT id,grp,COUNT(embedding) OVER (
+  PARTITION BY grp ORDER BY id
+  ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+) AS running_vector_count
+FROM vector_lifecycle;
+WITH vector_cte AS (
+  SELECT id,grp,embedding
+  FROM vector_lifecycle
+  WHERE embedding IS NOT NULL
+)
+SELECT id,VECTOR_TO_STRING(embedding)
+FROM vector_cte
+WHERE embedding IN (
+  SELECT embedding FROM vector_lifecycle WHERE grp=vector_cte.grp
+);
+SELECT id,embedding FROM vector_lifecycle WHERE grp=1
+UNION ALL
+SELECT id,embedding FROM vector_lifecycle WHERE grp=2
+ORDER BY id;
+SELECT d.grp,COUNT(*),MAX(d.dimensions)
+FROM (
+  SELECT grp,VECTOR_DIM(embedding) AS dimensions
+  FROM vector_lifecycle
+) AS d
+GROUP BY d.grp;
+SELECT TO_VECTOR('  [1  x,0  ,2.0]   ');
+------------------------------------------------------------------------------------------
+[SELECT]
+SELECT DISTANCE(STRING_TO_VECTOR('[1,2]'), STRING_TO_VECTOR('[2,3]'), 'EUCLIDEAN');
+----------
+[SELECT|CALL_PROG_OBJ]
+SELECT VECTOR_DISTANCE(STRING_TO_VECTOR('[1,2]'), STRING_TO_VECTOR('[2,3]'), 'COSINE');
+----------
+[SELECT]
+SELECT VECTOR_TO_STRING(STRING_TO_VECTOR('[1.05, -17.8, 32]')) AS vector_text;
+----------
+[SELECT]
+SELECT VECTOR_DIM(TO_VECTOR('[2, 3, 5]')) AS dim;
+----------
+[SELECT]
+SELECT FROM_VECTOR(0x00000040000040400000A040) AS vector_text;
+----------
+[SELECT]
+SELECT HEX(STRING_TO_VECTOR('[1,2,3]')) AS vector_hex, LENGTH(STRING_TO_VECTOR('[1,2,3]')) AS vector_bytes, BIT_LENGTH(STRING_TO_VECTOR('[1,2,3]')) AS vector_bits;
+----------
+[SELECT]
+SELECT TO_VECTOR('[1,2]') = TO_VECTOR('[1,2]') AS vector_equal;
+----------
+[SELECT]
+SELECT CAST(TO_VECTOR('[1,2,3]') AS BINARY) AS vector_binary;
+----------
+[SELECT] SELECT id,
+       VECTOR_TO_STRING(embedding),
+       VECTOR_DIM(embedding),
+       DISTANCE(embedding,TO_VECTOR('[0,0,0]'),'EUCLIDEAN') AS distance_value
+FROM vector_lifecycle
+ORDER BY distance_value,id;
+----------
+[SELECT|CALL_PROG_OBJ] SELECT a.id,b.id,
+       VECTOR_DISTANCE(a.embedding,b.embedding,'COSINE') AS cosine_distance
+FROM vector_lifecycle AS a
+JOIN vector_lifecycle AS b
+  ON a.grp=b.grp AND a.id<b.id
+ORDER BY cosine_distance;
+----------
+[SELECT] SELECT v.id,
+       (SELECT VECTOR_TO_STRING(v2.embedding)
+        FROM vector_lifecycle AS v2
+        WHERE v2.id=v.id) AS correlated_embedding
+FROM vector_lifecycle AS v
+WHERE EXISTS (
+  SELECT 1 FROM vector_lifecycle AS x
+  WHERE x.grp=v.grp AND x.embedding=v.embedding
+);
+----------
+[SELECT] SELECT id,
+       VECTOR_TO_STRING(CASE WHEN embedding IS NULL THEN TO_VECTOR('[0,0,0]') ELSE embedding END),
+       VECTOR_TO_STRING(COALESCE(embedding,embedding_default)),
+       NULLIF(embedding,embedding_default)
+FROM vector_lifecycle;
+----------
+[SELECT] SELECT grp,COUNT(embedding),COUNT(DISTINCT embedding)
+FROM vector_lifecycle
+GROUP BY grp
+HAVING COUNT(embedding)>=0;
+----------
+[SELECT] SELECT id,grp,COUNT(embedding) OVER (
+  PARTITION BY grp ORDER BY id
+  ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+) AS running_vector_count
+FROM vector_lifecycle;
+----------
+[SELECT] WITH vector_cte AS (
+  SELECT id,grp,embedding
+  FROM vector_lifecycle
+  WHERE embedding IS NOT NULL
+)
+SELECT id,VECTOR_TO_STRING(embedding)
+FROM vector_cte
+WHERE embedding IN (
+  SELECT embedding FROM vector_lifecycle WHERE grp=vector_cte.grp
+);
+----------
+[SELECT] SELECT id,embedding FROM vector_lifecycle WHERE grp=1
+UNION ALL
+SELECT id,embedding FROM vector_lifecycle WHERE grp=2
+ORDER BY id;
+----------
+[SELECT] SELECT d.grp,COUNT(*),MAX(d.dimensions)
+FROM (
+  SELECT grp,VECTOR_DIM(embedding) AS dimensions
+  FROM vector_lifecycle
+) AS d
+GROUP BY d.grp;
+----------
+[SELECT] SELECT TO_VECTOR('  [1  x,0  ,2.0]   ');

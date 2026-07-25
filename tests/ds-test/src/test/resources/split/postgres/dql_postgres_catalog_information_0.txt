@@ -1,0 +1,69 @@
+SELECT format_type('pg_catalog.varchar'::regtype::oid, 36);
+SELECT pg_char_to_encoding('UTF8'), pg_encoding_to_char(pg_char_to_encoding('UTF8'));
+SELECT * FROM pg_get_catalog_foreign_keys() LIMIT 1;
+SELECT pg_get_constraintdef((SELECT oid FROM pg_constraint WHERE conrelid = 'split_catalog.t_catalog'::regclass AND contype = 'p'));
+SELECT pg_get_constraintdef((SELECT oid FROM pg_constraint WHERE conrelid = 'split_catalog.t_catalog'::regclass AND contype = 'c' ORDER BY conname LIMIT 1), true);
+SELECT pg_get_expr(adbin, adrelid, true) FROM pg_attrdef WHERE adrelid = 'split_catalog.t_catalog'::regclass AND adnum = 2;
+SELECT pg_get_functiondef('split_catalog.f_add(integer,integer)'::regprocedure::oid);
+SELECT pg_get_function_arguments('split_catalog.f_add(integer,integer)'::regprocedure::oid);
+SELECT pg_get_function_identity_arguments('split_catalog.f_add(integer,integer)'::regprocedure::oid);
+SELECT pg_get_function_result('split_catalog.f_add(integer,integer)'::regprocedure::oid);
+SELECT pg_get_indexdef('split_catalog.t_catalog_a_idx'::regclass::oid);
+SELECT pg_get_indexdef('split_catalog.t_catalog_a_idx'::regclass::oid, 1, true);
+SELECT * FROM pg_get_keywords() WHERE word IN ('select', 'identity') ORDER BY word;
+SELECT pg_get_partition_constraintdef('split_catalog.t_catalog_p1'::regclass::oid);
+SELECT pg_get_partkeydef('split_catalog.t_catalog_part'::regclass::oid);
+SELECT pg_get_ruledef((SELECT oid FROM pg_rewrite WHERE ev_class = 'split_catalog.t_catalog'::regclass AND rulename = 'r_catalog_update'), true);
+SELECT pg_get_serial_sequence('split_catalog.t_catalog', 'id');
+SELECT pg_get_statisticsobjdef((SELECT oid FROM pg_statistic_ext WHERE stxnamespace = 'split_catalog'::regnamespace AND stxname = 's_catalog'));
+SELECT pg_get_triggerdef((SELECT oid FROM pg_trigger WHERE tgrelid = 'split_catalog.t_catalog'::regclass AND tgname = 'trg_catalog'), true);
+SELECT pg_get_userbyid((SELECT oid FROM pg_roles WHERE rolname = current_user));
+SELECT pg_get_viewdef('split_catalog.v_catalog'::regclass::oid, true);
+SELECT pg_get_viewdef('split_catalog.v_catalog'::regclass::oid, 80);
+SELECT pg_get_viewdef('split_catalog.v_catalog', false);
+------------------------------------------------------------------------------------------
+[METADATA] SELECT format_type('pg_catalog.varchar'::regtype::oid, 36);
+----------
+[METADATA] SELECT pg_char_to_encoding('UTF8'), pg_encoding_to_char(pg_char_to_encoding('UTF8'));
+----------
+[METADATA] SELECT * FROM pg_get_catalog_foreign_keys() LIMIT 1;
+----------
+[SELECT|METADATA] SELECT pg_get_constraintdef((SELECT oid FROM pg_constraint WHERE conrelid = 'split_catalog.t_catalog'::regclass AND contype = 'p'));
+----------
+[SELECT|METADATA] SELECT pg_get_constraintdef((SELECT oid FROM pg_constraint WHERE conrelid = 'split_catalog.t_catalog'::regclass AND contype = 'c' ORDER BY conname LIMIT 1), true);
+----------
+[SELECT|METADATA] SELECT pg_get_expr(adbin, adrelid, true) FROM pg_attrdef WHERE adrelid = 'split_catalog.t_catalog'::regclass AND adnum = 2;
+----------
+[METADATA] SELECT pg_get_functiondef('split_catalog.f_add(integer,integer)'::regprocedure::oid);
+----------
+[METADATA] SELECT pg_get_function_arguments('split_catalog.f_add(integer,integer)'::regprocedure::oid);
+----------
+[METADATA] SELECT pg_get_function_identity_arguments('split_catalog.f_add(integer,integer)'::regprocedure::oid);
+----------
+[METADATA] SELECT pg_get_function_result('split_catalog.f_add(integer,integer)'::regprocedure::oid);
+----------
+[METADATA] SELECT pg_get_indexdef('split_catalog.t_catalog_a_idx'::regclass::oid);
+----------
+[METADATA] SELECT pg_get_indexdef('split_catalog.t_catalog_a_idx'::regclass::oid, 1, true);
+----------
+[METADATA] SELECT * FROM pg_get_keywords() WHERE word IN ('select', 'identity') ORDER BY word;
+----------
+[METADATA] SELECT pg_get_partition_constraintdef('split_catalog.t_catalog_p1'::regclass::oid);
+----------
+[METADATA] SELECT pg_get_partkeydef('split_catalog.t_catalog_part'::regclass::oid);
+----------
+[SELECT|METADATA] SELECT pg_get_ruledef((SELECT oid FROM pg_rewrite WHERE ev_class = 'split_catalog.t_catalog'::regclass AND rulename = 'r_catalog_update'), true);
+----------
+[METADATA] SELECT pg_get_serial_sequence('split_catalog.t_catalog', 'id');
+----------
+[SELECT|METADATA|PERFORMANCE] SELECT pg_get_statisticsobjdef((SELECT oid FROM pg_statistic_ext WHERE stxnamespace = 'split_catalog'::regnamespace AND stxname = 's_catalog'));
+----------
+[SELECT|METADATA] SELECT pg_get_triggerdef((SELECT oid FROM pg_trigger WHERE tgrelid = 'split_catalog.t_catalog'::regclass AND tgname = 'trg_catalog'), true);
+----------
+[SELECT|METADATA] SELECT pg_get_userbyid((SELECT oid FROM pg_roles WHERE rolname = current_user));
+----------
+[METADATA] SELECT pg_get_viewdef('split_catalog.v_catalog'::regclass::oid, true);
+----------
+[METADATA] SELECT pg_get_viewdef('split_catalog.v_catalog'::regclass::oid, 80);
+----------
+[METADATA] SELECT pg_get_viewdef('split_catalog.v_catalog', false);

@@ -1,0 +1,10 @@
+[createTable_basic]
+sql:
+create table abc(id int)
+expect:
+{
+  "contains": [
+    {"class":"SrTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc"},
+    {"class":"SrColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
+  ]
+}

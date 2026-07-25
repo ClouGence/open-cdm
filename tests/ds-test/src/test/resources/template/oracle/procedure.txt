@@ -1,0 +1,115 @@
+[noParamTest]
+type: createProcedure
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "begin \n insert into a values(1,2);\n end"
+  }
+}
+expect:
+<<<
+create procedure "test_schema"."test_name"
+as
+begin 
+ insert into a values(1,2);
+ end;
+>>>
+----------
+
+[oneParamTest]
+type: createProcedure
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "begin \n insert into a values(1,2);\n end",
+    "params": [
+      {
+        "name": "param1",
+        "paramType": "int"
+      }
+    ]
+  }
+}
+expect:
+<<<
+create procedure "test_schema"."test_name"(param1 int)
+as
+begin 
+ insert into a values(1,2);
+ end;
+>>>
+----------
+
+[twoParamTest]
+type: createProcedure
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "begin \n insert into a values(1,2);\n end",
+    "params": [
+      {
+        "name": "param1",
+        "paramType": "int"
+      },
+      {
+        "name": "param2",
+        "paramType": "int"
+      }
+    ]
+  }
+}
+expect:
+<<<
+create procedure "test_schema"."test_name"(param1 int,param2 int)
+as
+begin 
+ insert into a values(1,2);
+ end;
+>>>
+----------
+
+[twoParamWithModeTest]
+type: createProcedure
+option:
+{
+  "targetName": "target_name",
+  "schema": "test_schema",
+  "delimited": true,
+  "data": {
+    "name": "test_name",
+    "sql": "begin \n insert into a values(1,2);\n end",
+    "params": [
+      {
+        "name": "param1",
+        "paramType": "int",
+        "mode": "IN",
+        "defaultValue": "21"
+      },
+      {
+        "name": "param2",
+        "paramType": "int",
+        "mode": "IN"
+      }
+    ]
+  }
+}
+expect:
+<<<
+create procedure "test_schema"."test_name"(param1 IN int default '21',param2 IN int)
+as
+begin 
+ insert into a values(1,2);
+ end;
+>>>

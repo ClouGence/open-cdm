@@ -1,0 +1,1345 @@
+[2025_12_12_ai_SELECT_1]
+sql:
+SELECT 
+    5 & 3 as bitwise_and,
+    5 | 3 as bitwise_or,
+    5 ^ 3 as bitwise_xor,
+    ~5 as bitwise_not,
+    1 << 2 as left_shift,
+    8 >> 2 as right_shift;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "5",
+        "3",
+        "1",
+        "2",
+        "8"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_2]
+sql:
+SELECT 
+    JSON_OBJECT('name', 'John', 'age', 30, 'city', 'New York') as json_obj,
+    JSON_ARRAY(1, 2, 3, 'apple', 'banana') as json_arr,
+    JSON_MERGE_PRESERVE('[1, 2]', '[true, false]') as json_merged,
+    JSON_SET('[1,2]', '$[0]', 10) as json_set,
+    JSON_INSERT('[1,2]', '$[2]', 3) as json_insert,
+    JSON_REPLACE('[1,2]', '$[1]', 20) as json_replace,
+    JSON_REMOVE('[1,2,3]', '$[1]') as json_remove,
+    JSON_CONTAINS('[1,2,3]', '2') as json_contains,
+    JSON_LENGTH('[1,2,3]') as json_length,
+    JSON_TYPE('{"a": 1}') as json_type;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_MERGE_PRESERVE",
+      "func": true,
+      "args": [
+        "'[1, 2]'",
+        "'[true, false]'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "JSON_OBJECT",
+        "JSON_ARRAY",
+        "JSON_MERGE_PRESERVE",
+        "JSON_SET",
+        "JSON_INSERT",
+        "JSON_REPLACE",
+        "JSON_REMOVE",
+        "JSON_CONTAINS",
+        "JSON_LENGTH",
+        "JSON_TYPE"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_ARRAY",
+      "func": true,
+      "args": [
+        "1",
+        "2",
+        "3",
+        "'apple'",
+        "'banana'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_REPLACE",
+      "func": true,
+      "args": [
+        "'[1,2]'",
+        "'$[1]'",
+        "20"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_LENGTH",
+      "func": true,
+      "args": [
+        "'[1,2,3]'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_REMOVE",
+      "func": true,
+      "args": [
+        "'[1,2,3]'",
+        "'$[1]'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_CONTAINS",
+      "func": true,
+      "args": [
+        "'[1,2,3]'",
+        "'2'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_TYPE",
+      "func": true,
+      "args": [
+        "'{\"a\": 1}'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_OBJECT",
+      "func": true,
+      "args": [
+        "'name'",
+        "'John'",
+        "'age'",
+        "30",
+        "'city'",
+        "'New York'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_INSERT",
+      "func": true,
+      "args": [
+        "'[1,2]'",
+        "'$[2]'",
+        "3"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "JSON_SET",
+      "func": true,
+      "args": [
+        "'[1,2]'",
+        "'$[0]'",
+        "10"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_3]
+sql:
+SELECT
+    CONCAT('Hello', ' ', 'World') as concat_result,
+    CONCAT_WS('-', 'Apple', 'Banana', 'Cherry') as concat_ws_result,
+    FORMAT(123456.789, 2) as formatted_number,
+    INSERT('HelloWorld', 6, 0, ' ') as insert_result,
+    LOCATE('lo', 'Hello World') as locate_result,
+    LPAD('Hello', 10, '*') as lpad_result,
+    RPAD('Hello', 10, '*') as rpad_result,
+    TRIM(BOTH 'x' FROM 'xxxHelloxxx') as trim_result,
+    SUBSTRING_INDEX('www.example.com', '.', 2) as substring_index_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CONCAT_WS",
+      "func": true,
+      "args": [
+        "'-'",
+        "'Apple'",
+        "'Banana'",
+        "'Cherry'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "FORMAT",
+      "func": true,
+      "args": [
+        "123456.789",
+        "2"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "LPAD",
+      "func": true,
+      "args": [
+        "'Hello'",
+        "10",
+        "'*'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CONCAT",
+      "func": true,
+      "args": [
+        "'Hello'",
+        "' '",
+        "'World'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "RPAD",
+      "func": true,
+      "args": [
+        "'Hello'",
+        "10",
+        "'*'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "SUBSTRING_INDEX",
+      "func": true,
+      "args": [
+        "'www.example.com'",
+        "'.'",
+        "2"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "CONCAT",
+        "CONCAT_WS",
+        "FORMAT",
+        "INSERT",
+        "LOCATE",
+        "LPAD",
+        "RPAD",
+        "TRIM",
+        "SUBSTRING_INDEX"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "LOCATE",
+      "func": true,
+      "args": [
+        "'lo'",
+        "'Hello World'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "INSERT",
+      "func": true,
+      "args": [
+        "'HelloWorld'",
+        "6",
+        "0",
+        "' '"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "TRIM",
+      "func": true,
+      "args": [
+        "BOTH",
+        "'x'",
+        "'xxxHelloxxx'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_4]
+sql:
+SELECT
+    ABS(-10) as abs_result,
+    CEIL(12.3) as ceil_result,
+    FLOOR(12.7) as floor_result,
+    MOD(10, 3) as mod_result,
+    POWER(2, 3) as power_result,
+    ROUND(12.345, 2) as round_result,
+    SQRT(16) as sqrt_result,
+    RAND() as rand_result,
+    SIGN(-5) as sign_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "ABS",
+        "CEIL",
+        "FLOOR",
+        "MOD",
+        "POWER",
+        "ROUND",
+        "SQRT",
+        "RAND",
+        "SIGN"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CEIL",
+      "func": true,
+      "args": [
+        "12.3"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ROUND",
+      "func": true,
+      "args": [
+        "12.345",
+        "2"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "FLOOR",
+      "func": true,
+      "args": [
+        "12.7"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "POWER",
+      "func": true,
+      "args": [
+        "2",
+        "3"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ABS",
+      "func": true,
+      "args": [
+        "-10"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "SIGN",
+      "func": true,
+      "args": [
+        "-5"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "MOD",
+      "func": true,
+      "args": [
+        "10",
+        "3"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "SQRT",
+      "func": true,
+      "args": [
+        "16"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "RAND",
+      "func": true,
+      "args": [],
+      "emptyArg": true,
+      "sqlTarget": "Call"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_5]
+sql:
+SELECT
+    CURDATE() as current_date1,
+    CURTIME() as current_time1,
+    NOW() as now_datetime,
+    DATE_ADD('2025-12-12', INTERVAL 1 MONTH) as date_add_result,
+    DATE_SUB('2025-12-12', INTERVAL 3 DAY) as date_sub_result,
+    DATEDIFF('2025-12-25', '2025-12-12') as datediff_result,
+    DATE_FORMAT('2025-12-12 15:30:00', '%W %M %Y') as date_format_result,
+    STR_TO_DATE('December 12, 2025', '%M %d, %Y') as str_to_date_result,
+    UNIX_TIMESTAMP('2025-12-12 15:30:00') as unix_timestamp_result,
+    FROM_UNIXTIME(1757667600) as from_unixtime_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "UNIX_TIMESTAMP",
+      "func": true,
+      "args": [
+        "'2025-12-12 15:30:00'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "NOW",
+      "func": true,
+      "args": [],
+      "emptyArg": true,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "DATEDIFF",
+      "func": true,
+      "args": [
+        "'2025-12-25'",
+        "'2025-12-12'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CURDATE",
+      "func": true,
+      "args": [],
+      "emptyArg": true,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "DATE_ADD",
+      "func": true,
+      "args": [
+        "'2025-12-12'",
+        "INTERVAL 1 MONTH"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "INTERVAL",
+      "func": true,
+      "args": [
+        "1"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "DATE_FORMAT",
+      "func": true,
+      "args": [
+        "'2025-12-12 15:30:00'",
+        "'%W %M %Y'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "INTERVAL",
+      "func": true,
+      "args": [
+        "3"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "DATE_SUB",
+      "func": true,
+      "args": [
+        "'2025-12-12'",
+        "INTERVAL 3 DAY"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "FROM_UNIXTIME",
+      "func": true,
+      "args": [
+        "1757667600"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "STR_TO_DATE",
+      "func": true,
+      "args": [
+        "'December 12, 2025'",
+        "'%M %d, %Y'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "CURTIME",
+      "func": true,
+      "args": [],
+      "emptyArg": true,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "CURDATE",
+        "CURTIME",
+        "NOW",
+        "INTERVAL",
+        "DATE_ADD",
+        "DATE_SUB",
+        "DATEDIFF",
+        "DATE_FORMAT",
+        "STR_TO_DATE",
+        "UNIX_TIMESTAMP",
+        "FROM_UNIXTIME"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_6]
+sql:
+SELECT
+    STDDEV(salary) as stddev_result,
+    VARIANCE(salary) as variance_result,
+    BIT_AND(id) as bit_and_result,
+    BIT_OR(id) as bit_or_result,
+    BIT_XOR(id) as bit_xor_result,
+    GROUP_CONCAT(DISTINCT department_id ORDER BY department_id SEPARATOR ',') as group_concat_result
+FROM (
+    SELECT 1 as id, 5000 as salary, 10 as department_id
+    UNION ALL
+    SELECT 2, 6000, 10
+    UNION ALL
+    SELECT 3, 7000, 20
+    UNION ALL
+    SELECT 4, 8000, 20
+    UNION ALL
+    SELECT 5, 9000, 30
+) sample_data;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": true,
+      "simpleSelect": true,
+      "mode": "SUB_FROM",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "4",
+        "8000",
+        "20"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "STDDEV",
+      "func": true,
+      "args": [
+        "salary"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "GROUP_CONCAT",
+      "func": true,
+      "args": [
+        "department_id"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "VARIANCE",
+      "func": true,
+      "args": [
+        "salary"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": true,
+      "simpleSelect": true,
+      "mode": "SUB_FROM",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "5",
+        "9000",
+        "30"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [
+        "salary",
+        "id",
+        "department_id"
+      ],
+      "selectVariables": [],
+      "selectFunc": [
+        "STDDEV",
+        "VARIANCE",
+        "BIT_AND",
+        "BIT_OR",
+        "BIT_XOR",
+        "GROUP_CONCAT"
+      ],
+      "selectValue": [],
+      "selectInFrom": true,
+      "emptyFrom": false,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "BIT_OR",
+      "func": true,
+      "args": [
+        "id"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": true,
+      "simpleSelect": true,
+      "mode": "SUB_FROM",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "3",
+        "7000",
+        "20"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": true,
+      "simpleSelect": true,
+      "mode": "SUB_FROM",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "1",
+        "5000",
+        "10"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "BIT_AND",
+      "func": true,
+      "args": [
+        "id"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "BIT_XOR",
+      "func": true,
+      "args": [
+        "id"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": true,
+      "simpleSelect": true,
+      "mode": "SUB_FROM",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [
+        "2",
+        "6000",
+        "10"
+      ],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_7]
+sql:
+SELECT * FROM departments WHERE id = 1 FOR UPDATE;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "id"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_8]
+sql:
+SELECT * FROM employees WHERE department_id = 1 LOCK IN SHARE MODE;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": true,
+      "whereColumns": [
+        "department_id"
+      ],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": false,
+      "hasSelectAll": true,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": false,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_9]
+sql:
+SELECT
+    REGEXP_REPLACE('Hello World', 'World', 'MySQL') as regexp_replace_result,
+    REGEXP_SUBSTR('Email: test@example.com', '[a-z]+@[a-z]+\\.[a-z]+') as regexp_substr_result,
+    REGEXP_COUNT('Hello Hello Hello', 'Hello') as regexp_count_result;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "REGEXP_COUNT",
+      "func": true,
+      "args": [
+        "'Hello Hello Hello'",
+        "'Hello'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": false,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": true,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [],
+      "selectFunc": [
+        "REGEXP_REPLACE",
+        "REGEXP_SUBSTR",
+        "REGEXP_COUNT"
+      ],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "REGEXP_SUBSTR",
+      "func": true,
+      "args": [
+        "'Email: test@example.com'",
+        "'[a-z]+@[a-z]+\\\\.[a-z]+'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "REGEXP_REPLACE",
+      "func": true,
+      "args": [
+        "'Hello World'",
+        "'World'",
+        "'MySQL'"
+      ],
+      "emptyArg": false,
+      "sqlTarget": "Call"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_10]
+sql:
+SELECT @@version as mysql_version;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [
+        "version"
+      ],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SELECT_11]
+sql:
+SELECT @@session.time_zone as session_timezone;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "options": {},
+      "hasWith": false,
+      "hasWhere": false,
+      "whereColumns": [],
+      "selectInWhere": false,
+      "joinType": "NONE",
+      "hasUnion": false,
+      "simpleSelect": true,
+      "mode": "NORMAL",
+      "virtual": false,
+      "hasAs": true,
+      "hasSelectAll": false,
+      "selectInSelect": false,
+      "funcInSelect": false,
+      "exprInSelect": false,
+      "selectColumns": [],
+      "selectVariables": [
+        "session.time_zone"
+      ],
+      "selectFunc": [],
+      "selectValue": [],
+      "selectInFrom": false,
+      "emptyFrom": true,
+      "selectItems": [],
+      "joinTypes": [],
+      "hasLimit": false,
+      "sqlTarget": "Query"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SHOW_12]
+sql:
+SHOW VARIABLES LIKE 'character_set%';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "VARIABLES",
+      "target": "Environment",
+      "showKind": "ENVIRONMENT",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+
+[2025_12_12_ai_SHOW_13]
+sql:
+SHOW STATUS LIKE 'Threads_connected';
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "SHOW",
+      "auditKind": "QUERY",
+      "showType": "STATUS",
+      "target": "Environment",
+      "showKind": "ENVIRONMENT",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------
+

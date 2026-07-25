@@ -1,0 +1,255 @@
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_1#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test.abc_test(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_1#002]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create table test.ABC_TEST(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_1#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test.abcTest(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_1#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test.AbcTest(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_2#001]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create table test.abc_test(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_2#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test.ABC_TEST(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_2#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test.abcTest(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_2#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test.AbcTest(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_3#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test.abc_test(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_3#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test.ABC_TEST(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_3#003]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create table test.abcTest(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_3#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test.AbcTest(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_4#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test.abc_test(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_4#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test.ABC_TEST(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_4#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test.abcTest(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#createTableNameCaseType_4#004]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create table test.AbcTest(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_1#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+rename table test.ABC_TEST to abc_test
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_1#002]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+rename table test.ABC_TEST to ABC_TEST
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_1#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+rename table test.ABC_TEST to abcTest
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_1#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+rename table test.ABC_TEST to AbcTest
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_2#001]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+rename table test.ABC_TEST to abc_test
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_2#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+rename table test.ABC_TEST to ABC_TEST
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_2#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+rename table test.ABC_TEST to abcTest
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_2#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+rename table test.ABC_TEST to AbcTest
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_3#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+rename table test.ABC_TEST to abc_test
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_3#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+rename table test.ABC_TEST to ABC_TEST
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_3#003]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+rename table test.ABC_TEST to abcTest
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_3#004]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+rename table test.ABC_TEST to AbcTest
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_4#001]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+rename table test.ABC_TEST to abc_test
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_4#002]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+rename table test.ABC_TEST to ABC_TEST
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_4#003]
+rule: _rules/table/table-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+rename table test.ABC_TEST to abcTest
+----------
+[Db2RuleTableNameCaseTypeTest#renameTableNameCaseType_4#004]
+rule: _rules/table/table-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+rename table test.ABC_TEST to AbcTest

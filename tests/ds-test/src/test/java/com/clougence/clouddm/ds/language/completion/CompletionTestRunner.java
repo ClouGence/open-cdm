@@ -7,11 +7,8 @@ package com.clougence.clouddm.ds.language.completion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -23,6 +20,9 @@ import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.language.completion.CompletionResult;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.ds.SqlTestSupport;
+import com.clougence.clouddm.ds.TextCaseSupport;
+import com.clougence.clouddm.ds.VirtualMetaService;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,33 +30,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 final class CompletionTestRunner {
 
     private static final ObjectMapper JSON = new ObjectMapper();
-    private final Path                root;
 
     CompletionTestRunner(){
-        try {
-            this.root = Path.of(Thread.currentThread().getContextClassLoader().getResource("completion-test").toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     Collection<DynamicTest> tests() {
-        try {
-            return Files.walk(root)
-                .filter(path -> path.toString().endsWith(".txt"))
-                .filter(path -> !path.toString().contains("/reports/"))
-                .flatMap(path -> CompletionScriptParser.parse(root, path).stream())
-                .map(testCase -> DynamicTest.dynamicTest(testCase.path() + "#" + testCase.name(), () -> run(testCase)))
-                .toList();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return TextCaseSupport.resourceFiles("language/completion", path -> !path.contains("/reports/")).stream()
+            .flatMap(path -> CompletionScriptParser.parse(path).stream())
+            .map(testCase -> DynamicTest.dynamicTest(testCase.path() + "#" + testCase.name(), () -> run(testCase)))
+            .toList();
     }
 
     private void run(CompletionScriptCase testCase) throws Exception {
         MetaService metaService = new VirtualMetaService(resource(testCase.meta()));
         DsLanguageSpi language = instantiate(testCase.languageClass(), MetaService.class, metaService);
-        SqlEngineSpi sqlEngine = instantiateSqlEngine(testCase.sqlEngineClass(), metaService);
+        SqlEngineSpi sqlEngine = SqlTestSupport.sqlEngine(datasource(testCase.path()), metaService);
 
         CompletionRequest request = new CompletionRequest();
         request.setRequestId(testCase.name());
@@ -92,12 +80,13 @@ final class CompletionTestRunner {
         return Path.of(Thread.currentThread().getContextClassLoader().getResource(name).toURI());
     }
 
-    private SqlEngineSpi instantiateSqlEngine(String className, MetaService metaService) throws Exception {
-        try {
-            return instantiate(className, MetaService.class, metaService);
-        } catch (NoSuchMethodException e) {
-            return instantiate(className);
+    private String datasource(String path) {
+        String relative = path.substring("language/completion/".length());
+        String[] parts = relative.split("/");
+        if (parts.length < 2) {
+            throw new IllegalStateException("Invalid completion resource path: " + path);
         }
+        return SqlTestSupport.datasourceFromFilename(parts[0], parts[parts.length - 1]);
     }
 
     private static JsonNode expectedLabels(JsonNode expected) {

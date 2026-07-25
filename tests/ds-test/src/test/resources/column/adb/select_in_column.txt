@@ -1,0 +1,7 @@
+[AdsParseColumnSelectInColumnTest.test1]
+sql:
+select (select column1 from table1) from table2
+expect:
+{
+  "(select column1 from table1)" : [ "/catalog1/schema1/table1/column1/" ]
+}

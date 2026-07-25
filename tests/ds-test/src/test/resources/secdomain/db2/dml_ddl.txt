@@ -1,0 +1,83 @@
+[select_basic]
+sql:
+select * from test_db.table1
+expect:
+{
+  "contains": [
+    {"class":"Db2SelectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"test_db", "table":"table1"}
+  ]
+}
+----------
+[select_join_where]
+sql:
+select e.id, d.name from app.employee e join app.department d on e.dept_id=d.id where e.active=1
+expect:
+{
+  "contains": [
+    {"class":"Db2SelectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "hasWhere":true, "joinTypes":["INNER_JOIN"], "childrenSize":2},
+    {"class":"Db2TableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee", "alias":"e"},
+    {"class":"Db2TableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"department", "alias":"d"}
+  ]
+}
+----------
+[insert_basic]
+sql:
+insert into test_db.table1 (id) values (1)
+expect:
+{
+  "contains": [
+    {"class":"Db2InsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"test_db", "table":"table1"}
+  ]
+}
+----------
+[insert_from_select]
+sql:
+insert into app.employee_archive (id, name) select id, name from app.employee where active=0
+expect:
+{
+  "contains": [
+    {"class":"Db2InsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"employee_archive", "columns":["id","name"], "fromSelect":true, "hasSubQuery":true},
+    {"class":"Db2SelectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "hasWhere":true, "childrenSize":1},
+    {"class":"Db2TableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[update_where_columns]
+sql:
+update app.employee set name='new_name' where id=1
+expect:
+{
+  "contains": [
+    {"class":"Db2UpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"employee", "setColumns":["name"], "hasWhere":true, "whereColumns":["id"]}
+  ]
+}
+----------
+[delete_where_columns]
+sql:
+delete from app.employee where id=1
+expect:
+{
+  "contains": [
+    {"class":"Db2DeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"employee", "hasWhere":true, "whereColumns":["id"]}
+  ]
+}
+----------
+[call_with_args]
+sql:
+call app.refresh_employee(1, 'force')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"app", "callName":"refresh_employee", "emptyArg":false}
+  ]
+}
+----------
+[drop_table]
+sql:
+drop table test_db.table1
+expect:
+{
+  "contains": [
+    {"class":"Db2TableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"test_db", "table":"table1"}
+  ]
+}

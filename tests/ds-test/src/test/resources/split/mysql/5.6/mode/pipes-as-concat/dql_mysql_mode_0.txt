@@ -1,0 +1,39 @@
+SELECT 1 || 0 AND 0 AS concat_pipes;
+SELECT 'ab' LIKE 'a' || '%' AS concat_like;
+SELECT 'a%' LIKE 'a!%' ESCAPE '' || '!' AS concat_escape;
+SELECT 1 ^ '10' || '0' AS concat_xor;
+SELECT -1 || '0' AS concat_unary;
+SELECT /*!50000 'a' || 'b' */;
+SELECT BINARY 'a' || 'b', _utf8mb4'a' COLLATE utf8mb4_bin || 'b';
+SELECT '2' || '3' * 4, '2' || '3' + 4;
+SELECT '2' || '3' << 1, '2' || '3' & 1, '2' || '3' | 1;
+SELECT '1' || '0' = '10', '1' || '0' BETWEEN '09' AND '11', '1' || '0' IN ('10'), '1' || '0' IS TRUE;
+SELECT 'a' || 'b' REGEXP '^ab$';
+SELECT NOT '1' || '0', '1' || '0' XOR 0, '1' || '0' OR 0;
+SET @p := '1' || '0';
+------------------------------------------------------------------------------------------
+[SELECT] SELECT 1 || 0 AND 0 AS concat_pipes;
+----------
+[SELECT] SELECT 'ab' LIKE 'a' || '%' AS concat_like;
+----------
+[SELECT] SELECT 'a%' LIKE 'a!%' ESCAPE '' || '!' AS concat_escape;
+----------
+[SELECT] SELECT 1 ^ '10' || '0' AS concat_xor;
+----------
+[SELECT] SELECT -1 || '0' AS concat_unary;
+----------
+[SELECT] SELECT /*!50000 'a' || 'b' */;
+----------
+[SELECT] SELECT BINARY 'a' || 'b', _utf8mb4'a' COLLATE utf8mb4_bin || 'b';
+----------
+[SELECT] SELECT '2' || '3' * 4, '2' || '3' + 4;
+----------
+[SELECT] SELECT '2' || '3' << 1, '2' || '3' & 1, '2' || '3' | 1;
+----------
+[SELECT] SELECT '1' || '0' = '10', '1' || '0' BETWEEN '09' AND '11', '1' || '0' IN ('10'), '1' || '0' IS TRUE;
+----------
+[SELECT] SELECT 'a' || 'b' REGEXP '^ab$';
+----------
+[SELECT] SELECT NOT '1' || '0', '1' || '0' XOR 0, '1' || '0' OR 0;
+----------
+[SESSION_VARIABLE_RW] SET @p := '1' || '0';

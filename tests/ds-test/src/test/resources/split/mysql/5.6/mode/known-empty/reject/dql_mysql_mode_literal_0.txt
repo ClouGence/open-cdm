@@ -1,0 +1,6 @@
+SELECT _utf8mb4'trailing\';
+SELECT 'left\' /* gap */ 'right';
+------------------------------------------------------------------------------------------
+[SELECT] SELECT _utf8mb4'trailing\';
+----------
+[SELECT] SELECT 'left\' /* gap */ 'right';

@@ -1,0 +1,6 @@
+db.collection.deleteOne({status: "inactive"});
+db.collection.deleteMany({status: "inactive"});
+------------------------------------------------------------------------------------------
+[DELETE] db.collection.deleteOne({status: "inactive"})
+----------
+[DELETE] db.collection.deleteMany({status: "inactive"})

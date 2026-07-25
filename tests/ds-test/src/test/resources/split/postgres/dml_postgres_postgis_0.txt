@@ -1,0 +1,27 @@
+INSERT INTO split_postgis.places (name, geom, area, route, geog) VALUES
+    ('empire', ST_SetSRID(ST_MakePoint(-73.9857, 40.7484), 4326), ST_GeomFromText('POLYGON((-73.99 40.74,-73.98 40.74,-73.98 40.75,-73.99 40.75,-73.99 40.74))', 4326), ST_GeomFromText('LINESTRING(-73.99 40.74,-73.98 40.75)', 4326), ST_GeogFromText('SRID=4326;POINT(-73.9857 40.7484)')),
+    ('bryant', ST_SetSRID(ST_MakePoint(-73.9832, 40.7536), 4326), ST_MakeEnvelope(-73.986, 40.751, -73.981, 40.756, 4326), ST_GeomFromText('LINESTRING(-73.986 40.751,-73.981 40.756)', 4326), ST_GeogFromText('SRID=4326;POINT(-73.9832 40.7536)'))
+RETURNING id, ST_AsText(geom), ST_SRID(geom);
+UPDATE split_postgis.places
+SET geom = ST_Translate(geom, 0.001, 0.001),
+    area = ST_Envelope(ST_Buffer(geom, 0.01))::geometry(Polygon, 4326)
+WHERE name = 'empire'
+RETURNING id, ST_AsText(ST_Centroid(area));
+DELETE FROM split_postgis.places
+WHERE ST_DWithin(geog, ST_GeogFromText('SRID=4326;POINT(-73.985 40.748)'), 1000)
+RETURNING id, name;
+------------------------------------------------------------------------------------------
+[INSERT] INSERT INTO split_postgis.places (name, geom, area, route, geog) VALUES
+    ('empire', ST_SetSRID(ST_MakePoint(-73.9857, 40.7484), 4326), ST_GeomFromText('POLYGON((-73.99 40.74,-73.98 40.74,-73.98 40.75,-73.99 40.75,-73.99 40.74))', 4326), ST_GeomFromText('LINESTRING(-73.99 40.74,-73.98 40.75)', 4326), ST_GeogFromText('SRID=4326;POINT(-73.9857 40.7484)')),
+    ('bryant', ST_SetSRID(ST_MakePoint(-73.9832, 40.7536), 4326), ST_MakeEnvelope(-73.986, 40.751, -73.981, 40.756, 4326), ST_GeomFromText('LINESTRING(-73.986 40.751,-73.981 40.756)', 4326), ST_GeogFromText('SRID=4326;POINT(-73.9832 40.7536)'))
+RETURNING id, ST_AsText(geom), ST_SRID(geom);
+----------
+[UPDATE] UPDATE split_postgis.places
+SET geom = ST_Translate(geom, 0.001, 0.001),
+    area = ST_Envelope(ST_Buffer(geom, 0.01))::geometry(Polygon, 4326)
+WHERE name = 'empire'
+RETURNING id, ST_AsText(ST_Centroid(area));
+----------
+[DELETE] DELETE FROM split_postgis.places
+WHERE ST_DWithin(geog, ST_GeogFromText('SRID=4326;POINT(-73.985 40.748)'), 1000)
+RETURNING id, name;

@@ -1,0 +1,24 @@
+[RedisDomainResolve4CommandTest_commands_1]
+sql:
+set abc 123 
+ get abc
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "WRITE",
+      "auditKind": "WRITE",
+      "command": "SET",
+      "commandType": "WRITE",
+      "sqlTarget": "Unknown"
+    },
+    {
+      "sqlType": "READ",
+      "auditKind": "READ",
+      "command": "GET",
+      "commandType": "READ",
+      "sqlTarget": "Unknown"
+    }
+  ]
+}
+----------

@@ -1,0 +1,1423 @@
+[MyRuleColumnAlertNeedDefaultTest#columnNeedDefault_1#001]
+rule: _rules/column/column-alter-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc modify name varchar(25);
+----------
+[MyRuleColumnAlertNeedDefaultTest#columnNeedDefault_1#002]
+rule: _rules/column/column-alter-need-default.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc modify name varchar(25) default '';
+----------
+[MyRuleColumnAlertNeedDefaultTest#columnNeedDefault_1#003]
+rule: _rules/column/column-alter-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc modify name varchar(25) default 'aaa';
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_1#001]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Both
+sql:
+create table test.abc(name varchar(25));
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_1#002]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Both
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_1#003]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Both
+sql:
+create table test.abc(name varchar(25) character set utf8mb4);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_1#004]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Both
+sql:
+create table test.abc(name varchar(25) collate utf8mb4_unicode_ci);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_1#005]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Both
+sql:
+alter table test.abc add name varchar(25) character set utf8mb4;
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_1#006]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Both
+sql:
+alter table test.abc add name varchar(25) collate utf8mb4_unicode_ci;
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_2#001]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Character set
+sql:
+create table test.abc(name varchar(25));
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_2#002]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Character set
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_2#003]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Character set
+sql:
+create table test.abc(name varchar(25) character set utf8mb4);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_2#004]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: false
+vars:
+  allow: Character set
+sql:
+create table test.abc(name varchar(25) collate utf8mb4_unicode_ci);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_2#005]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Character set
+sql:
+alter table test.abc add name varchar(25) character set utf8mb4;
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_2#006]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: false
+vars:
+  allow: Character set
+sql:
+alter table test.abc add name varchar(25) collate utf8mb4_unicode_ci;
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_3#001]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Collate
+sql:
+create table test.abc(name varchar(25));
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_3#002]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Collate
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_3#003]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: false
+vars:
+  allow: Collate
+sql:
+create table test.abc(name varchar(25) character set utf8mb4);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_3#004]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Collate
+sql:
+create table test.abc(name varchar(25) collate utf8mb4_unicode_ci);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_3#005]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: false
+vars:
+  allow: Collate
+sql:
+alter table test.abc add name varchar(25) character set utf8mb4;
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_3#006]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Collate
+sql:
+alter table test.abc add name varchar(25) collate utf8mb4_unicode_ci;
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_4#001]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Nothing
+sql:
+create table test.abc(name varchar(25));
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_4#002]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: true
+vars:
+  allow: Nothing
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_4#003]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: false
+vars:
+  allow: Nothing
+sql:
+create table test.abc(name varchar(25) character set utf8mb4);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_4#004]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: false
+vars:
+  allow: Nothing
+sql:
+create table test.abc(name varchar(25) collate utf8mb4_unicode_ci);
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_4#005]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: false
+vars:
+  allow: Nothing
+sql:
+alter table test.abc add name varchar(25) character set utf8mb4;
+----------
+[MyRuleColumnAllowCharacterSetAndCollateTest#columnAllowCharacterSetAndCollate_4#006]
+rule: _rules/column/column-allow-characterset-and-collate.rule
+expect: false
+vars:
+  allow: Nothing
+sql:
+alter table test.abc add name varchar(25) collate utf8mb4_unicode_ci;
+----------
+[MyRuleColumnAllowDropTest#dropColumn_1#001]
+rule: _rules/column/column-allow-drop.rule
+expect: true
+vars:
+  allow: true
+sql:
+alter table test.abc drop column id;
+----------
+[MyRuleColumnAllowDropTest#dropColumn_2#001]
+rule: _rules/column/column-allow-drop.rule
+expect: false
+vars:
+  allow: false
+sql:
+alter table test.abc drop column id;
+----------
+[MyRuleColumnAutoTest#columnAuto_1#001]
+rule: _rules/column/column-auto.rule
+expect: false
+vars:
+  columnName: id
+  requireUnsigned: true
+sql:
+create table test.abc_test(id int(4) primary key auto_increment)
+----------
+[MyRuleColumnAutoTest#columnAuto_1#002]
+rule: _rules/column/column-auto.rule
+expect: true
+vars:
+  columnName: id
+  requireUnsigned: true
+sql:
+create table test.abc_test(id int(4) unsigned primary key auto_increment)
+----------
+[MyRuleColumnAutoTest#columnAuto_2#001]
+rule: _rules/column/column-auto.rule
+expect: true
+vars:
+  columnName: id
+  requireUnsigned: false
+sql:
+create table test.abc_test(id int(4) primary key auto_increment)
+----------
+[MyRuleColumnAutoTest#columnAuto_2#002]
+rule: _rules/column/column-auto.rule
+expect: true
+vars:
+  columnName: id
+  requireUnsigned: false
+sql:
+create table test.abc_test(id int(4) unsigned primary key auto_increment)
+----------
+[MyRuleColumnCharLengthTest#columnChar_1#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+{}
+sql:
+create table test(a123 char);
+----------
+[MyRuleColumnCharLengthTest#columnChar_1#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 char(10);
+----------
+[MyRuleColumnCharLengthTest#columnChar_1#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test change a1 a123 char(10);
+----------
+[MyRuleColumnCharLengthTest#columnChar_2#001]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+create table test(a123 char);
+----------
+[MyRuleColumnCharLengthTest#columnChar_2#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 char(10);
+----------
+[MyRuleColumnCharLengthTest#columnChar_2#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test change a1 a123 char(10);
+----------
+[MyRuleColumnCharLengthTest#columnChar_3#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123 char);
+----------
+[MyRuleColumnCharLengthTest#columnChar_3#002]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 char(10);
+----------
+[MyRuleColumnCharLengthTest#columnChar_3#003]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test change a1 a123 char(10);
+----------
+[MyRuleColumnCharLengthTest#columnNChar_1#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+{}
+sql:
+create table test(a123 nchar);
+----------
+[MyRuleColumnCharLengthTest#columnNChar_1#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 nchar(10);
+----------
+[MyRuleColumnCharLengthTest#columnNChar_1#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test change a1 a123 nchar(10);
+----------
+[MyRuleColumnCharLengthTest#columnNChar_2#001]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+create table test(a123 nchar);
+----------
+[MyRuleColumnCharLengthTest#columnNChar_2#002]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 nchar(10);
+----------
+[MyRuleColumnCharLengthTest#columnNChar_2#003]
+rule: _rules/column/column-char-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test change a1 a123 nchar(10);
+----------
+[MyRuleColumnCharLengthTest#columnNChar_3#001]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123 nchar);
+----------
+[MyRuleColumnCharLengthTest#columnNChar_3#002]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 nchar(10);
+----------
+[MyRuleColumnCharLengthTest#columnNChar_3#003]
+rule: _rules/column/column-char-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test change a1 a123 nchar(10);
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_1#001]
+rule: _rules/column/column-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+create table test.abc(name varchar(25) character set utf8mb4);
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_1#002]
+rule: _rules/column/column-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+alter table test.abc add name varchar(25) character set utf8mb4;
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_1#003]
+rule: _rules/column/column-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+alter table test.abc modify name varchar(25) character set utf8mb4;
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_1#004]
+rule: _rules/column/column-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+alter table test.abc change name name1 varchar(25) character set utf8mb4;
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_1#005]
+rule: _rules/column/column-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+alter table test.abc modify name varchar(25);
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_1#006]
+rule: _rules/column/column-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+alter table test.abc change name name1 varchar(25);
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_2#001]
+rule: _rules/column/column-character-set.rule
+expect: false
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+create table test.abc(name varchar(25));
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_2#002]
+rule: _rules/column/column-character-set.rule
+expect: false
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+create table test.abc(name varchar(25) character set utf8);
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_2#003]
+rule: _rules/column/column-character-set.rule
+expect: false
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_2#004]
+rule: _rules/column/column-character-set.rule
+expect: false
+vars:
+  character_set: utf8mb4
+  require: true
+sql:
+alter table test.abc add name varchar(25) character set utf8;
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_3#001]
+rule: _rules/column/column-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: false
+sql:
+create table test.abc(name varchar(25));
+----------
+[MyRuleColumnCharacterSetTest#columnCharacterSet_3#002]
+rule: _rules/column/column-character-set.rule
+expect: true
+vars:
+  character_set: utf8mb4
+  require: false
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnCollateTest#columnCollate_1#001]
+rule: _rules/column/column-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+create table test.abc(name varchar(25) collate utf8mb4_unicode_ci);
+----------
+[MyRuleColumnCollateTest#columnCollate_1#002]
+rule: _rules/column/column-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+alter table test.abc add name varchar(25) collate utf8mb4_unicode_ci;
+----------
+[MyRuleColumnCollateTest#columnCollate_1#003]
+rule: _rules/column/column-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+alter table test.abc modify name varchar(25) collate utf8mb4_unicode_ci;
+----------
+[MyRuleColumnCollateTest#columnCollate_1#004]
+rule: _rules/column/column-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+alter table test.abc change name name1 varchar(25) collate utf8mb4_unicode_ci;
+----------
+[MyRuleColumnCollateTest#columnCollate_1#005]
+rule: _rules/column/column-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+alter table test.abc modify name varchar(25);
+----------
+[MyRuleColumnCollateTest#columnCollate_1#006]
+rule: _rules/column/column-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+alter table test.abc change name name1 varchar(25);
+----------
+[MyRuleColumnCollateTest#columnCollate_2#001]
+rule: _rules/column/column-collate.rule
+expect: false
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+create table test.abc(name varchar(25));
+----------
+[MyRuleColumnCollateTest#columnCollate_2#002]
+rule: _rules/column/column-collate.rule
+expect: false
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+create table test.abc(name varchar(25) collate utf8_unicode_ci);
+----------
+[MyRuleColumnCollateTest#columnCollate_2#003]
+rule: _rules/column/column-collate.rule
+expect: false
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnCollateTest#columnCollate_2#004]
+rule: _rules/column/column-collate.rule
+expect: false
+vars:
+  collate: utf8mb4_unicode_ci
+  require: true
+sql:
+alter table test.abc add name varchar(25) collate utf8_unicode_ci;
+----------
+[MyRuleColumnCollateTest#columnCollate_3#001]
+rule: _rules/column/column-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: false
+sql:
+create table test.abc(name varchar(25));
+----------
+[MyRuleColumnCollateTest#columnCollate_3#002]
+rule: _rules/column/column-collate.rule
+expect: true
+vars:
+  collate: utf8mb4_unicode_ci
+  require: false
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnCreateNeedDefaultTest#columnNeedDefault_1#001]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int(4) default 1)
+----------
+[MyRuleColumnCreateNeedDefaultTest#columnNeedDefault_1#002]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) default 'aa';
+----------
+[MyRuleColumnCreateNeedDefaultTest#columnNeedDefault_1#003]
+rule: _rules/column/column-create-need-default.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) default '';
+----------
+[MyRuleColumnCreateNeedDefaultTest#columnNeedDefault_2#001]
+rule: _rules/column/column-create-need-default.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int(4))
+----------
+[MyRuleColumnCreateNeedDefaultTest#columnNeedDefault_2#002]
+rule: _rules/column/column-create-need-default.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnNameLengthTest#columnNameLength_1#001]
+rule: _rules/column/column-name-length.rule
+expect: true
+vars:
+{}
+sql:
+create table test(a123456 int);
+----------
+[MyRuleColumnNameLengthTest#columnNameLength_1#002]
+rule: _rules/column/column-name-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123456 int;
+----------
+[MyRuleColumnNameLengthTest#columnNameLength_1#003]
+rule: _rules/column/column-name-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test change a1 a123456 int;
+----------
+[MyRuleColumnNameLengthTest#columnNameLength_2#001]
+rule: _rules/column/column-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123456 int);
+----------
+[MyRuleColumnNameLengthTest#columnNameLength_2#002]
+rule: _rules/column/column-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123456 int;
+----------
+[MyRuleColumnNameLengthTest#columnNameLength_2#003]
+rule: _rules/column/column-name-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test change a1 a123456 int;
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_1#001]
+rule: _rules/column/column-need-comment.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int(4) comment 'abc')
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_1#002]
+rule: _rules/column/column-need-comment.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) comment 'aac';
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_1#003]
+rule: _rules/column/column-need-comment.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc modify name varchar(25);
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_1#004]
+rule: _rules/column/column-need-comment.rule
+expect: true
+vars:
+{}
+sql:
+alter table test.abc modify name varchar(25) comment 'ccc';
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_2#001]
+rule: _rules/column/column-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int(4))
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_2#002]
+rule: _rules/column/column-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int(4) comment '')
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_2#003]
+rule: _rules/column/column-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int(4) comment '   ')
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_2#004]
+rule: _rules/column/column-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25);
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_2#005]
+rule: _rules/column/column-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) comment '';
+----------
+[MyRuleColumnNeedCommentTest#columnNeedComment_2#006]
+rule: _rules/column/column-need-comment.rule
+expect: false
+vars:
+{}
+sql:
+alter table test.abc add name varchar(25) comment '   ';
+----------
+[MyRuleColumnNotAllowZerofillTest#columnNotAllowZerofill_1#001]
+rule: _rules/column/column-notallow-zerofill.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc(id int);
+----------
+[MyRuleColumnNotAllowZerofillTest#columnNotAllowZerofill_1#002]
+rule: _rules/column/column-notallow-zerofill.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc(id int zerofill);
+----------
+[MyRuleColumnNotNullTest#columnNotNull_1#001]
+rule: _rules/column/column-need-notnull.rule
+expect: false
+vars:
+{}
+sql:
+create table test.abc_test(id int(4))
+----------
+[MyRuleColumnNotNullTest#columnNotNull_1#002]
+rule: _rules/column/column-need-notnull.rule
+expect: true
+vars:
+{}
+sql:
+create table test.abc_test(id int(4) not null)
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table modify abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(abc_test int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table change c abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#005]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#006]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#007]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper case
+sql:
+alter table test_table change c ABC_TEST int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(abcTest int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add abcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#010]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table change c abcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#011]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+create table test_table(AbcTest int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#012]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table add AbcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#013]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper case
+sql:
+alter table test_table change c AbcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table modify abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#002]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+create table test_table(abc_test int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#003]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#004]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower case
+sql:
+alter table test_table change c abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table change c ABC_TEST int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(abcTest int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add abcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#010]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table change c abcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#011]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+create table test_table(AbcTest int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#012]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table add AbcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#013]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower case
+sql:
+alter table test_table change c AbcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table modify abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(abc_test int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table change c abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table change c ABC_TEST int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#008]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(abcTest int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#009]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add abcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#010]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table change c abcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#011]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+create table test_table(AbcTest int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#012]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table add AbcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#013]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Lower camel case
+sql:
+alter table test_table change c AbcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#001]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table modify abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#002]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(abc_test int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#003]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#004]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table change c abc_test int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#005]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(ABC_TEST int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#006]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add ABC_TEST int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#007]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table change c ABC_TEST int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#008]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(abcTest int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#009]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add abcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#010]
+rule: _rules/column/column-name-case-type.rule
+expect: false
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table change c abcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#011]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+create table test_table(AbcTest int);
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#012]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table add AbcTest int;
+----------
+[MyRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#013]
+rule: _rules/column/column-name-case-type.rule
+expect: true
+vars:
+  caseType: Upper camel case
+sql:
+alter table test_table change c AbcTest int;
+----------
+[MyRuleColumnTypesTest#columnTypes_1#001]
+rule: _rules/column/column-types.rule
+expect: true
+vars:
+  ruleType: AllowList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id int)
+----------
+[MyRuleColumnTypesTest#columnTypes_1#002]
+rule: _rules/column/column-types.rule
+expect: false
+vars:
+  ruleType: AllowList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id varchar(4))
+----------
+[MyRuleColumnTypesTest#columnTypes_2#001]
+rule: _rules/column/column-types.rule
+expect: false
+vars:
+  ruleType: BlockList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id int)
+----------
+[MyRuleColumnTypesTest#columnTypes_2#002]
+rule: _rules/column/column-types.rule
+expect: true
+vars:
+  ruleType: BlockList
+  typeList: int,char,datetime
+sql:
+create table test.abc_test(id varchar(4))
+----------
+[MyRuleColumnVarCharLengthTest#columnVarchar_1#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+{}
+sql:
+create table test(a123 varchar);
+----------
+[MyRuleColumnVarCharLengthTest#columnVarchar_1#002]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 varchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnVarchar_1#003]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test change a1 a123 varchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnVarchar_2#001]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+create table test(a123 varchar);
+----------
+[MyRuleColumnVarCharLengthTest#columnVarchar_2#002]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 varchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnVarchar_2#003]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test change a1 a123 varchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnVarchar_3#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123 varchar);
+----------
+[MyRuleColumnVarCharLengthTest#columnVarchar_3#002]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 varchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnVarchar_3#003]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test change a1 a123 varchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnNVarchar_1#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+{}
+sql:
+create table test(a123 nvarchar);
+----------
+[MyRuleColumnVarCharLengthTest#columnNVarchar_1#002]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test add a123 nvarchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnNVarchar_1#003]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+{}
+sql:
+alter table test change a1 a123 nvarchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnNVarchar_2#001]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+create table test(a123 nvarchar);
+----------
+[MyRuleColumnVarCharLengthTest#columnNVarchar_2#002]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test add a123 nvarchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnNVarchar_2#003]
+rule: _rules/column/column-varchar-length.rule
+expect: true
+vars:
+  allowEmpty: true
+sql:
+alter table test change a1 a123 nvarchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnNVarchar_3#001]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+create table test(a123 nvarchar);
+----------
+[MyRuleColumnVarCharLengthTest#columnNVarchar_3#002]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test add a123 nvarchar(10);
+----------
+[MyRuleColumnVarCharLengthTest#columnNVarchar_3#003]
+rule: _rules/column/column-varchar-length.rule
+expect: false
+vars:
+  length: 5
+sql:
+alter table test change a1 a123 nvarchar(10);

@@ -1,0 +1,87 @@
+CREATE SCHEMA split_prog;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE TABLE split_prog.audit_log (account_id integer, action text, changed_at timestamptz DEFAULT clock_timestamp());
+CREATE TABLE split_prog.accounts (
+    id integer PRIMARY KEY,
+    owner_name text NOT NULL,
+    balance numeric DEFAULT 0,
+    updated_at timestamptz DEFAULT clock_timestamp()
+);
+CREATE FUNCTION split_prog.touch_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    NEW.updated_at := clock_timestamp();
+    RETURN NEW;
+END
+$$;
+CREATE TRIGGER before_accounts_update
+BEFORE UPDATE ON split_prog.accounts
+FOR EACH ROW EXECUTE FUNCTION split_prog.touch_updated_at();
+CREATE PROCEDURE split_prog.add_account(p_id integer, p_owner text)
+LANGUAGE SQL
+AS $$
+    INSERT INTO split_prog.accounts(id, owner_name)
+    VALUES (p_id, p_owner)
+    ON CONFLICT (id) DO UPDATE SET owner_name = excluded.owner_name
+$$;
+CALL split_prog.add_account(1, 'alice');
+DO $$
+BEGIN
+    PERFORM 1;
+END
+$$;
+CREATE RULE accounts_audit_update AS
+ON UPDATE TO split_prog.accounts
+DO ALSO INSERT INTO split_prog.audit_log(account_id, action) VALUES (NEW.id, 'update');
+CREATE INDEX accounts_owner_trgm_idx ON split_prog.accounts USING gin (owner_name gin_trgm_ops);
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] CREATE SCHEMA split_prog;
+----------
+[CREATE_LIBRARY] CREATE EXTENSION IF NOT EXISTS pg_trgm;
+----------
+[CREATE_TABLE] CREATE TABLE split_prog.audit_log (account_id integer, action text, changed_at timestamptz DEFAULT clock_timestamp());
+----------
+[CREATE_TABLE] CREATE TABLE split_prog.accounts (
+    id integer PRIMARY KEY,
+    owner_name text NOT NULL,
+    balance numeric DEFAULT 0,
+    updated_at timestamptz DEFAULT clock_timestamp()
+);
+----------
+[CREATE_PROG_OBJ] CREATE FUNCTION split_prog.touch_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    NEW.updated_at := clock_timestamp();
+    RETURN NEW;
+END
+$$;
+----------
+[CREATE_TRIGGER(CALL_PROG_OBJ)] CREATE TRIGGER before_accounts_update
+BEFORE UPDATE ON split_prog.accounts
+FOR EACH ROW EXECUTE FUNCTION split_prog.touch_updated_at();
+----------
+[CREATE_PROG_OBJ] CREATE PROCEDURE split_prog.add_account(p_id integer, p_owner text)
+LANGUAGE SQL
+AS $$
+    INSERT INTO split_prog.accounts(id, owner_name)
+    VALUES (p_id, p_owner)
+    ON CONFLICT (id) DO UPDATE SET owner_name = excluded.owner_name
+$$;
+----------
+[CALL_PROG_OBJ] CALL split_prog.add_account(1, 'alice');
+----------
+[BLOCK] DO $$
+BEGIN
+    PERFORM 1;
+END
+$$;
+----------
+[CREATE_POLICY] CREATE RULE accounts_audit_update AS
+ON UPDATE TO split_prog.accounts
+DO ALSO INSERT INTO split_prog.audit_log(account_id, action) VALUES (NEW.id, 'update');
+----------
+[ADD_INDEX] CREATE INDEX accounts_owner_trgm_idx ON split_prog.accounts USING gin (owner_name gin_trgm_ops);

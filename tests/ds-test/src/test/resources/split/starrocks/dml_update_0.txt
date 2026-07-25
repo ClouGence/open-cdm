@@ -1,0 +1,26 @@
+update `table` set id = 1;
+update `table` set id = 1 where id = 2 or name = 3 and zz =4;
+update `table` set id = 1,age = 2 where name = 'name';
+update table1 set name = 1 where id = cast(id AS SIGNED);
+update table1 set name = 1 where id = avg((select id from table2));
+update `table` set id = (select id2 from test limit 1);
+update `table` set id = 2 where name = (select id2 from test limit 1);
+with tab1Cnt as (select * from table1)
+                     update table2 set cc = 1 where id1 in (select id_1 from tab1Cnt) or id2 in (select id_2 from table3);
+------------------------------------------------------------------------------------------
+[UPDATE] update `table` set id = 1;
+----------
+[UPDATE] update `table` set id = 1 where id = 2 or name = 3 and zz =4;
+----------
+[UPDATE] update `table` set id = 1,age = 2 where name = 'name';
+----------
+[UPDATE] update table1 set name = 1 where id = cast(id AS SIGNED);
+----------
+[UPDATE|SELECT] update table1 set name = 1 where id = avg((select id from table2));
+----------
+[UPDATE|SELECT] update `table` set id = (select id2 from test limit 1);
+----------
+[UPDATE|SELECT] update `table` set id = 2 where name = (select id2 from test limit 1);
+----------
+[UPDATE|SELECT] with tab1Cnt as (select * from table1)
+                     update table2 set cc = 1 where id1 in (select id_1 from tab1Cnt) or id2 in (select id_2 from table3);

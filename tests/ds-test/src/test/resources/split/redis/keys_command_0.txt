@@ -1,0 +1,207 @@
+set dolly "sheep"
+copy dolly clone
+get clone
+del key1 key2 key3
+dump mykey
+exists key1
+exists key1 key2 nosuchkey
+expire mykey 10
+expire mykey 10 xx
+expire mykey 10 nx
+ttl mykey
+expireat mykey 1293840000
+expiretime mykey
+keys *name*
+keys a??
+keys *
+keys h?llo
+keys h*llo
+keys h[ae]llo
+keys h[^e]llo
+keys h[a-b]llo
+move key 1
+object encoding counter
+object freq key
+object idletime key
+object refcount key
+persist key
+pttl mykey
+pexpire mykey 1000 xx
+pexpire mykey 1000 nx
+pexpire mykey 1000 gt
+pexpire mykey 1000 lt
+pexpireat mykey 1555555555005 xx
+pexpireat mykey 1555555555005 nx
+pexpireat mykey 1555555555005 gt
+pexpireat mykey 1555555555005 lt
+pexpiretime mykey
+randomkey
+rename mykey myotherkey
+renamenx mykey myotherkey
+restore mykey 0 "\n\x17\x17\x00\x00\x00\x12\x00\x00\x00\x03\x00\x00\xc0\x01\x00\x04\xc0\x02\x00\x04\xc0\x03\x00\xff\x04\x00u#<\xc0;.\xe9\xdd"
+type mykey
+lrange mykey 0 -1
+scan 0
+scan 0 match *11*
+scan 176 match *11* count 1000
+sadd myset 1 2 3 foo foobar feelsgood
+sscan myset 0 match f*
+sort mylist
+sort mylist desc
+sort mylist alpha
+sort mylist limit 0 10
+sort mylist limit 0 5 desc alpha
+sort mylist by weight_*
+sort mylist by nosort
+sort mylist by weight_* get object_*
+sort mylist by weight_* get object_* get #
+sort mylist by weight_* store resultkey
+sort mylist by weight_*->fieldname get object_*->fieldname
+sort_ro mylist by weight_*->fieldname get object_*->fieldname
+touch key1 key2
+touch key1
+type key1
+unlink key1 key2 key3
+unlink key1
+wait 1 0
+wait 2 1000
+waitaof 1 0 0
+waitaof 0 1 1000
+------------------------------------------------------------------------------------------
+[MERGE] set dolly "sheep"
+----------
+[INSERT|SELECT] copy dolly clone
+----------
+[SELECT] get clone
+----------
+[DELETE] del key1 key2 key3
+----------
+[SELECT] dump mykey
+----------
+[SELECT] exists key1
+----------
+[SELECT] exists key1 key2 nosuchkey
+----------
+[UPDATE] expire mykey 10
+----------
+[UPDATE] expire mykey 10 xx
+----------
+[UPDATE] expire mykey 10 nx
+----------
+[SELECT] ttl mykey
+----------
+[UPDATE] expireat mykey 1293840000
+----------
+[SELECT] expiretime mykey
+----------
+[SELECT] keys *name*
+----------
+[SELECT] keys a??
+----------
+[SELECT] keys *
+----------
+[SELECT] keys h?llo
+----------
+[SELECT] keys h*llo
+----------
+[SELECT] keys h[ae]llo
+----------
+[SELECT] keys h[^e]llo
+----------
+[SELECT] keys h[a-b]llo
+----------
+[DELETE|INSERT] move key 1
+----------
+[METADATA] object encoding counter
+----------
+[METADATA] object freq key
+----------
+[METADATA] object idletime key
+----------
+[METADATA] object refcount key
+----------
+[UPDATE] persist key
+----------
+[SELECT] pttl mykey
+----------
+[UPDATE] pexpire mykey 1000 xx
+----------
+[UPDATE] pexpire mykey 1000 nx
+----------
+[UPDATE] pexpire mykey 1000 gt
+----------
+[UPDATE] pexpire mykey 1000 lt
+----------
+[UPDATE] pexpireat mykey 1555555555005 xx
+----------
+[UPDATE] pexpireat mykey 1555555555005 nx
+----------
+[UPDATE] pexpireat mykey 1555555555005 gt
+----------
+[UPDATE] pexpireat mykey 1555555555005 lt
+----------
+[SELECT] pexpiretime mykey
+----------
+[SELECT] randomkey
+----------
+[UPDATE] rename mykey myotherkey
+----------
+[UPDATE] renamenx mykey myotherkey
+----------
+[INSERT] restore mykey 0 "\n\x17\x17\x00\x00\x00\x12\x00\x00\x00\x03\x00\x00\xc0\x01\x00\x04\xc0\x02\x00\x04\xc0\x03\x00\xff\x04\x00u#<\xc0;.\xe9\xdd"
+----------
+[METADATA] type mykey
+----------
+[SELECT] lrange mykey 0 -1
+----------
+[SELECT] scan 0
+----------
+[SELECT] scan 0 match *11*
+----------
+[SELECT] scan 176 match *11* count 1000
+----------
+[INSERT] sadd myset 1 2 3 foo foobar feelsgood
+----------
+[SELECT] sscan myset 0 match f*
+----------
+[SELECT] sort mylist
+----------
+[SELECT] sort mylist desc
+----------
+[SELECT] sort mylist alpha
+----------
+[SELECT] sort mylist limit 0 10
+----------
+[SELECT] sort mylist limit 0 5 desc alpha
+----------
+[SELECT] sort mylist by weight_*
+----------
+[SELECT] sort mylist by nosort
+----------
+[SELECT] sort mylist by weight_* get object_*
+----------
+[SELECT] sort mylist by weight_* get object_* get #
+----------
+[MERGE|SELECT] sort mylist by weight_* store resultkey
+----------
+[SELECT] sort mylist by weight_*->fieldname get object_*->fieldname
+----------
+[SELECT] sort_ro mylist by weight_*->fieldname get object_*->fieldname
+----------
+[UPDATE] touch key1 key2
+----------
+[UPDATE] touch key1
+----------
+[METADATA] type key1
+----------
+[DELETE] unlink key1 key2 key3
+----------
+[DELETE] unlink key1
+----------
+[ADMIN_REPLICATION] wait 1 0
+----------
+[ADMIN_REPLICATION] wait 2 1000
+----------
+[ADMIN_REPLICATION] waitaof 1 0 0
+----------
+[ADMIN_REPLICATION] waitaof 0 1 1000

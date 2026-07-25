@@ -1,0 +1,204 @@
+SELECT box '(1,1),(0,0)' + point '(2,0)';
+SELECT path '[(0,0),(1,1)]' + path '[(2,2),(3,3),(4,4)]';
+SELECT box '(1,1),(0,0)' - point '(2,0)';
+SELECT path '((0,0),(1,0),(1,1))' * point '(3.0,0)';
+SELECT path '((0,0),(1,0),(1,1))' * point(cosd(45), sind(45));
+SELECT path '((0,0),(1,0),(1,1))' / point '(2.0,0)';
+SELECT @-@ path '[(0,0),(1,0),(1,1)]';
+SELECT @@ box '(2,2),(0,0)';
+SELECT # path '((1,0),(0,1),(-1,0))';
+SELECT lseg '[(0,0),(1,1)]' # lseg '[(1,0),(0,1)]';
+SELECT box '(2,2),(-1,-1)' # box '(1,1),(-2,-2)';
+SELECT point '(0,0)' ## lseg '[(2,0),(0,2)]';
+SELECT circle '<(0,0),1>' <-> circle '<(5,0),1>';
+SELECT circle '<(0,0),2>' @> point '(1,1)';
+SELECT point '(1,1)' <@ circle '<(0,0),2>';
+SELECT box '(1,1),(0,0)' && box '(2,2),(0,0)';
+SELECT circle '<(0,0),1>' << circle '<(5,0),1>';
+SELECT circle '<(5,0),1>' >> circle '<(0,0),1>';
+SELECT box '(1,1),(0,0)' &< box '(2,2),(0,0)';
+SELECT box '(3,3),(0,0)' &> box '(2,2),(0,0)';
+SELECT box '(3,3),(0,0)' <<| box '(5,5),(3,4)';
+SELECT box '(5,5),(3,4)' |>> box '(3,3),(0,0)';
+SELECT box '(1,1),(0,0)' &<| box '(2,2),(0,0)';
+SELECT box '(3,3),(0,0)' |&> box '(2,2),(0,0)';
+SELECT box '((1,1),(0,0))' <^ box '((2,2),(1,1))';
+SELECT box '((2,2),(1,1))' >^ box '((1,1),(0,0))';
+SELECT lseg '[(-1,0),(1,0)]' ?# box '(2,2),(-2,-2)';
+SELECT ?- lseg '[(-1,0),(1,0)]';
+SELECT point '(1,0)' ?- point '(0,0)';
+SELECT ?| lseg '[(-1,0),(1,0)]';
+SELECT point '(0,1)' ?| point '(0,0)';
+SELECT lseg '[(0,0),(0,1)]' ?-| lseg '[(0,0),(1,0)]';
+SELECT lseg '[(-1,0),(1,0)]' ?|| lseg '[(-1,2),(1,2)]';
+SELECT polygon '((0,0),(1,1))' ~= polygon '((1,1),(0,0))';
+SELECT area(box '(2,2),(0,0)');
+SELECT center(box '(1,2),(0,0)');
+SELECT diagonal(box '(1,2),(0,0)');
+SELECT diameter(circle '<(0,0),2>');
+SELECT height(box '(1,2),(0,0)');
+SELECT isclosed(path '((0,0),(1,1),(2,0))');
+SELECT isopen(path '[(0,0),(1,1),(2,0)]');
+SELECT length(path '((-1,0),(1,0))');
+SELECT npoints(path '[(0,0),(1,1),(2,0)]');
+SELECT pclose(path '[(0,0),(1,1),(2,0)]');
+SELECT popen(path '((0,0),(1,1),(2,0))');
+SELECT radius(circle '<(0,0),2>');
+SELECT slope(point '(0,0)', point '(2,1)');
+SELECT width(box '(1,2),(0,0)');
+SELECT box(circle '<(0,0),2>');
+SELECT box(point '(1,0)');
+SELECT box(point '(0,1)', point '(1,0)');
+SELECT box(polygon '((0,0),(1,1),(2,0))');
+SELECT bound_box(box '(1,1),(0,0)', box '(4,4),(3,3)');
+SELECT circle(box '(1,1),(0,0)');
+SELECT circle(point '(0,0)', 2.0);
+SELECT circle(polygon '((0,0),(1,3),(2,0))');
+SELECT line(point '(-1,0)', point '(1,0)');
+SELECT lseg(box '(1,0),(-1,0)');
+SELECT lseg(point '(-1,0)', point '(1,0)');
+SELECT path(polygon '((0,0),(1,1),(2,0))');
+SELECT point(23.4, -44.5);
+SELECT point(box '(1,0),(-1,0)');
+SELECT point(circle '<(0,0),2>');
+SELECT point(lseg '[(-1,0),(1,0)]');
+SELECT point(polygon '((0,0),(1,1),(2,0))');
+SELECT polygon(box '(1,1),(0,0)');
+SELECT polygon(4, circle '<(3,0),1>');
+SELECT polygon(path '((0,0),(1,1),(2,0))');
+------------------------------------------------------------------------------------------
+[SELECT] SELECT box '(1,1),(0,0)' + point '(2,0)';
+----------
+[SELECT] SELECT path '[(0,0),(1,1)]' + path '[(2,2),(3,3),(4,4)]';
+----------
+[SELECT] SELECT box '(1,1),(0,0)' - point '(2,0)';
+----------
+[SELECT] SELECT path '((0,0),(1,0),(1,1))' * point '(3.0,0)';
+----------
+[SELECT] SELECT path '((0,0),(1,0),(1,1))' * point(cosd(45), sind(45));
+----------
+[SELECT] SELECT path '((0,0),(1,0),(1,1))' / point '(2.0,0)';
+----------
+[SELECT] SELECT @-@ path '[(0,0),(1,0),(1,1)]';
+----------
+[SELECT] SELECT @@ box '(2,2),(0,0)';
+----------
+[SELECT] SELECT # path '((1,0),(0,1),(-1,0))';
+----------
+[SELECT] SELECT lseg '[(0,0),(1,1)]' # lseg '[(1,0),(0,1)]';
+----------
+[SELECT] SELECT box '(2,2),(-1,-1)' # box '(1,1),(-2,-2)';
+----------
+[SELECT] SELECT point '(0,0)' ## lseg '[(2,0),(0,2)]';
+----------
+[SELECT] SELECT circle '<(0,0),1>' <-> circle '<(5,0),1>';
+----------
+[SELECT] SELECT circle '<(0,0),2>' @> point '(1,1)';
+----------
+[SELECT] SELECT point '(1,1)' <@ circle '<(0,0),2>';
+----------
+[SELECT] SELECT box '(1,1),(0,0)' && box '(2,2),(0,0)';
+----------
+[SELECT] SELECT circle '<(0,0),1>' << circle '<(5,0),1>';
+----------
+[SELECT] SELECT circle '<(5,0),1>' >> circle '<(0,0),1>';
+----------
+[SELECT] SELECT box '(1,1),(0,0)' &< box '(2,2),(0,0)';
+----------
+[SELECT] SELECT box '(3,3),(0,0)' &> box '(2,2),(0,0)';
+----------
+[SELECT] SELECT box '(3,3),(0,0)' <<| box '(5,5),(3,4)';
+----------
+[SELECT] SELECT box '(5,5),(3,4)' |>> box '(3,3),(0,0)';
+----------
+[SELECT] SELECT box '(1,1),(0,0)' &<| box '(2,2),(0,0)';
+----------
+[SELECT] SELECT box '(3,3),(0,0)' |&> box '(2,2),(0,0)';
+----------
+[SELECT] SELECT box '((1,1),(0,0))' <^ box '((2,2),(1,1))';
+----------
+[SELECT] SELECT box '((2,2),(1,1))' >^ box '((1,1),(0,0))';
+----------
+[SELECT] SELECT lseg '[(-1,0),(1,0)]' ?# box '(2,2),(-2,-2)';
+----------
+[SELECT] SELECT ?- lseg '[(-1,0),(1,0)]';
+----------
+[SELECT] SELECT point '(1,0)' ?- point '(0,0)';
+----------
+[SELECT] SELECT ?| lseg '[(-1,0),(1,0)]';
+----------
+[SELECT] SELECT point '(0,1)' ?| point '(0,0)';
+----------
+[SELECT] SELECT lseg '[(0,0),(0,1)]' ?-| lseg '[(0,0),(1,0)]';
+----------
+[SELECT] SELECT lseg '[(-1,0),(1,0)]' ?|| lseg '[(-1,2),(1,2)]';
+----------
+[SELECT] SELECT polygon '((0,0),(1,1))' ~= polygon '((1,1),(0,0))';
+----------
+[SELECT] SELECT area(box '(2,2),(0,0)');
+----------
+[SELECT] SELECT center(box '(1,2),(0,0)');
+----------
+[SELECT] SELECT diagonal(box '(1,2),(0,0)');
+----------
+[SELECT] SELECT diameter(circle '<(0,0),2>');
+----------
+[SELECT] SELECT height(box '(1,2),(0,0)');
+----------
+[SELECT] SELECT isclosed(path '((0,0),(1,1),(2,0))');
+----------
+[SELECT] SELECT isopen(path '[(0,0),(1,1),(2,0)]');
+----------
+[SELECT] SELECT length(path '((-1,0),(1,0))');
+----------
+[SELECT] SELECT npoints(path '[(0,0),(1,1),(2,0)]');
+----------
+[SELECT] SELECT pclose(path '[(0,0),(1,1),(2,0)]');
+----------
+[SELECT] SELECT popen(path '((0,0),(1,1),(2,0))');
+----------
+[SELECT] SELECT radius(circle '<(0,0),2>');
+----------
+[SELECT] SELECT slope(point '(0,0)', point '(2,1)');
+----------
+[SELECT] SELECT width(box '(1,2),(0,0)');
+----------
+[SELECT] SELECT box(circle '<(0,0),2>');
+----------
+[SELECT] SELECT box(point '(1,0)');
+----------
+[SELECT] SELECT box(point '(0,1)', point '(1,0)');
+----------
+[SELECT] SELECT box(polygon '((0,0),(1,1),(2,0))');
+----------
+[SELECT] SELECT bound_box(box '(1,1),(0,0)', box '(4,4),(3,3)');
+----------
+[SELECT] SELECT circle(box '(1,1),(0,0)');
+----------
+[SELECT] SELECT circle(point '(0,0)', 2.0);
+----------
+[SELECT] SELECT circle(polygon '((0,0),(1,3),(2,0))');
+----------
+[SELECT] SELECT line(point '(-1,0)', point '(1,0)');
+----------
+[SELECT] SELECT lseg(box '(1,0),(-1,0)');
+----------
+[SELECT] SELECT lseg(point '(-1,0)', point '(1,0)');
+----------
+[SELECT] SELECT path(polygon '((0,0),(1,1),(2,0))');
+----------
+[SELECT] SELECT point(23.4, -44.5);
+----------
+[SELECT] SELECT point(box '(1,0),(-1,0)');
+----------
+[SELECT] SELECT point(circle '<(0,0),2>');
+----------
+[SELECT] SELECT point(lseg '[(-1,0),(1,0)]');
+----------
+[SELECT] SELECT point(polygon '((0,0),(1,1),(2,0))');
+----------
+[SELECT] SELECT polygon(box '(1,1),(0,0)');
+----------
+[SELECT] SELECT polygon(4, circle '<(3,0),1>');
+----------
+[SELECT] SELECT polygon(path '((0,0),(1,1),(2,0))');

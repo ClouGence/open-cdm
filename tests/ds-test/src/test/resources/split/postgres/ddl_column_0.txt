@@ -1,0 +1,102 @@
+alter table user_table add column address varchar(255);
+alter table schema1.user_table add column address varchar(255);
+alter table "catalog1"."schema1"."user_table" add if not exists address varchar(255);
+alter table "catalog1"."schema1"."user_table" add column address varchar(255),add column name varchar(255);
+alter table if exists user_table add column if not exists address varchar(255);
+alter table user_table add column address varchar(255) primary key;
+alter table user_table add column address varchar(255) unique;
+alter table user_table add column address varchar(255) references abc(id2);
+alter table schema1.abc drop address;
+alter table "abc" drop column if exists address CASCADE;
+alter table test alter column a1 type char(10);
+alter table test alter column a1 set default '23';
+alter table test alter column a1 set default null;
+alter table test alter column a1 set default 23;
+alter table test alter column a1 drop default;
+alter table test rename column a1 to a123456;
+alter table schema1.test rename column a1 to a123456;
+alter table "catalog1".schema1."test" rename column a1 to a123456;
+alter table "catalog1".schema1."test" alter column "a1" drop not null;
+alter table "catalog1".schema1."test" alter column "a1" drop expression;
+alter table "catalog1".schema1."test" alter column "a1" drop expression if exists;
+alter table "catalog1".schema1."test" alter column "a1" add generated ALWAYS AS IDENTITY;
+alter table "catalog1".schema1."test" alter column "a1" set statistics 100;
+alter table abc add primary key (id);
+alter table abc drop constraint abc_pk;
+alter table abc add unique(name);
+alter table abc drop constraint abc_uk;
+alter table abc add constraint ptr foreign key (id) references abc2 (id2);
+alter table abc drop constraint abc_fk;
+alter table abc drop constraint if exists abc_fk;
+create index on abc (id);
+create index index_name on abc (id);
+create index "index_name" on "test"."abc" ("id");
+create unique index index_name on abc (id);
+------------------------------------------------------------------------------------------
+[ALTER_TABLE|ADD_COLUMN] alter table user_table add column address varchar(255);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table schema1.user_table add column address varchar(255);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table "catalog1"."schema1"."user_table" add if not exists address varchar(255);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table "catalog1"."schema1"."user_table" add column address varchar(255),add column name varchar(255);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table if exists user_table add column if not exists address varchar(255);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table user_table add column address varchar(255) primary key;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table user_table add column address varchar(255) unique;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table user_table add column address varchar(255) references abc(id2);
+----------
+[ALTER_TABLE|DROP_COLUMN] alter table schema1.abc drop address;
+----------
+[ALTER_TABLE|DROP_COLUMN] alter table "abc" drop column if exists address CASCADE;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table test alter column a1 type char(10);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table test alter column a1 set default '23';
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table test alter column a1 set default null;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table test alter column a1 set default 23;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table test alter column a1 drop default;
+----------
+[RENAME_COLUMN] alter table test rename column a1 to a123456;
+----------
+[RENAME_COLUMN] alter table schema1.test rename column a1 to a123456;
+----------
+[RENAME_COLUMN] alter table "catalog1".schema1."test" rename column a1 to a123456;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table "catalog1".schema1."test" alter column "a1" drop not null;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table "catalog1".schema1."test" alter column "a1" drop expression;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table "catalog1".schema1."test" alter column "a1" drop expression if exists;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table "catalog1".schema1."test" alter column "a1" add generated ALWAYS AS IDENTITY;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table "catalog1".schema1."test" alter column "a1" set statistics 100;
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table abc add primary key (id);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table abc drop constraint abc_pk;
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table abc add unique(name);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table abc drop constraint abc_uk;
+----------
+[ALTER_TABLE|ADD_CONSTRAINT] alter table abc add constraint ptr foreign key (id) references abc2 (id2);
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table abc drop constraint abc_fk;
+----------
+[ALTER_TABLE|DROP_CONSTRAINT] alter table abc drop constraint if exists abc_fk;
+----------
+[ADD_INDEX] create index on abc (id);
+----------
+[ADD_INDEX] create index index_name on abc (id);
+----------
+[ADD_INDEX] create index "index_name" on "test"."abc" ("id");
+----------
+[ADD_INDEX] create unique index index_name on abc (id);

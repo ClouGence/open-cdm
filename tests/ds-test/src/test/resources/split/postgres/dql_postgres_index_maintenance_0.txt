@@ -1,0 +1,30 @@
+SELECT brin_summarize_new_values('split_index_maint.brin_probe_idx'::regclass) >= 0 AS summarized_new_values;
+SELECT brin_summarize_new_values('split_index_maint.brin_probe_idx') = 0 AS no_new_values_after_summary;
+SELECT brin_summarize_range('split_index_maint.brin_range_probe_idx'::regclass, 0) >= 0 AS summarize_first_range;
+SELECT brin_summarize_range('split_index_maint.brin_range_probe_idx'::regclass, 1) >= 0 AS summarize_middle_range;
+SELECT brin_summarize_range('split_index_maint.brin_range_probe_idx'::regclass, 4294967295) >= 0 AS summarize_all_ranges_sentinel;
+SELECT brin_desummarize_range('split_index_maint.brin_range_probe_idx'::regclass, 0);
+SELECT brin_summarize_range('split_index_maint.brin_range_probe_idx'::regclass, 0) >= 0 AS summarize_after_desummarize;
+SELECT gin_clean_pending_list('split_index_maint.gin_probe_idx'::regclass) >= 0 AS cleaned_pending_pages;
+SELECT gin_clean_pending_list('split_index_maint.gin_probe_idx') = 0 AS pending_list_empty_after_clean;
+SELECT gin_clean_pending_list('split_index_maint.gin_no_fastupdate_probe_idx'::regclass) = 0 AS no_fastupdate_has_no_pending_list;
+------------------------------------------------------------------------------------------
+[SELECT|ADMIN_PERFORMANCE] SELECT brin_summarize_new_values('split_index_maint.brin_probe_idx'::regclass) >= 0 AS summarized_new_values;
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT brin_summarize_new_values('split_index_maint.brin_probe_idx') = 0 AS no_new_values_after_summary;
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT brin_summarize_range('split_index_maint.brin_range_probe_idx'::regclass, 0) >= 0 AS summarize_first_range;
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT brin_summarize_range('split_index_maint.brin_range_probe_idx'::regclass, 1) >= 0 AS summarize_middle_range;
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT brin_summarize_range('split_index_maint.brin_range_probe_idx'::regclass, 4294967295) >= 0 AS summarize_all_ranges_sentinel;
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT brin_desummarize_range('split_index_maint.brin_range_probe_idx'::regclass, 0);
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT brin_summarize_range('split_index_maint.brin_range_probe_idx'::regclass, 0) >= 0 AS summarize_after_desummarize;
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT gin_clean_pending_list('split_index_maint.gin_probe_idx'::regclass) >= 0 AS cleaned_pending_pages;
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT gin_clean_pending_list('split_index_maint.gin_probe_idx') = 0 AS pending_list_empty_after_clean;
+----------
+[SELECT|ADMIN_PERFORMANCE] SELECT gin_clean_pending_list('split_index_maint.gin_no_fastupdate_probe_idx'::regclass) = 0 AS no_fastupdate_has_no_pending_list;

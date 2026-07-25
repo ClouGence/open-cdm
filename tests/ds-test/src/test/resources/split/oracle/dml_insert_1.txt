@@ -1,0 +1,25 @@
+INSERT INTO audit_log (id, created_at, created_ts, biz_day, payload) VALUES (SYS_GUID(), SYSDATE, SYSTIMESTAMP, TO_DATE('2024-03-01', 'YYYY-MM-DD'), EMPTY_CLOB());
+
+INSERT INTO audit_log (id, created_at, created_ts, biz_day, display_name) SELECT SYS_GUID(), SYSDATE, SYSTIMESTAMP, ADD_MONTHS(TRUNC(SYSDATE), 1), INITCAP('oracle cli') FROM dual;
+
+INSERT INTO audit_log (id, created_at, created_ts, payload) VALUES (SYS_GUID(), SYSDATE, SYSTIMESTAMP, TO_CLOB(RAWTOHEX(SYS_GUID())));
+
+INSERT INTO audit_log (id, created_at, created_ts, biz_day, display_name)
+WITH src AS (
+    SELECT SYS_GUID() AS id, SYSDATE AS created_at, SYSTIMESTAMP AS created_ts, ADD_MONTHS(TRUNC(SYSDATE), 1) AS biz_day, INITCAP('oracle with insert') AS display_name
+    FROM dual
+)
+SELECT id, created_at, created_ts, biz_day, display_name FROM src;
+------------------------------------------------------------------------------------------
+[INSERT] INSERT INTO audit_log (id, created_at, created_ts, biz_day, payload) VALUES (SYS_GUID(), SYSDATE, SYSTIMESTAMP, TO_DATE('2024-03-01', 'YYYY-MM-DD'), EMPTY_CLOB());
+----------
+[INSERT|SELECT] INSERT INTO audit_log (id, created_at, created_ts, biz_day, display_name) SELECT SYS_GUID(), SYSDATE, SYSTIMESTAMP, ADD_MONTHS(TRUNC(SYSDATE), 1), INITCAP('oracle cli') FROM dual;
+----------
+[INSERT] INSERT INTO audit_log (id, created_at, created_ts, payload) VALUES (SYS_GUID(), SYSDATE, SYSTIMESTAMP, TO_CLOB(RAWTOHEX(SYS_GUID())));
+----------
+[INSERT|SELECT] INSERT INTO audit_log (id, created_at, created_ts, biz_day, display_name)
+WITH src AS (
+    SELECT SYS_GUID() AS id, SYSDATE AS created_at, SYSTIMESTAMP AS created_ts, ADD_MONTHS(TRUNC(SYSDATE), 1) AS biz_day, INITCAP('oracle with insert') AS display_name
+    FROM dual
+)
+SELECT id, created_at, created_ts, biz_day, display_name FROM src;

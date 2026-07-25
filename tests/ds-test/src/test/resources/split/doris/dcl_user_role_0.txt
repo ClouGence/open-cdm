@@ -1,0 +1,30 @@
+create user 'test_user'@'localhost' identified by 'test_password';
+create user 'test_user'@'localhost';
+create user 'test_user' identified by 'test_password';
+create user 'test_user'@'192.168.0.1' identified by 'test_password';
+drop user test_user@'localhost';
+GRANT SELECT_PRIV ON mydatabase.* TO 'test_user'@'localhost';
+GRANT ALL  ON mydatabase.* TO 'test_user'@'localhost';
+REVOKE ALL ON mydatabase.* FROM 'test_user'@'localhost';
+create role test_role;
+drop role role1;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user 'test_user'@'localhost' identified by 'test_password';
+----------
+[CREATE_USER] create user 'test_user'@'localhost';
+----------
+[CREATE_USER] create user 'test_user' identified by 'test_password';
+----------
+[CREATE_USER] create user 'test_user'@'192.168.0.1' identified by 'test_password';
+----------
+[DROP_USER] drop user test_user@'localhost';
+----------
+[GRANT] GRANT SELECT_PRIV ON mydatabase.* TO 'test_user'@'localhost';
+----------
+[GRANT] GRANT ALL  ON mydatabase.* TO 'test_user'@'localhost';
+----------
+[REVOKE] REVOKE ALL ON mydatabase.* FROM 'test_user'@'localhost';
+----------
+[CREATE_ROLE] create role test_role;
+----------
+[DROP_ROLE] drop role role1;

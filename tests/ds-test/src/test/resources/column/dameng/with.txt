@@ -1,0 +1,8 @@
+[cte_columns]
+sql:
+with emp as (select id, name from catalog1.app.employee) select emp.id, emp.name from emp
+expect:
+{
+  "id" : [ "/catalog1/app/employee/id/" ],
+  "name" : [ "/catalog1/app/employee/name/" ]
+}

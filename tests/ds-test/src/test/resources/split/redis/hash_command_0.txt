@@ -1,0 +1,162 @@
+HSET myhash field1 "foo"
+HSET mykey field1 "hello" field2 "world"
+HDEL myhash field1
+HEXISTS myhash field1
+HEXPIRE mykey 20 FIELDS 1 field1
+HEXPIRE mykey 20 FIELDS 2 field1 field2
+HEXPIRE mykey 20 NX FIELDS 1 field1
+HEXPIRE mykey 20 XX FIELDS 1 field1
+HEXPIRE mykey 20 GT FIELDS 1 field1
+HEXPIRE mykey 20 LT FIELDS 1 field1
+HEXPIREAT mykey 20 FIELDS 1 field1
+HEXPIREAT mykey 20 FIELDS 2 field1 field2
+HEXPIREAT mykey 20 NX FIELDS 1 field1
+HEXPIREAT mykey 20 XX FIELDS 1 field1
+HEXPIREAT mykey 20 GT FIELDS 1 field1
+HEXPIREAT mykey 20 LT FIELDS 1 field1
+HEXPIRE mykey 300  FIELDS 2 field1 field2
+HEXPIRETIME mykey FIELDS 2 field1 field2
+HGET myhash field1
+HGETALL myhash
+HGETDEL mykey FIELDS 2 field3 field4
+KEYS *
+HGETEX mykey EX 120 FIELDS 1 field1
+HGETEX mykey PERSIST FIELDS 1 field1
+HINCRBY myhash field 1
+HINCRBY myhash field -1
+HINCRBY myhash field -10
+HINCRBYFLOAT mykey field 0.1
+HINCRBYFLOAT mykey field -5
+HINCRBYFLOAT mykey field 2.0e2
+HKEYS myhash
+HLEN myhash
+HMGET myhash field1 field2 nofield
+HMSET myhash field1 "Hello" field2 "World"
+HPERSIST mykey FIELDS 1 field2
+HPERSIST mykey FIELDS 2 field1 field2
+HPEXPIRE mykey 2000 FIELDS 2 field1 field2
+HPEXPIREAT mykey 2000 FIELDS 2 field1 field2
+HPEXPIRETIME mykey FIELDS 2 field1 field2
+HPTTL mykey FIELDS 3 field1 field2 field3
+HRANDFIELD coin
+HRANDFIELD coin -5
+HRANDFIELD coin -5 WITHVALUES
+HSCAN mykey 0
+HSCAN mykey 0 match *11*
+HSCAN mykey 176 match *11* count 1000
+HSCAN mykey 176 match *11* count 1000 novalues
+HSETEX mykey EXAT 1740470400 FIELDS 2 field1 "Hello" field2 "World"
+HSETEX mykey FNX EX 60 FIELDS 2 field1 "Hello" field2 "World"
+HSETEX mykey FXX KEEPTTL FIELDS 2 field1 "hello" field2 "world"
+HTTL mykey FIELDS 2 field1 field2
+HSETNX myhash field "Hello"
+HSTRLEN myhash f1
+HVALS myhash
+------------------------------------------------------------------------------------------
+[MERGE] HSET myhash field1 "foo"
+----------
+[MERGE] HSET mykey field1 "hello" field2 "world"
+----------
+[DELETE] HDEL myhash field1
+----------
+[SELECT] HEXISTS myhash field1
+----------
+[UPDATE] HEXPIRE mykey 20 FIELDS 1 field1
+----------
+[UPDATE] HEXPIRE mykey 20 FIELDS 2 field1 field2
+----------
+[UPDATE] HEXPIRE mykey 20 NX FIELDS 1 field1
+----------
+[UPDATE] HEXPIRE mykey 20 XX FIELDS 1 field1
+----------
+[UPDATE] HEXPIRE mykey 20 GT FIELDS 1 field1
+----------
+[UPDATE] HEXPIRE mykey 20 LT FIELDS 1 field1
+----------
+[UPDATE] HEXPIREAT mykey 20 FIELDS 1 field1
+----------
+[UPDATE] HEXPIREAT mykey 20 FIELDS 2 field1 field2
+----------
+[UPDATE] HEXPIREAT mykey 20 NX FIELDS 1 field1
+----------
+[UPDATE] HEXPIREAT mykey 20 XX FIELDS 1 field1
+----------
+[UPDATE] HEXPIREAT mykey 20 GT FIELDS 1 field1
+----------
+[UPDATE] HEXPIREAT mykey 20 LT FIELDS 1 field1
+----------
+[UPDATE] HEXPIRE mykey 300  FIELDS 2 field1 field2
+----------
+[SELECT] HEXPIRETIME mykey FIELDS 2 field1 field2
+----------
+[SELECT] HGET myhash field1
+----------
+[SELECT] HGETALL myhash
+----------
+[DELETE] HGETDEL mykey FIELDS 2 field3 field4
+----------
+[SELECT] KEYS *
+----------
+[UPDATE] HGETEX mykey EX 120 FIELDS 1 field1
+----------
+[UPDATE] HGETEX mykey PERSIST FIELDS 1 field1
+----------
+[MERGE] HINCRBY myhash field 1
+----------
+[MERGE] HINCRBY myhash field -1
+----------
+[MERGE] HINCRBY myhash field -10
+----------
+[MERGE] HINCRBYFLOAT mykey field 0.1
+----------
+[MERGE] HINCRBYFLOAT mykey field -5
+----------
+[MERGE] HINCRBYFLOAT mykey field 2.0e2
+----------
+[SELECT] HKEYS myhash
+----------
+[SELECT] HLEN myhash
+----------
+[SELECT] HMGET myhash field1 field2 nofield
+----------
+[MERGE] HMSET myhash field1 "Hello" field2 "World"
+----------
+[UPDATE] HPERSIST mykey FIELDS 1 field2
+----------
+[UPDATE] HPERSIST mykey FIELDS 2 field1 field2
+----------
+[UPDATE] HPEXPIRE mykey 2000 FIELDS 2 field1 field2
+----------
+[UPDATE] HPEXPIREAT mykey 2000 FIELDS 2 field1 field2
+----------
+[SELECT] HPEXPIRETIME mykey FIELDS 2 field1 field2
+----------
+[SELECT] HPTTL mykey FIELDS 3 field1 field2 field3
+----------
+[SELECT] HRANDFIELD coin
+----------
+[SELECT] HRANDFIELD coin -5
+----------
+[SELECT] HRANDFIELD coin -5 WITHVALUES
+----------
+[SELECT] HSCAN mykey 0
+----------
+[SELECT] HSCAN mykey 0 match *11*
+----------
+[SELECT] HSCAN mykey 176 match *11* count 1000
+----------
+[SELECT] HSCAN mykey 176 match *11* count 1000 novalues
+----------
+[MERGE] HSETEX mykey EXAT 1740470400 FIELDS 2 field1 "Hello" field2 "World"
+----------
+[INSERT] HSETEX mykey FNX EX 60 FIELDS 2 field1 "Hello" field2 "World"
+----------
+[UPDATE] HSETEX mykey FXX KEEPTTL FIELDS 2 field1 "hello" field2 "world"
+----------
+[SELECT] HTTL mykey FIELDS 2 field1 field2
+----------
+[INSERT] HSETNX myhash field "Hello"
+----------
+[SELECT] HSTRLEN myhash f1
+----------
+[SELECT] HVALS myhash

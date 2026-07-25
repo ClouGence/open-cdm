@@ -1,0 +1,18 @@
+db.collection.find({});
+db.users.find({"name": "John"});
+db.products.find({"price": {$gt: 20}});
+db.orders.find({"status": "pending"}, {"orderId": 1, "orderDate": 1});
+db.inventory.find({"qty": {$lt: 10}}).sort({"item": 1});
+db.sales.find({"date": {$gte: "2023-01-01"}}).limit(5);
+------------------------------------------------------------------------------------------
+[SELECT] db.collection.find({})
+----------
+[SELECT] db.users.find({"name": "John"})
+----------
+[SELECT] db.products.find({"price": {$gt: 20}})
+----------
+[SELECT] db.orders.find({"status": "pending"}, {"orderId": 1, "orderDate": 1})
+----------
+[SELECT] db.inventory.find({"qty": {$lt: 10}}).sort({"item": 1})
+----------
+[SELECT] db.sales.find({"date": {$gte: "2023-01-01"}}).limit(5)

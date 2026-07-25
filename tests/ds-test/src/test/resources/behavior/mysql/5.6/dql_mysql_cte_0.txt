@@ -1,0 +1,19 @@
+[select__001]
+sql:
+SELECT FALSE IS NULL IS NULL, TRUE IS NOT NULL IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+----------
+[select__002]
+sql:
+SELECT NOT NOT TRUE, NOT NOT NOT FALSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}

@@ -1,0 +1,57 @@
+select test_function();
+select test.test_function();
+select test_catalog.test.test_function();
+select "test_catalog"."test"."test_function"();
+select test_function(1);
+select test_function(1,2);
+select test_function(test_function2());
+select test_function(1,test_function2(2,3));
+select test_function(1,test.test_function2(2,3));
+SELECT test_function(1,test_catalog.test.test_function2(2,3));
+call test_procedure();
+call test.test_procedure();
+call test_catalog.test.test_procedure();
+call test_catalog.test.test_procedure(1);
+call test_catalog.test.test_procedure(1,2);
+call "test_catalog".test.test_procedure(1,test_function(3));
+call "test_catalog".test.test_procedure(1,test.test_function(3));
+call test_catalog.test.test_procedure(1,test_catalog.test.test_function(3),(select id from test_catalog.test.table1));
+call test_catalog.test.test_procedure(1,test_catalog.test.test_function(3));
+------------------------------------------------------------------------------------------
+[SELECT] select test_function();
+----------
+[SELECT] select test.test_function();
+----------
+[SELECT] select test_catalog.test.test_function();
+----------
+[SELECT] select "test_catalog"."test"."test_function"();
+----------
+[SELECT] select test_function(1);
+----------
+[SELECT] select test_function(1,2);
+----------
+[SELECT] select test_function(test_function2());
+----------
+[SELECT] select test_function(1,test_function2(2,3));
+----------
+[SELECT] select test_function(1,test.test_function2(2,3));
+----------
+[SELECT] SELECT test_function(1,test_catalog.test.test_function2(2,3));
+----------
+[CALL_PROG_OBJ] call test_procedure();
+----------
+[CALL_PROG_OBJ] call test.test_procedure();
+----------
+[CALL_PROG_OBJ] call test_catalog.test.test_procedure();
+----------
+[CALL_PROG_OBJ] call test_catalog.test.test_procedure(1);
+----------
+[CALL_PROG_OBJ] call test_catalog.test.test_procedure(1,2);
+----------
+[CALL_PROG_OBJ] call "test_catalog".test.test_procedure(1,test_function(3));
+----------
+[CALL_PROG_OBJ] call "test_catalog".test.test_procedure(1,test.test_function(3));
+----------
+[CALL_PROG_OBJ] call test_catalog.test.test_procedure(1,test_catalog.test.test_function(3),(select id from test_catalog.test.table1));
+----------
+[CALL_PROG_OBJ] call test_catalog.test.test_procedure(1,test_catalog.test.test_function(3));

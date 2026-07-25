@@ -1,0 +1,3 @@
+CREATE TABLE split_security_probe.default_select_probe (probe_value VARCHAR(64) DEFAULT ((SELECT DATABASE())));
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|CALL_PROG_OBJ] CREATE TABLE split_security_probe.default_select_probe (probe_value VARCHAR(64) DEFAULT ((SELECT DATABASE())));

@@ -1,0 +1,6 @@
+SELECT ARRAY[makeaclitem(oid, oid, 'UPDATE', true)]::aclitem[] ~ makeaclitem(oid, oid, 'UPDATE', false)
+FROM (SELECT oid FROM pg_roles WHERE rolname = current_user) AS me;
+------------------------------------------------------------------------------------------
+[SELECT|METADATA] SELECT ARRAY[makeaclitem(oid, oid, 'UPDATE', true)]::aclitem[] ~ makeaclitem(oid, oid, 'UPDATE', false)
+FROM (SELECT oid FROM pg_roles WHERE rolname = current_user) AS me;
+

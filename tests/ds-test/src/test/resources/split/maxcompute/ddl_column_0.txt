@@ -1,0 +1,36 @@
+alter table `test`.`user_table` add columns (`address` varchar(255));
+alter table user_table add columns (address varchar(255));
+alter table user_table drop columns address;
+alter table test change a1 a123456 char(10);
+ALTER TABLE sale_detail ADD columns if NOT EXISTS(customer_name STRING, education BIGINT);
+ALTER TABLE sale_detail ADD columns (customer_name STRING comment '客户', education BIGINT comment '教育' );
+ALTER TABLE sale_detail ADD columns if NOT EXISTS(id bigint);
+ALTER TABLE sale_detail DROP columns shop_name, customer_id;
+ALTER TABLE mf_evol_t3 change COLUMN id id string;
+ALTER TABLE sale_detail change COLUMN customer_name rename TO customer;
+ALTER TABLE sale_detail change COLUMN customer comment 'customer';
+ALTER TABLE sale_detail change COLUMN customer_name customer_newname STRING comment 'customer';
+------------------------------------------------------------------------------------------
+[ALTER_TABLE|ADD_COLUMN] alter table `test`.`user_table` add columns (`address` varchar(255));
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table user_table add columns (address varchar(255));
+----------
+[ALTER_TABLE|DROP_COLUMN] alter table user_table drop columns address;
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table test change a1 a123456 char(10);
+----------
+[ALTER_TABLE|ADD_COLUMN] ALTER TABLE sale_detail ADD columns if NOT EXISTS(customer_name STRING, education BIGINT);
+----------
+[ALTER_TABLE|ADD_COLUMN|COMMENT_COLUMN] ALTER TABLE sale_detail ADD columns (customer_name STRING comment '客户', education BIGINT comment '教育' );
+----------
+[ALTER_TABLE|ADD_COLUMN] ALTER TABLE sale_detail ADD columns if NOT EXISTS(id bigint);
+----------
+[ALTER_TABLE|DROP_COLUMN] ALTER TABLE sale_detail DROP columns shop_name, customer_id;
+----------
+[ALTER_TABLE|ALTER_COLUMN] ALTER TABLE mf_evol_t3 change COLUMN id id string;
+----------
+[ALTER_TABLE|RENAME_COLUMN] ALTER TABLE sale_detail change COLUMN customer_name rename TO customer;
+----------
+[ALTER_TABLE|COMMENT_COLUMN] ALTER TABLE sale_detail change COLUMN customer comment 'customer';
+----------
+[ALTER_TABLE|ALTER_COLUMN|COMMENT_COLUMN] ALTER TABLE sale_detail change COLUMN customer_name customer_newname STRING comment 'customer';

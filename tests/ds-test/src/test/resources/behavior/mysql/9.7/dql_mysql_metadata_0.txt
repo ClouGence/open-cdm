@@ -1,0 +1,2809 @@
+[performance__001]
+sql:
+SHOW OPEN TABLES WHERE f1() = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:31) /test/1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:23~1:25) /test/1/catalog1/schema1/f1/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[log_read__002]
+sql:
+SHOW RELAYLOG EVENTS IN 'relay-bin.000001' LIMIT 1 FOR CHANNEL 'chan';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:69) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__003]
+sql:
+DESCRIBE splitv97.desc_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:9~1:24) /test/1/catalog1/splitv97/desc_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__004]
+sql:
+DESC splitv97.desc_t id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:5~1:20) /test/1/catalog1/splitv97/desc_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__005]
+sql:
+DESCRIBE splitv97.desc_t 'v%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:9~1:24) /test/1/catalog1/splitv97/desc_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__006]
+sql:
+EXPLAIN splitv97.desc_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:8~1:23) /test/1/catalog1/splitv97/desc_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__007]
+sql:
+DESCRIBE splitv97.desc_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:9~1:24) /test/1/catalog1/splitv97/desc_v/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__008]
+sql:
+SELECT GET_FORMAT(DATE,CONCAT('U','SA')),GET_FORMAT(TIME,UPPER('iso')),GET_FORMAT(DATETIME,fmt) FROM (SELECT 'JIS' AS fmt) AS d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/GET_FORMAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:29) /test/1/catalog1/schema1/CONCAT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:62) /test/1/catalog1/schema1/UPPER/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__009]
+sql:
+SELECT GET_FORMAT(DATE,'EUR'),GET_FORMAT(DATE,'USA'),GET_FORMAT(DATE,'JIS'),GET_FORMAT(DATE,'ISO'),GET_FORMAT(DATE,'INTERNAL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/GET_FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__010]
+sql:
+SELECT GET_FORMAT(TIME,'EUR'),GET_FORMAT(TIME,'USA'),GET_FORMAT(TIME,'JIS'),GET_FORMAT(TIME,'ISO'),GET_FORMAT(TIME,'INTERNAL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/GET_FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[select__011]
+sql:
+SELECT GET_FORMAT(DATETIME,'EUR'),GET_FORMAT(DATETIME,'USA'),GET_FORMAT(DATETIME,'JIS'),GET_FORMAT(DATETIME,'ISO'),GET_FORMAT(DATETIME,'INTERNAL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/GET_FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[metadata__012]
+sql:
+HELP 'contents';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:15) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__013]
+sql:
+HELP 'data types';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:17) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__014]
+sql:
+HELP 'ascii';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:12) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__015]
+sql:
+HELP 'create table';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:19) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__016]
+sql:
+HELP 'rep%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:11) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__017]
+sql:
+HELP 'fake';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:11) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__018]
+sql:
+HELP no_such_topic;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:18) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__019]
+sql:
+SHOW BINARY LOG STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:22) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__020]
+sql:
+SHOW BINLOG EVENTS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:18) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__021]
+sql:
+SHOW BINLOG EVENTS IN 'binlog.000001';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:37) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__022]
+sql:
+SHOW BINLOG EVENTS IN 'binlog.000001' LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:45) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__023]
+sql:
+SHOW BINLOG EVENTS LIMIT 0, 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:29) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__024]
+sql:
+SHOW REPLICAS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:13) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__025]
+sql:
+SHOW REPLICA STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:19) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__026]
+sql:
+SHOW RELAYLOG EVENTS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:20) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__027]
+sql:
+SHOW RELAYLOG EVENTS IN 'relay-bin.000001';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:42) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__028]
+sql:
+SHOW RELAYLOG EVENTS IN 'relay-bin.000001' FROM 4 LIMIT 0, 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:60) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__029]
+sql:
+SHOW REPLICA STATUS FOR CHANNEL 'audit_replica';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:47) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__030]
+sql:
+SHOW BINLOG EVENTS IN 'binlog.000001' FROM 4 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:52) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__031]
+sql:
+SHOW BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:16) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__032]
+sql:
+SHOW BINLOG EVENTS LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:26) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__033]
+sql:
+SHOW BINLOG EVENTS FROM 4 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:33) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__034]
+sql:
+SHOW DATABASES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:14) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__035]
+sql:
+SHOW DATABASES WHERE `Database` LIKE 'mysql';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:44) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__036]
+sql:
+SHOW SCHEMAS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:12) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__037]
+sql:
+SHOW SCHEMAS LIKE 'mysql';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:25) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__038]
+sql:
+SHOW FUNCTION STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:20) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__039]
+sql:
+SHOW PROCEDURE STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:21) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__040]
+sql:
+SHOW CHARACTER SET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:18) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__041]
+sql:
+SHOW CHARACTER SET WHERE Charset LIKE 'utf8%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:45) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__042]
+sql:
+SHOW CHARSET;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:12) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__043]
+sql:
+SHOW CHARSET LIKE 'utf8%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:25) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__044]
+sql:
+SHOW CHARSET WHERE Charset LIKE 'utf8%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:39) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__045]
+sql:
+SHOW COLLATION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:14) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__046]
+sql:
+SHOW COLLATION LIKE 'utf8%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:27) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__047]
+sql:
+SHOW STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:11) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__048]
+sql:
+SHOW STATUS LIKE 'Threads%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:27) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__049]
+sql:
+SHOW GLOBAL STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:18) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__050]
+sql:
+SHOW GLOBAL STATUS WHERE Variable_name LIKE 'Threads%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:54) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__051]
+sql:
+SHOW SESSION STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:19) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__052]
+sql:
+SHOW SESSION STATUS LIKE 'Threads%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:35) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__053]
+sql:
+SHOW SESSION STATUS WHERE Variable_name LIKE 'Threads%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:55) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__054]
+sql:
+SHOW VARIABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:14) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__055]
+sql:
+SHOW VARIABLES WHERE Variable_name LIKE 'version%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:50) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__056]
+sql:
+SHOW GLOBAL VARIABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:21) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__057]
+sql:
+SHOW GLOBAL VARIABLES LIKE 'version%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:37) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__058]
+sql:
+SHOW GLOBAL VARIABLES WHERE Variable_name LIKE 'version%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:57) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__059]
+sql:
+SHOW SESSION VARIABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:22) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__060]
+sql:
+SHOW SESSION VARIABLES WHERE Variable_name LIKE 'version%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:58) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__061]
+sql:
+SHOW COUNT(*) WARNINGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:22) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__062]
+sql:
+SHOW CREATE DATABASE split_show_create97;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Schema(1:21~1:40) /test/1/catalog1/split_show_create97/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__063]
+sql:
+SHOW CREATE SCHEMA IF NOT EXISTS split_show_create97;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Schema(1:33~1:52) /test/1/catalog1/split_show_create97/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__064]
+sql:
+SHOW CREATE TABLE split_show_create97.t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:18~1:39) /test/1/catalog1/split_show_create97/t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__065]
+sql:
+SHOW CREATE VIEW split_show_create97.v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "View(1:17~1:38) /test/1/catalog1/split_show_create97/v/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__066]
+sql:
+SHOW CREATE FUNCTION split_show_create97.f;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Function(1:21~1:42) /test/1/catalog1/split_show_create97/f/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__067]
+sql:
+SHOW CREATE PROCEDURE split_show_create97.p;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Procedure(1:22~1:43) /test/1/catalog1/split_show_create97/p/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__068]
+sql:
+SHOW CREATE TRIGGER split_show_create97.trg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Trigger(1:20~1:43) /test/1/catalog1/split_show_create97/trg/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__069]
+sql:
+SHOW CREATE EVENT split_show_create97.e;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Event(1:18~1:39) /test/1/catalog1/split_show_create97/e/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__070]
+sql:
+SHOW CREATE USER 'split_show_user'@'localhost';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "User(1:17~1:46) /test/1/split_show_user@localhost/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__071]
+sql:
+SHOW CREATE USER CURRENT_USER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "User(1:0~1:29) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__072]
+sql:
+SHOW CREATE USER CURRENT_USER();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "User(1:0~1:31) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__073]
+sql:
+SHOW WARNINGS LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:21) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__074]
+sql:
+SHOW WARNINGS LIMIT 0,2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:23) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__075]
+sql:
+SHOW ERRORS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:11) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__076]
+sql:
+SHOW ERRORS LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:19) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__077]
+sql:
+SHOW ERRORS LIMIT 0,2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:21) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__078]
+sql:
+SHOW COUNT(*) ERRORS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:20) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__079]
+sql:
+SHOW ENGINE ALL LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:20) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__080]
+sql:
+SHOW ENGINE ALL STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:22) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__081]
+sql:
+SHOW ENGINE ALL MUTEX;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:21) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__082]
+sql:
+SHOW ENGINE INNODB MUTEX;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:24) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__083]
+sql:
+SHOW FULL COLUMNS IN maint_a IN utility_audit WHERE Field = 'id';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:21~1:28) /test/1/catalog1/utility_audit/maint_a/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__084]
+sql:
+SHOW FULL TABLES IN utility_audit LIKE 'maint%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:47) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__085]
+sql:
+SHOW FULL TRIGGERS FROM utility_audit LIKE 'trg%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:49) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__086]
+sql:
+SHOW GRANTS FOR 'split_show_grants'@'%' USING 'split_show_role_a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:65) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__087]
+sql:
+SHOW GRANTS FOR 'split_show_grants'@'%' USING 'split_show_role_a', 'split_show_role_b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:86) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__088]
+sql:
+SHOW GRANTS FOR 'split_show_role_a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:35) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__089]
+sql:
+SHOW GRANTS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:11) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__090]
+sql:
+SHOW GRANTS FOR CURRENT_USER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:28) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__091]
+sql:
+SHOW GRANTS FOR CURRENT_USER();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:30) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__092]
+sql:
+SHOW GRANTS FOR 'root'@'localhost';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:34) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__093]
+sql:
+SHOW INDEX IN maint_a IN utility_audit WHERE Key_name = 'PRIMARY';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:14~1:21) /test/1/catalog1/utility_audit/maint_a/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__094]
+sql:
+SHOW LIBRARY STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:19) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__095]
+sql:
+SHOW LIBRARY STATUS LIKE 'split_js%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:36) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__096]
+sql:
+SHOW LIBRARY STATUS WHERE Db = DATABASE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:41) /test/1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Function(1:31~1:39) /test/1/catalog1/schema1/DATABASE/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[metadata__097]
+sql:
+SHOW CREATE LIBRARY split_js_lib;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Library(1:20~1:32) /test/1/catalog1/schema1/split_js_lib/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__098]
+sql:
+SHOW CREATE LIBRARY split97lib.split_js_lib;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Library(1:20~1:43) /test/1/catalog1/split97lib/split_js_lib/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__099]
+sql:
+SHOW WARNINGS LIMIT 2 OFFSET 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:30) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__100]
+sql:
+SHOW ERRORS LIMIT 2 OFFSET 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:28) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__101]
+sql:
+SHOW BINLOG EVENTS LIMIT 1 OFFSET 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:35) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__102]
+sql:
+SHOW RELAYLOG EVENTS LIMIT 1 OFFSET 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:37) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__103]
+sql:
+SHOW PROFILE LIMIT 1 OFFSET 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:29) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__104]
+sql:
+SHOW WARNINGS LIMIT ? OFFSET ?;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:30) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__105]
+sql:
+SHOW BINLOG EVENTS LIMIT ? OFFSET ?;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:35) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__106]
+sql:
+SHOW PROFILE LIMIT ? OFFSET ?;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:29) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__107]
+sql:
+SHOW DATABASES LIKE 'split\_%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:30) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__108]
+sql:
+SHOW SCHEMAS WHERE `Database` LIKE 'split%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:43) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__109]
+sql:
+SHOW TABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:11) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__110]
+sql:
+SHOW FULL TABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:16) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__111]
+sql:
+SHOW FULL TABLES FROM split_show97 WHERE Table_type = 'BASE TABLE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Schema(1:22~1:34) /test/1/catalog1/split_show97/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__112]
+sql:
+SHOW COLUMNS FROM show_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:18~1:24) /test/1/catalog1/schema1/show_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__113]
+sql:
+SHOW FULL FIELDS FROM show_t FROM split_show97 LIKE 'n%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:22~1:28) /test/1/catalog1/split_show97/show_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__114]
+sql:
+SHOW INDEX FROM show_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:16~1:22) /test/1/catalog1/schema1/show_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__115]
+sql:
+SHOW KEYS FROM show_t FROM split_show97 WHERE Key_name = 'idx_name';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:15~1:21) /test/1/catalog1/split_show97/show_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__116]
+sql:
+SHOW EXTENDED INDEX FROM codex_mgmt4.show_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:25~1:43) /test/1/catalog1/codex_mgmt4/show_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__117]
+sql:
+SHOW EXTENDED KEYS FROM codex_mgmt4.show_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:24~1:42) /test/1/catalog1/codex_mgmt4/show_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__118]
+sql:
+SHOW EXTENDED COLUMNS FROM codex_mgmt4.show_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:27~1:45) /test/1/catalog1/codex_mgmt4/show_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__119]
+sql:
+SHOW OPEN TABLES FROM split_show97 LIKE 'show%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:47) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__120]
+sql:
+SHOW BINLOG EVENTS FROM 0004 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:36) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__121]
+sql:
+SHOW BINLOG EVENTS FROM 1.0 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:35) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__122]
+sql:
+SHOW BINLOG EVENTS FROM 1e1 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:35) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__123]
+sql:
+SHOW BINLOG EVENTS FROM 18446744073709551615 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:52) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__124]
+sql:
+SHOW RELAYLOG EVENTS FROM 1.0 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:37) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__125]
+sql:
+SHOW PROFILE FOR QUERY 00000000002147483647 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:51) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__126]
+sql:
+SHOW PROCESSLIST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:16) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__127]
+sql:
+SHOW FULL PROCESSLIST;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:21) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__128]
+sql:
+SHOW PROFILES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:13) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__129]
+sql:
+SHOW PROFILE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:12) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__130]
+sql:
+SHOW PROFILE CPU FOR QUERY 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:28) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__131]
+sql:
+SHOW PROFILE BLOCK IO, CONTEXT SWITCHES, PAGE FAULTS, SOURCE, SWAPS FOR QUERY 1 LIMIT 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:87) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__132]
+sql:
+SHOW PROFILE ALL FOR QUERY 1 LIMIT 5 OFFSET 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:45) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__133]
+sql:
+SHOW PROFILE MEMORY FOR QUERY 1 LIMIT 0,5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:41) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__134]
+sql:
+SHOW RELAYLOG EVENTS LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:28) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__135]
+sql:
+SHOW RELAYLOG EVENTS LIMIT 1 FOR CHANNEL '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:43) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__136]
+sql:
+SHOW RELAYLOG EVENTS FOR CHANNEL '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:35) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__137]
+sql:
+SHOW PROCEDURE CODE split_accept.p_accept;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:41) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__138]
+sql:
+SHOW FUNCTION CODE split_accept.f_accept;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:40) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__139]
+sql:
+SHOW EVENTS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:11) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__140]
+sql:
+SHOW EVENTS FROM split_show_status97 LIKE 'e%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:46) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__141]
+sql:
+SHOW EVENTS IN split_show_status97 WHERE Name='e_status';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:56) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__142]
+sql:
+SHOW TRIGGERS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:13) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__143]
+sql:
+SHOW TRIGGERS FROM split_show_status97 LIKE 'rt%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:49) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__144]
+sql:
+SHOW TRIGGERS IN split_show_status97 WHERE `Table`='rt';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:55) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__145]
+sql:
+SHOW FUNCTION STATUS LIKE 'f_status';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:36) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__146]
+sql:
+SHOW FUNCTION STATUS WHERE Db='split_show_status97';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:51) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__147]
+sql:
+SHOW PROCEDURE STATUS LIKE 'p_status';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:37) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__148]
+sql:
+SHOW PROCEDURE STATUS WHERE Db='split_show_status97';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:52) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__149]
+sql:
+SHOW VARIABLES LIKE 'version%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:30) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__150]
+sql:
+SHOW SESSION VARIABLES LIKE 'character_set%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:44) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__151]
+sql:
+SHOW GLOBAL STATUS LIKE 'Threads_connected';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:43) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__152]
+sql:
+SHOW STATUS WHERE Variable_name LIKE 'Uptime%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:46) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__153]
+sql:
+SHOW ENGINES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:12) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__154]
+sql:
+SHOW STORAGE ENGINES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:20) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__155]
+sql:
+SHOW ENGINE INNODB STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:25) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__156]
+sql:
+SHOW PLUGINS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:12) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__157]
+sql:
+SHOW PRIVILEGES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:15) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__158]
+sql:
+SHOW CHARACTER SET LIKE 'utf8%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:31) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__159]
+sql:
+SHOW COLLATION WHERE Charset='utf8mb4';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:38) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__160]
+sql:
+SHOW WARNINGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:13) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[switch_schema__161]
+sql:
+USE splitv97;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:4~1:12) /test/1/catalog1/splitv97/",
+      "action" : "SWITCH"
+    }
+  ]
+}
+----------
+[switch_schema__162]
+sql:
+USE `split-v97`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:4~1:15) /test/1/catalog1/split-v97/",
+      "action" : "SWITCH"
+    }
+  ]
+}
+----------
+[switch_schema__163]
+sql:
+USE `select97`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:4~1:14) /test/1/catalog1/select97/",
+      "action" : "SWITCH"
+    }
+  ]
+}
+----------
+[switch_schema__164]
+sql:
+USE `split space 97`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:4~1:20) /test/1/catalog1/split space 97/",
+      "action" : "SWITCH"
+    }
+  ]
+}
+----------
+[select__165]
+sql:
+SELECT GET_FORMAT(TIMESTAMP,'USA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/GET_FORMAT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[performance__166]
+sql:
+SHOW LOCAL STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:17) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__167]
+sql:
+SHOW LOCAL STATUS LIKE 'Threads%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:33) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__168]
+sql:
+SHOW LOCAL STATUS WHERE Variable_name='Uptime';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:46) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__169]
+sql:
+SHOW LOCAL VARIABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:20) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__170]
+sql:
+SHOW LOCAL VARIABLES LIKE 'sql_mode';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:36) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__171]
+sql:
+SHOW LOCAL VARIABLES WHERE Variable_name='sql_mode';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:51) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__172]
+sql:
+SHOW INDEXES FROM base_t FROM codex_next_audit;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:18~1:24) /test/1/catalog1/codex_next_audit/base_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__173]
+sql:
+SHOW ENGINE PERFORMANCE_SCHEMA STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:37) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[log_read__174]
+sql:
+SHOW ENGINE INNODB LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "LOG_READ": [
+    {
+      "subject": "Log(1:0~1:23) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__175]
+sql:
+SHOW GRANTS FOR CURRENT_USER() USING r1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:39) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__176]
+sql:
+SHOW PROFILE IPC FOR QUERY 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:28) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__177]
+sql:
+SHOW GRANTS FOR PUBLIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:22) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__178]
+sql:
+SHOW GRANTS FOR 'codex_gap_user'@'localhost' USING PUBLIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Instance(1:0~1:57) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__179]
+sql:
+SHOW EXTENDED FULL COLUMNS FROM codex_recheck.show_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:32~1:52) /test/1/catalog1/codex_recheck/show_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__180]
+sql:
+SHOW PARSE_TREE SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Instance(1:0~1:24) /test/1/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[performance__181]
+sql:
+SHOW PARSE_TREE UPDATE no_such_table SET id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:23~1:36) /test/1/catalog1/schema1/no_such_table/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[performance__182]
+sql:
+SHOW PARSE_TREE CREATE TABLE parse_tree_t(id INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(1:29~1:41) /test/1/catalog1/schema1/parse_tree_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[metadata__183]
+sql:
+SELECT table_name FROM information_schema.tables LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:23~1:48) /test/1/catalog1/information_schema/tables/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select_metadata__184]
+sql:
+SELECT u.id, c.table_name FROM split_metadata_case.user_table AS u JOIN information_schema.columns AS c ON c.table_schema='split_metadata_case' AND c.table_name='user_table';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:31~1:61) /test/1/catalog1/split_metadata_case/user_table/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:72~1:98) /test/1/catalog1/information_schema/columns/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[select__185]
+sql:
+SELECT * FROM split_metadata_case.columns;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:41) /test/1/catalog1/split_metadata_case/columns/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[metadata__186]
+sql:
+WITH metadata_rows AS (SELECT table_name FROM information_schema.tables LIMIT 1) SELECT * FROM metadata_rows;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Table(1:46~1:71) /test/1/catalog1/information_schema/tables/",
+      "action" : "READ"
+    }
+  ]
+}

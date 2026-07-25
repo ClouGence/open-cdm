@@ -1,0 +1,12 @@
+CREATE TABLE JSON_ARRAYAGG(a INT);
+CREATE TABLE JSON_DUALITY_OBJECT(a INT);
+CREATE TABLE JSON_OBJECTAGG(a INT);
+CREATE PROCEDURE p_label_binlog() binlog: BEGIN LEAVE binlog; END binlog;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE JSON_ARRAYAGG(a INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE JSON_DUALITY_OBJECT(a INT);
+----------
+[CREATE_TABLE|ADD_COLUMN] CREATE TABLE JSON_OBJECTAGG(a INT);
+----------
+[CREATE_PROG_OBJ] CREATE PROCEDURE p_label_binlog() binlog: BEGIN LEAVE binlog; END binlog;

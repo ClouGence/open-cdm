@@ -1,0 +1,91 @@
+create schema abc;
+create schema abc authorization aac;
+create schema abc create table test_user (id int primary key,name varchar(50));
+create schema abc authorization aac create table test_user (id int primary key,name varchar(50));
+create schema authorization aac create table test_user (id int primary key,name varchar(50));
+create schema if not exists abc authorization aac;
+create schema if not exists abc authorization current_user;
+create schema if not exists abc authorization current_role;
+create schema if not exists abc authorization session_user;
+create schema if not exists authorization aac;
+alter schema abc rename to aac;
+alter schema test.abc rename to aac;
+drop schema pub.abc, test.aac, ccc;
+drop schema if exists abc,aac restrict;
+drop schema if exists abc,aac cascade;
+drop schema if exists abc,aac;
+drop schema abc,aac restrict;
+drop schema abc,aac cascade;
+drop schema abc,aac;
+drop schema abc.public;
+drop schema if exists abc restrict;
+drop schema if exists abc cascade;
+drop schema if exists abc;
+drop schema abc restrict;
+drop schema abc cascade;
+alter schema abc owner to current_user;
+drop schema abc;
+create schema authorization aac
+    create table test_user1 (id int primary key,name varchar(50))
+    create table test_user2 (id int primary key,name varchar(50));
+drop schema abc, ccc ,aac;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create schema abc;
+----------
+[CREATE_SCHEMA] create schema abc authorization aac;
+----------
+[CREATE_SCHEMA] create schema abc create table test_user (id int primary key,name varchar(50));
+----------
+[CREATE_SCHEMA] create schema abc authorization aac create table test_user (id int primary key,name varchar(50));
+----------
+[CREATE_SCHEMA] create schema authorization aac create table test_user (id int primary key,name varchar(50));
+----------
+[CREATE_SCHEMA] create schema if not exists abc authorization aac;
+----------
+[CREATE_SCHEMA] create schema if not exists abc authorization current_user;
+----------
+[CREATE_SCHEMA] create schema if not exists abc authorization current_role;
+----------
+[CREATE_SCHEMA] create schema if not exists abc authorization session_user;
+----------
+[CREATE_SCHEMA] create schema if not exists authorization aac;
+----------
+[RENAME_SCHEMA] alter schema abc rename to aac;
+----------
+[RENAME_SCHEMA] alter schema test.abc rename to aac;
+----------
+[DROP_SCHEMA] drop schema pub.abc, test.aac, ccc;
+----------
+[DROP_SCHEMA] drop schema if exists abc,aac restrict;
+----------
+[DROP_SCHEMA] drop schema if exists abc,aac cascade;
+----------
+[DROP_SCHEMA] drop schema if exists abc,aac;
+----------
+[DROP_SCHEMA] drop schema abc,aac restrict;
+----------
+[DROP_SCHEMA] drop schema abc,aac cascade;
+----------
+[DROP_SCHEMA] drop schema abc,aac;
+----------
+[DROP_SCHEMA] drop schema abc.public;
+----------
+[DROP_SCHEMA] drop schema if exists abc restrict;
+----------
+[DROP_SCHEMA] drop schema if exists abc cascade;
+----------
+[DROP_SCHEMA] drop schema if exists abc;
+----------
+[DROP_SCHEMA] drop schema abc restrict;
+----------
+[DROP_SCHEMA] drop schema abc cascade;
+----------
+[TRANSFER_PRIVILEGE] alter schema abc owner to current_user;
+----------
+[DROP_SCHEMA] drop schema abc;
+----------
+[CREATE_SCHEMA] create schema authorization aac
+    create table test_user1 (id int primary key,name varchar(50))
+    create table test_user2 (id int primary key,name varchar(50));
+----------
+[DROP_SCHEMA] drop schema abc, ccc ,aac;

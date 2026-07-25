@@ -1,0 +1,19 @@
+REPLACE INTO split_select_short.distinct_t (WITH RECURSIVE a(i) AS (SELECT 0 UNION ALL SELECT i+1 FROM a WHERE i<2) SELECT 'b','a','a','a211','xy1','' FROM a);
+REPLACE INTO table2 (id, name) WITH cte AS (SELECT id, name FROM table1) SELECT id, name FROM cte;
+REPLACE INTO target VALUES ROW(101, 'rt');
+REPLACE INTO target TABLE src;
+REPLACE INTO split_dml_dst PARTITION(p0)(id,v)
+  WITH c AS (SELECT id,v FROM split_dml_src WHERE id<100)
+  SELECT id,v FROM c ORDER BY id LIMIT 1;
+------------------------------------------------------------------------------------------
+[MERGE|SELECT] REPLACE INTO split_select_short.distinct_t (WITH RECURSIVE a(i) AS (SELECT 0 UNION ALL SELECT i+1 FROM a WHERE i<2) SELECT 'b','a','a','a211','xy1','' FROM a);
+----------
+[MERGE|SELECT] REPLACE INTO table2 (id, name) WITH cte AS (SELECT id, name FROM table1) SELECT id, name FROM cte;
+----------
+[MERGE|SELECT] REPLACE INTO target VALUES ROW(101, 'rt');
+----------
+[MERGE|SELECT] REPLACE INTO target TABLE src;
+----------
+[MERGE|SELECT] REPLACE INTO split_dml_dst PARTITION(p0)(id,v)
+  WITH c AS (SELECT id,v FROM split_dml_src WHERE id<100)
+  SELECT id,v FROM c ORDER BY id LIMIT 1;

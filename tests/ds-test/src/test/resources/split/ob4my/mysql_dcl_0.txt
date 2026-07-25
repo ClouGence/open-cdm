@@ -1,0 +1,66 @@
+create user 'test_user'@'localhost' identified by 'password123';
+create user if not exists 'test_user'@'%' identified by 'password123';
+drop user 'test_user'@'localhost';
+drop user if exists 'test_user'@'localhost';
+alter user 'test_user'@'localhost' identified by 'new_password';
+rename user 'old_user'@'localhost' to 'new_user'@'localhost';
+grant select on test.* to 'test_user'@'localhost';
+grant all privileges on *.* to 'test_user'@'localhost';
+grant select, insert, update on test.abc to 'test_user'@'localhost';
+revoke select on test.* from 'test_user'@'localhost';
+revoke all privileges on *.* from 'test_user'@'localhost';
+create role 'app_read';
+drop role 'app_read';
+set @var = 1;
+set global max_connections = 200;
+set session sql_mode = 'STRICT_TRANS_TABLES';
+show databases;
+show tables;
+show columns from test;
+show create table test;
+show index from test;
+show processlist;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user 'test_user'@'localhost' identified by 'password123';
+----------
+[CREATE_USER] create user if not exists 'test_user'@'%' identified by 'password123';
+----------
+[DROP_USER] drop user 'test_user'@'localhost';
+----------
+[DROP_USER] drop user if exists 'test_user'@'localhost';
+----------
+[ALTER_USER] alter user 'test_user'@'localhost' identified by 'new_password';
+----------
+[RENAME_USER] rename user 'old_user'@'localhost' to 'new_user'@'localhost';
+----------
+[GRANT] grant select on test.* to 'test_user'@'localhost';
+----------
+[GRANT] grant all privileges on *.* to 'test_user'@'localhost';
+----------
+[GRANT] grant select, insert, update on test.abc to 'test_user'@'localhost';
+----------
+[REVOKE] revoke select on test.* from 'test_user'@'localhost';
+----------
+[REVOKE] revoke all privileges on *.* from 'test_user'@'localhost';
+----------
+[CREATE_ROLE] create role 'app_read';
+----------
+[DROP_ROLE] drop role 'app_read';
+----------
+[SESSION_VARIABLE_RW] set @var = 1;
+----------
+[SYSTEM_SETTING_WRITE] set global max_connections = 200;
+----------
+[SESSION_SETTING_WRITE] set session sql_mode = 'STRICT_TRANS_TABLES';
+----------
+[METADATA] show databases;
+----------
+[METADATA] show tables;
+----------
+[METADATA] show columns from test;
+----------
+[METADATA] show create table test;
+----------
+[METADATA] show index from test;
+----------
+[PERFORMANCE] show processlist;

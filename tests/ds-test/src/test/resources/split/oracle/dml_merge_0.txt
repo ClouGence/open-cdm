@@ -1,0 +1,22 @@
+MERGE INTO bonuses d
+USING (SELECT employee_id, salary FROM employees) s
+ON (d.employee_id = s.employee_id)
+WHEN MATCHED THEN UPDATE SET d.bonus = s.salary * 0.1
+WHEN NOT MATCHED THEN INSERT (employee_id, bonus) VALUES (s.employee_id, s.salary * 0.05);
+MERGE INTO inventory_target t
+USING inventory_source s
+ON (t.item_id = s.item_id)
+WHEN MATCHED THEN UPDATE SET t.qty = s.qty
+WHEN NOT MATCHED THEN INSERT (item_id, qty) VALUES (s.item_id, s.qty);
+------------------------------------------------------------------------------------------
+[MERGE|SELECT] MERGE INTO bonuses d
+USING (SELECT employee_id, salary FROM employees) s
+ON (d.employee_id = s.employee_id)
+WHEN MATCHED THEN UPDATE SET d.bonus = s.salary * 0.1
+WHEN NOT MATCHED THEN INSERT (employee_id, bonus) VALUES (s.employee_id, s.salary * 0.05);
+----------
+[MERGE] MERGE INTO inventory_target t
+USING inventory_source s
+ON (t.item_id = s.item_id)
+WHEN MATCHED THEN UPDATE SET t.qty = s.qty
+WHEN NOT MATCHED THEN INSERT (item_id, qty) VALUES (s.item_id, s.qty);

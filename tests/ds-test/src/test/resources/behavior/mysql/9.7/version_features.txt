@@ -1,0 +1,120 @@
+[create_library]
+sql:
+CREATE LIBRARY split_lib LANGUAGE JAVASCRIPT AS $$export function f() { return 1; }$$
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:15~1:24) /test/1/catalog1/schema1/split_lib/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_library]
+sql:
+ALTER LIBRARY split_lib COMMENT 'updated'
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_LIBRARY": [
+    {
+      "subject": "Library(1:14~1:23) /test/1/catalog1/schema1/split_lib/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_library]
+sql:
+DROP LIBRARY IF EXISTS split_lib
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(1:23~1:32) /test/1/catalog1/schema1/split_lib/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_json_duality_view]
+sql:
+CREATE JSON DUALITY VIEW jdv AS SELECT JSON_DUALITY_OBJECT('_id' : id) FROM root_doc
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:25~1:28) /test/1/catalog1/schema1/jdv/",
+      "action" : "CREATE",
+      "target" : "Table(1:76~1:84) /test/1/catalog1/schema1/root_doc/"
+    },
+    {
+      "subject": "Function(1:39~1:58) /test/1/catalog1/schema1/JSON_DUALITY_OBJECT/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[create_vector_table]
+sql:
+CREATE TABLE vector_t (embedding VECTOR(3))
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/schema1/vector_t/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[odbc_table_escape]
+sql:
+SELECT t1.* FROM t1 AS t0, { OJ t2 INNER JOIN t1 ON (t1.a1=t2.a1) } WHERE t0.a3=2
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:19) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:32~1:34) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[right_deep_straight_join]
+sql:
+SELECT a.col_varchar
+FROM t1 a STRAIGHT_JOIN t2 b INNER JOIN t1 c
+ON c.col_varchar=b.col_varchar_key
+ON c.col_int=b.pk
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:7) /test/1/catalog1/schema1/t1/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(2:24~2:26) /test/1/catalog1/schema1/t2/",
+      "action" : "READ"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+create database `abc`;
+create schema abc;
+create database `abc`;
+create schema `abc`;
+create database if not exists abc;
+drop database abc;
+drop database if exists abc;
+drop schema if exists abc;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create database `abc`;
+----------
+[CREATE_SCHEMA] create schema abc;
+----------
+[CREATE_SCHEMA] create database `abc`;
+----------
+[CREATE_SCHEMA] create schema `abc`;
+----------
+[CREATE_SCHEMA] create database if not exists abc;
+----------
+[DROP_SCHEMA] drop database abc;
+----------
+[DROP_SCHEMA] drop database if exists abc;
+----------
+[DROP_SCHEMA] drop schema if exists abc;

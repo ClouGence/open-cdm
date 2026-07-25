@@ -1,0 +1,6 @@
+SET GLOBAL max_binlog_cache_size = 1024 * 1024 * 1024;
+set @@max_binlog_cache_size = 1024;
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] SET GLOBAL max_binlog_cache_size = 1024 * 1024 * 1024;
+----------
+[SESSION_SETTING_WRITE] set @@max_binlog_cache_size = 1024;

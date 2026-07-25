@@ -1,0 +1,150 @@
+DROP SCHEMA IF EXISTS split_ts_probe CASCADE;
+DROP SCHEMA IF EXISTS split_ts_next CASCADE;
+CREATE SCHEMA split_ts_probe;
+CREATE SCHEMA split_ts_next;
+CREATE TEXT SEARCH DICTIONARY split_ts_probe.simple_dict (
+    TEMPLATE = simple,
+    StopWords = english,
+    Accept = true
+);
+ALTER TEXT SEARCH DICTIONARY split_ts_probe.simple_dict (Accept = false);
+CREATE TEXT SEARCH DICTIONARY split_ts_probe.simple_dict_two (TEMPLATE = simple);
+CREATE TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser (PARSER = pg_catalog.default);
+CREATE TEXT SEARCH CONFIGURATION split_ts_probe.cfg_copy (COPY = pg_catalog.english);
+ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    ADD MAPPING FOR asciiword, word WITH split_ts_probe.simple_dict, english_stem;
+ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    ALTER MAPPING FOR asciiword WITH simple;
+ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    ALTER MAPPING REPLACE simple WITH split_ts_probe.simple_dict_two;
+ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    ALTER MAPPING FOR word REPLACE english_stem WITH simple;
+ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    DROP MAPPING IF EXISTS FOR asciiword, word;
+CREATE TEXT SEARCH TEMPLATE split_ts_probe.simple_template (LEXIZE = dsimple_lexize);
+CREATE TEXT SEARCH TEMPLATE split_ts_probe.simple_template_init (INIT = dsimple_init, LEXIZE = dsimple_lexize);
+CREATE TEXT SEARCH PARSER split_ts_probe.simple_parser (
+    START = prsd_start,
+    GETTOKEN = prsd_nexttoken,
+    END = prsd_end,
+    LEXTYPES = prsd_lextype,
+    HEADLINE = prsd_headline
+);
+COMMENT ON TEXT SEARCH DICTIONARY split_ts_probe.simple_dict IS 'simple dictionary probe';
+COMMENT ON TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser IS 'configuration probe';
+COMMENT ON TEXT SEARCH TEMPLATE split_ts_probe.simple_template IS 'template probe';
+COMMENT ON TEXT SEARCH PARSER split_ts_probe.simple_parser IS 'parser probe';
+ALTER TEXT SEARCH DICTIONARY split_ts_probe.simple_dict OWNER TO CURRENT_USER;
+ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser OWNER TO CURRENT_USER;
+ALTER TEXT SEARCH DICTIONARY split_ts_probe.simple_dict RENAME TO simple_dict_renamed;
+ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser RENAME TO cfg_parser_renamed;
+ALTER TEXT SEARCH TEMPLATE split_ts_probe.simple_template RENAME TO simple_template_renamed;
+ALTER TEXT SEARCH PARSER split_ts_probe.simple_parser RENAME TO simple_parser_renamed;
+ALTER TEXT SEARCH DICTIONARY split_ts_probe.simple_dict_renamed SET SCHEMA split_ts_next;
+ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser_renamed SET SCHEMA split_ts_next;
+ALTER TEXT SEARCH TEMPLATE split_ts_probe.simple_template_renamed SET SCHEMA split_ts_next;
+ALTER TEXT SEARCH PARSER split_ts_probe.simple_parser_renamed SET SCHEMA split_ts_next;
+DROP TEXT SEARCH CONFIGURATION IF EXISTS split_ts_next.cfg_parser_renamed CASCADE;
+DROP TEXT SEARCH CONFIGURATION IF EXISTS split_ts_probe.cfg_copy RESTRICT;
+DROP TEXT SEARCH DICTIONARY IF EXISTS split_ts_next.simple_dict_renamed CASCADE;
+DROP TEXT SEARCH DICTIONARY IF EXISTS split_ts_probe.simple_dict_two CASCADE;
+DROP TEXT SEARCH TEMPLATE IF EXISTS split_ts_next.simple_template_renamed CASCADE;
+DROP TEXT SEARCH TEMPLATE IF EXISTS split_ts_probe.simple_template_init CASCADE;
+DROP TEXT SEARCH PARSER IF EXISTS split_ts_next.simple_parser_renamed CASCADE;
+DROP SCHEMA split_ts_next;
+DROP SCHEMA split_ts_probe;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_ts_probe CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_ts_next CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_ts_probe;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_ts_next;
+----------
+[CREATE_POLICY] CREATE TEXT SEARCH DICTIONARY split_ts_probe.simple_dict (
+    TEMPLATE = simple,
+    StopWords = english,
+    Accept = true
+);
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH DICTIONARY split_ts_probe.simple_dict (Accept = false);
+----------
+[CREATE_POLICY] CREATE TEXT SEARCH DICTIONARY split_ts_probe.simple_dict_two (TEMPLATE = simple);
+----------
+[CREATE_POLICY] CREATE TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser (PARSER = pg_catalog.default);
+----------
+[CREATE_POLICY] CREATE TEXT SEARCH CONFIGURATION split_ts_probe.cfg_copy (COPY = pg_catalog.english);
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    ADD MAPPING FOR asciiword, word WITH split_ts_probe.simple_dict, english_stem;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    ALTER MAPPING FOR asciiword WITH simple;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    ALTER MAPPING REPLACE simple WITH split_ts_probe.simple_dict_two;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    ALTER MAPPING FOR word REPLACE english_stem WITH simple;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser
+    DROP MAPPING IF EXISTS FOR asciiword, word;
+----------
+[CREATE_POLICY] CREATE TEXT SEARCH TEMPLATE split_ts_probe.simple_template (LEXIZE = dsimple_lexize);
+----------
+[CREATE_POLICY] CREATE TEXT SEARCH TEMPLATE split_ts_probe.simple_template_init (INIT = dsimple_init, LEXIZE = dsimple_lexize);
+----------
+[CREATE_POLICY] CREATE TEXT SEARCH PARSER split_ts_probe.simple_parser (
+    START = prsd_start,
+    GETTOKEN = prsd_nexttoken,
+    END = prsd_end,
+    LEXTYPES = prsd_lextype,
+    HEADLINE = prsd_headline
+);
+----------
+[ALTER_POLICY] COMMENT ON TEXT SEARCH DICTIONARY split_ts_probe.simple_dict IS 'simple dictionary probe';
+----------
+[ALTER_POLICY] COMMENT ON TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser IS 'configuration probe';
+----------
+[ALTER_POLICY] COMMENT ON TEXT SEARCH TEMPLATE split_ts_probe.simple_template IS 'template probe';
+----------
+[ALTER_POLICY] COMMENT ON TEXT SEARCH PARSER split_ts_probe.simple_parser IS 'parser probe';
+----------
+[TRANSFER_PRIVILEGE] ALTER TEXT SEARCH DICTIONARY split_ts_probe.simple_dict OWNER TO CURRENT_USER;
+----------
+[TRANSFER_PRIVILEGE] ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser OWNER TO CURRENT_USER;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH DICTIONARY split_ts_probe.simple_dict RENAME TO simple_dict_renamed;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser RENAME TO cfg_parser_renamed;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH TEMPLATE split_ts_probe.simple_template RENAME TO simple_template_renamed;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH PARSER split_ts_probe.simple_parser RENAME TO simple_parser_renamed;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH DICTIONARY split_ts_probe.simple_dict_renamed SET SCHEMA split_ts_next;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH CONFIGURATION split_ts_probe.cfg_parser_renamed SET SCHEMA split_ts_next;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH TEMPLATE split_ts_probe.simple_template_renamed SET SCHEMA split_ts_next;
+----------
+[ALTER_POLICY] ALTER TEXT SEARCH PARSER split_ts_probe.simple_parser_renamed SET SCHEMA split_ts_next;
+----------
+[DROP_POLICY] DROP TEXT SEARCH CONFIGURATION IF EXISTS split_ts_next.cfg_parser_renamed CASCADE;
+----------
+[DROP_POLICY] DROP TEXT SEARCH CONFIGURATION IF EXISTS split_ts_probe.cfg_copy RESTRICT;
+----------
+[DROP_POLICY] DROP TEXT SEARCH DICTIONARY IF EXISTS split_ts_next.simple_dict_renamed CASCADE;
+----------
+[DROP_POLICY] DROP TEXT SEARCH DICTIONARY IF EXISTS split_ts_probe.simple_dict_two CASCADE;
+----------
+[DROP_POLICY] DROP TEXT SEARCH TEMPLATE IF EXISTS split_ts_next.simple_template_renamed CASCADE;
+----------
+[DROP_POLICY] DROP TEXT SEARCH TEMPLATE IF EXISTS split_ts_probe.simple_template_init CASCADE;
+----------
+[DROP_POLICY] DROP TEXT SEARCH PARSER IF EXISTS split_ts_next.simple_parser_renamed CASCADE;
+----------
+[DROP_SCHEMA] DROP SCHEMA split_ts_next;
+----------
+[DROP_SCHEMA] DROP SCHEMA split_ts_probe;

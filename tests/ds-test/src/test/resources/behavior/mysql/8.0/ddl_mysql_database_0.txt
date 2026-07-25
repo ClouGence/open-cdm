@@ -1,0 +1,479 @@
+[alter_schema__001]
+sql:
+ALTER DATABASE audit_admin_db READ ONLY = 1 READ ONLY = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:29) /test/1/catalog1/audit_admin_db/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__002]
+sql:
+ALTER DATABASE DEFAULT CHARACTER SET = utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:0~1:46) /test/1/catalog1/schema1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__003]
+sql:
+ALTER DATABASE audit_admin_db READ ONLY = 1 READ ONLY = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:29) /test/1/catalog1/audit_admin_db/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__004]
+sql:
+ALTER SCHEMA DEFAULT COLLATE = utf8mb4_bin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:0~1:42) /test/1/catalog1/schema1/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_schema__005]
+sql:
+CREATE DATABASE split_db80_modern DEFAULT ENCRYPTION = 'N';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:33) /test/1/catalog1/split_db80_modern/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[alter_schema__006]
+sql:
+ALTER DATABASE split_db80_modern READ ONLY = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:32) /test/1/catalog1/split_db80_modern/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__007]
+sql:
+ALTER DATABASE split_db80_modern READ ONLY = 0 DEFAULT ENCRYPTION = 'N';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:32) /test/1/catalog1/split_db80_modern/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_schema__008]
+sql:
+DROP DATABASE split_db80_modern;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:31) /test/1/catalog1/split_db80_modern/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[create_schema__009]
+sql:
+CREATE DATABASE db345678901234567890123456789012345678901234567890123456789012345;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:81) /test/1/catalog1/db345678901234567890123456789012345678901234567890123456789012345/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__010]
+sql:
+CREATE DATABASE db34567890123456789012345678901234567890123456789012345678901234;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:80) /test/1/catalog1/db34567890123456789012345678901234567890123456789012345678901234/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__011]
+sql:
+create database `abc`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:21) /test/1/catalog1/abc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__012]
+sql:
+create schema abc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:17) /test/1/catalog1/abc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__013]
+sql:
+create schema `abc`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:19) /test/1/catalog1/abc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__014]
+sql:
+create database abc default collate utf8mb4_unicode_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:19) /test/1/catalog1/abc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__015]
+sql:
+create database abc default character set utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:19) /test/1/catalog1/abc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__016]
+sql:
+create database abc default character set utf8mb4 collate utf8mb4_unicode_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:19) /test/1/catalog1/abc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__017]
+sql:
+create database if not exists abc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:30~1:33) /test/1/catalog1/abc/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[drop_schema__018]
+sql:
+drop database abc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:17) /test/1/catalog1/abc/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_schema__019]
+sql:
+drop database if exists abc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:24~1:27) /test/1/catalog1/abc/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_schema__020]
+sql:
+drop schema if exists abc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:25) /test/1/catalog1/abc/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_schema__021]
+sql:
+alter schema abc default character set utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:13~1:16) /test/1/catalog1/abc/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__022]
+sql:
+alter schema abc default character set utf8mb4 collate utf8mb4_unicode_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:13~1:16) /test/1/catalog1/abc/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[create_schema__023]
+sql:
+create database test;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:20) /test/1/catalog1/test/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__024]
+sql:
+create database if not exists test;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:30~1:34) /test/1/catalog1/test/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__025]
+sql:
+create database test character set utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:20) /test/1/catalog1/test/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__026]
+sql:
+create database test character set utf8mb4 collate utf8mb4_unicode_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:16~1:20) /test/1/catalog1/test/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[create_schema__027]
+sql:
+create schema test_schema;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:25) /test/1/catalog1/test_schema/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[drop_schema__028]
+sql:
+drop database test;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:18) /test/1/catalog1/test/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_schema__029]
+sql:
+drop database if exists test;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:24~1:28) /test/1/catalog1/test/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[drop_schema__030]
+sql:
+drop schema test_schema;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:23) /test/1/catalog1/test_schema/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[alter_schema__031]
+sql:
+alter database test character set utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:19) /test/1/catalog1/test/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[alter_schema__032]
+sql:
+alter database test character set utf8mb4 collate utf8mb4_unicode_ci;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SCHEMA": [
+    {
+      "subject": "Schema(1:15~1:19) /test/1/catalog1/test/",
+      "action" : "ALTER"
+    }
+  ]
+}

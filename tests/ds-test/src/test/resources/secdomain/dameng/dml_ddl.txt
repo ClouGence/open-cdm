@@ -1,0 +1,55 @@
+[select_join]
+sql:
+select e.id, d.name from app.employee e join app.department d on e.dept_id = d.id where e.active = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"department"}
+  ]
+}
+----------
+[create_table_select]
+sql:
+create table app.employee_archive as select id, name from app.employee where active = 0
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_SELECT", "auditKind":"CREATE", "schema":"app", "table":"employee_archive"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[create_index]
+sql:
+create index app.idx_employee_name on app.employee(name)
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "name":"idx_employee_name", "tableSchema":"app", "tableName":"employee"}
+  ]
+}
+----------
+[exec_call]
+sql:
+exec app.refresh_employee 1, 'force'
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"app", "callName":"refresh_employee"}
+  ]
+}
+----------
+[create_procedure]
+sql:
+create or replace procedure app.refresh_employee(p_id int) as
+begin
+  update app.employee set active = 1 where id = p_id;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"refresh_employee"}
+  ]
+}

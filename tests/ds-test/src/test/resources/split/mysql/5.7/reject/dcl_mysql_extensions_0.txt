@@ -1,0 +1,42 @@
+CLONE LOCAL DATA DIRECTORY = '/tmp/split_clone_local';
+CLONE LOCAL DATA DIRECTORY '/tmp/split_clone_local_noeq';
+CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw';
+CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw' REQUIRE NO SSL;
+CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw' DATA DIRECTORY = '/tmp/split_clone_remote';
+CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw' DATA DIRECTORY '/tmp/split_clone_remote_noeq' REQUIRE NO SSL;
+CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw' DATA DIRECTORY = '/tmp/split_clone_remote_ssl' REQUIRE SSL;
+INSTALL COMPONENT 'file://component_validate_password';
+UNINSTALL COMPONENT 'file://component_validate_password';
+INSTALL COMPONENT 'file://component_validate_password', 'file://component_log_filter_dragnet';
+UNINSTALL COMPONENT 'file://component_log_filter_dragnet', 'file://component_validate_password';
+GRANT BACKUP_ADMIN ON *.* TO 'dynamic_old'@'%';
+CREATE AGGREGATE FUNCTION IF NOT EXISTS split_missing_agg_ifne_57 RETURNS REAL SONAME 'split_missing_ifne.so';
+CREATE FUNCTION IF NOT EXISTS split_missing_ifne_57 RETURNS INTEGER SONAME 'split_missing_ifne.so';
+------------------------------------------------------------------------------------------
+[DATA_EXPORT] CLONE LOCAL DATA DIRECTORY = '/tmp/split_clone_local';
+----------
+[DATA_EXPORT] CLONE LOCAL DATA DIRECTORY '/tmp/split_clone_local_noeq';
+----------
+[DATA_IMPORT|UNSAFE] CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw';
+----------
+[DATA_IMPORT|UNSAFE] CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw' REQUIRE NO SSL;
+----------
+[DATA_IMPORT] CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw' DATA DIRECTORY = '/tmp/split_clone_remote';
+----------
+[DATA_IMPORT] CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw' DATA DIRECTORY '/tmp/split_clone_remote_noeq' REQUIRE NO SSL;
+----------
+[DATA_IMPORT] CLONE INSTANCE FROM 'split_clone'@'127.0.0.1':9 IDENTIFIED BY 'pw' DATA DIRECTORY = '/tmp/split_clone_remote_ssl' REQUIRE SSL;
+----------
+[CREATE_LIBRARY] INSTALL COMPONENT 'file://component_validate_password';
+----------
+[DROP_LIBRARY] UNINSTALL COMPONENT 'file://component_validate_password';
+----------
+[CREATE_LIBRARY] INSTALL COMPONENT 'file://component_validate_password', 'file://component_log_filter_dragnet';
+----------
+[DROP_LIBRARY] UNINSTALL COMPONENT 'file://component_log_filter_dragnet', 'file://component_validate_password';
+----------
+[GRANT] GRANT BACKUP_ADMIN ON *.* TO 'dynamic_old'@'%';
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE AGGREGATE FUNCTION IF NOT EXISTS split_missing_agg_ifne_57 RETURNS REAL SONAME 'split_missing_ifne.so';
+----------
+[CREATE_PROG_OBJ|UNSAFE] CREATE FUNCTION IF NOT EXISTS split_missing_ifne_57 RETURNS INTEGER SONAME 'split_missing_ifne.so';

@@ -1,0 +1,30 @@
+[select_basic]
+sql:
+select * from test_db.table1
+expect:
+{
+  "contains": [
+    {"class":"ChSelectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "childrenSize":1},
+    {"class":"RdbTableDomain", "schema":"test_db", "table":"table1"}
+  ]
+}
+----------
+[insert_basic]
+sql:
+insert into test_db.table1 (id) values (1)
+expect:
+{
+  "contains": [
+    {"class":"ChInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"test_db", "table":"table1"}
+  ]
+}
+----------
+[drop_table]
+sql:
+drop table test_db.table1
+expect:
+{
+  "contains": [
+    {"class":"ChTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"test_db", "table":"table1"}
+  ]
+}

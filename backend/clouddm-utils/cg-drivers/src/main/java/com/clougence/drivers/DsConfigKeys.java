@@ -53,7 +53,6 @@ public enum DsConfigKeys {
     //////////////////////////
     //    Only for Mysql    //
     //////////////////////////
-    MY_SQL_MODE("my_sql_mode"),
     MY_MAX_ALLOWED_PACKET("my_max_allowed_packet"), // use "set global max_allowed_packet = ?"
 
     ///////////////////////////////

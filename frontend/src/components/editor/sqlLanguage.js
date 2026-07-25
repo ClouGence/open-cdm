@@ -15,17 +15,13 @@ export function getDsSetting(settings, dsType) {
   return normalizedKey ? settings[normalizedKey] : null;
 }
 
-export function getDsLanguageCapability(settings, dsType) {
-  return getDsSetting(settings, dsType)?.language || null;
-}
-
 export function getBaseEditorLanguage(dsType, fallbackLanguage = 'sql') {
   return dsType ? getLanguage(dsType) : fallbackLanguage || 'sql';
 }
 
-export async function resolveSqlEditorLanguage(monaco, dsType, settings, fallbackLanguage = 'sql') {
+export async function resolveSqlEditorLanguage(monaco, dsType, settings, fallbackLanguage = 'sql', languageCapability = null) {
   const baseLanguage = getBaseEditorLanguage(dsType, fallbackLanguage);
-  const keywordResource = getDsLanguageCapability(settings, dsType)?.keywordResource;
+  const keywordResource = languageCapability?.keywordResource;
   if (!keywordResource) {
     return baseLanguage;
   }

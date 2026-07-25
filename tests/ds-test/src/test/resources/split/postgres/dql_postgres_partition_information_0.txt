@@ -1,0 +1,18 @@
+SELECT relid::text, parentrelid::text, isleaf, level FROM pg_partition_tree('split_obj_mgmt.parted_probe'::regclass) ORDER BY level, relid::text;
+SELECT count(*) = 3 AS partition_tree_node_count FROM pg_partition_tree('split_obj_mgmt.parted_probe'::regclass);
+SELECT count(*) >= 1 AS partition_indexes_seen FROM pg_partition_tree('split_obj_mgmt.parted_probe_idx'::regclass);
+SELECT ancestor::text FROM pg_partition_ancestors('split_obj_mgmt.parted_probe_p1'::regclass) AS ancestor ORDER BY ancestor::text;
+SELECT pg_partition_root('split_obj_mgmt.parted_probe_p1'::regclass) = 'split_obj_mgmt.parted_probe'::regclass AS partition_root_known;
+SELECT pg_size_pretty(sum(pg_relation_size(relid))) AS total_partition_size FROM pg_partition_tree('split_obj_mgmt.parted_probe');
+------------------------------------------------------------------------------------------
+[METADATA] SELECT relid::text, parentrelid::text, isleaf, level FROM pg_partition_tree('split_obj_mgmt.parted_probe'::regclass) ORDER BY level, relid::text;
+----------
+[METADATA] SELECT count(*) = 3 AS partition_tree_node_count FROM pg_partition_tree('split_obj_mgmt.parted_probe'::regclass);
+----------
+[METADATA] SELECT count(*) >= 1 AS partition_indexes_seen FROM pg_partition_tree('split_obj_mgmt.parted_probe_idx'::regclass);
+----------
+[METADATA] SELECT ancestor::text FROM pg_partition_ancestors('split_obj_mgmt.parted_probe_p1'::regclass) AS ancestor ORDER BY ancestor::text;
+----------
+[METADATA] SELECT pg_partition_root('split_obj_mgmt.parted_probe_p1'::regclass) = 'split_obj_mgmt.parted_probe'::regclass AS partition_root_known;
+----------
+[METADATA] SELECT pg_size_pretty(sum(pg_relation_size(relid))) AS total_partition_size FROM pg_partition_tree('split_obj_mgmt.parted_probe');

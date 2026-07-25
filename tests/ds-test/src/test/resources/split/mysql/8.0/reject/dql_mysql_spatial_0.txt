@@ -1,0 +1,6 @@
+SELECT CONTAINS(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(0 0)'));
+SELECT SRID(ST_GEOMFROMTEXT('POINT(1 2)'));
+------------------------------------------------------------------------------------------
+[SELECT] SELECT CONTAINS(ST_GEOMFROMTEXT('POINT(0 0)'),ST_GEOMFROMTEXT('POINT(0 0)'));
+----------
+[SELECT] SELECT SRID(ST_GEOMFROMTEXT('POINT(1 2)'));

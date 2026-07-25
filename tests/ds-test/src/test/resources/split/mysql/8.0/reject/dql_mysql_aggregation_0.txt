@@ -1,0 +1,69 @@
+SELECT grp, id, SUM(v) FROM t1 GROUP BY CUBE(grp, id);
+SELECT grp, SUM(v) FROM t1 GROUP BY ROLLUP(grp);
+SELECT grp, COUNT(*) FROM t GROUP BY grp DESC;
+SELECT grp,SUM(v) FROM split_group_matrix.t GROUP BY grp ASC,id DESC WITH ROLLUP;
+SELECT GROUPING();
+SELECT i, SUM(j) AS total, GROUPING(i) AS gi, RANK() OVER (ORDER BY SUM(j) DESC) AS rnk FROM (SELECT 1 AS i, 2 AS j UNION ALL SELECT 1, 3) AS t GROUP BY GROUPING SETS ((i), ()) HAVING SUM(j) > 0 ORDER BY i;
+SELECT COUNT(*) FROM (SELECT 1 AS i, 2 AS j UNION ALL SELECT 1, 3) AS t GROUP BY GROUPING SETS (());
+SELECT i, j, COUNT(*) FROM (SELECT 1 AS i, 2 AS j UNION ALL SELECT 1, 3) AS t GROUP BY GROUPING SETS ((), (i), (i,j));
+SELECT i, GROUPING(i), COUNT(*) FROM (SELECT 1 AS i UNION ALL SELECT 2) AS t GROUP BY GROUPING SETS ((i));
+WITH RECURSIVE seq(n) AS (
+    SELECT 1
+    UNION ALL
+    SELECT n + 1 FROM seq WHERE n < 4
+)
+SELECT n % 2 AS grp, GROUPING(n % 2) AS g, SUM(n) AS total,
+       RANK() OVER (ORDER BY SUM(n) DESC) AS rnk
+  FROM seq
+ GROUP BY GROUPING SETS ((n % 2), ())
+HAVING SUM(n) > 0
+ ORDER BY g, grp
+ LIMIT 3;
+SELECT grp, SUM(v) AS total, GROUPING(grp) AS g,
+       RANK() OVER (ORDER BY SUM(v) DESC) AS rnk
+  FROM t1
+ GROUP BY GROUPING SETS ((grp), ())
+HAVING SUM(v) > 0
+ QUALIFY rnk <= 2
+ ORDER BY g, grp
+ LIMIT 3;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT grp, id, SUM(v) FROM t1 GROUP BY CUBE(grp, id);
+----------
+[SELECT] SELECT grp, SUM(v) FROM t1 GROUP BY ROLLUP(grp);
+----------
+[SELECT] SELECT grp, COUNT(*) FROM t GROUP BY grp DESC;
+----------
+[SELECT] SELECT grp,SUM(v) FROM split_group_matrix.t GROUP BY grp ASC,id DESC WITH ROLLUP;
+----------
+[SELECT] SELECT GROUPING();
+----------
+[SELECT] SELECT i, SUM(j) AS total, GROUPING(i) AS gi, RANK() OVER (ORDER BY SUM(j) DESC) AS rnk FROM (SELECT 1 AS i, 2 AS j UNION ALL SELECT 1, 3) AS t GROUP BY GROUPING SETS ((i), ()) HAVING SUM(j) > 0 ORDER BY i;
+----------
+[SELECT] SELECT COUNT(*) FROM (SELECT 1 AS i, 2 AS j UNION ALL SELECT 1, 3) AS t GROUP BY GROUPING SETS (());
+----------
+[SELECT] SELECT i, j, COUNT(*) FROM (SELECT 1 AS i, 2 AS j UNION ALL SELECT 1, 3) AS t GROUP BY GROUPING SETS ((), (i), (i,j));
+----------
+[SELECT] SELECT i, GROUPING(i), COUNT(*) FROM (SELECT 1 AS i UNION ALL SELECT 2) AS t GROUP BY GROUPING SETS ((i));
+----------
+[SELECT] WITH RECURSIVE seq(n) AS (
+    SELECT 1
+    UNION ALL
+    SELECT n + 1 FROM seq WHERE n < 4
+)
+SELECT n % 2 AS grp, GROUPING(n % 2) AS g, SUM(n) AS total,
+       RANK() OVER (ORDER BY SUM(n) DESC) AS rnk
+  FROM seq
+ GROUP BY GROUPING SETS ((n % 2), ())
+HAVING SUM(n) > 0
+ ORDER BY g, grp
+ LIMIT 3;
+----------
+[SELECT] SELECT grp, SUM(v) AS total, GROUPING(grp) AS g,
+       RANK() OVER (ORDER BY SUM(v) DESC) AS rnk
+  FROM t1
+ GROUP BY GROUPING SETS ((grp), ())
+HAVING SUM(v) > 0
+ QUALIFY rnk <= 2
+ ORDER BY g, grp
+ LIMIT 3;

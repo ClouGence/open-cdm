@@ -1,0 +1,7 @@
+[ChParseColumnSelectInColumnTest.test1]
+sql:
+select (select column1 from table1) as x from table2
+expect:
+{
+  "x" : [ "/catalog1/schema1/table1/column1/" ]
+}

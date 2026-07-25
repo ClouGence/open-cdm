@@ -1,0 +1,59 @@
+[createIndex_basic]
+sql:
+create index on abc (id);
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "tableName":"abc"}
+  ]
+}
+----------
+[createIndex_named]
+sql:
+create index index_name on abc (id);
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "tableName":"abc", "name":"index_name"}
+  ]
+}
+----------
+[createUniqueIndex]
+sql:
+create unique index index_name on abc (id);
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "tableName":"abc", "name":"index_name"}
+  ]
+}
+----------
+[addConstraint_pk]
+sql:
+alter table abc add constraint pk_name primary key (id);
+expect:
+{
+  "contains": [
+    {"class":"RdbConstraintDomain", "sqlType":"ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"pk_name"}
+  ]
+}
+----------
+[addConstraint_unique]
+sql:
+alter table abc add constraint uk_name unique (name);
+expect:
+{
+  "contains": [
+    {"class":"RdbConstraintDomain", "sqlType":"ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"uk_name"}
+  ]
+}
+----------
+[dropConstraint]
+sql:
+alter table abc drop constraint pk_name;
+expect:
+{
+  "contains": [
+    {"class":"RdbConstraintDomain", "sqlType":"ALTER_TABLE_DROP_CONSTRAINT", "auditKind":"DROP", "tableName":"abc", "name":"pk_name"}
+  ]
+}

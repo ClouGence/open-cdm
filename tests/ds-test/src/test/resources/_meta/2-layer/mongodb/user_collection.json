@@ -1,0 +1,33 @@
+[
+  {
+    "columns": [
+      {
+        "column": "_id",
+        "table": "user_collection",
+        "schema": "mongodb"
+      }
+    ],
+    "itemAlias": "_id",
+    "icon": "COLUMN-PK"
+  },
+  {
+    "columns": [
+      {
+        "column": "created_at",
+        "table": "user_collection",
+        "schema": "mongodb"
+      }
+    ],
+    "itemAlias": "created_at"
+  },
+  {
+    "columns": [
+      {
+        "column": "name",
+        "table": "user_collection",
+        "schema": "mongodb"
+      }
+    ],
+    "itemAlias": "name"
+  }
+]

@@ -1,0 +1,82 @@
+SELECT LENGTH(v), CHAR_LENGTH(v), OCTET_LENGTH(v), HEX(fixed_binary), HEX(variable_binary)
+FROM str_lifecycle
+WHERE v LIKE 'a%' AND c BETWEEN 'a' AND 'z'
+ORDER BY BINARY v;
+SELECT v, COUNT(*), MIN(HEX(variable_binary))
+FROM str_lifecycle
+GROUP BY v
+HAVING COUNT(*) >= 1
+ORDER BY v
+LIMIT 5;
+SELECT s.v
+FROM str_lifecycle AS s
+WHERE EXISTS (
+  SELECT 1 FROM str_lifecycle AS i
+  WHERE i.variable_binary=s.variable_binary AND i.c=s.c
+);
+SELECT f.text
+FROM str_foos AS f
+JOIN str_parents AS p ON p.id=f.parent_id
+JOIN str_bars AS b ON b.parent_id=p.id
+WHERE b.parent_id=X'93222796CABA43CA979F5C96EB6898B7';
+SELECT CASE WHEN BINARY 'a'=BINARY 'A' THEN CAST('same' AS CHAR) ELSE CAST('different' AS CHAR) END,
+       COALESCE(CAST(NULL AS CHAR), CAST('fallback' AS CHAR)),
+       NULLIF(CAST(X'41' AS BINARY), CAST(X'41' AS BINARY));
+SELECT CAST('a ' AS CHAR(3)) AS value_col
+UNION ALL
+SELECT CAST(X'6100' AS BINARY(3));
+WITH str_cte(c,v,b,vb) AS (
+  SELECT c,v,b,vb FROM str_generated
+  UNION ALL
+  SELECT gc,gv,gb,gvb FROM str_generated
+)
+SELECT c,v,HEX(b),HEX(vb) FROM str_cte WHERE vb IS NOT NULL;
+SELECT v, HEX(vb),
+       ROW_NUMBER() OVER (PARTITION BY vb ORDER BY BINARY v) AS rn,
+       FIRST_VALUE(c) OVER (ORDER BY b ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first_c
+FROM str_generated;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT LENGTH(v), CHAR_LENGTH(v), OCTET_LENGTH(v), HEX(fixed_binary), HEX(variable_binary)
+FROM str_lifecycle
+WHERE v LIKE 'a%' AND c BETWEEN 'a' AND 'z'
+ORDER BY BINARY v;
+----------
+[SELECT] SELECT v, COUNT(*), MIN(HEX(variable_binary))
+FROM str_lifecycle
+GROUP BY v
+HAVING COUNT(*) >= 1
+ORDER BY v
+LIMIT 5;
+----------
+[SELECT] SELECT s.v
+FROM str_lifecycle AS s
+WHERE EXISTS (
+  SELECT 1 FROM str_lifecycle AS i
+  WHERE i.variable_binary=s.variable_binary AND i.c=s.c
+);
+----------
+[SELECT] SELECT f.text
+FROM str_foos AS f
+JOIN str_parents AS p ON p.id=f.parent_id
+JOIN str_bars AS b ON b.parent_id=p.id
+WHERE b.parent_id=X'93222796CABA43CA979F5C96EB6898B7';
+----------
+[SELECT] SELECT CASE WHEN BINARY 'a'=BINARY 'A' THEN CAST('same' AS CHAR) ELSE CAST('different' AS CHAR) END,
+       COALESCE(CAST(NULL AS CHAR), CAST('fallback' AS CHAR)),
+       NULLIF(CAST(X'41' AS BINARY), CAST(X'41' AS BINARY));
+----------
+[SELECT] SELECT CAST('a ' AS CHAR(3)) AS value_col
+UNION ALL
+SELECT CAST(X'6100' AS BINARY(3));
+----------
+[SELECT] WITH str_cte(c,v,b,vb) AS (
+  SELECT c,v,b,vb FROM str_generated
+  UNION ALL
+  SELECT gc,gv,gb,gvb FROM str_generated
+)
+SELECT c,v,HEX(b),HEX(vb) FROM str_cte WHERE vb IS NOT NULL;
+----------
+[SELECT] SELECT v, HEX(vb),
+       ROW_NUMBER() OVER (PARTITION BY vb ORDER BY BINARY v) AS rn,
+       FIRST_VALUE(c) OVER (ORDER BY b ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first_c
+FROM str_generated;

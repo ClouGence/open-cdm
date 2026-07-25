@@ -1,0 +1,128 @@
+DROP SCHEMA IF EXISTS split_table_idx CASCADE;
+CREATE SCHEMA split_table_idx;
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+CREATE TYPE split_table_idx.typed_row AS (
+    id integer,
+    note text
+);
+CREATE TABLE split_table_idx.typed_table OF split_table_idx.typed_row (
+    id WITH OPTIONS PRIMARY KEY,
+    note WITH OPTIONS DEFAULT 'typed'
+);
+CREATE TABLE split_table_idx.base_inherit (
+    id integer NOT NULL,
+    code text UNIQUE NULLS NOT DISTINCT,
+    period tstzrange NOT NULL,
+    EXCLUDE USING gist (id WITH =, period WITH &&)
+);
+CREATE TABLE split_table_idx.child_inherit (
+    child_note text DEFAULT 'child'
+) INHERITS (split_table_idx.base_inherit);
+CREATE TABLE split_table_idx.list_part (
+    region text NOT NULL,
+    amount integer NOT NULL
+) PARTITION BY LIST (region);
+CREATE TABLE split_table_idx.list_part_na PARTITION OF split_table_idx.list_part FOR VALUES IN ('us', 'ca');
+CREATE TABLE split_table_idx.list_part_default PARTITION OF split_table_idx.list_part DEFAULT;
+CREATE TABLE split_table_idx.hash_part (
+    id integer NOT NULL,
+    payload text
+) PARTITION BY HASH (id);
+CREATE TABLE split_table_idx.hash_part_0 PARTITION OF split_table_idx.hash_part FOR VALUES WITH (MODULUS 4, REMAINDER 0);
+CREATE TABLE split_table_idx.method_table (
+    id integer,
+    payload text
+) USING heap WITH (fillfactor = 80);
+CREATE UNIQUE INDEX idx_method_payload_unique ON split_table_idx.method_table (payload) NULLS NOT DISTINCT;
+CREATE INDEX idx_method_lower_include ON split_table_idx.method_table (lower(payload) text_pattern_ops) INCLUDE (id) WITH (fillfactor = 70);
+CREATE STATISTICS split_table_idx.method_stats (dependencies, ndistinct, mcv) ON id, payload FROM split_table_idx.method_table;
+ANALYZE split_table_idx.method_table;
+DROP STATISTICS IF EXISTS split_table_idx.method_stats;
+DROP INDEX IF EXISTS split_table_idx.idx_method_lower_include;
+DROP INDEX IF EXISTS split_table_idx.idx_method_payload_unique;
+DROP TABLE IF EXISTS split_table_idx.method_table;
+DROP TABLE IF EXISTS split_table_idx.hash_part;
+DROP TABLE IF EXISTS split_table_idx.list_part;
+DROP TABLE IF EXISTS split_table_idx.child_inherit;
+DROP TABLE IF EXISTS split_table_idx.base_inherit;
+DROP TABLE IF EXISTS split_table_idx.typed_table;
+DROP TYPE IF EXISTS split_table_idx.typed_row;
+DROP SCHEMA IF EXISTS split_table_idx CASCADE;
+------------------------------------------------------------------------------------------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_table_idx CASCADE;
+----------
+[CREATE_SCHEMA] CREATE SCHEMA split_table_idx;
+----------
+[CREATE_LIBRARY] CREATE EXTENSION IF NOT EXISTS btree_gist;
+----------
+[CREATE_TYPE] CREATE TYPE split_table_idx.typed_row AS (
+    id integer,
+    note text
+);
+----------
+[CREATE_TABLE] CREATE TABLE split_table_idx.typed_table OF split_table_idx.typed_row (
+    id WITH OPTIONS PRIMARY KEY,
+    note WITH OPTIONS DEFAULT 'typed'
+);
+----------
+[CREATE_TABLE] CREATE TABLE split_table_idx.base_inherit (
+    id integer NOT NULL,
+    code text UNIQUE NULLS NOT DISTINCT,
+    period tstzrange NOT NULL,
+    EXCLUDE USING gist (id WITH =, period WITH &&)
+);
+----------
+[CREATE_TABLE] CREATE TABLE split_table_idx.child_inherit (
+    child_note text DEFAULT 'child'
+) INHERITS (split_table_idx.base_inherit);
+----------
+[CREATE_TABLE] CREATE TABLE split_table_idx.list_part (
+    region text NOT NULL,
+    amount integer NOT NULL
+) PARTITION BY LIST (region);
+----------
+[CREATE_TABLE] CREATE TABLE split_table_idx.list_part_na PARTITION OF split_table_idx.list_part FOR VALUES IN ('us', 'ca');
+----------
+[CREATE_TABLE] CREATE TABLE split_table_idx.list_part_default PARTITION OF split_table_idx.list_part DEFAULT;
+----------
+[CREATE_TABLE] CREATE TABLE split_table_idx.hash_part (
+    id integer NOT NULL,
+    payload text
+) PARTITION BY HASH (id);
+----------
+[CREATE_TABLE] CREATE TABLE split_table_idx.hash_part_0 PARTITION OF split_table_idx.hash_part FOR VALUES WITH (MODULUS 4, REMAINDER 0);
+----------
+[CREATE_TABLE] CREATE TABLE split_table_idx.method_table (
+    id integer,
+    payload text
+) USING heap WITH (fillfactor = 80);
+----------
+[ADD_INDEX] CREATE UNIQUE INDEX idx_method_payload_unique ON split_table_idx.method_table (payload) NULLS NOT DISTINCT;
+----------
+[ADD_INDEX] CREATE INDEX idx_method_lower_include ON split_table_idx.method_table (lower(payload) text_pattern_ops) INCLUDE (id) WITH (fillfactor = 70);
+----------
+[ADMIN_PERFORMANCE] CREATE STATISTICS split_table_idx.method_stats (dependencies, ndistinct, mcv) ON id, payload FROM split_table_idx.method_table;
+----------
+[ADMIN_TABLE] ANALYZE split_table_idx.method_table;
+----------
+[ADMIN_PERFORMANCE] DROP STATISTICS IF EXISTS split_table_idx.method_stats;
+----------
+[DROP_INDEX] DROP INDEX IF EXISTS split_table_idx.idx_method_lower_include;
+----------
+[DROP_INDEX] DROP INDEX IF EXISTS split_table_idx.idx_method_payload_unique;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_table_idx.method_table;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_table_idx.hash_part;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_table_idx.list_part;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_table_idx.child_inherit;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_table_idx.base_inherit;
+----------
+[DROP_TABLE] DROP TABLE IF EXISTS split_table_idx.typed_table;
+----------
+[DROP_TYPE] DROP TYPE IF EXISTS split_table_idx.typed_row;
+----------
+[DROP_SCHEMA] DROP SCHEMA IF EXISTS split_table_idx CASCADE;

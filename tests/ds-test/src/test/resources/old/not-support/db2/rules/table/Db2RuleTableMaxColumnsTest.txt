@@ -1,0 +1,23 @@
+[Db2RuleTableMaxColumnsTest#createTableMaxColumns_1#001]
+rule: _rules/table/table-max-columns.rule
+expect: false
+vars:
+  maxCount: 2
+sql:
+create table test.abc_test(id int not null primary key, name varchar(25) not null, age varchar(25) not null)
+----------
+[Db2RuleTableMaxColumnsTest#createTableMaxColumns_1#002]
+rule: _rules/table/table-max-columns.rule
+expect: true
+vars:
+  maxCount: 2
+sql:
+create table test.abc_test(id int not null primary key, name varchar(25) not null)
+----------
+[Db2RuleTableMaxColumnsTest#createTableMaxColumns_1#003]
+rule: _rules/table/table-max-columns.rule
+expect: true
+vars:
+  maxCount: 2
+sql:
+create table test.abc_test(id int not null primary key)

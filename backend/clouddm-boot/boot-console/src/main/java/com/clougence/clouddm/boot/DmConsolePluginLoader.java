@@ -29,7 +29,7 @@ import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.execute.SessionService;
-import com.clougence.clouddm.sdk.sql.column.QueryConstraintService;
+import com.clougence.clouddm.sdk.sql.analysis.column.QueryConstraintService;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

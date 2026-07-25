@@ -1,0 +1,567 @@
+[ChRuleQueryAllowAsTest#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-as.rule
+expect: false
+vars:
+  allow: false
+sql:
+select id as a, name from table_1
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-as.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select id as a, name from table_1) t
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_1#003]
+rule: _rules/query/query-allow-as.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id as a from table_1)
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_2#001]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: false
+sql:
+select id, name from table_1
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_2#002]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from (select * from table_1) t
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_2#003]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_3#001]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id as a, name from table_1
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_3#002]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select id as a, name from table_1) t
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_3#003]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id as a from table_1)
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_4#001]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id, name from table_1
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_4#002]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1) t
+----------
+[ChRuleQueryAllowAsTest#selectAndWithTest_4#003]
+rule: _rules/query/query-allow-as.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_1#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_1#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_1#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_2#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 a left join table_2 b on a.id = b.id
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_2#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from (select * from table_1) t
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_2#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_3#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_3#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_3#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_4#001]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 a left join table_2 b on a.id = b.id
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_4#002]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1) t
+----------
+[ChRuleQueryAllowCrossInnerTest#joinTest_4#003]
+rule: _rules/query/query-allow-cross-inner.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[ChRuleQueryAllowJoinTest#joinTest_1#001]
+rule: _rules/query/query-allow-join.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[ChRuleQueryAllowJoinTest#joinTest_1#002]
+rule: _rules/query/query-allow-join.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[ChRuleQueryAllowJoinTest#joinTest_1#003]
+rule: _rules/query/query-allow-join.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[ChRuleQueryAllowJoinTest#joinTest_2#001]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1
+----------
+[ChRuleQueryAllowJoinTest#joinTest_2#002]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from (select * from table_1) t
+----------
+[ChRuleQueryAllowJoinTest#joinTest_2#003]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[ChRuleQueryAllowJoinTest#joinTest_3#001]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 a join table_2 b on a.id = b.id
+----------
+[ChRuleQueryAllowJoinTest#joinTest_3#002]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 a join table_2 b on a.id = b.id) t
+----------
+[ChRuleQueryAllowJoinTest#joinTest_3#003]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1 a join table_2 b on a.id = b.id)
+----------
+[ChRuleQueryAllowJoinTest#joinTest_4#001]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id, name from table_1
+----------
+[ChRuleQueryAllowJoinTest#joinTest_4#002]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1) t
+----------
+[ChRuleQueryAllowJoinTest#joinTest_4#003]
+rule: _rules/query/query-allow-join.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where id in (select id from table_1)
+----------
+[ChRuleQueryAllowSubQueryTest#selectHasSelect_1#001]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select id, name from table1;
+----------
+[ChRuleQueryAllowSubQueryTest#selectHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[ChRuleQueryAllowSubQueryTest#selectHasSelect_1#003]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select id, name from table1;
+----------
+[ChRuleQueryAllowSubQueryTest#selectHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[ChRuleQueryAllowSubQueryTest#selectHasSelect_1#005]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: None
+sql:
+select id, name from table1;
+----------
+[ChRuleQueryAllowSubQueryTest#selectHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select (select id from bb) as id1, name from table1;
+----------
+[ChRuleQueryAllowSubQueryTest#fromHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select t.id, t.name from (select id from bb) as t;
+----------
+[ChRuleQueryAllowSubQueryTest#fromHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select t.id, t.name from (select id from bb) as t;
+----------
+[ChRuleQueryAllowSubQueryTest#fromHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select t.id, t.name from (select id from bb) as t;
+----------
+[ChRuleQueryAllowSubQueryTest#whereHasSelect_1#002]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Any
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[ChRuleQueryAllowSubQueryTest#whereHasSelect_1#004]
+rule: _rules/query/query-allow-sub-query.rule
+expect: true
+vars:
+  allow: Select,From,Where
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[ChRuleQueryAllowSubQueryTest#whereHasSelect_1#006]
+rule: _rules/query/query-allow-sub-query.rule
+expect: false
+vars:
+  allow: None
+sql:
+select id, name from table1 where id in (select id from bb);
+----------
+[ChRuleQueryAllowUnionTest#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 union all select * from table_2
+----------
+[ChRuleQueryAllowUnionTest#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from (select * from table_1 union all select * from table_2) t
+----------
+[ChRuleQueryAllowUnionTest#selectAndWithTest_1#003]
+rule: _rules/query/query-allow-union.rule
+expect: false
+vars:
+  allow: false
+sql:
+select id from table_3 where id in (select id from table_1 union all select id from table_2)
+----------
+[ChRuleQueryAllowUnionTest#selectAndWithTest_1#004]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1
+----------
+[ChRuleQueryAllowUnionTest#unionQueryTest_1#001]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 union all select * from table_2
+----------
+[ChRuleQueryAllowUnionTest#unionQueryTest_1#002]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from (select * from table_1 union all select * from table_2) t
+----------
+[ChRuleQueryAllowUnionTest#unionQueryTest_1#003]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select id from table_3 where id in (select id from table_1 union all select id from table_2)
+----------
+[ChRuleQueryAllowUnionTest#unionQueryTest_1#004]
+rule: _rules/query/query-allow-union.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1
+----------
+[ChRuleQueryAllowWithTest#selectAndWithTest_1#001]
+rule: _rules/query/query-allow-with.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from abc
+----------
+[ChRuleQueryAllowWithTest#selectAndWithTest_1#002]
+rule: _rules/query/query-allow-with.rule
+expect: false
+vars:
+  allow: false
+sql:
+with one as (select 1) select * from table_1
+----------
+[ChRuleQueryAllowWithTest#selectAndWithTest_2#001]
+rule: _rules/query/query-allow-with.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from abc
+----------
+[ChRuleQueryAllowWithTest#selectAndWithTest_2#002]
+rule: _rules/query/query-allow-with.rule
+expect: true
+vars:
+  allow: true
+sql:
+with one as (select 1) select * from table_1
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_1#001]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from abc
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_1#002]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where 1=1
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_1#003]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where a=a
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_1#004]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select 1
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_2#001]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from abc
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_2#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1=1
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_2#003]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where a=a
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_3#001]
+rule: _rules/query/query-empty-where.rule
+expect: false
+vars:
+  allow: false
+sql:
+select * from table_1 where 1>1
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_3#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: false
+sql:
+select * from table_1 where 1=1 and a = '123'
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_4#001]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1>1
+----------
+[ChRuleQueryEmptyWhereTest#emptyWhereTest_4#002]
+rule: _rules/query/query-empty-where.rule
+expect: true
+vars:
+  allow: true
+sql:
+select * from table_1 where 1=1 and a = '123'

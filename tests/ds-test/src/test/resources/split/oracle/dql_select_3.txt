@@ -1,0 +1,11 @@
+SELECT SYS_GUID() AS rid, RAWTOHEX(SYS_GUID()) AS rid_hex, NUMTODSINTERVAL(15, 'MINUTE') AS ttl, ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1) AS next_month FROM dual;
+
+SELECT Q'[a;b;c]' AS q_text, REGEXP_SUBSTR('A/B/C', '[^/]+', 1, 2) AS second_part, TO_CHAR(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS.FF3') AS ts_text FROM dual;
+
+SELECT DECODE(MOD(10, 3), 1, 'ONE', 'OTHER') AS decoded, NVL2('x', 'Y', 'N') AS nvl2_val, DUMP('oracle') AS dump_val FROM dual;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT SYS_GUID() AS rid, RAWTOHEX(SYS_GUID()) AS rid_hex, NUMTODSINTERVAL(15, 'MINUTE') AS ttl, ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1) AS next_month FROM dual;
+----------
+[SELECT] SELECT Q'[a;b;c]' AS q_text, REGEXP_SUBSTR('A/B/C', '[^/]+', 1, 2) AS second_part, TO_CHAR(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS.FF3') AS ts_text FROM dual;
+----------
+[SELECT] SELECT DECODE(MOD(10, 3), 1, 'ONE', 'OTHER') AS decoded, NVL2('x', 'Y', 'N') AS nvl2_val, DUMP('oracle') AS dump_val FROM dual;
