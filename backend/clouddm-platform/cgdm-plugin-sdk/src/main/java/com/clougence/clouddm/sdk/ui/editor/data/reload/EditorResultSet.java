@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,7 +39,6 @@ public class EditorResultSet {
     private long                          updateCount;
 
     private String                        sql;
-    private List<Map<TargetType, String>> resource;
     private List<String>                  columnList;
     private List<String>                  columnType;
     private List<ResultSetRow>            rowSet;

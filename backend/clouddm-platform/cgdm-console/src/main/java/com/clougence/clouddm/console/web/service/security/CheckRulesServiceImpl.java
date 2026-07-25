@@ -43,7 +43,8 @@ import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
 import com.clougence.clouddm.sdk.service.secrules.SecRulesCheckerService;
-import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecRulesSupportSpi;
+import com.clougence.detectrule.parser.DetectRuleDslProvider;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.StatementSet;
@@ -677,7 +678,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
         }
 
         try {
-            StatementSet statementSet = DslHelper.parserDsl("DetectRule", scriptContent);
+            StatementSet statementSet = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, scriptContent);
             long codeLines = statementSet.getStatements().stream().filter(s -> {
                 return !s.getClass().getSimpleName().equals("DefineStatement");
             }).count();

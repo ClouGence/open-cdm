@@ -44,7 +44,6 @@ abstract class AbstractResultBuild<T extends Result> implements ResultBuild, Sup
         this.result.setBatchId(query.getBatchId());
         this.result.setQueryId(query.getQueryId());
         this.result.setQuerySql(query.getQueryBody());
-        this.result.setResource(query.getResource());
         this.result.setVariables(query.getVariables());
         this.result.setHasRewrite(query.isHasRewrite());
         this.result.setOriginalScript(query.getOriginalBody());

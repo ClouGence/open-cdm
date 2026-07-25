@@ -27,7 +27,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
 
 import jakarta.annotation.Resource;
 

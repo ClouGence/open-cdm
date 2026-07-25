@@ -286,7 +286,6 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         request.setQueryArgs(Collections.emptyList());
         request.setQueryType(SecQueryType.SELECT);
         request.setRequester(Requester.CONSOLE);
-        request.setResource(Collections.singletonList(DmConvertUtils.convertToResource(levels, table)));
 
         // execute sql
         try {
@@ -328,7 +327,6 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         request.setQueryArgs(Collections.emptyList());
         request.setQueryType(SecQueryType.SELECT);
         request.setRequester(Requester.CONSOLE);
-        request.setResource(Collections.singletonList(DmConvertUtils.convertToResource(levels, table)));
         request.setUsingValueProcess(!this.authCheckService
             .checkResPathWithoutError(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, levels.asResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE));
 
@@ -373,7 +371,6 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         request.setQueryArgs(Collections.emptyList());
         request.setQueryType(DmConvertUtils.convertToSecQueryType(dmlChange.getSqlType()));
         request.setRequester(Requester.CONSOLE);
-        request.setResource(Collections.singletonList(DmConvertUtils.convertToResource(levels, tableMeta.getName())));
 
         // ReloadSpi  request
         DataEditorReloadSpi extSpi = PluginManager.findDataEditorExtSpi(dsDO.getDataSourceType());

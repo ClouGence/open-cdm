@@ -19,14 +19,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.sql.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -44,7 +42,6 @@ public class QueryRequest implements Cloneable {
     private List<QueryArg>                queryArgs;
     private SecQueryType                  queryType;
     private DataSourceType                queryDsType;
-    private List<Map<TargetType, String>> resource;
     private Requester                     requester;
     private Date                          requestTime;
 
@@ -78,9 +75,6 @@ public class QueryRequest implements Cloneable {
         }
         req.queryType = this.queryType;
         req.queryDsType = this.queryDsType;
-        if (this.resource != null) {
-            req.resource = this.resource.stream().map((Function<Map<TargetType, String>, Map<TargetType, String>>) HashMap::new).collect(Collectors.toList());
-        }
         req.requester = this.requester;
         req.requestTime = this.requestTime;
         req.usingValueProcess = this.usingValueProcess;

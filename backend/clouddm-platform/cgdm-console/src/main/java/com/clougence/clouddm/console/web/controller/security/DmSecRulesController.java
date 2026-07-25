@@ -49,6 +49,7 @@ import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
+import com.clougence.detectrule.parser.DetectRuleDslProvider;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.StatementSet;
@@ -415,7 +416,7 @@ public class DmSecRulesController {
         try {
             checkDetectRuleScript(fo.getContent());
 
-            StatementSet statementSet = DslHelper.parserDsl("DetectRule", fo.getContent());
+            StatementSet statementSet = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, fo.getContent());
 
             Map<String, String> fmtOptions = new HashMap<>(this.checkRulesService.getRuleScriptFormatByUid(puid));
 
@@ -445,7 +446,7 @@ public class DmSecRulesController {
     public ResWebData<?> ruleVerify(@RequestBody @Valid RuleVerifyFO fo, HttpServletRequest request) {
         try {
             checkDetectRuleScript(fo.getContent());
-            //StatementSet statementSet = DslHelper.parserDsl("DetectRule", );
+            //StatementSet statementSet = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, );
 
             //            Map<String, String> fmtOptions = new HashMap<>(this.checkRulesService.getRuleScriptFormatByUid(puid));
             //            StringWriter writer = new StringWriter();
@@ -473,7 +474,7 @@ public class DmSecRulesController {
         }
 
         try {
-            StatementSet statementSet = DslHelper.parserDsl("DetectRule", scriptContent);
+            StatementSet statementSet = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, scriptContent);
             long codeLines = statementSet.getStatements().stream().filter(s -> {
                 return !s.getClass().getSimpleName().equals("DefineStatement");
             }).count();
