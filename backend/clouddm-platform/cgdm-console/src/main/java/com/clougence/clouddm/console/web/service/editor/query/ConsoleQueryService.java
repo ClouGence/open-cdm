@@ -72,9 +72,7 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
-import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
@@ -85,16 +83,16 @@ import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.column.RealColumn;
-import com.clougence.clouddm.sdk.sql.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.column.SelectItem;
-import com.clougence.clouddm.sdk.sql.rewrite.RewriteContext;
-import com.clougence.clouddm.sdk.sql.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.sql.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbSelectDomain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -1056,7 +1054,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
     }
 
-    private SecRulesCheckResult rulesCheck(WsQueryFO fo, QueryCtx ctx) {
+    private SecRulesCheckResult rulesCheck(WsQueryFO fo, QueryCtx ctx, SqlParserParameters parameters) {
         try {
             String curOwnerUid = fo.getPrimaryUserId();
             DmDsDO dsDO = ctx.getLevels().dsDO();
@@ -1068,6 +1066,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 .currentUID(fo.getCurrentUserId())
                 .currentCatalog(ctx.getCtxDTO().getRdbCatalog())
                 .currentSchema(ctx.getCtxDTO().getRdbSchema())
+                .sqlParameters(parameters)
                 .requester(Requester.CONSOLE)
                 .unsupportedLevel(WarnLevel.PASS)
                 .build();

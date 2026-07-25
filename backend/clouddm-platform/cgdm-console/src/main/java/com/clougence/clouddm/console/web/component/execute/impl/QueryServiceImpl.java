@@ -15,15 +15,8 @@
  */
 package com.clougence.clouddm.console.web.component.execute.impl;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
+import java.util.*;
 import org.springframework.stereotype.Service;
-
 import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.AsyncWaitResult;
@@ -186,7 +179,11 @@ public class QueryServiceImpl implements QueryService {
         // create session
         DataSourceConfig dsConfig = this.dsConfigService.fetchDsConfigFromExists(dsDO.getId(), sessionConfigOverrides(context));
         try {
-            this.sessionRService.createSession(sendDTO, dsConfig, context);
+            if (!this.sessionRService.createSession(sendDTO, dsConfig, context)) {
+                throw new IllegalStateException("Create datasource session failed.");
+            }
+            StatusDTO status = this.sessionRService.getStatus(sendDTO, sessionId);
+            this.updateSessionCtx(sessionDO, status);
             this.dsService.resetStatus(dsConfig);
         } catch (Exception e) {
             dsService.handleException(dsConfig, e);
@@ -331,7 +328,9 @@ public class QueryServiceImpl implements QueryService {
             ThreadUtils.sleep(500);
         }
 
-        return this.sessionRService.lastResultList(sendDTO, sessionId);
+        ResultList result = this.sessionRService.lastResultList(sendDTO, sessionId);
+        this.updateSessionCtx(sessionDO, result.getStatus());
+        return result;
     }
 
     @Override
@@ -364,7 +363,9 @@ public class QueryServiceImpl implements QueryService {
         }
 
         RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
-        return this.sessionRService.lastResultList(sendDTO, sessionId);
+        ResultList result = this.sessionRService.lastResultList(sendDTO, sessionId);
+        this.updateSessionCtx(sessionDO, result.getStatus());
+        return result;
     }
 
     @Override
@@ -455,6 +456,7 @@ public class QueryServiceImpl implements QueryService {
         ctx.setRdbAutoCommit(status.isAutoCommit());
         ctx.setRdbTxIsolation(status.getIsolation());
         ctx.setRdbReadOnly(status.isReadOnly());
+        ctx.setSqlParameters(status.getSqlParameters());
 
         sessionDO.setConfig(JsonUtils.toJson(ctx));
         this.executionDal.sessionMapper().updateSessionConfig(sessionDO);

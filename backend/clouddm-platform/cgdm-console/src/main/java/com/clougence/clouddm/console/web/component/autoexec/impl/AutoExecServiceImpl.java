@@ -49,7 +49,7 @@ import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.dal.util.PageObj;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.utils.format.DateFormatType;
 
 import jakarta.annotation.Resource;

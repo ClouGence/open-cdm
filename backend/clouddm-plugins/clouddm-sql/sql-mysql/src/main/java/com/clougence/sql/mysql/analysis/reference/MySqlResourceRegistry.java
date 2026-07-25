@@ -209,7 +209,7 @@ public final class MySqlResourceRegistry {
     }
 
     private boolean isQuoted(String identifier) {
-        return dialect.isQuotedIdentifier(identifier);
+        return MySqlResourceDialect.INSTANCE.isQuotedIdentifier(identifier);
     }
 
     private static int versionCode(MySqlVersion version) {

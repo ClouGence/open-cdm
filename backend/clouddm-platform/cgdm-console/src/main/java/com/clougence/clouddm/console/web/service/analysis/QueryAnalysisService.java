@@ -20,9 +20,8 @@ import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
-import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
+import com.clougence.schema.umi.struts.UmiTypes;
 
 /**
  * @author mode 2020-01-20 21:04

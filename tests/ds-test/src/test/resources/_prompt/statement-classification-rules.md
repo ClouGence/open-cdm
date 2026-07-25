@@ -882,7 +882,7 @@ View 查询定义中的用户变量访问继续按查询定义体递归收集，
 #### 10.1.4 内置函数、系统 Routine 与元信息资源
 
 - 内置函数和 MySQL 随附的可加载函数必须按当前 `MySqlVersion` 语法族识别。
-  `mysql-built-in-functions.txt` 与 `mysql-system-loadable-functions.txt` 中每个
+  `mysql-built-in-functions.json` 与 `mysql-system-loadable-functions.json` 中每个
   名称都必须显式声明版本集合，不能使用所有版本名称的并集。名称在当前语法族不存在
   时按可能的用户函数处理并追加 `CALL_PROG_OBJ`。
 - 系统存储过程默认保留 `CALL_PROG_OBJ`。只有 Routine 已按 `MySqlVersion` 显式
@@ -892,10 +892,11 @@ View 查询定义中的用户变量访问继续按查询定义体递归收集，
 - `mysql_firewall_flush_status()` 清零 Firewall 的全局运行统计，是安全组件管理
   动作而不是性能诊断或策略修改；保留外层 `SELECT` 并追加 `ADMIN`，不使用
   `ADMIN_PERFORMANCE` 或 `ALTER_POLICY`。
-- `META-INF/clougence/mysql-skip-permission-resources.txt` 维护跳过对象权限检查的
-  系统元信息表、系统 View、系统存储过程和系统存储函数。每项格式为
-  `versions kind schema.object`；`versions` 是逗号分隔的 `MySqlVersion` 语法族，
-  禁止省略版本、使用任意版本范围或 `schema.*` 通配。
+- `META-INF/clougence/mysql-skip-permission-resources.json` 维护跳过对象权限检查的
+  系统元信息表、系统 View、系统存储过程和系统存储函数。每项使用结构化的
+  `versions`、`type`、`name` 字段；`versions` 是 `MySqlVersion` 语法族数组，
+  `name` 是严格的 `[schema, object]` 两段数组。禁止省略版本、使用任意版本范围
+  或通配资源名。
 - 当前清单由 MySQL 5.6.51、5.7.44、8.0.46、8.4.10、9.7.1 干净实例分别探测后
   合并。匹配必须使用当前解析器的 `MySqlVersion`，升级目标版本时必须重新探测差异。
 - `SHOW VARIABLES` 是 `METADATA`，不是 `SESSION_VARIABLE_RW`；

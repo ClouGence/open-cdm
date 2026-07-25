@@ -22,18 +22,16 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
-import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
+import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
