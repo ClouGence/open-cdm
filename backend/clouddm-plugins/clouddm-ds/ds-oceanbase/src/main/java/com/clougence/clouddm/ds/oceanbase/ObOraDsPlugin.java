@@ -32,7 +32,6 @@ import com.clougence.clouddm.ds.oceanbase.i18n.ObConfigI18nKeys;
 import com.clougence.clouddm.ds.oceanbase.i18n.ObDsI18nKeys;
 import com.clougence.clouddm.ds.oceanbase.language.ob4ora.ObOraLanguageSpi;
 import com.clougence.clouddm.ds.oceanbase.resource.ObOraEditorResourceSpi;
-import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.ObOraSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.oracle.definition.ui.editor.table.OraEditorProvider;
 import com.clougence.clouddm.dsfamily.oracle.definition.ui.editor.table.OraTableEditorUiDataSpi;
@@ -43,12 +42,10 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.oracle.OraSqlEngineSpi;
 
 @Plugin(name = "i18n::" + ObDsI18nKeys.PLUGIN_NAME_OB_FOR_ORACLE,               //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
@@ -86,9 +83,7 @@ public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(ObForOraSessionFactory.class);
         dsPlugin.bindDsDriverFamily("OceanBase Client", "MySQL Connector/J");
-
-        dsPlugin.bindSqlEngine(ObOraSqlEngineSpi.NAME, OraSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, ObOraSqlEngineSpi.NAME, new ObOraSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("OceanBase SQL for Oracle", "Oracle SQL");
 
         dsPlugin.addPluginSpi(new ObForOraSessionSpi());
         dsPlugin.addPluginSpi(new ObForOraSupportSpi());

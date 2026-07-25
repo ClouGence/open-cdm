@@ -34,7 +34,6 @@ import com.clougence.clouddm.ds.polardb.i18n.PorXConfigI18nKeys;
 import com.clougence.clouddm.ds.polardb.i18n.PorXDsI18nKeys;
 import com.clougence.clouddm.ds.polardb.language.porx.PorXLanguageSpi;
 import com.clougence.clouddm.ds.polardb.resource.PorXEditorResourceSpi;
-import com.clougence.clouddm.ds.polardb.sql.porx.PorXSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.exception.MyDetermineExceptionSpi;
@@ -43,12 +42,10 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.mysql.MySqlEngineSpi;
 
 @Plugin(name = "i18n::" + PorXDsI18nKeys.PLUGIN_NAME_POLARDB_X,              //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
@@ -85,9 +82,7 @@ public class PorXDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(PorXSessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
-
-        dsPlugin.bindSqlEngine(PorXSqlEngineSpi.NAME, MySqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, PorXSqlEngineSpi.NAME, new PorXSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("PolarDB-X SQL", "MySQL");
 
         dsPlugin.addPluginSpi(new PorXSessionSpi());
         dsPlugin.addPluginSpi(new PorXSupportSpi());

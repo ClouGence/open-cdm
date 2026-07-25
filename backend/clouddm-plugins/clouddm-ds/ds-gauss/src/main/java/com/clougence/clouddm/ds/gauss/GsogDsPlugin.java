@@ -34,7 +34,6 @@ import com.clougence.clouddm.ds.gauss.execute.gsog.GsogSupportSpi;
 import com.clougence.clouddm.ds.gauss.i18n.gsog.GsogDsI18nKeys;
 import com.clougence.clouddm.ds.gauss.language.gsog.GsogLanguageSpi;
 import com.clougence.clouddm.ds.gauss.resource.GsogEditorResourceSpi;
-import com.clougence.clouddm.ds.gauss.sql.gs.GsSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.exception.PgDetermineExceptionSpi;
@@ -43,12 +42,10 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.postgres.PgSqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + GsogDsI18nKeys.PLUGIN_NAME_GAUSSDB_FOR_OPENGAUSS,     //
@@ -87,9 +84,7 @@ public class GsogDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(GsogSessionFactory.class);
         dsPlugin.bindDsDriverFamily("GaussDB JDBC Driver", "PostgreSQL JDBC");
-
-        dsPlugin.bindSqlEngine(GsSqlEngineSpi.NAME, PgSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, GsSqlEngineSpi.NAME, new GsSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("Gauss SQL", "PG SQL", "ISO-SQL-92", "ISO-SQL-99", "ISO-SQL-2003");
 
         dsPlugin.addPluginSpi(new GsogSessionSpi());
         dsPlugin.addPluginSpi(new GsogSupportSpi());

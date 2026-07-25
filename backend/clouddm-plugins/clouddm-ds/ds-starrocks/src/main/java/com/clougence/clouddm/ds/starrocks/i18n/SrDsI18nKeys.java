@@ -27,7 +27,6 @@ import com.clougence.utils.i18n.I18nResource;
 public interface SrDsI18nKeys extends MyDsI18nKeys {
 
     String PLUGIN_NAME_STARROCKS                             = "PLUGIN_NAME_STARROCKS";
-
     String EDITOR_TABLEINFO_BUCKET_NUMBER_TITLE              = "UI_EDITOR_TABLEINFO_BUCKET_NUMBER_TITLE";
     String EDITOR_TABLEINFO_BUCKET_NUMBER_DESC               = "UI_EDITOR_TABLEINFO_BUCKET_NUMBER_DESC";
     String EDITOR_TABLEINFO_ENGINE_ICEBERG_LABEL             = "UI_EDITOR_TABLEINFO_ENGINE_ICEBERG_LABEL";

@@ -20,6 +20,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.ds.greenplum.broswer.GpDsBrowseSpi;
 import com.clougence.clouddm.ds.greenplum.definition.GpDefService;
+import com.clougence.clouddm.ds.greenplum.definition.secrules.GpSecRulesSupportSpi;
 import com.clougence.clouddm.ds.greenplum.definition.ui.ddl.GpConvertTableDDLSpi;
 import com.clougence.clouddm.ds.greenplum.definition.ui.editor.data.GpDataEditorSpi;
 import com.clougence.clouddm.ds.greenplum.definition.ui.editor.table.GpEditorProvider;
@@ -33,7 +34,6 @@ import com.clougence.clouddm.ds.greenplum.execute.GpSupportSpi;
 import com.clougence.clouddm.ds.greenplum.i18n.GpDsI18nKeys;
 import com.clougence.clouddm.ds.greenplum.resource.GpEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
-import com.clougence.clouddm.dsfamily.postgres.definition.secrules.PgSecRulesSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.template.PgCmdTemplateSpi;
 import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.dsfamily.postgres.language.PgLanguageSpi;
@@ -82,7 +82,7 @@ public class GpDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(GpSessionFactory.class);
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
-        dsPlugin.bindSqlEngine("PG SQL");
+        dsPlugin.bindSqlEngine("PG SQL", "ISO-SQL-92", "ISO-SQL-99");
 
         dsPlugin.addPluginSpi(new GpSessionSpi());
         dsPlugin.addPluginSpi(new GpSupportSpi());
@@ -112,7 +112,7 @@ public class GpDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new PgSecRulesSupportSpi());
+        dsPlugin.addPluginSpi(new GpSecRulesSupportSpi());
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

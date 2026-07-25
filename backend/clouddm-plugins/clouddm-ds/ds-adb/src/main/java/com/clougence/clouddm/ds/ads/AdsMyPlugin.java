@@ -33,7 +33,6 @@ import com.clougence.clouddm.ds.ads.i18n.AdsMyConfigI18nKeys;
 import com.clougence.clouddm.ds.ads.i18n.AdsMyDsI18nKeys;
 import com.clougence.clouddm.ds.ads.language.ads4my.AdsMyLanguageSpi;
 import com.clougence.clouddm.ds.ads.resource.ads4my.AdsMyEditorResourceSpi;
-import com.clougence.clouddm.ds.ads.sql.ads4my.AdsMySqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyTableEditorUiDataSpi;
@@ -42,12 +41,10 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + AdsMyDsI18nKeys.PLUGIN_NAME_ADB_FOR_MYSQL,         //
@@ -85,9 +82,7 @@ public class AdsMyPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(AdsMySessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
-
-        dsPlugin.bindSqlEngine(AdsMySqlEngineSpi.NAME, MySqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, AdsMySqlEngineSpi.NAME, new AdsMySqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("AnalyticDB SQL for MySQL", "MySQL");
 
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new AdsSupportSpi());

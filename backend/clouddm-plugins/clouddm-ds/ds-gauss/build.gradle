@@ -40,5 +40,5 @@ dependencies {
 description = 'ds-gauss'
 
 tasks.named('generateGrammarSource') {
-    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.gauss.sql.gs.parser.antlr']
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.gauss.sql.parser.antlr']
 }

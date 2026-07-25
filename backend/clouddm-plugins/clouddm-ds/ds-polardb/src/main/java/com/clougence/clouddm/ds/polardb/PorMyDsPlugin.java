@@ -46,7 +46,6 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + PorMyDsI18nKeys.PLUGIN_NAME_POLARDB_MYSQL,         //
@@ -85,8 +84,7 @@ public class PorMyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(PorMySessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
-
-        dsPlugin.bindSqlEngine(MySqlEngineSpi.NAME);
+        dsPlugin.bindSqlEngine("MySQL");
 
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new PorMySupportSpi());

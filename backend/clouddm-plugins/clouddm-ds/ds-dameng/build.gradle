@@ -16,10 +16,14 @@
 
 plugins {
     id 'com.clougence.plugin-conventions'
+    id 'antlr'
 }
 
 dependencies {
+    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+
     // project
+    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     implementation project(':dsc-common')
 
     // share lib (compileOnly)
@@ -30,3 +34,7 @@ dependencies {
 }
 
 description = 'ds-dameng'
+
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.dameng.sql.parser.antlr']
+}

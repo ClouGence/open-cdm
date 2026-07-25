@@ -36,19 +36,16 @@ import com.clougence.clouddm.ds.starrocks.i18n.SrConfigI18nKeys;
 import com.clougence.clouddm.ds.starrocks.i18n.SrDsI18nKeys;
 import com.clougence.clouddm.ds.starrocks.language.SrLanguageSpi;
 import com.clougence.clouddm.ds.starrocks.resource.SrEditorResourceSpi;
-import com.clougence.clouddm.ds.starrocks.sql.SrSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
-import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + SrDsI18nKeys.PLUGIN_NAME_STARROCKS,                //
@@ -86,9 +83,7 @@ public class SrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(SrSessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
-
-        dsPlugin.bindSqlEngine(SrSqlEngineSpi.NAME, MySqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(SqlEngineSpi.class, SrSqlEngineSpi.NAME, new SrSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.bindSqlEngine("StarRocks SQL", "MySQL");
 
         dsPlugin.addPluginSpi(new RdbSessionSpi());
         dsPlugin.addPluginSpi(new SrSupportSpi());
