@@ -32,10 +32,10 @@ expect:
 ```
 
 `expect` 是按源码语句顺序书写的对象。每个顶层字段 occurrence 对应一个
-`StatementBehavior`：字段名是 `SecQueryType`，字段值是该语句按源码顺序排列的
+`StatementBehavior`：字段名是 `SplitQueryType`，字段值是该语句按源码顺序排列的
 行为关系列表。
 
-多条语句具有相同 `SecQueryType` 时重复输出同名字段，不能合并。重复 key 是
+多条语句具有相同 `SplitQueryType` 时重复输出同名字段，不能合并。重复 key 是
 fixture 协议的一部分，测试读取层按字段 occurrence 流式读取，不会通过 Map 或
 ObjectNode 覆盖同名语句。
 

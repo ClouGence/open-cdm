@@ -4,12 +4,12 @@
 
 ## 1. 唯一分类来源
 
-`com.clougence.clouddm.sdk.security.auth.SecQueryType` 是分类 Code 的唯一来源。分类器必须遵守以下约束：
+`com.clougence.clouddm.sdk.sql.parser.SplitQueryType` 是分类 Code 的唯一来源。分类器必须遵守以下约束：
 
-1. 方括号中的每个 Code 必须是当前 `SecQueryType` 中真实存在的枚举项。
+1. 方括号中的每个 Code 必须是当前 `SplitQueryType` 中真实存在的枚举项。
 2. 不得为了贴合某个数据源或方言关键字临时创造分类，也不得恢复已经从枚举删除的分类。
 3. 语句与现有枚举没有准确对应关系时使用 `UNKNOWN`，不能使用语义近似但实际错误的分类。
-4. `SecQueryType` 的 `SecDataAuthKind`、`TargetType`、`SecQueryKind` 以 Java 枚举定义为准；本文只解释其适用范围，不能覆盖代码定义。
+4. `SplitQueryType` 的 `SecDataAuthKind`、`TargetType`、`SecQueryKind` 以 Java 枚举定义为准；本文只解释其适用范围，不能覆盖代码定义。
 5. 当前数据源没有可靠原生语法时不得虚构支持，不能为了覆盖公共枚举而编造 SQL。
 6. 既有夹具标签只是待校验数据，不能反过来作为分类依据。
 
@@ -119,7 +119,7 @@ ALTER TABLE t
 
 不得仅按首关键字分类。例如 `SHOW`、`ALTER`、`SET`、`EXECUTE` 都可能根据完整语法落入不同枚举。
 
-## 4. `SecQueryType` 完整适用范围
+## 4. `SplitQueryType` 完整适用范围
 
 下表覆盖当前全部 150 个枚举项。表中的“授权”“目标”“审计”分别对应代码里的 `SecDataAuthKind`、`TargetType`、`SecQueryKind`。
 
@@ -741,7 +741,7 @@ View 查询定义中的用户变量访问继续按查询定义体递归收集，
 
 以下做法一律禁止：
 
-- 使用不在当前 `SecQueryType` 中的 Code。
+- 使用不在当前 `SplitQueryType` 中的 Code。
 - 用笼统的 Object、Show、Read、Write 或 Execute 概念代替真实枚举。
 - 根据字符串、注释、对象名称或源码中的关键词分类。
 - 把 Trigger、Event、编程对象或 Library 的定义体关键字直接追加到根类型集合；View 查询体

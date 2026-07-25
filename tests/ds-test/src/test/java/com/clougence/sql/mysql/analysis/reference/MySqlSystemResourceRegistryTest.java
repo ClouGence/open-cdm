@@ -18,7 +18,7 @@ package com.clougence.sql.mysql.analysis.reference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.mysql.parser.MySqlVersion;
 
 public class MySqlSystemResourceRegistryTest {
@@ -52,13 +52,13 @@ public class MySqlSystemResourceRegistryTest {
     public void splitFunctionTypesUseTheSameRegistry() {
         MySqlResourceRegistry registry = MySqlResourceRegistry.instance();
 
-        Assertions.assertEquals(SecQueryType.SESSION_LOCK, registry.functionStatementType("GET_LOCK", MySqlVersion.MYSQL_8_0, true));
-        Assertions.assertEquals(SecQueryType.ALTER_REPLICATION, registry.functionStatementType("GROUP_REPLICATION_SET_AS_PRIMARY", MySqlVersion.MYSQL_8_0, true));
-        Assertions.assertEquals(SecQueryType.ADMIN, registry.functionStatementType("MYSQL_FIREWALL_FLUSH_STATUS", MySqlVersion.MYSQL_8_0, false));
-        Assertions.assertEquals(SecQueryType.SYSTEM_SETTING_WRITE, registry.functionStatementType("AUDIT_LOG_ENCRYPTION_PASSWORD_SET", MySqlVersion.MYSQL_8_0, true));
-        Assertions.assertEquals(SecQueryType.SESSION_SETTING_WRITE, registry.functionStatementType("OPTION_TRACKER_USAGE_SET", MySqlVersion.MYSQL_9_7, true));
+        Assertions.assertEquals(SplitQueryType.SESSION_LOCK, registry.functionStatementType("GET_LOCK", MySqlVersion.MYSQL_8_0, true));
+        Assertions.assertEquals(SplitQueryType.ALTER_REPLICATION, registry.functionStatementType("GROUP_REPLICATION_SET_AS_PRIMARY", MySqlVersion.MYSQL_8_0, true));
+        Assertions.assertEquals(SplitQueryType.ADMIN, registry.functionStatementType("MYSQL_FIREWALL_FLUSH_STATUS", MySqlVersion.MYSQL_8_0, false));
+        Assertions.assertEquals(SplitQueryType.SYSTEM_SETTING_WRITE, registry.functionStatementType("AUDIT_LOG_ENCRYPTION_PASSWORD_SET", MySqlVersion.MYSQL_8_0, true));
+        Assertions.assertEquals(SplitQueryType.SESSION_SETTING_WRITE, registry.functionStatementType("OPTION_TRACKER_USAGE_SET", MySqlVersion.MYSQL_9_7, true));
         Assertions.assertNull(registry.functionStatementType("LAST_INSERT_ID", MySqlVersion.MYSQL_8_0, false));
-        Assertions.assertEquals(SecQueryType.SESSION_SETTING_WRITE, registry.functionStatementType("LAST_INSERT_ID", MySqlVersion.MYSQL_8_0, true));
+        Assertions.assertEquals(SplitQueryType.SESSION_SETTING_WRITE, registry.functionStatementType("LAST_INSERT_ID", MySqlVersion.MYSQL_8_0, true));
         Assertions.assertNull(registry.functionStatementType("score_udf", MySqlVersion.MYSQL_8_0, true));
     }
 

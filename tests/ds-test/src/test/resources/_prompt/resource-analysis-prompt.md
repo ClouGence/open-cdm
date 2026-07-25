@@ -24,7 +24,7 @@
 `BehaviorRelation` 则进一步表达具体资源上的主体、动作和客体，用于确定数据权限要求。
 两层权限不能互相替代：statementType 不能裁决主体和客体关系，relations 为空也不表示
 该语句免除功能权限。不要审计、纠正或扩展 split fixture 的 `[TYPE]`；不要为了行为分析
-修改 `SecQueryType` 或 `SecDataAuthKind`。
+修改 `SplitQueryType` 或 `SecDataAuthKind`。
 
 ## 一、任务边界
 
@@ -47,7 +47,7 @@
 
 1. 不修改现有 `ResAnalysisSpi`、`ResourceRequest`、资源 visitor 或 `resource/<dialect>` fixture。
 2. 不把资源分析结果转换成 `BehaviorRelation` 作为生产实现。
-3. 不审计、修改或扩展 `SecQueryType`。
+3. 不审计、修改或扩展 `SplitQueryType`。
 4. 不新增、修改或删除 `SecDataAuthKind`。
 5. 不审计或修改 split fixture 中的 `[TYPE]`。
 6. 不修改目标方言的 split/classification visitor 来迁就行为结果。
@@ -181,11 +181,11 @@ MySQL 只能作为 SQL 语料和方言工具的参考：
 
 `StatementBehavior`：
 
-- `statementType`：当前语句的 `SecQueryType` 上下文；
+- `statementType`：当前语句的 `SplitQueryType` 上下文；
 - `relations`：当前语句的全部行为关系。
 
 `statementType` 不能从 fixture 的 `[TYPE]` 机械复制，也不能代替关系分析。
-它通过 `SecQueryType.authKind` 表达语句级功能权限；relations 通过具体 BehaviorAction
+它通过 `SplitQueryType.authKind` 表达语句级功能权限；relations 通过具体 BehaviorAction
 和 BehaviorObject 表达资源级数据权限。relations 为空时仍必须执行 statementType
 对应的功能权限检查。
 
@@ -247,7 +247,7 @@ MySQL 只能作为 SQL 语料和方言工具的参考：
 - `startLine`、`startColumn`：对象名称 token 的绝对起点；
 - `endLine`、`endColumn`：对象名称 token 的绝对结束开区间。
 
-不得向 `BehaviorObject` 增加 `ResourceRequest`、`SecQueryType`、`require`、`skipPermission` 或权限计划字段。
+不得向 `BehaviorObject` 增加 `ResourceRequest`、`SplitQueryType`、`require`、`skipPermission` 或权限计划字段。
 
 行为对象是 SQL 明确引用，或虽无法取得具体名称但能够确认类型和所属范围的实体。至少覆盖：
 
@@ -605,10 +605,10 @@ fixture 是 `StatementBehavior` 运行时模型的可读投影。生产接口仍
 
 `expect` 直接使用一个有序对象。每个顶层字段 occurrence 表示一条语句：
 
-- key 是该语句的 `SecQueryType`；
+- key 是该语句的 `SplitQueryType`；
 - value 是该语句的 `BehaviorRelation` 数组；
 - 字段出现顺序必须与 query 中的语句顺序一致；
-- 相同 `SecQueryType` 可以重复成为多个 key，每个 key 仍只代表一条语句；
+- 相同 `SplitQueryType` 可以重复成为多个 key，每个 key 仍只代表一条语句；
 - 同名 key 不能覆盖、去重或合并，读取层必须使用流式 token 逐个读取；
 - 禁止先把 expect 反序列化为 Map 或 ObjectNode。
 
@@ -658,7 +658,7 @@ levels:
 /<environment>/<datasourceId>/<catalog>/<schema>
 expect:
 {
-  "<SecQueryType>": [
+  "<SplitQueryType>": [
     {
       "subject": "<TargetType>(1:2~1:8) /<完整路径>/",
       "action" : "<BehaviorAction>",
@@ -721,7 +721,7 @@ subject、单个 target 和 target 数组元素统一使用：
 
 对齐只服务于阅读，不能改变字符串内容：
 
-- 同一 case 的顶层 SecQueryType key 按最长 key 补普通空格，使冒号和值起始列对齐；
+- 同一 case 的顶层 SplitQueryType key 按最长 key 补普通空格，使冒号和值起始列对齐；
 - 每条关系按 `"subject":`、`"action" :`、`"target" :` 对齐；
 - target 数组中的每个行为对象独占一行；
 - 紧凑行为对象字符串内部不做列对齐，不添加填充空格；
@@ -1025,7 +1025,7 @@ expect:
 - `resource/<dialect>` fixture；
 - split/classification visitor；
 - split fixture `[TYPE]`；
-- `SecQueryType`；
+- `SplitQueryType`；
 - `SecDataAuthKind`；
 - 与行为分析无关的安全规则 visitor；
 - SQL 原文。
@@ -1052,7 +1052,7 @@ BehaviorObject 必须真实携带：
   并把 subject 字符串、单个 target 字符串或多 target 字符串数组还原为
   BehaviorObject 及 BehaviorObject 列表，
   不能让生产模型感知 fixture 格式；
-- fixture 读取层必须按出现顺序逐个读取顶层 `SecQueryType` 字段并构造
+- fixture 读取层必须按出现顺序逐个读取顶层 `SplitQueryType` 字段并构造
   StatementBehavior；同名字段不能覆盖、去重或合并；
 - fixture 读取层必须解析每个 testcase 的 `levels`，并将得到的 Instance、Catalog、Schema
   上下文传给 `BehaviorAnalysisSpi`；不得使用测试类中的隐式统一默认值；
@@ -1135,7 +1135,7 @@ BehaviorObject 必须真实携带：
 - 没有修改现有资源分析接口、模型、visitor 和 fixture；
 - 没有进行 split `[TYPE]` 分类纠错；
 - 每个可分析 SQL 都有严格行为期望；
-- expect 顶层按源码顺序保留每条语句；相同 SecQueryType 使用重复字段且没有覆盖或合并；
+- expect 顶层按源码顺序保留每条语句；相同 SplitQueryType 使用重复字段且没有覆盖或合并；
 - 每个 StatementBehavior 聚合当前语句的全部关系；
 - 每个 BehaviorRelation 都有唯一 subject、唯一 action 和明确的运行时 target 列表；
 - target 为空的关系只输出 `subject + action`，target 非空的关系只使用

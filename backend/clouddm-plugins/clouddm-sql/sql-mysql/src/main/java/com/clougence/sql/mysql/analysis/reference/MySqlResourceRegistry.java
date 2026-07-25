@@ -7,15 +7,12 @@
 package com.clougence.sql.mysql.analysis.reference;
 
 import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
-import static com.clougence.sql.common.registry.RegisteredResourceType.PROCEDURE;
 import static com.clougence.sql.common.registry.RegisteredResourceType.TABLE;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.registry.RegisteredResourceType;
 import com.clougence.sql.common.registry.ResourceRegistryDialect;
@@ -101,24 +98,6 @@ public final class MySqlResourceRegistry {
 
     public boolean isSystemFunction(String schema, String object, MySqlVersion version) {
         return systemResources.contains(FUNCTION, versionCode(version), schema, object);
-    }
-
-    public boolean shouldSkipPermission(SplitQueryType sqlType, TargetType targetType, List<String> nodes, MySqlVersion version) {
-        if (sqlType == null || targetType == null || nodes == null || nodes.size() < 2) {
-            return false;
-        }
-        String schema = nodes.get(nodes.size() - 2);
-        String object = nodes.get(nodes.size() - 1);
-        if (sqlType.getAuthKind() == SecDataAuthKind.READ && targetType == TargetType.Table) {
-            return systemResources.contains(TABLE, versionCode(version), schema, object);
-        }
-        if (sqlType == SplitQueryType.CALL_PROG_OBJ && targetType == TargetType.Procedure) {
-            return systemResources.contains(PROCEDURE, versionCode(version), schema, object);
-        }
-        if (sqlType == SplitQueryType.CALL_PROG_OBJ && targetType == TargetType.Function) {
-            return systemResources.contains(FUNCTION, versionCode(version), schema, object);
-        }
-        return false;
     }
 
     public Set<String> registeredAggregateFunctions(int exactVersion) {

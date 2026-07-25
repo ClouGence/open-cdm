@@ -22,12 +22,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.clougence.clouddm.ds.SqlTestSupport;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.MySqlEngineSpi;
 
@@ -38,33 +34,21 @@ public class MySqlBehaviorRangeTest {
         String sql = "SELECT db1.f_score(t.score)\nFROM db1.t1 t;";
         MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
 
-        List<StatementBehavior> statements = engine.behaviorAnalysisSpi(
-                        SqlParserParameters.ofVersion("8.0.46"))
-                .analysisBehavior(sql, Map.of(
-                        UmiTypes.Instance, "test/1",
-                        UmiTypes.Catalog, "catalog1",
-                        UmiTypes.Schema, "schema1"), 10, 5);
+        List<StatementBehavior> statements = engine.behaviorAnalysisSpi(SqlParserParameters.ofVersion("8.0.46"))
+            .analysisBehavior(sql, Map.of(UmiTypes.Instance, "test/1", UmiTypes.Catalog, "catalog1", UmiTypes.Schema, "schema1"), 10, 5);
 
         Assertions.assertEquals(1, statements.size());
         List<BehaviorRelation> relations = statements.get(0).getRelations();
         Assertions.assertEquals(2, relations.size());
-        assertObject(relation(relations, BehaviorAction.CALL).getSubject(),
-                TargetType.Function, 10, 12, 10, 23,
-                "/test/1/catalog1/db1/f_score/");
-        assertObject(relation(relations, BehaviorAction.READ).getSubject(),
-                TargetType.Table, 11, 5, 11, 11,
-                "/test/1/catalog1/db1/t1/");
+        assertObject(relation(relations, BehaviorAction.CALL).getSubject(), TargetType.Function, 10, 12, 10, 23, "/test/1/catalog1/db1/f_score/");
+        assertObject(relation(relations, BehaviorAction.READ).getSubject(), TargetType.Table, 11, 5, 11, 11, "/test/1/catalog1/db1/t1/");
     }
 
     private static BehaviorRelation relation(List<BehaviorRelation> relations, BehaviorAction action) {
-        return relations.stream()
-                .filter(relation -> relation.getAction() == action)
-                .findFirst()
-                .orElseThrow();
+        return relations.stream().filter(relation -> relation.getAction() == action).findFirst().orElseThrow();
     }
 
-    private static void assertObject(BehaviorObject object, TargetType targetType,
-            int startLine, int startColumn, int endLine, int endColumn, String resourcePath) {
+    private static void assertObject(BehaviorObject object, TargetType targetType, int startLine, int startColumn, int endLine, int endColumn, String resourcePath) {
         Assertions.assertEquals(targetType, object.getTargetType());
         Assertions.assertEquals(startLine, object.getStartLine());
         Assertions.assertEquals(startColumn, object.getStartColumn());
