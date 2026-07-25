@@ -17,14 +17,14 @@ package com.clougence.sql.common.analysis.column;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.sql.secrules.column.QueryItem;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.*;
-import com.clougence.clouddm.sdk.sql.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.column.SelectItem;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaColConvert;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -114,9 +114,7 @@ public abstract class AbstractSelectColumnAnalysisSpi implements SelectColumnAna
                     return true;
                 }
             }
-            if (CollectionUtils.isEmpty(queryItem.getColumns())) {
-                return true;
-            }
+            return CollectionUtils.isEmpty(queryItem.getColumns());
         }
         return false;
     }
@@ -148,8 +146,7 @@ public abstract class AbstractSelectColumnAnalysisSpi implements SelectColumnAna
                 column1.setItemAlias(queryItem.getColumn());
             }
             for (RuleDomain selectColumn : queryItem.getColumns()) {
-                if (selectColumn instanceof RdbColumnDomain) {
-                    RdbColumnDomain rdbColumnDomain = (RdbColumnDomain) selectColumn;
+                if (selectColumn instanceof RdbColumnDomain rdbColumnDomain) {
 
                     SelectItem column = findColumn(columnMap, rdbColumnDomain);
 
@@ -245,8 +242,7 @@ public abstract class AbstractSelectColumnAnalysisSpi implements SelectColumnAna
             } else if (child instanceof RdbCallDomain) {
                 SelectItem callColumn = parseCallDomain(uid, dsID, levelsParam, (RdbCallDomain) child, queryItem, selectDomain, columnMap);
                 selectItem.addAllRealColumns(callColumn.getColumns());
-            } else if (child instanceof RdbColumnDomain) {
-                RdbColumnDomain columnDomain = (RdbColumnDomain) child;
+            } else if (child instanceof RdbColumnDomain columnDomain) {
                 SelectItem column = findColumn(columnMap, columnDomain);
                 selectItem.addAllRealColumns(column.getColumns());
             }
