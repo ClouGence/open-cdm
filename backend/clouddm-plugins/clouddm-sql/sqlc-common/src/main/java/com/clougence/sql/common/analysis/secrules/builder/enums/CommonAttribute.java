@@ -39,6 +39,7 @@ public enum CommonAttribute implements Attribute {
     //    INSERT_IGNORE,
     //    INSERT_UPDATE,
     INSERT_CONFLICT,
+    STATEMENT_TYPE,
 
     //where
     VALID_WHERE,

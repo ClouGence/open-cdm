@@ -25,11 +25,10 @@ import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.secrules.*;
-import com.clougence.clouddm.sdk.sql.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sec.rules.domain.special.rdb.RdbValueDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -179,19 +178,6 @@ public class SecValueProcessServiceProvider implements ValueProcessService {
         String table = senCol.getColMeta().getTable();
         String column = senCol.getColMeta().getColumn();
         List<UmiTypes> typesList = getDsLevels(flash);
-
-        if (CollectionUtils.isNotEmpty(query.getResource())) {
-            Map<TargetType, String> stringMap = query.getResource().get(0);
-            catalog = typesList.contains(UmiTypes.Catalog) ? stringMap.get(TargetType.Catalog) : null;
-            schema = typesList.contains(UmiTypes.Schema) ? stringMap.get(TargetType.Schema) : null;
-            if (stringMap.containsKey(TargetType.Table)) {
-                table = stringMap.get(TargetType.Table);
-            } else if (stringMap.containsKey(TargetType.View)) {
-                table = stringMap.get(TargetType.View);
-            } else if (stringMap.containsKey(TargetType.Materialized)) {
-                table = stringMap.get(TargetType.Materialized);
-            }
-        }
 
         RdbValueDomain domain = new RdbValueDomain();
 

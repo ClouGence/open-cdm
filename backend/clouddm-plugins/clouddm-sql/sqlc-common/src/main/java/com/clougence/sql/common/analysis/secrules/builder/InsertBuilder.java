@@ -23,7 +23,7 @@ import java.util.Map;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.*;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -33,9 +33,10 @@ import com.clougence.sql.common.analysis.secrules.builder.utils.BuilderUtil;
 
 public class InsertBuilder extends AbstractDomainBuilder {
 
-    private List<String>      nameList     = new ArrayList<>();
-    protected RdbInsertDomain insertDomain = getInsertDomain();
-    private int               values       = 0;
+    private List<String>      nameList      = new ArrayList<>();
+    protected RdbInsertDomain insertDomain  = getInsertDomain();
+    private int               values        = 0;
+    private SecQueryType      statementType = SecQueryType.INSERT;
 
     protected RdbInsertDomain getInsertDomain() { return new RdbInsertDomain(); }
 
@@ -45,7 +46,7 @@ public class InsertBuilder extends AbstractDomainBuilder {
             this.insertDomain.setMultipleValues(true);
         }
         insertDomain.setAuditKind(SecQueryKind.DML);
-        insertDomain.setSqlType(SecQueryType.INSERT);
+        insertDomain.setSqlType(statementType);
 
         Map<UmiTypes, String> map = BuilderUtil.parseTableName(nameList);
         insertDomain.setCatalog(map.get(UmiTypes.Catalog));
@@ -68,8 +69,7 @@ public class InsertBuilder extends AbstractDomainBuilder {
         } else if (type == DomainSource.SELECT) {
             for (Domain ruleDomain : list) {
                 if (ruleDomain instanceof RdbSelectDomain selectDomain) {
-                    RdbSelectDomain rdbSelectDomain = (RdbSelectDomain) ruleDomain;
-                    insertDomain.addChild(rdbSelectDomain);
+                    insertDomain.addChild(selectDomain);
                     selectDomain.setMode(RdbQueryMode.INSERT);
                     insertDomain.setFromSelect(true);
                 }
@@ -119,6 +119,8 @@ public class InsertBuilder extends AbstractDomainBuilder {
     public void addAttr(Attribute attr, Object value) {
         if (attr == CommonAttribute.INSERT_CONFLICT) {
             insertDomain.setConflict((RdbInsertConflictStrategy) value);
+        } else if (attr == CommonAttribute.STATEMENT_TYPE) {
+            statementType = (SecQueryType) value;
         } else if (attr == CommonAttribute.MULTI_VALUE) {
             insertDomain.setMultipleValues(true);
         } else {

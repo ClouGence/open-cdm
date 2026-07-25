@@ -22,7 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -46,7 +46,7 @@ public class TruncateBuilder<T extends RdbTableDomain> extends AbstractDomainBui
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(domain.getNameList());
             T tableDomain = getTableDomain();
             tableDomain.setAuditKind(SecQueryKind.DML);
-            tableDomain.setSqlType(SecQueryType.TRUNCATE);
+            tableDomain.setSqlType(SecQueryType.TRUNCATE_TABLE);
             tableDomain.setCatalog(map.get(UmiTypes.Catalog));
             tableDomain.setSchema(map.get(UmiTypes.Schema));
             tableDomain.setTable(map.get(UmiTypes.Table));

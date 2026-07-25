@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbCatalogDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCatalogDomain;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 

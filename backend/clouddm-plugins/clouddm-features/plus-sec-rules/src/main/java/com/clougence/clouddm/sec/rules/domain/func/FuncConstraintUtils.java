@@ -18,10 +18,10 @@ package com.clougence.clouddm.sec.rules.domain.func;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.sdk.sql.column.QueryConstraintService;
-import com.clougence.clouddm.sdk.sql.column.QueryConstraintsDTO;
-import com.clougence.clouddm.sdk.sql.column.RealColumn;
-import com.clougence.clouddm.sdk.sql.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.analysis.column.QueryConstraintService;
+import com.clougence.clouddm.sdk.sql.analysis.column.QueryConstraintsDTO;
+import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
 import com.clougence.detectrule.lang.reflect.RuleFunction;
 import com.clougence.utils.StringUtils;
 

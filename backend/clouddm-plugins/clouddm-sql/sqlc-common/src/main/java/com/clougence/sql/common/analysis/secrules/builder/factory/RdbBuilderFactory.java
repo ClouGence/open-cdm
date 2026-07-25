@@ -25,10 +25,10 @@ import com.clougence.clouddm.sdk.service.execute.MetaColConvert;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.column.RealColumn;
-import com.clougence.clouddm.sdk.sql.column.SelectItem;
-import com.clougence.clouddm.sdk.sql.secrules.column.QueryItem;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.*;
+import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
@@ -1351,6 +1351,10 @@ public abstract class RdbBuilderFactory {
 
     public void enterAlterView() {
         this.domainStack.add(new AlterViewBuilder());
+    }
+
+    public void enterAlterView(SecQueryType type) {
+        this.domainStack.add(new AlterViewBuilder(type));
     }
 
     public void exitAlterView() {

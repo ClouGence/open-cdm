@@ -22,9 +22,9 @@ import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbQueryMode;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbSelectDomain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbQueryMode;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;

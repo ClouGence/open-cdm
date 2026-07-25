@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbConstantDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstantDomain;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;

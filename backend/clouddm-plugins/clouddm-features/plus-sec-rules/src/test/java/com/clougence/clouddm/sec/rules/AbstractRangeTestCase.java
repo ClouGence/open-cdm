@@ -23,12 +23,13 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.sql.mysql.security.MySecDomainResolveSpi;
+import com.clougence.sql.mysql.analysis.security.MySecDomainResolveSpi;
+import com.clougence.sql.mysql.parser.MySqlParserConfig;
 import com.clougence.utils.CollectionUtils;
 
 public class AbstractRangeTestCase {
 
-    protected MySecDomainResolveSpi     resolveSpi     = new MySecDomainResolveSpi(null);
+    protected MySecDomainResolveSpi     resolveSpi     = new MySecDomainResolveSpi(null, MySqlParserConfig.unknownSqlMode(null));
     protected DataSourceType            dataSourceType = DataSourceType.MySQL;
     protected final Map<String, Object> ctx            = CollectionUtils.asMap(//
             SessionSpi.PARAMS_DEFAULT_DB, "test_db",//

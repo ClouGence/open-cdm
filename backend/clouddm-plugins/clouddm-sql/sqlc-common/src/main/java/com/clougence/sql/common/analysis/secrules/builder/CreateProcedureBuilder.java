@@ -22,7 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbProcedureDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbProcedureDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -48,7 +48,7 @@ public class CreateProcedureBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         domain.setAuditKind(SecQueryKind.CREATE);
-        domain.setSqlType(SecQueryType.CREATE_PROCEDURE);
+        domain.setSqlType(SecQueryType.CREATE_PROG_OBJ);
 
         return Collections.singletonList(domain);
     }

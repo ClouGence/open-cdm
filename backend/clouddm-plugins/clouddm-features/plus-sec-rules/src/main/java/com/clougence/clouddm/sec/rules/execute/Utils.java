@@ -20,15 +20,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.service.secrules.CheckerData;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRange;
 import com.clougence.clouddm.sdk.service.secrules.MatchMode;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
-
-import lombok.Getter;
 
 /**
  * @author mode 2020-01-20 21:04
@@ -50,12 +48,26 @@ public class Utils {
         scoreMap.put(TargetType.Table, 6);
         scoreMap.put(TargetType.View, 6);
         scoreMap.put(TargetType.Materialized, 6);
+        scoreMap.put(TargetType.Tablespace, 6);
         scoreMap.put(TargetType.Sequence, 6);
+        scoreMap.put(TargetType.ProgramObject, 6);
         scoreMap.put(TargetType.Function, 6);
         scoreMap.put(TargetType.Procedure, 6);
         scoreMap.put(TargetType.Trigger, 6);
         scoreMap.put(TargetType.Event, 6);
         scoreMap.put(TargetType.Synonym, 6);
+        scoreMap.put(TargetType.Log, 6);
+        scoreMap.put(TargetType.Policy, 6);
+        scoreMap.put(TargetType.RowAccessPolicy, 6);
+        scoreMap.put(TargetType.MaskingPolicy, 6);
+        scoreMap.put(TargetType.RedactionPolicy, 6);
+        scoreMap.put(TargetType.Job, 6);
+        scoreMap.put(TargetType.Package, 6);
+        scoreMap.put(TargetType.Type, 6);
+        scoreMap.put(TargetType.Operator, 6);
+        scoreMap.put(TargetType.Library, 6);
+        scoreMap.put(TargetType.ResourceGroup, 6);
+        scoreMap.put(TargetType.Object, 6);
         scoreMap.put(TargetType.Column, 7);
         scoreMap.put(TargetType.Index, 7);
         scoreMap.put(TargetType.Constraint, 7);
@@ -188,14 +200,14 @@ public class Utils {
             for (SecRangeCfg rangeCfg : rangeCfgList) {
                 switch (matchMode) {
                     case EXACT: {
-                        String cfgStr = rangeCfg.getLevelPrefix() + "/" + rangeCfg.getNode();
+                        String cfgStr = rangeCfg.levelPrefix() + "/" + rangeCfg.node();
                         if (StringUtils.equals(targetPath, cfgStr)) {
                             return true;
                         }
                         break;
                     }
                     case PREFIX: {
-                        String cfgStr = rangeCfg.getLevelPrefix() + "/" + rangeCfg.getNode();
+                        String cfgStr = rangeCfg.levelPrefix() + "/" + rangeCfg.node();
                         if (StringUtils.startsWith(targetPath, cfgStr)) {
                             return true;
                         }
@@ -272,15 +284,7 @@ public class Utils {
         }
     }
 
-    @Getter
-    private static class SecRangeCfg {
+    private record SecRangeCfg(String levelPrefix, String node) {
 
-        private final String levelPrefix;
-        private final String node;
-
-        public SecRangeCfg(String levelPrefix, String node){
-            this.levelPrefix = levelPrefix;
-            this.node = node;
-        }
     }
 }
