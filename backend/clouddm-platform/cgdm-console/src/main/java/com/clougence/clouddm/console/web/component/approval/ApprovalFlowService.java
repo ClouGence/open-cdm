@@ -55,6 +55,8 @@ public interface ApprovalFlowService {
 
     void failTicket(long ticketId, String statusMessage, String puid);
 
+    void execFailTicket(long ticketId, String statusMessage, String puid);
+
     void cancelTicket(String puid, long ticketId, String statusMessage);
 
     void retryTicket(String puid, long ticketId);

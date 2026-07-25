@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.service.analysis;
+package com.clougence.clouddm.console.web.component.analysis;
 
 import java.util.List;
 import java.util.Map;
@@ -31,5 +31,5 @@ public interface QueryAnalysisService {
 
     List<SplitScript> analysisSplit(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs, int baseCodeLine, int baseCodeColumn);
 
-    Map<RuleDomain, List<ResObject>> analysisResourceV2(DataSourceConfig dsConfig, String queryString, Map<String, Object> levels);
+    List<ResourceAction> analysisResource(DataSourceConfig dsConfig, String queryString, Map<UmiTypes, Object> levels, int baseCodeLine, int baseCodeColumn);
 }
