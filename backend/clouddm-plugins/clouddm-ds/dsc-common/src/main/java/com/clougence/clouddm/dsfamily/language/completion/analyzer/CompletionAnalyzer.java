@@ -14,10 +14,8 @@ import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStatementState;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.location.BlockLocation;
 import com.clougence.dslpaser.ast.location.CodeLocation;
@@ -28,22 +26,6 @@ public class CompletionAnalyzer {
 
     public static final CompletionAnalyzer INSTANCE = new CompletionAnalyzer();
 
-    public CompletionContext analyze(SqlEngineSpi sqlEngine, CompletionDialect dialect, String sqlText, int cursorLineNumber, int cursorColNumber) {
-        CompletionRequest request = new CompletionRequest();
-        request.setSqlEngine(sqlEngine);
-        request.setSqlText(sqlText);
-        request.setCursorLineNumber(cursorLineNumber);
-        request.setCursorColNumber(cursorColNumber);
-        return analyze(request, dialect);
-    }
-
-    public CompletionContext analyze(SqlEngineSpi sqlEngine, CompletionDialect dialect, String sqlText, int cursorOffset) {
-        CompletionRequest request = new CompletionRequest();
-        request.setSqlEngine(sqlEngine);
-        request.setSqlText(sqlText);
-        return analyze(request, dialect, cursorOffset);
-    }
-
     public CompletionContext analyze(CompletionRequest request, CompletionDialect dialect) {
         String sqlText = StringUtils.toString(request.getSqlText());
         int cursorOffset = CompletionStatementState.offsetOf(sqlText, request.getCursorLineNumber(), request.getCursorColNumber());
@@ -52,8 +34,9 @@ public class CompletionAnalyzer {
 
     private CompletionContext analyze(CompletionRequest request, CompletionDialect dialect, int cursorOffset) {
         String sqlText = StringUtils.toString(request.getSqlText());
-        CompletionLexerState lexerState = lexerState(request, dialect, sqlText, cursorOffset);
-        CompletionParseState parseState = parseState(request, dialect, sqlText, lexerState);
+        DslProvider provider = request.getSqlEngine().dslProvider(new SqlParserParameters(request.getSqlParameters()));
+        CompletionLexerState lexerState = lexerState(request, dialect, provider, sqlText, cursorOffset);
+        CompletionParseState parseState = parseState(dialect, provider, sqlText, lexerState);
         CompletionStatementState statementState = new CompletionStatementState(sqlText,
             fullRange(sqlText),
             request,
@@ -66,9 +49,9 @@ public class CompletionAnalyzer {
         return new CompletionContext(request, dialect, List.of(statementState), lexerState, parseState);
     }
 
-    private CompletionLexerState lexerState(CompletionRequest request, CompletionDialect dialect, String sqlText, int cursorOffset) {
+    private CompletionLexerState lexerState(CompletionRequest request, CompletionDialect dialect, DslProvider provider, String sqlText, int cursorOffset) {
         cursorOffset = Math.max(0, Math.min(cursorOffset, sqlText.length()));
-        List<CompletionToken> tokens = currentStatementTokens(tokens(request.getSqlEngine(), sqlText), cursorOffset, sqlText, request.getSqlEngine());
+        List<CompletionToken> tokens = currentStatementTokens(tokens(provider, sqlText), cursorOffset, sqlText, request.getSqlEngine());
         List<String> tokensBeforeCursor = new ArrayList<>();
         List<String> operatorsBeforeCursor = new ArrayList<>();
         CompletionToken tokenBeforeCursor = null;
@@ -112,22 +95,20 @@ public class CompletionAnalyzer {
             .build();
     }
 
-    private CompletionParseState parseState(CompletionRequest request, CompletionDialect dialect, String sqlText, CompletionLexerState lexerState) {
-        TolerantParseResult parseResult = tolerantParse(request.getSqlEngine(), sqlText);
+    private CompletionParseState parseState(CompletionDialect dialect, DslProvider provider, String sqlText, CompletionLexerState lexerState) {
+        TolerantParseResult parseResult = tolerantParse(provider, sqlText);
         return CompletionParseState.builder()
             .parsed(parseResult.parsed)
             .hasSyntaxError(!parseResult.syntaxErrors.isEmpty())
             .syntaxErrors(parseResult.syntaxErrors)
-            .statementType(statementType(request, sqlText, lexerState.getTokensBeforeCursor()))
             .clause(clause(lexerState.getTokensBeforeCursor(), lexerState.getTokens(), dialect))
             .tableRefs(tableRefs(lexerState.getTokens(), dialect))
             .columnRefs(columnRefs(lexerState.getTokens(), dialect))
             .build();
     }
 
-    private TolerantParseResult tolerantParse(SqlEngineSpi sqlEngine, String sqlText) {
-        DslProvider provider = sqlEngine == null ? null : sqlEngine.dslProvider();
-        if (provider == null || StringUtils.isBlank(sqlText)) {
+    private TolerantParseResult tolerantParse(DslProvider provider, String sqlText) {
+        if (StringUtils.isBlank(sqlText)) {
             return new TolerantParseResult(false, Collections.emptyList());
         }
         CollectingErrorListener listener = new CollectingErrorListener();
@@ -152,9 +133,8 @@ public class CompletionAnalyzer {
         }
     }
 
-    private List<CompletionToken> tokens(SqlEngineSpi sqlEngine, String sqlText) {
-        DslProvider provider = sqlEngine == null ? null : sqlEngine.dslProvider();
-        if (provider == null || StringUtils.isBlank(sqlText)) {
+    private List<CompletionToken> tokens(DslProvider provider, String sqlText) {
+        if (StringUtils.isBlank(sqlText)) {
             return Collections.emptyList();
         }
         try {
@@ -186,7 +166,7 @@ public class CompletionAnalyzer {
     }
 
     private static List<CompletionToken> currentStatementTokens(List<CompletionToken> tokens, int cursorOffset, String sqlText, SqlEngineSpi sqlEngine) {
-        if (tokens == null || tokens.isEmpty()) {
+        if (tokens.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -209,9 +189,6 @@ public class CompletionAnalyzer {
     }
 
     private static boolean isStatementSeparator(CompletionToken token, String sqlText, SqlEngineSpi sqlEngine) {
-        if (token == null) {
-            return false;
-        }
         String text = lower(token.getText());
         return ";".equals(text) || (isSqlServer(sqlEngine) && "go".equals(text) && lineText(sqlText, token).trim().equalsIgnoreCase("go"));
     }
@@ -232,79 +209,6 @@ public class CompletionAnalyzer {
             end++;
         }
         return sqlText.substring(start, end);
-    }
-
-    private static SecQueryType statementType(CompletionRequest request, String sqlText, List<String> tokensBeforeCursor) {
-        SecQueryType splitType = splitStatementType(request, sqlText);
-        if (splitType != null && splitType != SecQueryType.UNKNOWN) {
-            return splitType;
-        }
-        return tokenStatementType(tokensBeforeCursor);
-    }
-
-    private static SecQueryType splitStatementType(CompletionRequest request, String sqlText) {
-        SqlEngineSpi sqlEngine = request == null ? null : request.getSqlEngine();
-        SplitAnalysisSpi splitAnalysisSpi = sqlEngine == null ? null : sqlEngine.splitAnalysisSpi();
-        if (splitAnalysisSpi == null || StringUtils.isBlank(sqlText)) {
-            return SecQueryType.UNKNOWN;
-        }
-
-        try {
-            List<SplitScript> scripts = splitAnalysisSpi.splitScript(sqlText, null, request.getBasicCodeLine(), request.getBasicCodeColumn());
-            if (scripts == null || scripts.isEmpty()) {
-                return SecQueryType.UNKNOWN;
-            }
-            if (scripts.size() == 1) {
-                return safeType(scripts.get(0));
-            }
-
-            for (SplitScript script : scripts) {
-                if (containsCursor(script, request.getCursorLineNumber(), request.getCursorColNumber())) {
-                    return safeType(script);
-                }
-            }
-        } catch (RuntimeException e) {
-            return SecQueryType.UNKNOWN;
-        }
-        return SecQueryType.UNKNOWN;
-    }
-
-    private static SecQueryType safeType(SplitScript script) {
-        return script == null || script.getType() == null ? SecQueryType.UNKNOWN : script.getType();
-    }
-
-    private static boolean containsCursor(SplitScript script, Integer cursorLine, Integer cursorColumn) {
-        if (script == null || cursorLine == null || cursorColumn == null) {
-            return false;
-        }
-
-        int startLine = script.getBodyStartCodeLine();
-        int startColumn = script.getBodyStartCodeColumn();
-        int endLine = script.getBodyEndCodeLine();
-        int endColumn = script.getBodyEndCodeColumn();
-        if (cursorLine < startLine || cursorLine > endLine) {
-            return false;
-        }
-        if (cursorLine == startLine && cursorColumn < startColumn) {
-            return false;
-        }
-        return cursorLine != endLine || cursorColumn <= endColumn;
-    }
-
-    private static SecQueryType tokenStatementType(List<String> tokensBeforeCursor) {
-        for (String token : tokensBeforeCursor) {
-            return switch (StringUtils.toString(token).toLowerCase(Locale.ROOT)) {
-                case "select" -> SecQueryType.SELECT;
-                case "insert" -> SecQueryType.INSERT;
-                case "update" -> SecQueryType.UPDATE;
-                case "delete" -> SecQueryType.DELETE;
-                case "create" -> SecQueryType.CREATE_OBJECT;
-                case "alter" -> SecQueryType.ALTER_OBJECT;
-                case "drop" -> SecQueryType.DROP_OBJECT;
-                default -> SecQueryType.UNKNOWN;
-            };
-        }
-        return SecQueryType.UNKNOWN;
     }
 
     private static CompletionClause clause(List<String> tokensBeforeCursor, List<CompletionToken> tokens, CompletionDialect dialect) {
@@ -356,7 +260,7 @@ public class CompletionAnalyzer {
     }
 
     private static boolean isInsertColumnList(List<CompletionToken> tokens, CompletionDialect dialect) {
-        if (tokens == null || tokens.isEmpty() || !"insert".equals(lower(tokens.get(0).getText()))) {
+        if (tokens.isEmpty() || !"insert".equals(lower(tokens.get(0).getText()))) {
             return false;
         }
 
@@ -393,7 +297,7 @@ public class CompletionAnalyzer {
     }
 
     private static List<CompletionTableRef> tableRefs(List<CompletionToken> tokens, CompletionDialect dialect) {
-        if (tokens == null || tokens.isEmpty()) {
+        if (tokens.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -423,7 +327,7 @@ public class CompletionAnalyzer {
     }
 
     private static List<CompletionColumnRef> columnRefs(List<CompletionToken> tokens, CompletionDialect dialect) {
-        if (tokens == null || tokens.isEmpty()) {
+        if (tokens.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -659,7 +563,7 @@ public class CompletionAnalyzer {
     }
 
     private static boolean isFunctionNameToken(CompletionToken token, CompletionDialect dialect) {
-        return token != null && isWord(token.getText(), dialect) && !isKeyword(token.getText());
+        return isWord(token.getText(), dialect) && !isKeyword(token.getText());
     }
 
     private static String extractPrefix(CompletionRequest request, String sqlText, int offset, CompletionDialect dialect) {
@@ -674,7 +578,7 @@ public class CompletionAnalyzer {
     }
 
     private static boolean cursorAfterTrimmedWhitespace(CompletionRequest request, String sqlText) {
-        if (request == null || request.getCursorLineNumber() == null || request.getCursorColNumber() == null) {
+        if (request.getCursorLineNumber() == null || request.getCursorColNumber() == null) {
             return false;
         }
 

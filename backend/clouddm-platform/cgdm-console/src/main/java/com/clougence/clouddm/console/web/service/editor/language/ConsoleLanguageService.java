@@ -44,7 +44,6 @@ import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
@@ -148,12 +147,17 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
         });
 
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
-        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsConfig.getDataSourceType(), dsConfig.getSqlEngine());
+        SqlEngineSpi sqlEngine;
+        try {
+            sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(dsDO.getId());
+        } catch (RuntimeException e) {
+            sqlEngine = null;
+        }
 
         return new LanguageCtx(levels, dsConfig, ctxDTO, params, sqlEngine);
     }
 
-    private static AbstractRequest parseRequest(WsLanguageFO fo, LanguageCtx ctx, JSONObject json) {
+    private AbstractRequest parseRequest(WsLanguageFO fo, LanguageCtx ctx, JSONObject json) {
         WsLanguageType languageType = fo.getLanguageType();
         if (languageType == null) {
             throw new UnsupportedOperationException("Language WsType is empty.");
@@ -173,6 +177,7 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
         if (ctx.getCtxDTO() != null) {
             request.setCatalog(ctx.getCtxDTO().getRdbCatalog());
             request.setSchema(ctx.getCtxDTO().getRdbSchema());
+            request.setSqlParameters(ctx.getCtxDTO().getSqlParameters());
         }
 
         request.setSqlEngine(ctx.getSqlEngine());

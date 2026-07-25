@@ -17,17 +17,17 @@ package com.clougence.clouddm.dsfamily.language.validate;
 
 import java.util.*;
 
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.language.validate.Diagnostic;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.model.analysis.resource.RdbResObject;
-import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.secrules.ResAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.dslpaser.ast.location.BlockLocation;
+import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
 
@@ -51,16 +51,15 @@ public class TablePermissionValidateStrategy implements ValidateStrategy {
         Set<String> knownTables = knownTables(context, metaService, tableResources);
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (TableResource tableResource : tableResources) {
-            String table = tableResource.getTable();
+            String table = tableResource.table();
             if (StringUtils.isBlank(table)) {
                 continue;
             }
 
             String tableKey = table.toLowerCase(Locale.ROOT);
             if (!knownTables.isEmpty() && !knownTables.contains(tableKey)) {
-                diagnostics.add(ValidateDiagnostics.error(//
-                        "Unknown or inaccessible table: " + table, //
-                        ValidateDiagnostics.tokenRange(context.getSqlText(), table, tableResource.getRange())));
+                diagnostics.add(ValidateDiagnostics.error("Unknown or inaccessible table: " + table, //
+                        ValidateDiagnostics.tokenRange(context.getSqlText(), table, tableResource.range())));
                 continue;
             }
 
@@ -68,57 +67,64 @@ public class TablePermissionValidateStrategy implements ValidateStrategy {
                 continue;
             }
 
-            diagnostics.add(ValidateDiagnostics.error(//
-                    "No permission to access table: " + table, //
-                    ValidateDiagnostics.tokenRange(context.getSqlText(), table, tableResource.getRange())));
+            diagnostics.add(ValidateDiagnostics.error("No permission to access table: " + table, //
+                    ValidateDiagnostics.tokenRange(context.getSqlText(), table, tableResource.range())));
         }
         return diagnostics;
     }
 
     protected List<TableResource> resolveTableResources(ValidateContext context, MetaService metaService) {
-        ResAnalysisSpi resAnalysisSpi = Objects.requireNonNull(context.getRequest().getSqlEngine(), "parserSpi").resAnalysisSpi();
-        if (resAnalysisSpi == null) {
+        SqlParserParameters parameters = new SqlParserParameters(context.getRequest().getSqlParameters());
+        BehaviorAnalysisSpi behaviorAnalysisSpi = context.getRequest().getSqlEngine().behaviorAnalysisSpi(parameters);
+        if (behaviorAnalysisSpi == null) {
             return List.of();
         }
 
         List<TableResource> tableResources = new ArrayList<>();
         for (ValidateStatementState state : context.getStatementStates()) {
-            CodeInfo codeInfo = CodeInfo.builder()
-                .baseLine(state.getRange().getStartPosition().getLineNumber())
-                .baseColumn(state.getRange().getStartPosition().getColumnNumber())
-                .query(state.getSqlText())
-                .build();
-            ContextInfo contextInfo = ContextInfo.builder()
-                .puid(context.getRequest().getPrimaryUserId())
-                .cuid(context.getRequest().getCurrentUserId())
-                .dsId(context.getRequest().getDataSourceId() == null ? 0 : context.getRequest().getDataSourceId())
-                .levelsParam(context.getRequest().getLevelsParam())
-                .deepParser(false)
-                .build();
-            DataSourceType dsType = DataSourceType.getTypeByName(context.getRequest().getDsType());
-            Map<?, List<ResObject>> resources = resAnalysisSpi.analysisResource(dsType, codeInfo, contextInfo, context.getRequest().getCtxParams());
-            for (List<ResObject> objects : resources.values()) {
-                for (ResObject object : objects) {
-                    TableResource tableResource = toTableResource(object, state.getRange());
-                    if (tableResource != null) {
-                        tableResources.add(tableResource);
+            Map<UmiTypes, Object> levelsParam = context.getRequest().getLevelsParam();
+            int lineNumber = state.getRange().getStartPosition().getLineNumber();
+            int columnNumber = state.getRange().getStartPosition().getColumnNumber();
+            List<StatementBehavior> behaviors = behaviorAnalysisSpi.analysisBehavior(state.getSqlText(), levelsParam, lineNumber, columnNumber);
+            if (behaviors == null) {
+                continue;
+            }
+            for (StatementBehavior behavior : behaviors) {
+                if (behavior == null || behavior.getRelations() == null) {
+                    continue;
+                }
+                for (BehaviorRelation relation : behavior.getRelations()) {
+                    if (relation == null) {
+                        continue;
+                    }
+                    addTableResource(tableResources, relation.getSubject());
+                    if (relation.getTarget() != null) {
+                        for (BehaviorObject target : relation.getTarget()) {
+                            addTableResource(tableResources, target);
+                        }
                     }
                 }
             }
         }
+
         return tableResources;
     }
 
-    private static TableResource toTableResource(ResObject object, BlockLocation range) {
-        if (object == null || !isTableResource(object.getType())) {
-            return null;
+    private static void addTableResource(List<TableResource> resources, BehaviorObject object) {
+        if (object == null || !isTableResource(object.getTargetType()) || StringUtils.isBlank(object.getResourcePath())) {
+            return;
         }
 
-        String table = object instanceof RdbResObject ? ((RdbResObject) object).getTable() : object.getName();
-        if (StringUtils.isBlank(table)) {
-            table = object.getName();
+        String[] nodes = object.getResourcePath().split("/");
+        for (int i = nodes.length - 1; i >= 0; i--) {
+            if (StringUtils.isNotBlank(nodes[i])) {
+                BlockLocation objectRange = new BlockLocation();
+                objectRange.setStartPosition(new CodeLocation(object.getStartLine(), object.getStartColumn()));
+                objectRange.setEndPosition(new CodeLocation(object.getEndLine(), object.getEndColumn()));
+                resources.add(new TableResource(nodes[i], objectRange));
+                return;
+            }
         }
-        return StringUtils.isBlank(table) ? null : new TableResource(table, range);
     }
 
     private static Set<String> allowedTables(ValidateContext context) {
@@ -180,17 +186,6 @@ public class TablePermissionValidateStrategy implements ValidateStrategy {
         return type == TargetType.Table || type == TargetType.View || type == TargetType.Materialized;
     }
 
-    protected static class TableResource {
-        private final String        table;
-        private final BlockLocation range;
-
-        protected TableResource(String table, BlockLocation range){
-            this.table = table;
-            this.range = range;
-        }
-
-        protected String getTable() { return this.table; }
-
-        protected BlockLocation getRange() { return this.range; }
+    protected record TableResource(String table, BlockLocation range) {
     }
 }

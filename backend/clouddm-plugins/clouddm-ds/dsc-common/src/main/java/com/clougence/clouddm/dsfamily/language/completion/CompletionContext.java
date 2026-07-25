@@ -20,7 +20,6 @@ import java.util.Objects;
 
 import com.clougence.clouddm.dsfamily.language.completion.analyzer.*;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.dslpaser.ast.location.BlockLocation;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.utils.StringUtils;
@@ -140,8 +139,6 @@ public class CompletionContext {
     public List<CompletionTableRef> getTableRefs() { return parseState == null || parseState.getTableRefs() == null ? List.of() : parseState.getTableRefs(); }
 
     public List<CompletionColumnRef> getColumnRefs() { return parseState == null || parseState.getColumnRefs() == null ? List.of() : parseState.getColumnRefs(); }
-
-    public SecQueryType getStatementType() { return parseState == null || parseState.getStatementType() == null ? SecQueryType.UNKNOWN : parseState.getStatementType(); }
 
     public boolean hasSyntaxError() {
         return parseState != null && parseState.isHasSyntaxError();

@@ -26,6 +26,7 @@ public class WsLanguageFO extends WsRequestFO {
 
     private WsLanguageType languageType;
     private String         requestId;
+    private String         sessionId;
     private JSONObject     request;
 
     @Override

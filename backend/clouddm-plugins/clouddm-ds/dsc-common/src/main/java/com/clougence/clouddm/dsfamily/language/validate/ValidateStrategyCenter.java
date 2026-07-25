@@ -22,6 +22,7 @@ import java.util.Objects;
 import com.clougence.clouddm.sdk.language.validate.Diagnostic;
 import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.dslpaser.antlr.DslProvider;
 
 public abstract class ValidateStrategyCenter {
@@ -33,7 +34,18 @@ public abstract class ValidateStrategyCenter {
             return List.of();
         }
 
-        DslProvider dslProvider = request.getSqlEngine().dslProvider();
+        DslProvider dslProvider = null;
+        try {
+            if (request.getSqlEngine() != null) {
+                dslProvider = request.getSqlEngine().dslProvider(new SqlParserParameters(request.getSqlParameters()));
+            }
+        } catch (RuntimeException e) {
+            return List.of();
+        }
+        if (dslProvider == null) {
+            return List.of();
+        }
+
         ValidateContext context = ValidateContext.resolve(request, dslProvider);
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ValidateStrategy strategy : strategies()) {
