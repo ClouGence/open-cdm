@@ -1,0 +1,1511 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.sql.mysql.analysis.reference;
+
+import java.util.*;
+
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.RuleNode;
+
+import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.mysql.parser.MySqlVersion;
+import com.clougence.sql.mysql.parser.antlr.MySqlParserBaseVisitor;
+import com.clougence.sql.mysql.parser.antlr.MySqlParser.*;
+import com.clougence.utils.StringUtils;
+
+public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
+    private final Parser                     parser;
+    private final Map<UmiTypes, Object>      levelsParam;
+    private final int                        baseLine;
+    private final int                        baseColumn;
+    private final MySqlVersion               version;
+    private final int                        exactVersion;
+    private final MySqlResourceRegistry      resources;
+    private final List<MySqlObjectReference> references = new ArrayList<>();
+
+    public MySqlObjectReferenceVisitor(Parser parser, Map<UmiTypes, Object> levelsParam, int baseLine, int baseColumn, MySqlVersion version, int exactVersion,
+                                       MySqlResourceRegistry resources){
+        this.parser = parser;
+        this.levelsParam = levelsParam;
+        this.baseLine = baseLine;
+        this.baseColumn = baseColumn;
+        this.version = version;
+        this.exactVersion = exactVersion;
+        this.resources = resources;
+    }
+
+    public List<MySqlObjectReference> references() {
+        return references;
+    }
+
+    public void scan(ParseTree tree) {
+        if (tree == null) {
+            return;
+        }
+        tree.accept(this);
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            scan(tree.getChild(i));
+        }
+    }
+
+    /**
+     * Resource extraction owns recursion explicitly through {@link #scan(ParseTree)}.
+     * This makes every descendant context visible even when a statement-specific
+     * visitor intentionally finishes after handling its own target.
+     */
+    @Override
+    public Void visitChildren(RuleNode node) {
+        return null;
+    }
+
+    public void addUnnamedFallback(SecQueryType sqlType, TargetType targetType, ParserRuleContext ctx) {
+        addUnnamedResource(sqlType, targetType, true, ctx);
+    }
+
+    protected final void addUnnamed(SecQueryType sqlType, TargetType targetType, boolean require, Token token) {
+        references.add(new MySqlObjectReference(sqlType, targetType, require, line(token), column(token), endLine(token), endColumn(token), List.of()));
+    }
+
+    protected final void addUnnamedAtCurrentSchema(SecQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+        List<String> nodes = new ArrayList<>();
+        addPart(nodes, level(UmiTypes.Catalog));
+        addPart(nodes, level(UmiTypes.Schema));
+        if (nodes.isEmpty()) {
+            addUnnamedResource(sqlType, targetType, require, ctx);
+        } else {
+            references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes));
+        }
+    }
+
+    @Override
+    public Void visitQuerySpecificationSelect(QuerySpecificationSelectContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitQueryExpressionSelect(QueryExpressionSelectContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSelectExpressionElement(SelectExpressionElementContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitGenericFunctionCall(GenericFunctionCallContext ctx) {
+        if (ctx.genericFunction().name instanceof CustomGenericFunctionNameContext custom) {
+            FullIdContext fullId = custom.function.fullId();
+            String functionName = fullId.identifierAfterDot != null ? fullId.identifierAfterDot.getText() : fullId.uid(fullId.uid().size() - 1).getText();
+            if (resources.isUserDefinedFunction(functionName, fullId.DOT() != null, this.version)) {
+                add(SecQueryType.CALL_PROG_OBJ, TargetType.Function, fullId);
+            }
+        } else if (resources.isUserDefinedFunction(ctx.genericFunction().name.getText(), false, this.version)) {
+            add(SecQueryType.CALL_PROG_OBJ, TargetType.Function, ctx.genericFunction().name);
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
+        String functionName = ctx.aggregateFunction().getStart().getText();
+        if (!resources.isBuiltInAggregateFunction(functionName, exactVersion)) {
+            add(SecQueryType.CALL_PROG_OBJ, TargetType.Function, ctx.aggregateFunction());
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSpatialAggregateFunctionCall(SpatialAggregateFunctionCallContext ctx) {
+        String functionName = ctx.customFunctionName().getStart().getText();
+        if (!resources.isBuiltInAggregateFunction(functionName, exactVersion)) {
+            add(SecQueryType.CALL_PROG_OBJ, TargetType.Function, ctx.customFunctionName());
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitNonKeywordFunctionCall(NonKeywordFunctionCallContext ctx) {
+        addFunction(ctx);
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSpecificFunctionCall(SpecificFunctionCallContext ctx) {
+        addFunction(ctx);
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitKeywordFunctionCall(KeywordFunctionCallContext ctx) {
+        addFunction(ctx);
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitPasswordFunctionCall(PasswordFunctionCallContext ctx) {
+        addFunction(ctx);
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitNonAggregateFunctionCall(NonAggregateFunctionCallContext ctx) {
+        addFunction(ctx);
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitJsonDualityObjectFunctionCall(JsonDualityObjectFunctionCallContext ctx) {
+        addFunction(ctx);
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitCreateUser(CreateUserContext ctx) {
+        ctx.userAuthOption().forEach(option -> addDescendantAccounts(SecQueryType.CREATE_USER, TargetType.User, false, option));
+        ctx.createUserAuthOption().forEach(option -> addDescendantAccounts(SecQueryType.CREATE_USER, TargetType.User, false, option));
+        if (ctx.defaultRoleClause() != null) {
+            descendants(ctx.defaultRoleClause(), RoleNameContext.class).forEach(role -> addAccount(SecQueryType.CREATE_ROLE, TargetType.Role, true, role));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDropUser(DropUserContext ctx) {
+        boolean require = ctx.ifExists() == null;
+        ctx.accountTarget().forEach(target -> addDescendantAccounts(SecQueryType.DROP_USER, TargetType.User, require, target));
+        return null;
+    }
+
+    @Override
+    public Void visitCreateRole(CreateRoleContext ctx) {
+        ctx.roleName().forEach(role -> addAccount(SecQueryType.CREATE_ROLE, TargetType.Role, false, role));
+        return null;
+    }
+
+    @Override
+    public Void visitDropRole(DropRoleContext ctx) {
+        boolean require = ctx.ifExists() == null;
+        ctx.roleName().forEach(role -> addAccount(SecQueryType.DROP_ROLE, TargetType.Role, require, role));
+        return null;
+    }
+
+    @Override
+    public Void visitRenameUser(RenameUserContext ctx) {
+        for (RenameUserClauseContext clause : ctx.renameUserClause()) {
+            addDescendantAccounts(SecQueryType.RENAME_USER, TargetType.User, true, clause.fromFirst);
+            addAccount(SecQueryType.RENAME_USER, TargetType.User, false, clause.toFirst);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitGrantStatement(GrantStatementContext ctx) {
+        addDescendantAccounts(SecQueryType.GRANT, TargetType.UserOrRole, true, ctx);
+        descendants(ctx, RoleNameContext.class).forEach(role -> addAccount(SecQueryType.GRANT, TargetType.UserOrRole, true, role));
+        addPrivilegeTarget(SecQueryType.GRANT, ctx.privilegeObject, ctx.privilegeLevel());
+        return null;
+    }
+
+    @Override
+    public Void visitRevokeStatement(RevokeStatementContext ctx) {
+        addDescendantAccounts(SecQueryType.REVOKE, TargetType.UserOrRole, true, ctx);
+        descendants(ctx, RoleNameContext.class).forEach(role -> addAccount(SecQueryType.REVOKE, TargetType.UserOrRole, true, role));
+        addPrivilegeTarget(SecQueryType.REVOKE, ctx.privilegeObject, ctx.privilegeLevel());
+        return null;
+    }
+
+    @Override
+    public Void visitGrantProxy(GrantProxyContext ctx) {
+        addDescendantAccounts(SecQueryType.GRANT, TargetType.UserOrRole, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitRevokeProxy(RevokeProxyContext ctx) {
+        addDescendantAccounts(SecQueryType.REVOKE, TargetType.UserOrRole, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitFlushStatement(FlushStatementContext ctx) {
+        FlushTablesOptionContext tableOption = ctx.flushTablesOption();
+        if (tableOption != null) {
+            FlushTableOptionContext modifier = tableOption.flushTableOption();
+            SecQueryType permission = modifier != null && modifier.EXPORT() != null ? SecQueryType.DATA_EXPORT : SecQueryType.ADMIN_TABLE;
+            addTables(tableOption.tables(), permission);
+            if (modifier != null && modifier.READ() != null) {
+                addTables(tableOption.tables(), SecQueryType.QUERY_LOCK);
+            }
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitAlterUserMysqlV56(AlterUserMysqlV56Context ctx) {
+        return addAlterUsers(ctx);
+    }
+
+    @Override
+    public Void visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
+        return addAlterUsers(ctx);
+    }
+
+    @Override
+    public Void visitAlterUserCurrentUser(AlterUserCurrentUserContext ctx) {
+        return addAlterUsers(ctx);
+    }
+
+    @Override
+    public Void visitAlterUserCurrentUserDiscard(AlterUserCurrentUserDiscardContext ctx) {
+        return addAlterUsers(ctx);
+    }
+
+    @Override
+    public Void visitAlterUserDefaultRole(AlterUserDefaultRoleContext ctx) {
+        return addAlterUsers(ctx);
+    }
+
+    @Override
+    public Void visitAlterUserDiscardOldPassword(AlterUserDiscardOldPasswordContext ctx) {
+        return addAlterUsers(ctx);
+    }
+
+    @Override
+    public Void visitAlterUserMfa(AlterUserMfaContext ctx) {
+        return addAlterUsers(ctx);
+    }
+
+    private void addFunction(ParserRuleContext ctx) {
+        Token token = ctx.getStart();
+        if (token == null || StringUtils.isBlank(token.getText()) || !resources.isUserDefinedFunction(token.getText(), false, this.version)) {
+            return;
+        }
+        List<String> parts = new ArrayList<>();
+        addPart(parts, token.getText());
+        List<String> nodes = resolveNodes(TargetType.Function, parts);
+        addWithNodes(SecQueryType.CALL_PROG_OBJ, TargetType.Function, true, token, nodes);
+    }
+
+    @Override
+    public Void visitAtomTableItem(AtomTableItemContext ctx) {
+        add(SecQueryType.SELECT, TargetType.Table, ctx.tableName());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitColumnCreateTable(ColumnCreateTableContext ctx) {
+        add(SecQueryType.CREATE_TABLE, TargetType.Table, false, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitQueryCreateTable(QueryCreateTableContext ctx) {
+        add(SecQueryType.CREATE_TABLE, TargetType.Table, false, ctx.tableName());
+        visit(ctx.createTableQueryExpression());
+        return null;
+    }
+
+    @Override
+    public Void visitCopyCreateTable(CopyCreateTableContext ctx) {
+        if (!ctx.tableName().isEmpty()) {
+            add(SecQueryType.CREATE_TABLE, TargetType.Table, false, ctx.tableName(0));
+        }
+        if (ctx.tableName().size() > 1) {
+            add(SecQueryType.SELECT, TargetType.Table, ctx.tableName(1));
+        } else if (ctx.parenthesisTable != null) {
+            add(SecQueryType.SELECT, TargetType.Table, ctx.parenthesisTable);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCreateView(CreateViewContext ctx) {
+        if (ctx.MATERIALIZED() == null) {
+            add(SecQueryType.CREATE_VIEW, TargetType.View, false, ctx.fullId());
+        } else {
+            add(SecQueryType.CREATE_VIEW, TargetType.Materialized, false, ctx.fullId());
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitAlterView(AlterViewContext ctx) {
+        if (ctx.MATERIALIZED() == null) {
+            add(SecQueryType.ALTER_VIEW, TargetType.View, ctx.fullId());
+        } else {
+            add(SecQueryType.ALTER_VIEW, TargetType.Materialized, ctx.fullId());
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitCreateProcedure(CreateProcedureContext ctx) {
+        add(SecQueryType.CREATE_PROG_OBJ, TargetType.Procedure, false, ctx.fullId());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitCreateFunction(CreateFunctionContext ctx) {
+        add(SecQueryType.CREATE_PROG_OBJ, TargetType.Function, false, ctx.fullId());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitCreateUdfFunction(CreateUdfFunctionContext ctx) {
+        add(SecQueryType.CREATE_PROG_OBJ, TargetType.Function, false, ctx.uid());
+        addFile(SecQueryType.CREATE_PROG_OBJ, true, ctx.textLiteralToken());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterSimpleDatabase(AlterSimpleDatabaseContext ctx) {
+        if (ctx.databaseName() != null) {
+            add(SecQueryType.ALTER_SCHEMA, TargetType.Schema, ctx.databaseName().uid());
+        } else {
+            List<String> nodes = new ArrayList<>();
+            addPart(nodes, level(UmiTypes.Catalog));
+            addPart(nodes, level(UmiTypes.Schema));
+            addWithNodes(SecQueryType.ALTER_SCHEMA, TargetType.Schema, true, ctx, nodes);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCreateLibrary(CreateLibraryContext ctx) {
+        add(SecQueryType.CREATE_LIBRARY, TargetType.Library, false, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateMaskingPolicy(CreateMaskingPolicyContext ctx) {
+        add(SecQueryType.CREATE_POLICY, TargetType.MaskingPolicy, false, ctx.policyName);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterProcedure(AlterProcedureContext ctx) {
+        add(SecQueryType.ALTER_PROG_OBJ, TargetType.Procedure, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterFunction(AlterFunctionContext ctx) {
+        add(SecQueryType.ALTER_PROG_OBJ, TargetType.Function, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterLibrary(AlterLibraryContext ctx) {
+        add(SecQueryType.ALTER_LIBRARY, TargetType.Library, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitDropProcedure(DropProcedureContext ctx) {
+        add(SecQueryType.DROP_PROG_OBJ, TargetType.Procedure, ctx.ifExists() == null, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitDropFunction(DropFunctionContext ctx) {
+        add(SecQueryType.DROP_PROG_OBJ, TargetType.Function, ctx.ifExists() == null, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitDropLibrary(DropLibraryContext ctx) {
+        add(SecQueryType.DROP_LIBRARY, TargetType.Library, ctx.ifExists() == null, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitDropMaskingPolicy(DropMaskingPolicyContext ctx) {
+        add(SecQueryType.DROP_POLICY, TargetType.MaskingPolicy, ctx.ifExists() == null, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateTablespaceInnodb(CreateTablespaceInnodbContext ctx) {
+        add(SecQueryType.CREATE_TABLESPACE, TargetType.Tablespace, false, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateTablespaceNdb(CreateTablespaceNdbContext ctx) {
+        if (!ctx.uid().isEmpty()) {
+            add(SecQueryType.CREATE_TABLESPACE, TargetType.Tablespace, false, ctx.uid(0));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCreateUndoTablespace(CreateUndoTablespaceContext ctx) {
+        add(SecQueryType.CREATE_TABLESPACE, TargetType.Tablespace, false, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterTablespace(AlterTablespaceContext ctx) {
+        for (UidContext uid : ctx.uid()) {
+            add(SecQueryType.ALTER_TABLESPACE, TargetType.Tablespace, uid);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUndoTablespace(AlterUndoTablespaceContext ctx) {
+        add(SecQueryType.ALTER_TABLESPACE, TargetType.Tablespace, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitDropTablespace(DropTablespaceContext ctx) {
+        add(SecQueryType.DROP_TABLESPACE, TargetType.Tablespace, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitDropUndoTablespace(DropUndoTablespaceContext ctx) {
+        add(SecQueryType.DROP_TABLESPACE, TargetType.Tablespace, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateLogfileGroup(CreateLogfileGroupContext ctx) {
+        add(SecQueryType.CREATE_LOG, TargetType.Log, false, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterLogfileGroup(AlterLogfileGroupContext ctx) {
+        add(SecQueryType.ALTER_LOG, TargetType.Log, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitDropLogfileGroup(DropLogfileGroupContext ctx) {
+        add(SecQueryType.DROP_LOG, TargetType.Log, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateResourceGroup(CreateResourceGroupContext ctx) {
+        add(SecQueryType.CREATE_RESOURCE_GROUP, TargetType.ResourceGroup, false, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterResourceGroup(AlterResourceGroupContext ctx) {
+        add(SecQueryType.ALTER_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitDropResourceGroup(DropResourceGroupContext ctx) {
+        add(SecQueryType.DROP_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitSetResourceGroup(SetResourceGroupContext ctx) {
+        add(SecQueryType.ADMIN_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateServer(CreateServerContext ctx) {
+        add(SecQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, false, ctx.serverObjectName());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterServer(AlterServerContext ctx) {
+        add(SecQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.serverObjectName());
+        return null;
+    }
+
+    @Override
+    public Void visitDropServer(DropServerContext ctx) {
+        add(SecQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.serverObjectName());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateSpatialReferenceSystem(CreateSpatialReferenceSystemContext ctx) {
+        add(SecQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, false, ctx.decimalLiteral());
+        return null;
+    }
+
+    @Override
+    public Void visitDropSpatialReferenceSystem(DropSpatialReferenceSystemContext ctx) {
+        add(SecQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.decimalLiteral());
+        return null;
+    }
+
+    @Override
+    public Void visitChecksumTable(ChecksumTableContext ctx) {
+        addAdminTables(ctx.tables());
+        return null;
+    }
+
+    @Override
+    public Void visitCheckTable(CheckTableContext ctx) {
+        addAdminTables(ctx.tables());
+        return null;
+    }
+
+    @Override
+    public Void visitRepairTable(RepairTableContext ctx) {
+        addAdminTables(ctx.tables());
+        return null;
+    }
+
+    @Override
+    public Void visitOptimizeTable(OptimizeTableContext ctx) {
+        addAdminTables(ctx.tables());
+        return null;
+    }
+
+    @Override
+    public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
+        if (ctx.tableName() != null) {
+            add(SecQueryType.ADMIN_TABLE, TargetType.Table, ctx.tableName());
+        } else {
+            addAdminTables(ctx.tables());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
+        add(SecQueryType.METADATA, TargetType.Table, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitShowColumns(ShowColumnsContext ctx) {
+        addMetadataTable(ctx.tableName(), ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitShowIndexes(ShowIndexesContext ctx) {
+        addMetadataTable(ctx.tableName(), ctx.uid());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitShowTables(ShowTablesContext ctx) {
+        if (!ctx.uid().isEmpty()) {
+            add(SecQueryType.METADATA, TargetType.Schema, ctx.uid(0));
+        } else {
+            addUnnamedResource(SecQueryType.METADATA, TargetType.Schema, true, ctx);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateDb(ShowCreateDbContext ctx) {
+        add(SecQueryType.METADATA, TargetType.Schema, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateFullIdObject(ShowCreateFullIdObjectContext ctx) {
+        TargetType type = switch (ctx.namedEntity.getText().toUpperCase()) {
+            case "EVENT" -> TargetType.Event;
+            case "FUNCTION" -> TargetType.Function;
+            case "PROCEDURE" -> TargetType.Procedure;
+            case "TRIGGER" -> TargetType.Trigger;
+            case "VIEW" -> TargetType.View;
+            case "LIBRARY" -> TargetType.Library;
+            default -> TargetType.Table;
+        };
+        add(SecQueryType.METADATA, type, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateUser(ShowCreateUserContext ctx) {
+        if (ctx.userName() == null) {
+            addUnnamedResource(SecQueryType.METADATA, TargetType.User, true, ctx);
+        } else {
+            addAccount(SecQueryType.METADATA, TargetType.User, true, ctx.userName());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCacheIndexStatement(CacheIndexStatementContext ctx) {
+        add(SecQueryType.ADMIN_PERFORMANCE, TargetType.Index, ctx.tableName());
+        for (TableIndexesContext tableIndexes : ctx.tableIndexes()) {
+            add(SecQueryType.ADMIN_PERFORMANCE, TargetType.Index, tableIndexes.tableName());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAlterInstance(AlterInstanceContext ctx) {
+        addUnnamedResource(SecQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCloneStatement(CloneStatementContext ctx) {
+        addUnnamedResource(SecQueryType.ADMIN, TargetType.Instance, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitBinlogStatement(BinlogStatementContext ctx) {
+        addUnnamedResource(SecQueryType.ADMIN_LOG, TargetType.Log, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitInstallComponent(InstallComponentContext ctx) {
+        addUnnamedResource(SecQueryType.CREATE_LIBRARY, TargetType.Library, false, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitInstallPlugin(InstallPluginContext ctx) {
+        addUnnamedResource(SecQueryType.CREATE_LIBRARY, TargetType.Library, false, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitUninstallComponent(UninstallComponentContext ctx) {
+        addUnnamedResource(SecQueryType.DROP_LIBRARY, TargetType.Library, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitUninstallPlugin(UninstallPluginContext ctx) {
+        addUnnamedResource(SecQueryType.DROP_LIBRARY, TargetType.Library, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitDoStatement(DoStatementContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSignalStatement(SignalStatementContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitResignalStatement(ResignalStatementContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitDiagnosticsStatement(DiagnosticsStatementContext ctx) {
+        descendants(ctx, VariableClauseContext.class).stream()
+            .filter(variable -> variable.LOCAL_ID() != null || variable.GLOBAL_ID() != null || variable.GLOBAL() != null || variable.SESSION() != null || variable.LOCAL() != null
+                                || variable.persistScope() != null)
+            .forEach(variable -> addConfigKey(SecQueryType.SESSION_VARIABLE_RW, variable));
+        return null;
+    }
+
+    @Override
+    public Void visitTransactionStatement(TransactionStatementContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitChangeMaster(ChangeMasterContext ctx) {
+        addUnnamedResource(SecQueryType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitChangeReplicationSource(ChangeReplicationSourceContext ctx) {
+        addUnnamedResource(SecQueryType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitChangeReplicationFilter(ChangeReplicationFilterContext ctx) {
+        addUnnamedResource(SecQueryType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitStartSlave(StartSlaveContext ctx) {
+        addUnnamedResource(SecQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitStartReplica(StartReplicaContext ctx) {
+        addUnnamedResource(SecQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitStartGroupReplication(StartGroupReplicationContext ctx) {
+        addUnnamedResource(SecQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitStopSlave(StopSlaveContext ctx) {
+        addUnnamedResource(SecQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitStopReplica(StopReplicaContext ctx) {
+        addUnnamedResource(SecQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitStopGroupReplication(StopGroupReplicationContext ctx) {
+        addUnnamedResource(SecQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateTrigger(CreateTriggerContext ctx) {
+        add(SecQueryType.CREATE_TRIGGER, TargetType.Trigger, false, ctx.thisTrigger);
+        add(SecQueryType.ALTER_TABLE, TargetType.Table, ctx.tableName());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitDropTrigger(DropTriggerContext ctx) {
+        add(SecQueryType.DROP_TRIGGER, TargetType.Trigger, ctx.ifExists() == null, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateEvent(CreateEventContext ctx) {
+        add(SecQueryType.CREATE_EVENT, TargetType.Event, false, ctx.fullId());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitAlterEvent(AlterEventContext ctx) {
+        add(SecQueryType.ALTER_EVENT, TargetType.Event, ctx.fullId(0));
+        if (ctx.fullId().size() > 1) {
+            add(SecQueryType.ALTER_EVENT, TargetType.Event, false, ctx.fullId(1));
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitDropEvent(DropEventContext ctx) {
+        add(SecQueryType.DROP_EVENT, TargetType.Event, ctx.ifExists() == null, ctx.fullId());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterTable(AlterTableContext ctx) {
+        add(SecQueryType.ALTER_TABLE, TargetType.Table, ctx.tableName());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitDropView(DropViewContext ctx) {
+        for (FullIdContext fullId : ctx.fullId()) {
+            add(SecQueryType.DROP_VIEW, TargetType.View, ctx.ifExists() == null, fullId);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCreateIndex(CreateIndexContext ctx) {
+        add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName());
+        add(SecQueryType.ALTER_TABLE, TargetType.Table, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitDropIndex(DropIndexContext ctx) {
+        add(SecQueryType.DROP_INDEX, TargetType.Index, ctx.indexName());
+        add(SecQueryType.ALTER_TABLE, TargetType.Table, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateDatabase(CreateDatabaseContext ctx) {
+        add(SecQueryType.CREATE_SCHEMA, TargetType.Schema, false, ctx.databaseName());
+        return null;
+    }
+
+    @Override
+    public Void visitDropDatabase(DropDatabaseContext ctx) {
+        add(SecQueryType.DROP_SCHEMA, TargetType.Schema, ctx.ifExists() == null, ctx.databaseName());
+        return null;
+    }
+
+    @Override
+    public Void visitDropTable(DropTableContext ctx) {
+        for (TableNameContext tableName : ctx.tables().tableName()) {
+            add(SecQueryType.DROP_TABLE, TargetType.Table, ctx.ifExists() == null, tableName);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitRenameTableClause(RenameTableClauseContext ctx) {
+        add(SecQueryType.RENAME_TABLE, TargetType.Table, ctx.tableName(0));
+        add(SecQueryType.RENAME_TABLE, TargetType.Table, false, ctx.tableName(1));
+        return null;
+    }
+
+    @Override
+    public Void visitTruncateTable(TruncateTableContext ctx) {
+        add(SecQueryType.TRUNCATE_TABLE, TargetType.Table, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitCallStatement(CallStatementContext ctx) {
+        add(SecQueryType.CALL_PROG_OBJ, TargetType.Procedure, ctx.procName());
+        return null;
+    }
+
+    @Override
+    public Void visitInsertStatement(InsertStatementContext ctx) {
+        SecQueryType type = ctx.duplicatedFirst == null ? SecQueryType.INSERT : SecQueryType.MERGE;
+        add(type, TargetType.Table, ctx.tableName());
+        if (ctx.insertStatementValue() != null) {
+            visit(ctx.insertStatementValue());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitReplaceStatement(ReplaceStatementContext ctx) {
+        add(SecQueryType.MERGE, TargetType.Table, ctx.tableName());
+        if (ctx.replaceStatementValue() != null) {
+            visit(ctx.replaceStatementValue());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitLoadDataStatement(LoadDataStatementContext ctx) {
+        add(SecQueryType.DATA_IMPORT, TargetType.Table, ctx.tableName());
+        addFile(SecQueryType.DATA_IMPORT, true, ctx.loadSource().textLiteralToken());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitLoadXmlStatement(LoadXmlStatementContext ctx) {
+        add(SecQueryType.DATA_IMPORT, TargetType.Table, ctx.tableName());
+        addFile(SecQueryType.DATA_IMPORT, true, ctx.loadSource().textLiteralToken());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSelectIntoDumpFile(SelectIntoDumpFileContext ctx) {
+        addFile(SecQueryType.DATA_EXPORT, false, ctx.textLiteralToken());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSelectIntoTextFile(SelectIntoTextFileContext ctx) {
+        addFile(SecQueryType.DATA_EXPORT, false, ctx.filename);
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSelectIntoRemoteFile(SelectIntoRemoteFileContext ctx) {
+        addFile(SecQueryType.DATA_EXPORT, false, ctx.textLiteralToken());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSelectIntoRemoteParameters(SelectIntoRemoteParametersContext ctx) {
+        addFile(SecQueryType.DATA_EXPORT, false, ctx.textLiteralToken());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitAssignmentField(AssignmentFieldContext ctx) {
+        if (ctx.LOCAL_ID() != null) {
+            String variable = ctx.LOCAL_ID().getText();
+            while (variable.startsWith("@")) {
+                variable = variable.substring(1);
+            }
+            addInstanceResource(SecQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, variable);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitMysqlVariableExpressionAtom(MysqlVariableExpressionAtomContext ctx) {
+        addConfigKey(ctx.mysqlVariable());
+        return null;
+    }
+
+    @Override
+    public Void visitSetVariable(SetVariableContext ctx) {
+        for (SetVariableAssignmentContext assignment : ctx.setVariableAssignment()) {
+            VariableClauseContext variable = assignment.variableClause();
+            if (isRoutineLocalVariable(variable)) {
+                continue;
+            }
+            String upper = name(variable).toUpperCase();
+            SecQueryType permission;
+            if (variable.LOCAL_ID() != null) {
+                permission = SecQueryType.SESSION_VARIABLE_RW;
+            } else if (upper.contains("GTID_") || upper.contains("SLAVE_") || upper.contains("REPLICA_")) {
+                permission = SecQueryType.ALTER_REPLICATION;
+            } else if (variable.GLOBAL() != null || variable.persistScope() != null || upper.startsWith("@@GLOBAL.") || upper.startsWith("@@PERSIST.")) {
+                permission = SecQueryType.SYSTEM_SETTING_WRITE;
+            } else {
+                permission = SecQueryType.SESSION_SETTING_WRITE;
+            }
+            addConfigKey(permission, variable);
+            visit(assignment);
+        }
+        return null;
+    }
+
+    private boolean isRoutineLocalVariable(VariableClauseContext variable) {
+        if (variable == null || variable.LOCAL_ID() != null || variable.GLOBAL_ID() != null || variable.GLOBAL() != null || variable.SESSION() != null || variable.LOCAL() != null
+            || variable.persistScope() != null) {
+            return false;
+        }
+
+        ParserRuleContext owner = variable;
+        while (owner != null && !(owner instanceof CreateProcedureContext) && !(owner instanceof CreateFunctionContext) && !(owner instanceof CreateTriggerContext)
+               && !(owner instanceof CreateEventContext) && !(owner instanceof AlterEventContext)) {
+            owner = owner.getParent();
+        }
+        if (owner == null) {
+            return false;
+        }
+
+        Set<String> localNames = new LinkedHashSet<>();
+        descendants(owner, ProcedureParameterContext.class).forEach(parameter -> localNames.add(normalizeIdentifier(name(parameter.uid()))));
+        descendants(owner, FunctionParameterContext.class).forEach(parameter -> localNames.add(normalizeIdentifier(name(parameter.uid()))));
+        descendants(owner, DeclareVariableContext.class).forEach(declaration -> declaration.uidList().uid().forEach(uid -> localNames.add(normalizeIdentifier(name(uid)))));
+        return localNames.contains(normalizeIdentifier(name(variable)));
+    }
+
+    private static String normalizeIdentifier(String value) {
+        if (value == null) {
+            return "";
+        }
+        String normalized = value.trim();
+        if (normalized.length() >= 2) {
+            char quote = normalized.charAt(0);
+            if ((quote == '`' || quote == '"') && normalized.charAt(normalized.length() - 1) == quote) {
+                normalized = normalized.substring(1, normalized.length() - 1);
+            }
+        }
+        return normalized.toLowerCase(Locale.ROOT);
+    }
+
+    @Override
+    public Void visitSetCharset(SetCharsetContext ctx) {
+        addUnnamedResource(SecQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSetNames(SetNamesContext ctx) {
+        addUnnamedResource(SecQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSetAutocommit(SetAutocommitContext ctx) {
+        addInstanceResource(SecQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, ctx, "autocommit");
+        return null;
+    }
+
+    @Override
+    public Void visitResetPersist(ResetPersistContext ctx) {
+        if (ctx.resetPersistVariable() == null) {
+            addUnnamedResource(SecQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
+        } else {
+            addInstanceResource(SecQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.EXISTS() == null, ctx.resetPersistVariable(), name(ctx.resetPersistVariable()));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitPrepareStatement(PrepareStatementContext ctx) {
+        addInstanceResource(SecQueryType.UNSAFE, TargetType.PrepareStatement, false, ctx.uid(), name(ctx.uid()));
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitExecuteStatement(ExecuteStatementContext ctx) {
+        addInstanceResource(SecQueryType.UNSAFE, TargetType.PrepareStatement, true, ctx.uid(), name(ctx.uid()));
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitDeallocatePrepare(DeallocatePrepareContext ctx) {
+        addInstanceResource(SecQueryType.UNSAFE, TargetType.PrepareStatement, true, ctx.uid(), name(ctx.uid()));
+        return null;
+    }
+
+    @Override
+    public Void visitSingleUpdateStatement(SingleUpdateStatementContext ctx) {
+        if (ctx.withClause() != null) {
+            visit(ctx.withClause());
+        }
+        add(SecQueryType.UPDATE, TargetType.Table, ctx.tableName());
+        if (ctx.whereClause() != null) {
+            visit(ctx.whereClause());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitMultipleUpdateStatement(MultipleUpdateStatementContext ctx) {
+        if (ctx.tableSources() != null) {
+            visit(ctx.tableSources());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSingleDeleteStatement(SingleDeleteStatementContext ctx) {
+        add(SecQueryType.DELETE, TargetType.Table, ctx.tableName());
+        if (ctx.whereClause() != null) {
+            visit(ctx.whereClause());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitMultipleDeleteStatement(MultipleDeleteStatementContext ctx) {
+        for (TableNameContext tableName : ctx.tableName()) {
+            add(SecQueryType.DELETE, TargetType.Table, tableName);
+        }
+        if (ctx.tableSources() != null) {
+            visit(ctx.tableSources());
+        }
+        return null;
+    }
+
+    private Void addAlterUsers(ParserRuleContext ctx) {
+        List<UserNameContext> users = descendants(ctx, UserNameContext.class);
+        if (users.isEmpty()) {
+            addUnnamedResource(SecQueryType.ALTER_USER, TargetType.User, true, ctx);
+        } else {
+            users.forEach(user -> addAccount(SecQueryType.ALTER_USER, TargetType.User, true, user));
+        }
+        return null;
+    }
+
+    private void addAdminTables(TablesContext tables) {
+        addTables(tables, SecQueryType.ADMIN_TABLE);
+    }
+
+    private void addTables(TablesContext tables, SecQueryType permission) {
+        if (tables != null) {
+            tables.tableName().forEach(table -> add(permission, TargetType.Table, table));
+        }
+    }
+
+    private void addMetadataTable(TableNameContext table, UidContext explicitSchema) {
+        if (table == null) {
+            return;
+        }
+        if (explicitSchema == null || table.fullId().uid().size() > 1) {
+            add(SecQueryType.METADATA, TargetType.Table, table);
+            return;
+        }
+        List<String> parts = new ArrayList<>();
+        addPart(parts, name(explicitSchema));
+        addPart(parts, name(table));
+        add(SecQueryType.METADATA, TargetType.Table, true, table, parts);
+    }
+
+    protected final void addPrivilegeTarget(SecQueryType sqlType, PrivilegeObjectTypeContext objectType, PrivilegeLevelContext level) {
+        if (level == null) {
+            return;
+        }
+        TargetType targetType = TargetType.Table;
+        if (objectType != null) {
+            String object = name(objectType).toUpperCase();
+            if ("FUNCTION".equals(object)) {
+                targetType = TargetType.Function;
+            } else if ("PROCEDURE".equals(object)) {
+                targetType = TargetType.Procedure;
+            } else if ("LIBRARY".equals(object)) {
+                targetType = TargetType.Library;
+            }
+        }
+        if (level instanceof GlobalPrivLevelContext) {
+            addUnnamedResource(sqlType, TargetType.Instance, true, level);
+        } else if (level instanceof CurrentSchemaPriviLevelContext) {
+            List<String> nodes = new ArrayList<>();
+            addPart(nodes, level(UmiTypes.Catalog));
+            addPart(nodes, level(UmiTypes.Schema));
+            addWithNodes(sqlType, TargetType.Schema, true, level, nodes);
+        } else if (level instanceof DefiniteSchemaPrivLevelContext schema) {
+            add(sqlType, TargetType.Schema, true, schema.uid());
+        } else {
+            List<String> parts = new ArrayList<>();
+            descendants(level, UidContext.class).forEach(uid -> addPart(parts, name(uid)));
+            descendants(level, DottedIdContext.class).forEach(id -> addPart(parts, name(id).replaceFirst("^\\.", "")));
+            add(sqlType, targetType, true, level, parts);
+        }
+    }
+
+    protected final void addDescendantAccounts(SecQueryType sqlType, TargetType targetType, boolean require, ParseTree tree) {
+        descendants(tree, UserNameContext.class).forEach(user -> addAccount(sqlType, targetType, require, user));
+    }
+
+    protected final void addAccount(SecQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+        if (ctx == null) {
+            return;
+        }
+        String account;
+        if (ctx instanceof UserNameContext user) {
+            account = unquote(name(user.user));
+            if (user.host != null) {
+                String host = user.host.getText();
+                account += "@" + unquote(host.startsWith("@") ? host.substring(1) : host);
+            }
+        } else if (ctx instanceof RoleNameContext role && role.userName() != null) {
+            UserNameContext user = role.userName();
+            account = unquote(name(user.user));
+            if (user.host != null) {
+                String host = user.host.getText();
+                account += "@" + unquote(host.startsWith("@") ? host.substring(1) : host);
+            }
+        } else {
+            account = unquote(name(ctx));
+        }
+        addInstanceResource(sqlType, targetType, require, ctx, account);
+    }
+
+    private void addUnnamedResource(SecQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+        references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), List.of()));
+    }
+
+    private static <T extends ParseTree> List<T> descendants(ParseTree tree, Class<T> type) {
+        List<T> result = new ArrayList<>();
+        collectDescendants(tree, type, result);
+        return result;
+    }
+
+    private static <T extends ParseTree> void collectDescendants(ParseTree tree, Class<T> type, List<T> result) {
+        if (tree == null) {
+            return;
+        }
+        if (type.isInstance(tree)) {
+            result.add(type.cast(tree));
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collectDescendants(tree.getChild(i), type, result);
+        }
+    }
+
+    protected final void addConfigKey(MysqlVariableContext ctx) {
+        String variable = name(ctx);
+        while (variable.startsWith("@")) {
+            variable = variable.substring(1);
+        }
+        int scopeSeparator = variable.indexOf('.');
+        if (scopeSeparator >= 0 && scopeSeparator + 1 < variable.length()) {
+            variable = variable.substring(scopeSeparator + 1);
+        }
+        addInstanceResource(SecQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, variable);
+    }
+
+    private void addConfigKey(SecQueryType permission, VariableClauseContext ctx) {
+        String variable = name(ctx).replaceAll("\\s+", "");
+        while (variable.startsWith("@")) {
+            variable = variable.substring(1);
+        }
+        variable = variable.replaceFirst("(?i)^(GLOBAL|SESSION|LOCAL|PERSIST_ONLY|PERSIST)[.=]?", "");
+        addInstanceResource(permission, TargetType.ConfigKey, true, ctx, variable);
+    }
+
+    private void addFile(SecQueryType sqlType, boolean require, ParserRuleContext ctx) {
+        if (ctx == null) {
+            return;
+        }
+        String file = unquote(name(ctx));
+        List<String> nodes = new ArrayList<>();
+        for (String part : file.split("/")) {
+            addPart(nodes, part);
+        }
+        addWithNodes(sqlType, TargetType.File, require, ctx, nodes);
+    }
+
+    private void addInstanceResource(SecQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, String name) {
+        List<String> nodes = new ArrayList<>();
+        addPart(nodes, name);
+        addWithNodes(sqlType, targetType, require, ctx, nodes);
+    }
+
+    private void addWithNodes(SecQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> nodes) {
+        if (ctx == null || nodes.isEmpty()) {
+            return;
+        }
+        references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes));
+    }
+
+    private void addWithNodes(SecQueryType sqlType, TargetType targetType, boolean require, Token token, List<String> nodes) {
+        if (token == null || nodes.isEmpty()) {
+            return;
+        }
+        references.add(new MySqlObjectReference(sqlType, targetType, require, line(token), column(token), endLine(token), endColumn(token), nodes));
+    }
+
+    private static String unquote(String value) {
+        if (value == null || value.length() < 2) {
+            return value;
+        }
+        char first = value.charAt(0);
+        char last = value.charAt(value.length() - 1);
+        if ((first == '\'' && last == '\'') || (first == '"' && last == '"')) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
+    }
+
+    protected final void add(SecQueryType sqlType, TargetType targetType, TableNameContext ctx) {
+        add(sqlType, targetType, true, ctx);
+    }
+
+    protected final void addSessionVariable(Token token) {
+        if (token == null) {
+            return;
+        }
+        String variable = token.getText();
+        while (variable.startsWith("@")) {
+            variable = variable.substring(1);
+        }
+        List<String> nodes = new ArrayList<>();
+        addPart(nodes, variable);
+        addWithNodes(SecQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, token, nodes);
+    }
+
+    protected final void addConfigKey(SecQueryType sqlType, Token token, String variable) {
+        if (token == null || StringUtils.isBlank(variable)) {
+            return;
+        }
+        String normalized = variable.replaceFirst("^@+", "").replaceFirst("(?i)^(GLOBAL|SESSION|LOCAL)\\.", "");
+        if (normalized.length() >= 2 && normalized.startsWith("`") && normalized.endsWith("`")) {
+            normalized = normalized.substring(1, normalized.length() - 1).replace("``", "`");
+        }
+        List<String> nodes = new ArrayList<>();
+        addPart(nodes, normalized);
+        addWithNodes(sqlType, TargetType.ConfigKey, true, token, nodes);
+    }
+
+    private void add(SecQueryType sqlType, TargetType targetType, boolean require, TableNameContext ctx) {
+        if (ctx == null) {
+            return;
+        }
+        if (ctx.delphiName != null) {
+            List<String> parts = new ArrayList<>();
+            addPart(parts, name(ctx.delphiName));
+            add(sqlType, targetType, require, ctx, parts);
+        } else {
+            add(sqlType, targetType, require, ctx.fullId());
+        }
+    }
+
+    private void add(SecQueryType sqlType, TargetType targetType, ProcNameContext ctx) {
+        add(sqlType, targetType, true, ctx);
+    }
+
+    private void add(SecQueryType sqlType, TargetType targetType, boolean require, ProcNameContext ctx) {
+        if (ctx != null) {
+            add(sqlType, targetType, require, ctx.fullId());
+        }
+    }
+
+    private void add(SecQueryType sqlType, TargetType targetType, FullIdContext ctx) {
+        add(sqlType, targetType, true, ctx);
+    }
+
+    protected final void add(SecQueryType sqlType, TargetType targetType, boolean require, FullIdContext ctx) {
+        if (ctx == null) {
+            return;
+        }
+        List<String> parts = new ArrayList<>();
+        for (UidContext uid : ctx.uid()) {
+            addPart(parts, name(uid));
+        }
+        if (ctx.identifierAfterDot != null) {
+            addPart(parts, ctx.identifierAfterDot.getText());
+        }
+        add(sqlType, targetType, require, ctx, parts);
+    }
+
+    private void add(SecQueryType sqlType, TargetType targetType, ParserRuleContext ctx) {
+        add(sqlType, targetType, true, ctx);
+    }
+
+    protected final void add(SecQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+        if (ctx == null) {
+            return;
+        }
+        List<String> parts = new ArrayList<>();
+        addPart(parts, name(ctx));
+        add(sqlType, targetType, require, ctx, parts);
+    }
+
+    protected final void add(SecQueryType sqlType, TargetType targetType, boolean require, Token token) {
+        if (token == null || StringUtils.isBlank(token.getText())) {
+            return;
+        }
+        List<String> parts = new ArrayList<>();
+        addPart(parts, token.getText());
+        List<String> nodes = resolveNodes(targetType, parts);
+        addWithNodes(sqlType, targetType, require, token, nodes);
+    }
+
+    private void add(SecQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> parts) {
+        if (parts.isEmpty()) {
+            return;
+        }
+        List<String> nodes = resolveNodes(targetType, parts);
+        addWithNodes(sqlType, targetType, require, ctx, nodes);
+    }
+
+    private List<String> resolveNodes(TargetType type, List<String> parts) {
+        List<String> nodes = new ArrayList<>();
+        String catalog = level(UmiTypes.Catalog);
+        String schema = level(UmiTypes.Schema);
+
+        if (type == TargetType.Catalog) {
+            addPart(nodes, parts.get(parts.size() - 1));
+            return nodes;
+        }
+        if (type == TargetType.Schema) {
+            addPart(nodes, catalog);
+            addPart(nodes, parts.get(parts.size() - 1));
+            return nodes;
+        }
+
+        if (parts.size() >= 3) {
+            addPart(nodes, parts.get(parts.size() - 3));
+            addPart(nodes, parts.get(parts.size() - 2));
+            addPart(nodes, parts.get(parts.size() - 1));
+        } else if (parts.size() == 2) {
+            addPart(nodes, catalog);
+            addPart(nodes, parts.get(0));
+            addPart(nodes, parts.get(1));
+        } else {
+            addPart(nodes, catalog);
+            addPart(nodes, schema);
+            addPart(nodes, parts.get(0));
+        }
+        return nodes;
+    }
+
+    private String level(UmiTypes type) {
+        if (levelsParam == null || levelsParam.get(type) == null) {
+            return null;
+        }
+        return StringUtils.toString(levelsParam.get(type));
+    }
+
+    private void addPart(List<String> parts, String part) {
+        if (StringUtils.isNotBlank(part)) {
+            parts.add(part);
+        }
+    }
+
+    private String name(ParserRuleContext ctx) {
+        String text = parser.getTokenStream().getText(ctx.getStart(), ctx.getStop());
+        if (StringUtils.isBlank(text)) {
+            return text;
+        }
+        String value = text.trim();
+        if (value.length() >= 2 && ((value.charAt(0) == '`' && value.charAt(value.length() - 1) == '`') || (value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"'))) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
+    }
+
+    private int line(ParserRuleContext ctx) {
+        return line(ctx.getStart());
+    }
+
+    private int line(Token token) {
+        return token == null ? baseLine : Math.max(1, baseLine) + token.getLine() - 1;
+    }
+
+    private int column(ParserRuleContext ctx) {
+        return column(ctx.getStart());
+    }
+
+    private int column(Token token) {
+        if (token == null) {
+            return baseColumn;
+        }
+        return token.getLine() == 1 ? Math.max(0, baseColumn) + token.getCharPositionInLine() : token.getCharPositionInLine();
+    }
+
+    private int endLine(ParserRuleContext ctx) {
+        return endLine(ctx.getStop());
+    }
+
+    private int endLine(Token token) {
+        if (token == null) {
+            return baseLine;
+        }
+        String text = token.getText();
+        int lineCount = 0;
+        for (int i = 0; text != null && i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (ch == '\n') {
+                lineCount++;
+            } else if (ch == '\r' && (i + 1 == text.length() || text.charAt(i + 1) != '\n')) {
+                lineCount++;
+            }
+        }
+        return Math.max(1, baseLine) + token.getLine() - 1 + lineCount;
+    }
+
+    private int endColumn(ParserRuleContext ctx) {
+        return endColumn(ctx.getStop());
+    }
+
+    private int endColumn(Token token) {
+        if (token == null) {
+            return baseColumn;
+        }
+        String text = token.getText();
+        if (text == null) {
+            return token.getCharPositionInLine();
+        }
+        int lastLineBreak = Math.max(text.lastIndexOf('\n'), text.lastIndexOf('\r'));
+        if (lastLineBreak >= 0) {
+            return text.length() - lastLineBreak - 1;
+        }
+        int column = token.getCharPositionInLine() + text.length();
+        return token.getLine() == 1 ? Math.max(0, baseColumn) + column : column;
+    }
+}
