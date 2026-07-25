@@ -17,12 +17,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.antlr.AdsMyParserBaseVisitor;
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.antlr.AdsMyParser.*;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 
@@ -63,7 +59,7 @@ final class AdsMyStatementBehaviorVisitor extends AdsMyParserBaseVisitor<Void> {
     AdsMyStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        this.behavior.setStatementType(SecQueryType.UNKNOWN);
+        this.behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -72,7 +68,7 @@ final class AdsMyStatementBehaviorVisitor extends AdsMyParserBaseVisitor<Void> {
 
     @Override
     public Void visitTableName(TableNameContext ctx) {
-        addUnary(SecQueryType.SELECT, BehaviorAction.READ, table(ctx));
+        addUnary(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx));
         return null;
     }
 
@@ -97,7 +93,7 @@ final class AdsMyStatementBehaviorVisitor extends AdsMyParserBaseVisitor<Void> {
 
     @Override
     public Void visitCallStatement(CallStatementContext ctx) {
-        addUnary(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.procName().fullId()));
+        addUnary(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.procName().fullId()));
         return null;
     }
 
@@ -109,7 +105,7 @@ final class AdsMyStatementBehaviorVisitor extends AdsMyParserBaseVisitor<Void> {
                 targets.add(target);
             }
         }
-        addRelation(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, table(subjectContext), targets);
+        addRelation(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, table(subjectContext), targets);
     }
 
     private BehaviorObject table(TableNameContext context) {
@@ -138,11 +134,11 @@ final class AdsMyStatementBehaviorVisitor extends AdsMyParserBaseVisitor<Void> {
         return value;
     }
 
-    private void addUnary(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void addUnary(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         addRelation(type, action, subject, List.of());
     }
 
-    private void addRelation(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }

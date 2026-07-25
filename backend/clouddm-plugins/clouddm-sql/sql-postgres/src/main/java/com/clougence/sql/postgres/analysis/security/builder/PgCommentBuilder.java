@@ -15,7 +15,7 @@
  */
 package com.clougence.sql.postgres.analysis.security.builder;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
 import com.clougence.sql.common.analysis.secrules.builder.CommentBuilder;

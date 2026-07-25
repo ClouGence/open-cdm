@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSynonymDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -48,7 +48,7 @@ public class CreateSynonymBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         domain.setAuditKind(SecQueryKind.CREATE);
-        domain.setSqlType(SecQueryType.CREATE_SYNONYM);
+        domain.setSqlType(SplitQueryType.CREATE_SYNONYM);
 
         return Collections.singletonList(domain);
     }

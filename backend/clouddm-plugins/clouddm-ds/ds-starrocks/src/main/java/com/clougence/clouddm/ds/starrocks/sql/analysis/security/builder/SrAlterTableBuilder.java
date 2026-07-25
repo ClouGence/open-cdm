@@ -21,12 +21,12 @@ import java.util.Map;
 
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.domain.SrTableDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstraintDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbIndexDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -51,7 +51,7 @@ public class SrAlterTableBuilder extends AbstractDomainBuilder {
             srTableDomain.setCatalog(catalog);
             srTableDomain.setSchema(schema);
             srTableDomain.setTable(table);
-            srTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+            srTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
             srTableDomain.setAuditKind(SecQueryKind.ALTER);
             ruleDomains.add(srTableDomain);
         }
@@ -89,7 +89,7 @@ public class SrAlterTableBuilder extends AbstractDomainBuilder {
         } else if (source == DomainSource.OPTIONS) {
             SrTableDomain srTableDomain = new SrTableDomain();
             srTableDomain.setAuditKind(SecQueryKind.ALTER);
-            srTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+            srTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
             OptionsDomain optionsDomain = (OptionsDomain) list.get(0);
             srTableDomain.setOptions(optionsDomain.getOptions());
             this.ruleDomains.add(srTableDomain);

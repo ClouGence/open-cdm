@@ -15,12 +15,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 import com.clougence.sql.doris.parser.antlr.DorisParserBaseVisitor;
@@ -61,7 +57,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     DrStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        behavior.setStatementType(SecQueryType.UNKNOWN);
+        behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -70,14 +66,14 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitTableName(TableNameContext ctx) {
-        add(SecQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.multipartIdentifier()));
+        add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.multipartIdentifier()));
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitInsertTable(InsertTableContext ctx) {
-        SecQueryType type = ctx.OVERWRITE() == null ? SecQueryType.INSERT : SecQueryType.MERGE;
-        add(type, type == SecQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx.tableName), tableSources(ctx.query()));
+        SplitQueryType type = ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
+        add(type, type == SplitQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx.tableName), tableSources(ctx.query()));
         return null;
     }
 
@@ -85,7 +81,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitUpdate(UpdateContext ctx) {
         List<BehaviorObject> sources = tableSources(ctx.fromClause());
         addTableSources(sources, ctx.whereClause());
-        add(SecQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.tableName), sources);
+        add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.tableName), sources);
         return null;
     }
 
@@ -93,79 +89,79 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitDelete(DeleteContext ctx) {
         List<BehaviorObject> sources = tableSources(ctx.relations());
         addTableSources(sources, ctx.whereClause());
-        add(SecQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.tableName), sources);
+        add(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.tableName), sources);
         return null;
     }
 
     @Override
     public Void visitCreateTable(CreateTableContext ctx) {
-        add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.name), tableSources(ctx.query()));
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.name), tableSources(ctx.query()));
         return null;
     }
 
     @Override
     public Void visitCreateTableLike(CreateTableLikeContext ctx) {
-        add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.name), List.of(object(TargetType.Table, ctx.existedTable)));
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.name), List.of(object(TargetType.Table, ctx.existedTable)));
         return null;
     }
 
     @Override
     public Void visitCreateView(CreateViewContext ctx) {
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.name), tableSources(ctx.query()));
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.name), tableSources(ctx.query()));
         return null;
     }
 
     @Override
     public Void visitCreateMTMV(CreateMTMVContext ctx) {
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.mvName), tableSources(ctx.query()));
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.mvName), tableSources(ctx.query()));
         return null;
     }
 
     @Override
     public Void visitCreateIndex(CreateIndexContext ctx) {
-        add(SecQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, ctx.name), List.of(object(TargetType.Table, ctx.tableName)));
+        add(SplitQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, ctx.name), List.of(object(TargetType.Table, ctx.tableName)));
         return null;
     }
 
     @Override
     public Void visitCreateDatabase(CreateDatabaseContext ctx) {
-        add(SecQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.name));
+        add(SplitQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.name));
         return null;
     }
 
     @Override
     public Void visitDropDatabase(DropDatabaseContext ctx) {
-        add(SecQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.name));
+        add(SplitQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.name));
         return null;
     }
 
     @Override
     public Void visitDropTable(DropTableContext ctx) {
-        add(SecQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.name));
+        add(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.name));
         return null;
     }
 
     @Override
     public Void visitDropView(DropViewContext ctx) {
-        add(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.name));
+        add(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.name));
         return null;
     }
 
     @Override
     public Void visitDropMV(DropMVContext ctx) {
-        add(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.Materialized, ctx.mvName));
+        add(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.Materialized, ctx.mvName));
         return null;
     }
 
     @Override
     public Void visitDropIndex(DropIndexContext ctx) {
-        add(SecQueryType.DROP_INDEX, BehaviorAction.DROP, object(TargetType.Index, ctx.name), List.of(object(TargetType.Table, ctx.tableName)));
+        add(SplitQueryType.DROP_INDEX, BehaviorAction.DROP, object(TargetType.Index, ctx.name), List.of(object(TargetType.Table, ctx.tableName)));
         return null;
     }
 
     @Override
     public Void visitTruncateTable(TruncateTableContext ctx) {
-        add(SecQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.multipartIdentifier()));
+        add(SplitQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.multipartIdentifier()));
         return null;
     }
 
@@ -173,9 +169,9 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitRenameClause(RenameClauseContext ctx) {
         BehaviorObject source = renameSource(ctx);
         if (source != null) {
-            add(SecQueryType.RENAME_TABLE, BehaviorAction.RENAME, source, List.of(object(TargetType.Table, ctx.newName)));
+            add(SplitQueryType.RENAME_TABLE, BehaviorAction.RENAME, source, List.of(object(TargetType.Table, ctx.newName)));
         } else {
-            add(SecQueryType.RENAME_TABLE, BehaviorAction.RENAME, object(TargetType.Table, ctx.newName));
+            add(SplitQueryType.RENAME_TABLE, BehaviorAction.RENAME, object(TargetType.Table, ctx.newName));
         }
         return null;
     }
@@ -232,11 +228,11 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         return value;
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         add(type, action, subject, List.of());
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }
@@ -249,7 +245,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             }
         }
         behavior.getRelations().add(relation);
-        if (behavior.getStatementType() == SecQueryType.UNKNOWN || type != SecQueryType.SELECT) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN || type != SplitQueryType.SELECT) {
             behavior.setStatementType(type);
         }
     }

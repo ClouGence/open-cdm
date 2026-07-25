@@ -8,9 +8,8 @@ package com.clougence.sql.mongodb.analysis.behavior;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.Statement;
 import com.clougence.dslpaser.ast.StatementSet;
@@ -38,7 +37,7 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
                 continue;
             }
             MongoFuncType funcType = mongoFunc.getFuncType();
-            SecQueryType statementType = MongoAnalysisHelper.convert(funcType);
+            SplitQueryType statementType = MongoAnalysisHelper.convert(funcType);
             StatementBehavior behavior = new StatementBehavior();
             behavior.setStatementType(statementType);
 
@@ -64,7 +63,7 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         return result;
     }
 
-    private BehaviorAction action(SecQueryType type) {
+    private BehaviorAction action(SplitQueryType type) {
         return switch (type) {
             case SELECT, METADATA, PERFORMANCE, LOG_READ -> BehaviorAction.READ;
             case CREATE_TABLE, CREATE_VIEW, ADD_INDEX -> BehaviorAction.CREATE;

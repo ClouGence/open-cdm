@@ -19,9 +19,9 @@ import java.util.Collections;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUserDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -53,7 +53,7 @@ public class CreateUserBuilder<T extends RdbUserDomain> extends AbstractDomainBu
     @Override
     public List<Domain> build() {
         rdbUserDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbUserDomain.setSqlType(SecQueryType.CREATE_USER);
+        rdbUserDomain.setSqlType(SplitQueryType.CREATE_USER);
         return Collections.singletonList(rdbUserDomain);
     }
 }

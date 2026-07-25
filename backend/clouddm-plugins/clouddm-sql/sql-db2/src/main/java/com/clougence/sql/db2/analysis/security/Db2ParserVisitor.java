@@ -23,10 +23,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.db2.analysis.security.builder.Db2BuildFactory;
 import com.clougence.sql.db2.analysis.security.domain.*;
 import com.clougence.sql.db2.parser.antlr.Db2SqlParser;
@@ -44,7 +44,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreate_schema_statement(Db2SqlParser.Create_schema_statementContext ctx) {
-        Db2SchemaDomain domain = builder.newSchemaDomain(SecQueryType.CREATE_SCHEMA);
+        Db2SchemaDomain domain = builder.newSchemaDomain(SplitQueryType.CREATE_SCHEMA);
         domain.setAuditKind(SecQueryKind.CREATE);
         domain.setSchema(clean(ctx.schema_name() == null ? text(ctx.authorization_name()) : text(ctx.schema_name())));
         add(domain);
@@ -54,28 +54,28 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
     @Override
     public Void visitDrop_statement(Db2SqlParser.Drop_statementContext ctx) {
         if (ctx.schema_name() != null) {
-            Db2SchemaDomain domain = builder.newSchemaDomain(SecQueryType.DROP_SCHEMA);
+            Db2SchemaDomain domain = builder.newSchemaDomain(SplitQueryType.DROP_SCHEMA);
             domain.setAuditKind(SecQueryKind.DROP);
             domain.setIfExists(ctx.IF() != null);
             domain.setSchema(clean(text(ctx.schema_name())));
             add(domain);
         } else if (ctx.table_name() != null) {
-            Db2TableDomain domain = tableDomain(ctx, SecQueryType.DROP_TABLE, SecQueryKind.DROP, text(ctx.table_name()));
+            Db2TableDomain domain = tableDomain(ctx, SplitQueryType.DROP_TABLE, SecQueryKind.DROP, text(ctx.table_name()));
             domain.setIfExists(ctx.IF() != null);
             add(domain);
         } else if (ctx.index_name() != null) {
-            RdbIndexDomain domain = builder.newIndexDomain(SecQueryType.DROP_INDEX);
+            RdbIndexDomain domain = builder.newIndexDomain(SplitQueryType.DROP_INDEX);
             domain.setName(lastName(text(ctx.index_name())));
             add(domain);
         } else if (ctx.view_name() != null) {
-            add(viewDomain(SecQueryType.DROP_VIEW, SecQueryKind.DROP, text(ctx.view_name())));
+            add(viewDomain(SplitQueryType.DROP_VIEW, SecQueryKind.DROP, text(ctx.view_name())));
         }
         return null;
     }
 
     @Override
     public Void visitCreate_table_statement(Db2SqlParser.Create_table_statementContext ctx) {
-        Db2TableDomain table = tableDomain(ctx, SecQueryType.CREATE_TABLE, SecQueryKind.CREATE, text(ctx.table_name()));
+        Db2TableDomain table = tableDomain(ctx, SplitQueryType.CREATE_TABLE, SecQueryKind.CREATE, text(ctx.table_name()));
         table.setColumns(new ArrayList<>());
         Map<String, Db2ColumnDomain> columns = new LinkedHashMap<>();
         List<RuleDomain> children = new ArrayList<>();
@@ -94,7 +94,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlter_table_statement(Db2SqlParser.Alter_table_statementContext ctx) {
-        Db2TableDomain table = tableDomain(ctx, SecQueryType.ALTER_TABLE, SecQueryKind.ALTER, text(ctx.table_name(0)));
+        Db2TableDomain table = tableDomain(ctx, SplitQueryType.ALTER_TABLE, SecQueryKind.ALTER, text(ctx.table_name(0)));
         table.setColumns(new ArrayList<>());
         Map<String, Db2ColumnDomain> columns = new LinkedHashMap<>();
         List<RuleDomain> children = new ArrayList<>();
@@ -109,7 +109,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
     @Override
     public Void visitRename_statement(Db2SqlParser.Rename_statementContext ctx) {
         if (ctx.source_table_name() != null) {
-            Db2TableDomain domain = tableDomain(ctx, SecQueryType.RENAME_TABLE, SecQueryKind.ALTER, text(ctx.source_table_name()));
+            Db2TableDomain domain = tableDomain(ctx, SplitQueryType.RENAME_TABLE, SecQueryKind.ALTER, text(ctx.source_table_name()));
             domain.setNewName(lastName(text(ctx.target_identifier())));
             add(domain);
         }
@@ -118,7 +118,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitTruncate_statement(Db2SqlParser.Truncate_statementContext ctx) {
-        add(tableDomain(ctx, SecQueryType.TRUNCATE_TABLE, SecQueryKind.DML, text(ctx.table_name())));
+        add(tableDomain(ctx, SplitQueryType.TRUNCATE_TABLE, SecQueryKind.DML, text(ctx.table_name())));
         return null;
     }
 
@@ -126,7 +126,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
     public Void visitComment_statement(Db2SqlParser.Comment_statementContext ctx) {
         if (ctx.comment_objects() != null) {
             if (ctx.comment_objects().TABLE() != null) {
-                Db2TableDomain domain = tableDomain(ctx, SecQueryType.COMMENT_TABLE, SecQueryKind.ALTER, text(ctx.comment_objects().table_or_view_name()));
+                Db2TableDomain domain = tableDomain(ctx, SplitQueryType.COMMENT_TABLE, SecQueryKind.ALTER, text(ctx.comment_objects().table_or_view_name()));
                 domain.setComment(commentText(ctx.string_constant()));
                 add(domain);
             } else if (ctx.comment_objects().COLUMN() != null) {
@@ -141,7 +141,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
     @Override
     public Void visitCreate_index_statement(Db2SqlParser.Create_index_statementContext ctx) {
         NameParts table = parts(ctx.table_name() == null ? text(ctx.nick_name()) : text(ctx.table_name()));
-        RdbIndexDomain domain = builder.newIndexDomain(SecQueryType.ADD_INDEX);
+        RdbIndexDomain domain = builder.newIndexDomain(SplitQueryType.ADD_INDEX);
         domain.setName(lastName(text(ctx.index_name())));
         domain.setTableCatalog(table.catalog);
         domain.setTableSchema(table.schema);
@@ -153,7 +153,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreate_view_statement(Db2SqlParser.Create_view_statementContext ctx) {
-        add(viewDomain(SecQueryType.CREATE_VIEW, SecQueryKind.CREATE, text(ctx.view_name())));
+        add(viewDomain(SplitQueryType.CREATE_VIEW, SecQueryKind.CREATE, text(ctx.view_name())));
         if (ctx.fullselect() != null) {
             add(selectDomain(ctx.fullselect(), RdbQueryMode.NORMAL));
         }
@@ -162,7 +162,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlter_view_statement(Db2SqlParser.Alter_view_statementContext ctx) {
-        add(viewDomain(SecQueryType.ALTER_VIEW, SecQueryKind.ALTER, text(ctx.view_name())));
+        add(viewDomain(SplitQueryType.ALTER_VIEW, SecQueryKind.ALTER, text(ctx.view_name())));
         return null;
     }
 
@@ -257,17 +257,17 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     private void collectCreateTableItem(Db2TableDomain table, Map<String, Db2ColumnDomain> columns, List<RuleDomain> children, Db2SqlParser.Element_list_itemContext item) {
         if (item.column_definition() != null) {
-            Db2ColumnDomain column = columnDomain(table, item.column_definition(), SecQueryType.CREATE_TABLE, SecQueryKind.CREATE);
+            Db2ColumnDomain column = columnDomain(table, item.column_definition(), SplitQueryType.CREATE_TABLE, SecQueryKind.CREATE);
             children.add(column);
             table.getColumns().add(column.getColumn());
             columns.put(column.getColumn(), column);
             markColumnConstraint(table, column);
         } else if (item.index_name() != null) {
-            RdbIndexDomain index = indexDomain(table, text(item.index_name()), item.index_col_opts(), SecQueryType.CREATE_TABLE);
+            RdbIndexDomain index = indexDomain(table, text(item.index_name()), item.index_col_opts(), SplitQueryType.CREATE_TABLE);
             children.add(index);
             table.setHasIndex(true);
         } else {
-            RdbConstraintDomain constraint = constraintDomain(table, item, SecQueryType.CREATE_TABLE);
+            RdbConstraintDomain constraint = constraintDomain(table, item, SplitQueryType.CREATE_TABLE);
             if (constraint != null) {
                 children.add(constraint);
                 markTableConstraint(table, columns, constraint);
@@ -277,36 +277,36 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     private void collectAlterTableOpt(Db2TableDomain table, Map<String, Db2ColumnDomain> columns, List<RuleDomain> children, Db2SqlParser.Alter_table_optsContext opt) {
         if (opt.column_definition() != null) {
-            Db2ColumnDomain column = columnDomain(table, opt.column_definition(), SecQueryType.ADD_COLUMN, SecQueryKind.ALTER);
+            Db2ColumnDomain column = columnDomain(table, opt.column_definition(), SplitQueryType.ADD_COLUMN, SecQueryKind.ALTER);
             children.add(column);
             table.getColumns().add(column.getColumn());
             columns.put(column.getColumn(), column);
             markColumnConstraint(table, column);
         } else if (opt.unique_constraint() != null || opt.referential_constraint() != null || opt.check_constraint() != null) {
-            RdbConstraintDomain constraint = constraintDomain(table, opt, SecQueryType.ADD_CONSTRAINT);
+            RdbConstraintDomain constraint = constraintDomain(table, opt, SplitQueryType.ADD_CONSTRAINT);
             if (constraint != null) {
                 children.add(constraint);
                 markTableConstraint(table, columns, constraint);
             }
         } else if (opt.index_name() != null) {
-            RdbIndexDomain index = indexDomain(table, text(opt.index_name()), opt.index_col_opts(), SecQueryType.ADD_INDEX);
+            RdbIndexDomain index = indexDomain(table, text(opt.index_name()), opt.index_col_opts(), SplitQueryType.ADD_INDEX);
             children.add(index);
             table.setHasIndex(true);
         } else if (opt.s != null && opt.t != null) {
-            Db2ColumnDomain column = simpleColumnDomain(table, text(opt.s), SecQueryType.RENAME_COLUMN, SecQueryKind.ALTER);
+            Db2ColumnDomain column = simpleColumnDomain(table, text(opt.s), SplitQueryType.RENAME_COLUMN, SecQueryKind.ALTER);
             column.setNewName(clean(text(opt.t)));
             children.add(column);
         } else if (opt.target_identifier() != null) {
-            table.setSqlType(SecQueryType.RENAME_TABLE);
+            table.setSqlType(SplitQueryType.RENAME_TABLE);
             table.setNewName(lastName(text(opt.target_identifier())));
         } else if (opt.column_name().size() == 1 && opt.DROP().size() > 0) {
-            children.add(simpleColumnDomain(table, text(opt.column_name(0)), SecQueryType.DROP_COLUMN, SecQueryKind.ALTER));
+            children.add(simpleColumnDomain(table, text(opt.column_name(0)), SplitQueryType.DROP_COLUMN, SecQueryKind.ALTER));
         }
     }
 
     private void commentColumn(Db2SqlParser.Comment_statementContext ctx) {
         NameParts table = parts(text(ctx.comment_objects().table_or_view_name()));
-        Db2ColumnDomain domain = builder.newColumnDomain(SecQueryType.COMMENT_COLUMN, SecQueryKind.ALTER);
+        Db2ColumnDomain domain = builder.newColumnDomain(SplitQueryType.COMMENT_COLUMN, SecQueryKind.ALTER);
         domain.setCatalog(table.catalog);
         domain.setSchema(table.schema);
         domain.setTable(table.name);
@@ -318,7 +318,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
     private void commentColumns(Db2SqlParser.Comment_statementContext ctx) {
         NameParts table = parts(text(ctx.table_or_view_name()));
         for (Db2SqlParser.Column_commentContext columnComment : ctx.column_comment()) {
-            Db2ColumnDomain domain = builder.newColumnDomain(SecQueryType.COMMENT_COLUMN, SecQueryKind.ALTER);
+            Db2ColumnDomain domain = builder.newColumnDomain(SplitQueryType.COMMENT_COLUMN, SecQueryKind.ALTER);
             domain.setCatalog(table.catalog);
             domain.setSchema(table.schema);
             domain.setTable(table.name);
@@ -375,7 +375,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
     }
 
     private void collectTable(Db2SelectDomain domain, Db2SqlParser.Singles_table_referenceContext tableReference) {
-        Db2TableDomain table = tableDomain(tableReference, SecQueryType.SELECT, SecQueryKind.QUERY, text(tableReference.table_name()));
+        Db2TableDomain table = tableDomain(tableReference, SplitQueryType.SELECT, SecQueryKind.QUERY, text(tableReference.table_name()));
         if (tableReference.correlation_clause() != null) {
             table.setAlias(clean(text(tableReference.correlation_clause().correlation_name())));
         }
@@ -391,7 +391,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         }
     }
 
-    private Db2ColumnDomain columnDomain(Db2TableDomain table, Db2SqlParser.Column_definitionContext definition, SecQueryType type, SecQueryKind kind) {
+    private Db2ColumnDomain columnDomain(Db2TableDomain table, Db2SqlParser.Column_definitionContext definition, SplitQueryType type, SecQueryKind kind) {
         Db2ColumnDomain domain = simpleColumnDomain(table, text(definition.column_name()), type, kind);
         if (definition.data_type() != null) {
             domain.setTypeDesc(text(definition.data_type()));
@@ -403,7 +403,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return domain;
     }
 
-    private Db2ColumnDomain columnDomain(Db2TableDomain table, String definition, SecQueryType type, SecQueryKind kind) {
+    private Db2ColumnDomain columnDomain(Db2TableDomain table, String definition, SplitQueryType type, SecQueryKind kind) {
         Db2ColumnDomain domain = simpleColumnDomain(table, firstIdentifier(definition), type, kind);
         domain.setTypeDesc(definition);
         domain.setTypeName(firstIdentifier(definition));
@@ -428,7 +428,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         }
     }
 
-    private Db2ColumnDomain simpleColumnDomain(Db2TableDomain table, String column, SecQueryType type, SecQueryKind kind) {
+    private Db2ColumnDomain simpleColumnDomain(Db2TableDomain table, String column, SplitQueryType type, SecQueryKind kind) {
         Db2ColumnDomain domain = builder.newColumnDomain(type, kind);
         domain.setCatalog(table.getCatalog());
         domain.setSchema(table.getSchema());
@@ -437,7 +437,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return domain;
     }
 
-    private RdbConstraintDomain constraintDomain(Db2TableDomain table, Db2SqlParser.Element_list_itemContext item, SecQueryType type) {
+    private RdbConstraintDomain constraintDomain(Db2TableDomain table, Db2SqlParser.Element_list_itemContext item, SplitQueryType type) {
         if (item.unique_constraint() != null) {
             return uniqueConstraintDomain(table, item.unique_constraint(), type);
         }
@@ -450,7 +450,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return null;
     }
 
-    private RdbConstraintDomain constraintDomain(Db2TableDomain table, Db2SqlParser.Alter_table_optsContext opt, SecQueryType type) {
+    private RdbConstraintDomain constraintDomain(Db2TableDomain table, Db2SqlParser.Alter_table_optsContext opt, SplitQueryType type) {
         if (opt.unique_constraint() != null) {
             return uniqueConstraintDomain(table, opt.unique_constraint(), type);
         }
@@ -463,13 +463,13 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return null;
     }
 
-    private RdbConstraintDomain constraintDomain(Db2TableDomain table, String text, SecQueryType type) {
+    private RdbConstraintDomain constraintDomain(Db2TableDomain table, String text, SplitQueryType type) {
         RdbConstraintDomain domain = baseConstraint(table, type);
         domain.setColumns(new ArrayList<>());
         return domain;
     }
 
-    private RdbConstraintDomain uniqueConstraintDomain(Db2TableDomain table, Db2SqlParser.Unique_constraintContext constraint, SecQueryType type) {
+    private RdbConstraintDomain uniqueConstraintDomain(Db2TableDomain table, Db2SqlParser.Unique_constraintContext constraint, SplitQueryType type) {
         RdbConstraintDomain domain = baseConstraint(table, type);
         domain.setType(constraint.PRIMARY() == null ? SqlConstraintType.Unique : SqlConstraintType.Primary);
         if (constraint.constraint_name() != null) {
@@ -479,7 +479,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return domain;
     }
 
-    private RdbConstraintDomain referentialConstraintDomain(Db2TableDomain table, Db2SqlParser.Referential_constraintContext constraint, SecQueryType type) {
+    private RdbConstraintDomain referentialConstraintDomain(Db2TableDomain table, Db2SqlParser.Referential_constraintContext constraint, SplitQueryType type) {
         RdbConstraintDomain domain = baseConstraint(table, type);
         domain.setType(SqlConstraintType.ForeignKey);
         if (constraint.constraint_name() != null) {
@@ -489,7 +489,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return domain;
     }
 
-    private RdbConstraintDomain checkConstraintDomain(Db2TableDomain table, Db2SqlParser.Check_constraintContext constraint, SecQueryType type) {
+    private RdbConstraintDomain checkConstraintDomain(Db2TableDomain table, Db2SqlParser.Check_constraintContext constraint, SplitQueryType type) {
         RdbConstraintDomain domain = baseConstraint(table, type);
         domain.setType(SqlConstraintType.Check);
         if (constraint.constraint_name() != null) {
@@ -499,7 +499,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return domain;
     }
 
-    private RdbConstraintDomain baseConstraint(Db2TableDomain table, SecQueryType type) {
+    private RdbConstraintDomain baseConstraint(Db2TableDomain table, SplitQueryType type) {
         RdbConstraintDomain domain = builder.newConstraintDomain(type);
         domain.setTableCatalog(table.getCatalog());
         domain.setTableSchema(table.getSchema());
@@ -509,7 +509,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return domain;
     }
 
-    private RdbIndexDomain indexDomain(Db2TableDomain table, String name, Db2SqlParser.Index_col_optsContext columns, SecQueryType type) {
+    private RdbIndexDomain indexDomain(Db2TableDomain table, String name, Db2SqlParser.Index_col_optsContext columns, SplitQueryType type) {
         RdbIndexDomain domain = builder.newIndexDomain(type);
         domain.setTableCatalog(table.getCatalog());
         domain.setTableSchema(table.getSchema());
@@ -519,7 +519,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return domain;
     }
 
-    private RdbIndexDomain indexDomain(Db2TableDomain table, String text, SecQueryType type) {
+    private RdbIndexDomain indexDomain(Db2TableDomain table, String text, SplitQueryType type) {
         RdbIndexDomain domain = builder.newIndexDomain(type);
         domain.setTableCatalog(table.getCatalog());
         domain.setTableSchema(table.getSchema());
@@ -529,7 +529,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return domain;
     }
 
-    private Db2TableDomain tableDomain(ParserRuleContext ctx, SecQueryType type, SecQueryKind kind, String rawName) {
+    private Db2TableDomain tableDomain(ParserRuleContext ctx, SplitQueryType type, SecQueryKind kind, String rawName) {
         NameParts name = parts(rawName);
         Db2TableDomain domain = builder.newTableDomain(type, kind);
         domain.setCatalog(name.catalog);
@@ -538,7 +538,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
         return domain;
     }
 
-    private RdbViewDomain viewDomain(SecQueryType type, SecQueryKind kind, String rawName) {
+    private RdbViewDomain viewDomain(SplitQueryType type, SecQueryKind kind, String rawName) {
         NameParts name = parts(rawName);
         RdbViewDomain domain = builder.newViewDomain(type);
         domain.setAuditKind(kind);

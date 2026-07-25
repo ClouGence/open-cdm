@@ -18,7 +18,7 @@ package com.clougence.clouddm.sdk.sql.analysis.security;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.Spi;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 
 /**
  * @author mode 2020-01-20 21:04

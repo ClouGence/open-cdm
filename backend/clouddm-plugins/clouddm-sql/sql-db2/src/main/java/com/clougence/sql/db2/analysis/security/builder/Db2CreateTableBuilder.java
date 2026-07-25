@@ -9,7 +9,7 @@
 package com.clougence.sql.db2.analysis.security.builder;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.db2.analysis.security.domain.Db2TableDomain;
 
@@ -19,7 +19,7 @@ public class Db2CreateTableBuilder extends CreateTableBuilder<Db2TableDomain> {
     protected Db2TableDomain getTableDomain() {
         Db2TableDomain domain = new Db2TableDomain();
         domain.setAuditKind(SecQueryKind.CREATE);
-        domain.setSqlType(SecQueryType.CREATE_TABLE);
+        domain.setSqlType(SplitQueryType.CREATE_TABLE);
         return domain;
     }
 }

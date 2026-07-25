@@ -17,11 +17,11 @@ package com.clougence.sql.postgres.analysis.security.builder;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCatalogDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.DomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -47,7 +47,7 @@ public class PgAlterOwnerBuilder implements DomainBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Catalog) {
             RdbCatalogDomain domain = new PgCatalogDomain();
-            domain.setSqlType(SecQueryType.ALTER_CATALOG);
+            domain.setSqlType(SplitQueryType.ALTER_CATALOG);
             domain.setAuditKind(SecQueryKind.ALTER);
             domain.setCatalog(nameList.get(0));
             domain.setOptions(new HashMap<>());
@@ -59,7 +59,7 @@ public class PgAlterOwnerBuilder implements DomainBuilder {
             return Collections.singletonList(domain);
         } else if (targetType == TargetType.Schema) {
             PgSchemaDomain domain = new PgSchemaDomain();
-            domain.setSqlType(SecQueryType.ALTER_SCHEMA);
+            domain.setSqlType(SplitQueryType.ALTER_SCHEMA);
             domain.setAuditKind(SecQueryKind.ALTER);
             Map<UmiTypes, String> map = BuilderUtil.parseSchemaName(nameList);
             domain.setCatalog(map.get(UmiTypes.Catalog));

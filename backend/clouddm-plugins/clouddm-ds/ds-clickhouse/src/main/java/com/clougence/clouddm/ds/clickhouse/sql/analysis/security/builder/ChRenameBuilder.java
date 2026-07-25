@@ -18,12 +18,13 @@ package com.clougence.clouddm.ds.clickhouse.sql.analysis.security.builder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.domain.ChSchemaDomain;
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.domain.ChTableDomain;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -46,7 +47,7 @@ public class ChRenameBuilder extends AbstractDomainBuilder {
         if (targetType == TargetType.Table) {
             ChTableDomain domain = new ChTableDomain();
             domain.setAuditKind(SecQueryKind.ALTER);
-            domain.setSqlType(SecQueryType.RENAME_TABLE);
+            domain.setSqlType(SplitQueryType.RENAME_TABLE);
 
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(oldName.getNameList());
             domain.setSchema(map.get(UmiTypes.Schema));
@@ -60,7 +61,7 @@ public class ChRenameBuilder extends AbstractDomainBuilder {
         } else if (targetType == TargetType.Schema) {
             ChSchemaDomain domain = new ChSchemaDomain();
             domain.setAuditKind(SecQueryKind.ALTER);
-            domain.setSqlType(SecQueryType.RENAME_SCHEMA);
+            domain.setSqlType(SplitQueryType.RENAME_SCHEMA);
             Map<UmiTypes, String> map = BuilderUtil.parseSchemaName(oldName.getNameList());
             domain.setSchema(map.get(UmiTypes.Schema));
 

@@ -10,10 +10,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
 
@@ -32,7 +32,7 @@ public class HanaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         }
         return splitAnalysisSpi.splitScript(query, Collections.emptyList(), baseLine, baseColumn).stream().map(script -> {
             StatementBehavior behavior = new StatementBehavior();
-            behavior.setStatementType(script.getType().stream().findFirst().orElse(SecQueryType.UNKNOWN));
+            behavior.setStatementType(script.getType().stream().findFirst().orElse(SplitQueryType.UNKNOWN));
             return behavior;
         }).toList();
     }

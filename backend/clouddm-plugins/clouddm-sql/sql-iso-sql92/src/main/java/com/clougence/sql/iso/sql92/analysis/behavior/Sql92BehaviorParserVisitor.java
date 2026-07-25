@@ -14,12 +14,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 import com.clougence.sql.iso.sql92.parser.antlr.Sql92Parser;
@@ -59,7 +55,7 @@ final class Sql92StatementBehaviorVisitor extends Sql92ParserBaseVisitor<Void> {
 
     Sql92StatementBehaviorVisitor(Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        this.behavior.setStatementType(SecQueryType.UNKNOWN);
+        this.behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -68,85 +64,85 @@ final class Sql92StatementBehaviorVisitor extends Sql92ParserBaseVisitor<Void> {
 
     @Override
     public Void visitCrossJoin(CrossJoinContext ctx) {
-        addUnary(SecQueryType.SELECT, BehaviorAction.READ, table(ctx.tableName()));
+        addUnary(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx.tableName()));
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitExplicitTable(ExplicitTableContext ctx) {
-        addUnary(SecQueryType.SELECT, BehaviorAction.READ, table(ctx.tableName()));
+        addUnary(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx.tableName()));
         return null;
     }
 
     @Override
     public Void visitSchemaDefinition(SchemaDefinitionContext ctx) {
-        addUnary(SecQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.schemaName()));
+        addUnary(SplitQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.schemaName()));
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitDropSchemaStatement(DropSchemaStatementContext ctx) {
-        addUnary(SecQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.schemaName()));
+        addUnary(SplitQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.schemaName()));
         return null;
     }
 
     @Override
     public Void visitTableDefinition(TableDefinitionContext ctx) {
-        addUnary(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, table(ctx.tableName()));
+        addUnary(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, table(ctx.tableName()));
         return null;
     }
 
     @Override
     public Void visitAlterTableStatement(AlterTableStatementContext ctx) {
-        addUnary(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, table(ctx.tableName()));
+        addUnary(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, table(ctx.tableName()));
         return null;
     }
 
     @Override
     public Void visitDropTableStatement(DropTableStatementContext ctx) {
-        addUnary(SecQueryType.DROP_TABLE, BehaviorAction.DROP, table(ctx.tableName()));
+        addUnary(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, table(ctx.tableName()));
         return null;
     }
 
     @Override
     public Void visitViewDefinition(ViewDefinitionContext ctx) {
-        addRelation(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.tableName()), sources(ctx.non_joinQueryExpression()));
+        addRelation(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.tableName()), sources(ctx.non_joinQueryExpression()));
         return null;
     }
 
     @Override
     public Void visitDropViewStatement(DropViewStatementContext ctx) {
-        addUnary(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.tableName()));
+        addUnary(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.tableName()));
         return null;
     }
 
     @Override
     public Void visitInsertStatement(InsertStatementContext ctx) {
-        addRelation(SecQueryType.INSERT, BehaviorAction.INSERT, table(ctx.tableName()), sources(ctx.insertColumnsAndSource()));
+        addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, table(ctx.tableName()), sources(ctx.insertColumnsAndSource()));
         return null;
     }
 
     @Override
     public Void visitUpdateStatement_Positioned(UpdateStatement_PositionedContext ctx) {
-        addUnary(SecQueryType.UPDATE, BehaviorAction.UPDATE, table(ctx.tableName()));
+        addUnary(SplitQueryType.UPDATE, BehaviorAction.UPDATE, table(ctx.tableName()));
         return null;
     }
 
     @Override
     public Void visitUpdateStatement_Searched(UpdateStatement_SearchedContext ctx) {
-        addRelation(SecQueryType.UPDATE, BehaviorAction.UPDATE, table(ctx.tableName()), sources(ctx.searchCondition()));
+        addRelation(SplitQueryType.UPDATE, BehaviorAction.UPDATE, table(ctx.tableName()), sources(ctx.searchCondition()));
         return null;
     }
 
     @Override
     public Void visitDeleteStatement_Positioned(DeleteStatement_PositionedContext ctx) {
-        addUnary(SecQueryType.DELETE, BehaviorAction.DELETE, table(ctx.tableName()));
+        addUnary(SplitQueryType.DELETE, BehaviorAction.DELETE, table(ctx.tableName()));
         return null;
     }
 
     @Override
     public Void visitDeleteStatement_Searched(DeleteStatement_SearchedContext ctx) {
-        addRelation(SecQueryType.DELETE, BehaviorAction.DELETE, table(ctx.tableName()), sources(ctx.searchCondition()));
+        addRelation(SplitQueryType.DELETE, BehaviorAction.DELETE, table(ctx.tableName()), sources(ctx.searchCondition()));
         return null;
     }
 
@@ -175,11 +171,11 @@ final class Sql92StatementBehaviorVisitor extends Sql92ParserBaseVisitor<Void> {
         }
     }
 
-    private void addUnary(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void addUnary(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         addRelation(type, action, subject, List.of());
     }
 
-    private void addRelation(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }
@@ -188,7 +184,7 @@ final class Sql92StatementBehaviorVisitor extends Sql92ParserBaseVisitor<Void> {
         relation.setAction(action);
         relation.getTarget().addAll(targets);
         behavior.getRelations().add(relation);
-        if (behavior.getStatementType() == SecQueryType.UNKNOWN) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN) {
             behavior.setStatementType(type);
         }
     }

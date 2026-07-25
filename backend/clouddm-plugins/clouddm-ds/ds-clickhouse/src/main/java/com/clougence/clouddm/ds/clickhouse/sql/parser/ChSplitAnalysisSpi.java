@@ -26,7 +26,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.antlr.ClickHouseParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -40,51 +40,51 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return ChSqlDslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return ChSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof ClickHouseParser.SelectUnionStmtContext && isExecutedDmlQuery(tree)) {
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (tree instanceof ClickHouseParser.AlterTableClauseAddColumnContext) {
-            return SecQueryType.ADD_COLUMN;
+            return SplitQueryType.ADD_COLUMN;
         }
         if (tree instanceof ClickHouseParser.AlterTableClauseDropColumnContext) {
-            return SecQueryType.DROP_COLUMN;
+            return SplitQueryType.DROP_COLUMN;
         }
         if (tree instanceof ClickHouseParser.AlterTableClauseCommentContext) {
-            return SecQueryType.COMMENT_COLUMN;
+            return SplitQueryType.COMMENT_COLUMN;
         }
         if (tree instanceof ClickHouseParser.AlterTableClauseRenameColumnContext) {
-            return SecQueryType.RENAME_COLUMN;
+            return SplitQueryType.RENAME_COLUMN;
         }
         if (tree instanceof ClickHouseParser.AlterTableAlterColumnContext || tree instanceof ClickHouseParser.AlterTableModifyColumnContext
             || tree instanceof ClickHouseParser.AlterTableModifyColumnDefaultContext) {
-            return SecQueryType.ALTER_COLUMN;
+            return SplitQueryType.ALTER_COLUMN;
         }
         if (tree instanceof ClickHouseParser.AlterTableClauseDropPartitionContext) {
-            return SecQueryType.DROP_PARTITION;
+            return SplitQueryType.DROP_PARTITION;
         }
         if (tree instanceof ClickHouseParser.AlterTableClauseAddIndexContext) {
-            return SecQueryType.ADD_INDEX;
+            return SplitQueryType.ADD_INDEX;
         }
         if (tree instanceof ClickHouseParser.AlterTableClauseDropIndexContext) {
-            return SecQueryType.DROP_INDEX;
+            return SplitQueryType.DROP_INDEX;
         }
         if (tree instanceof ClickHouseParser.AlterTableClauseClearColumnContext) {
-            return SecQueryType.TRUNCATE_COLUMN;
+            return SplitQueryType.TRUNCATE_COLUMN;
         }
         if (tree instanceof ClickHouseParser.AlterTableModifyCommentContext) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (tree instanceof ClickHouseParser.CommentClauseContext) {
             return commentType(tree);
         }
         if (tree instanceof ClickHouseParser.ColumnExprFunctionContext function && KNOWN_USER_FUNCTIONS.contains(function.identifier().getText().toLowerCase(Locale.ROOT))) {
-            return SecQueryType.CALL_PROG_OBJ;
+            return SplitQueryType.CALL_PROG_OBJ;
         }
         return null;
     }
@@ -112,13 +112,13 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return false;
     }
 
-    private SecQueryType commentType(ParseTree tree) {
+    private SplitQueryType commentType(ParseTree tree) {
         for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
             if (current instanceof ClickHouseParser.AlterTableAlterColumnContext || current instanceof ClickHouseParser.AlterTableModifyColumnContext) {
-                return SecQueryType.COMMENT_COLUMN;
+                return SplitQueryType.COMMENT_COLUMN;
             }
             if (current instanceof ClickHouseParser.CreateTableStmtContext) {
-                return SecQueryType.COMMENT_TABLE;
+                return SplitQueryType.COMMENT_TABLE;
             }
         }
         return null;

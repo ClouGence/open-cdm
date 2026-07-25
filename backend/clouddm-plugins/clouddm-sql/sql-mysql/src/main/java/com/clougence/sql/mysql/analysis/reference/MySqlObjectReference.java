@@ -17,8 +17,8 @@ package com.clougence.sql.mysql.analysis.reference;
 
 import java.util.List;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 /**
  * Neutral object fact emitted directly from the MySQL parse tree.
@@ -26,7 +26,7 @@ import com.clougence.clouddm.sdk.security.auth.SecQueryType;
  * <p>Behavior analysis consumes this parser fact before console-side resource action conversion.
  * It carries no permission-check policy.</p>
  */
-public record MySqlObjectReference(SecQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn, List<String> nodes) {
+public record MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn, List<String> nodes) {
 
     public MySqlObjectReference{
         nodes = nodes == null ? List.of() : List.copyOf(nodes);

@@ -21,23 +21,23 @@ import java.util.Map;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.builder.utils.McBuilderUtil;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McColumnDomain;
+import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstraintDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ColumnListDomain;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstraintDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.schema.umi.struts.UmiTypes;
 
 public class McAlterTableBuilder extends AbstractDomainBuilder {
 
-    private Map<UmiTypes, String> map;
-    private List<Domain>          ruleDomains = new ArrayList<>();
-    private final boolean         schemaEnables;
+    private       Map<UmiTypes, String> map;
+    private final List<Domain>          ruleDomains = new ArrayList<>();
+    private final boolean               schemaEnables;
 
     public McAlterTableBuilder(boolean schemaEnables){
         this.schemaEnables = schemaEnables;
@@ -50,18 +50,15 @@ public class McAlterTableBuilder extends AbstractDomainBuilder {
         String catalog = map.get(UmiTypes.Catalog);
 
         for (Domain ruleDomain : ruleDomains) {
-            if (ruleDomain instanceof RdbColumnDomain) {
-                RdbColumnDomain columnDomain = (RdbColumnDomain) ruleDomain;
+            if (ruleDomain instanceof RdbColumnDomain columnDomain) {
                 columnDomain.setTable(table);
                 columnDomain.setSchema(schema);
                 columnDomain.setCatalog(catalog);
-            } else if (ruleDomain instanceof RdbConstraintDomain) {
-                RdbConstraintDomain constraintDomain = (RdbConstraintDomain) ruleDomain;
+            } else if (ruleDomain instanceof RdbConstraintDomain constraintDomain) {
                 constraintDomain.setTableSchema(schema);
                 constraintDomain.setTableName(table);
                 constraintDomain.setTableCatalog(catalog);
-            } else if (ruleDomain instanceof RdbTableDomain) {
-                RdbTableDomain indexDomain = (RdbTableDomain) ruleDomain;
+            } else if (ruleDomain instanceof RdbTableDomain indexDomain) {
                 indexDomain.setTable(table);
                 indexDomain.setSchema(schema);
                 indexDomain.setCatalog(catalog);
@@ -82,7 +79,7 @@ public class McAlterTableBuilder extends AbstractDomainBuilder {
             for (Domain domain : list) {
                 RdbColumnDomain domainColumn = (RdbColumnDomain) domain;
                 domainColumn.setAuditKind(SecQueryKind.CREATE);
-                domainColumn.setSqlType(SecQueryType.ADD_COLUMN);
+                domainColumn.setSqlType(SplitQueryType.ADD_COLUMN);
             }
             this.ruleDomains.addAll(list);
         } else if (source == DomainSource.COLUMN_LIST) {
@@ -90,7 +87,7 @@ public class McAlterTableBuilder extends AbstractDomainBuilder {
             for (String column : domain.getColumns()) {
                 McColumnDomain rdbColumnDomain = new McColumnDomain();
                 rdbColumnDomain.setAuditKind(SecQueryKind.DROP);
-                rdbColumnDomain.setSqlType(SecQueryType.DROP_COLUMN);
+                rdbColumnDomain.setSqlType(SplitQueryType.DROP_COLUMN);
                 rdbColumnDomain.setColumn(column);
                 this.ruleDomains.add(rdbColumnDomain);
             }

@@ -10,10 +10,10 @@ import java.util.List;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.antlr.AntlrAstUtils;
 import com.clougence.sql.iso.sql92.analysis.security.builder.Sql92DomainCollector;
 import com.clougence.sql.iso.sql92.parser.antlr.Sql92Parser;
@@ -31,7 +31,7 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
     public Void visitSchemaDefinition(Sql92Parser.SchemaDefinitionContext ctx) {
         RdbSchemaDomain domain = new RdbSchemaDomain();
         domain.setSchema(clean(ctx.schemaName()));
-        add(domain, SecQueryType.CREATE_SCHEMA);
+        add(domain, SplitQueryType.CREATE_SCHEMA);
         return null;
     }
 
@@ -39,42 +39,42 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
     public Void visitDropSchemaStatement(Sql92Parser.DropSchemaStatementContext ctx) {
         RdbSchemaDomain domain = new RdbSchemaDomain();
         domain.setSchema(clean(ctx.schemaName()));
-        add(domain, SecQueryType.DROP_SCHEMA);
+        add(domain, SplitQueryType.DROP_SCHEMA);
         return null;
     }
 
     @Override
     public Void visitTableDefinition(Sql92Parser.TableDefinitionContext ctx) {
         RdbTableDomain domain = tableDomain(ctx.tableName());
-        add(domain, SecQueryType.CREATE_TABLE);
+        add(domain, SplitQueryType.CREATE_TABLE);
         return null;
     }
 
     @Override
     public Void visitAlterTableStatement(Sql92Parser.AlterTableStatementContext ctx) {
         RdbTableDomain domain = tableDomain(ctx.tableName());
-        add(domain, SecQueryType.ALTER_TABLE);
+        add(domain, SplitQueryType.ALTER_TABLE);
         return null;
     }
 
     @Override
     public Void visitDropTableStatement(Sql92Parser.DropTableStatementContext ctx) {
         RdbTableDomain domain = tableDomain(ctx.tableName());
-        add(domain, SecQueryType.DROP_TABLE);
+        add(domain, SplitQueryType.DROP_TABLE);
         return null;
     }
 
     @Override
     public Void visitViewDefinition(Sql92Parser.ViewDefinitionContext ctx) {
         RdbViewDomain domain = viewDomain(ctx.tableName());
-        add(domain, SecQueryType.CREATE_VIEW);
+        add(domain, SplitQueryType.CREATE_VIEW);
         return null;
     }
 
     @Override
     public Void visitDropViewStatement(Sql92Parser.DropViewStatementContext ctx) {
         RdbViewDomain domain = viewDomain(ctx.tableName());
-        add(domain, SecQueryType.DROP_VIEW);
+        add(domain, SplitQueryType.DROP_VIEW);
         return null;
     }
 
@@ -85,13 +85,13 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
 
     @Override
     public Void visitSelectStatement_SingleRow(Sql92Parser.SelectStatement_SingleRowContext ctx) {
-        add(selectDomain(ctx.selectList(), ctx.tableExpression()), SecQueryType.SELECT);
+        add(selectDomain(ctx.selectList(), ctx.tableExpression()), SplitQueryType.SELECT);
         return null;
     }
 
     @Override
     public Void visitQuerySpecification(Sql92Parser.QuerySpecificationContext ctx) {
-        add(selectDomain(ctx.selectList(), ctx.tableExpression()), SecQueryType.SELECT);
+        add(selectDomain(ctx.selectList(), ctx.tableExpression()), SplitQueryType.SELECT);
         return null;
     }
 
@@ -102,7 +102,7 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
         domain.setCatalog(name.catalog);
         domain.setSchema(name.schema);
         domain.setTable(name.name);
-        add(domain, SecQueryType.INSERT);
+        add(domain, SplitQueryType.INSERT);
         return null;
     }
 
@@ -113,7 +113,7 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
         domain.setCatalog(name.catalog);
         domain.setSchema(name.schema);
         domain.setTable(name.name);
-        add(domain, SecQueryType.UPDATE);
+        add(domain, SplitQueryType.UPDATE);
         return null;
     }
 
@@ -124,7 +124,7 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
         domain.setCatalog(name.catalog);
         domain.setSchema(name.schema);
         domain.setTable(name.name);
-        add(domain, SecQueryType.UPDATE);
+        add(domain, SplitQueryType.UPDATE);
         return null;
     }
 
@@ -135,7 +135,7 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
         domain.setCatalog(name.catalog);
         domain.setSchema(name.schema);
         domain.setTable(name.name);
-        add(domain, SecQueryType.DELETE);
+        add(domain, SplitQueryType.DELETE);
         return null;
     }
 
@@ -146,31 +146,31 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
         domain.setCatalog(name.catalog);
         domain.setSchema(name.schema);
         domain.setTable(name.name);
-        add(domain, SecQueryType.DELETE);
+        add(domain, SplitQueryType.DELETE);
         return null;
     }
 
     @Override
     public Void visitGrantStatement(Sql92Parser.GrantStatementContext ctx) {
-        add(new RdbGrantDomain(), SecQueryType.GRANT);
+        add(new RdbGrantDomain(), SplitQueryType.GRANT);
         return null;
     }
 
     @Override
     public Void visitRevokeStatement(Sql92Parser.RevokeStatementContext ctx) {
-        add(new RdbRevokeDomain(), SecQueryType.REVOKE);
+        add(new RdbRevokeDomain(), SplitQueryType.REVOKE);
         return null;
     }
 
     @Override
     public Void visitCommitStatement(Sql92Parser.CommitStatementContext ctx) {
-        add(new RdbResourceDomain(), SecQueryType.TRANSACTION);
+        add(new RdbResourceDomain(), SplitQueryType.TRANSACTION);
         return null;
     }
 
     @Override
     public Void visitRollbackStatement(Sql92Parser.RollbackStatementContext ctx) {
-        add(new RdbResourceDomain(), SecQueryType.TRANSACTION);
+        add(new RdbResourceDomain(), SplitQueryType.TRANSACTION);
         return null;
     }
 
@@ -220,8 +220,8 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
     protected List<RdbTableDomain> resourceTableDomains(Sql92Parser.QuerySpecificationContext ctx) {
         List<RdbTableDomain> domains = tableDomains(ctx.tableExpression().fromClause());
         for (RdbTableDomain domain : domains) {
-            domain.setSqlType(SecQueryType.SELECT);
-            domain.setAuditKind(SecQueryType.SELECT.getAuditKind());
+            domain.setSqlType(SplitQueryType.SELECT);
+            domain.setAuditKind(SplitQueryType.SELECT.getAuditKind());
         }
         return domains;
     }
@@ -299,7 +299,7 @@ public class Sql92SqlParserVisitor extends Sql92ParserBaseVisitor<Void> {
         return domain;
     }
 
-    private void add(RuleDomain domain, SecQueryType type) {
+    private void add(RuleDomain domain, SplitQueryType type) {
         domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         collector.add(domain);

@@ -18,8 +18,8 @@ package com.clougence.clouddm.ds.maxcompute.definition.secrules;
 import java.util.Arrays;
 import java.util.List;
 
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecRulesSupportSpi;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 
 public class McSecRulesSupportSpi implements SecRulesSupportSpi {
 
@@ -35,7 +35,7 @@ public class McSecRulesSupportSpi implements SecRulesSupportSpi {
                 //TargetType.Materialized
                 TargetType.Column,      //
                 TargetType.Index,       //
-//                TargetType.Constraint,  //
+                //                TargetType.Constraint,  //
                 //                TargetType.Function,    //
                 //                TargetType.Procedure,   //
                 //                TargetType.Trigger,     //

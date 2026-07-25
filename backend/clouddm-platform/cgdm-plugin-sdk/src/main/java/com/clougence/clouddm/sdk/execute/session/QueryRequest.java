@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -40,7 +40,7 @@ public class QueryRequest implements Cloneable {
     private String                        queryId;
     private String                        queryBody;
     private List<QueryArg>                queryArgs;
-    private SecQueryType                  queryType;
+    private SplitQueryType                queryType;
     private DataSourceType                queryDsType;
     private Requester                     requester;
     private Date                          requestTime;

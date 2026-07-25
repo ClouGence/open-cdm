@@ -18,11 +18,11 @@ package com.clougence.clouddm.ds.starrocks.sql.analysis.security.builder;
 import java.util.List;
 import java.util.Stack;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -51,7 +51,7 @@ public class SrBuilderFactory extends RdbBuilderFactory {
     protected ColumnDefBuilder<? extends RdbColumnDomain> getColumnDefBuilder() { return new SrColumnDefBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SecQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
         return new SrCatalogBuilder(type);
     }
 
@@ -61,7 +61,7 @@ public class SrBuilderFactory extends RdbBuilderFactory {
     }
 
     @Override
-    protected CreateTableBuilder<? extends RdbTableDomain> getCreateTableBuilder() { return new SrCreateTableBuilder(SecQueryType.CREATE_TABLE); }
+    protected CreateTableBuilder<? extends RdbTableDomain> getCreateTableBuilder() { return new SrCreateTableBuilder(SplitQueryType.CREATE_TABLE); }
 
     @Override
     protected DropTableBuilder<? extends RdbTableDomain> getDropTableBuilder() { return new SrDropTableBuilder(); }
@@ -92,14 +92,14 @@ public class SrBuilderFactory extends RdbBuilderFactory {
     }
 
     public void enterAlterCatalog() {
-        this.domainStack.add(getCatalogDomainBuilder(SecQueryType.ALTER_CATALOG));
+        this.domainStack.add(getCatalogDomainBuilder(SplitQueryType.ALTER_CATALOG));
     }
 
     public void exitAlterCatalog() {
         exitBuilder(DomainSource.NONE);
     }
 
-    public void enterCreateTable(SecQueryType type) {
+    public void enterCreateTable(SplitQueryType type) {
         this.domainStack.add(new SrCreateTableBuilder(type));
     }
 

@@ -30,10 +30,10 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -95,7 +95,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.mvName.accept(this);
             });
-        }, SecQueryType.ADMIN, SecQueryKind.ADMIN, true, TargetType.View);
+        }, SplitQueryType.ADMIN, SecQueryKind.ADMIN, true, TargetType.View);
         return null;
     }
 
@@ -105,7 +105,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.mvName.accept(this);
             });
-        }, SecQueryType.ALTER_VIEW, SecQueryKind.ALTER, true, TargetType.View);
+        }, SplitQueryType.ALTER_VIEW, SecQueryKind.ALTER, true, TargetType.View);
         return null;
     }
 
@@ -113,7 +113,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCreateMTMV(CreateMTMVContext ctx) {
         RdbViewDomain rdbViewDomain = new RdbViewDomain();
         rdbViewDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbViewDomain.setSqlType(SecQueryType.CREATE_VIEW);
+        rdbViewDomain.setSqlType(SplitQueryType.CREATE_VIEW);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
             list.add(getName(errorCapturingIdentifierContext));
@@ -176,7 +176,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
         errorIfExist(ctx.hints);
         builder.enterInsertBuilder();
         if (ctx.OVERWRITE() != null) {
-            builder.addAttr(CommonAttribute.STATEMENT_TYPE, SecQueryType.MERGE);
+            builder.addAttr(CommonAttribute.STATEMENT_TYPE, SplitQueryType.MERGE);
         }
 
         builder.enterObjName(NameType.TABLE);
@@ -255,7 +255,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitTruncateTable(TruncateTableContext ctx) {
         RdbTableDomain rdbTableDomain = new DrTableDomain();
-        rdbTableDomain.setSqlType(SecQueryType.TRUNCATE_TABLE);
+        rdbTableDomain.setSqlType(SplitQueryType.TRUNCATE_TABLE);
         rdbTableDomain.setAuditKind(SecQueryKind.DML);
 
         List<String> names = new ArrayList<>();
@@ -277,7 +277,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateTable(CreateTableContext ctx) {
-        builder.enterCreateTable(SecQueryType.CREATE_TABLE);
+        builder.enterCreateTable(SplitQueryType.CREATE_TABLE);
         builder.enterObjName(NameType.TABLE);
         ctx.name.accept(this);
         builder.exitObjName();
@@ -331,7 +331,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCreateView(CreateViewContext ctx) {
         RdbViewDomain rdbViewDomain = new RdbViewDomain();
         rdbViewDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbViewDomain.setSqlType(SecQueryType.CREATE_VIEW);
+        rdbViewDomain.setSqlType(SplitQueryType.CREATE_VIEW);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
             list.add(getName(errorCapturingIdentifierContext));
@@ -347,14 +347,14 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitShowProcedureStatus(ShowProcedureStatusContext ctx) {
-        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SecQueryType.UNKNOWN, SecQueryKind.OTHER);
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SplitQueryType.UNKNOWN, SecQueryKind.OTHER);
         builder.addDomain(rdbResourceDomain);
         return null;
     }
 
     @Override
     public Void visitShowConfig(ShowConfigContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
@@ -370,7 +370,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.name.accept(this);
             });
-        }, SecQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+        }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         return null;
     }
 
@@ -380,13 +380,13 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.name.accept(this);
             }, NameType.SCHEMA);
-        }, SecQueryType.ADMIN, SecQueryKind.ADMIN, true, TargetType.Schema);
+        }, SplitQueryType.ADMIN, SecQueryKind.ADMIN, true, TargetType.Schema);
         return null;
     }
 
     @Override
     public Void visitRefreshLdap(RefreshLdapContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
@@ -398,13 +398,13 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitSync(SyncContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitShowCreateRoutineLoad(ShowCreateRoutineLoadContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.UNKNOWN, SecQueryKind.OTHER, true, TargetType.Unknown));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.UNKNOWN, SecQueryKind.OTHER, true, TargetType.Unknown));
         return null;
     }
 
@@ -420,7 +420,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.mysqlDataDesc().tableName.accept(this);
             });
-        }, SecQueryType.DATA_IMPORT, SecQueryKind.DML, true, TargetType.Table);
+        }, SplitQueryType.DATA_IMPORT, SecQueryKind.DML, true, TargetType.Table);
         return null;
     }
 
@@ -430,55 +430,55 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.label.accept(this);
             });
-        }, SecQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
+        }, SplitQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
         return null;
     }
 
     @Override
     public Void visitDropWorkloadGroup(DropWorkloadGroupContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitDropWorkloadPolicy(DropWorkloadPolicyContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitDropFile(DropFileContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitDropStoragePolicy(DropStoragePolicyContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitDropSqlBlockRule(DropSqlBlockRuleContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitDropCatalogRecycleBin(DropCatalogRecycleBinContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitDropEncryptkey(DropEncryptkeyContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitAlterColocateGroup(AlterColocateGroupContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
@@ -488,19 +488,19 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.name.accept(this);
             });
-        }, SecQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
+        }, SplitQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
         return null;
     }
 
     @Override
     public Void visitPauseAllRoutineLoad(PauseAllRoutineLoadContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job));
         return null;
     }
 
     @Override
     public Void visitResumeAllRoutineLoad(ResumeAllRoutineLoadContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job));
         return null;
     }
 
@@ -511,9 +511,9 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
                 builder.handleObjName(() -> {
                     ctx.label.accept(this);
                 });
-            }, SecQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Unknown);
+            }, SplitQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Unknown);
         } else {
-            RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SecQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Unknown);
+            RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SplitQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Unknown);
             builder.addDomain(rdbResourceDomain);
         }
         return null;
@@ -527,7 +527,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitRecoverDatabase(RecoverDatabaseContext ctx) {
-        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN, true, TargetType.Schema);
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN, true, TargetType.Schema);
         rdbResourceDomain.setSchema(getName(ctx.name));
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -539,7 +539,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.name.accept(this);
             });
-        }, SecQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+        }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         return null;
     }
 
@@ -549,20 +549,20 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.tableName.accept(this);
             });
-        }, SecQueryType.ADMIN_PARTITION, SecQueryKind.ADMIN, true, TargetType.Table);
+        }, SplitQueryType.ADMIN_PARTITION, SecQueryKind.ADMIN, true, TargetType.Table);
         return null;
     }
 
     @Override
     public Void visitSupportedKillStatementAlias(SupportedKillStatementAliasContext ctx) {
-        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN);
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN);
         builder.addDomain(rdbResourceDomain);
         return null;
     }
 
     @Override
     public Void visitShowRoutineLoadTask(ShowRoutineLoadTaskContext ctx) {
-        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SecQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Unknown);
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SplitQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Unknown);
         if (ctx.database != null) {
             rdbResourceDomain.setSchema(getName(ctx.database));
         }
@@ -576,7 +576,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.label.accept(this);
             });
-        }, SecQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
+        }, SplitQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
         return null;
     }
 
@@ -586,7 +586,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.label.accept(this);
             });
-        }, SecQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
+        }, SplitQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
         return null;
     }
 
@@ -596,13 +596,13 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.label.accept(this);
             });
-        }, SecQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
+        }, SplitQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Job);
         return null;
     }
 
     @Override
     public Void visitRefreshCatalog(RefreshCatalogContext ctx) {
-        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN, false, TargetType.Catalog);
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN, false, TargetType.Catalog);
         rdbResourceDomain.setName(getName(ctx.name));
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -610,19 +610,19 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitSupportedUnsetStatementAlias(SupportedUnsetStatementAliasContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitSupportedCleanStatementAlias(SupportedCleanStatementAliasContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitCreateTableLike(CreateTableLikeContext ctx) {
-        builder.enterCreateTable(SecQueryType.CREATE_TABLE);
+        builder.enterCreateTable(SplitQueryType.CREATE_TABLE);
 
         builder.enterObjName(NameType.TABLE);
         ctx.name.accept(this);
@@ -654,7 +654,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.table.accept(this);
             });
-        }, SecQueryType.ADMIN, SecQueryKind.ADMIN, true, TargetType.Unknown);
+        }, SplitQueryType.ADMIN, SecQueryKind.ADMIN, true, TargetType.Unknown);
         return null;
     }
 
@@ -678,19 +678,19 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateWorkloadPolicy(CreateWorkloadPolicyContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitCreateSqlBlockRule(CreateSqlBlockRuleContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitCreateEncryptkey(CreateEncryptkeyContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
@@ -699,7 +699,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
         RdbIndexDomain indexDomain = new RdbIndexDomain();
 
         indexDomain.setAuditKind(SecQueryKind.CREATE);
-        indexDomain.setSqlType(SecQueryType.ADD_INDEX);
+        indexDomain.setSqlType(SplitQueryType.ADD_INDEX);
         indexDomain.setType("index");
         indexDomain.setName(getName(ctx.name));
 
@@ -727,7 +727,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCreateUserDefineFunction(CreateUserDefineFunctionContext ctx) {
         RdbFunctionDomain rdbFunctionDomain = new RdbFunctionDomain();
         rdbFunctionDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbFunctionDomain.setSqlType(SecQueryType.CREATE_PROG_OBJ);
+        rdbFunctionDomain.setSqlType(SplitQueryType.CREATE_PROG_OBJ);
 
         if (ctx.functionIdentifier().dbName != null) {
             rdbFunctionDomain.setSchema(getName(ctx.functionIdentifier().dbName));
@@ -782,13 +782,13 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterRole(AlterRoleContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitAlterCatalogProperties(AlterCatalogPropertiesContext ctx) {
-        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SecQueryType.ALTER_CATALOG, SecQueryKind.ALTER, false, TargetType.Catalog);
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SplitQueryType.ALTER_CATALOG, SecQueryKind.ALTER, false, TargetType.Catalog);
         rdbResourceDomain.setCatalog(getName(ctx.name));
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -796,19 +796,19 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterWorkloadPolicy(AlterWorkloadPolicyContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitAlterSqlBlockRule(AlterSqlBlockRuleContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitAlterStorageVault(AlterStorageVaultContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
@@ -831,7 +831,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAlterCatalogComment(AlterCatalogCommentContext ctx) {
         DrCatalogDomain domain = new DrCatalogDomain();
-        domain.setSqlType(SecQueryType.ALTER_CATALOG);
+        domain.setSqlType(SplitQueryType.ALTER_CATALOG);
         domain.setAuditKind(SecQueryKind.ALTER);
         domain.setCatalog(getName(ctx.name));
         String text = ctx.comment.getText();
@@ -857,7 +857,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterStoragePolicy(AlterStoragePolicyContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
@@ -880,7 +880,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableAddRollup(AlterTableAddRollupContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
@@ -897,7 +897,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableDropRollup(AlterTableDropRollupContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
@@ -915,7 +915,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableProperties(AlterTablePropertiesContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
@@ -931,7 +931,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterResource(AlterResourceContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ALTER_RESOURCE_GROUP, SecQueryKind.ALTER));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ALTER_RESOURCE_GROUP, SecQueryKind.ALTER));
         return null;
     }
 
@@ -972,7 +972,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitDropUser(DropUserContext ctx) {
         DrUserDomain drUserDomain = new DrUserDomain();
-        drUserDomain.setSqlType(SecQueryType.DROP_USER);
+        drUserDomain.setSqlType(SplitQueryType.DROP_USER);
         drUserDomain.setAuditKind(SecQueryKind.DROP);
         drUserDomain.setUser(getText(this.getText(ctx.userIdentify().user)));
         if (ctx.userIdentify().host != null) {
@@ -1031,7 +1031,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitDropIndex(DropIndexContext ctx) {
         RdbIndexDomain indexDomain = new RdbIndexDomain();
         indexDomain.setAuditKind(SecQueryKind.DROP);
-        indexDomain.setSqlType(SecQueryType.DROP_INDEX);
+        indexDomain.setSqlType(SplitQueryType.DROP_INDEX);
 
         indexDomain.setName(getName(ctx.name));
         List<String> list = new ArrayList<>();
@@ -1050,7 +1050,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitSupportedShowStatementAlias(SupportedShowStatementAliasContext ctx) {
         DrShowDomain drShowDomain = new DrShowDomain();
-        drShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        drShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         drShowDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(drShowDomain);
         return null;
@@ -1059,7 +1059,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitCancelAlterTable(CancelAlterTableContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
 
         List<String> names = new ArrayList<>();
@@ -1081,7 +1081,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitGrantTablePrivilege(GrantTablePrivilegeContext ctx) {
         DrGrantDomain drGrantDomain = new DrGrantDomain();
-        drGrantDomain.setSqlType(SecQueryType.GRANT);
+        drGrantDomain.setSqlType(SplitQueryType.GRANT);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         if (ctx.userIdentify() != null) {
@@ -1100,7 +1100,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitGrantResourcePrivilege(GrantResourcePrivilegeContext ctx) {
         DrGrantDomain drGrantDomain = new DrGrantDomain();
-        drGrantDomain.setSqlType(SecQueryType.GRANT);
+        drGrantDomain.setSqlType(SplitQueryType.GRANT);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         if (ctx.userIdentify() != null) {
@@ -1119,7 +1119,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitGrantRole(GrantRoleContext ctx) {
         DrGrantDomain drGrantDomain = new DrGrantDomain();
-        drGrantDomain.setSqlType(SecQueryType.GRANT);
+        drGrantDomain.setSqlType(SplitQueryType.GRANT);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         drGrantDomain.setName(getText(this.getText(ctx.userIdentify().user)));
@@ -1134,7 +1134,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeRole(RevokeRoleContext ctx) {
         DrRevokeDomain drGrantDomain = new DrRevokeDomain();
-        drGrantDomain.setSqlType(SecQueryType.REVOKE);
+        drGrantDomain.setSqlType(SplitQueryType.REVOKE);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         drGrantDomain.setName(getText(this.getText(ctx.userIdentify().user)));
@@ -1149,7 +1149,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeResourcePrivilege(RevokeResourcePrivilegeContext ctx) {
         DrRevokeDomain drGrantDomain = new DrRevokeDomain();
-        drGrantDomain.setSqlType(SecQueryType.REVOKE);
+        drGrantDomain.setSqlType(SplitQueryType.REVOKE);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         if (ctx.userIdentify() != null) {
@@ -1168,7 +1168,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeTablePrivilege(RevokeTablePrivilegeContext ctx) {
         DrRevokeDomain drGrantDomain = new DrRevokeDomain();
-        drGrantDomain.setSqlType(SecQueryType.REVOKE);
+        drGrantDomain.setSqlType(SplitQueryType.REVOKE);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         if (ctx.userIdentify() != null) {
@@ -1223,7 +1223,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRenameClause(RenameClauseContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SecQueryType.RENAME_TABLE);
+        drTableDomain.setSqlType(SplitQueryType.RENAME_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
 
         String name = getName(ctx.newName);
@@ -1237,7 +1237,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRenameColumnClause(RenameColumnClauseContext ctx) {
         DrColumnDomain drColumnDomain = new DrColumnDomain();
-        drColumnDomain.setSqlType(SecQueryType.RENAME_COLUMN);
+        drColumnDomain.setSqlType(SplitQueryType.RENAME_COLUMN);
         drColumnDomain.setAuditKind(SecQueryKind.ALTER);
 
         drColumnDomain.setColumn(getName(ctx.name));
@@ -1250,7 +1250,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAddIndexClause(AddIndexClauseContext ctx) {
         RdbIndexDomain indexDomain = new RdbIndexDomain();
-        indexDomain.setSqlType(SecQueryType.ADD_INDEX);
+        indexDomain.setSqlType(SplitQueryType.ADD_INDEX);
         indexDomain.setAuditKind(SecQueryKind.CREATE);
         indexDomain.setType("index");
 
@@ -1269,7 +1269,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitDropIndexClause(DropIndexClauseContext ctx) {
         RdbIndexDomain indexDomain = new RdbIndexDomain();
-        indexDomain.setSqlType(SecQueryType.DROP_INDEX);
+        indexDomain.setSqlType(SplitQueryType.DROP_INDEX);
         indexDomain.setAuditKind(SecQueryKind.DROP);
         indexDomain.setName(getName(ctx.name));
         builder.handleDomain(indexDomain, DomainSource.ALTER_TABLE_ITEM);
@@ -1280,7 +1280,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitModifyTableCommentClause(ModifyTableCommentClauseContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
-        drTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setComment(getText(ctx.comment.getText()));
         builder.handleDomain(drTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -1306,7 +1306,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
         }
 
         DrConfigDomain domain = new DrConfigDomain(keyName, scopeType);
-        domain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+        domain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         domain.setAuditKind(SecQueryKind.OTHER);
         builder.addDomain(domain);
         return null;
@@ -1318,7 +1318,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
         String keyName = ctx.identifier().getText();
 
         DrConfigDomain domain = new DrConfigDomain(keyName, scopeType);
-        domain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+        domain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         domain.setAuditKind(SecQueryKind.OTHER);
         builder.addDomain(domain);
         return null;
@@ -1330,7 +1330,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
         String keyName = ctx.identifier().getText();
 
         DrConfigDomain domain = new DrConfigDomain(keyName, scopeType);
-        domain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+        domain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         domain.setAuditKind(SecQueryKind.OTHER);
         builder.addDomain(domain);
         return null;
@@ -1785,7 +1785,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitSupportedTransactionStatementAlias(SupportedTransactionStatementAliasContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbResourceDomain.setSqlType(SecQueryType.TRANSACTION);
+        rdbResourceDomain.setSqlType(SplitQueryType.TRANSACTION);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -1796,7 +1796,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitSetTransaction(SetTransactionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbResourceDomain.setSqlType(SecQueryType.TRANSACTION);
+        rdbResourceDomain.setSqlType(SplitQueryType.TRANSACTION);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -1807,7 +1807,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitSupportedAdminStatementAlias(SupportedAdminStatementAliasContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.setSqlType(SecQueryType.ADMIN);
+        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -1826,7 +1826,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.multipartIdentifier().accept(this);
             });
-        }, SecQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Table);
+        }, SplitQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Table);
         return null;
     }
 
@@ -1840,7 +1840,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCreateScheduledJob(CreateScheduledJobContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Job);
-        rdbResourceDomain.setSqlType(SecQueryType.CREATE_JOB);
+        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_JOB);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -1854,7 +1854,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
                 builder.handleObjName(() -> {
                     dataDesc.targetTableName.accept(this);
                 });
-            }, SecQueryType.DATA_IMPORT, SecQueryKind.DML, true, TargetType.Insert);
+            }, SplitQueryType.DATA_IMPORT, SecQueryKind.DML, true, TargetType.Insert);
 
             if (dataDesc.sourceTableName != null) {
                 throw new UnsupportedOperationException("Unsupported sql:" + getText(ctx));
@@ -1867,7 +1867,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitResumeJob(ResumeJobContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Job);
-        rdbResourceDomain.setSqlType(SecQueryType.ADMIN_JOB);
+        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_JOB);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -1884,8 +1884,8 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCancelJobTask(CancelJobTaskContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Unknown);
-        rdbResourceDomain.setSqlType(SecQueryType.ADMIN);
-        rdbResourceDomain.setSqlType(SecQueryType.ADMIN);
+        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -1897,7 +1897,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.name.accept(this);
             });
-        }, SecQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+        }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         return null;
     }
 
@@ -1909,25 +1909,25 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
                     ctx.tableName.accept(this);
                 });
             }
-        }, SecQueryType.PERFORMANCE, SecQueryKind.QUERY, true, TargetType.Table);
+        }, SplitQueryType.PERFORMANCE, SecQueryKind.QUERY, true, TargetType.Table);
         return null;
     }
 
     @Override
     public Void visitCreateStoragePolicy(CreateStoragePolicyContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitCreateStorageVault(CreateStorageVaultContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.SYSTEM_SETTING_WRITE, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.SYSTEM_SETTING_WRITE, SecQueryKind.ADMIN));
         return null;
     }
 
     @Override
     public Void visitCreateRepository(CreateRepositoryContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
@@ -1937,13 +1937,13 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.tableName.accept(this);
             });
-        }, SecQueryType.DATA_EXPORT, SecQueryKind.OTHER, true, TargetType.Table);
+        }, SplitQueryType.DATA_EXPORT, SecQueryKind.OTHER, true, TargetType.Table);
         return null;
     }
 
     @Override
     public Void visitCreateResource(CreateResourceContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 
@@ -1953,7 +1953,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.tableName.accept(this);
             });
-        }, SecQueryType.PERFORMANCE, SecQueryKind.QUERY, true, TargetType.Column);
+        }, SplitQueryType.PERFORMANCE, SecQueryKind.QUERY, true, TargetType.Column);
         return null;
     }
 
@@ -1961,7 +1961,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitDropJob(DropJobContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Job);
-        rdbResourceDomain.setSqlType(SecQueryType.DROP_JOB);
+        rdbResourceDomain.setSqlType(SplitQueryType.DROP_JOB);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -1972,7 +1972,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitPauseJob(PauseJobContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Job);
-        rdbResourceDomain.setSqlType(SecQueryType.ADMIN_JOB);
+        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_JOB);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -2183,7 +2183,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.name.accept(this);
             });
-        }, SecQueryType.ALTER_TABLE, SecQueryKind.ALTER, true, TargetType.Table);
+        }, SplitQueryType.ALTER_TABLE, SecQueryKind.ALTER, true, TargetType.Table);
         return null;
     }
 
@@ -2193,7 +2193,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.tableName.accept(this);
             });
-        }, SecQueryType.ALTER_TABLE, SecQueryKind.ALTER, true, TargetType.Table);
+        }, SplitQueryType.ALTER_TABLE, SecQueryKind.ALTER, true, TargetType.Table);
         return null;
     }
 
@@ -2203,7 +2203,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.tableName.accept(this);
             });
-        }, SecQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Table);
+        }, SplitQueryType.UNKNOWN, SecQueryKind.QUERY, true, TargetType.Table);
         return null;
     }
 
@@ -2314,7 +2314,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitCreateFile(CreateFileContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setTarget(TargetType.ConfigKey);
         builder.addDomain(rdbResourceDomain);
@@ -2323,7 +2323,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateWorkloadGroup(CreateWorkloadGroupContext ctx) {
-        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SecQueryType.CREATE_RESOURCE_GROUP, SecQueryKind.CREATE);
+        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(SplitQueryType.CREATE_RESOURCE_GROUP, SecQueryKind.CREATE);
         builder.addDomain(rdbResourceDomain);
         return null;
     }
@@ -2334,7 +2334,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
             builder.handleObjName(() -> {
                 ctx.multipartIdentifier().accept(this);
             });
-        }, SecQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Table);
+        }, SplitQueryType.DATA_IMPORT, SecQueryKind.ADMIN, true, TargetType.Table);
         return null;
     }
 
@@ -2363,7 +2363,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterSystem(AlterSystemContext ctx) {
-        builder.addDomain(new RdbResourceDomain(SecQueryType.ADMIN, SecQueryKind.ADMIN));
+        builder.addDomain(new RdbResourceDomain(SplitQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
     }
 

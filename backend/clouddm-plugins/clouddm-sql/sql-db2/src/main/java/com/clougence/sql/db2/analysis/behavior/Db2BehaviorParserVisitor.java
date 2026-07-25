@@ -15,12 +15,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 import com.clougence.sql.db2.parser.antlr.Db2SqlParser;
@@ -63,7 +59,7 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
     Db2StatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        this.behavior.setStatementType(SecQueryType.UNKNOWN);
+        this.behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -73,20 +69,20 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
     @Override
     public Void visitCreate_schema_statement(Db2SqlParser.Create_schema_statementContext ctx) {
         ParserRuleContext schema = ctx.schema_name() == null ? ctx.authorization_name() : ctx.schema_name();
-        addUnary(SecQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, schema));
+        addUnary(SplitQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, schema));
         return null;
     }
 
     @Override
     public Void visitDrop_statement(Db2SqlParser.Drop_statementContext ctx) {
         if (ctx.schema_name() != null) {
-            addUnary(SecQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.schema_name()));
+            addUnary(SplitQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.schema_name()));
         } else if (ctx.table_name() != null) {
-            addUnary(SecQueryType.DROP_TABLE, BehaviorAction.DROP, table(ctx.table_name()));
+            addUnary(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, table(ctx.table_name()));
         } else if (ctx.index_name() != null) {
-            addUnary(SecQueryType.DROP_INDEX, BehaviorAction.DROP, object(TargetType.Index, ctx.index_name()));
+            addUnary(SplitQueryType.DROP_INDEX, BehaviorAction.DROP, object(TargetType.Index, ctx.index_name()));
         } else if (ctx.view_name() != null) {
-            addUnary(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.view_name()));
+            addUnary(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.view_name()));
         }
         return null;
     }
@@ -97,52 +93,52 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
         if (ctx.table_or_view_name() != null) {
             add(targets, table(ctx.table_or_view_name()));
         }
-        addRelation(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, table(ctx.table_name()), targets);
+        addRelation(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, table(ctx.table_name()), targets);
         return null;
     }
 
     @Override
     public Void visitAlter_table_statement(Db2SqlParser.Alter_table_statementContext ctx) {
         if (!ctx.table_name().isEmpty()) {
-            addUnary(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, table(ctx.table_name(0)));
+            addUnary(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, table(ctx.table_name(0)));
         }
         return null;
     }
 
     @Override
     public Void visitRename_statement(Db2SqlParser.Rename_statementContext ctx) {
-        addRelation(SecQueryType.RENAME_TABLE, BehaviorAction.RENAME, table(ctx.source_table_name()), targets(table(ctx.target_identifier())));
+        addRelation(SplitQueryType.RENAME_TABLE, BehaviorAction.RENAME, table(ctx.source_table_name()), targets(table(ctx.target_identifier())));
         return null;
     }
 
     @Override
     public Void visitTruncate_statement(Db2SqlParser.Truncate_statementContext ctx) {
-        addUnary(SecQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, table(ctx.table_name()));
+        addUnary(SplitQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, table(ctx.table_name()));
         return null;
     }
 
     @Override
     public Void visitCreate_index_statement(Db2SqlParser.Create_index_statementContext ctx) {
         ParserRuleContext table = ctx.table_name() == null ? ctx.nick_name() : ctx.table_name();
-        addRelation(SecQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, ctx.index_name()), targets(object(TargetType.Table, table)));
+        addRelation(SplitQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, ctx.index_name()), targets(object(TargetType.Table, table)));
         return null;
     }
 
     @Override
     public Void visitCreate_view_statement(Db2SqlParser.Create_view_statementContext ctx) {
-        addRelation(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.view_name()), sources(ctx.fullselect()));
+        addRelation(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.view_name()), sources(ctx.fullselect()));
         return null;
     }
 
     @Override
     public Void visitAlter_view_statement(Db2SqlParser.Alter_view_statementContext ctx) {
-        addUnary(SecQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(TargetType.View, ctx.view_name()));
+        addUnary(SplitQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(TargetType.View, ctx.view_name()));
         return null;
     }
 
     @Override
     public Void visitCall_statement(Db2SqlParser.Call_statementContext ctx) {
-        addUnary(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.procedure_name()));
+        addUnary(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.procedure_name()));
         return null;
     }
 
@@ -161,7 +157,7 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
     @Override
     public Void visitInsert_statement(Db2SqlParser.Insert_statementContext ctx) {
         ParserRuleContext target = ctx.table_or_view_name() == null ? ctx.nick_name() : ctx.table_or_view_name();
-        addRelation(SecQueryType.INSERT, BehaviorAction.INSERT, table(target), sources(ctx));
+        addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, table(target), sources(ctx));
         return null;
     }
 
@@ -170,7 +166,7 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
         Db2SqlParser.Update_statement_searched_updateContext searched = ctx.update_statement_searched_update();
         if (searched != null) {
             ParserRuleContext target = searched.table_or_view_name() == null ? searched.nick_name() : searched.table_or_view_name();
-            addRelation(SecQueryType.UPDATE, BehaviorAction.UPDATE, table(target), sources(searched.where_clause()));
+            addRelation(SplitQueryType.UPDATE, BehaviorAction.UPDATE, table(target), sources(searched.where_clause()));
         }
         return null;
     }
@@ -180,14 +176,14 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
         Db2SqlParser.Delete_statement_searched_deleteContext searched = ctx.delete_statement_searched_delete();
         if (searched != null) {
             ParserRuleContext target = searched.table_or_view_name() == null ? searched.nick_name() : searched.table_or_view_name();
-            addRelation(SecQueryType.DELETE, BehaviorAction.DELETE, table(target), sources(searched.where_clause()));
+            addRelation(SplitQueryType.DELETE, BehaviorAction.DELETE, table(target), sources(searched.where_clause()));
         }
         return null;
     }
 
     private void addReads(ParseTree tree) {
         for (BehaviorObject source : sources(tree)) {
-            addUnary(SecQueryType.SELECT, BehaviorAction.READ, source);
+            addUnary(SplitQueryType.SELECT, BehaviorAction.READ, source);
         }
     }
 
@@ -226,11 +222,11 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
         return targets;
     }
 
-    private void addUnary(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void addUnary(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         addRelation(type, action, subject, List.of());
     }
 
-    private void addRelation(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }
@@ -243,7 +239,7 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
             }
         }
         behavior.getRelations().add(relation);
-        if (behavior.getStatementType() == SecQueryType.UNKNOWN) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN) {
             behavior.setStatementType(type);
         }
     }

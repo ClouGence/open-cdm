@@ -17,7 +17,7 @@ package com.clougence.clouddm.sdk.sql.analysis.security.rdb;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.detectrule.lang.reflect.RuleIgnore;
 
 import lombok.Getter;

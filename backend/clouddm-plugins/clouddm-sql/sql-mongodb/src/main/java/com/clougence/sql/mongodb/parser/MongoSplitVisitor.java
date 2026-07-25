@@ -15,288 +15,288 @@
  */
 package com.clougence.sql.mongodb.parser;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.mongodb.parser.antlr.MongoParser;
 import com.clougence.sql.mongodb.parser.antlr.MongoParserBaseVisitor;
 
-public class MongoSplitVisitor extends MongoParserBaseVisitor<SecQueryType> {
+public class MongoSplitVisitor extends MongoParserBaseVisitor<SplitQueryType> {
 
     public static final MongoSplitVisitor INSTANCE = new MongoSplitVisitor();
 
     @Override
-    public SecQueryType visitShowDatabases(MongoParser.ShowDatabasesContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowDatabases(MongoParser.ShowDatabasesContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitShowCollections(MongoParser.ShowCollectionsContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowCollections(MongoParser.ShowCollectionsContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitDbCreateCollection(MongoParser.DbCreateCollectionContext ctx) {
-        return SecQueryType.CREATE_TABLE;
+    public SplitQueryType visitDbCreateCollection(MongoParser.DbCreateCollectionContext ctx) {
+        return SplitQueryType.CREATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitDbCreateView(MongoParser.DbCreateViewContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitDbCreateView(MongoParser.DbCreateViewContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitDbDropDatabase(MongoParser.DbDropDatabaseContext ctx) {
-        return SecQueryType.DROP_SCHEMA;
+    public SplitQueryType visitDbDropDatabase(MongoParser.DbDropDatabaseContext ctx) {
+        return SplitQueryType.DROP_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitUse(MongoParser.UseContext ctx) {
-        return SecQueryType.SWITCH_SCHEMA;
+    public SplitQueryType visitUse(MongoParser.UseContext ctx) {
+        return SplitQueryType.SWITCH_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitFind(MongoParser.FindContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitFind(MongoParser.FindContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitAggregate(MongoParser.AggregateContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitAggregate(MongoParser.AggregateContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitDbAggregate(MongoParser.DbAggregateContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitDbAggregate(MongoParser.DbAggregateContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitFindOne(MongoParser.FindOneContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitFindOne(MongoParser.FindOneContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitCount(MongoParser.CountContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitCount(MongoParser.CountContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitEstimatedDocumentCount(MongoParser.EstimatedDocumentCountContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitEstimatedDocumentCount(MongoParser.EstimatedDocumentCountContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitCountDocuments(MongoParser.CountDocumentsContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitCountDocuments(MongoParser.CountDocumentsContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitDistinct(MongoParser.DistinctContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitDistinct(MongoParser.DistinctContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitDataSize(MongoParser.DataSizeContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitDataSize(MongoParser.DataSizeContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitDbHello(MongoParser.DbHelloContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitDbHello(MongoParser.DbHelloContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitGetCollectionNames(MongoParser.GetCollectionNamesContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitGetCollectionNames(MongoParser.GetCollectionNamesContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitGetCollectionInfos(MongoParser.GetCollectionInfosContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitGetCollectionInfos(MongoParser.GetCollectionInfosContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitGetIndexes(MongoParser.GetIndexesContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitGetIndexes(MongoParser.GetIndexesContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitValidate(MongoParser.ValidateContext ctx) {
-        return SecQueryType.ADMIN_TABLE;
+    public SplitQueryType visitValidate(MongoParser.ValidateContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
     }
 
     @Override
-    public SecQueryType visitCreateIndex(MongoParser.CreateIndexContext ctx) {
-        return SecQueryType.ADD_INDEX;
+    public SplitQueryType visitCreateIndex(MongoParser.CreateIndexContext ctx) {
+        return SplitQueryType.ADD_INDEX;
     }
 
     @Override
-    public SecQueryType visitCreateIndexes(MongoParser.CreateIndexesContext ctx) {
-        return SecQueryType.ADD_INDEX;
+    public SplitQueryType visitCreateIndexes(MongoParser.CreateIndexesContext ctx) {
+        return SplitQueryType.ADD_INDEX;
     }
 
     @Override
-    public SecQueryType visitInsert(MongoParser.InsertContext ctx) {
-        return SecQueryType.INSERT;
+    public SplitQueryType visitInsert(MongoParser.InsertContext ctx) {
+        return SplitQueryType.INSERT;
     }
 
     @Override
-    public SecQueryType visitInsertOne(MongoParser.InsertOneContext ctx) {
-        return SecQueryType.INSERT;
+    public SplitQueryType visitInsertOne(MongoParser.InsertOneContext ctx) {
+        return SplitQueryType.INSERT;
     }
 
     @Override
-    public SecQueryType visitInsertMany(MongoParser.InsertManyContext ctx) {
-        return SecQueryType.INSERT;
+    public SplitQueryType visitInsertMany(MongoParser.InsertManyContext ctx) {
+        return SplitQueryType.INSERT;
     }
 
     @Override
-    public SecQueryType visitUpdate(MongoParser.UpdateContext ctx) {
-        return hasTrueValue(ctx.option, "upsert") ? SecQueryType.MERGE : SecQueryType.UPDATE;
+    public SplitQueryType visitUpdate(MongoParser.UpdateContext ctx) {
+        return hasTrueValue(ctx.option, "upsert") ? SplitQueryType.MERGE : SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitReplaceOne(MongoParser.ReplaceOneContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitReplaceOne(MongoParser.ReplaceOneContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitFindOneAndReplace(MongoParser.FindOneAndReplaceContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitFindOneAndReplace(MongoParser.FindOneAndReplaceContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitFindOneAndUpdate(MongoParser.FindOneAndUpdateContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitFindOneAndUpdate(MongoParser.FindOneAndUpdateContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitFindOneAndDelete(MongoParser.FindOneAndDeleteContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitFindOneAndDelete(MongoParser.FindOneAndDeleteContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitDeleteOne(MongoParser.DeleteOneContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDeleteOne(MongoParser.DeleteOneContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitDeleteMany(MongoParser.DeleteManyContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDeleteMany(MongoParser.DeleteManyContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitDrop(MongoParser.DropContext ctx) {
-        return SecQueryType.DROP_TABLE;
+    public SplitQueryType visitDrop(MongoParser.DropContext ctx) {
+        return SplitQueryType.DROP_TABLE;
     }
 
     @Override
-    public SecQueryType visitRenameCollection(MongoParser.RenameCollectionContext ctx) {
-        return SecQueryType.RENAME_TABLE;
+    public SplitQueryType visitRenameCollection(MongoParser.RenameCollectionContext ctx) {
+        return SplitQueryType.RENAME_TABLE;
     }
 
     @Override
-    public SecQueryType visitHideIndex(MongoParser.HideIndexContext ctx) {
-        return SecQueryType.ALTER_INDEX;
+    public SplitQueryType visitHideIndex(MongoParser.HideIndexContext ctx) {
+        return SplitQueryType.ALTER_INDEX;
     }
 
     @Override
-    public SecQueryType visitDropIndex(MongoParser.DropIndexContext ctx) {
-        return SecQueryType.DROP_INDEX;
+    public SplitQueryType visitDropIndex(MongoParser.DropIndexContext ctx) {
+        return SplitQueryType.DROP_INDEX;
     }
 
     @Override
-    public SecQueryType visitDropIndexes(MongoParser.DropIndexesContext ctx) {
-        return SecQueryType.DROP_INDEX;
+    public SplitQueryType visitDropIndexes(MongoParser.DropIndexesContext ctx) {
+        return SplitQueryType.DROP_INDEX;
     }
 
     @Override
-    public SecQueryType visitExplain(MongoParser.ExplainContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitExplain(MongoParser.ExplainContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitDbStats(MongoParser.DbStatsContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitDbStats(MongoParser.DbStatsContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitSetProfilingLevel(MongoParser.SetProfilingLevelContext ctx) {
-        return SecQueryType.SYSTEM_SETTING_WRITE;
+    public SplitQueryType visitSetProfilingLevel(MongoParser.SetProfilingLevelContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
-    public SecQueryType visitGetProfilingStatus(MongoParser.GetProfilingStatusContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitGetProfilingStatus(MongoParser.GetProfilingStatusContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitGetLogComponents(MongoParser.GetLogComponentsContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitGetLogComponents(MongoParser.GetLogComponentsContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitHostInfo(MongoParser.HostInfoContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitHostInfo(MongoParser.HostInfoContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitCurrentOp(MongoParser.CurrentOpContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitCurrentOp(MongoParser.CurrentOpContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitKillOp(MongoParser.KillOpContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitKillOp(MongoParser.KillOpContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitFsyncLock(MongoParser.FsyncLockContext ctx) {
-        return SecQueryType.SESSION_LOCK;
+    public SplitQueryType visitFsyncLock(MongoParser.FsyncLockContext ctx) {
+        return SplitQueryType.SESSION_LOCK;
     }
 
     @Override
-    public SecQueryType visitFsyncUnlock(MongoParser.FsyncUnlockContext ctx) {
-        return SecQueryType.SESSION_LOCK;
+    public SplitQueryType visitFsyncUnlock(MongoParser.FsyncUnlockContext ctx) {
+        return SplitQueryType.SESSION_LOCK;
     }
 
     @Override
-    public SecQueryType visitDbServerStatus(MongoParser.DbServerStatusContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitDbServerStatus(MongoParser.DbServerStatusContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitDbServerBuildInfo(MongoParser.DbServerBuildInfoContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitDbServerBuildInfo(MongoParser.DbServerBuildInfoContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitLatencyStats(MongoParser.LatencyStatsContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitLatencyStats(MongoParser.LatencyStatsContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitRunCommand(MongoParser.RunCommandContext ctx) {
+    public SplitQueryType visitRunCommand(MongoParser.RunCommandContext ctx) {
         return commandType(ctx.obj());
     }
 
     @Override
-    public SecQueryType visitAdminCommand(MongoParser.AdminCommandContext ctx) {
+    public SplitQueryType visitAdminCommand(MongoParser.AdminCommandContext ctx) {
         return commandType(ctx.obj());
     }
 
-    private static SecQueryType commandType(MongoParser.ObjContext command) {
+    private static SplitQueryType commandType(MongoParser.ObjContext command) {
         if (command.pair().isEmpty()) {
-            return SecQueryType.UNKNOWN;
+            return SplitQueryType.UNKNOWN;
         }
 
         String commandName = keyText(command.pair(0).key());
         return switch (commandName) {
-            case "profile" -> SecQueryType.SYSTEM_SETTING_WRITE;
-            case "killOp" -> SecQueryType.ADMIN;
-            case "currentOp", "serverStatus" -> SecQueryType.PERFORMANCE;
-            case "listCollections", "buildInfo", "hello", "hostInfo" -> SecQueryType.METADATA;
-            case "dropDatabase" -> SecQueryType.DROP_SCHEMA;
-            case "create" -> hasKey(command, "viewOn") ? SecQueryType.CREATE_VIEW : SecQueryType.CREATE_TABLE;
-            default -> SecQueryType.UNKNOWN;
+            case "profile" -> SplitQueryType.SYSTEM_SETTING_WRITE;
+            case "killOp" -> SplitQueryType.ADMIN;
+            case "currentOp", "serverStatus" -> SplitQueryType.PERFORMANCE;
+            case "listCollections", "buildInfo", "hello", "hostInfo" -> SplitQueryType.METADATA;
+            case "dropDatabase" -> SplitQueryType.DROP_SCHEMA;
+            case "create" -> hasKey(command, "viewOn") ? SplitQueryType.CREATE_VIEW : SplitQueryType.CREATE_TABLE;
+            default -> SplitQueryType.UNKNOWN;
         };
     }
 

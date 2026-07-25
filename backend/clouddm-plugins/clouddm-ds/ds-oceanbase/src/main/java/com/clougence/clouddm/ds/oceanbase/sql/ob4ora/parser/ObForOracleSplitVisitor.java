@@ -20,193 +20,193 @@ import static com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForOraclePar
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForOracleParserBaseVisitor;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
-public class ObForOracleSplitVisitor extends ObForOracleParserBaseVisitor<SecQueryType> {
-    public static final AbstractParseTreeVisitor<SecQueryType> INSTANCE = new ObForOracleSplitVisitor();
+public class ObForOracleSplitVisitor extends ObForOracleParserBaseVisitor<SplitQueryType> {
+    public static final AbstractParseTreeVisitor<SplitQueryType> INSTANCE = new ObForOracleSplitVisitor();
 
     @Override
-    public SecQueryType visitCreate_table(Create_tableContext ctx) {
-        return SecQueryType.CREATE_TABLE;
+    public SplitQueryType visitCreate_table(Create_tableContext ctx) {
+        return SplitQueryType.CREATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitRename_object(Rename_objectContext ctx) {
-        return SecQueryType.RENAME_TABLE;
+    public SplitQueryType visitRename_object(Rename_objectContext ctx) {
+        return SplitQueryType.RENAME_TABLE;
     }
 
     @Override
-    public SecQueryType visitDrop_table(Drop_tableContext ctx) {
-        return SecQueryType.DROP_TABLE;
+    public SplitQueryType visitDrop_table(Drop_tableContext ctx) {
+        return SplitQueryType.DROP_TABLE;
     }
 
     @Override
-    public SecQueryType visitDrop_trigger(Drop_triggerContext ctx) {
-        return SecQueryType.DROP_TRIGGER;
+    public SplitQueryType visitDrop_trigger(Drop_triggerContext ctx) {
+        return SplitQueryType.DROP_TRIGGER;
     }
 
     @Override
-    public SecQueryType visitAlter_trigger(Alter_triggerContext ctx) {
-        return SecQueryType.ALTER_TRIGGER;
+    public SplitQueryType visitAlter_trigger(Alter_triggerContext ctx) {
+        return SplitQueryType.ALTER_TRIGGER;
     }
 
     @Override
-    public SecQueryType visitCreate_materialized_view_log(Create_materialized_view_logContext ctx) {
-        return SecQueryType.CREATE_LOG;
+    public SplitQueryType visitCreate_materialized_view_log(Create_materialized_view_logContext ctx) {
+        return SplitQueryType.CREATE_LOG;
     }
 
     @Override
-    public SecQueryType visitDrop_sequence(Drop_sequenceContext ctx) {
-        return SecQueryType.DROP_SEQUENCE;
+    public SplitQueryType visitDrop_sequence(Drop_sequenceContext ctx) {
+        return SplitQueryType.DROP_SEQUENCE;
     }
 
     @Override
-    public SecQueryType visitAlter_table(Alter_tableContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitAlter_table(Alter_tableContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitComment_on_table(Comment_on_tableContext ctx) {
-        return SecQueryType.COMMENT_TABLE;
+    public SplitQueryType visitComment_on_table(Comment_on_tableContext ctx) {
+        return SplitQueryType.COMMENT_TABLE;
     }
 
     @Override
-    public SecQueryType visitComment_on_column(Comment_on_columnContext ctx) {
-        return SecQueryType.COMMENT_COLUMN;
+    public SplitQueryType visitComment_on_column(Comment_on_columnContext ctx) {
+        return SplitQueryType.COMMENT_COLUMN;
     }
 
     @Override
-    public SecQueryType visitCreate_trigger(Create_triggerContext ctx) {
-        return SecQueryType.CREATE_TRIGGER;
+    public SplitQueryType visitCreate_trigger(Create_triggerContext ctx) {
+        return SplitQueryType.CREATE_TRIGGER;
     }
 
     @Override
-    public SecQueryType visitCreate_materialized_view(Create_materialized_viewContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitCreate_materialized_view(Create_materialized_viewContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitTruncate_table(Truncate_tableContext ctx) {
-        return SecQueryType.TRUNCATE_TABLE;
+    public SplitQueryType visitTruncate_table(Truncate_tableContext ctx) {
+        return SplitQueryType.TRUNCATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitCreate_view(Create_viewContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitCreate_view(Create_viewContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitCreate_index(Create_indexContext ctx) {
-        return SecQueryType.ADD_INDEX;
+    public SplitQueryType visitCreate_index(Create_indexContext ctx) {
+        return SplitQueryType.ADD_INDEX;
     }
 
     @Override
-    public SecQueryType visitDrop_index(Drop_indexContext ctx) {
-        return SecQueryType.DROP_INDEX;
+    public SplitQueryType visitDrop_index(Drop_indexContext ctx) {
+        return SplitQueryType.DROP_INDEX;
     }
 
     @Override
-    public SecQueryType visitAlter_index(Alter_indexContext ctx) {
-        return SecQueryType.ALTER_INDEX;
+    public SplitQueryType visitAlter_index(Alter_indexContext ctx) {
+        return SplitQueryType.ALTER_INDEX;
     }
 
     @Override
-    public SecQueryType visitCreate_function_body(Create_function_bodyContext ctx) {
-        return SecQueryType.CREATE_PROG_OBJ;
+    public SplitQueryType visitCreate_function_body(Create_function_bodyContext ctx) {
+        return SplitQueryType.CREATE_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitCreate_procedure_body(Create_procedure_bodyContext ctx) {
-        return SecQueryType.CREATE_PROG_OBJ;
+    public SplitQueryType visitCreate_procedure_body(Create_procedure_bodyContext ctx) {
+        return SplitQueryType.CREATE_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitSelect_statement(Select_statementContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitSelect_statement(Select_statementContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitUpdate_statement(Update_statementContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitUpdate_statement(Update_statementContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitInsert_statement(Insert_statementContext ctx) {
-        return SecQueryType.INSERT;
+    public SplitQueryType visitInsert_statement(Insert_statementContext ctx) {
+        return SplitQueryType.INSERT;
     }
 
     @Override
-    public SecQueryType visitDelete_statement(Delete_statementContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDelete_statement(Delete_statementContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitCall_statement(Call_statementContext ctx) {
-        return SecQueryType.CALL_PROG_OBJ;
+    public SplitQueryType visitCall_statement(Call_statementContext ctx) {
+        return SplitQueryType.CALL_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitCreate_user(Create_userContext ctx) {
-        return SecQueryType.CREATE_USER;
+    public SplitQueryType visitCreate_user(Create_userContext ctx) {
+        return SplitQueryType.CREATE_USER;
     }
 
     @Override
-    public SecQueryType visitDrop_user(Drop_userContext ctx) {
-        return SecQueryType.DROP_USER;
+    public SplitQueryType visitDrop_user(Drop_userContext ctx) {
+        return SplitQueryType.DROP_USER;
     }
 
     @Override
-    public SecQueryType visitGrant_statement(Grant_statementContext ctx) {
-        return SecQueryType.GRANT;
+    public SplitQueryType visitGrant_statement(Grant_statementContext ctx) {
+        return SplitQueryType.GRANT;
     }
 
     @Override
-    public SecQueryType visitRevoke_statement(Revoke_statementContext ctx) {
-        return SecQueryType.REVOKE;
+    public SplitQueryType visitRevoke_statement(Revoke_statementContext ctx) {
+        return SplitQueryType.REVOKE;
     }
 
     @Override
-    public SecQueryType visitCreate_role(Create_roleContext ctx) {
-        return SecQueryType.CREATE_ROLE;
+    public SplitQueryType visitCreate_role(Create_roleContext ctx) {
+        return SplitQueryType.CREATE_ROLE;
     }
 
     @Override
-    public SecQueryType visitDrop_role(Drop_roleContext ctx) {
-        return SecQueryType.DROP_ROLE;
+    public SplitQueryType visitDrop_role(Drop_roleContext ctx) {
+        return SplitQueryType.DROP_ROLE;
     }
 
     @Override
-    public SecQueryType visitAlter_session(Alter_sessionContext ctx) {
-        return SecQueryType.SWITCH_SCHEMA;
+    public SplitQueryType visitAlter_session(Alter_sessionContext ctx) {
+        return SplitQueryType.SWITCH_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitCreate_sequence(Create_sequenceContext ctx) {
-        return SecQueryType.CREATE_SEQUENCE;
+    public SplitQueryType visitCreate_sequence(Create_sequenceContext ctx) {
+        return SplitQueryType.CREATE_SEQUENCE;
     }
 
     @Override
-    public SecQueryType visitCreate_synonym(Create_synonymContext ctx) {
-        return SecQueryType.CREATE_SYNONYM;
+    public SplitQueryType visitCreate_synonym(Create_synonymContext ctx) {
+        return SplitQueryType.CREATE_SYNONYM;
     }
 
     @Override
-    public SecQueryType visitGeneral_element_part(General_element_partContext ctx) {
-        return SecQueryType.CALL_PROG_OBJ;
+    public SplitQueryType visitGeneral_element_part(General_element_partContext ctx) {
+        return SplitQueryType.CALL_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitAnonymous_block(Anonymous_blockContext ctx) {
-        return SecQueryType.BLOCK;
+    public SplitQueryType visitAnonymous_block(Anonymous_blockContext ctx) {
+        return SplitQueryType.BLOCK;
     }
 
     @Override
-    public SecQueryType visitDrop_function(Drop_functionContext ctx) {
-        return SecQueryType.DROP_PROG_OBJ;
+    public SplitQueryType visitDrop_function(Drop_functionContext ctx) {
+        return SplitQueryType.DROP_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitDrop_procedure(Drop_procedureContext ctx) {
-        return SecQueryType.DROP_PROG_OBJ;
+    public SplitQueryType visitDrop_procedure(Drop_procedureContext ctx) {
+        return SplitQueryType.DROP_PROG_OBJ;
     }
 }

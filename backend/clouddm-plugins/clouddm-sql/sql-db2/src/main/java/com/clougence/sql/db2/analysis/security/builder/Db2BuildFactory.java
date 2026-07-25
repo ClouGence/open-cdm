@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -51,7 +51,7 @@ public class Db2BuildFactory extends RdbBuilderFactory {
     }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SecQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
         return null;
     }
 
@@ -87,21 +87,21 @@ public class Db2BuildFactory extends RdbBuilderFactory {
         return text;
     }
 
-    public Db2SchemaDomain newSchemaDomain(SecQueryType type) {
+    public Db2SchemaDomain newSchemaDomain(SplitQueryType type) {
         Db2SchemaDomain domain = new Db2SchemaDomain();
         domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public Db2TableDomain newTableDomain(SecQueryType type, SecQueryKind kind) {
+    public Db2TableDomain newTableDomain(SplitQueryType type, SecQueryKind kind) {
         Db2TableDomain domain = new Db2TableDomain();
         domain.setSqlType(type);
         domain.setAuditKind(kind);
         return domain;
     }
 
-    public Db2ColumnDomain newColumnDomain(SecQueryType type, SecQueryKind kind) {
+    public Db2ColumnDomain newColumnDomain(SplitQueryType type, SecQueryKind kind) {
         Db2ColumnDomain domain = new Db2ColumnDomain();
         domain.setSqlType(type);
         domain.setAuditKind(kind);
@@ -110,7 +110,7 @@ public class Db2BuildFactory extends RdbBuilderFactory {
 
     public Db2SelectDomain newSelectDomain(RdbQueryMode mode) {
         Db2SelectDomain domain = new Db2SelectDomain();
-        domain.setSqlType(SecQueryType.SELECT);
+        domain.setSqlType(SplitQueryType.SELECT);
         domain.setAuditKind(SecQueryKind.QUERY);
         domain.setMode(mode);
         domain.setSelectColumns(new ArrayList<>());
@@ -132,47 +132,47 @@ public class Db2BuildFactory extends RdbBuilderFactory {
 
     public Db2InsertDomain newInsertDomain() {
         Db2InsertDomain domain = new Db2InsertDomain();
-        domain.setSqlType(SecQueryType.INSERT);
+        domain.setSqlType(SplitQueryType.INSERT);
         domain.setAuditKind(SecQueryKind.DML);
         return domain;
     }
 
     public Db2UpdateDomain newUpdateDomain() {
         Db2UpdateDomain domain = new Db2UpdateDomain();
-        domain.setSqlType(SecQueryType.UPDATE);
+        domain.setSqlType(SplitQueryType.UPDATE);
         domain.setAuditKind(SecQueryKind.DML);
         return domain;
     }
 
     public Db2DeleteDomain newDeleteDomain() {
         Db2DeleteDomain domain = new Db2DeleteDomain();
-        domain.setSqlType(SecQueryType.DELETE);
+        domain.setSqlType(SplitQueryType.DELETE);
         domain.setAuditKind(SecQueryKind.DML);
         return domain;
     }
 
     public RdbCallDomain newCallDomain() {
         RdbCallDomain domain = new RdbCallDomain();
-        domain.setSqlType(SecQueryType.CALL_PROG_OBJ);
+        domain.setSqlType(SplitQueryType.CALL_PROG_OBJ);
         domain.setAuditKind(SecQueryKind.CALL);
         return domain;
     }
 
-    public RdbViewDomain newViewDomain(SecQueryType type) {
+    public RdbViewDomain newViewDomain(SplitQueryType type) {
         RdbViewDomain domain = new RdbViewDomain();
         domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public RdbIndexDomain newIndexDomain(SecQueryType type) {
+    public RdbIndexDomain newIndexDomain(SplitQueryType type) {
         RdbIndexDomain domain = new RdbIndexDomain();
         domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public RdbConstraintDomain newConstraintDomain(SecQueryType type) {
+    public RdbConstraintDomain newConstraintDomain(SplitQueryType type) {
         RdbConstraintDomain domain = new RdbConstraintDomain();
         domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());

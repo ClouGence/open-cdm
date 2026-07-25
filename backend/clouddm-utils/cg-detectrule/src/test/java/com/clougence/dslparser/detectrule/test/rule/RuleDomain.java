@@ -24,7 +24,7 @@ import lombok.Setter;
 @Setter
 public abstract class RuleDomain {
 
-    private SecQueryType        sqlType;
+    private SplitQueryType      sqlType;
     private SqlDdlKind          ddlKind;
     private Map<String, String> options;
 

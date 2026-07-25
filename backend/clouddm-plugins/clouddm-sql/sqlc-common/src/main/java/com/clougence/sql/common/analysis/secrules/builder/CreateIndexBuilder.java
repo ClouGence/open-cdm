@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbIndexDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.SqlConstraintType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -81,7 +81,7 @@ public class CreateIndexBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        indexDomain.setSqlType(SecQueryType.ADD_INDEX);
+        indexDomain.setSqlType(SplitQueryType.ADD_INDEX);
         indexDomain.setAuditKind(SecQueryKind.CREATE);
         if (StringUtils.isEmpty(indexDomain.getType())) {
             indexDomain.setType("index");

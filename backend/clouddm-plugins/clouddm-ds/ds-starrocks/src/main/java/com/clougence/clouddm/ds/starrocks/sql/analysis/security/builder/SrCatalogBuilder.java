@@ -18,8 +18,8 @@ package com.clougence.clouddm.ds.starrocks.sql.analysis.security.builder;
 import java.util.List;
 
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.domain.SrCatalogDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.CatalogDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -29,7 +29,7 @@ import com.clougence.sql.common.analysis.secrules.builder.mode.OptionsDomain;
 
 public class SrCatalogBuilder extends CatalogDomainBuilder<SrCatalogDomain> {
 
-    public SrCatalogBuilder(SecQueryType secQueryType){
+    public SrCatalogBuilder(SplitQueryType secQueryType){
         super(secQueryType);
     }
 

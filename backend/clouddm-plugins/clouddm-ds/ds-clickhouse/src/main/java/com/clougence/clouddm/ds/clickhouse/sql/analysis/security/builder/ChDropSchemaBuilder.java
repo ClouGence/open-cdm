@@ -20,8 +20,8 @@ import java.util.Map;
 
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.domain.ChSchemaDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.DropSchemaBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -55,7 +55,7 @@ public class ChDropSchemaBuilder extends DropSchemaBuilder<ChSchemaDomain> {
             schemaDomain.setSchema(map.get(UmiTypes.Schema));
             schemaDomain.setCatalog(map.get(UmiTypes.Catalog));
             schemaDomain.setAuditKind(SecQueryKind.DROP);
-            schemaDomain.setSqlType(SecQueryType.DROP_SCHEMA);
+            schemaDomain.setSqlType(SplitQueryType.DROP_SCHEMA);
             schemaDomain.setIfExists(ifExists);
             domains.add(schemaDomain);
         } else {

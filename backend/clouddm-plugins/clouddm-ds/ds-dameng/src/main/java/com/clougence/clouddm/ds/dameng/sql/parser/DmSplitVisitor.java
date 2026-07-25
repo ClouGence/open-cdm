@@ -17,379 +17,379 @@ package com.clougence.clouddm.ds.dameng.sql.parser;
 
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParserBaseVisitor;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
-public class DmSplitVisitor extends DmSqlParserBaseVisitor<SecQueryType> {
+public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
     public static final DmSplitVisitor INSTANCE = new DmSplitVisitor();
 
     @Override
-    protected SecQueryType defaultResult() {
-        return SecQueryType.UNKNOWN;
+    protected SplitQueryType defaultResult() {
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    protected SecQueryType aggregateResult(SecQueryType aggregate, SecQueryType nextResult) {
-        return nextResult == SecQueryType.UNKNOWN ? aggregate : nextResult;
+    protected SplitQueryType aggregateResult(SplitQueryType aggregate, SplitQueryType nextResult) {
+        return nextResult == SplitQueryType.UNKNOWN ? aggregate : nextResult;
     }
 
     @Override
-    public SecQueryType visitSelectStatement(DmSqlParser.SelectStatementContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitSelectStatement(DmSqlParser.SelectStatementContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitInsertStatement(DmSqlParser.InsertStatementContext ctx) {
-        return SecQueryType.INSERT;
+    public SplitQueryType visitInsertStatement(DmSqlParser.InsertStatementContext ctx) {
+        return SplitQueryType.INSERT;
     }
 
     @Override
-    public SecQueryType visitUpdateStatement(DmSqlParser.UpdateStatementContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitUpdateStatement(DmSqlParser.UpdateStatementContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitDeleteStatement(DmSqlParser.DeleteStatementContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDeleteStatement(DmSqlParser.DeleteStatementContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitMergeStatement(DmSqlParser.MergeStatementContext ctx) {
-        return SecQueryType.MERGE;
+    public SplitQueryType visitMergeStatement(DmSqlParser.MergeStatementContext ctx) {
+        return SplitQueryType.MERGE;
     }
 
     @Override
-    public SecQueryType visitFlashbackStatement(DmSqlParser.FlashbackStatementContext ctx) {
-        return SecQueryType.ADMIN_TABLE;
+    public SplitQueryType visitFlashbackStatement(DmSqlParser.FlashbackStatementContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
     }
 
     @Override
-    public SecQueryType visitRefreshMaterializedViewStatement(DmSqlParser.RefreshMaterializedViewStatementContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitRefreshMaterializedViewStatement(DmSqlParser.RefreshMaterializedViewStatementContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitTableCreate(DmSqlParser.TableCreateContext ctx) {
+    public SplitQueryType visitTableCreate(DmSqlParser.TableCreateContext ctx) {
         if (ctx.tableCreateBody() != null && ctx.tableCreateBody().selectStatement() != null) {
-            return SecQueryType.CREATE_TABLE;
+            return SplitQueryType.CREATE_TABLE;
         }
-        return SecQueryType.CREATE_TABLE;
+        return SplitQueryType.CREATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitViewCreate(DmSqlParser.ViewCreateContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitViewCreate(DmSqlParser.ViewCreateContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitMaterializedViewLogCreate(DmSqlParser.MaterializedViewLogCreateContext ctx) {
-        return SecQueryType.CREATE_LOG;
+    public SplitQueryType visitMaterializedViewLogCreate(DmSqlParser.MaterializedViewLogCreateContext ctx) {
+        return SplitQueryType.CREATE_LOG;
     }
 
     @Override
-    public SecQueryType visitIndexCreate(DmSqlParser.IndexCreateContext ctx) {
-        return SecQueryType.ADD_INDEX;
+    public SplitQueryType visitIndexCreate(DmSqlParser.IndexCreateContext ctx) {
+        return SplitQueryType.ADD_INDEX;
     }
 
     @Override
-    public SecQueryType visitSchemaCreate(DmSqlParser.SchemaCreateContext ctx) {
-        return SecQueryType.CREATE_SCHEMA;
+    public SplitQueryType visitSchemaCreate(DmSqlParser.SchemaCreateContext ctx) {
+        return SplitQueryType.CREATE_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitSequenceCreate(DmSqlParser.SequenceCreateContext ctx) {
-        return SecQueryType.CREATE_SEQUENCE;
+    public SplitQueryType visitSequenceCreate(DmSqlParser.SequenceCreateContext ctx) {
+        return SplitQueryType.CREATE_SEQUENCE;
     }
 
     @Override
-    public SecQueryType visitUserCreate(DmSqlParser.UserCreateContext ctx) {
-        return SecQueryType.CREATE_USER;
+    public SplitQueryType visitUserCreate(DmSqlParser.UserCreateContext ctx) {
+        return SplitQueryType.CREATE_USER;
     }
 
     @Override
-    public SecQueryType visitRoleCreate(DmSqlParser.RoleCreateContext ctx) {
-        return SecQueryType.CREATE_ROLE;
+    public SplitQueryType visitRoleCreate(DmSqlParser.RoleCreateContext ctx) {
+        return SplitQueryType.CREATE_ROLE;
     }
 
     @Override
-    public SecQueryType visitProcedureCreate(DmSqlParser.ProcedureCreateContext ctx) {
-        return SecQueryType.CREATE_PROG_OBJ;
+    public SplitQueryType visitProcedureCreate(DmSqlParser.ProcedureCreateContext ctx) {
+        return SplitQueryType.CREATE_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitFunctionCreate(DmSqlParser.FunctionCreateContext ctx) {
-        return SecQueryType.CREATE_PROG_OBJ;
+    public SplitQueryType visitFunctionCreate(DmSqlParser.FunctionCreateContext ctx) {
+        return SplitQueryType.CREATE_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitTriggerCreate(DmSqlParser.TriggerCreateContext ctx) {
-        return SecQueryType.CREATE_TRIGGER;
+    public SplitQueryType visitTriggerCreate(DmSqlParser.TriggerCreateContext ctx) {
+        return SplitQueryType.CREATE_TRIGGER;
     }
 
     @Override
-    public SecQueryType visitSynonymCreate(DmSqlParser.SynonymCreateContext ctx) {
-        return SecQueryType.CREATE_SYNONYM;
+    public SplitQueryType visitSynonymCreate(DmSqlParser.SynonymCreateContext ctx) {
+        return SplitQueryType.CREATE_SYNONYM;
     }
 
     @Override
-    public SecQueryType visitObjectCreate(DmSqlParser.ObjectCreateContext ctx) {
+    public SplitQueryType visitObjectCreate(DmSqlParser.ObjectCreateContext ctx) {
         if (ctx.replaceableObjectCreate() != null) {
             return visitReplaceableObjectCreate(ctx.replaceableObjectCreate());
         }
         if (ctx.TABLESPACE() != null) {
-            return SecQueryType.CREATE_TABLESPACE;
+            return SplitQueryType.CREATE_TABLESPACE;
         }
         if (ctx.DOMAIN() != null || ctx.typeBodyCreate() != null || ctx.typeCreate() != null) {
-            return SecQueryType.CREATE_TYPE;
+            return SplitQueryType.CREATE_TYPE;
         }
         if (ctx.operatorCreate() != null) {
-            return SecQueryType.CREATE_PROG_OBJ;
+            return SplitQueryType.CREATE_PROG_OBJ;
         }
         if (ctx.PROFILE() != null) {
-            return SecQueryType.SYSTEM_SETTING_WRITE;
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         if (ctx.classBodyCreate() != null || ctx.javaClassCreate() != null || ctx.classCreate() != null) {
-            return SecQueryType.CREATE_TYPE;
+            return SplitQueryType.CREATE_TYPE;
         }
-        return SecQueryType.UNKNOWN;
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitReplaceableObjectCreate(DmSqlParser.ReplaceableObjectCreateContext ctx) {
+    public SplitQueryType visitReplaceableObjectCreate(DmSqlParser.ReplaceableObjectCreateContext ctx) {
         if (ctx.PACKAGE() != null) {
-            return SecQueryType.CREATE_PROG_OBJ;
+            return SplitQueryType.CREATE_PROG_OBJ;
         }
         if (ctx.LIBRARY() != null) {
-            return SecQueryType.CREATE_LIBRARY;
+            return SplitQueryType.CREATE_LIBRARY;
         }
         if (ctx.typeBodyCreate() != null || ctx.typeCreate() != null) {
-            return SecQueryType.CREATE_TYPE;
+            return SplitQueryType.CREATE_TYPE;
         }
         if (ctx.classBodyCreate() != null || ctx.javaClassCreate() != null || ctx.classCreate() != null) {
-            return SecQueryType.CREATE_TYPE;
+            return SplitQueryType.CREATE_TYPE;
         }
         if (ctx.LINK() != null || ctx.DIRECTORY() != null || ctx.CONTEXT() != null) {
-            return SecQueryType.SYSTEM_SETTING_WRITE;
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
-        return SecQueryType.UNKNOWN;
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitAdminStatement(DmSqlParser.AdminStatementContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAdminStatement(DmSqlParser.AdminStatementContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitStatStatement(DmSqlParser.StatStatementContext ctx) {
-        return SecQueryType.ADMIN_TABLE;
+    public SplitQueryType visitStatStatement(DmSqlParser.StatStatementContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
     }
 
     @Override
-    public SecQueryType visitStatProcedureStatement(DmSqlParser.StatProcedureStatementContext ctx) {
-        return SecQueryType.ADMIN_TABLE;
+    public SplitQueryType visitStatProcedureStatement(DmSqlParser.StatProcedureStatementContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
     }
 
     @Override
-    public SecQueryType visitAlterTarget(DmSqlParser.AlterTargetContext ctx) {
+    public SplitQueryType visitAlterTarget(DmSqlParser.AlterTargetContext ctx) {
         if (ctx.TABLE() != null) {
-            return SecQueryType.ALTER_TABLE;
+            return SplitQueryType.ALTER_TABLE;
         }
         if (ctx.INDEX() != null) {
-            return SecQueryType.ALTER_INDEX;
+            return SplitQueryType.ALTER_INDEX;
         }
         if (ctx.VIEW() != null) {
-            return SecQueryType.ALTER_VIEW;
+            return SplitQueryType.ALTER_VIEW;
         }
         if (ctx.SEQUENCE() != null) {
-            return SecQueryType.ALTER_SEQUENCE;
+            return SplitQueryType.ALTER_SEQUENCE;
         }
         if (ctx.USER() != null) {
-            return SecQueryType.ALTER_USER;
+            return SplitQueryType.ALTER_USER;
         }
         if (ctx.PROCEDURE() != null) {
-            return SecQueryType.ALTER_PROG_OBJ;
+            return SplitQueryType.ALTER_PROG_OBJ;
         }
         if (ctx.FUNCTION() != null) {
-            return SecQueryType.ALTER_PROG_OBJ;
+            return SplitQueryType.ALTER_PROG_OBJ;
         }
         if (ctx.TRIGGER() != null) {
-            return SecQueryType.ALTER_TRIGGER;
+            return SplitQueryType.ALTER_TRIGGER;
         }
         if (ctx.PACKAGE() != null) {
-            return SecQueryType.ADMIN_PROG_OBJ;
+            return SplitQueryType.ADMIN_PROG_OBJ;
         }
         if (ctx.TABLESPACE() != null) {
-            return SecQueryType.ALTER_TABLESPACE;
+            return SplitQueryType.ALTER_TABLESPACE;
         }
         if (ctx.PROFILE() != null) {
-            return SecQueryType.SYSTEM_SETTING_WRITE;
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         if (ctx.TYPE() != null) {
-            return SecQueryType.ADMIN_TYPE;
+            return SplitQueryType.ADMIN_TYPE;
         }
         if (ctx.CLASS() != null) {
-            return SecQueryType.ADMIN_TYPE;
+            return SplitQueryType.ADMIN_TYPE;
         }
-        return SecQueryType.UNKNOWN;
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitDropTarget(DmSqlParser.DropTargetContext ctx) {
+    public SplitQueryType visitDropTarget(DmSqlParser.DropTargetContext ctx) {
         if (ctx.TABLE() != null) {
-            return SecQueryType.DROP_TABLE;
+            return SplitQueryType.DROP_TABLE;
         }
         if (ctx.MATERIALIZED() != null && ctx.LOG() != null) {
-            return SecQueryType.DROP_LOG;
+            return SplitQueryType.DROP_LOG;
         }
         if (ctx.MATERIALIZED() != null) {
-            return SecQueryType.DROP_VIEW;
+            return SplitQueryType.DROP_VIEW;
         }
         if (ctx.VIEW() != null) {
-            return SecQueryType.DROP_VIEW;
+            return SplitQueryType.DROP_VIEW;
         }
         if (ctx.INDEX() != null) {
-            return SecQueryType.DROP_INDEX;
+            return SplitQueryType.DROP_INDEX;
         }
         if (ctx.SCHEMA() != null || ctx.DATABASE() != null) {
-            return SecQueryType.DROP_SCHEMA;
+            return SplitQueryType.DROP_SCHEMA;
         }
         if (ctx.SEQUENCE() != null) {
-            return SecQueryType.DROP_SEQUENCE;
+            return SplitQueryType.DROP_SEQUENCE;
         }
         if (ctx.USER() != null) {
-            return SecQueryType.DROP_USER;
+            return SplitQueryType.DROP_USER;
         }
         if (ctx.ROLE() != null) {
-            return SecQueryType.DROP_ROLE;
+            return SplitQueryType.DROP_ROLE;
         }
         if (ctx.PROCEDURE() != null) {
-            return SecQueryType.DROP_PROG_OBJ;
+            return SplitQueryType.DROP_PROG_OBJ;
         }
         if (ctx.FUNCTION() != null) {
-            return SecQueryType.DROP_PROG_OBJ;
+            return SplitQueryType.DROP_PROG_OBJ;
         }
         if (ctx.TRIGGER() != null) {
-            return SecQueryType.DROP_TRIGGER;
+            return SplitQueryType.DROP_TRIGGER;
         }
         if (ctx.SYNONYM() != null) {
-            return SecQueryType.DROP_SYNONYM;
+            return SplitQueryType.DROP_SYNONYM;
         }
         if (ctx.PACKAGE() != null) {
-            return SecQueryType.DROP_PROG_OBJ;
+            return SplitQueryType.DROP_PROG_OBJ;
         }
         if (ctx.TABLESPACE() != null) {
-            return SecQueryType.DROP_TABLESPACE;
+            return SplitQueryType.DROP_TABLESPACE;
         }
         if (ctx.LIBRARY() != null) {
-            return SecQueryType.DROP_LIBRARY;
+            return SplitQueryType.DROP_LIBRARY;
         }
         if (ctx.DOMAIN() != null || ctx.TYPE() != null) {
-            return SecQueryType.DROP_TYPE;
+            return SplitQueryType.DROP_TYPE;
         }
         if (ctx.OPERATOR() != null) {
-            return SecQueryType.DROP_PROG_OBJ;
+            return SplitQueryType.DROP_PROG_OBJ;
         }
         if (ctx.CLASS() != null) {
-            return SecQueryType.DROP_TYPE;
+            return SplitQueryType.DROP_TYPE;
         }
         if (ctx.LINK() != null || ctx.DIRECTORY() != null || ctx.CONTEXT() != null || ctx.PROFILE() != null) {
-            return SecQueryType.SYSTEM_SETTING_WRITE;
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
-        return SecQueryType.UNKNOWN;
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitTruncateStatement(DmSqlParser.TruncateStatementContext ctx) {
-        return SecQueryType.TRUNCATE_TABLE;
+    public SplitQueryType visitTruncateStatement(DmSqlParser.TruncateStatementContext ctx) {
+        return SplitQueryType.TRUNCATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
+    public SplitQueryType visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
         if (ctx.commentTarget().TABLE() != null) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (ctx.commentTarget().VIEW() != null) {
-            return SecQueryType.ALTER_VIEW;
+            return SplitQueryType.ALTER_VIEW;
         }
-        return SecQueryType.COMMENT_COLUMN;
+        return SplitQueryType.COMMENT_COLUMN;
     }
 
     @Override
-    public SecQueryType visitGrantStatement(DmSqlParser.GrantStatementContext ctx) {
-        return SecQueryType.GRANT;
+    public SplitQueryType visitGrantStatement(DmSqlParser.GrantStatementContext ctx) {
+        return SplitQueryType.GRANT;
     }
 
     @Override
-    public SecQueryType visitRevokeStatement(DmSqlParser.RevokeStatementContext ctx) {
-        return SecQueryType.REVOKE;
+    public SplitQueryType visitRevokeStatement(DmSqlParser.RevokeStatementContext ctx) {
+        return SplitQueryType.REVOKE;
     }
 
     @Override
-    public SecQueryType visitCallStatement(DmSqlParser.CallStatementContext ctx) {
-        return SecQueryType.CALL_PROG_OBJ;
+    public SplitQueryType visitCallStatement(DmSqlParser.CallStatementContext ctx) {
+        return SplitQueryType.CALL_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitLockTableStatement(DmSqlParser.LockTableStatementContext ctx) {
-        return SecQueryType.TRANSACTION;
+    public SplitQueryType visitLockTableStatement(DmSqlParser.LockTableStatementContext ctx) {
+        return SplitQueryType.TRANSACTION;
     }
 
     @Override
-    public SecQueryType visitAlterSessionParallelDmlStatement(DmSqlParser.AlterSessionParallelDmlStatementContext ctx) {
-        return SecQueryType.SYSTEM_SETTING_WRITE;
+    public SplitQueryType visitAlterSessionParallelDmlStatement(DmSqlParser.AlterSessionParallelDmlStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
-    public SecQueryType visitSetSchemaStatement(DmSqlParser.SetSchemaStatementContext ctx) {
-        return SecQueryType.SWITCH_SCHEMA;
+    public SplitQueryType visitSetSchemaStatement(DmSqlParser.SetSchemaStatementContext ctx) {
+        return SplitQueryType.SWITCH_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitSetTimeZoneStatement(DmSqlParser.SetTimeZoneStatementContext ctx) {
-        return SecQueryType.SYSTEM_SETTING_WRITE;
+    public SplitQueryType visitSetTimeZoneStatement(DmSqlParser.SetTimeZoneStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
-    public SecQueryType visitSetIdentityInsertStatement(DmSqlParser.SetIdentityInsertStatementContext ctx) {
-        return SecQueryType.TRANSACTION;
+    public SplitQueryType visitSetIdentityInsertStatement(DmSqlParser.SetIdentityInsertStatementContext ctx) {
+        return SplitQueryType.TRANSACTION;
     }
 
     @Override
-    public SecQueryType visitConfigWriteStatement(DmSqlParser.ConfigWriteStatementContext ctx) {
-        return SecQueryType.SYSTEM_SETTING_WRITE;
+    public SplitQueryType visitConfigWriteStatement(DmSqlParser.ConfigWriteStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
-    public SecQueryType visitAuditAdminStatement(DmSqlParser.AuditAdminStatementContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAuditAdminStatement(DmSqlParser.AuditAdminStatementContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitSecurityAdminStatement(DmSqlParser.SecurityAdminStatementContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitSecurityAdminStatement(DmSqlParser.SecurityAdminStatementContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitProcedureCallStatement(DmSqlParser.ProcedureCallStatementContext ctx) {
-        return SecQueryType.CALL_PROG_OBJ;
+    public SplitQueryType visitProcedureCallStatement(DmSqlParser.ProcedureCallStatementContext ctx) {
+        return SplitQueryType.CALL_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitTransactionStatement(DmSqlParser.TransactionStatementContext ctx) {
-        return SecQueryType.TRANSACTION;
+    public SplitQueryType visitTransactionStatement(DmSqlParser.TransactionStatementContext ctx) {
+        return SplitQueryType.TRANSACTION;
     }
 
     @Override
-    public SecQueryType visitExplainStatement(DmSqlParser.ExplainStatementContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitExplainStatement(DmSqlParser.ExplainStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitSqlBlockStatement(DmSqlParser.SqlBlockStatementContext ctx) {
-        return SecQueryType.BLOCK;
+    public SplitQueryType visitSqlBlockStatement(DmSqlParser.SqlBlockStatementContext ctx) {
+        return SplitQueryType.BLOCK;
     }
 
     @Override
-    public SecQueryType visitCStyleBlockStatement(DmSqlParser.CStyleBlockStatementContext ctx) {
-        return SecQueryType.BLOCK;
+    public SplitQueryType visitCStyleBlockStatement(DmSqlParser.CStyleBlockStatementContext ctx) {
+        return SplitQueryType.BLOCK;
     }
 }

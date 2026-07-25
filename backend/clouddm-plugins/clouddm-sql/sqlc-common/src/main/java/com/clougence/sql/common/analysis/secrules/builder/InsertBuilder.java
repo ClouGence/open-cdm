@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -36,7 +36,7 @@ public class InsertBuilder extends AbstractDomainBuilder {
     private List<String>      nameList      = new ArrayList<>();
     protected RdbInsertDomain insertDomain  = getInsertDomain();
     private int               values        = 0;
-    private SecQueryType      statementType = SecQueryType.INSERT;
+    private SplitQueryType    statementType = SplitQueryType.INSERT;
 
     protected RdbInsertDomain getInsertDomain() { return new RdbInsertDomain(); }
 
@@ -120,7 +120,7 @@ public class InsertBuilder extends AbstractDomainBuilder {
         if (attr == CommonAttribute.INSERT_CONFLICT) {
             insertDomain.setConflict((RdbInsertConflictStrategy) value);
         } else if (attr == CommonAttribute.STATEMENT_TYPE) {
-            statementType = (SecQueryType) value;
+            statementType = (SplitQueryType) value;
         } else if (attr == CommonAttribute.MULTI_VALUE) {
             insertDomain.setMultipleValues(true);
         } else {

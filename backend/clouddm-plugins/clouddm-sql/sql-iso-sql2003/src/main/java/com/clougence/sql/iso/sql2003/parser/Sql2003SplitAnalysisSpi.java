@@ -19,7 +19,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
@@ -31,7 +31,7 @@ public class Sql2003SplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return Sql2003DslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return Sql2003SplitVisitor.INSTANCE;
     }
 

@@ -19,12 +19,12 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.redis.analysis.security.builder.RedisBuilderFactory;
+import com.clougence.sql.redis.analysis.security.domain.RedisCmdDomain;
 import com.clougence.sql.redis.parser.antlr.RedisParser;
 import com.clougence.sql.redis.parser.antlr.RedisParserBaseVisitor;
 import com.clougence.sql.redis.parser.ast.RedisCmdType;
-import com.clougence.sql.redis.analysis.security.builder.RedisBuilderFactory;
-import com.clougence.sql.redis.analysis.security.domain.RedisCmdDomain;
 
 public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
 
@@ -53,7 +53,7 @@ public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
         this.buildCmdDomain(cmdType, ctx, schema, RedisAnalysisHelper.cmdTypeToSecQueryType(cmdType));
     }
 
-    private void buildCmdDomain(RedisCmdType cmdType, RuleNode ctx, String schema, SecQueryType queryType) {
+    private void buildCmdDomain(RedisCmdType cmdType, RuleNode ctx, String schema, SplitQueryType queryType) {
         String cmdStr = cmdType.getCommandStr().toUpperCase();
         String kindStr = cmdType.getKindType().getType().toUpperCase();
 
@@ -67,7 +67,7 @@ public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
     }
 
     //    private AccessType convertTo(RedisCmdType cmdType) {
-    //        SecQueryType queryType = RedisAnalysisHelper.cmdTypeToSecQueryType(cmdType);
+    //        SplitQueryType queryType = RedisAnalysisHelper.cmdTypeToSecQueryType(cmdType);
     //        switch (queryType.getAuthKind()) {
     //            case READ:
     //                return AccessType.READ;
@@ -86,7 +86,7 @@ public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
     //    private void buildKeyDomain(RedisCmdType cmdType, RuleNode ctx, String key, AccessType accessType) {
     //        String cmdStr = cmdType.getCommandStr().toUpperCase();
     //        String kindStr = cmdType.getKindType().getType().toUpperCase();
-    //        SecQueryType queryType = RedisAnalysisHelper.cmdTypeToSecQueryType(cmdType);
+    //        SplitQueryType queryType = RedisAnalysisHelper.cmdTypeToSecQueryType(cmdType);
     //
     //        RedisKeyDomain domain = new RedisKeyDomain(cmdStr, kindStr);
     //        domain.setSqlKind(queryType.getAuditKind());
@@ -232,7 +232,7 @@ public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
 
     @Override
     public Void visitCmdSort(RedisParser.CmdSortContext ctx) {
-        SecQueryType queryType = ctx.destination == null ? SecQueryType.SELECT : SecQueryType.MERGE;
+        SplitQueryType queryType = ctx.destination == null ? SplitQueryType.SELECT : SplitQueryType.MERGE;
         this.buildCmdDomain(RedisCmdType.SORT, ctx, null, queryType);
         return null;
     }

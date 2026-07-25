@@ -19,7 +19,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForOracleParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.oracle.parser.OraSplitAnalysisSpi;
@@ -32,7 +32,7 @@ public class ObForOraSplitAnalysisSpi extends OraSplitAnalysisSpi {
     }
 
     @Override
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return ObForOracleSplitVisitor.INSTANCE;
     }
 

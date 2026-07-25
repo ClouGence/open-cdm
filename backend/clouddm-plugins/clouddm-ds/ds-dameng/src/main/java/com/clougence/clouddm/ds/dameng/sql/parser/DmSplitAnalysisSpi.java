@@ -27,7 +27,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -41,45 +41,45 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return DmSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if (!(tree instanceof DmSqlParser.AlterTableActionContext action)) {
             return null;
         }
         if (action.ADD() != null) {
             if (action.tableConstraint() != null) {
-                return SecQueryType.ADD_CONSTRAINT;
+                return SplitQueryType.ADD_CONSTRAINT;
             }
             if (action.columnDefinition() != null || action.tableElementList() != null) {
-                return SecQueryType.ADD_COLUMN;
+                return SplitQueryType.ADD_COLUMN;
             }
             if (action.partitionAddAction() != null) {
-                return SecQueryType.ADD_PARTITION;
+                return SplitQueryType.ADD_PARTITION;
             }
         }
         if (action.MODIFY() != null && (action.columnDefinitionList() != null || action.columnDefinition() != null)) {
-            return SecQueryType.ALTER_COLUMN;
+            return SplitQueryType.ALTER_COLUMN;
         }
         if (action.DROP() != null) {
             if (action.dropColumnTarget() != null) {
-                return SecQueryType.DROP_COLUMN;
+                return SplitQueryType.DROP_COLUMN;
             }
             if (action.CONSTRAINT() != null || action.PRIMARY() != null) {
-                return SecQueryType.DROP_CONSTRAINT;
+                return SplitQueryType.DROP_CONSTRAINT;
             }
             if (action.partitionDropAction() != null) {
-                return SecQueryType.DROP_PARTITION;
+                return SplitQueryType.DROP_PARTITION;
             }
         }
         if (action.TRUNCATE() != null && action.alterPartitionTruncateTarget() != null) {
-            return SecQueryType.TRUNCATE_PARTITION;
+            return SplitQueryType.TRUNCATE_PARTITION;
         }
         if (action.partitionModifyAction() != null || action.SPLIT() != null || action.MERGE() != null || action.EXCHANGE() != null) {
-            return SecQueryType.ALTER_PARTITION;
+            return SplitQueryType.ALTER_PARTITION;
         }
         return null;
     }
@@ -88,7 +88,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
         DmSqlParser.ViewCreateContext view = findContext(context, DmSqlParser.ViewCreateContext.class);
         if (view != null && view.selectStatement() != null) {
-            return List.of(createChild(view.selectStatement(), tokens, Set.of(SecQueryType.SELECT), Collections.emptyList()));
+            return List.of(createChild(view.selectStatement(), tokens, Set.of(SplitQueryType.SELECT), Collections.emptyList()));
         }
 
         ParseTree owner = findProgramOwner(context);
@@ -103,7 +103,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         }
         List<SplitScript> blockChildren = new ArrayList<>();
         collectBlockNodes(block, tokens, blockChildren);
-        children.add(createChild(block, tokens, Set.of(SecQueryType.BLOCK), blockChildren));
+        children.add(createChild(block, tokens, Set.of(SplitQueryType.BLOCK), blockChildren));
         return children;
     }
 
@@ -125,7 +125,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return;
         }
         if (tree instanceof DmSqlParser.BlockDeclarationContext declaration) {
-            result.add(createChild(declaration, tokens, Set.of(SecQueryType.PROGRAM_CONTROL), Collections.emptyList()));
+            result.add(createChild(declaration, tokens, Set.of(SplitQueryType.PROGRAM_CONTROL), Collections.emptyList()));
             return;
         }
         for (int i = 0; i < tree.getChildCount(); i++) {
@@ -135,16 +135,16 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     private void collectBlockNodes(ParseTree tree, CommonTokenStream tokens, List<SplitScript> result) {
         if (tree instanceof DmSqlParser.BlockSqlStatementContext sql) {
-            SecQueryType type = sql.accept(splitVisitor());
-            result.add(createChild(sql, tokens, Set.of(type == null ? SecQueryType.UNKNOWN : type), Collections.emptyList()));
+            SplitQueryType type = sql.accept(splitVisitor());
+            result.add(createChild(sql, tokens, Set.of(type == null ? SplitQueryType.UNKNOWN : type), Collections.emptyList()));
             return;
         }
         if (tree instanceof DmSqlParser.IfStatementContext || tree instanceof DmSqlParser.LoopStatementContext || tree instanceof DmSqlParser.RepeatStatementContext
             || tree instanceof DmSqlParser.CaseControlStatementContext || tree instanceof DmSqlParser.ReturnStatementContext || tree instanceof DmSqlParser.NullStatementContext) {
-            result.add(createChild((ParserRuleContext) tree, tokens, Set.of(SecQueryType.PROGRAM_CONTROL), Collections.emptyList()));
+            result.add(createChild((ParserRuleContext) tree, tokens, Set.of(SplitQueryType.PROGRAM_CONTROL), Collections.emptyList()));
         } else if (tree instanceof DmSqlParser.AssignmentStatementContext assignment) {
             DmSqlParser.TriggerPseudoRecordTargetContext target = assignment.assignmentTarget().triggerPseudoRecordTarget();
-            SecQueryType type = target != null && target.BIND_VARIABLE().getText().equalsIgnoreCase(":new") ? SecQueryType.UPDATE : SecQueryType.PROGRAM_CONTROL;
+            SplitQueryType type = target != null && target.BIND_VARIABLE().getText().equalsIgnoreCase(":new") ? SplitQueryType.UPDATE : SplitQueryType.PROGRAM_CONTROL;
             result.add(createChild(assignment, tokens, Set.of(type), Collections.emptyList()));
             return;
         }
@@ -182,8 +182,8 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected SecQueryType normalizeType(SecQueryType type, String script) {
-        if (type == null || type == SecQueryType.UNKNOWN) {
+    protected SplitQueryType normalizeType(SplitQueryType type, String script) {
+        if (type == null || type == SplitQueryType.UNKNOWN) {
             throw new IllegalStateException("Dameng SQL parsed but query type was not classified: " + script);
         }
         return type;

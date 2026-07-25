@@ -29,10 +29,10 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.antlr.AdsMyParserBaseVisitor;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -476,7 +476,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
 
     @Override
     public Void visitCopyCreateTable(CopyCreateTableContext ctx) {
-        builder.enterCreateTable(SecQueryType.CREATE_TABLE);
+        builder.enterCreateTable(SplitQueryType.CREATE_TABLE);
         dmVisitChildren(ctx);
         builder.exitCreateTable();
         return null;
@@ -484,7 +484,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
 
     @Override
     public Void visitQueryCreateTable(QueryCreateTableContext ctx) {
-        builder.enterCreateTable(SecQueryType.CREATE_TABLE);
+        builder.enterCreateTable(SplitQueryType.CREATE_TABLE);
         dmVisitChildren(ctx);
         builder.exitCreateTable();
         return null;
@@ -492,7 +492,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
 
     @Override
     public Void visitColumnCreateTable(ColumnCreateTableContext ctx) {
-        builder.enterCreateTable(SecQueryType.CREATE_TABLE);
+        builder.enterCreateTable(SplitQueryType.CREATE_TABLE);
         dmVisitChildren(ctx);
         builder.exitCreateTable();
         return null;
@@ -680,7 +680,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
         for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleResource(() -> {
                 tableNameContext.accept(this);
-            }, SecQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+            }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         }
         return null;
     }
@@ -690,7 +690,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
         for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleResource(() -> {
                 tableNameContext.accept(this);
-            }, SecQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+            }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         }
         return null;
     }
@@ -698,7 +698,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitInstallPlugin(InstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.CREATE_LIBRARY);
+        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_LIBRARY);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Library);
@@ -709,7 +709,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitUninstallPlugin(UninstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.DROP_LIBRARY);
+        rdbResourceDomain.setSqlType(SplitQueryType.DROP_LIBRARY);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Library);
@@ -720,7 +720,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitCreateUdfFunction(CreateUdfFunctionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Function);
@@ -733,7 +733,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
         for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleResource(() -> {
                 tableNameContext.accept(this);
-            }, SecQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+            }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         }
         return null;
     }
@@ -742,7 +742,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitFullDescribeStatement(FullDescribeStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.setSqlType(SecQueryType.PERFORMANCE);
+        rdbResourceDomain.setSqlType(SplitQueryType.PERFORMANCE);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -763,7 +763,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitSetTransaction(SetTransactionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbResourceDomain.setSqlType(SecQueryType.TRANSACTION);
+        rdbResourceDomain.setSqlType(SplitQueryType.TRANSACTION);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -957,7 +957,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitCreateTablespaceInnodb(CreateTablespaceInnodbContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.CREATE_TABLESPACE);
+        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -968,7 +968,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitAlterLogfileGroup(AlterLogfileGroupContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.ALTER_LOG);
+        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Log);
@@ -979,7 +979,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTablespace(AlterTablespaceContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.ALTER_TABLESPACE);
+        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -990,7 +990,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitDropTablespace(DropTablespaceContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.DROP_TABLESPACE);
+        rdbResourceDomain.setSqlType(SplitQueryType.DROP_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -1001,7 +1001,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitDropLogfileGroup(DropLogfileGroupContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.DROP_LOG);
+        rdbResourceDomain.setSqlType(SplitQueryType.DROP_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Log);
@@ -1012,7 +1012,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitCreateLogfileGroup(CreateLogfileGroupContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.CREATE_LOG);
+        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Log);
@@ -1023,7 +1023,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitCreateTablespaceNdb(CreateTablespaceNdbContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.CREATE_TABLESPACE);
+        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -1057,7 +1057,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitAlterByChangeDefault(AlterByChangeDefaultContext ctx) {
         MyColumnDomain myColumnDomain = new MyColumnDomain();
         myColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        myColumnDomain.setSqlType(SecQueryType.ALTER_COLUMN);
+        myColumnDomain.setSqlType(SplitQueryType.ALTER_COLUMN);
         myColumnDomain.setColumn(getName(ctx.uid()));
         if (ctx.defaultValue() != null) {
             String text = this.getText(ctx.defaultValue());
@@ -1131,7 +1131,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitAlterByRenameIndex(AlterByRenameIndexContext ctx) {
         MyIndexDomain myIndexDomain = new MyIndexDomain();
-        myIndexDomain.setSqlType(SecQueryType.ALTER_INDEX);
+        myIndexDomain.setSqlType(SplitQueryType.ALTER_INDEX);
         myIndexDomain.setAuditKind(SecQueryKind.ALTER);
         myIndexDomain.setName(getName(ctx.uid(0)));
         myIndexDomain.setNewName(getName(ctx.uid(1)));
@@ -1143,7 +1143,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitAlterByAlterIndexVisibility(AlterByAlterIndexVisibilityContext ctx) {
         MyIndexDomain myIndexDomain = new MyIndexDomain();
-        myIndexDomain.setSqlType(SecQueryType.ALTER_INDEX);
+        myIndexDomain.setSqlType(SplitQueryType.ALTER_INDEX);
         myIndexDomain.setAuditKind(SecQueryKind.ALTER);
         myIndexDomain.setName(getName(ctx.uid()));
         myIndexDomain.setVisible(ctx.visivility.getType() == VISIBLE);
@@ -1175,7 +1175,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitAlterByConvertCharset(AlterByConvertCharsetContext ctx) {
         MyTableDomain myTableDomain = new MyTableDomain();
         myTableDomain.setAuditKind(SecQueryKind.ALTER);
-        myTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+        myTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
 
         myTableDomain.setCharacterSet(ctx.charsetName().getText());
         if (ctx.collationName() != null) {
@@ -1235,7 +1235,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitTruncateTable(TruncateTableContext ctx) {
         MyTableDomain myTableDomain = new MyTableDomain();
         myTableDomain.setAuditKind(SecQueryKind.DML);
-        myTableDomain.setSqlType(SecQueryType.TRUNCATE_TABLE);
+        myTableDomain.setSqlType(SplitQueryType.TRUNCATE_TABLE);
 
         List<String> names = new ArrayList<>();
         for (UidContext uid : ctx.tableName().fullId().uid()) {
@@ -1486,7 +1486,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
         //        dmVisitChildren(ctx);
         //        builder.exitCreateUser();
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.CREATE_USER);
+        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1558,7 +1558,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.ALTER_USER);
+        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1569,7 +1569,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitAlterUserMysqlV56(AlterUserMysqlV56Context ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.ALTER_USER);
+        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1580,7 +1580,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitGrantProxy(GrantProxyContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.GRANT);
+        rdbResourceDomain.setSqlType(SplitQueryType.GRANT);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1591,7 +1591,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeProxy(RevokeProxyContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.REVOKE);
+        rdbResourceDomain.setSqlType(SplitQueryType.REVOKE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1602,7 +1602,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitRenameUser(RenameUserContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.RENAME_USER);
+        rdbResourceDomain.setSqlType(SplitQueryType.RENAME_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1639,7 +1639,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
             }
 
             MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);
-            domain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+            domain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
             domain.setAuditKind(SecQueryKind.OTHER);
             builder.addDomain(domain);
         }
@@ -1650,7 +1650,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitSetPassword(SetPasswordContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.ALTER_USER);
+        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1661,7 +1661,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowMasterLogs(ShowMasterLogsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.LOG_READ);
+        myShowDomain.setSqlType(SplitQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.BINARY_LOGS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1672,7 +1672,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowSlaveStatus(ShowSlaveStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.SALVE_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1683,7 +1683,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitResetReplica(ResetReplicaContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1694,7 +1694,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitResetSlave(ResetSlaveContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1711,7 +1711,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitLoadIndexIntoCache(LoadIndexIntoCacheContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.ADMIN_PERFORMANCE);
+        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_PERFORMANCE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Index);
         rdbResourceDomain.setNeedSupply(false);
@@ -1722,7 +1722,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitKillStatement(KillStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.ADMIN);
+        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1733,7 +1733,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitPurgeBinaryLogs(PurgeBinaryLogsContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.MAINTAIN_LOG);
+        rdbResourceDomain.setSqlType(SplitQueryType.MAINTAIN_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1744,7 +1744,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitResetMaster(ResetMasterContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1755,7 +1755,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowReplicaStatus(ShowReplicaStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.REPLICA_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1766,7 +1766,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowCharset(ShowCharsetContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CHARACTER_SET);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1777,7 +1777,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowLogEvents(ShowLogEventsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.LOG_READ);
+        myShowDomain.setSqlType(SplitQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.logFormat.getType() == BINLOG) {
             myShowDomain.setShowType(MyShowType.BINLOG_EVENTS);
@@ -1793,7 +1793,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowObjectFilter(ShowObjectFilterContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         ParseTree child = ctx.showCommonEntity().getChild(0);
         TerminalNodeImpl node = (TerminalNodeImpl) child;
@@ -1808,7 +1808,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
             myShowDomain.setShowType(MyShowType.PROCEDURE_STATUS);
             myShowDomain.setTarget(TargetType.Procedure);
         } else if (type == STATUS) {
-            myShowDomain.setSqlType(SecQueryType.PERFORMANCE);
+            myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
             myShowDomain.setShowType(MyShowType.STATUS);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == FUNCTION) {
@@ -1818,18 +1818,18 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
             myShowDomain.setShowType(MyShowType.COLLATION);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == VARIABLES) {
-            myShowDomain.setSqlType(SecQueryType.SESSION_VARIABLE_RW);
+            myShowDomain.setSqlType(SplitQueryType.SESSION_VARIABLE_RW);
             myShowDomain.setShowType(MyShowType.VARIABLES);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == GLOBAL || type == SESSION) {
             if (((TerminalNodeImpl) ctx.showCommonEntity().getChild(1)).getSymbol().getType() == VARIABLES) {
                 if (type != GLOBAL) {
-                    myShowDomain.setSqlType(SecQueryType.SESSION_VARIABLE_RW);
+                    myShowDomain.setSqlType(SplitQueryType.SESSION_VARIABLE_RW);
                 }
                 myShowDomain.setShowType(MyShowType.VARIABLES);
                 myShowDomain.setTarget(TargetType.Environment);
             } else {
-                myShowDomain.setSqlType(SecQueryType.PERFORMANCE);
+                myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
                 myShowDomain.setShowType(MyShowType.STATUS);
                 myShowDomain.setTarget(TargetType.Environment);
             }
@@ -1843,7 +1843,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowColumns(ShowColumnsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.tableName().fullId().children) {
@@ -1883,7 +1883,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowTables(ShowTablesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.TABLES);
         myShowDomain.setTarget(TargetType.Table);
@@ -1897,7 +1897,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitShowCreateDb(ShowCreateDbContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CREATE_DATABASE);
         myShowDomain.setTarget(TargetType.Schema);
@@ -1927,7 +1927,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowCreateFullIdObject(ShowCreateFullIdObjectContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.fullId().children) {
@@ -1975,7 +1975,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowEngine(ShowEngineContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.ENGINE);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1986,7 +1986,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowEngines(ShowEnginesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.ENGINES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1997,7 +1997,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowPrivileges(ShowPrivilegesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PRIVILEGES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2008,7 +2008,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowPlugins(ShowPluginsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PLUGINS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2019,7 +2019,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowErrors(ShowErrorsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.errorFormat.getType() == ERRORS) {
             myShowDomain.setShowType(MyShowType.ERRORS);
@@ -2035,7 +2035,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitShowCountErrors(ShowCountErrorsContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.errorFormat.getType() == ERRORS) {
             myShowDomain.setShowType(MyShowType.ERRORS);
@@ -2050,7 +2050,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowSchemaFilter(ShowSchemaFilterContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         ParseTree child = ctx.showSchemaEntity().getChild(0);
         int type = ((TerminalNodeImpl) child).getSymbol().getType();
@@ -2085,7 +2085,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitShowRoutine(ShowRoutineContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.fullId().children) {
@@ -2118,7 +2118,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowGrants(ShowGrantsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.GRANTS);
         myShowDomain.setTarget(TargetType.UserOrRole);
@@ -2136,7 +2136,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitShowIndexes(ShowIndexesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.tableName().fullId().children) {
@@ -2165,7 +2165,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitShowOpenTables(ShowOpenTablesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.OPEN_TABLES);
         myShowDomain.setTarget(TargetType.Table);
@@ -2180,7 +2180,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowProfile(ShowProfileContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROFILE);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2191,7 +2191,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowProcessList(ShowProcessListContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROCESSLIST);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2203,7 +2203,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitShowProfiles(ShowProfilesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROFILES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2215,7 +2215,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitFlushStatement(FlushStatementContext ctx) {
         for (FlushOptionContext flushOptionContext : ctx.flushOption()) {
             MyFlushDomain myFlushDomain = new MyFlushDomain();
-            myFlushDomain.setSqlType(SecQueryType.SYSTEM_SETTING_WRITE);
+            myFlushDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
             myFlushDomain.setAuditKind(SecQueryKind.OTHER);
 
             String text = this.getText(flushOptionContext);
@@ -2230,10 +2230,10 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
         if ("EXPLAIN".equalsIgnoreCase(ctx.command.getText())) {
-            myShowDomain.setSqlType(SecQueryType.PERFORMANCE);
+            myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
             myShowDomain.setTarget(TargetType.Table);
         } else {
-            myShowDomain.setSqlType(SecQueryType.UNKNOWN);
+            myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
             myShowDomain.setTarget(TargetType.Column);
         }
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
@@ -2259,7 +2259,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     @Override
     public Void visitShowStatus(ShowStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SecQueryType.LOG_READ);
+        myShowDomain.setSqlType(SplitQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.MASTER_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -3055,7 +3055,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitTransactionStatement(TransactionStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.QUERY);
-        domain.setSqlType(SecQueryType.TRANSACTION);
+        domain.setSqlType(SplitQueryType.TRANSACTION);
         domain.setNeedSupply(true);
         domain.setTarget(TargetType.Unknown);
         builder.addDomain(domain);
@@ -3072,7 +3072,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitPrepareStatement(PrepareStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.setSqlType(SecQueryType.UNSAFE);
+        domain.setSqlType(SplitQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);
@@ -3083,7 +3083,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitExecuteStatement(ExecuteStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.setSqlType(SecQueryType.UNSAFE);
+        domain.setSqlType(SplitQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);
@@ -3094,7 +3094,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitDeallocatePrepare(DeallocatePrepareContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.setSqlType(SecQueryType.UNSAFE);
+        domain.setSqlType(SplitQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);
@@ -3150,7 +3150,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
         builder.handleResource(() -> {
             ctx.tableName().accept(this);
-        }, SecQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+        }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         return null;
     }
 
@@ -3158,7 +3158,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitLoadDataStatement(LoadDataStatementContext ctx) {
         builder.handleResource(() -> {
             ctx.tableName().accept(this);
-        }, SecQueryType.DATA_IMPORT, SecQueryKind.OTHER, true, TargetType.Table);
+        }, SplitQueryType.DATA_IMPORT, SecQueryKind.OTHER, true, TargetType.Table);
         return null;
     }
 
@@ -3166,7 +3166,7 @@ public class AdsMyParserVisitor extends AdsMyParserBaseVisitor<Void> {
     public Void visitAdbExternalTable(AdbExternalTableContext ctx) {
         builder.handleResource(() -> {
             ctx.tableName().accept(this);
-        }, SecQueryType.CREATE_TABLE, SecQueryKind.CREATE, true, TargetType.Table);
+        }, SplitQueryType.CREATE_TABLE, SecQueryKind.CREATE, true, TargetType.Table);
         return null;
     }
 }

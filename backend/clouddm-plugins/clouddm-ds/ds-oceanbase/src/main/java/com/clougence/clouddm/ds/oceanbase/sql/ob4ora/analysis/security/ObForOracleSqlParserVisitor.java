@@ -29,13 +29,13 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForOracleParserBaseVisitor;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstantDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbResourceDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.SqlConstraintType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -179,7 +179,7 @@ public class ObForOracleSqlParserVisitor extends ObForOracleParserBaseVisitor<Vo
         OraColumnDomain oraColumnDomain = new OraColumnDomain();
         oraColumnDomain.setColumn(getName(ctx.old_column_name().getText()));
         oraColumnDomain.setNewName(getName(ctx.new_column_name().getText()));
-        oraColumnDomain.setSqlType(SecQueryType.RENAME_COLUMN);
+        oraColumnDomain.setSqlType(SplitQueryType.RENAME_COLUMN);
         oraColumnDomain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(oraColumnDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -664,7 +664,7 @@ public class ObForOracleSqlParserVisitor extends ObForOracleParserBaseVisitor<Vo
     @Override
     public Void visitAnonymous_block(Anonymous_blockContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SecQueryType.BLOCK);
+        rdbResourceDomain.setSqlType(SplitQueryType.BLOCK);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);

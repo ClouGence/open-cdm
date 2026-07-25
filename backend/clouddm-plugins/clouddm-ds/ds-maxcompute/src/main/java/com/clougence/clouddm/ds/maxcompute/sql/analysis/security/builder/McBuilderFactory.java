@@ -20,6 +20,13 @@ import java.util.Stack;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McSchemaDomain;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McTableDomain;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCatalogDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -27,13 +34,6 @@ import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.factory.RdbBuilderFactory;
 import com.clougence.sql.common.analysis.secrules.builder.mode.WithSelectDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCatalogDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.service.execute.MetaService;
 
 public class McBuilderFactory extends RdbBuilderFactory {
 
@@ -89,7 +89,7 @@ public class McBuilderFactory extends RdbBuilderFactory {
     protected DeleteDomainBuilder getDeleteDomainBuilder() { return new McDeleteBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SecQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
         return null;
     }
 
@@ -132,7 +132,7 @@ public class McBuilderFactory extends RdbBuilderFactory {
         this.domainStack.add(new McRenameBuilder(targetType));
     }
 
-    public void enterCreateTable(SecQueryType type) {
+    public void enterCreateTable(SplitQueryType type) {
         this.domainStack.add(new McCreateTableBuilder(type, schemaEnabled));
     }
 

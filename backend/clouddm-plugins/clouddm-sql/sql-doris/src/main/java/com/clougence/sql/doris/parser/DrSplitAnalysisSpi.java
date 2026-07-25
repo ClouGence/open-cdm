@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -38,69 +38,69 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return DrDslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return DrSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof DorisParser.QuerySpecificationContext && isExecutedDmlQuery(tree)) {
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (tree instanceof DorisParser.AddColumnClauseContext || tree instanceof DorisParser.AddColumnsClauseContext) {
-            return SecQueryType.ADD_COLUMN;
+            return SplitQueryType.ADD_COLUMN;
         }
         if (tree instanceof DorisParser.DropColumnClauseContext) {
-            return SecQueryType.DROP_COLUMN;
+            return SplitQueryType.DROP_COLUMN;
         }
         if (tree instanceof DorisParser.ModifyColumnClauseContext || tree instanceof DorisParser.ReorderColumnsClauseContext) {
-            return SecQueryType.ALTER_COLUMN;
+            return SplitQueryType.ALTER_COLUMN;
         }
         if (tree instanceof DorisParser.RenameColumnClauseContext) {
-            return SecQueryType.RENAME_COLUMN;
+            return SplitQueryType.RENAME_COLUMN;
         }
         if (tree instanceof DorisParser.AddPartitionClauseContext || tree instanceof DorisParser.AlterMultiPartitionClauseContext) {
-            return SecQueryType.ADD_PARTITION;
+            return SplitQueryType.ADD_PARTITION;
         }
         if (tree instanceof DorisParser.DropPartitionClauseContext) {
-            return SecQueryType.DROP_PARTITION;
+            return SplitQueryType.DROP_PARTITION;
         }
         if (tree instanceof DorisParser.ModifyPartitionClauseContext || tree instanceof DorisParser.ReplacePartitionClauseContext
             || tree instanceof DorisParser.RenamePartitionClauseContext) {
-            return SecQueryType.ALTER_PARTITION;
+            return SplitQueryType.ALTER_PARTITION;
         }
         if (tree instanceof DorisParser.AddIndexClauseContext || tree instanceof DorisParser.AlterTableAddRollupContext) {
-            return SecQueryType.ADD_INDEX;
+            return SplitQueryType.ADD_INDEX;
         }
         if (tree instanceof DorisParser.DropIndexClauseContext || tree instanceof DorisParser.AlterTableDropRollupContext) {
-            return SecQueryType.DROP_INDEX;
+            return SplitQueryType.DROP_INDEX;
         }
         if (tree instanceof DorisParser.RenameClauseContext) {
-            return SecQueryType.RENAME_TABLE;
+            return SplitQueryType.RENAME_TABLE;
         }
         if (tree instanceof DorisParser.ModifyTableCommentClauseContext) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (tree instanceof DorisParser.ModifyColumnCommentClauseContext) {
-            return SecQueryType.COMMENT_COLUMN;
+            return SplitQueryType.COMMENT_COLUMN;
         }
         if (tree instanceof DorisParser.AddConstraintContext) {
-            return SecQueryType.ADD_CONSTRAINT;
+            return SplitQueryType.ADD_CONSTRAINT;
         }
         if (tree instanceof DorisParser.DropConstraintContext) {
-            return SecQueryType.DROP_CONSTRAINT;
+            return SplitQueryType.DROP_CONSTRAINT;
         }
         if (tree instanceof DorisParser.CreateTableContext ctx && ctx.COMMENT() != null) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (tree instanceof DorisParser.ColumnDefContext ctx && ctx.comment != null) {
-            return SecQueryType.COMMENT_COLUMN;
+            return SplitQueryType.COMMENT_COLUMN;
         }
         if (tree instanceof DorisParser.IndexDefContext ctx && ctx.comment != null) {
-            return SecQueryType.COMMENT_INDEX;
+            return SplitQueryType.COMMENT_INDEX;
         }
         if (tree instanceof DorisParser.CreateIndexContext ctx && ctx.STRING_LITERAL() != null) {
-            return SecQueryType.COMMENT_INDEX;
+            return SplitQueryType.COMMENT_INDEX;
         }
         if (tree instanceof DorisParser.FunctionCallExpressionContext ctx && isExecutedFunction(ctx)) {
             return functionType(ctx);
@@ -150,18 +150,18 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return false;
     }
 
-    private Set<SecQueryType> collectBodyTypes(ParserRuleContext body, String script) {
-        Set<SecQueryType> types = new LinkedHashSet<>();
-        types.add(body instanceof DorisParser.QueryContext ? SecQueryType.SELECT : normalizeType(body.accept(splitVisitor()), script));
+    private Set<SplitQueryType> collectBodyTypes(ParserRuleContext body, String script) {
+        Set<SplitQueryType> types = new LinkedHashSet<>();
+        types.add(body instanceof DorisParser.QueryContext ? SplitQueryType.SELECT : normalizeType(body.accept(splitVisitor()), script));
         collectBodyAdditionalTypes(body, types);
         return types;
     }
 
-    private void collectBodyAdditionalTypes(ParseTree tree, Set<SecQueryType> types) {
+    private void collectBodyAdditionalTypes(ParseTree tree, Set<SplitQueryType> types) {
         if (tree instanceof DorisParser.QuerySpecificationContext) {
-            types.add(SecQueryType.SELECT);
+            types.add(SplitQueryType.SELECT);
         } else if (tree instanceof DorisParser.FunctionCallExpressionContext function) {
-            SecQueryType type = functionType(function);
+            SplitQueryType type = functionType(function);
             if (type != null) {
                 types.add(type);
             }
@@ -171,9 +171,9 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         }
     }
 
-    private SecQueryType functionType(DorisParser.FunctionCallExpressionContext function) {
+    private SplitQueryType functionType(DorisParser.FunctionCallExpressionContext function) {
         String name = function.functionIdentifier().functionNameIdentifier().getText().toLowerCase(Locale.ROOT);
-        return function.functionIdentifier().dbName != null || KNOWN_USER_FUNCTIONS.contains(name) ? SecQueryType.CALL_PROG_OBJ : null;
+        return function.functionIdentifier().dbName != null || KNOWN_USER_FUNCTIONS.contains(name) ? SplitQueryType.CALL_PROG_OBJ : null;
     }
 
     private boolean hasAncestor(ParseTree tree, Class<? extends ParseTree> type) {

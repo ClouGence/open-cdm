@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,24 +27,24 @@ import lombok.Setter;
 @Setter
 public class SplitScript {
 
-    private Set<SecQueryType> type;
-    private String            script;
-    private List<QueryArg>    scriptArgs;
-    private List<SplitScript> children;
+    private Set<SplitQueryType> type;
+    private String              script;
+    private List<QueryArg>      scriptArgs;
+    private List<SplitScript>   children;
 
-    private int               bodyStartCodeLine;
-    private int               bodyStartCodeColumn;
-    private int               bodyEndCodeLine;
-    private int               bodyEndCodeColumn;
+    private int                 bodyStartCodeLine;
+    private int                 bodyStartCodeColumn;
+    private int                 bodyEndCodeLine;
+    private int                 bodyEndCodeColumn;
 
     public SplitScript(){
     }
 
-    public SplitScript(Set<SecQueryType> type, String script, List<QueryArg> scriptArgs){
+    public SplitScript(Set<SplitQueryType> type, String script, List<QueryArg> scriptArgs){
         this.type = type;
         this.script = script;
         this.scriptArgs = scriptArgs;
     }
 
-    public SecQueryType getPrimaryType() { return this.type == null || this.type.isEmpty() ? SecQueryType.UNKNOWN : this.type.iterator().next(); }
+    public SplitQueryType getPrimaryType() { return this.type == null || this.type.isEmpty() ? SplitQueryType.UNKNOWN : this.type.iterator().next(); }
 }

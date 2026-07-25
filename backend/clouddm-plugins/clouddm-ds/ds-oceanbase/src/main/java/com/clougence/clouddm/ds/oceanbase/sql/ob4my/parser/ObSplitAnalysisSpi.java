@@ -26,7 +26,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -41,119 +41,119 @@ public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return ObSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof ObForMySqlParser.UdfFunctionCallContext function) {
             ObForMySqlParser.FullIdContext fullId = function.customFunctionName().fullId();
             String name = fullId.uid(fullId.uid().size() - 1).getText();
-            return MySqlResourceRegistry.instance().isUserDefinedFunction(name, fullId.uid().size() > 1) ? SecQueryType.CALL_PROG_OBJ : null;
+            return MySqlResourceRegistry.instance().isUserDefinedFunction(name, fullId.uid().size() > 1) ? SplitQueryType.CALL_PROG_OBJ : null;
         }
         if (tree instanceof ObForMySqlParser.SelectInsertValueContext) {
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (tree instanceof ObForMySqlParser.AlterByAddColumnContext || tree instanceof ObForMySqlParser.AlterByAddColumnsContext) {
-            return SecQueryType.ADD_COLUMN;
+            return SplitQueryType.ADD_COLUMN;
         }
         if (tree instanceof ObForMySqlParser.AlterByModifyColumnContext || tree instanceof ObForMySqlParser.AlterByChangeColumnContext
             || tree instanceof ObForMySqlParser.AlterByChangeDefaultContext) {
-            return SecQueryType.ALTER_COLUMN;
+            return SplitQueryType.ALTER_COLUMN;
         }
         if (tree instanceof ObForMySqlParser.AlterByRenameColumnContext) {
-            return SecQueryType.RENAME_COLUMN;
+            return SplitQueryType.RENAME_COLUMN;
         }
         if (tree instanceof ObForMySqlParser.AlterByDropColumnContext) {
-            return SecQueryType.DROP_COLUMN;
+            return SplitQueryType.DROP_COLUMN;
         }
         if (tree instanceof ObForMySqlParser.AlterByAddPrimaryKeyContext || tree instanceof ObForMySqlParser.AlterByAddForeignKeyContext
             || tree instanceof ObForMySqlParser.AlterByAddCheckTableConstraintContext) {
-            return SecQueryType.ADD_CONSTRAINT;
+            return SplitQueryType.ADD_CONSTRAINT;
         }
         if (tree instanceof ObForMySqlParser.AlterByAddUniqueKeyContext unique) {
-            return unique.CONSTRAINT() == null ? SecQueryType.ADD_INDEX : SecQueryType.ADD_CONSTRAINT;
+            return unique.CONSTRAINT() == null ? SplitQueryType.ADD_INDEX : SplitQueryType.ADD_CONSTRAINT;
         }
         if (tree instanceof ObForMySqlParser.AlterByDropPrimaryKeyContext || tree instanceof ObForMySqlParser.AlterByDropForeignKeyContext
             || tree instanceof ObForMySqlParser.AlterByDropConstraintCheckContext) {
-            return SecQueryType.DROP_CONSTRAINT;
+            return SplitQueryType.DROP_CONSTRAINT;
         }
         if (tree instanceof ObForMySqlParser.AlterByAddIndexContext || tree instanceof ObForMySqlParser.AlterByAddSpecialIndexContext) {
-            return SecQueryType.ADD_INDEX;
+            return SplitQueryType.ADD_INDEX;
         }
         if (tree instanceof ObForMySqlParser.AlterByDropIndexContext) {
-            return SecQueryType.DROP_INDEX;
+            return SplitQueryType.DROP_INDEX;
         }
         if (tree instanceof ObForMySqlParser.AlterByRenameIndexContext) {
-            return SecQueryType.RENAME_INDEX;
+            return SplitQueryType.RENAME_INDEX;
         }
         if (tree instanceof ObForMySqlParser.AlterByAlterIndexVisibilityContext) {
-            return SecQueryType.ALTER_INDEX;
+            return SplitQueryType.ALTER_INDEX;
         }
         if (tree instanceof ObForMySqlParser.AlterByRenameContext) {
-            return SecQueryType.RENAME_TABLE;
+            return SplitQueryType.RENAME_TABLE;
         }
         if (tree instanceof ObForMySqlParser.AlterByAddPartitionContext) {
-            return SecQueryType.ADD_PARTITION;
+            return SplitQueryType.ADD_PARTITION;
         }
         if (tree instanceof ObForMySqlParser.AlterByDropPartitionContext) {
-            return SecQueryType.DROP_PARTITION;
+            return SplitQueryType.DROP_PARTITION;
         }
         if (tree instanceof ObForMySqlParser.AlterByTruncatePartitionContext) {
-            return SecQueryType.TRUNCATE_PARTITION;
+            return SplitQueryType.TRUNCATE_PARTITION;
         }
         if (tree instanceof ObForMySqlParser.AlterByCoalescePartitionContext || tree instanceof ObForMySqlParser.AlterByReorganizePartitionContext
             || tree instanceof ObForMySqlParser.AlterByExchangePartitionContext || tree instanceof ObForMySqlParser.AlterByRemovePartitioningContext
             || tree instanceof ObForMySqlParser.AlterByUpgradePartitioningContext) {
-            return SecQueryType.ALTER_PARTITION;
+            return SplitQueryType.ALTER_PARTITION;
         }
         if (tree instanceof ObForMySqlParser.AlterByAnalyzePartitionContext || tree instanceof ObForMySqlParser.AlterByCheckPartitionContext
             || tree instanceof ObForMySqlParser.AlterByOptimizePartitionContext || tree instanceof ObForMySqlParser.AlterByRepairPartitionContext
             || tree instanceof ObForMySqlParser.AlterByRebuildPartitionContext || tree instanceof ObForMySqlParser.AlterByDiscardPartitionContext
             || tree instanceof ObForMySqlParser.AlterByImportPartitionContext) {
-            return SecQueryType.ADMIN_PARTITION;
+            return SplitQueryType.ADMIN_PARTITION;
         }
         if (tree instanceof ObForMySqlParser.AlterByDiscardTablespaceContext || tree instanceof ObForMySqlParser.AlterByImportTablespaceContext) {
-            return SecQueryType.ADMIN_TABLE;
+            return SplitQueryType.ADMIN_TABLE;
         }
         if (tree instanceof ObForMySqlParser.TableOptionCommentContext) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (tree instanceof ObForMySqlParser.IndexOptionContext option && option.COMMENT() != null) {
-            return SecQueryType.COMMENT_INDEX;
+            return SplitQueryType.COMMENT_INDEX;
         }
         return null;
     }
 
     @Override
-    protected Set<SecQueryType> collectTypes(ParserRuleContext context, String script) {
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
         ObForMySqlParser.SetVariableContext setVariable = findContext(context, ObForMySqlParser.SetVariableContext.class);
         if (setVariable != null) {
-            Set<SecQueryType> types = new LinkedHashSet<>();
+            Set<SplitQueryType> types = new LinkedHashSet<>();
             for (ObForMySqlParser.VariableClauseContext variable : setVariable.variableClause()) {
                 if (variable.LOCAL_ID() != null) {
-                    types.add(SecQueryType.SESSION_VARIABLE_RW);
+                    types.add(SplitQueryType.SESSION_VARIABLE_RW);
                 } else if (variable.GLOBAL_ID() != null || variable.GLOBAL() != null || variable.PERSIST() != null) {
-                    types.add(SecQueryType.SYSTEM_SETTING_WRITE);
+                    types.add(SplitQueryType.SYSTEM_SETTING_WRITE);
                 } else {
-                    types.add(SecQueryType.SESSION_SETTING_WRITE);
+                    types.add(SplitQueryType.SESSION_SETTING_WRITE);
                 }
             }
-            return types.isEmpty() ? Collections.singleton(SecQueryType.UNKNOWN) : types;
+            return types.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : types;
         }
 
-        Set<SecQueryType> types = new LinkedHashSet<>(super.collectTypes(context, script));
+        Set<SplitQueryType> types = new LinkedHashSet<>(super.collectTypes(context, script));
         collectSecondaryTypes(context, types);
         return types;
     }
 
-    private void collectSecondaryTypes(ParseTree tree, Set<SecQueryType> types) {
+    private void collectSecondaryTypes(ParseTree tree, Set<SplitQueryType> types) {
         if (tree instanceof ObForMySqlParser.AlterByChangeColumnContext change && !change.oldColumn.getText().equals(change.columnDefinition().uid().getText())) {
-            types.add(SecQueryType.RENAME_COLUMN);
+            types.add(SplitQueryType.RENAME_COLUMN);
         }
         if (tree instanceof ObForMySqlParser.AlterByImportTablespaceContext || tree instanceof ObForMySqlParser.AlterByImportPartitionContext) {
-            types.add(SecQueryType.DATA_IMPORT);
+            types.add(SplitQueryType.DATA_IMPORT);
         }
         for (int i = 0; i < tree.getChildCount(); i++) {
             collectSecondaryTypes(tree.getChild(i), types);
@@ -164,11 +164,11 @@ public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
         ObForMySqlParser.CreateViewContext createView = findContext(context, ObForMySqlParser.CreateViewContext.class);
         if (createView != null) {
-            return List.of(createChild(createView.selectStatement(), tokens, Collections.singleton(SecQueryType.SELECT), Collections.emptyList()));
+            return List.of(createChild(createView.selectStatement(), tokens, Collections.singleton(SplitQueryType.SELECT), Collections.emptyList()));
         }
         ObForMySqlParser.AlterViewContext alterView = findContext(context, ObForMySqlParser.AlterViewContext.class);
         if (alterView != null) {
-            return List.of(createChild(alterView.selectStatement(), tokens, Collections.singleton(SecQueryType.SELECT), Collections.emptyList()));
+            return List.of(createChild(alterView.selectStatement(), tokens, Collections.singleton(SplitQueryType.SELECT), Collections.emptyList()));
         }
         return Collections.emptyList();
     }

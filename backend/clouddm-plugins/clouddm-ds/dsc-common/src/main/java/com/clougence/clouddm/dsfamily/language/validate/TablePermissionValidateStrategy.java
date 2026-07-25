@@ -18,7 +18,7 @@ package com.clougence.clouddm.dsfamily.language.validate;
 import java.util.*;
 
 import com.clougence.clouddm.sdk.language.validate.Diagnostic;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;

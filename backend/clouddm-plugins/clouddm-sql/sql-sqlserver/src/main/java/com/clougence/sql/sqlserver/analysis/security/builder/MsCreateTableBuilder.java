@@ -16,7 +16,7 @@
 package com.clougence.sql.sqlserver.analysis.security.builder;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.sqlserver.analysis.security.domain.MsTableDomain;
 
@@ -26,7 +26,7 @@ public class MsCreateTableBuilder extends CreateTableBuilder<MsTableDomain> {
     protected MsTableDomain getTableDomain() {
         MsTableDomain domain = new MsTableDomain();
         domain.setAuditKind(SecQueryKind.CREATE);
-        domain.setSqlType(SecQueryType.CREATE_TABLE);
+        domain.setSqlType(SplitQueryType.CREATE_TABLE);
         return domain;
     }
 }

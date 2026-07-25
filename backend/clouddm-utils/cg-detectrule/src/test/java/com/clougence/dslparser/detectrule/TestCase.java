@@ -38,7 +38,7 @@ import com.clougence.dslparser.detectrule.test.TestRuleDomain;
 import com.clougence.dslparser.detectrule.test.func.FuncGroupUtils;
 import com.clougence.dslparser.detectrule.test.func.FuncStringUtils;
 import com.clougence.dslparser.detectrule.test.rule.RdbColumnDomain;
-import com.clougence.dslparser.detectrule.test.rule.SecQueryType;
+import com.clougence.dslparser.detectrule.test.rule.SplitQueryType;
 import com.clougence.dslparser.detectrule.test.rule.SqlDdlKind;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.StatementSet;
@@ -88,7 +88,7 @@ public class TestCase {
         domainData.getDomain().setPrimary(true);
 
         domainData.getDomain().setDdlKind(SqlDdlKind.Create);
-        domainData.getDomain().setSqlType(SecQueryType.INSERT);
+        domainData.getDomain().setSqlType(SplitQueryType.INSERT);
 
         domainData.getStringList().add("a");
         domainData.getStringList().add("b");
@@ -1674,8 +1674,8 @@ public class TestCase {
     @Test
     public void domainExprTest() throws IOException {
         TestRuleDomain domainData = this.createDomain();
-        domainData.getQueryTypes().add(SecQueryType.ADD_INDEX);
-        domainData.getQueryTypes().add(SecQueryType.CREATE_TABLE);
+        domainData.getQueryTypes().add(SplitQueryType.CREATE_INDEX);
+        domainData.getQueryTypes().add(SplitQueryType.CREATE_TABLE);
 
         Type domainType = ReflectHelper.resolveDomain(TestRuleDomain.class);
         Object object;

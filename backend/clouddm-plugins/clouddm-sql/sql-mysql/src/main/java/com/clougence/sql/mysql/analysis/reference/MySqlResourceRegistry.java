@@ -13,10 +13,10 @@ import static com.clougence.sql.common.registry.RegisteredResourceType.TABLE;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.registry.RegisteredResourceType;
 import com.clougence.sql.common.registry.ResourceRegistryDialect;
 import com.clougence.sql.common.registry.VersionedResourceRegistry;
@@ -38,7 +38,7 @@ public final class MySqlResourceRegistry {
     private final VersionedResourceRegistry<Boolean>        systemFunctions;
     private final VersionedResourceRegistry<Boolean>        aggregateFunctions;
     private final VersionedResourceRegistry<Boolean>        systemResources;
-    private final VersionedResourceRegistry<SecQueryType>   functionStatementTypes;
+    private final VersionedResourceRegistry<SplitQueryType> functionStatementTypes;
     private final VersionedResourceRegistry<BehaviorAction> functionBehaviors;
 
     public static MySqlResourceRegistry instance() {
@@ -84,7 +84,7 @@ public final class MySqlResourceRegistry {
         return functionBehaviors.find(FUNCTION, exactVersion, functionName).orElse(BehaviorAction.CALL);
     }
 
-    public SecQueryType functionStatementType(String functionName, MySqlVersion version, boolean hasArguments) {
+    public SplitQueryType functionStatementType(String functionName, MySqlVersion version, boolean hasArguments) {
         if (!isSystemFunction(functionName, version)) {
             return null;
         }
@@ -103,7 +103,7 @@ public final class MySqlResourceRegistry {
         return systemResources.contains(FUNCTION, versionCode(version), schema, object);
     }
 
-    public boolean shouldSkipPermission(SecQueryType sqlType, TargetType targetType, List<String> nodes, MySqlVersion version) {
+    public boolean shouldSkipPermission(SplitQueryType sqlType, TargetType targetType, List<String> nodes, MySqlVersion version) {
         if (sqlType == null || targetType == null || nodes == null || nodes.size() < 2) {
             return false;
         }
@@ -112,10 +112,10 @@ public final class MySqlResourceRegistry {
         if (sqlType.getAuthKind() == SecDataAuthKind.READ && targetType == TargetType.Table) {
             return systemResources.contains(TABLE, versionCode(version), schema, object);
         }
-        if (sqlType == SecQueryType.CALL_PROG_OBJ && targetType == TargetType.Procedure) {
+        if (sqlType == SplitQueryType.CALL_PROG_OBJ && targetType == TargetType.Procedure) {
             return systemResources.contains(PROCEDURE, versionCode(version), schema, object);
         }
-        if (sqlType == SecQueryType.CALL_PROG_OBJ && targetType == TargetType.Function) {
+        if (sqlType == SplitQueryType.CALL_PROG_OBJ && targetType == TargetType.Function) {
             return systemResources.contains(FUNCTION, versionCode(version), schema, object);
         }
         return false;
@@ -168,20 +168,20 @@ public final class MySqlResourceRegistry {
     }
 
     private void registerFunctionStatementTypes() {
-        registerStatement(SecQueryType.SESSION_LOCK, "GET_LOCK", "RELEASE_LOCK", "RELEASE_ALL_LOCKS", "SERVICE_GET_READ_LOCKS", "SERVICE_GET_WRITE_LOCKS", "SERVICE_RELEASE_LOCKS", "VERSION_TOKENS_LOCK_SHARED", "VERSION_TOKENS_LOCK_EXCLUSIVE", "VERSION_TOKENS_UNLOCK");
-        registerStatement(SecQueryType.ALTER_REPLICATION, "ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_MANAGED", "ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_SOURCE", "ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_MANAGED", "ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_SOURCE", "ASYNCHRONOUS_CONNECTION_FAILOVER_RESET", "GROUP_REPLICATION_DISABLE_MEMBER_ACTION", "GROUP_REPLICATION_ENABLE_MEMBER_ACTION", "GROUP_REPLICATION_RESET_MEMBER_ACTIONS", "GROUP_REPLICATION_SET_AS_PRIMARY", "GROUP_REPLICATION_SET_COMMUNICATION_PROTOCOL", "GROUP_REPLICATION_SET_WRITE_CONCURRENCY", "GROUP_REPLICATION_SWITCH_TO_MULTI_PRIMARY_MODE", "GROUP_REPLICATION_SWITCH_TO_SINGLE_PRIMARY_MODE");
-        registerStatement(SecQueryType.ADMIN_REPLICATION, "MASTER_POS_WAIT", "SOURCE_POS_WAIT", "WAIT_FOR_EXECUTED_GTID_SET", "WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS");
-        registerStatement(SecQueryType.LOG_READ, "AUDIT_LOG_READ", "AUDIT_LOG_READ_BOOKMARK");
-        registerStatement(SecQueryType.DATA_IMPORT, "LOAD_FILE");
-        registerStatement(SecQueryType.METADATA, "OPTION_TRACKER_USAGE_GET");
-        registerStatement(SecQueryType.ADMIN, "AUDIT_LOG_ENCRYPTION_PASSWORD_GET", "CREATE_ASYMMETRIC_PRIV_KEY", "KEYRING_KEY_FETCH", "MYSQL_FIREWALL_FLUSH_STATUS");
-        registerStatement(SecQueryType.ADMIN_LOG, "AUDIT_API_MESSAGE_EMIT_UDF", "AUDIT_LOG_FILTER_FLUSH", "AUDIT_LOG_FILTER_REMOVE_FILTER", "AUDIT_LOG_FILTER_REMOVE_USER", "AUDIT_LOG_FILTER_SET_FILTER", "AUDIT_LOG_FILTER_SET_USER");
-        registerStatement(SecQueryType.MAINTAIN_LOG, "AUDIT_LOG_ROTATE");
-        registerStatement(SecQueryType.ALTER_POLICY, "FIREWALL_GROUP_DELIST", "FIREWALL_GROUP_ENLIST", "FIREWALL_GROUP_RENAME", "READ_FIREWALL_GROUPS", "READ_FIREWALL_GROUP_ALLOWLIST", "READ_FIREWALL_USERS", "READ_FIREWALL_WHITELIST", "SET_FIREWALL_GROUP_MODE", "SET_FIREWALL_MODE");
-        registerStatement(SecQueryType.DROP_POLICY, "FIREWALL_GROUP_REMOVE");
-        registerStatement(SecQueryType.SYSTEM_SETTING_WRITE, "KEYRING_AWS_ROTATE_CMK", "KEYRING_AWS_ROTATE_KEYS", "KEYRING_HASHICORP_UPDATE_CONFIG", "KEYRING_KEY_GENERATE", "KEYRING_KEY_REMOVE", "KEYRING_KEY_STORE", "GEN_DICTIONARY_DROP", "GEN_DICTIONARY_LOAD", "MASKING_DICTIONARIES_FLUSH", "MASKING_DICTIONARY_REMOVE", "MASKING_DICTIONARY_TERM_ADD", "MASKING_DICTIONARY_TERM_REMOVE", "LOAD_REWRITE_RULES", "REMOVE_DD_PROPERTY_KEY", "AUDIT_LOG_ENCRYPTION_PASSWORD_SET", "OPTION_TRACKER_OPTION_REGISTER", "OPTION_TRACKER_OPTION_UNREGISTER", "VERSION_TOKENS_DELETE", "VERSION_TOKENS_EDIT", "VERSION_TOKENS_SET");
-        registerStatement(SecQueryType.SESSION_SETTING_WRITE, "MLE_SESSION_RESET", "MLE_SET_SESSION_STATE", "OPTION_TRACKER_USAGE_SET", "LAST_INSERT_ID");
-        registerStatement(SecQueryType.PERFORMANCE, "BENCHMARK");
+        registerStatement(SplitQueryType.SESSION_LOCK, "GET_LOCK", "RELEASE_LOCK", "RELEASE_ALL_LOCKS", "SERVICE_GET_READ_LOCKS", "SERVICE_GET_WRITE_LOCKS", "SERVICE_RELEASE_LOCKS", "VERSION_TOKENS_LOCK_SHARED", "VERSION_TOKENS_LOCK_EXCLUSIVE", "VERSION_TOKENS_UNLOCK");
+        registerStatement(SplitQueryType.ALTER_REPLICATION, "ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_MANAGED", "ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_SOURCE", "ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_MANAGED", "ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_SOURCE", "ASYNCHRONOUS_CONNECTION_FAILOVER_RESET", "GROUP_REPLICATION_DISABLE_MEMBER_ACTION", "GROUP_REPLICATION_ENABLE_MEMBER_ACTION", "GROUP_REPLICATION_RESET_MEMBER_ACTIONS", "GROUP_REPLICATION_SET_AS_PRIMARY", "GROUP_REPLICATION_SET_COMMUNICATION_PROTOCOL", "GROUP_REPLICATION_SET_WRITE_CONCURRENCY", "GROUP_REPLICATION_SWITCH_TO_MULTI_PRIMARY_MODE", "GROUP_REPLICATION_SWITCH_TO_SINGLE_PRIMARY_MODE");
+        registerStatement(SplitQueryType.ADMIN_REPLICATION, "MASTER_POS_WAIT", "SOURCE_POS_WAIT", "WAIT_FOR_EXECUTED_GTID_SET", "WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS");
+        registerStatement(SplitQueryType.LOG_READ, "AUDIT_LOG_READ", "AUDIT_LOG_READ_BOOKMARK");
+        registerStatement(SplitQueryType.DATA_IMPORT, "LOAD_FILE");
+        registerStatement(SplitQueryType.METADATA, "OPTION_TRACKER_USAGE_GET");
+        registerStatement(SplitQueryType.ADMIN, "AUDIT_LOG_ENCRYPTION_PASSWORD_GET", "CREATE_ASYMMETRIC_PRIV_KEY", "KEYRING_KEY_FETCH", "MYSQL_FIREWALL_FLUSH_STATUS");
+        registerStatement(SplitQueryType.ADMIN_LOG, "AUDIT_API_MESSAGE_EMIT_UDF", "AUDIT_LOG_FILTER_FLUSH", "AUDIT_LOG_FILTER_REMOVE_FILTER", "AUDIT_LOG_FILTER_REMOVE_USER", "AUDIT_LOG_FILTER_SET_FILTER", "AUDIT_LOG_FILTER_SET_USER");
+        registerStatement(SplitQueryType.MAINTAIN_LOG, "AUDIT_LOG_ROTATE");
+        registerStatement(SplitQueryType.ALTER_POLICY, "FIREWALL_GROUP_DELIST", "FIREWALL_GROUP_ENLIST", "FIREWALL_GROUP_RENAME", "READ_FIREWALL_GROUPS", "READ_FIREWALL_GROUP_ALLOWLIST", "READ_FIREWALL_USERS", "READ_FIREWALL_WHITELIST", "SET_FIREWALL_GROUP_MODE", "SET_FIREWALL_MODE");
+        registerStatement(SplitQueryType.DROP_POLICY, "FIREWALL_GROUP_REMOVE");
+        registerStatement(SplitQueryType.SYSTEM_SETTING_WRITE, "KEYRING_AWS_ROTATE_CMK", "KEYRING_AWS_ROTATE_KEYS", "KEYRING_HASHICORP_UPDATE_CONFIG", "KEYRING_KEY_GENERATE", "KEYRING_KEY_REMOVE", "KEYRING_KEY_STORE", "GEN_DICTIONARY_DROP", "GEN_DICTIONARY_LOAD", "MASKING_DICTIONARIES_FLUSH", "MASKING_DICTIONARY_REMOVE", "MASKING_DICTIONARY_TERM_ADD", "MASKING_DICTIONARY_TERM_REMOVE", "LOAD_REWRITE_RULES", "REMOVE_DD_PROPERTY_KEY", "AUDIT_LOG_ENCRYPTION_PASSWORD_SET", "OPTION_TRACKER_OPTION_REGISTER", "OPTION_TRACKER_OPTION_UNREGISTER", "VERSION_TOKENS_DELETE", "VERSION_TOKENS_EDIT", "VERSION_TOKENS_SET");
+        registerStatement(SplitQueryType.SESSION_SETTING_WRITE, "MLE_SESSION_RESET", "MLE_SET_SESSION_STATE", "OPTION_TRACKER_USAGE_SET", "LAST_INSERT_ID");
+        registerStatement(SplitQueryType.PERFORMANCE, "BENCHMARK");
     }
 
     private void registerFunctionBehaviors() {
@@ -198,7 +198,7 @@ public final class MySqlResourceRegistry {
         register(functionBehaviors, FUNCTION, 80027, Integer.MAX_VALUE, BehaviorAction.CONFIGURE, "ASYNCHRONOUS_CONNECTION_FAILOVER_RESET");
     }
 
-    private void registerStatement(SecQueryType type, String... functionNames) {
+    private void registerStatement(SplitQueryType type, String... functionNames) {
         register(functionStatementTypes, FUNCTION, 0, Integer.MAX_VALUE, type, functionNames);
     }
 

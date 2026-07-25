@@ -20,15 +20,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
+import com.clougence.sql.postgres.analysis.security.PgSecDomainOptionKeys;
 import com.clougence.sql.postgres.analysis.security.builder.enums.PgAttribute;
 import com.clougence.sql.postgres.analysis.security.builder.mode.OptDomain;
-import com.clougence.sql.postgres.analysis.security.PgSecDomainOptionKeys;
 import com.clougence.sql.postgres.analysis.security.domain.PgCatalogDomain;
 
 public class PgAlterDatabaseBuilder extends AbstractDomainBuilder {
@@ -59,7 +59,7 @@ public class PgAlterDatabaseBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        domain.setSqlType(SecQueryType.ALTER_CATALOG);
+        domain.setSqlType(SplitQueryType.ALTER_CATALOG);
         domain.setAuditKind(SecQueryKind.ALTER);
         domain.setCatalog(name);
         return Collections.singletonList(domain);

@@ -18,10 +18,10 @@ package com.clougence.clouddm.ds.maxcompute.sql.analysis.security.builder;
 import java.util.List;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McColumnDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.AlterTableItemBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -42,7 +42,7 @@ public class McColumnAlterTableItemBuilder extends AlterTableItemBuilder {
         if (domain instanceof RdbColumnDomain rdbColumn) {
             if (oldColumnName != null && !rdbColumn.getColumn().equals(oldColumnName)) {
                 McColumnDomain rdbColumnDomain = new McColumnDomain();
-                rdbColumnDomain.setSqlType(SecQueryType.RENAME_COLUMN);
+                rdbColumnDomain.setSqlType(SplitQueryType.RENAME_COLUMN);
                 rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
                 rdbColumnDomain.setColumn(oldColumnName);
                 rdbColumnDomain.setNewName(rdbColumn.getColumn());

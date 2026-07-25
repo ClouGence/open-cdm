@@ -21,21 +21,21 @@ import java.util.Map;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.builder.enums.MyAttribute;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.builder.utils.McBuilderUtil;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McTableDomain;
+import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.schema.umi.struts.UmiTypes;
 
 public class McCreateTableBuilder extends CreateTableBuilder<McTableDomain> {
 
-    private boolean schemaEnabled;
+    private final boolean schemaEnabled;
 
-    public McCreateTableBuilder(SecQueryType type,boolean schemaEnabled){
+    public McCreateTableBuilder(SplitQueryType type, boolean schemaEnabled){
         rdbTableDomain.setSqlType(type);
         this.schemaEnabled = schemaEnabled;
     }

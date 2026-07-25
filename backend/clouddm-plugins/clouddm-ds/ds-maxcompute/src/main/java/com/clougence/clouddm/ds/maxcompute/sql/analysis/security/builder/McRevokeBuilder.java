@@ -19,16 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McRevokeDomain;
+import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.RevokeBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
-import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 
 public class McRevokeBuilder extends RevokeBuilder {
 
-    private List<McRevokeDomain> domains = new ArrayList<>();
+    private final List<McRevokeDomain> domains = new ArrayList<>();
 
     @Override
     public void handleSubDomain(List<Domain> list, DomainSource source) {
@@ -36,7 +36,7 @@ public class McRevokeBuilder extends RevokeBuilder {
             ObjNameDomain domain = (ObjNameDomain) list.get(0);
 
             McRevokeDomain rdbUserDomain = new McRevokeDomain();
-            rdbUserDomain.setSqlType(SecQueryType.REVOKE);
+            rdbUserDomain.setSqlType(SplitQueryType.REVOKE);
             rdbUserDomain.setAuditKind(SecQueryKind.ALTER);
             rdbUserDomain.setName(domain.getNameList().get(0));
             if (domain.getNameList().size() > 1) {

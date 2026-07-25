@@ -22,7 +22,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -35,50 +35,50 @@ public class OraSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return OraDslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return OraSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if ((tree instanceof PlSqlParser.Select_statementContext || tree instanceof PlSqlParser.Select_only_statementContext || tree instanceof PlSqlParser.SubqueryContext)
             && hasDmlOwner(tree)) {
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (tree instanceof PlSqlParser.Add_column_clauseContext) {
-            return SecQueryType.ADD_COLUMN;
+            return SplitQueryType.ADD_COLUMN;
         }
         if (tree instanceof PlSqlParser.Modify_column_clausesContext) {
-            return SecQueryType.ALTER_COLUMN;
+            return SplitQueryType.ALTER_COLUMN;
         }
         if (tree instanceof PlSqlParser.Drop_column_clauseContext) {
-            return SecQueryType.DROP_COLUMN;
+            return SplitQueryType.DROP_COLUMN;
         }
         if (tree instanceof PlSqlParser.Rename_column_clauseContext) {
-            return SecQueryType.RENAME_COLUMN;
+            return SplitQueryType.RENAME_COLUMN;
         }
         if (tree instanceof PlSqlParser.Add_table_constarintContext) {
-            return SecQueryType.ADD_CONSTRAINT;
+            return SplitQueryType.ADD_CONSTRAINT;
         }
         if (tree instanceof PlSqlParser.Modify_table_constarintContext || tree instanceof PlSqlParser.Rename_table_constarintContext) {
-            return SecQueryType.ALTER_CONSTRAINT;
+            return SplitQueryType.ALTER_CONSTRAINT;
         }
         if (tree instanceof PlSqlParser.Drop_table_constarintContext) {
-            return SecQueryType.DROP_CONSTRAINT;
+            return SplitQueryType.DROP_CONSTRAINT;
         }
         if (tree instanceof PlSqlParser.Add_table_partitionContext) {
-            return SecQueryType.ADD_PARTITION;
+            return SplitQueryType.ADD_PARTITION;
         }
         if (tree instanceof PlSqlParser.Drop_table_partitionContext) {
-            return SecQueryType.DROP_PARTITION;
+            return SplitQueryType.DROP_PARTITION;
         }
         if (tree instanceof PlSqlParser.Truncate_table_partitionContext) {
-            return SecQueryType.TRUNCATE_PARTITION;
+            return SplitQueryType.TRUNCATE_PARTITION;
         }
         if (tree instanceof PlSqlParser.Merge_table_partitionContext || tree instanceof PlSqlParser.Modify_table_partitionContext
             || tree instanceof PlSqlParser.Split_table_partitionContext || tree instanceof PlSqlParser.Exchange_table_partitionContext
             || tree instanceof PlSqlParser.Coalesce_table_partitionContext || tree instanceof PlSqlParser.Alter_interval_partitionContext) {
-            return SecQueryType.ALTER_PARTITION;
+            return SplitQueryType.ALTER_PARTITION;
         }
         return null;
     }
@@ -87,7 +87,7 @@ public class OraSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     protected List<SplitScript> collectChildren(ParserRuleContext context, org.antlr.v4.runtime.CommonTokenStream tokens) {
         PlSqlParser.Select_only_statementContext query = viewQuery(context);
         if (query != null) {
-            return List.of(createChild(query, tokens, Set.of(SecQueryType.SELECT), Collections.emptyList()));
+            return List.of(createChild(query, tokens, Set.of(SplitQueryType.SELECT), Collections.emptyList()));
         }
 
         ParseTree owner = programOwner(context);
@@ -157,7 +157,7 @@ public class OraSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (owner instanceof PlSqlParser.Anonymous_blockContext) {
             children.addAll(statements);
         } else {
-            children.add(createChild(body, tokens, Set.of(SecQueryType.BLOCK), statements));
+            children.add(createChild(body, tokens, Set.of(SplitQueryType.BLOCK), statements));
         }
         return children;
     }
@@ -167,7 +167,7 @@ public class OraSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return;
         }
         if (tree instanceof PlSqlParser.Declare_specContext declaration) {
-            result.add(createChild(declaration, tokens, Set.of(SecQueryType.PROGRAM_CONTROL), Collections.emptyList()));
+            result.add(createChild(declaration, tokens, Set.of(SplitQueryType.PROGRAM_CONTROL), Collections.emptyList()));
             return;
         }
         for (int i = 0; i < tree.getChildCount(); i++) {
@@ -194,40 +194,40 @@ public class OraSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     private SplitScript programStatement(PlSqlParser.StatementContext statement, org.antlr.v4.runtime.CommonTokenStream tokens) {
         ParseTree node = firstRuleChild(statement);
         if (node instanceof PlSqlParser.BodyContext body) {
-            return createChild(statement, tokens, Set.of(SecQueryType.BLOCK), programStatements(body, tokens));
+            return createChild(statement, tokens, Set.of(SplitQueryType.BLOCK), programStatements(body, tokens));
         }
         if (node instanceof PlSqlParser.BlockContext block) {
             PlSqlParser.BodyContext body = findContext(block, PlSqlParser.BodyContext.class);
             List<SplitScript> children = body == null ? Collections.emptyList() : programStatements(body, tokens);
-            return createChild(statement, tokens, Set.of(SecQueryType.BLOCK), children);
+            return createChild(statement, tokens, Set.of(SplitQueryType.BLOCK), children);
         }
 
-        Set<SecQueryType> types = new LinkedHashSet<>();
+        Set<SplitQueryType> types = new LinkedHashSet<>();
         if (node instanceof PlSqlParser.Sql_statementContext) {
-            SecQueryType primary = statement.accept(splitVisitor());
-            types.add(primary == null ? SecQueryType.UNKNOWN : primary);
+            SplitQueryType primary = statement.accept(splitVisitor());
+            types.add(primary == null ? SplitQueryType.UNKNOWN : primary);
             if (isDml(primary) && containsQuery(node)) {
-                types.add(SecQueryType.SELECT);
+                types.add(SplitQueryType.SELECT);
             }
         } else if (node instanceof PlSqlParser.Call_statementContext || node instanceof PlSqlParser.General_element_partContext) {
-            types.add(SecQueryType.CALL_PROG_OBJ);
+            types.add(SplitQueryType.CALL_PROG_OBJ);
         } else if (node instanceof PlSqlParser.Assignment_statementContext assignment && assignment.bind_variable() != null
                    && assignment.bind_variable().getText().toUpperCase().startsWith(":NEW.")) {
-            types.add(SecQueryType.UPDATE);
+            types.add(SplitQueryType.UPDATE);
         } else {
-            types.add(SecQueryType.PROGRAM_CONTROL);
+            types.add(SplitQueryType.PROGRAM_CONTROL);
         }
 
         List<SplitScript> children = isControlNode(node) ? programStatements(node, tokens) : Collections.emptyList();
         if (isControlNode(node) && containsQueryOutsideStatements(node)) {
             children = new ArrayList<>(children);
-            children.add(0, createChild((ParserRuleContext) node, tokens, Set.of(SecQueryType.SELECT), Collections.emptyList()));
+            children.add(0, createChild((ParserRuleContext) node, tokens, Set.of(SplitQueryType.SELECT), Collections.emptyList()));
         }
         return createChild(statement, tokens, types, children);
     }
 
-    private boolean isDml(SecQueryType type) {
-        return type == SecQueryType.INSERT || type == SecQueryType.UPDATE || type == SecQueryType.DELETE || type == SecQueryType.MERGE;
+    private boolean isDml(SplitQueryType type) {
+        return type == SplitQueryType.INSERT || type == SplitQueryType.UPDATE || type == SplitQueryType.DELETE || type == SplitQueryType.MERGE;
     }
 
     private boolean containsQuery(ParseTree tree) {

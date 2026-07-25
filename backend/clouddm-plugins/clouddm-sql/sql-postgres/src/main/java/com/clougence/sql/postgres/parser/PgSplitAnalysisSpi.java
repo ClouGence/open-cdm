@@ -21,7 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -55,29 +55,29 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         }
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return new PgSplitVisitor(version());
     }
 
     @Override
-    protected java.util.Set<SecQueryType> collectTypes(ParserRuleContext context, String script) {
-        java.util.Set<SecQueryType> types = new PgSplitVisitor(version()).collectTypes(context);
-        return types.isEmpty() ? java.util.Collections.singleton(SecQueryType.UNKNOWN) : types;
+    protected java.util.Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        java.util.Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(context);
+        return types.isEmpty() ? java.util.Collections.singleton(SplitQueryType.UNKNOWN) : types;
     }
 
     @Override
     protected java.util.List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
         ParserRuleContext query = viewQuery(context);
         if (query != null) {
-            java.util.Set<SecQueryType> types = new PgSplitVisitor(version()).collectTypes(query);
+            java.util.Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(query);
             if (types.isEmpty()) {
-                types = java.util.Collections.singleton(SecQueryType.UNKNOWN);
+                types = java.util.Collections.singleton(SplitQueryType.UNKNOWN);
             }
             return java.util.List.of(createChild(query, tokens, types, java.util.Collections.emptyList()));
         }
         ParserRuleContext triggerFunction = triggerFunction(context);
         if (triggerFunction != null) {
-            return java.util.List.of(createChild(triggerFunction, tokens, java.util.Collections.singleton(SecQueryType.CALL_PROG_OBJ), java.util.Collections.emptyList()));
+            return java.util.List.of(createChild(triggerFunction, tokens, java.util.Collections.singleton(SplitQueryType.CALL_PROG_OBJ), java.util.Collections.emptyList()));
         }
         return java.util.Collections.emptyList();
     }

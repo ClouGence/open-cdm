@@ -18,10 +18,10 @@ package com.clougence.clouddm.ds.clickhouse.sql.analysis.security.builder;
 import java.util.List;
 import java.util.Stack;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.factory.RdbBuilderFactory;
 import com.clougence.sql.common.analysis.secrules.builder.mode.WithSelectDomain;
@@ -52,7 +52,7 @@ public class ChBuilderFactory extends RdbBuilderFactory {
     protected ColumnDefBuilder<? extends RdbColumnDomain> getColumnDefBuilder() { return new ChColumnDefBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SecQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
         return null;
     }
 

@@ -24,7 +24,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -39,7 +39,7 @@ public class MongoSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return MongoSplitVisitor.INSTANCE;
     }
 
@@ -62,7 +62,7 @@ public class MongoSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
         MongoParser.DbCreateViewContext createView = find(context, MongoParser.DbCreateViewContext.class);
         if (createView != null) {
-            return Collections.singletonList(createChild(createView.pipeline, tokens, Collections.singleton(SecQueryType.SELECT), Collections.emptyList()));
+            return Collections.singletonList(createChild(createView.pipeline, tokens, Collections.singleton(SplitQueryType.SELECT), Collections.emptyList()));
         }
 
         MongoParser.RunCommandContext runCommand = find(context, MongoParser.RunCommandContext.class);
@@ -73,7 +73,7 @@ public class MongoSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
         for (MongoParser.PairContext pair : runCommand.obj().pair()) {
             if ("pipeline".equals(MongoSplitVisitor.keyText(pair.key())) && pair.value().arr() != null) {
-                return Collections.singletonList(createChild(pair.value().arr(), tokens, Collections.singleton(SecQueryType.SELECT), Collections.emptyList()));
+                return Collections.singletonList(createChild(pair.value().arr(), tokens, Collections.singleton(SplitQueryType.SELECT), Collections.emptyList()));
             }
         }
         return Collections.emptyList();

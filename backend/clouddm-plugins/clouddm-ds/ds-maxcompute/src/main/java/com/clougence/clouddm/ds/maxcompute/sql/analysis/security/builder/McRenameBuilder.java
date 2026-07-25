@@ -20,16 +20,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McTableDomain;
+import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.enums.NameType;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
 import com.clougence.sql.common.analysis.secrules.builder.utils.BuilderUtil;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.schema.umi.struts.UmiTypes;
 
 public class McRenameBuilder extends AbstractDomainBuilder {
 
@@ -46,7 +46,7 @@ public class McRenameBuilder extends AbstractDomainBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Table) {
             McTableDomain tableDomain = new McTableDomain();
-            tableDomain.setSqlType(SecQueryType.RENAME_TABLE);
+            tableDomain.setSqlType(SplitQueryType.RENAME_TABLE);
             tableDomain.setAuditKind(SecQueryKind.ALTER);
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(oldNameList);
             tableDomain.setSchema(map.get(UmiTypes.Schema));

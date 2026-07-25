@@ -18,7 +18,7 @@ package com.clougence.clouddm.ds.hologres.definition.secrules;
 import java.util.Arrays;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecRulesSupportSpi;
 
 public class HgSecRulesSupportSpi implements SecRulesSupportSpi {

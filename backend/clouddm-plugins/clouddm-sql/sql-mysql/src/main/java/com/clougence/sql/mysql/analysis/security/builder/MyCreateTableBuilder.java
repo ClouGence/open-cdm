@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -33,7 +33,7 @@ import com.clougence.sql.mysql.analysis.security.domain.MyTableDomain;
 
 public class MyCreateTableBuilder extends CreateTableBuilder<MyTableDomain> {
 
-    public MyCreateTableBuilder(SecQueryType type){
+    public MyCreateTableBuilder(SplitQueryType type){
         rdbTableDomain.setSqlType(type);
     }
 

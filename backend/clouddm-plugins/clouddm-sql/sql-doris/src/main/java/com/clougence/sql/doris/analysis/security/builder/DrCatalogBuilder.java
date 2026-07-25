@@ -17,8 +17,8 @@ package com.clougence.sql.doris.analysis.security.builder;
 
 import java.util.List;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.CatalogDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -29,7 +29,7 @@ import com.clougence.sql.doris.analysis.security.domain.DrCatalogDomain;
 
 public class DrCatalogBuilder extends CatalogDomainBuilder<DrCatalogDomain> {
 
-    public DrCatalogBuilder(SecQueryType secQueryType){
+    public DrCatalogBuilder(SplitQueryType secQueryType){
         super(secQueryType);
     }
 

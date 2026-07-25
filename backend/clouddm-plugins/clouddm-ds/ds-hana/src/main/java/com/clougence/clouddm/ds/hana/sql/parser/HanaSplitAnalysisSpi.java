@@ -17,13 +17,13 @@ package com.clougence.clouddm.ds.hana.sql.parser;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.iso.sql2003.parser.Sql2003SplitAnalysisSpi;
 
 public class HanaSplitAnalysisSpi extends Sql2003SplitAnalysisSpi {
 
     @Override
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return HanaSplitVisitor.INSTANCE;
     }
 }

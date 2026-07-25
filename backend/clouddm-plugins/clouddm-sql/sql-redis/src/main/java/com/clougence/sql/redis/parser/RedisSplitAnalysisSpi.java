@@ -21,7 +21,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
@@ -33,12 +33,12 @@ public class RedisSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return RedisDslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return RedisSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected Set<SecQueryType> collectTypes(ParserRuleContext context, String script) {
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
         return RedisSplitVisitor.INSTANCE.collectTypes(context);
     }
 

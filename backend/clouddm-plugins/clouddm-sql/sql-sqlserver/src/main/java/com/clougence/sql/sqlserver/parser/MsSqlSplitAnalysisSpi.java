@@ -25,7 +25,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -38,12 +38,12 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return MsSqlDslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return MsSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected Set<SecQueryType> collectTypes(ParserRuleContext context, String script) {
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
         if (findContext(context, SqlServerParser.Create_viewContext.class) != null || findContext(context, SqlServerParser.Create_or_alter_triggerContext.class) != null
             || findContext(context, SqlServerParser.Create_or_alter_procedureContext.class) != null
             || findContext(context, SqlServerParser.Create_or_alter_functionContext.class) != null) {
@@ -53,9 +53,9 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof SqlServerParser.Insert_statementContext insert && containsContext(insert.insert_statement_value(), SqlServerParser.Select_statementContext.class)) {
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (!(tree instanceof ParserRuleContext context)) {
             return null;
@@ -65,32 +65,32 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return null;
         }
         if (context instanceof SqlServerParser.Column_definitionContext || context instanceof SqlServerParser.Materialized_column_definitionContext) {
-            return directToken(alterTable, SqlServerParser.ADD) ? SecQueryType.ADD_COLUMN : null;
+            return directToken(alterTable, SqlServerParser.ADD) ? SplitQueryType.ADD_COLUMN : null;
         }
         if (context instanceof SqlServerParser.Table_constraintContext) {
-            return SecQueryType.ADD_CONSTRAINT;
+            return SplitQueryType.ADD_CONSTRAINT;
         }
         if (context instanceof SqlServerParser.Column_modifierContext) {
-            return SecQueryType.ALTER_COLUMN;
+            return SplitQueryType.ALTER_COLUMN;
         }
         if (context == alterTable) {
             if (directToken(alterTable, SqlServerParser.DROP)) {
-                return alterTable.CONSTRAINT() == null ? SecQueryType.DROP_COLUMN : SecQueryType.DROP_CONSTRAINT;
+                return alterTable.CONSTRAINT() == null ? SplitQueryType.DROP_COLUMN : SplitQueryType.DROP_CONSTRAINT;
             }
             if (alterTable.column_definition() != null || alterTable.column_modifier() != null) {
-                return SecQueryType.ALTER_COLUMN;
+                return SplitQueryType.ALTER_COLUMN;
             }
             if (directToken(alterTable, SqlServerParser.CHECK) || directToken(alterTable, SqlServerParser.NOCHECK)) {
-                return directToken(alterTable, SqlServerParser.ADD) ? SecQueryType.ADD_CONSTRAINT : SecQueryType.ALTER_CONSTRAINT;
+                return directToken(alterTable, SqlServerParser.ADD) ? SplitQueryType.ADD_CONSTRAINT : SplitQueryType.ALTER_CONSTRAINT;
             }
             if (directToken(alterTable, SqlServerParser.ENABLE) || directToken(alterTable, SqlServerParser.DISABLE)) {
-                return SecQueryType.ALTER_TRIGGER;
+                return SplitQueryType.ALTER_TRIGGER;
             }
             if (directToken(alterTable, SqlServerParser.REBUILD)) {
-                return SecQueryType.ADMIN_TABLE;
+                return SplitQueryType.ADMIN_TABLE;
             }
             if (alterTable.switch_partition() != null) {
-                return SecQueryType.ALTER_PARTITION;
+                return SplitQueryType.ALTER_PARTITION;
             }
         }
         return null;
@@ -128,7 +128,7 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
                 return Collections.emptyList();
             }
             SplitScript select = statementNode(query, tokens);
-            return List.of(createRangeNode(returnToken.getSymbol(), query.getStop(), tokens, Set.of(SecQueryType.PROGRAM_CONTROL), List.of(select)));
+            return List.of(createRangeNode(returnToken.getSymbol(), query.getStop(), tokens, Set.of(SplitQueryType.PROGRAM_CONTROL), List.of(select)));
         }
 
         ParserRuleContext body = function.func_body_returns_table() != null ? function.func_body_returns_table() : function.func_body_returns_scalar();
@@ -146,9 +146,9 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         TerminalNode returnToken = directTerminal(body, SqlServerParser.RETURN);
         if (returnToken != null) {
             Token stop = body instanceof SqlServerParser.Func_body_returns_scalarContext scalar ? scalar.ret.getStop() : returnToken.getSymbol();
-            children.add(createRangeNode(returnToken.getSymbol(), stop, tokens, Set.of(SecQueryType.PROGRAM_CONTROL), Collections.emptyList()));
+            children.add(createRangeNode(returnToken.getSymbol(), stop, tokens, Set.of(SplitQueryType.PROGRAM_CONTROL), Collections.emptyList()));
         }
-        return List.of(createRangeNode(begin.getSymbol(), end.getSymbol(), tokens, Set.of(SecQueryType.BLOCK), children));
+        return List.of(createRangeNode(begin.getSymbol(), end.getSymbol(), tokens, Set.of(SplitQueryType.BLOCK), children));
     }
 
     private List<SplitScript> statementNodes(List<SqlServerParser.Sql_clausesContext> clauses, CommonTokenStream tokens) {
@@ -161,14 +161,14 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     private SplitScript statementNode(ParserRuleContext context, CommonTokenStream tokens) {
         ParserRuleContext statement = unwrap(context);
-        Set<SecQueryType> types;
+        Set<SplitQueryType> types;
         List<SplitScript> children;
         if (statement instanceof SqlServerParser.Block_statementContext block) {
-            types = Set.of(SecQueryType.BLOCK);
+            types = Set.of(SplitQueryType.BLOCK);
             children = statementNodes(block.sql_clauses(), tokens);
         } else if (statement instanceof SqlServerParser.Declare_statementContext || statement instanceof SqlServerParser.Return_statementContext || isProgramControl(statement)
                    || statement instanceof SqlServerParser.Set_statementContext set && set.set_special() == null) {
-            types = Set.of(SecQueryType.PROGRAM_CONTROL);
+            types = Set.of(SplitQueryType.PROGRAM_CONTROL);
             children = controlChildren(statement, tokens);
         } else {
             types = new LinkedHashSet<>(collectTypes(statement, tokens.getText(statement.getStart(), statement.getStop())));
@@ -206,7 +206,7 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
                || context instanceof SqlServerParser.Waitfor_statementContext;
     }
 
-    private SplitScript createRangeNode(Token start, Token stop, CommonTokenStream tokens, Set<SecQueryType> types, List<SplitScript> children) {
+    private SplitScript createRangeNode(Token start, Token stop, CommonTokenStream tokens, Set<SplitQueryType> types, List<SplitScript> children) {
         ParserRuleContext range = new ParserRuleContext();
         range.start = start;
         range.stop = stop;

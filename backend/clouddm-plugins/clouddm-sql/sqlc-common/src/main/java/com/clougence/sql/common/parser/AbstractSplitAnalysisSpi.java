@@ -25,8 +25,8 @@ import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.*;
 
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.location.CodeLocation;
@@ -37,7 +37,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
     protected abstract DslProvider dslProvider();
 
-    protected abstract AbstractParseTreeVisitor<SecQueryType> splitVisitor();
+    protected abstract AbstractParseTreeVisitor<SplitQueryType> splitVisitor();
 
     protected abstract void parseRoot(Parser parser);
 
@@ -45,12 +45,12 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
     protected abstract AntlrStatementParser statementParser();
 
-    protected SecQueryType normalizeType(SecQueryType type, String script) {
-        return type == null ? SecQueryType.UNKNOWN : type;
+    protected SplitQueryType normalizeType(SplitQueryType type, String script) {
+        return type == null ? SplitQueryType.UNKNOWN : type;
     }
 
-    protected Set<SecQueryType> collectTypes(ParserRuleContext context, String script) {
-        Set<SecQueryType> types = new LinkedHashSet<>();
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        Set<SplitQueryType> types = new LinkedHashSet<>();
         types.add(normalizeType(context.accept(splitVisitor()), script));
         collectAdditionalTypes(context, types);
         return types;
@@ -60,7 +60,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         return Collections.emptyList();
     }
 
-    protected final SplitScript createChild(ParserRuleContext context, CommonTokenStream tokens, Set<SecQueryType> types, List<SplitScript> children) {
+    protected final SplitScript createChild(ParserRuleContext context, CommonTokenStream tokens, Set<SplitQueryType> types, List<SplitScript> children) {
         String script = tokens.getText(context.getStart(), context.getStop());
         SplitScript split = new SplitScript();
         split.setScript(script);
@@ -84,12 +84,12 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         return split;
     }
 
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         return null;
     }
 
-    private void collectAdditionalTypes(ParseTree tree, Set<SecQueryType> types) {
-        SecQueryType type = additionalType(tree);
+    private void collectAdditionalTypes(ParseTree tree, Set<SplitQueryType> types) {
+        SplitQueryType type = additionalType(tree);
         if (type != null) {
             types.add(type);
         }

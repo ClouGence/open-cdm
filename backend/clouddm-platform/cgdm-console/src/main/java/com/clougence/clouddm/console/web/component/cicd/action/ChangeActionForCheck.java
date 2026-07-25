@@ -140,6 +140,7 @@ public class ChangeActionForCheck extends AbstractChangeAction {
                 .currentSchema((String) levelsParam.get(UmiTypes.Schema))
                 .requester(Requester.CHANGE)
                 .unsupportedLevel(WarnLevel.FAILURE)
+                .sqlParameters(sqlParameters)
                 .build();
             SecRulesCheckResult result = this.ruleCheckService.doQueryCheck(ownerUid, flowDO.getFlowManagerUid(), trimSql, ruleCtx);
             if (result.isAllSuccess()) {

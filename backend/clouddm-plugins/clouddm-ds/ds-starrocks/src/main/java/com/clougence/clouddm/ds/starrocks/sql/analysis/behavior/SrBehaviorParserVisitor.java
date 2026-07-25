@@ -18,12 +18,8 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksBaseVisitor;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 
@@ -62,7 +58,7 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     SrStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        behavior.setStatementType(SecQueryType.UNKNOWN);
+        behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -71,55 +67,55 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitTableAtom(TableAtomContext ctx) {
-        add(SecQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.qualifiedName()));
+        add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.qualifiedName()));
         return null;
     }
 
     @Override
     public Void visitCreateDbStatement(CreateDbStatementContext ctx) {
-        add(SecQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.database));
+        add(SplitQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.database));
         return null;
     }
 
     @Override
     public Void visitDropDbStatement(DropDbStatementContext ctx) {
-        add(SecQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.database));
+        add(SplitQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.database));
         return null;
     }
 
     @Override
     public Void visitUseDatabaseStatement(UseDatabaseStatementContext ctx) {
-        add(SecQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, object(TargetType.Schema, ctx.qualifiedName()));
+        add(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, object(TargetType.Schema, ctx.qualifiedName()));
         return null;
     }
 
     @Override
     public Void visitCreateExternalCatalogStatement(CreateExternalCatalogStatementContext ctx) {
-        add(SecQueryType.CREATE_CATALOG, BehaviorAction.CREATE, object(TargetType.Catalog, ctx.catalogName));
+        add(SplitQueryType.CREATE_CATALOG, BehaviorAction.CREATE, object(TargetType.Catalog, ctx.catalogName));
         return null;
     }
 
     @Override
     public Void visitDropExternalCatalogStatement(DropExternalCatalogStatementContext ctx) {
-        add(SecQueryType.DROP_CATALOG, BehaviorAction.DROP, object(TargetType.Catalog, ctx.catalogName));
+        add(SplitQueryType.DROP_CATALOG, BehaviorAction.DROP, object(TargetType.Catalog, ctx.catalogName));
         return null;
     }
 
     @Override
     public Void visitAlterCatalogStatement(AlterCatalogStatementContext ctx) {
-        add(SecQueryType.ALTER_CATALOG, BehaviorAction.ALTER, object(TargetType.Catalog, ctx.catalogName));
+        add(SplitQueryType.ALTER_CATALOG, BehaviorAction.ALTER, object(TargetType.Catalog, ctx.catalogName));
         return null;
     }
 
     @Override
     public Void visitCreateTableStatement(CreateTableStatementContext ctx) {
-        add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.qualifiedName()));
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.qualifiedName()));
         return null;
     }
 
     @Override
     public Void visitCreateTableAsSelectStatement(CreateTableAsSelectStatementContext ctx) {
-        add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
         return null;
     }
 
@@ -127,63 +123,63 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitCreateTableLikeStatement(CreateTableLikeStatementContext ctx) {
         if (!ctx.qualifiedName().isEmpty()) {
             List<BehaviorObject> sources = ctx.qualifiedName().size() > 1 ? List.of(object(TargetType.Table, ctx.qualifiedName(1))) : List.of();
-            add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.qualifiedName(0)), sources);
+            add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.qualifiedName(0)), sources);
         }
         return null;
     }
 
     @Override
     public Void visitDropTableStatement(DropTableStatementContext ctx) {
-        add(SecQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.qualifiedName()));
+        add(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.qualifiedName()));
         return null;
     }
 
     @Override
     public Void visitAlterTableStatement(AlterTableStatementContext ctx) {
-        add(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.qualifiedName()));
+        add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.qualifiedName()));
         return null;
     }
 
     @Override
     public Void visitTruncateTableStatement(TruncateTableStatementContext ctx) {
-        add(SecQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.qualifiedName()));
+        add(SplitQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.qualifiedName()));
         return null;
     }
 
     @Override
     public Void visitCreateViewStatement(CreateViewStatementContext ctx) {
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
         return null;
     }
 
     @Override
     public Void visitAlterViewStatement(AlterViewStatementContext ctx) {
-        add(SecQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(TargetType.View, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
+        add(SplitQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(TargetType.View, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
         return null;
     }
 
     @Override
     public Void visitDropViewStatement(DropViewStatementContext ctx) {
-        add(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.qualifiedName()));
+        add(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.qualifiedName()));
         return null;
     }
 
     @Override
     public Void visitCreateMaterializedViewStatement(CreateMaterializedViewStatementContext ctx) {
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
         return null;
     }
 
     @Override
     public Void visitDropMaterializedViewStatement(DropMaterializedViewStatementContext ctx) {
-        add(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.Materialized, ctx.qualifiedName()));
+        add(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.Materialized, ctx.qualifiedName()));
         return null;
     }
 
     @Override
     public Void visitInsertStatement(InsertStatementContext ctx) {
-        SecQueryType type = ctx.OVERWRITE() == null ? SecQueryType.INSERT : SecQueryType.MERGE;
-        add(type, type == SecQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
+        SplitQueryType type = ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
+        add(type, type == SplitQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
         return null;
     }
 
@@ -191,7 +187,7 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitUpdateStatement(UpdateStatementContext ctx) {
         List<BehaviorObject> sources = tableSources(ctx.fromClause());
         addTableSources(sources, ctx.expression());
-        add(SecQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.qualifiedName()), sources);
+        add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.qualifiedName()), sources);
         return null;
     }
 
@@ -199,7 +195,7 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitDeleteStatement(DeleteStatementContext ctx) {
         List<BehaviorObject> sources = tableSources(ctx.relations());
         addTableSources(sources, ctx.expression());
-        add(SecQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.qualifiedName()), sources);
+        add(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.qualifiedName()), sources);
         return null;
     }
 
@@ -242,11 +238,11 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
         return value;
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         add(type, action, subject, List.of());
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }
@@ -259,7 +255,7 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
             }
         }
         behavior.getRelations().add(relation);
-        if (behavior.getStatementType() == SecQueryType.UNKNOWN || type != SecQueryType.SELECT) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN || type != SplitQueryType.SELECT) {
             behavior.setStatementType(type);
         }
     }

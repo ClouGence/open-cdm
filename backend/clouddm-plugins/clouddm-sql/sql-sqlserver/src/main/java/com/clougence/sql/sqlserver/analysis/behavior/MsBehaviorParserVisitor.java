@@ -15,12 +15,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 import com.clougence.sql.sqlserver.parser.antlr.SqlServerParser;
@@ -63,7 +59,7 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
     MsStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        this.behavior.setStatementType(SecQueryType.UNKNOWN);
+        this.behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -73,47 +69,47 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
     @Override
     public Void visitSelect_statement_standalone(SqlServerParser.Select_statement_standaloneContext ctx) {
         for (BehaviorObject source : sourceTables(ctx)) {
-            addUnary(SecQueryType.SELECT, BehaviorAction.READ, source);
+            addUnary(SplitQueryType.SELECT, BehaviorAction.READ, source);
         }
         return null;
     }
 
     @Override
     public Void visitCreate_table(SqlServerParser.Create_tableContext ctx) {
-        addUnary(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.table_name()));
+        addUnary(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.table_name()));
         return null;
     }
 
     @Override
     public Void visitCreate_security_policy(SqlServerParser.Create_security_policyContext ctx) {
-        addUnary(SecQueryType.CREATE_POLICY, BehaviorAction.CREATE, object(TargetType.RowAccessPolicy, ctx.security_policy_name));
+        addUnary(SplitQueryType.CREATE_POLICY, BehaviorAction.CREATE, object(TargetType.RowAccessPolicy, ctx.security_policy_name));
         return null;
     }
 
     @Override
     public Void visitDrop_security_policy(SqlServerParser.Drop_security_policyContext ctx) {
-        addUnary(SecQueryType.DROP_POLICY, BehaviorAction.DROP, object(TargetType.RowAccessPolicy, ctx.security_policy_name));
+        addUnary(SplitQueryType.DROP_POLICY, BehaviorAction.DROP, object(TargetType.RowAccessPolicy, ctx.security_policy_name));
         return null;
     }
 
     @Override
     public Void visitDrop_table(SqlServerParser.Drop_tableContext ctx) {
         for (SqlServerParser.Table_nameContext tableName : ctx.table_name()) {
-            addUnary(SecQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, tableName));
+            addUnary(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, tableName));
         }
         return null;
     }
 
     @Override
     public Void visitCreate_view(SqlServerParser.Create_viewContext ctx) {
-        addRelation(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.simple_name()), sourceTables(ctx));
+        addRelation(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.simple_name()), sourceTables(ctx));
         return null;
     }
 
     @Override
     public Void visitDrop_view(SqlServerParser.Drop_viewContext ctx) {
         for (SqlServerParser.Simple_nameContext viewName : ctx.simple_name()) {
-            addUnary(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, viewName));
+            addUnary(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, viewName));
         }
         return null;
     }
@@ -121,7 +117,7 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
     @Override
     public Void visitCreate_index(SqlServerParser.Create_indexContext ctx) {
         if (!ctx.id_().isEmpty()) {
-            addRelation(SecQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, ctx.id_(0)), objects(object(TargetType.Table, ctx.table_name())));
+            addRelation(SplitQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, ctx.id_(0)), objects(object(TargetType.Table, ctx.table_name())));
         }
         return null;
     }
@@ -132,7 +128,7 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
             List<SqlServerParser.Id_Context> ids = descendants(item, SqlServerParser.Id_Context.class);
             SqlServerParser.Full_table_nameContext tableName = first(item, SqlServerParser.Full_table_nameContext.class);
             if (!ids.isEmpty()) {
-                addRelation(SecQueryType.DROP_INDEX, BehaviorAction.DROP, object(TargetType.Index, ids.get(0)), objects(object(TargetType.Table, tableName)));
+                addRelation(SplitQueryType.DROP_INDEX, BehaviorAction.DROP, object(TargetType.Index, ids.get(0)), objects(object(TargetType.Table, tableName)));
             }
         }
         return null;
@@ -140,27 +136,27 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
 
     @Override
     public Void visitCreate_or_alter_function(SqlServerParser.Create_or_alter_functionContext ctx) {
-        addUnary(SecQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Function, ctx.func_proc_name_schema()));
+        addUnary(SplitQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Function, ctx.func_proc_name_schema()));
         return null;
     }
 
     @Override
     public Void visitCreate_or_alter_procedure(SqlServerParser.Create_or_alter_procedureContext ctx) {
-        addUnary(SecQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Procedure, ctx.func_proc_name_schema()));
+        addUnary(SplitQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Procedure, ctx.func_proc_name_schema()));
         return null;
     }
 
     @Override
     public Void visitInsert_statement(SqlServerParser.Insert_statementContext ctx) {
         SqlServerParser.Full_table_nameContext tableName = first(ctx.ddl_object(), SqlServerParser.Full_table_nameContext.class);
-        addRelation(SecQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, tableName), sourceTables(ctx.insert_statement_value()));
+        addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, tableName), sourceTables(ctx.insert_statement_value()));
         return null;
     }
 
     @Override
     public Void visitUpdate_statement(SqlServerParser.Update_statementContext ctx) {
         SqlServerParser.Full_table_nameContext tableName = first(ctx.ddl_object(), SqlServerParser.Full_table_nameContext.class);
-        addRelation(SecQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, tableName), sourceTables(ctx));
+        addRelation(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, tableName), sourceTables(ctx));
         return null;
     }
 
@@ -170,14 +166,14 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
         if (tableName == null) {
             tableName = first(ctx.table_sources(), SqlServerParser.Full_table_nameContext.class);
         }
-        addRelation(SecQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, tableName), sourceTables(ctx));
+        addRelation(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, tableName), sourceTables(ctx));
         return null;
     }
 
     @Override
     public Void visitExecute_statement(SqlServerParser.Execute_statementContext ctx) {
         SqlServerParser.Func_proc_name_server_database_schemaContext procName = first(ctx.execute_body(), SqlServerParser.Func_proc_name_server_database_schemaContext.class);
-        addUnary(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, procName));
+        addUnary(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, procName));
         return null;
     }
 
@@ -192,7 +188,7 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
         return objects.object(type, context, names);
     }
 
-    private void addUnary(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void addUnary(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         if (subject == null) {
             return;
         }
@@ -203,7 +199,7 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
         behavior.setStatementType(type);
     }
 
-    private void addRelation(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }

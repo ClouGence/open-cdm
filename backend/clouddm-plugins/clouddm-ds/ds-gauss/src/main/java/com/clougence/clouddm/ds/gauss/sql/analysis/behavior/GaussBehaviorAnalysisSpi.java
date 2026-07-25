@@ -16,9 +16,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import com.clougence.clouddm.ds.gauss.sql.parser.GaussDslProvider;
 import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParserBaseVisitor;
 import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParser.*;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
@@ -74,7 +73,7 @@ final class GaussStatementBehaviorVisitor extends GaussSqlParserBaseVisitor<Void
     GaussStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        behavior.setStatementType(SecQueryType.UNKNOWN);
+        behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -84,7 +83,7 @@ final class GaussStatementBehaviorVisitor extends GaussSqlParserBaseVisitor<Void
     @Override
     public Void visitTable_ref(Table_refContext ctx) {
         if (ctx.relation_expr() != null) {
-            add(SecQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.relation_expr().qualified_name()), List.of());
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.relation_expr().qualified_name()), List.of());
         }
         return visitChildren(ctx);
     }
@@ -96,13 +95,13 @@ final class GaussStatementBehaviorVisitor extends GaussSqlParserBaseVisitor<Void
             .map(table -> object(TargetType.Table, table.relation_expr().qualified_name()))
             .filter(Objects::nonNull)
             .toList();
-        add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.create_as_target().qualified_name()), targets);
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.create_as_target().qualified_name()), targets);
         return null;
     }
 
     @Override
     public Void visitCallstmt(CallstmtContext ctx) {
-        add(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.func_application().func_name()), List.of());
+        add(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.func_application().func_name()), List.of());
         return null;
     }
 
@@ -130,7 +129,7 @@ final class GaussStatementBehaviorVisitor extends GaussSqlParserBaseVisitor<Void
         return value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"' ? value.substring(1, value.length() - 1) : value;
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }

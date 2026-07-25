@@ -14,12 +14,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParserBaseVisitor;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 
@@ -55,7 +51,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
     DmStatementBehaviorVisitor(Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        behavior.setStatementType(SecQueryType.UNKNOWN);
+        behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -65,7 +61,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitSelectStatement(DmSqlParser.SelectStatementContext ctx) {
         for (BehaviorObject source : tableSources(ctx)) {
-            add(SecQueryType.SELECT, BehaviorAction.READ, source);
+            add(SplitQueryType.SELECT, BehaviorAction.READ, source);
         }
         return null;
     }
@@ -88,7 +84,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         addTableSources(sources, ctx.whereClause());
         for (DmSqlParser.TableSourceContext table : ctx.updateTargetList().tableSource()) {
             for (NameParts name : directTableNames(table)) {
-                add(SecQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, table, name), sources);
+                add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, table, name), sources);
             }
         }
         return null;
@@ -99,7 +95,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         List<BehaviorObject> sources = tableSources(ctx.deleteMultiTableClause());
         addTableSources(sources, ctx.whereClause());
         for (NameParts name : deleteTargetNames(ctx)) {
-            add(SecQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.deleteTarget(), name), sources);
+            add(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.deleteTarget(), name), sources);
         }
         return null;
     }
@@ -108,10 +104,10 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitMergeStatement(DmSqlParser.MergeStatementContext ctx) {
         List<BehaviorObject> sources = tableSources(ctx);
         if (ctx.mergeIntoTarget().qualifiedName() != null) {
-            add(SecQueryType.MERGE, BehaviorAction.MERGE, object(TargetType.Table, ctx.mergeIntoTarget(), NameParts.from(ctx.mergeIntoTarget().qualifiedName())), sources);
+            add(SplitQueryType.MERGE, BehaviorAction.MERGE, object(TargetType.Table, ctx.mergeIntoTarget(), NameParts.from(ctx.mergeIntoTarget().qualifiedName())), sources);
         } else {
             for (BehaviorObject target : tableSources(ctx.mergeIntoTarget().selectStatement())) {
-                add(SecQueryType.MERGE, BehaviorAction.MERGE, target, sources);
+                add(SplitQueryType.MERGE, BehaviorAction.MERGE, target, sources);
             }
         }
         return null;
@@ -120,14 +116,14 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitFlashbackStatement(DmSqlParser.FlashbackStatementContext ctx) {
         for (DmSqlParser.QualifiedNameContext name : ctx.qualifiedName()) {
-            add(SecQueryType.ADMIN_TABLE, BehaviorAction.ADMIN, object(TargetType.Table, name, NameParts.from(name)));
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.ADMIN, object(TargetType.Table, name, NameParts.from(name)));
         }
         return null;
     }
 
     @Override
     public Void visitRefreshMaterializedViewStatement(DmSqlParser.RefreshMaterializedViewStatementContext ctx) {
-        add(SecQueryType.ADMIN, BehaviorAction.ADMIN, object(TargetType.Materialized, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
+        add(SplitQueryType.ADMIN, BehaviorAction.ADMIN, object(TargetType.Materialized, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
         return null;
     }
 
@@ -137,17 +133,17 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         if (ctx.likeSourceTable != null) {
             addObject(sources, object(TargetType.Table, ctx.likeSourceTable, NameParts.from(ctx.likeSourceTable)));
         }
-        add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.targetTable, schemaScoped(NameParts.from(ctx.targetTable))), sources);
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.targetTable, schemaScoped(NameParts.from(ctx.targetTable))), sources);
         return null;
     }
 
     @Override
     public Void visitViewCreate(DmSqlParser.ViewCreateContext ctx) {
         TargetType type = ctx.MATERIALIZED() == null ? TargetType.View : TargetType.Materialized;
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(type, ctx.qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), tableSources(ctx));
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(type, ctx.qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), tableSources(ctx));
         for (DmSqlParser.MaterializedViewPrebuiltClauseContext prebuilt : descendants(ctx, DmSqlParser.MaterializedViewPrebuiltClauseContext.class)) {
             if (prebuilt.prebuiltTable != null) {
-                add(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, prebuilt.prebuiltTable, NameParts.from(prebuilt.prebuiltTable)));
+                add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, prebuilt.prebuiltTable, NameParts.from(prebuilt.prebuiltTable)));
             }
         }
         return null;
@@ -156,7 +152,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitMaterializedViewLogCreate(DmSqlParser.MaterializedViewLogCreateContext ctx) {
         NameParts name = NameParts.from(ctx.qualifiedName());
-        add(SecQueryType.CREATE_LOG, BehaviorAction.CREATE, object(TargetType.Log, ctx.qualifiedName(), name), List.of(object(TargetType.Table, ctx.qualifiedName(), name)));
+        add(SplitQueryType.CREATE_LOG, BehaviorAction.CREATE, object(TargetType.Log, ctx.qualifiedName(), name), List.of(object(TargetType.Table, ctx.qualifiedName(), name)));
         return null;
     }
 
@@ -165,7 +161,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         List<DmSqlParser.QualifiedNameContext> names = ctx.qualifiedName();
         if (!names.isEmpty()) {
             List<BehaviorObject> targets = names.size() > 1 ? List.of(object(TargetType.Table, names.get(1), schemaScoped(NameParts.from(names.get(1))))) : List.of();
-            add(SecQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, names.get(0), schemaScoped(NameParts.from(names.get(0)))), targets);
+            add(SplitQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, names.get(0), schemaScoped(NameParts.from(names.get(0)))), targets);
         }
         return null;
     }
@@ -174,7 +170,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitSchemaCreate(DmSqlParser.SchemaCreateContext ctx) {
         NameParts parsed = ctx.schemaName == null ? null : NameParts.from(ctx.schemaName);
         String schema = parsed == null ? schemaAuthorizationOwner(ctx) : parsed.name();
-        add(SecQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx, new NameParts(parsed == null ? null : parsed.catalog(), null, schema)));
+        add(SplitQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx, new NameParts(parsed == null ? null : parsed.catalog(), null, schema)));
         if (schema == null) {
             return visitChildren(ctx);
         }
@@ -188,13 +184,13 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitSequenceCreate(DmSqlParser.SequenceCreateContext ctx) {
-        add(SecQueryType.CREATE_SEQUENCE, BehaviorAction.CREATE, object(TargetType.Sequence, ctx.qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))));
+        add(SplitQueryType.CREATE_SEQUENCE, BehaviorAction.CREATE, object(TargetType.Sequence, ctx.qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))));
         return null;
     }
 
     @Override
     public Void visitProcedureCreate(DmSqlParser.ProcedureCreateContext ctx) {
-        add(SecQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Procedure, ctx
+        add(SplitQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Procedure, ctx
             .qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), tableSources(ctx));
         addNestedStatements(ctx);
         return null;
@@ -202,7 +198,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitFunctionCreate(DmSqlParser.FunctionCreateContext ctx) {
-        add(SecQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Function, ctx
+        add(SplitQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Function, ctx
             .qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), tableSources(ctx));
         addNestedStatements(ctx);
         return null;
@@ -216,14 +212,14 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addObject(targets, object(TargetType.Table, table, NameParts.from(table)));
         }
         addTableSources(targets, ctx);
-        add(SecQueryType.CREATE_TRIGGER, BehaviorAction.CREATE, object(TargetType.Trigger, ctx.qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), targets);
+        add(SplitQueryType.CREATE_TRIGGER, BehaviorAction.CREATE, object(TargetType.Trigger, ctx.qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), targets);
         addNestedStatements(ctx);
         return null;
     }
 
     @Override
     public Void visitSynonymCreate(DmSqlParser.SynonymCreateContext ctx) {
-        add(SecQueryType.CREATE_SYNONYM, BehaviorAction.CREATE, object(TargetType.Synonym, ctx.qualifiedName(0), schemaScoped(NameParts.from(ctx.qualifiedName(0)))));
+        add(SplitQueryType.CREATE_SYNONYM, BehaviorAction.CREATE, object(TargetType.Synonym, ctx.qualifiedName(0), schemaScoped(NameParts.from(ctx.qualifiedName(0)))));
         return null;
     }
 
@@ -232,28 +228,28 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         DmSqlParser.QualifiedNameContext qualified = first(ctx.qualifiedName());
         NameParts name = qualified == null ? null : schemaScoped(NameParts.from(qualified));
         if (ctx.TABLE() != null) {
-            add(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, qualified, name));
+            add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, qualified, name));
         } else if (ctx.INDEX() != null) {
-            add(SecQueryType.ALTER_INDEX, BehaviorAction.ALTER, object(TargetType.Index, qualified, name));
+            add(SplitQueryType.ALTER_INDEX, BehaviorAction.ALTER, object(TargetType.Index, qualified, name));
         } else if (ctx.VIEW() != null) {
-            add(SecQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(ctx.MATERIALIZED() == null ? TargetType.View : TargetType.Materialized, qualified, name));
+            add(SplitQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(ctx.MATERIALIZED() == null ? TargetType.View : TargetType.Materialized, qualified, name));
         } else if (ctx.SEQUENCE() != null) {
-            add(SecQueryType.ALTER_SEQUENCE, BehaviorAction.ALTER, object(TargetType.Sequence, qualified, name));
+            add(SplitQueryType.ALTER_SEQUENCE, BehaviorAction.ALTER, object(TargetType.Sequence, qualified, name));
         } else if (ctx.PROCEDURE() != null || ctx.FUNCTION() != null) {
-            add(SecQueryType.ALTER_PROG_OBJ, BehaviorAction.ALTER, object(ctx.PROCEDURE() != null ? TargetType.Procedure : TargetType.Function, qualified, name));
+            add(SplitQueryType.ALTER_PROG_OBJ, BehaviorAction.ALTER, object(ctx.PROCEDURE() != null ? TargetType.Procedure : TargetType.Function, qualified, name));
         } else if (ctx.TRIGGER() != null) {
-            add(SecQueryType.ALTER_TRIGGER, BehaviorAction.ALTER, object(TargetType.Trigger, qualified, name));
+            add(SplitQueryType.ALTER_TRIGGER, BehaviorAction.ALTER, object(TargetType.Trigger, qualified, name));
         } else if (ctx.contextTableName != null) {
-            add(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.contextTableName, NameParts.from(ctx.contextTableName)));
+            add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.contextTableName, NameParts.from(ctx.contextTableName)));
         } else if (ctx.PACKAGE() != null) {
-            add(SecQueryType.ADMIN_PROG_OBJ, BehaviorAction.ADMIN, object(TargetType.Package, qualified, name));
+            add(SplitQueryType.ADMIN_PROG_OBJ, BehaviorAction.ADMIN, object(TargetType.Package, qualified, name));
         } else if (ctx.TABLESPACE() != null) {
-            add(SecQueryType.ALTER_TABLESPACE, BehaviorAction.ALTER, object(TargetType.Tablespace, qualified, name));
+            add(SplitQueryType.ALTER_TABLESPACE, BehaviorAction.ALTER, object(TargetType.Tablespace, qualified, name));
         } else if (ctx.PROFILE() != null) {
-            add(SecQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, object(TargetType.ConfigKey, ctx
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, object(TargetType.ConfigKey, ctx
                 .identifier(), new NameParts(null, null, NameParts.clean(ctx.identifier().getText()))));
         } else if (ctx.TYPE() != null || ctx.CLASS() != null) {
-            add(SecQueryType.ADMIN_TYPE, BehaviorAction.ADMIN, object(TargetType.Type, qualified, name));
+            add(SplitQueryType.ADMIN_TYPE, BehaviorAction.ADMIN, object(TargetType.Type, qualified, name));
         }
         return null;
     }
@@ -263,51 +259,51 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         DmSqlParser.QualifiedNameContext qualified = first(ctx.qualifiedName());
         NameParts name = qualified == null ? null : NameParts.from(qualified);
         if (ctx.TABLE() != null) {
-            add(SecQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, qualified, name));
+            add(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, qualified, name));
         } else if (ctx.MATERIALIZED() != null && ctx.LOG() != null) {
-            add(SecQueryType.DROP_LOG, BehaviorAction.DROP, object(TargetType.Log, qualified, name));
-            add(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, qualified, name));
+            add(SplitQueryType.DROP_LOG, BehaviorAction.DROP, object(TargetType.Log, qualified, name));
+            add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, qualified, name));
         } else if (ctx.VIEW() != null) {
-            add(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(ctx.MATERIALIZED() == null ? TargetType.View : TargetType.Materialized, qualified, name));
+            add(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(ctx.MATERIALIZED() == null ? TargetType.View : TargetType.Materialized, qualified, name));
         } else if (ctx.INDEX() != null) {
-            add(SecQueryType.DROP_INDEX, BehaviorAction.DROP, object(TargetType.Index, qualified, name));
+            add(SplitQueryType.DROP_INDEX, BehaviorAction.DROP, object(TargetType.Index, qualified, name));
         } else if (ctx.SCHEMA() != null || ctx.DATABASE() != null) {
-            add(SecQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, qualified, name));
+            add(SplitQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, qualified, name));
         } else if (ctx.SEQUENCE() != null) {
-            add(SecQueryType.DROP_SEQUENCE, BehaviorAction.DROP, object(TargetType.Sequence, qualified, name));
+            add(SplitQueryType.DROP_SEQUENCE, BehaviorAction.DROP, object(TargetType.Sequence, qualified, name));
         } else if (ctx.PROCEDURE() != null || ctx.FUNCTION() != null) {
-            add(SecQueryType.DROP_PROG_OBJ, BehaviorAction.DROP, object(ctx.PROCEDURE() != null ? TargetType.Procedure : TargetType.Function, qualified, name));
+            add(SplitQueryType.DROP_PROG_OBJ, BehaviorAction.DROP, object(ctx.PROCEDURE() != null ? TargetType.Procedure : TargetType.Function, qualified, name));
         } else if (ctx.TRIGGER() != null) {
-            add(SecQueryType.DROP_TRIGGER, BehaviorAction.DROP, object(TargetType.Trigger, qualified, name));
+            add(SplitQueryType.DROP_TRIGGER, BehaviorAction.DROP, object(TargetType.Trigger, qualified, name));
         } else if (ctx.SYNONYM() != null) {
-            add(SecQueryType.DROP_SYNONYM, BehaviorAction.DROP, object(TargetType.Synonym, qualified, name));
+            add(SplitQueryType.DROP_SYNONYM, BehaviorAction.DROP, object(TargetType.Synonym, qualified, name));
         } else if (ctx.contextTableName != null) {
-            add(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.contextTableName, NameParts.from(ctx.contextTableName)));
+            add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.contextTableName, NameParts.from(ctx.contextTableName)));
         } else if (ctx.PACKAGE() != null) {
-            add(SecQueryType.DROP_PROG_OBJ, BehaviorAction.DROP, object(TargetType.Package, qualified, name));
+            add(SplitQueryType.DROP_PROG_OBJ, BehaviorAction.DROP, object(TargetType.Package, qualified, name));
         } else if (ctx.TABLESPACE() != null) {
-            add(SecQueryType.DROP_TABLESPACE, BehaviorAction.DROP, object(TargetType.Tablespace, qualified, name));
+            add(SplitQueryType.DROP_TABLESPACE, BehaviorAction.DROP, object(TargetType.Tablespace, qualified, name));
         } else if (ctx.LIBRARY() != null) {
-            add(SecQueryType.DROP_LIBRARY, BehaviorAction.DROP, object(TargetType.Library, qualified, name));
+            add(SplitQueryType.DROP_LIBRARY, BehaviorAction.DROP, object(TargetType.Library, qualified, name));
         } else if (ctx.DOMAIN() != null || ctx.TYPE() != null || ctx.CLASS() != null) {
-            add(SecQueryType.DROP_TYPE, BehaviorAction.DROP, object(TargetType.Type, qualified, name));
+            add(SplitQueryType.DROP_TYPE, BehaviorAction.DROP, object(TargetType.Type, qualified, name));
         } else if (ctx.LINK() != null || ctx.DIRECTORY() != null || ctx.CONTEXT() != null || ctx.PROFILE() != null) {
             NameParts config = qualified == null ? new NameParts(null, null, NameParts.clean(ctx.identifier().getText())) : name;
-            add(SecQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, object(TargetType.ConfigKey, ctx, config));
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, object(TargetType.ConfigKey, ctx, config));
         }
         return null;
     }
 
     @Override
     public Void visitTruncateStatement(DmSqlParser.TruncateStatementContext ctx) {
-        add(SecQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
+        add(SplitQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
         return null;
     }
 
     @Override
     public Void visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
-        SecQueryType type = ctx.commentTarget()
-            .VIEW() != null ? SecQueryType.ALTER_VIEW : ctx.commentTarget().TABLE() != null ? SecQueryType.COMMENT_TABLE : SecQueryType.COMMENT_COLUMN;
+        SplitQueryType type = ctx.commentTarget()
+            .VIEW() != null ? SplitQueryType.ALTER_VIEW : ctx.commentTarget().TABLE() != null ? SplitQueryType.COMMENT_TABLE : SplitQueryType.COMMENT_COLUMN;
         TargetType target = ctx.commentTarget().VIEW() != null ? TargetType.View : TargetType.Table;
         add(type, BehaviorAction.ALTER, object(target, ctx.commentTarget(), NameParts.from(ctx.commentTarget().qualifiedName())));
         return null;
@@ -316,7 +312,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitGrantStatement(DmSqlParser.GrantStatementContext ctx) {
         if (ctx.grantPrivilegeStatement() != null && ctx.grantPrivilegeStatement().privilegeObjectClause() != null) {
-            addPrivilege(SecQueryType.GRANT, BehaviorAction.GRANT, ctx.grantPrivilegeStatement().privilegeObjectClause().privilegeObject());
+            addPrivilege(SplitQueryType.GRANT, BehaviorAction.GRANT, ctx.grantPrivilegeStatement().privilegeObjectClause().privilegeObject());
         }
         return null;
     }
@@ -324,14 +320,14 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeStatement(DmSqlParser.RevokeStatementContext ctx) {
         if (ctx.revokePrivilegeStatement() != null && ctx.revokePrivilegeStatement().privilegeObjectClause() != null) {
-            addPrivilege(SecQueryType.REVOKE, BehaviorAction.REVOKE, ctx.revokePrivilegeStatement().privilegeObjectClause().privilegeObject());
+            addPrivilege(SplitQueryType.REVOKE, BehaviorAction.REVOKE, ctx.revokePrivilegeStatement().privilegeObjectClause().privilegeObject());
         }
         return null;
     }
 
     @Override
     public Void visitCallStatement(DmSqlParser.CallStatementContext ctx) {
-        add(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
+        add(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
         return null;
     }
 
@@ -339,25 +335,25 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitProcedureCallStatement(DmSqlParser.ProcedureCallStatementContext ctx) {
         ParserRuleContext context = ctx.qualifiedName() == null ? ctx.bareRoutineName() : ctx.qualifiedName();
         NameParts name = ctx.qualifiedName() == null ? NameParts.from(ctx.bareRoutineName()) : NameParts.from(ctx.qualifiedName());
-        add(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, context, name));
+        add(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, context, name));
         return null;
     }
 
     @Override
     public Void visitLockTableStatement(DmSqlParser.LockTableStatementContext ctx) {
-        add(SecQueryType.TRANSACTION, BehaviorAction.OTHER, object(TargetType.Table, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
+        add(SplitQueryType.TRANSACTION, BehaviorAction.OTHER, object(TargetType.Table, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
         return null;
     }
 
     @Override
     public Void visitSetSchemaStatement(DmSqlParser.SetSchemaStatementContext ctx) {
-        add(SecQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, object(TargetType.Schema, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
+        add(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, object(TargetType.Schema, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
         return null;
     }
 
     @Override
     public Void visitSetIdentityInsertStatement(DmSqlParser.SetIdentityInsertStatementContext ctx) {
-        add(SecQueryType.TRANSACTION, BehaviorAction.OTHER, object(TargetType.Table, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
+        add(SplitQueryType.TRANSACTION, BehaviorAction.OTHER, object(TargetType.Table, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
         return null;
     }
 
@@ -387,15 +383,15 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             return;
         }
         if (ctx.qualifiedName() != null) {
-            add(SecQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())), sources);
+            add(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())), sources);
         } else {
             for (BehaviorObject target : tableSources(ctx.selectStatement())) {
-                add(SecQueryType.INSERT, BehaviorAction.INSERT, target, sources);
+                add(SplitQueryType.INSERT, BehaviorAction.INSERT, target, sources);
             }
         }
     }
 
-    private void addPrivilege(SecQueryType type, BehaviorAction action, DmSqlParser.PrivilegeObjectContext ctx) {
+    private void addPrivilege(SplitQueryType type, BehaviorAction action, DmSqlParser.PrivilegeObjectContext ctx) {
         if (ctx == null) {
             return;
         }
@@ -519,11 +515,11 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         return objects.object(type, context, names);
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         add(type, action, subject, List.of());
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }
@@ -534,7 +530,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addObject(relation.getTarget(), target);
         }
         behavior.getRelations().add(relation);
-        if (behavior.getStatementType() == SecQueryType.UNKNOWN) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN) {
             behavior.setStatementType(type);
         }
     }

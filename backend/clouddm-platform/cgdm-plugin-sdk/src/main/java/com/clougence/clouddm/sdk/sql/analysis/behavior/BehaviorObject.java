@@ -15,8 +15,6 @@
  */
 package com.clougence.clouddm.sdk.sql.analysis.behavior;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-
 import lombok.Getter;
 import lombok.Setter;
 

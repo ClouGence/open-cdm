@@ -15,15 +15,15 @@
  */
 package com.clougence.sql.redis.analysis.security;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.redis.parser.antlr.RedisParserBaseVisitor;
 import com.clougence.sql.redis.parser.ast.RedisCmdType;
 
-public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
+public class RedisAnalysisHelper extends RedisParserBaseVisitor<SplitQueryType> {
 
-    public static SecQueryType cmdTypeToSecQueryType(RedisCmdType cmdType) {
+    public static SplitQueryType cmdTypeToSecQueryType(RedisCmdType cmdType) {
         if (cmdType == RedisCmdType.SELECT) {
-            return SecQueryType.SWITCH_SCHEMA;
+            return SplitQueryType.SWITCH_SCHEMA;
         }
 
         switch (cmdType) {
@@ -32,55 +32,55 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case EVAL_RO:
             case EVALSHA:
             case EVALSHA_RO:
-                return SecQueryType.UNSAFE;
+                return SplitQueryType.UNSAFE;
             case FCALL:
             case FCALL_RO:
-                return SecQueryType.CALL_PROG_OBJ;
+                return SplitQueryType.CALL_PROG_OBJ;
             case FUNCTION_LOAD:
             case SCRIPT_LOAD:
-                return SecQueryType.CREATE_PROG_OBJ;
+                return SplitQueryType.CREATE_PROG_OBJ;
             case FUNCTION_RESTORE:
-                return SecQueryType.UNSAFE;
+                return SplitQueryType.UNSAFE;
             case FUNCTION_DEL:
             case FUNCTION_FLUSH:
             case SCRIPT_FLUSH:
-                return SecQueryType.DROP_PROG_OBJ;
+                return SplitQueryType.DROP_PROG_OBJ;
             case FUNCTION_KILL:
             case SCRIPT_KILL:
-                return SecQueryType.ADMIN_PROG_OBJ;
+                return SplitQueryType.ADMIN_PROG_OBJ;
             case FUNCTION_STATS:
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             case SCRIPT_DEBUG:
-                return SecQueryType.SESSION_SETTING_WRITE;
+                return SplitQueryType.SESSION_SETTING_WRITE;
             case SCRIPT_EXISTS:
             case FUNCTION_DUMP:
             case FUNCTION_LIST:
-                return SecQueryType.METADATA;
+                return SplitQueryType.METADATA;
 
             // Pub/sub contains message writes, runtime subscription control and diagnostics.
             case PUBLISH:
             case SPUBLISH:
-                return SecQueryType.ADMIN_PUB_SUB;
+                return SplitQueryType.ADMIN_PUB_SUB;
             case PSUBSCRIBE:
             case PUNSUBSCRIBE:
             case SSUBSCRIBE:
             case SUBSCRIBE:
             case SUNSUBSCRIBE:
             case UNSUBSCRIBE:
-                return SecQueryType.ADMIN_PUB_SUB;
+                return SplitQueryType.ADMIN_PUB_SUB;
             case PUBSUB_CHANNELS:
             case PUBSUB_NUMPAT:
             case PUBSUB_NUMSUB:
             case PUBSUB_SHARDCHANNELS:
             case PUBSUB_SHARDNUMSUB:
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
 
             // Connection-kind commands have different real semantics.
             case ASKING:
             case READONLY:
             case READWRITE:
             case CLIENT_CACHING:
-                return SecQueryType.SESSION_SETTING_WRITE;
+                return SplitQueryType.SESSION_SETTING_WRITE;
             case CLUSTER_INFO:
             case CLUSTER_MYID:
             case CLUSTER_MYSHARDID:
@@ -88,23 +88,23 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case CLUSTER_SHARDS:
             case CLUSTER_SLOTS:
             case ROLE:
-                return SecQueryType.METADATA;
+                return SplitQueryType.METADATA;
             case CLUSTER_SLOT_STATS:
             case CLIENT_GETNAME:
             case CLIENT_GETREDIR:
             case CLIENT_ID:
             case CLIENT_INFO:
             case PING:
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             case WAIT:
             case WAITAOF:
-                return SecQueryType.ADMIN_REPLICATION;
+                return SplitQueryType.ADMIN_REPLICATION;
             case DBSIZE:
-                return SecQueryType.SELECT;
+                return SplitQueryType.SELECT;
             case INFO:
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             case CLUSTER_KEYSLOT:
-                return SecQueryType.SELECT;
+                return SplitQueryType.SELECT;
             case ACL_WHOAMI:
             case COMMAND:
             case COMMAND_COUNT:
@@ -114,11 +114,11 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case COMMAND_INFO:
             case COMMAND_LIST:
             case MODULE_LIST:
-                return SecQueryType.METADATA;
+                return SplitQueryType.METADATA;
             case LOLWUT:
             case ECHO:
             case TIME:
-                return SecQueryType.SELECT;
+                return SplitQueryType.SELECT;
             default:
                 break;
         }
@@ -136,11 +136,11 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case CLUSTER_SLAVES:
             case OBJECT:
             case TYPE:
-                return SecQueryType.METADATA;
+                return SplitQueryType.METADATA;
             case ACL_DELUSER:
-                return SecQueryType.DROP_USER;
+                return SplitQueryType.DROP_USER;
             case ACL_GENPASS:
-                return SecQueryType.ADMIN;
+                return SplitQueryType.ADMIN;
             case ACL_LOAD:
             case ACL_SAVE:
             case CONFIG_SET:
@@ -160,55 +160,55 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case MODULE_LOAD:
             case MODULE_LOADEX:
             case MODULE_UNLOAD:
-                return SecQueryType.SYSTEM_SETTING_WRITE;
+                return SplitQueryType.SYSTEM_SETTING_WRITE;
             case ACL_LOG:
-                return SecQueryType.LOG_READ;
+                return SplitQueryType.LOG_READ;
             case ACL_SETUSER:
                 // SETUSER creates or alters depending on runtime state.
-                return SecQueryType.UNKNOWN;
+                return SplitQueryType.UNKNOWN;
             case CONFIG_RESETSTAT:
             case LATENCY_RESET:
             case MEMORY_PURGE:
-                return SecQueryType.ADMIN_PERFORMANCE;
+                return SplitQueryType.ADMIN_PERFORMANCE;
             case LATENCY_DOCTOR:
             case LATENCY_GRAPH:
             case LATENCY_HISTOGRAM:
             case LATENCY_HISTORY:
             case LATENCY_LATEST:
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             case BGREWRITEAOF:
-                return SecQueryType.MAINTAIN_LOG;
+                return SplitQueryType.MAINTAIN_LOG;
             case BGSAVE:
             case SAVE:
-                return SecQueryType.ADMIN;
+                return SplitQueryType.ADMIN;
             case FAILOVER:
             case REPLICAOF:
             case SLAVEOF:
             case CLUSTER_FAILOVER:
             case CLUSTER_REPLICATE:
-                return SecQueryType.ALTER_REPLICATION;
+                return SplitQueryType.ALTER_REPLICATION;
             case PSYNC:
             case SYNC:
-                return SecQueryType.ADMIN_REPLICATION;
+                return SplitQueryType.ADMIN_REPLICATION;
             case FLUSHALL:
             case FLUSHDB:
-                return SecQueryType.DELETE;
+                return SplitQueryType.DELETE;
             case LASTSAVE:
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             case SHUTDOWN:
-                return SecQueryType.UNSAFE;
+                return SplitQueryType.UNSAFE;
             case SLOWLOG_GET:
             case SLOWLOG_LEN:
-                return SecQueryType.LOG_READ;
+                return SplitQueryType.LOG_READ;
             case SLOWLOG_RESET:
-                return SecQueryType.MAINTAIN_LOG;
+                return SplitQueryType.MAINTAIN_LOG;
             case SWAPDB:
-                return SecQueryType.UNSAFE;
+                return SplitQueryType.UNSAFE;
             case TOUCH:
-                return SecQueryType.UPDATE;
+                return SplitQueryType.UPDATE;
             case CLIENT_LIST:
             case CLIENT_TRACKINGINFO:
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             case CLIENT_NO_EVICT:
             case CLIENT_NO_TOUCH:
             case CLIENT_REPLY:
@@ -218,13 +218,13 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case AUTH:
             case HELLO:
             case RESET:
-                return SecQueryType.SESSION_SETTING_WRITE;
+                return SplitQueryType.SESSION_SETTING_WRITE;
             case CLIENT_KILL:
             case CLIENT_PAUSE:
             case CLIENT_UNBLOCK:
             case CLIENT_UNPAUSE:
             case QUIT:
-                return SecQueryType.ADMIN;
+                return SplitQueryType.ADMIN;
             default:
                 break;
         }
@@ -262,7 +262,7 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case ZUNIONSTORE:
             case PFADD:
             case PFMERGE:
-                return SecQueryType.MERGE;
+                return SplitQueryType.MERGE;
 
             case COPY:
             case MSETNX:
@@ -274,7 +274,7 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case RPUSH:
             case RPUSHX:
             case SADD:
-                return SecQueryType.INSERT;
+                return SplitQueryType.INSERT;
 
             case DEL:
             case UNLINK:
@@ -307,7 +307,7 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case ZREMRANGEBYLEX:
             case ZREMRANGEBYRANK:
             case ZREMRANGEBYSCORE:
-                return SecQueryType.DELETE;
+                return SplitQueryType.DELETE;
 
             case EXPIRE:
             case EXPIREAT:
@@ -324,37 +324,37 @@ public class RedisAnalysisHelper extends RedisParserBaseVisitor<SecQueryType> {
             case HPEXPIRE:
             case HPEXPIREAT:
             case LSET:
-                return SecQueryType.UPDATE;
+                return SplitQueryType.UPDATE;
 
             // These commands contain multiple data actions and are expanded by the split visitor.
             case SORT:
-                return SecQueryType.UNKNOWN;
+                return SplitQueryType.UNKNOWN;
             case BITFIELD:
-                return SecQueryType.SELECT;
+                return SplitQueryType.SELECT;
             default:
                 break;
         }
 
         switch (cmdType.getKindType()) {
             case Read:
-                return SecQueryType.SELECT;
+                return SplitQueryType.SELECT;
             case Write:
-                return SecQueryType.UNKNOWN;
+                return SplitQueryType.UNKNOWN;
             case Script:
-                return SecQueryType.UNKNOWN;
+                return SplitQueryType.UNKNOWN;
             case Maintenance:
-                return SecQueryType.ADMIN;
+                return SplitQueryType.ADMIN;
             case Monitor:
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             case Connection:
-                return SecQueryType.UNKNOWN;
+                return SplitQueryType.UNKNOWN;
             case PubSub:
-                return SecQueryType.UNKNOWN;
+                return SplitQueryType.UNKNOWN;
             case Transaction:
-                return SecQueryType.TRANSACTION;
+                return SplitQueryType.TRANSACTION;
             case Other:
             default:
-                return SecQueryType.UNKNOWN;
+                return SplitQueryType.UNKNOWN;
         }
     }
 }

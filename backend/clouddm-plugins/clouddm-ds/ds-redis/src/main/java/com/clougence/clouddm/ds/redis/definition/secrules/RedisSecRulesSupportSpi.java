@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.sql.analysis.security.SecRulesSupportSpi;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 
 public class RedisSecRulesSupportSpi implements SecRulesSupportSpi {
 

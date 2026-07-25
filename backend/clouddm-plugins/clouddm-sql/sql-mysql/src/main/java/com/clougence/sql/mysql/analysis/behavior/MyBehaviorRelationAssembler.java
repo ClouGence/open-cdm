@@ -17,11 +17,11 @@ package com.clougence.sql.mysql.analysis.behavior;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.analysis.reference.MySqlObjectReference;
 import com.clougence.utils.StringUtils;
@@ -262,7 +262,7 @@ final class MyBehaviorRelationAssembler {
         addRelation(subject, behaviorAction, sources);
     }
 
-    private boolean isDependencySubject(SecQueryType type) {
+    private boolean isDependencySubject(SplitQueryType type) {
         return switch (type) {
             case CREATE_TABLE, ALTER_TABLE, CREATE_VIEW, ALTER_VIEW, INSERT, UPDATE, DELETE, MERGE -> true;
             default -> false;
@@ -371,7 +371,7 @@ final class MyBehaviorRelationAssembler {
         return resourcePath(nodes);
     }
 
-    static BehaviorAction action(SecQueryType type) {
+    static BehaviorAction action(SplitQueryType type) {
         String name = type.name();
         if (name.startsWith("CREATE_") || name.startsWith("ADD_")) {
             return BehaviorAction.CREATE;
@@ -385,7 +385,7 @@ final class MyBehaviorRelationAssembler {
         if (name.startsWith("RENAME_")) {
             return BehaviorAction.RENAME;
         }
-        if (name.startsWith("ADMIN_") || name.startsWith("MAINTAIN_") || type == SecQueryType.ADMIN || type == SecQueryType.UNSAFE) {
+        if (name.startsWith("ADMIN_") || name.startsWith("MAINTAIN_") || type == SplitQueryType.ADMIN || type == SplitQueryType.UNSAFE) {
             return BehaviorAction.ADMIN;
         }
         if (name.startsWith("SWITCH_")) {

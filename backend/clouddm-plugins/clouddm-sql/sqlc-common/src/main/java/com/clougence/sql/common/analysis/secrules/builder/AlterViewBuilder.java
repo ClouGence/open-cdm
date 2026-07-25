@@ -19,9 +19,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbViewDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -31,14 +31,14 @@ import com.clougence.sql.common.analysis.secrules.builder.utils.BuilderUtil;
 
 public class AlterViewBuilder extends AbstractDomainBuilder {
 
-    private final SecQueryType   type;
-    private final RdbViewDomain domain = new RdbViewDomain();
+    private final SplitQueryType type;
+    private final RdbViewDomain  domain = new RdbViewDomain();
 
-    public AlterViewBuilder() {
-        this(SecQueryType.ALTER_VIEW);
+    public AlterViewBuilder(){
+        this(SplitQueryType.ALTER_VIEW);
     }
 
-    public AlterViewBuilder(SecQueryType type) {
+    public AlterViewBuilder(SplitQueryType type){
         this.type = type;
     }
 

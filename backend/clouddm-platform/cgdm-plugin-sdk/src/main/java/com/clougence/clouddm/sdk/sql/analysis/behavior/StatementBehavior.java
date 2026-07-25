@@ -18,7 +18,7 @@ package com.clougence.clouddm.sdk.sql.analysis.behavior;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +34,6 @@ import lombok.Setter;
 @Setter
 public class StatementBehavior {
 
-    private SecQueryType           statementType;
+    private SplitQueryType         statementType;
     private List<BehaviorRelation> relations = new ArrayList<>();
 }

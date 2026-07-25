@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.detectrule.lang.reflect.RuleIgnore;
 import com.clougence.utils.CollectionUtils;
@@ -37,7 +37,7 @@ public abstract class RuleDomain implements SecResolveName, Domain {
     @RuleIgnore
     private SplitScript         splitScript;
 
-    private SecQueryType        sqlType;
+    private SplitQueryType        sqlType;
     private SecQueryKind        auditKind;
     private Map<String, String> options;
 

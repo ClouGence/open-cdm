@@ -18,13 +18,13 @@ package com.clougence.sql.mysql.analysis.security.builder;
 import java.util.List;
 import java.util.Stack;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCatalogDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -75,7 +75,7 @@ public class MyBuilderFactory extends RdbBuilderFactory {
     protected DeleteDomainBuilder getDeleteDomainBuilder() { return new MyDeleteBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SecQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
         return null;
     }
 
@@ -118,7 +118,7 @@ public class MyBuilderFactory extends RdbBuilderFactory {
         this.domainStack.add(new MyRenameBuilder(targetType));
     }
 
-    public void enterCreateTable(SecQueryType type) {
+    public void enterCreateTable(SplitQueryType type) {
         this.domainStack.add(new MyCreateTableBuilder(type));
     }
 

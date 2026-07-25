@@ -97,10 +97,10 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.LanguageResult;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRange;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
 import com.clougence.clouddm.sdk.ui.editor.dblink.DbLinkEditorFields;
 import com.clougence.clouddm.sdk.ui.editor.function.FunctionEditorFields;
@@ -1666,19 +1666,14 @@ public class DmConvertUtils {
         }
     }
 
-    public static SecQueryType convertToSecQueryType(DataEditorSqlType sqlType) {
-        switch (sqlType) {
-            case INSERT:
-                return SecQueryType.INSERT;
-            case UPDATE:
-                return SecQueryType.UPDATE;
-            case DELETE:
-                return SecQueryType.DELETE;
-            case SELECT:
-                return SecQueryType.SELECT;
-            default:
-                return SecQueryType.UNKNOWN;
-        }
+    public static SplitQueryType convertToSecQueryType(DataEditorSqlType sqlType) {
+        return switch (sqlType) {
+            case INSERT -> SplitQueryType.INSERT;
+            case UPDATE -> SplitQueryType.UPDATE;
+            case DELETE -> SplitQueryType.DELETE;
+            case SELECT -> SplitQueryType.SELECT;
+            default -> SplitQueryType.UNKNOWN;
+        };
     }
 
     public static DevopsScmVO convertToDevopsScmVO(DmGitOpsScmDO scmDO, Map<ScmType, DmScmDef> defMap) {

@@ -6,10 +6,10 @@
  */
 package com.clougence.clouddm.ds.hana.sql.parser;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.iso.sql2003.parser.antlr.Sql2003ParserBaseVisitor;
 
-final class HanaSplitVisitor extends Sql2003ParserBaseVisitor<SecQueryType> {
+final class HanaSplitVisitor extends Sql2003ParserBaseVisitor<SplitQueryType> {
 
     static final HanaSplitVisitor INSTANCE = new HanaSplitVisitor();
 
@@ -17,7 +17,7 @@ final class HanaSplitVisitor extends Sql2003ParserBaseVisitor<SecQueryType> {
     }
 
     @Override
-    protected SecQueryType defaultResult() {
-        return SecQueryType.UNKNOWN;
+    protected SplitQueryType defaultResult() {
+        return SplitQueryType.UNKNOWN;
     }
 }

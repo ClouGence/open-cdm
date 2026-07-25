@@ -81,7 +81,7 @@ public class DrAlterTableBuilder extends AbstractDomainBuilder {
     //
     //        if (newTableName != null) {
     //            DrTableDomain myTableDomain1 = new DrTableDomain();
-    //            myTableDomain1.setSqlType(SecQueryType.RENAME_TABLE);
+    //            myTableDomain1.setSqlType(SplitQueryType.RENAME_TABLE);
     //            myTableDomain1.setSqlKind(SqlKind.ALTER);
     //            myTableDomain1.setTable(myTableDomain.getTable());
     //            myTableDomain1.setSchema(myTableDomain.getSchema());
@@ -92,7 +92,7 @@ public class DrAlterTableBuilder extends AbstractDomainBuilder {
     //            myTableDomain1.setNewSchemaName(newSchemaName);
     //            domains.add(myTableDomain1);
     //        }
-    //        myTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+    //        myTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
     //        myTableDomain.setSqlKind(SqlKind.ALTER);
     //
     //        for (Domain ruleDomain : ruleDomains) {

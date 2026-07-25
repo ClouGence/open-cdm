@@ -21,172 +21,172 @@ import org.antlr.v4.runtime.tree.RuleNode;
 
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserBaseVisitor;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
-public class McSplitVisitor extends McParserBaseVisitor<SecQueryType> {
+public class McSplitVisitor extends McParserBaseVisitor<SplitQueryType> {
 
-    public static final AbstractParseTreeVisitor<SecQueryType> INSTANCE = new McSplitVisitor();
+    public static final AbstractParseTreeVisitor<SplitQueryType> INSTANCE = new McSplitVisitor();
 
     public McSplitVisitor(){
     }
 
     @Override
-    public SecQueryType visitInsert_stmt(McParserParser.Insert_stmtContext ctx) {
-        return SecQueryType.INSERT;
+    public SplitQueryType visitInsert_stmt(McParserParser.Insert_stmtContext ctx) {
+        return SplitQueryType.INSERT;
     }
 
     @Override
-    public SecQueryType visitCall_stmt(McParserParser.Call_stmtContext ctx) {
-        return SecQueryType.CALL_PROG_OBJ;
+    public SplitQueryType visitCall_stmt(McParserParser.Call_stmtContext ctx) {
+        return SplitQueryType.CALL_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitShowTablePartitions(McParserParser.ShowTablePartitionsContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowTablePartitions(McParserParser.ShowTablePartitionsContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitDescribe_stmt(McParserParser.Describe_stmtContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitDescribe_stmt(McParserParser.Describe_stmtContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitShowHistoryTables(McParserParser.ShowHistoryTablesContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowHistoryTables(McParserParser.ShowHistoryTablesContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitShowHistoryTable(McParserParser.ShowHistoryTableContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowHistoryTable(McParserParser.ShowHistoryTableContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitShowTableColumnStatics(McParserParser.ShowTableColumnStaticsContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitShowTableColumnStatics(McParserParser.ShowTableColumnStaticsContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitShowCreateTable(McParserParser.ShowCreateTableContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowCreateTable(McParserParser.ShowCreateTableContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitShowTables(McParserParser.ShowTablesContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowTables(McParserParser.ShowTablesContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitDropMView(McParserParser.DropMViewContext ctx) {
-        return SecQueryType.DROP_VIEW;
+    public SplitQueryType visitDropMView(McParserParser.DropMViewContext ctx) {
+        return SplitQueryType.DROP_VIEW;
     }
 
     @Override
-    public SecQueryType visitAlter_materialized_view_stmt(McParserParser.Alter_materialized_view_stmtContext ctx) {
-        return SecQueryType.ALTER_VIEW;
+    public SplitQueryType visitAlter_materialized_view_stmt(McParserParser.Alter_materialized_view_stmtContext ctx) {
+        return SplitQueryType.ALTER_VIEW;
     }
 
     @Override
-    public SecQueryType visitAssignment_stmt(McParserParser.Assignment_stmtContext ctx) {
-        return SecQueryType.SYSTEM_SETTING_WRITE;
+    public SplitQueryType visitAssignment_stmt(McParserParser.Assignment_stmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
-    public SecQueryType visitCreate_materialized_view_stmt(McParserParser.Create_materialized_view_stmtContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitCreate_materialized_view_stmt(McParserParser.Create_materialized_view_stmtContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitDropView(McParserParser.DropViewContext ctx) {
-        return SecQueryType.DROP_VIEW;
+    public SplitQueryType visitDropView(McParserParser.DropViewContext ctx) {
+        return SplitQueryType.DROP_VIEW;
     }
 
     @Override
-    public SecQueryType visitCreate_view_stmt(McParserParser.Create_view_stmtContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitCreate_view_stmt(McParserParser.Create_view_stmtContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitTruncate_stmt(McParserParser.Truncate_stmtContext ctx) {
-        return SecQueryType.TRUNCATE_TABLE;
+    public SplitQueryType visitTruncate_stmt(McParserParser.Truncate_stmtContext ctx) {
+        return SplitQueryType.TRUNCATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitAlter_table_stmt(McParserParser.Alter_table_stmtContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitAlter_table_stmt(McParserParser.Alter_table_stmtContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitCreate_table_stmt(McParserParser.Create_table_stmtContext ctx) {
+    public SplitQueryType visitCreate_table_stmt(McParserParser.Create_table_stmtContext ctx) {
         if (ctx.create_table_definition() instanceof McParserParser.CreateTableColumnContext) {
-            return SecQueryType.CREATE_TABLE;
+            return SplitQueryType.CREATE_TABLE;
         } else if (ctx.create_table_definition() instanceof McParserParser.CreateTableLikeContext) {
-            return SecQueryType.CREATE_TABLE;
+            return SplitQueryType.CREATE_TABLE;
         } else {
-            return SecQueryType.CREATE_TABLE;
+            return SplitQueryType.CREATE_TABLE;
         }
     }
 
     @Override
-    public SecQueryType visitAnalyze_table_stmt(McParserParser.Analyze_table_stmtContext ctx) {
-        return SecQueryType.ADMIN_TABLE;
+    public SplitQueryType visitAnalyze_table_stmt(McParserParser.Analyze_table_stmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
     }
 
     @Override
-    public SecQueryType visitDropTable(McParserParser.DropTableContext ctx) {
-        return SecQueryType.DROP_TABLE;
+    public SplitQueryType visitDropTable(McParserParser.DropTableContext ctx) {
+        return SplitQueryType.DROP_TABLE;
     }
 
     @Override
-    public SecQueryType visitSelect_stmt(McParserParser.Select_stmtContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitSelect_stmt(McParserParser.Select_stmtContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitDelete_stmt(McParserParser.Delete_stmtContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDelete_stmt(McParserParser.Delete_stmtContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitDropSchema(McParserParser.DropSchemaContext ctx) {
-        return SecQueryType.DROP_SCHEMA;
+    public SplitQueryType visitDropSchema(McParserParser.DropSchemaContext ctx) {
+        return SplitQueryType.DROP_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitCreate_database_stmt(McParserParser.Create_database_stmtContext ctx) {
-        return SecQueryType.CREATE_SCHEMA;
+    public SplitQueryType visitCreate_database_stmt(McParserParser.Create_database_stmtContext ctx) {
+        return SplitQueryType.CREATE_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitUpdate_stmt(McParserParser.Update_stmtContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitUpdate_stmt(McParserParser.Update_stmtContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitShowRoles(McParserParser.ShowRolesContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowRoles(McParserParser.ShowRolesContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitShowUsers(McParserParser.ShowUsersContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowUsers(McParserParser.ShowUsersContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
-    public SecQueryType visitShowTrustProjects(McParserParser.ShowTrustProjectsContext ctx) {
-        return SecQueryType.METADATA;
+    public SplitQueryType visitShowTrustProjects(McParserParser.ShowTrustProjectsContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
-    public SecQueryType visitChildren(RuleNode node) {
+    public SplitQueryType visitChildren(RuleNode node) {
         int n = node.getChildCount();
 
         for (int i = 0; i < n; ++i) {
             ParseTree c = node.getChild(i);
-            SecQueryType result = c.accept(this);
+            SplitQueryType result = c.accept(this);
             if (result != null) {
                 return result;
             }
         }
 
-        return SecQueryType.UNKNOWN;
+        return SplitQueryType.UNKNOWN;
     }
 }

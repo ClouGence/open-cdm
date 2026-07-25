@@ -15,52 +15,52 @@
  */
 package com.clougence.sql.mongodb.analysis.security;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 
 public class MongoAnalysisHelper {
 
-    public static SecQueryType convert(MongoFuncType type) {
+    public static SplitQueryType convert(MongoFuncType type) {
 
         switch (type) {
             case FIND:
             case AGGREGATE: {
-                return SecQueryType.SELECT;
+                return SplitQueryType.SELECT;
             }
             case FIND_ONE:
             case COUNT:
             case DISTINCT:
             case COUNT_DOCUMENTS: {
-                return SecQueryType.SELECT;
+                return SplitQueryType.SELECT;
             }
             case DATA_SIZE:
             case HELLO: {
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             }
 
             case LIST_COLLECTIONS:
             case LIST_INDEXES:
             case SHOW_DATABASES:
             case SHOW_COLLECTIONS: {
-                return SecQueryType.UNKNOWN;
+                return SplitQueryType.UNKNOWN;
             }
             case VALIDATE: {
-                return SecQueryType.ADMIN_TABLE;
+                return SplitQueryType.ADMIN_TABLE;
             }
             case CREATE_INDEX:
             case CREATE_INDEXES: {
-                return SecQueryType.ADD_INDEX;
+                return SplitQueryType.ADD_INDEX;
             }
             case CREATE_VIEW: {
-                return SecQueryType.CREATE_VIEW;
+                return SplitQueryType.CREATE_VIEW;
             }
             case CREATE_COLLECTION: {
-                return SecQueryType.CREATE_TABLE;
+                return SplitQueryType.CREATE_TABLE;
             }
             case INSERT:
             case INSERT_ONE:
             case INSERT_MANY: {
-                return SecQueryType.INSERT;
+                return SplitQueryType.INSERT;
             }
             case UPDATE:
             case UPDATE_MANY:
@@ -68,34 +68,34 @@ public class MongoAnalysisHelper {
             case REPLACE_ONE:
             case FIND_ONE_AND_REPLACE:
             case FIND_ONE_AND_UPDATE: {
-                return SecQueryType.UPDATE;
+                return SplitQueryType.UPDATE;
             }
             case FIND_ONE_AND_DELETE:
             case DELETE_ONE:
             case DELETE_MANY: {
-                return SecQueryType.DELETE;
+                return SplitQueryType.DELETE;
             }
             case DROP: {
-                return SecQueryType.DROP_TABLE;
+                return SplitQueryType.DROP_TABLE;
             }
             case DROP_DATABASE: {
-                return SecQueryType.DROP_SCHEMA;
+                return SplitQueryType.DROP_SCHEMA;
             }
             case RENAME_COLLECTION: {
-                return SecQueryType.RENAME_TABLE;
+                return SplitQueryType.RENAME_TABLE;
             }
             case ALTER_INDEX: {
-                return SecQueryType.ALTER_INDEX;
+                return SplitQueryType.ALTER_INDEX;
             }
             case DROP_INDEXES:
             case DROP_INDEX: {
-                return SecQueryType.DROP_INDEX;
+                return SplitQueryType.DROP_INDEX;
             }
             case EXPLAIN: {
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             }
             case USE: {
-                return SecQueryType.SWITCH_SCHEMA;
+                return SplitQueryType.SWITCH_SCHEMA;
             }
             case HOST_INFO:
             case FSYNC_LOCK:
@@ -108,9 +108,9 @@ public class MongoAnalysisHelper {
             case FSYNC_UNLOCK:
             case DB_STATS:
             case LATENCY_STATS: {
-                return SecQueryType.ADMIN;
+                return SplitQueryType.ADMIN;
             }
         }
-        return SecQueryType.UNKNOWN;
+        return SplitQueryType.UNKNOWN;
     }
 }

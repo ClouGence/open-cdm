@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McUserDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUserDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUserDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.DropUserBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -37,7 +37,7 @@ public class McDropUserBuilder extends DropUserBuilder {
             ObjNameDomain domain = (ObjNameDomain) list.get(0);
 
             McUserDomain rdbUserDomain = new McUserDomain();
-            rdbUserDomain.setSqlType(SecQueryType.DROP_USER);
+            rdbUserDomain.setSqlType(SplitQueryType.DROP_USER);
             rdbUserDomain.setAuditKind(SecQueryKind.DROP);
             rdbUserDomain.setUser(domain.getNameList().get(0));
             if (domain.getNameList().size() > 1) {

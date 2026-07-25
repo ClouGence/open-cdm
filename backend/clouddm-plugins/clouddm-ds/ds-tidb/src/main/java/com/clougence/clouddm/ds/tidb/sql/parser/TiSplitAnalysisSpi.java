@@ -20,7 +20,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
@@ -33,18 +33,18 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return TiSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if (!(tree instanceof TiDBParser.UdfFunctionCallContext function)) {
             return null;
         }
         TiDBParser.FullIdContext fullId = function.customFunctionName().fullId();
         String name = fullId.uid(fullId.uid().size() - 1).getText();
-        return MySqlResourceRegistry.instance().isUserDefinedFunction(name, fullId.uid().size() > 1) ? SecQueryType.CALL_PROG_OBJ : null;
+        return MySqlResourceRegistry.instance().isUserDefinedFunction(name, fullId.uid().size() > 1) ? SplitQueryType.CALL_PROG_OBJ : null;
     }
 
     @Override

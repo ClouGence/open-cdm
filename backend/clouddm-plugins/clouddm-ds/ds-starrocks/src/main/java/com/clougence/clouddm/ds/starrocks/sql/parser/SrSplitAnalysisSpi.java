@@ -27,7 +27,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -41,87 +41,87 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return SrDslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return SrSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof StarRocksParser.InsertStatementContext ctx) {
-            return containsContext(ctx, StarRocksParser.QueryRelationContext.class) ? SecQueryType.SELECT : null;
+            return containsContext(ctx, StarRocksParser.QueryRelationContext.class) ? SplitQueryType.SELECT : null;
         }
         if (tree instanceof StarRocksParser.UpdateStatementContext ctx) {
-            return containsContext(ctx, StarRocksParser.QueryRelationContext.class) ? SecQueryType.SELECT : null;
+            return containsContext(ctx, StarRocksParser.QueryRelationContext.class) ? SplitQueryType.SELECT : null;
         }
         if (tree instanceof StarRocksParser.DeleteStatementContext ctx) {
-            return containsContext(ctx, StarRocksParser.QueryRelationContext.class) ? SecQueryType.SELECT : null;
+            return containsContext(ctx, StarRocksParser.QueryRelationContext.class) ? SplitQueryType.SELECT : null;
         }
         if (tree instanceof StarRocksParser.AddColumnClauseContext || tree instanceof StarRocksParser.AddColumnsClauseContext) {
-            return SecQueryType.ADD_COLUMN;
+            return SplitQueryType.ADD_COLUMN;
         }
         if (tree instanceof StarRocksParser.DropColumnClauseContext) {
-            return SecQueryType.DROP_COLUMN;
+            return SplitQueryType.DROP_COLUMN;
         }
         if (tree instanceof StarRocksParser.ModifyColumnClauseContext || tree instanceof StarRocksParser.ModifyColumnCommentClauseContext) {
-            return SecQueryType.ALTER_COLUMN;
+            return SplitQueryType.ALTER_COLUMN;
         }
         if (tree instanceof StarRocksParser.ColumnRenameClauseContext) {
-            return SecQueryType.RENAME_COLUMN;
+            return SplitQueryType.RENAME_COLUMN;
         }
         if (tree instanceof StarRocksParser.CreateIndexClauseContext) {
-            return SecQueryType.ADD_INDEX;
+            return SplitQueryType.ADD_INDEX;
         }
         if (tree instanceof StarRocksParser.DropIndexClauseContext) {
-            return SecQueryType.DROP_INDEX;
+            return SplitQueryType.DROP_INDEX;
         }
         if (tree instanceof StarRocksParser.TableRenameClauseContext) {
-            return SecQueryType.RENAME_TABLE;
+            return SplitQueryType.RENAME_TABLE;
         }
         if (tree instanceof StarRocksParser.ModifyCommentClauseContext) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (tree instanceof StarRocksParser.AddPartitionClauseContext) {
-            return SecQueryType.ADD_PARTITION;
+            return SplitQueryType.ADD_PARTITION;
         }
         if (tree instanceof StarRocksParser.DropPartitionClauseContext) {
-            return SecQueryType.DROP_PARTITION;
+            return SplitQueryType.DROP_PARTITION;
         }
         if (tree instanceof StarRocksParser.TruncatePartitionClauseContext) {
-            return SecQueryType.TRUNCATE_PARTITION;
+            return SplitQueryType.TRUNCATE_PARTITION;
         }
         if (tree instanceof StarRocksParser.ModifyPartitionClauseContext || tree instanceof StarRocksParser.DistributionClauseContext
             || tree instanceof StarRocksParser.ReplacePartitionClauseContext || tree instanceof StarRocksParser.PartitionRenameClauseContext) {
-            return SecQueryType.ALTER_PARTITION;
+            return SplitQueryType.ALTER_PARTITION;
         }
         if (tree instanceof StarRocksParser.AlterTableStatementContext ctx && ctx.ROLLUP() != null) {
-            return ctx.ADD() != null ? SecQueryType.ADD_INDEX : SecQueryType.DROP_INDEX;
+            return ctx.ADD() != null ? SplitQueryType.ADD_INDEX : SplitQueryType.DROP_INDEX;
         }
         if (tree instanceof StarRocksParser.CreateTableStatementContext ctx && ctx.comment() != null) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (tree instanceof StarRocksParser.CreateTableAsSelectStatementContext ctx && ctx.comment() != null) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (tree instanceof StarRocksParser.CreateIndexStatementContext ctx && ctx.comment() != null) {
-            return SecQueryType.COMMENT_INDEX;
+            return SplitQueryType.COMMENT_INDEX;
         }
         if (tree instanceof StarRocksParser.IndexDescContext ctx && ctx.comment() != null) {
-            return SecQueryType.COMMENT_INDEX;
+            return SplitQueryType.COMMENT_INDEX;
         }
         if (tree instanceof StarRocksParser.CommentContext ctx) {
             if (hasAncestor(ctx, StarRocksParser.CreateIndexClauseContext.class)) {
-                return SecQueryType.COMMENT_INDEX;
+                return SplitQueryType.COMMENT_INDEX;
             }
             if (hasAncestor(ctx, StarRocksParser.AddColumnClauseContext.class) || hasAncestor(ctx, StarRocksParser.AddColumnsClauseContext.class)
                 || hasAncestor(ctx, StarRocksParser.ModifyColumnClauseContext.class) || hasAncestor(ctx, StarRocksParser.ModifyColumnCommentClauseContext.class)) {
-                return SecQueryType.COMMENT_COLUMN;
+                return SplitQueryType.COMMENT_COLUMN;
             }
         }
         if (tree instanceof StarRocksParser.CreateExternalCatalogStatementContext ctx && hasProperty(ctx, "driver_url")) {
-            return SecQueryType.UNSAFE;
+            return SplitQueryType.UNSAFE;
         }
         if (tree instanceof StarRocksParser.SimpleFunctionCallContext ctx && KNOWN_USER_FUNCTIONS.contains(ctx.qualifiedName().getText().toUpperCase(Locale.ROOT))) {
-            return SecQueryType.CALL_PROG_OBJ;
+            return SplitQueryType.CALL_PROG_OBJ;
         }
         return null;
     }

@@ -21,7 +21,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.detectrule.SecRangeVerify;
 import com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode;
 import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 
 import lombok.Getter;
 import lombok.Setter;

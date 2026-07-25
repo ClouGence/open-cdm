@@ -18,12 +18,12 @@ package com.clougence.sql.postgres.analysis.security.builder;
 import java.util.List;
 import java.util.Stack;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUserDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -68,7 +68,7 @@ public class PgBuilderFactory extends RdbBuilderFactory {
     protected DeleteDomainBuilder getDeleteDomainBuilder() { return new PgDeleteDomainBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<PgCatalogDomain> getCatalogDomainBuilder(SecQueryType type) {
+    protected CatalogDomainBuilder<PgCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
         return new PgCatalogDomainBuilder(type);
     }
 

@@ -13,12 +13,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 import com.clougence.sql.oracle.parser.antlr.PlSqlParserBaseVisitor;
@@ -61,7 +57,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
     OraStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        this.behavior.setStatementType(SecQueryType.UNKNOWN);
+        this.behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -71,7 +67,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
     @Override
     public Void visitDml_table_expression_clause(Dml_table_expression_clauseContext ctx) {
         if (ctx.tableview_name() != null) {
-            addUnary(SecQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableview_name()));
+            addUnary(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableview_name()));
         }
         return visitChildren(ctx);
     }
@@ -79,38 +75,38 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
     @Override
     public Void visitCreate_table(Create_tableContext ctx) {
         if (!ctx.tableview_name().isEmpty()) {
-            addRelation(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.tableview_name(0)), sourceTables(ctx, Set.of()));
+            addRelation(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.tableview_name(0)), sourceTables(ctx, Set.of()));
         }
         return null;
     }
 
     @Override
     public Void visitCreate_view(Create_viewContext ctx) {
-        addRelation(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.tableview_name()), sourceTables(ctx.select_only_statement(), Set.of()));
+        addRelation(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.tableview_name()), sourceTables(ctx.select_only_statement(), Set.of()));
         return null;
     }
 
     @Override
     public Void visitCreate_materialized_view(Create_materialized_viewContext ctx) {
-        addRelation(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.tableview_name()), sourceTables(ctx, Set.of()));
+        addRelation(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.tableview_name()), sourceTables(ctx, Set.of()));
         return null;
     }
 
     @Override
     public Void visitCreate_index(Create_indexContext ctx) {
-        addRelation(SecQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, ctx.index_name()), objects(object(TargetType.Table, ctx.tableview_name())));
+        addRelation(SplitQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, ctx.index_name()), objects(object(TargetType.Table, ctx.tableview_name())));
         return null;
     }
 
     @Override
     public Void visitCreate_procedure_body(Create_procedure_bodyContext ctx) {
-        addUnary(SecQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Procedure, ctx.procedure_name()));
+        addUnary(SplitQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Procedure, ctx.procedure_name()));
         return null;
     }
 
     @Override
     public Void visitCreate_function_body(Create_function_bodyContext ctx) {
-        addUnary(SecQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Function, ctx.function_name()));
+        addUnary(SplitQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Function, ctx.function_name()));
         return null;
     }
 
@@ -120,55 +116,55 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         for (Tableview_nameContext table : descendants(ctx, Tableview_nameContext.class)) {
             addObject(targets, object(TargetType.Table, table));
         }
-        addRelation(SecQueryType.CREATE_TRIGGER, BehaviorAction.CREATE, object(TargetType.Trigger, ctx.trigger_name()), targets);
+        addRelation(SplitQueryType.CREATE_TRIGGER, BehaviorAction.CREATE, object(TargetType.Trigger, ctx.trigger_name()), targets);
         return null;
     }
 
     @Override
     public Void visitCreate_sequence(Create_sequenceContext ctx) {
-        addUnary(SecQueryType.CREATE_SEQUENCE, BehaviorAction.CREATE, object(TargetType.Sequence, ctx.sequence_name()));
+        addUnary(SplitQueryType.CREATE_SEQUENCE, BehaviorAction.CREATE, object(TargetType.Sequence, ctx.sequence_name()));
         return null;
     }
 
     @Override
     public Void visitCreate_synonym(Create_synonymContext ctx) {
-        addUnary(SecQueryType.CREATE_SYNONYM, BehaviorAction.CREATE, object(TargetType.Synonym, ctx.synonym_name()));
+        addUnary(SplitQueryType.CREATE_SYNONYM, BehaviorAction.CREATE, object(TargetType.Synonym, ctx.synonym_name()));
         return null;
     }
 
     @Override
     public Void visitDrop_table(Drop_tableContext ctx) {
-        addUnary(SecQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.tableview_name()));
+        addUnary(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.tableview_name()));
         return null;
     }
 
     @Override
     public Void visitDrop_function(Drop_functionContext ctx) {
-        addUnary(SecQueryType.DROP_PROG_OBJ, BehaviorAction.DROP, object(TargetType.Function, ctx.function_name()));
+        addUnary(SplitQueryType.DROP_PROG_OBJ, BehaviorAction.DROP, object(TargetType.Function, ctx.function_name()));
         return null;
     }
 
     @Override
     public Void visitDrop_procedure(Drop_procedureContext ctx) {
-        addUnary(SecQueryType.DROP_PROG_OBJ, BehaviorAction.DROP, object(TargetType.Procedure, ctx.procedure_name()));
+        addUnary(SplitQueryType.DROP_PROG_OBJ, BehaviorAction.DROP, object(TargetType.Procedure, ctx.procedure_name()));
         return null;
     }
 
     @Override
     public Void visitDrop_sequence(Drop_sequenceContext ctx) {
-        addUnary(SecQueryType.DROP_SEQUENCE, BehaviorAction.DROP, object(TargetType.Sequence, ctx.sequence_name()));
+        addUnary(SplitQueryType.DROP_SEQUENCE, BehaviorAction.DROP, object(TargetType.Sequence, ctx.sequence_name()));
         return null;
     }
 
     @Override
     public Void visitDrop_trigger(Drop_triggerContext ctx) {
-        addUnary(SecQueryType.DROP_TRIGGER, BehaviorAction.DROP, object(TargetType.Trigger, ctx.trigger_name()));
+        addUnary(SplitQueryType.DROP_TRIGGER, BehaviorAction.DROP, object(TargetType.Trigger, ctx.trigger_name()));
         return null;
     }
 
     @Override
     public Void visitAlter_table(Alter_tableContext ctx) {
-        addUnary(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.tableview_name()));
+        addUnary(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.tableview_name()));
         return null;
     }
 
@@ -179,21 +175,21 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
             BehaviorObject source = object(TargetType.Table, names.get(0));
             BehaviorObject target = object(TargetType.Table, names.get(1));
             moveToSameContainer(source, target);
-            addRelation(SecQueryType.RENAME_TABLE, BehaviorAction.RENAME, source, objects(target));
+            addRelation(SplitQueryType.RENAME_TABLE, BehaviorAction.RENAME, source, objects(target));
         }
         return null;
     }
 
     @Override
     public Void visitTruncate_table(Truncate_tableContext ctx) {
-        addUnary(SecQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.tableview_name()));
+        addUnary(SplitQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.tableview_name()));
         return null;
     }
 
     @Override
     public Void visitCall_statement(Call_statementContext ctx) {
         if (!ctx.routine_name().isEmpty()) {
-            addUnary(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.routine_name(0)));
+            addUnary(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.routine_name(0)));
         }
         return null;
     }
@@ -210,7 +206,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         }
         List<BehaviorObject> sources = sourceTables(ctx, insertTargets);
         for (Dml_table_expression_clauseContext target : insertTargets) {
-            addRelation(SecQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, target.tableview_name()), sources);
+            addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, target.tableview_name()), sources);
         }
         return null;
     }
@@ -218,7 +214,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
     @Override
     public Void visitUpdate_statement(Update_statementContext ctx) {
         Dml_table_expression_clauseContext target = first(ctx.general_table_ref(), Dml_table_expression_clauseContext.class);
-        addRelation(SecQueryType.UPDATE, BehaviorAction.UPDATE, target == null ? null : object(TargetType.Table, target.tableview_name()), sourceTables(ctx, target == null ? Set
+        addRelation(SplitQueryType.UPDATE, BehaviorAction.UPDATE, target == null ? null : object(TargetType.Table, target.tableview_name()), sourceTables(ctx, target == null ? Set
             .of() : Set.of(target)));
         return null;
     }
@@ -226,7 +222,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
     @Override
     public Void visitDelete_statement(Delete_statementContext ctx) {
         Dml_table_expression_clauseContext target = first(ctx.general_table_ref(), Dml_table_expression_clauseContext.class);
-        addRelation(SecQueryType.DELETE, BehaviorAction.DELETE, target == null ? null : object(TargetType.Table, target.tableview_name()), sourceTables(ctx, target == null ? Set
+        addRelation(SplitQueryType.DELETE, BehaviorAction.DELETE, target == null ? null : object(TargetType.Table, target.tableview_name()), sourceTables(ctx, target == null ? Set
             .of() : Set.of(target)));
         return null;
     }
@@ -254,7 +250,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         }
     }
 
-    private void addUnary(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void addUnary(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         if (subject == null) {
             return;
         }
@@ -265,7 +261,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         behavior.setStatementType(type);
     }
 
-    private void addRelation(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }

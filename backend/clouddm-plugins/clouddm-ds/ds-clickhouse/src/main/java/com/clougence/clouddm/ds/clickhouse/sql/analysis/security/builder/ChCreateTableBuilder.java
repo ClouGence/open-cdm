@@ -21,9 +21,9 @@ import java.util.Map;
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.builder.enums.ChAttribute;
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.domain.ChTableDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstraintDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -39,7 +39,7 @@ public class ChCreateTableBuilder extends CreateTableBuilder<ChTableDomain> {
     protected ChTableDomain getTableDomain() {
         ChTableDomain oraTableDomain = new ChTableDomain();
         oraTableDomain.setAuditKind(SecQueryKind.CREATE);
-        oraTableDomain.setSqlType(SecQueryType.CREATE_TABLE);
+        oraTableDomain.setSqlType(SplitQueryType.CREATE_TABLE);
         return oraTableDomain;
     }
 
@@ -57,7 +57,7 @@ public class ChCreateTableBuilder extends CreateTableBuilder<ChTableDomain> {
                 Map<UmiTypes, String> map = BuilderUtil.parseTableName(objNameDomain.getNameList());
                 rdbTableDomain.setSourceSchema(map.get(UmiTypes.Schema));
                 rdbTableDomain.setSourceTable(map.get(UmiTypes.Table));
-                rdbTableDomain.setSqlType(SecQueryType.CREATE_TABLE);
+                rdbTableDomain.setSqlType(SplitQueryType.CREATE_TABLE);
             }
 
         } else if (source == DomainSource.CONSTRAINT) {
@@ -67,7 +67,7 @@ public class ChCreateTableBuilder extends CreateTableBuilder<ChTableDomain> {
                     return;
                 }
                 rdbConstantDomain.setAuditKind(SecQueryKind.CREATE);
-                rdbConstantDomain.setSqlType(SecQueryType.CREATE_TABLE);
+                rdbConstantDomain.setSqlType(SplitQueryType.CREATE_TABLE);
                 rdbTableDomain.getConstraintDomains().add(rdbConstantDomain);
             }
         } else if (source == DomainSource.OPTIONS) {

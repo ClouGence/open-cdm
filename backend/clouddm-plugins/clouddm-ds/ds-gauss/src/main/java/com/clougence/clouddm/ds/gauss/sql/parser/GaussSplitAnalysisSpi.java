@@ -21,7 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
@@ -39,14 +39,14 @@ public class GaussSplitAnalysisSpi extends PgSplitAnalysisSpi {
     }
 
     @Override
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return new GaussSplitVisitor();
     }
 
     @Override
-    protected java.util.Set<SecQueryType> collectTypes(ParserRuleContext context, String script) {
-        SecQueryType type = context.accept(new GaussSplitVisitor());
-        return Collections.singleton(type == null ? SecQueryType.UNKNOWN : type);
+    protected java.util.Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        SplitQueryType type = context.accept(new GaussSplitVisitor());
+        return Collections.singleton(type == null ? SplitQueryType.UNKNOWN : type);
     }
 
     @Override

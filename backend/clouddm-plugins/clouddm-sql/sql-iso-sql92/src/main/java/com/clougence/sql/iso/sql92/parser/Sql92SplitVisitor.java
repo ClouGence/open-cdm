@@ -17,106 +17,106 @@ package com.clougence.sql.iso.sql92.parser;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.iso.sql92.parser.antlr.Sql92Parser;
 import com.clougence.sql.iso.sql92.parser.antlr.Sql92ParserBaseVisitor;
 
 /**
- * Maps SQL-92 parse tree statement nodes to SecQueryType.
+ * Maps SQL-92 parse tree statement nodes to SplitQueryType.
  * The SQL-92 grammar uses generic rule names from the BNF, so we
  * detect statement types by examining the first keyword tokens.
  */
-public class Sql92SplitVisitor extends Sql92ParserBaseVisitor<SecQueryType> {
+public class Sql92SplitVisitor extends Sql92ParserBaseVisitor<SplitQueryType> {
 
-    public static final AbstractParseTreeVisitor<SecQueryType> INSTANCE = new Sql92SplitVisitor();
+    public static final AbstractParseTreeVisitor<SplitQueryType> INSTANCE = new Sql92SplitVisitor();
 
     @Override
-    public SecQueryType visitSchemaDefinition(Sql92Parser.SchemaDefinitionContext ctx) {
-        return SecQueryType.CREATE_SCHEMA;
+    public SplitQueryType visitSchemaDefinition(Sql92Parser.SchemaDefinitionContext ctx) {
+        return SplitQueryType.CREATE_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitDropSchemaStatement(Sql92Parser.DropSchemaStatementContext ctx) {
-        return SecQueryType.DROP_SCHEMA;
+    public SplitQueryType visitDropSchemaStatement(Sql92Parser.DropSchemaStatementContext ctx) {
+        return SplitQueryType.DROP_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitTableDefinition(Sql92Parser.TableDefinitionContext ctx) {
-        return SecQueryType.CREATE_TABLE;
+    public SplitQueryType visitTableDefinition(Sql92Parser.TableDefinitionContext ctx) {
+        return SplitQueryType.CREATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitAlterTableStatement(Sql92Parser.AlterTableStatementContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitAlterTableStatement(Sql92Parser.AlterTableStatementContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitDropTableStatement(Sql92Parser.DropTableStatementContext ctx) {
-        return SecQueryType.DROP_TABLE;
+    public SplitQueryType visitDropTableStatement(Sql92Parser.DropTableStatementContext ctx) {
+        return SplitQueryType.DROP_TABLE;
     }
 
     @Override
-    public SecQueryType visitViewDefinition(Sql92Parser.ViewDefinitionContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitViewDefinition(Sql92Parser.ViewDefinitionContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitDropViewStatement(Sql92Parser.DropViewStatementContext ctx) {
-        return SecQueryType.DROP_VIEW;
+    public SplitQueryType visitDropViewStatement(Sql92Parser.DropViewStatementContext ctx) {
+        return SplitQueryType.DROP_VIEW;
     }
 
     @Override
-    public SecQueryType visitDirectSelectStatement_MultipleRows(Sql92Parser.DirectSelectStatement_MultipleRowsContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitDirectSelectStatement_MultipleRows(Sql92Parser.DirectSelectStatement_MultipleRowsContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitSelectStatement_SingleRow(Sql92Parser.SelectStatement_SingleRowContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitSelectStatement_SingleRow(Sql92Parser.SelectStatement_SingleRowContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitInsertStatement(Sql92Parser.InsertStatementContext ctx) {
-        return SecQueryType.INSERT;
+    public SplitQueryType visitInsertStatement(Sql92Parser.InsertStatementContext ctx) {
+        return SplitQueryType.INSERT;
     }
 
     @Override
-    public SecQueryType visitUpdateStatement_Searched(Sql92Parser.UpdateStatement_SearchedContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitUpdateStatement_Searched(Sql92Parser.UpdateStatement_SearchedContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitUpdateStatement_Positioned(Sql92Parser.UpdateStatement_PositionedContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitUpdateStatement_Positioned(Sql92Parser.UpdateStatement_PositionedContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitDeleteStatement_Searched(Sql92Parser.DeleteStatement_SearchedContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDeleteStatement_Searched(Sql92Parser.DeleteStatement_SearchedContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitDeleteStatement_Positioned(Sql92Parser.DeleteStatement_PositionedContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDeleteStatement_Positioned(Sql92Parser.DeleteStatement_PositionedContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitGrantStatement(Sql92Parser.GrantStatementContext ctx) {
-        return SecQueryType.GRANT;
+    public SplitQueryType visitGrantStatement(Sql92Parser.GrantStatementContext ctx) {
+        return SplitQueryType.GRANT;
     }
 
     @Override
-    public SecQueryType visitRevokeStatement(Sql92Parser.RevokeStatementContext ctx) {
-        return SecQueryType.REVOKE;
+    public SplitQueryType visitRevokeStatement(Sql92Parser.RevokeStatementContext ctx) {
+        return SplitQueryType.REVOKE;
     }
 
     @Override
-    public SecQueryType visitCommitStatement(Sql92Parser.CommitStatementContext ctx) {
-        return SecQueryType.TRANSACTION;
+    public SplitQueryType visitCommitStatement(Sql92Parser.CommitStatementContext ctx) {
+        return SplitQueryType.TRANSACTION;
     }
 
     @Override
-    public SecQueryType visitRollbackStatement(Sql92Parser.RollbackStatementContext ctx) {
-        return SecQueryType.TRANSACTION;
+    public SplitQueryType visitRollbackStatement(Sql92Parser.RollbackStatementContext ctx) {
+        return SplitQueryType.TRANSACTION;
     }
 }

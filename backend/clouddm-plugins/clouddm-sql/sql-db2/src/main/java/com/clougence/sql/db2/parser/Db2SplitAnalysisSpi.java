@@ -25,7 +25,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -38,41 +38,41 @@ public class Db2SplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return Db2DslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return Db2SplitVisitor.INSTANCE;
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof Db2SqlParser.Insert_statementContext ctx && !ctx.fullselect().isEmpty()) {
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (!(tree instanceof Db2SqlParser.Alter_table_optsContext ctx)) {
             return null;
         }
         if (ctx.ADD() != null) {
             if (ctx.column_definition() != null) {
-                return SecQueryType.ADD_COLUMN;
+                return SplitQueryType.ADD_COLUMN;
             }
             if (ctx.index_name() != null) {
-                return SecQueryType.ADD_INDEX;
+                return SplitQueryType.ADD_INDEX;
             }
             if (ctx.unique_constraint() != null || ctx.referential_constraint() != null || ctx.check_constraint() != null) {
-                return SecQueryType.ADD_CONSTRAINT;
+                return SplitQueryType.ADD_CONSTRAINT;
             }
         }
         if (ctx.ALTER() != null && ctx.column_alteration() != null) {
-            return SecQueryType.ALTER_COLUMN;
+            return SplitQueryType.ALTER_COLUMN;
         }
         if (ctx.RENAME() != null) {
-            return ctx.s != null && ctx.t != null ? SecQueryType.RENAME_COLUMN : SecQueryType.RENAME_TABLE;
+            return ctx.s != null && ctx.t != null ? SplitQueryType.RENAME_COLUMN : SplitQueryType.RENAME_TABLE;
         }
         if (!ctx.DROP().isEmpty()) {
             if (ctx.PRIMARY() != null || ctx.FOREIGN() != null || ctx.UNIQUE() != null || ctx.CHECK() != null || ctx.CONSTRAINT() != null) {
-                return SecQueryType.DROP_CONSTRAINT;
+                return SplitQueryType.DROP_CONSTRAINT;
             }
             if (!ctx.column_name().isEmpty()) {
-                return SecQueryType.DROP_COLUMN;
+                return SplitQueryType.DROP_COLUMN;
             }
         }
         return null;
@@ -84,7 +84,7 @@ public class Db2SplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (view == null || view.fullselect() == null) {
             return Collections.emptyList();
         }
-        return List.of(createChild(view.fullselect(), tokens, Set.of(SecQueryType.SELECT), Collections.emptyList()));
+        return List.of(createChild(view.fullselect(), tokens, Set.of(SplitQueryType.SELECT), Collections.emptyList()));
     }
 
     private <T extends ParserRuleContext> T findContext(ParseTree tree, Class<T> type) {

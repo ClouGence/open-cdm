@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -43,14 +43,14 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return new MySplitVisitor(this.provider.version());
     }
 
     @Override
-    protected Set<SecQueryType> collectTypes(ParserRuleContext context, String script) {
-        Set<SecQueryType> types = new MySplitVisitor(this.provider.version()).collectTypes(context);
-        return types.isEmpty() ? Collections.singleton(SecQueryType.UNKNOWN) : types;
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        Set<SplitQueryType> types = new MySplitVisitor(this.provider.version()).collectTypes(context);
+        return types.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : types;
     }
 
     @Override
@@ -79,23 +79,23 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     private SplitScript createProgramNode(ParserRuleContext range, ParserRuleContext statement, CommonTokenStream tokens) {
         statement = unwrapProgramStatement(statement);
-        Set<SecQueryType> types;
+        Set<SplitQueryType> types;
         List<SplitScript> children;
         if (statement instanceof MySqlParser.BlockStatementContext) {
-            types = Collections.singleton(SecQueryType.BLOCK);
+            types = Collections.singleton(SplitQueryType.BLOCK);
             children = directProgramChildren(statement, tokens);
         } else if (isProgramControl(statement)) {
-            types = Collections.singleton(SecQueryType.PROGRAM_CONTROL);
+            types = Collections.singleton(SplitQueryType.PROGRAM_CONTROL);
             children = directProgramChildren(statement, tokens);
         } else if (statement instanceof MySqlParser.DeclareVariableContext || statement instanceof MySqlParser.DeclareConditionContext
                    || statement instanceof MySqlParser.DeclareCursorContext || statement instanceof MySqlParser.DeclareHandlerContext) {
-            types = statement instanceof MySqlParser.DeclareCursorContext ? cursorTypes() : Collections.singleton(SecQueryType.PROGRAM_CONTROL);
+            types = statement instanceof MySqlParser.DeclareCursorContext ? cursorTypes() : Collections.singleton(SplitQueryType.PROGRAM_CONTROL);
             children = statement instanceof MySqlParser.DeclareHandlerContext ? directProgramChildren(statement, tokens) : Collections.emptyList();
         } else if (statement instanceof MySqlParser.CursorStatementContext) {
             types = cursorTypes();
             children = Collections.emptyList();
         } else if (containsContext(statement, MySqlParser.SetNewValueInsideTriggerContext.class)) {
-            types = Collections.singleton(SecQueryType.UPDATE);
+            types = Collections.singleton(SplitQueryType.UPDATE);
             children = Collections.emptyList();
         } else if (!mayContainProgramOwner(statement) && findContext(statement, MySqlParser.SetVariableContext.class) instanceof MySqlParser.SetVariableContext setVariable) {
             types = classifyRoutineSet(setVariable);
@@ -103,7 +103,7 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         } else {
             types = new MySplitVisitor(this.provider.version()).collectTypes(statement);
             if (types.isEmpty()) {
-                types = Collections.singleton(SecQueryType.UNKNOWN);
+                types = Collections.singleton(SplitQueryType.UNKNOWN);
             }
             children = viewQueryChild(statement, tokens);
             if (children.isEmpty()) {
@@ -115,10 +115,10 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return createChild(range, tokens, new LinkedHashSet<>(types), children);
     }
 
-    private static Set<SecQueryType> cursorTypes() {
-        Set<SecQueryType> types = new LinkedHashSet<>();
-        types.add(SecQueryType.SELECT);
-        types.add(SecQueryType.PROGRAM_CONTROL);
+    private static Set<SplitQueryType> cursorTypes() {
+        Set<SplitQueryType> types = new LinkedHashSet<>();
+        types.add(SplitQueryType.SELECT);
+        types.add(SplitQueryType.PROGRAM_CONTROL);
         return types;
     }
 
@@ -130,27 +130,27 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return viewQuery == null ? Collections.emptyList() : List.of(programNode(viewQuery, tokens));
     }
 
-    private Set<SecQueryType> classifyRoutineSet(MySqlParser.SetVariableContext context) {
+    private Set<SplitQueryType> classifyRoutineSet(MySqlParser.SetVariableContext context) {
         Set<String> localNames = routineLocalNames(context);
-        Set<SecQueryType> result = new LinkedHashSet<>();
+        Set<SplitQueryType> result = new LinkedHashSet<>();
         for (MySqlParser.SetVariableAssignmentContext assignment : context.setVariableAssignment()) {
             String variable = assignment.variableClause().getText();
             String normalized = normalizeIdentifier(variable);
             String upper = variable.toUpperCase(Locale.ROOT);
             if (localNames.contains(normalized)) {
-                result.add(SecQueryType.PROGRAM_CONTROL);
+                result.add(SplitQueryType.PROGRAM_CONTROL);
             } else if (assignment.variableClause().LOCAL_ID() != null) {
-                result.add(SecQueryType.SESSION_VARIABLE_RW);
+                result.add(SplitQueryType.SESSION_VARIABLE_RW);
             } else if (upper.contains("GTID_") || upper.contains("SLAVE_") || upper.contains("REPLICA_")) {
-                result.add(SecQueryType.ALTER_REPLICATION);
+                result.add(SplitQueryType.ALTER_REPLICATION);
             } else if (upper.startsWith("@@GLOBAL.") || upper.startsWith("@@PERSIST.") || upper.startsWith("@@PERSIST_ONLY.") || upper.startsWith("GLOBAL")
                        || upper.startsWith("PERSIST")) {
-                result.add(SecQueryType.SYSTEM_SETTING_WRITE);
+                result.add(SplitQueryType.SYSTEM_SETTING_WRITE);
             } else {
-                result.add(SecQueryType.SESSION_SETTING_WRITE);
+                result.add(SplitQueryType.SESSION_SETTING_WRITE);
             }
         }
-        return result.isEmpty() ? Collections.singleton(SecQueryType.UNKNOWN) : result;
+        return result.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : result;
     }
 
     private static Set<String> routineLocalNames(ParserRuleContext context) {
@@ -212,14 +212,14 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     private SplitScript programExpressionNode(ParserRuleContext expression, CommonTokenStream tokens) {
-        Set<SecQueryType> types = new MySplitVisitor(this.provider.version()).collectTypes(expression);
+        Set<SplitQueryType> types = new MySplitVisitor(this.provider.version()).collectTypes(expression);
         if (types.isEmpty()) {
             return null;
         }
         return createChild(expression, tokens, new LinkedHashSet<>(types), Collections.emptyList());
     }
 
-    private record ProgramTypeTree(List<SecQueryType> types, List<ProgramTypeTree> children) {
+    private record ProgramTypeTree(List<SplitQueryType> types, List<ProgramTypeTree> children) {
 
         private static ProgramTypeTree from(SplitScript script) {
             List<SplitScript> children = script.getChildren();

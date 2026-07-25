@@ -14,11 +14,10 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.parser.ObOraDslProvider;
-import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForOracleParser.*;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForOracleParserBaseVisitor;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForOracleParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
@@ -40,10 +39,10 @@ public class ObOraBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 }
 
 final class ObOraBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
-    private final Parser parser;
-    private final Map<UmiTypes, Object> levels;
-    private final int baseLine;
-    private final int baseColumn;
+    private final Parser                  parser;
+    private final Map<UmiTypes, Object>   levels;
+    private final int                     baseLine;
+    private final int                     baseColumn;
     private final List<StatementBehavior> behaviors = new ArrayList<>();
 
     ObOraBehaviorParserVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
@@ -67,14 +66,14 @@ final class ObOraBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 }
 
 final class ObOraStatementBehaviorVisitor extends ObForOracleParserBaseVisitor<Void> {
-    private final Parser parser;
+    private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
-    private final StatementBehavior behavior = new StatementBehavior();
+    private final StatementBehavior        behavior = new StatementBehavior();
 
     ObOraStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        behavior.setStatementType(SecQueryType.UNKNOWN);
+        behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -84,7 +83,7 @@ final class ObOraStatementBehaviorVisitor extends ObForOracleParserBaseVisitor<V
     @Override
     public Void visitDml_table_expression_clause(Dml_table_expression_clauseContext ctx) {
         if (ctx.tableview_name() != null) {
-            add(SecQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableview_name()), List.of());
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableview_name()), List.of());
         }
         return visitChildren(ctx);
     }
@@ -92,19 +91,18 @@ final class ObOraStatementBehaviorVisitor extends ObForOracleParserBaseVisitor<V
     @Override
     public Void visitCreate_view(Create_viewContext ctx) {
         List<BehaviorObject> targets = descendants(ctx.select_only_statement(), Dml_table_expression_clauseContext.class).stream()
-                .filter(source -> source.tableview_name() != null)
-                .map(source -> object(TargetType.Table, source.tableview_name()))
-                .filter(Objects::nonNull)
-                .toList();
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.tableview_name()), targets);
+            .filter(source -> source.tableview_name() != null)
+            .map(source -> object(TargetType.Table, source.tableview_name()))
+            .filter(Objects::nonNull)
+            .toList();
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.tableview_name()), targets);
         return null;
     }
 
     @Override
     public Void visitCall_statement(Call_statementContext ctx) {
         if (!ctx.routine_name().isEmpty()) {
-            add(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL,
-                    object(TargetType.Procedure, ctx.routine_name(0)), List.of());
+            add(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.routine_name(0)), List.of());
         }
         return null;
     }
@@ -133,11 +131,10 @@ final class ObOraStatementBehaviorVisitor extends ObForOracleParserBaseVisitor<V
     }
 
     private String unquote(String value) {
-        return value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"'
-                ? value.substring(1, value.length() - 1) : value;
+        return value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"' ? value.substring(1, value.length() - 1) : value;
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }

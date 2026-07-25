@@ -22,13 +22,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 public class ResourceActionConverterTest {
 
@@ -46,7 +42,7 @@ public class ResourceActionConverterTest {
 
     @Test
     public void renameExpandsToDropAndCreate() {
-        StatementBehavior behavior = behavior(SecQueryType.RENAME_TABLE, relation(BehaviorAction.RENAME, //
+        StatementBehavior behavior = behavior(SplitQueryType.RENAME_TABLE, relation(BehaviorAction.RENAME, //
                 object(TargetType.Table, "/instance/schema/source/"), object(TargetType.Table, "/instance/schema/target/")));
 
         List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
@@ -58,7 +54,7 @@ public class ResourceActionConverterTest {
 
     @Test
     public void createAsSelectKeepsCreateAndReadActions() {
-        StatementBehavior behavior = behavior(SecQueryType.CREATE_TABLE, relation(BehaviorAction.CREATE, //
+        StatementBehavior behavior = behavior(SplitQueryType.CREATE_TABLE, relation(BehaviorAction.CREATE, //
                 object(TargetType.Table, "/instance/schema/target/"), object(TargetType.Table, "/instance/schema/source/")));
 
         List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
@@ -70,7 +66,7 @@ public class ResourceActionConverterTest {
 
     @Test
     public void tableOwnedObjectAlsoAltersCarrierTable() {
-        StatementBehavior behavior = behavior(SecQueryType.ADD_INDEX, relation(BehaviorAction.CREATE, //
+        StatementBehavior behavior = behavior(SplitQueryType.ADD_INDEX, relation(BehaviorAction.CREATE, //
                 object(TargetType.Index, "/instance/schema/table/index/"), object(TargetType.Table, "/instance/schema/table/")));
 
         List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
@@ -83,7 +79,7 @@ public class ResourceActionConverterTest {
     @Test
     public void distinctKeepsDifferentActionsOnSameResource() {
         BehaviorObject table = object(TargetType.Table, "/instance/schema/table/");
-        StatementBehavior behavior = behavior(SecQueryType.MERGE, //
+        StatementBehavior behavior = behavior(SplitQueryType.MERGE, //
                 relation(BehaviorAction.READ, table), relation(BehaviorAction.UPDATE, table));
 
         List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
@@ -95,7 +91,7 @@ public class ResourceActionConverterTest {
 
     @Test
     public void subjectUsesStatementAuthorizationDomain() {
-        StatementBehavior behavior = behavior(SecQueryType.CREATE_USER, relation(BehaviorAction.CREATE, //
+        StatementBehavior behavior = behavior(SplitQueryType.CREATE_USER, relation(BehaviorAction.CREATE, //
                 object(TargetType.User, "/instance/user/")));
 
         List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
@@ -106,7 +102,7 @@ public class ResourceActionConverterTest {
 
     @Test
     public void nestedManagementBehaviorKeepsActionAuthorizationDomain() {
-        StatementBehavior behavior = behavior(SecQueryType.SELECT, relation(BehaviorAction.ADMIN, //
+        StatementBehavior behavior = behavior(SplitQueryType.SELECT, relation(BehaviorAction.ADMIN, //
                 object(TargetType.Procedure, "/instance/system/routine/")));
 
         List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
@@ -118,7 +114,7 @@ public class ResourceActionConverterTest {
     @Test
     public void sessionLifetimeObjectSkipsPersistentResourcePermission() {
         BehaviorObject temporaryTables = object(TargetType.Table, "/instance/schema/");
-        StatementBehavior behavior = behavior(SecQueryType.DROP_TABLE, relation(BehaviorAction.DROP, temporaryTables));
+        StatementBehavior behavior = behavior(SplitQueryType.DROP_TABLE, relation(BehaviorAction.DROP, temporaryTables));
 
         List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
 
@@ -129,15 +125,15 @@ public class ResourceActionConverterTest {
     @Test
     public void sameActionInDifferentStatementsIsNotCollapsed() {
         BehaviorObject table = object(TargetType.Table, "/instance/schema/table/");
-        StatementBehavior first = behavior(SecQueryType.SELECT, relation(BehaviorAction.READ, table));
-        StatementBehavior second = behavior(SecQueryType.SELECT, relation(BehaviorAction.READ, table));
+        StatementBehavior first = behavior(SplitQueryType.SELECT, relation(BehaviorAction.READ, table));
+        StatementBehavior second = behavior(SplitQueryType.SELECT, relation(BehaviorAction.READ, table));
 
         List<ResourceAction> actions = this.converter.convert(List.of(first, second), "/instance/schema/");
 
         assertEquals(2, actions.size());
     }
 
-    private static StatementBehavior behavior(SecQueryType statementType, BehaviorRelation... relations) {
+    private static StatementBehavior behavior(SplitQueryType statementType, BehaviorRelation... relations) {
         StatementBehavior behavior = new StatementBehavior();
         behavior.setStatementType(statementType);
         behavior.getRelations().addAll(List.of(relations));

@@ -19,16 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McGrantDomain;
+import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.GrantBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 
 public class McGrantBuilder extends GrantBuilder {
 
-    private List<McGrantDomain> domains = new ArrayList<>();
+    private final List<McGrantDomain> domains = new ArrayList<>();
 
     @Override
     public void handleSubDomain(List<Domain> list, DomainSource source) {
@@ -36,7 +36,7 @@ public class McGrantBuilder extends GrantBuilder {
             ObjNameDomain domain = (ObjNameDomain) list.get(0);
 
             McGrantDomain rdbUserDomain = new McGrantDomain();
-            rdbUserDomain.setSqlType(SecQueryType.GRANT);
+            rdbUserDomain.setSqlType(SplitQueryType.GRANT);
             rdbUserDomain.setAuditKind(SecQueryKind.ALTER);
             rdbUserDomain.setName(domain.getNameList().get(0));
             if (domain.getNameList().size() > 1) {

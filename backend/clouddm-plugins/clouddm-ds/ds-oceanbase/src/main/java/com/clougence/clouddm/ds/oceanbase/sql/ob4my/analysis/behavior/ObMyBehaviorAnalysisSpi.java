@@ -16,9 +16,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.parser.ObMyDslProvider;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParserBaseVisitor;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParser.*;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
@@ -74,7 +73,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     ObMyStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        behavior.setStatementType(SecQueryType.UNKNOWN);
+        behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -83,7 +82,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
 
     @Override
     public Void visitTableName(TableNameContext ctx) {
-        add(SecQueryType.SELECT, BehaviorAction.READ, table(ctx), List.of());
+        add(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx), List.of());
         return null;
     }
 
@@ -108,13 +107,13 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
 
     @Override
     public Void visitCallStatement(CallStatementContext ctx) {
-        add(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.procName().fullId()), List.of());
+        add(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.procName().fullId()), List.of());
         return null;
     }
 
     private void create(TableNameContext subject, List<TableNameContext> sources) {
         List<BehaviorObject> targets = sources.stream().map(this::table).filter(Objects::nonNull).toList();
-        add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, table(subject), targets);
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, table(subject), targets);
     }
 
     private BehaviorObject table(TableNameContext context) {
@@ -137,7 +136,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         return value.length() >= 2 && value.charAt(0) == '`' && value.charAt(value.length() - 1) == '`' ? value.substring(1, value.length() - 1) : value;
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }

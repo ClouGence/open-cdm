@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -38,7 +38,7 @@ public class DeleteDomainBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         rdbDeleteDomain.setAuditKind(SecQueryKind.DML);
-        rdbDeleteDomain.setSqlType(SecQueryType.DELETE);
+        rdbDeleteDomain.setSqlType(SplitQueryType.DELETE);
         if (rdbDeleteDomain.getWhereColumns() == null) {
             rdbDeleteDomain.setWhereColumns(new ArrayList<>());
         }

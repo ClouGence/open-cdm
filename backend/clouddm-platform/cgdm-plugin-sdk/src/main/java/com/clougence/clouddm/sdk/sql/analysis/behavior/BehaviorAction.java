@@ -28,22 +28,26 @@ import lombok.Getter;
 @Getter
 public enum BehaviorAction {
 
-    READ(SecDataAuthKind.READ),
     CREATE(SecDataAuthKind.DDL),
     ALTER(SecDataAuthKind.DDL),
     DROP(SecDataAuthKind.DDL),
     RENAME(SecDataAuthKind.DDL),
+    //
+    READ(SecDataAuthKind.READ),
     INSERT(SecDataAuthKind.WRITE),
     UPDATE(SecDataAuthKind.WRITE),
     DELETE(SecDataAuthKind.WRITE),
     MERGE(SecDataAuthKind.WRITE),
     REPLACE(SecDataAuthKind.WRITE),
+    IMPORT(SecDataAuthKind.WRITE),
+    EXPORT(SecDataAuthKind.READ),
+    //
     CALL(SecDataAuthKind.CALL),
+    //
     GRANT(SecDataAuthKind.ADMIN),
     REVOKE(SecDataAuthKind.ADMIN),
     TRANSFER(SecDataAuthKind.ADMIN),
-    IMPORT(SecDataAuthKind.WRITE),
-    EXPORT(SecDataAuthKind.READ),
+    //
     COPY(SecDataAuthKind.WRITE),
     MOVE(SecDataAuthKind.WRITE),
     LOCK(SecDataAuthKind.OTHER),

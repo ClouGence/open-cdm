@@ -18,10 +18,10 @@ package com.clougence.sql.mysql.analysis.security.builder;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbInsertConflictStrategy;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbInsertDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.InsertBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -33,7 +33,7 @@ public class MyInsertBuilder extends InsertBuilder {
     public List<Domain> build() {
         List<Domain> domains = super.build();
         if (insertDomain.getConflict() == RdbInsertConflictStrategy.UPDATE) {
-            insertDomain.setSqlType(SecQueryType.MERGE);
+            insertDomain.setSqlType(SplitQueryType.MERGE);
         }
         return domains;
     }

@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.RevokeBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -36,7 +36,7 @@ public class MyRevokeBuilder extends RevokeBuilder {
             ObjNameDomain domain = (ObjNameDomain) list.get(0);
 
             MyRevokeDomain rdbUserDomain = new MyRevokeDomain();
-            rdbUserDomain.setSqlType(SecQueryType.REVOKE);
+            rdbUserDomain.setSqlType(SplitQueryType.REVOKE);
             rdbUserDomain.setAuditKind(SecQueryKind.ALTER);
             rdbUserDomain.setName(domain.getNameList().get(0));
             if (domain.getNameList().size() > 1) {

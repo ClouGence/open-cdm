@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.DropSchemaBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -59,7 +59,7 @@ public class DrDropSchemaBuilder extends DropSchemaBuilder<DrSchemaDomain> {
             schemaDomain.setSchema(map.get(UmiTypes.Schema));
             schemaDomain.setCatalog(map.get(UmiTypes.Catalog));
             schemaDomain.setAuditKind(SecQueryKind.DROP);
-            schemaDomain.setSqlType(SecQueryType.DROP_SCHEMA);
+            schemaDomain.setSqlType(SplitQueryType.DROP_SCHEMA);
             schemaDomain.setIfExists(ifExists);
             schemaDomain.setForce(force);
             domains.add(schemaDomain);

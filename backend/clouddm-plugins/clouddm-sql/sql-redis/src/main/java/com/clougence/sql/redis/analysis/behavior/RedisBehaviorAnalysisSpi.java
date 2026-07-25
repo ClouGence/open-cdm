@@ -9,9 +9,8 @@ package com.clougence.sql.redis.analysis.behavior;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.Statement;
 import com.clougence.dslpaser.ast.StatementSet;
@@ -38,7 +37,7 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             if (!(statement instanceof AbstractRedisCmd command)) {
                 continue;
             }
-            SecQueryType statementType = RedisAnalysisHelper.cmdTypeToSecQueryType(command.getCmdType());
+            SplitQueryType statementType = RedisAnalysisHelper.cmdTypeToSecQueryType(command.getCmdType());
             StatementBehavior behavior = new StatementBehavior();
             behavior.setStatementType(statementType);
             List<StrToken> keys = keyTokens(command);
@@ -166,7 +165,7 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         behavior.getRelations().add(relation);
     }
 
-    private BehaviorAction action(SecQueryType type) {
+    private BehaviorAction action(SplitQueryType type) {
         return switch (type) {
             case SELECT, METADATA, PERFORMANCE, LOG_READ -> BehaviorAction.READ;
             case INSERT -> BehaviorAction.INSERT;

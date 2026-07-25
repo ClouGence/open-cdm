@@ -21,22 +21,22 @@ import java.util.List;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.Statement;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.dslpaser.parse.AstSplitScript;
+import com.clougence.sql.mongodb.analysis.security.domain.MongoCmdDomain;
+import com.clougence.sql.mongodb.analysis.security.domain.MongoCollectionDomain;
 import com.clougence.sql.mongodb.parser.MongoDslProvider;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 import com.clougence.sql.mongodb.parser.ast.commands.AbstractMongoFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.CollectionFunc;
-import com.clougence.sql.mongodb.analysis.security.domain.MongoCmdDomain;
-import com.clougence.sql.mongodb.analysis.security.domain.MongoCollectionDomain;
 
 public class MongoSecDomainResolveSpi implements SecDomainResolveSpi {
 
@@ -76,7 +76,7 @@ public class MongoSecDomainResolveSpi implements SecDomainResolveSpi {
                 MongoFuncType funcType = mongoFunc.getFuncType();
                 String funcStr = funcType.getFuncStr();
 
-                SecQueryType convert = MongoAnalysisHelper.convert(funcType);
+                SplitQueryType convert = MongoAnalysisHelper.convert(funcType);
                 mongoCmdDomain.setSqlType(convert);
                 mongoCmdDomain.setAuditKind(convert.getAuditKind());
                 mongoCmdDomain.setFunc(funcStr);

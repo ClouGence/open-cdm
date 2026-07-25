@@ -17,134 +17,134 @@ package com.clougence.sql.iso.sql2003.parser;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.iso.sql2003.parser.antlr.Sql2003Parser;
 import com.clougence.sql.iso.sql2003.parser.antlr.Sql2003ParserBaseVisitor;
 
 /**
- * Maps SQL-2003 parse tree statement nodes to SecQueryType.
+ * Maps SQL-2003 parse tree statement nodes to SplitQueryType.
  */
-public class Sql2003SplitVisitor extends Sql2003ParserBaseVisitor<SecQueryType> {
+public class Sql2003SplitVisitor extends Sql2003ParserBaseVisitor<SplitQueryType> {
 
-    public static final AbstractParseTreeVisitor<SecQueryType> INSTANCE = new Sql2003SplitVisitor();
+    public static final AbstractParseTreeVisitor<SplitQueryType> INSTANCE = new Sql2003SplitVisitor();
 
     @Override
-    public SecQueryType visitSchemaDefinition(Sql2003Parser.SchemaDefinitionContext ctx) {
-        return SecQueryType.CREATE_SCHEMA;
+    public SplitQueryType visitSchemaDefinition(Sql2003Parser.SchemaDefinitionContext ctx) {
+        return SplitQueryType.CREATE_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitDropSchemaStatement(Sql2003Parser.DropSchemaStatementContext ctx) {
-        return SecQueryType.DROP_SCHEMA;
+    public SplitQueryType visitDropSchemaStatement(Sql2003Parser.DropSchemaStatementContext ctx) {
+        return SplitQueryType.DROP_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitTableDefinition(Sql2003Parser.TableDefinitionContext ctx) {
-        return SecQueryType.CREATE_TABLE;
+    public SplitQueryType visitTableDefinition(Sql2003Parser.TableDefinitionContext ctx) {
+        return SplitQueryType.CREATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitAlterTableStatement(Sql2003Parser.AlterTableStatementContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitAlterTableStatement(Sql2003Parser.AlterTableStatementContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitDropTableStatement(Sql2003Parser.DropTableStatementContext ctx) {
-        return SecQueryType.DROP_TABLE;
+    public SplitQueryType visitDropTableStatement(Sql2003Parser.DropTableStatementContext ctx) {
+        return SplitQueryType.DROP_TABLE;
     }
 
     @Override
-    public SecQueryType visitViewDefinition(Sql2003Parser.ViewDefinitionContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitViewDefinition(Sql2003Parser.ViewDefinitionContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitDropViewStatement(Sql2003Parser.DropViewStatementContext ctx) {
-        return SecQueryType.DROP_VIEW;
+    public SplitQueryType visitDropViewStatement(Sql2003Parser.DropViewStatementContext ctx) {
+        return SplitQueryType.DROP_VIEW;
     }
 
     @Override
-    public SecQueryType visitDirectSelectStatement_MultipleRows(Sql2003Parser.DirectSelectStatement_MultipleRowsContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitDirectSelectStatement_MultipleRows(Sql2003Parser.DirectSelectStatement_MultipleRowsContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitSelectStatement_SingleRow(Sql2003Parser.SelectStatement_SingleRowContext ctx) {
-        return SecQueryType.SELECT;
+    public SplitQueryType visitSelectStatement_SingleRow(Sql2003Parser.SelectStatement_SingleRowContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitInsertStatement(Sql2003Parser.InsertStatementContext ctx) {
-        return SecQueryType.INSERT;
+    public SplitQueryType visitInsertStatement(Sql2003Parser.InsertStatementContext ctx) {
+        return SplitQueryType.INSERT;
     }
 
     @Override
-    public SecQueryType visitUpdateStatement_Searched(Sql2003Parser.UpdateStatement_SearchedContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitUpdateStatement_Searched(Sql2003Parser.UpdateStatement_SearchedContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitUpdateStatement_Positioned(Sql2003Parser.UpdateStatement_PositionedContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitUpdateStatement_Positioned(Sql2003Parser.UpdateStatement_PositionedContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitDeleteStatement_Searched(Sql2003Parser.DeleteStatement_SearchedContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDeleteStatement_Searched(Sql2003Parser.DeleteStatement_SearchedContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitDeleteStatement_Positioned(Sql2003Parser.DeleteStatement_PositionedContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDeleteStatement_Positioned(Sql2003Parser.DeleteStatement_PositionedContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitCallStatement(Sql2003Parser.CallStatementContext ctx) {
-        return SecQueryType.CALL_PROG_OBJ;
+    public SplitQueryType visitCallStatement(Sql2003Parser.CallStatementContext ctx) {
+        return SplitQueryType.CALL_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitGrantStatement(Sql2003Parser.GrantStatementContext ctx) {
-        return SecQueryType.GRANT;
+    public SplitQueryType visitGrantStatement(Sql2003Parser.GrantStatementContext ctx) {
+        return SplitQueryType.GRANT;
     }
 
     @Override
-    public SecQueryType visitRevokeStatement(Sql2003Parser.RevokeStatementContext ctx) {
-        return SecQueryType.REVOKE;
+    public SplitQueryType visitRevokeStatement(Sql2003Parser.RevokeStatementContext ctx) {
+        return SplitQueryType.REVOKE;
     }
 
     @Override
-    public SecQueryType visitDropRoleStatement(Sql2003Parser.DropRoleStatementContext ctx) {
-        return SecQueryType.DROP_ROLE;
+    public SplitQueryType visitDropRoleStatement(Sql2003Parser.DropRoleStatementContext ctx) {
+        return SplitQueryType.DROP_ROLE;
     }
 
     @Override
-    public SecQueryType visitDropTriggerStatement(Sql2003Parser.DropTriggerStatementContext ctx) {
-        return SecQueryType.DROP_TRIGGER;
+    public SplitQueryType visitDropTriggerStatement(Sql2003Parser.DropTriggerStatementContext ctx) {
+        return SplitQueryType.DROP_TRIGGER;
     }
 
     @Override
-    public SecQueryType visitDropRoutineStatement(Sql2003Parser.DropRoutineStatementContext ctx) {
-        return SecQueryType.DROP_PROG_OBJ;
+    public SplitQueryType visitDropRoutineStatement(Sql2003Parser.DropRoutineStatementContext ctx) {
+        return SplitQueryType.DROP_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitAlterSequenceGeneratorStatement(Sql2003Parser.AlterSequenceGeneratorStatementContext ctx) {
-        return SecQueryType.ALTER_SEQUENCE;
+    public SplitQueryType visitAlterSequenceGeneratorStatement(Sql2003Parser.AlterSequenceGeneratorStatementContext ctx) {
+        return SplitQueryType.ALTER_SEQUENCE;
     }
 
     @Override
-    public SecQueryType visitDropSequenceGeneratorStatement(Sql2003Parser.DropSequenceGeneratorStatementContext ctx) {
-        return SecQueryType.DROP_SEQUENCE;
+    public SplitQueryType visitDropSequenceGeneratorStatement(Sql2003Parser.DropSequenceGeneratorStatementContext ctx) {
+        return SplitQueryType.DROP_SEQUENCE;
     }
 
     @Override
-    public SecQueryType visitCommitStatement(Sql2003Parser.CommitStatementContext ctx) {
-        return SecQueryType.TRANSACTION;
+    public SplitQueryType visitCommitStatement(Sql2003Parser.CommitStatementContext ctx) {
+        return SplitQueryType.TRANSACTION;
     }
 
     @Override
-    public SecQueryType visitRollbackStatement(Sql2003Parser.RollbackStatementContext ctx) {
-        return SecQueryType.TRANSACTION;
+    public SplitQueryType visitRollbackStatement(Sql2003Parser.RollbackStatementContext ctx) {
+        return SplitQueryType.TRANSACTION;
     }
 }

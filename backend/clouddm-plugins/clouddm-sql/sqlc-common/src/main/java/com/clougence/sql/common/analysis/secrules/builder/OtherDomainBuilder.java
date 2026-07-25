@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.ModeDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 
 public class OtherDomainBuilder extends AbstractDomainBuilder {
@@ -37,7 +37,7 @@ public class OtherDomainBuilder extends AbstractDomainBuilder {
                 ruleDomain.setAuditKind(SecQueryKind.OTHER);
             }
             if (ruleDomain.getSqlType() == null) {
-                ruleDomain.setSqlType(SecQueryType.UNKNOWN);
+                ruleDomain.setSqlType(SplitQueryType.UNKNOWN);
             }
         }
         return this.domains;

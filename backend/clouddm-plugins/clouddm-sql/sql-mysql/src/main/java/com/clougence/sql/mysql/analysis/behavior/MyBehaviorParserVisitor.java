@@ -15,12 +15,12 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.sql.mysql.parser.MyDslProvider;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
+import com.clougence.sql.mysql.parser.MyDslProvider;
 
 final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
@@ -60,16 +60,14 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         visitor.scanOptimizerHints(context);
 
         String sql = parser.getTokenStream().getText(context.getStart(), context.getStop());
-        SecQueryType statementType = MyBehaviorStatementTypeResolver.resolve(sql, visitor.references());
-        boolean libraryLifecycle = statementType == SecQueryType.CREATE_LIBRARY
-            || statementType == SecQueryType.ALTER_LIBRARY
-            || statementType == SecQueryType.DROP_LIBRARY
-            || statementType == SecQueryType.COMMENT_LIBRARY;
+        SplitQueryType statementType = MyBehaviorStatementTypeResolver.resolve(sql, visitor.references());
+        boolean libraryLifecycle = statementType == SplitQueryType.CREATE_LIBRARY || statementType == SplitQueryType.ALTER_LIBRARY || statementType == SplitQueryType.DROP_LIBRARY
+                                   || statementType == SplitQueryType.COMMENT_LIBRARY;
         if (libraryLifecycle) {
             visitor.references().removeIf(reference -> reference.targetType() != TargetType.Library);
         }
         if (visitor.references().isEmpty()
-            || visitor.references().stream().allMatch(reference -> reference.targetType() == TargetType.Function && reference.sqlType() == SecQueryType.CALL_PROG_OBJ)) {
+            || visitor.references().stream().allMatch(reference -> reference.targetType() == TargetType.Function && reference.sqlType() == SplitQueryType.CALL_PROG_OBJ)) {
             TargetType fallback = fallbackType(statementType);
             if (fallback != null) {
                 int fallbackIndex = visitor.references().size();
@@ -85,7 +83,7 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         return null;
     }
 
-    private TargetType fallbackType(SecQueryType type) {
+    private TargetType fallbackType(SplitQueryType type) {
         return switch (type) {
             case SYSTEM_SETTING_WRITE, SESSION_SETTING_WRITE, SESSION_VARIABLE_RW -> TargetType.ConfigKey;
             case CREATE_REPLICATION, ALTER_REPLICATION, DROP_REPLICATION, ADMIN_REPLICATION -> TargetType.Replication;

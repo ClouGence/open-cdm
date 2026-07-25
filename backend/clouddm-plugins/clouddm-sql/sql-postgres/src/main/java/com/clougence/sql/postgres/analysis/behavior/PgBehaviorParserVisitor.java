@@ -16,12 +16,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
@@ -53,7 +49,7 @@ final class PgBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
     @Override
     public Void visit(ParseTree tree) {
-        SecQueryType statementType = new PgSplitVisitor(version).visit(tree);
+        SplitQueryType statementType = new PgSplitVisitor(version).visit(tree);
         PgStatementBehaviorVisitor visitor = new PgStatementBehaviorVisitor(parser, statementType, levels, baseLine, baseColumn);
         visitor.visit(tree);
         behaviors.add(visitor.behavior());
@@ -68,16 +64,16 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     private final Map<UmiTypes, Object>    levels;
     private final int                      baseLine;
     private final int                      baseColumn;
-    private final SecQueryType             resolvedType;
+    private final SplitQueryType           resolvedType;
     private final StatementBehavior        behavior = new StatementBehavior();
 
-    PgStatementBehaviorVisitor(Parser parser, SecQueryType statementType, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+    PgStatementBehaviorVisitor(Parser parser, SplitQueryType statementType, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
         this.levels = levels;
         this.baseLine = Math.max(1, baseLine);
         this.baseColumn = Math.max(0, baseColumn);
-        this.resolvedType = statementType == null ? SecQueryType.UNKNOWN : statementType;
+        this.resolvedType = statementType == null ? SplitQueryType.UNKNOWN : statementType;
         this.behavior.setStatementType(this.resolvedType);
     }
 
@@ -88,26 +84,26 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     @Override
     public Void visitTable_ref(Table_refContext ctx) {
         if (ctx.relation_expr() != null) {
-            addUnary(SecQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.relation_expr().qualified_name()));
+            addUnary(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.relation_expr().qualified_name()));
         }
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitInsertstmt(InsertstmtContext ctx) {
-        addRelation(SecQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.insert_target().qualified_name()), tableReferences(ctx.insert_rest()));
+        addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.insert_target().qualified_name()), tableReferences(ctx.insert_rest()));
         return null;
     }
 
     @Override
     public Void visitUpdatestmt(UpdatestmtContext ctx) {
-        addRelation(SecQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.relation_expr_opt_alias().relation_expr().qualified_name()), tableReferences(ctx));
+        addRelation(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.relation_expr_opt_alias().relation_expr().qualified_name()), tableReferences(ctx));
         return null;
     }
 
     @Override
     public Void visitDeletestmt(DeletestmtContext ctx) {
-        addRelation(SecQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.relation_expr_opt_alias().relation_expr().qualified_name()), tableReferences(ctx));
+        addRelation(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.relation_expr_opt_alias().relation_expr().qualified_name()), tableReferences(ctx));
         return null;
     }
 
@@ -119,7 +115,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
             for (int i = 1; i < names.size(); i++) {
                 addObject(targets, object(TargetType.Table, names.get(i)));
             }
-            addRelation(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, names.get(0)), targets);
+            addRelation(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, names.get(0)), targets);
         }
         return null;
     }
@@ -131,45 +127,45 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         if (ctx.selectstmt() == null && ctx.qualified_name() != null) {
             addObject(targets, object(TargetType.Table, ctx.qualified_name()));
         }
-        addRelation(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, subject, targets);
+        addRelation(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, subject, targets);
         return null;
     }
 
     @Override
     public Void visitCreatepolicystmt(CreatepolicystmtContext ctx) {
-        addRelation(SecQueryType.CREATE_POLICY, BehaviorAction.CREATE, object(TargetType.RowAccessPolicy, ctx.name()), objects(TargetType.Table, ctx.qualified_name()));
+        addRelation(SplitQueryType.CREATE_POLICY, BehaviorAction.CREATE, object(TargetType.RowAccessPolicy, ctx.name()), objects(TargetType.Table, ctx.qualified_name()));
         return null;
     }
 
     @Override
     public Void visitAlterpolicystmt(AlterpolicystmtContext ctx) {
-        addRelation(SecQueryType.ALTER_POLICY, BehaviorAction.ALTER, object(TargetType.RowAccessPolicy, ctx.name(0)), objects(TargetType.Table, ctx.qualified_name()));
+        addRelation(SplitQueryType.ALTER_POLICY, BehaviorAction.ALTER, object(TargetType.RowAccessPolicy, ctx.name(0)), objects(TargetType.Table, ctx.qualified_name()));
         return null;
     }
 
     @Override
     public Void visitIndexstmt(IndexstmtContext ctx) {
         ParserRuleContext indexName = ctx.index_name_() != null ? ctx.index_name_() : ctx.name();
-        addRelation(SecQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, indexName), objects(TargetType.Table, ctx.relation_expr().qualified_name()));
+        addRelation(SplitQueryType.ADD_INDEX, BehaviorAction.CREATE, object(TargetType.Index, indexName), objects(TargetType.Table, ctx.relation_expr().qualified_name()));
         return null;
     }
 
     @Override
     public Void visitViewstmt(ViewstmtContext ctx) {
-        addRelation(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.qualified_name()), tableReferences(ctx.selectstmt()));
+        addRelation(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.qualified_name()), tableReferences(ctx.selectstmt()));
         return null;
     }
 
     @Override
     public Void visitCreatematviewstmt(CreatematviewstmtContext ctx) {
-        addRelation(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.create_mv_target().qualified_name()), tableReferences(ctx.selectstmt()));
+        addRelation(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.create_mv_target().qualified_name()), tableReferences(ctx.selectstmt()));
         return null;
     }
 
     @Override
     public Void visitCreatefunctionstmt(CreatefunctionstmtContext ctx) {
         TargetType targetType = ctx.PROCEDURE() == null ? TargetType.Function : TargetType.Procedure;
-        addUnary(SecQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(targetType, ctx.func_name()));
+        addUnary(SplitQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(targetType, ctx.func_name()));
         return null;
     }
 
@@ -177,32 +173,32 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     public Void visitCreatetrigstmt(CreatetrigstmtContext ctx) {
         List<BehaviorObject> targets = objects(TargetType.Table, firstQualifiedName(ctx));
         addObject(targets, object(TargetType.Function, ctx.func_name()));
-        addRelation(SecQueryType.CREATE_TRIGGER, BehaviorAction.CREATE, object(TargetType.Trigger, ctx.name()), targets);
+        addRelation(SplitQueryType.CREATE_TRIGGER, BehaviorAction.CREATE, object(TargetType.Trigger, ctx.name()), targets);
         return null;
     }
 
     @Override
     public Void visitCreateseqstmt(CreateseqstmtContext ctx) {
-        addUnary(SecQueryType.CREATE_SEQUENCE, BehaviorAction.CREATE, object(TargetType.Sequence, ctx.qualified_name()));
+        addUnary(SplitQueryType.CREATE_SEQUENCE, BehaviorAction.CREATE, object(TargetType.Sequence, ctx.qualified_name()));
         return null;
     }
 
     @Override
     public Void visitCreatedbstmt(CreatedbstmtContext ctx) {
-        addUnary(SecQueryType.CREATE_CATALOG, BehaviorAction.CREATE, object(TargetType.Catalog, ctx.name()));
+        addUnary(SplitQueryType.CREATE_CATALOG, BehaviorAction.CREATE, object(TargetType.Catalog, ctx.name()));
         return null;
     }
 
     @Override
     public Void visitDropdbstmt(DropdbstmtContext ctx) {
-        addUnary(SecQueryType.DROP_CATALOG, BehaviorAction.DROP, object(TargetType.Catalog, ctx.name()));
+        addUnary(SplitQueryType.DROP_CATALOG, BehaviorAction.DROP, object(TargetType.Catalog, ctx.name()));
         return null;
     }
 
     @Override
     public Void visitCreateschemastmt(CreateschemastmtContext ctx) {
         if (ctx.optschemaname() != null) {
-            addUnary(SecQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.optschemaname()));
+            addUnary(SplitQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.optschemaname()));
         }
         return null;
     }
@@ -210,7 +206,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     @Override
     public Void visitDropschemastmt(DropschemastmtContext ctx) {
         for (Qualified_nameContext name : ctx.qualified_name_list().qualified_name()) {
-            addUnary(SecQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, name));
+            addUnary(SplitQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, name));
         }
         return null;
     }
@@ -218,7 +214,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     @Override
     public Void visitDroptablestmt(DroptablestmtContext ctx) {
         for (Any_nameContext name : ctx.any_name_list_().any_name()) {
-            addUnary(SecQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, name));
+            addUnary(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, name));
         }
         return null;
     }
@@ -256,14 +252,14 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         BehaviorObject source = object(TargetType.Table, ctx.relation_expr().qualified_name());
         BehaviorObject target = object(TargetType.Table, ctx.name());
         moveToSameContainer(source, target);
-        addRelation(SecQueryType.RENAME_TABLE, BehaviorAction.RENAME, source, objects(target));
+        addRelation(SplitQueryType.RENAME_TABLE, BehaviorAction.RENAME, source, objects(target));
         return null;
     }
 
     @Override
     public Void visitTruncatestmt(TruncatestmtContext ctx) {
         for (Relation_exprContext relation : ctx.relation_expr_list().relation_expr()) {
-            addUnary(SecQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, relation.qualified_name()));
+            addUnary(SplitQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, relation.qualified_name()));
         }
         return null;
     }
@@ -272,7 +268,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     public Void visitReassignownedstmt(ReassignownedstmtContext ctx) {
         BehaviorObject newOwner = principal(ctx.rolespec());
         for (RolespecContext oldOwner : ctx.role_list().rolespec()) {
-            addRelation(SecQueryType.TRANSFER_PRIVILEGE, BehaviorAction.TRANSFER, principal(oldOwner), objects(newOwner));
+            addRelation(SplitQueryType.TRANSFER_PRIVILEGE, BehaviorAction.TRANSFER, principal(oldOwner), objects(newOwner));
         }
         return null;
     }
@@ -280,14 +276,14 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     @Override
     public Void visitDropownedstmt(DropownedstmtContext ctx) {
         for (RolespecContext owner : ctx.role_list().rolespec()) {
-            addUnary(SecQueryType.REVOKE, BehaviorAction.REVOKE, principal(owner));
+            addUnary(SplitQueryType.REVOKE, BehaviorAction.REVOKE, principal(owner));
         }
         return null;
     }
 
     @Override
     public Void visitAltertablestmt(AltertablestmtContext ctx) {
-        if (resolvedType != SecQueryType.TRANSFER_PRIVILEGE) {
+        if (resolvedType != SplitQueryType.TRANSFER_PRIVILEGE) {
             return visitChildren(ctx);
         }
         ParserRuleContext subjectName = ctx.relation_expr() == null ? ctx.qualified_name() : ctx.relation_expr().qualified_name();
@@ -309,7 +305,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterseqstmt(AlterseqstmtContext ctx) {
-        if (resolvedType != SecQueryType.TRANSFER_PRIVILEGE) {
+        if (resolvedType != SplitQueryType.TRANSFER_PRIVILEGE) {
             return visitChildren(ctx);
         }
         transfer(object(TargetType.Sequence, ctx.qualified_name()), first(ctx, RolespecContext.class));
@@ -324,14 +320,14 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCallstmt(CallstmtContext ctx) {
-        addUnary(SecQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.func_application().func_name()));
+        addUnary(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.func_application().func_name()));
         return null;
     }
 
     @Override
     public Void visitDiscardstmt(DiscardstmtContext ctx) {
         if (ctx.TEMP() != null || ctx.TEMPORARY() != null) {
-            addUnary(SecQueryType.DROP_TABLE, BehaviorAction.DROP, sessionTemporaryTableScope(ctx));
+            addUnary(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, sessionTemporaryTableScope(ctx));
         }
         return null;
     }
@@ -356,7 +352,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         }
     }
 
-    private void addUnary(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void addUnary(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         if (subject == null) {
             return;
         }
@@ -367,7 +363,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         behavior.setStatementType(type);
     }
 
-    private void addRelation(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }
@@ -412,7 +408,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     }
 
     private void transfer(BehaviorObject subject, RolespecContext newOwner) {
-        addRelation(SecQueryType.TRANSFER_PRIVILEGE, BehaviorAction.TRANSFER, subject, objects(principal(newOwner)));
+        addRelation(SplitQueryType.TRANSFER_PRIVILEGE, BehaviorAction.TRANSFER, subject, objects(principal(newOwner)));
     }
 
     private BehaviorObject ownershipSubject(AlterownerstmtContext ctx) {

@@ -17,12 +17,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.clickhouse.sql.parser.antlr.ClickHouseParserBaseVisitor;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.antlr.ClickHouseParser.*;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 
@@ -61,7 +57,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
     ChStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        this.behavior.setStatementType(SecQueryType.UNKNOWN);
+        this.behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -70,7 +66,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
 
     @Override
     public Void visitTableExprIdentifier(TableExprIdentifierContext ctx) {
-        add(SecQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableIdentifier()));
+        add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableIdentifier()));
         return null;
     }
 
@@ -83,7 +79,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
             }
         }
         addTableSources(sources, ctx.subqueryClause());
-        add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.tableIdentifier()), sources);
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.tableIdentifier()), sources);
         return null;
     }
 
@@ -91,7 +87,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
     public Void visitCreateViewStmt(CreateViewStmtContext ctx) {
         List<BehaviorObject> sources = new ArrayList<>();
         addTableSources(sources, ctx.subqueryClause());
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.tableIdentifier()), sources);
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.tableIdentifier()), sources);
         return null;
     }
 
@@ -99,38 +95,38 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
     public Void visitCreateMaterializedViewStmt(CreateMaterializedViewStmtContext ctx) {
         List<BehaviorObject> sources = new ArrayList<>();
         addTableSources(sources, ctx.subqueryClause());
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.tableIdentifier()), sources);
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.tableIdentifier()), sources);
         if (ctx.destinationClause() != null) {
-            add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.destinationClause().tableIdentifier()));
+            add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.destinationClause().tableIdentifier()));
         }
         return null;
     }
 
     @Override
     public Void visitCreateDatabaseStmt(CreateDatabaseStmtContext ctx) {
-        add(SecQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.databaseIdentifier()));
+        add(SplitQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.databaseIdentifier()));
         return null;
     }
 
     @Override
     public Void visitDropDatabaseStmt(DropDatabaseStmtContext ctx) {
-        add(SecQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.databaseIdentifier()));
+        add(SplitQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.databaseIdentifier()));
         return null;
     }
 
     @Override
     public Void visitDropTableStmt(DropTableStmtContext ctx) {
         if (ctx.TABLE() != null) {
-            add(SecQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.tableIdentifier()));
+            add(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.tableIdentifier()));
         } else if (ctx.VIEW() != null) {
-            add(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.tableIdentifier()));
+            add(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.tableIdentifier()));
         }
         return null;
     }
 
     @Override
     public Void visitAlterTableStmt(AlterTableStmtContext ctx) {
-        add(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.tableIdentifier()), tableSources(ctx));
+        add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.tableIdentifier()), tableSources(ctx));
         return null;
     }
 
@@ -138,38 +134,38 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
     public Void visitInsertStmt(InsertStmtContext ctx) {
         List<BehaviorObject> sources = new ArrayList<>();
         addTableSources(sources, ctx.dataClause());
-        add(SecQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.tableIdentifier()), sources);
+        add(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.tableIdentifier()), sources);
         return null;
     }
 
     @Override
     public Void visitDeleteStmt(DeleteStmtContext ctx) {
-        add(SecQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.nestedIdentifier()), tableSources(ctx.whereClause()));
+        add(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.nestedIdentifier()), tableSources(ctx.whereClause()));
         return null;
     }
 
     @Override
     public Void visitUpdateStmt(UpdateStmtContext ctx) {
-        add(SecQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.nestedIdentifier()), tableSources(ctx.whereClause()));
+        add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.nestedIdentifier()), tableSources(ctx.whereClause()));
         return null;
     }
 
     @Override
     public Void visitRenameEntityClause(RenameEntityClauseContext ctx) {
-        pairRenames(SecQueryType.RENAME_TABLE, TargetType.Table, ctx.tableIdentifier());
-        pairRenames(SecQueryType.RENAME_SCHEMA, TargetType.Schema, ctx.databaseIdentifier());
+        pairRenames(SplitQueryType.RENAME_TABLE, TargetType.Table, ctx.tableIdentifier());
+        pairRenames(SplitQueryType.RENAME_SCHEMA, TargetType.Schema, ctx.databaseIdentifier());
         return null;
     }
 
     @Override
     public Void visitTruncateStmt(TruncateStmtContext ctx) {
-        add(SecQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.tableIdentifier()));
+        add(SplitQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.tableIdentifier()));
         return null;
     }
 
     @Override
     public Void visitUseStmt(UseStmtContext ctx) {
-        add(SecQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, object(TargetType.Schema, ctx.databaseIdentifier()));
+        add(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, object(TargetType.Schema, ctx.databaseIdentifier()));
         return null;
     }
 
@@ -185,7 +181,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
         return sources;
     }
 
-    private <T extends ParserRuleContext> void pairRenames(SecQueryType type, TargetType targetType, List<T> names) {
+    private <T extends ParserRuleContext> void pairRenames(SplitQueryType type, TargetType targetType, List<T> names) {
         for (int i = 0; i + 1 < names.size(); i += 2) {
             add(type, BehaviorAction.RENAME, object(targetType, names.get(i)), List.of(object(targetType, names.get(i + 1))));
         }
@@ -219,11 +215,11 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
         return value;
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         add(type, action, subject, List.of());
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }
@@ -234,7 +230,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
             addObject(relation.getTarget(), target);
         }
         behavior.getRelations().add(relation);
-        if (behavior.getStatementType() == SecQueryType.UNKNOWN || type != SecQueryType.SELECT) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN || type != SplitQueryType.SELECT) {
             behavior.setStatementType(type);
         }
     }

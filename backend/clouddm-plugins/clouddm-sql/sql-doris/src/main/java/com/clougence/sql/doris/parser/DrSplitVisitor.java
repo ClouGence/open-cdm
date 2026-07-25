@@ -17,604 +17,604 @@ package com.clougence.sql.doris.parser;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.doris.parser.antlr.DorisParserBaseVisitor;
 import com.clougence.sql.doris.parser.antlr.DorisParser.*;
 
-public class DrSplitVisitor extends DorisParserBaseVisitor<SecQueryType> {
+public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
-    public static final AbstractParseTreeVisitor<SecQueryType> INSTANCE = new DrSplitVisitor();
-
-    @Override
-    public SecQueryType visitStatementDefault(StatementDefaultContext ctx) {
-        return SecQueryType.SELECT;
-    }
+    public static final AbstractParseTreeVisitor<SplitQueryType> INSTANCE = new DrSplitVisitor();
 
     @Override
-    public SecQueryType visitCancelAlterTable(CancelAlterTableContext ctx) {
-        return SecQueryType.ADMIN_TABLE;
-    }
-
-    public SecQueryType visitSetVariableWithType(SetVariableWithTypeContext ctx) {
-        return ctx.statementScope().GLOBAL() == null ? SecQueryType.SESSION_SETTING_WRITE : SecQueryType.SYSTEM_SETTING_WRITE;
+    public SplitQueryType visitStatementDefault(StatementDefaultContext ctx) {
+        return SplitQueryType.SELECT;
     }
 
     @Override
-    public SecQueryType visitSetSystemVariable(SetSystemVariableContext ctx) {
-        return ctx.statementScope() != null && ctx.statementScope().GLOBAL() != null ? SecQueryType.SYSTEM_SETTING_WRITE : SecQueryType.SESSION_SETTING_WRITE;
+    public SplitQueryType visitCancelAlterTable(CancelAlterTableContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
     }
 
-    public SecQueryType visitSetUserVariable(SetUserVariableContext ctx) {
-        return SecQueryType.SESSION_VARIABLE_RW;
-    }
-
-    @Override
-    public SecQueryType visitTruncateTable(TruncateTableContext ctx) {
-        return SecQueryType.TRUNCATE_TABLE;
+    public SplitQueryType visitSetVariableWithType(SetVariableWithTypeContext ctx) {
+        return ctx.statementScope().GLOBAL() == null ? SplitQueryType.SESSION_SETTING_WRITE : SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
-    public SecQueryType visitShowColumnHistogramStats(ShowColumnHistogramStatsContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitSetSystemVariable(SetSystemVariableContext ctx) {
+        return ctx.statementScope() != null && ctx.statementScope().GLOBAL() != null ? SplitQueryType.SYSTEM_SETTING_WRITE : SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    public SplitQueryType visitSetUserVariable(SetUserVariableContext ctx) {
+        return SplitQueryType.SESSION_VARIABLE_RW;
     }
 
     @Override
-    public SecQueryType visitAlterColumnStats(AlterColumnStatsContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitTruncateTable(TruncateTableContext ctx) {
+        return SplitQueryType.TRUNCATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitCreateRepository(CreateRepositoryContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitShowColumnHistogramStats(ShowColumnHistogramStatsContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitCreateResource(CreateResourceContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAlterColumnStats(AlterColumnStatsContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitCreateStoragePolicy(CreateStoragePolicyContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitCreateRepository(CreateRepositoryContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitShowConfig(ShowConfigContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitCreateResource(CreateResourceContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitSupportedUnsetStatementAlias(SupportedUnsetStatementAliasContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitCreateStoragePolicy(CreateStoragePolicyContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitMysqlLoad(MysqlLoadContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitShowConfig(ShowConfigContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitCreateRoutineLoadAlias(CreateRoutineLoadAliasContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitSupportedUnsetStatementAlias(SupportedUnsetStatementAliasContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitShowCreateRoutineLoad(ShowCreateRoutineLoadContext ctx) {
-        return SecQueryType.UNKNOWN;
+    public SplitQueryType visitMysqlLoad(MysqlLoadContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitResumeRoutineLoad(ResumeRoutineLoadContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitCreateRoutineLoadAlias(CreateRoutineLoadAliasContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitLoad(LoadContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitShowCreateRoutineLoad(ShowCreateRoutineLoadContext ctx) {
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitCreateRowPolicy(CreateRowPolicyContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitResumeRoutineLoad(ResumeRoutineLoadContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitCreateWorkloadPolicy(CreateWorkloadPolicyContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitLoad(LoadContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitCreateEncryptkey(CreateEncryptkeyContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitCreateRowPolicy(CreateRowPolicyContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitCreateSqlBlockRule(CreateSqlBlockRuleContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitCreateWorkloadPolicy(CreateWorkloadPolicyContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitCreateWorkloadGroup(CreateWorkloadGroupContext ctx) {
-        return SecQueryType.CREATE_RESOURCE_GROUP;
+    public SplitQueryType visitCreateEncryptkey(CreateEncryptkeyContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitCreateStorageVault(CreateStorageVaultContext ctx) {
-        return SecQueryType.SYSTEM_SETTING_WRITE;
+    public SplitQueryType visitCreateSqlBlockRule(CreateSqlBlockRuleContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitAlterSystem(AlterSystemContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitCreateWorkloadGroup(CreateWorkloadGroupContext ctx) {
+        return SplitQueryType.CREATE_RESOURCE_GROUP;
     }
 
     @Override
-    public SecQueryType visitAlterMTMV(AlterMTMVContext ctx) {
-        return SecQueryType.ALTER_VIEW;
+    public SplitQueryType visitCreateStorageVault(CreateStorageVaultContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
-    public SecQueryType visitAlterView(AlterViewContext ctx) {
-        return SecQueryType.ALTER_VIEW;
+    public SplitQueryType visitAlterSystem(AlterSystemContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitAlterRole(AlterRoleContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAlterMTMV(AlterMTMVContext ctx) {
+        return SplitQueryType.ALTER_VIEW;
     }
 
     @Override
-    public SecQueryType visitAlterWorkloadPolicy(AlterWorkloadPolicyContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAlterView(AlterViewContext ctx) {
+        return SplitQueryType.ALTER_VIEW;
     }
 
     @Override
-    public SecQueryType visitAlterStoragePolicy(AlterStoragePolicyContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAlterRole(AlterRoleContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitAlterSqlBlockRule(AlterSqlBlockRuleContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAlterWorkloadPolicy(AlterWorkloadPolicyContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitAlterCatalogProperties(AlterCatalogPropertiesContext ctx) {
-        return SecQueryType.ALTER_CATALOG;
+    public SplitQueryType visitAlterStoragePolicy(AlterStoragePolicyContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitAlterStorageVault(AlterStorageVaultContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAlterSqlBlockRule(AlterSqlBlockRuleContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitRefreshMTMV(RefreshMTMVContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAlterCatalogProperties(AlterCatalogPropertiesContext ctx) {
+        return SplitQueryType.ALTER_CATALOG;
     }
 
     @Override
-    public SecQueryType visitSupportedRecoverStatementAlias(SupportedRecoverStatementAliasContext ctx) {
+    public SplitQueryType visitAlterStorageVault(AlterStorageVaultContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitRefreshMTMV(RefreshMTMVContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSupportedRecoverStatementAlias(SupportedRecoverStatementAliasContext ctx) {
         return visitChildren(ctx);
     }
 
     @Override
-    public SecQueryType visitRecoverDatabase(RecoverDatabaseContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitRecoverDatabase(RecoverDatabaseContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitRecoverTable(RecoverTableContext ctx) {
-        return SecQueryType.ADMIN_TABLE;
+    public SplitQueryType visitRecoverTable(RecoverTableContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
     }
 
     @Override
-    public SecQueryType visitRecoverPartition(RecoverPartitionContext ctx) {
-        return SecQueryType.ADMIN_PARTITION;
+    public SplitQueryType visitRecoverPartition(RecoverPartitionContext ctx) {
+        return SplitQueryType.ADMIN_PARTITION;
     }
 
     @Override
-    public SecQueryType visitSupportedKillStatementAlias(SupportedKillStatementAliasContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitSupportedKillStatementAlias(SupportedKillStatementAliasContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitShowRoutineLoad(ShowRoutineLoadContext ctx) {
-        return SecQueryType.UNKNOWN;
+    public SplitQueryType visitShowRoutineLoad(ShowRoutineLoadContext ctx) {
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitShowRoutineLoadTask(ShowRoutineLoadTaskContext ctx) {
-        return SecQueryType.UNKNOWN;
+    public SplitQueryType visitShowRoutineLoadTask(ShowRoutineLoadTaskContext ctx) {
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitStopRoutineLoad(StopRoutineLoadContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitStopRoutineLoad(StopRoutineLoadContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitResumeAllRoutineLoad(ResumeAllRoutineLoadContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitResumeAllRoutineLoad(ResumeAllRoutineLoadContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitPauseAllRoutineLoad(PauseAllRoutineLoadContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitPauseAllRoutineLoad(PauseAllRoutineLoadContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitPauseRoutineLoad(PauseRoutineLoadContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitPauseRoutineLoad(PauseRoutineLoadContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitRefreshCatalog(RefreshCatalogContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitRefreshCatalog(RefreshCatalogContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitRefreshDatabase(RefreshDatabaseContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitRefreshDatabase(RefreshDatabaseContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitSync(SyncContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitSync(SyncContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitRefreshLdap(RefreshLdapContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitRefreshLdap(RefreshLdapContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitRefreshTable(RefreshTableContext ctx) {
-        return SecQueryType.ADMIN_TABLE;
+    public SplitQueryType visitRefreshTable(RefreshTableContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
     }
 
     @Override
-    public SecQueryType visitSupportedCleanStatementAlias(SupportedCleanStatementAliasContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitSupportedCleanStatementAlias(SupportedCleanStatementAliasContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitShowProcedureStatus(ShowProcedureStatusContext ctx) {
-        return SecQueryType.UNKNOWN;
+    public SplitQueryType visitShowProcedureStatus(ShowProcedureStatusContext ctx) {
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitExport(ExportContext ctx) {
-        return SecQueryType.DATA_EXPORT;
+    public SplitQueryType visitExport(ExportContext ctx) {
+        return SplitQueryType.DATA_EXPORT;
     }
 
     @Override
-    public SecQueryType visitShowTableStats(ShowTableStatsContext ctx) {
-        return SecQueryType.PERFORMANCE;
+    public SplitQueryType visitShowTableStats(ShowTableStatsContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
-    public SecQueryType visitAlterTable(AlterTableContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitAlterTable(AlterTableContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitAddConstraint(AddConstraintContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitAddConstraint(AddConstraintContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitDropConstraint(DropConstraintContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitDropConstraint(DropConstraintContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitAlterDatabaseSetQuota(AlterDatabaseSetQuotaContext ctx) {
-        return SecQueryType.ALTER_SCHEMA;
+    public SplitQueryType visitAlterDatabaseSetQuota(AlterDatabaseSetQuotaContext ctx) {
+        return SplitQueryType.ALTER_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitAlterRoutineLoad(AlterRoutineLoadContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitAlterRoutineLoad(AlterRoutineLoadContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitAlterResource(AlterResourceContext ctx) {
-        return SecQueryType.ALTER_RESOURCE_GROUP;
+    public SplitQueryType visitAlterResource(AlterResourceContext ctx) {
+        return SplitQueryType.ALTER_RESOURCE_GROUP;
     }
 
     @Override
-    public SecQueryType visitDropSqlBlockRule(DropSqlBlockRuleContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitDropSqlBlockRule(DropSqlBlockRuleContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitDropFile(DropFileContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitDropFile(DropFileContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitDropWorkloadGroup(DropWorkloadGroupContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitDropWorkloadGroup(DropWorkloadGroupContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitDropWorkloadPolicy(DropWorkloadPolicyContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitDropWorkloadPolicy(DropWorkloadPolicyContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitDropStoragePolicy(DropStoragePolicyContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitDropStoragePolicy(DropStoragePolicyContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitDropEncryptkey(DropEncryptkeyContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitDropEncryptkey(DropEncryptkeyContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitDropCatalogRecycleBin(DropCatalogRecycleBinContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitDropCatalogRecycleBin(DropCatalogRecycleBinContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitAlterColocateGroup(AlterColocateGroupContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitAlterColocateGroup(AlterColocateGroupContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitAlterTableAddRollup(AlterTableAddRollupContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitAlterTableAddRollup(AlterTableAddRollupContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitAlterTableDropRollup(AlterTableDropRollupContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitAlterTableDropRollup(AlterTableDropRollupContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitSwitchCatalog(SwitchCatalogContext ctx) {
-        return SecQueryType.SWITCH_CATALOG;
+    public SplitQueryType visitSwitchCatalog(SwitchCatalogContext ctx) {
+        return SplitQueryType.SWITCH_CATALOG;
     }
 
     @Override
-    public SecQueryType visitCreateUserDefineFunction(CreateUserDefineFunctionContext ctx) {
-        return SecQueryType.CREATE_PROG_OBJ;
+    public SplitQueryType visitCreateUserDefineFunction(CreateUserDefineFunctionContext ctx) {
+        return SplitQueryType.CREATE_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitCreateAliasFunction(CreateAliasFunctionContext ctx) {
-        return SecQueryType.CREATE_PROG_OBJ;
+    public SplitQueryType visitCreateAliasFunction(CreateAliasFunctionContext ctx) {
+        return SplitQueryType.CREATE_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitCreateMTMV(CreateMTMVContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitCreateMTMV(CreateMTMVContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitCreateIndex(CreateIndexContext ctx) {
-        return SecQueryType.ADD_INDEX;
+    public SplitQueryType visitCreateIndex(CreateIndexContext ctx) {
+        return SplitQueryType.ADD_INDEX;
     }
 
     @Override
-    public SecQueryType visitCreateView(CreateViewContext ctx) {
-        return SecQueryType.CREATE_VIEW;
+    public SplitQueryType visitCreateView(CreateViewContext ctx) {
+        return SplitQueryType.CREATE_VIEW;
     }
 
     @Override
-    public SecQueryType visitCreateFile(CreateFileContext ctx) {
-        return SecQueryType.SYSTEM_SETTING_WRITE;
+    public SplitQueryType visitCreateFile(CreateFileContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
-    public SecQueryType visitDropView(DropViewContext ctx) {
-        return SecQueryType.DROP_VIEW;
+    public SplitQueryType visitDropView(DropViewContext ctx) {
+        return SplitQueryType.DROP_VIEW;
     }
 
     @Override
-    public SecQueryType visitDropFunction(DropFunctionContext ctx) {
-        return SecQueryType.DROP_PROG_OBJ;
+    public SplitQueryType visitDropFunction(DropFunctionContext ctx) {
+        return SplitQueryType.DROP_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitSupportedTransactionStatementAlias(SupportedTransactionStatementAliasContext ctx) {
-        return SecQueryType.TRANSACTION;
+    public SplitQueryType visitSupportedTransactionStatementAlias(SupportedTransactionStatementAliasContext ctx) {
+        return SplitQueryType.TRANSACTION;
     }
 
     @Override
-    public SecQueryType visitCreateScheduledJob(CreateScheduledJobContext ctx) {
-        return SecQueryType.CREATE_JOB;
+    public SplitQueryType visitCreateScheduledJob(CreateScheduledJobContext ctx) {
+        return SplitQueryType.CREATE_JOB;
     }
 
     @Override
-    public SecQueryType visitPauseJob(PauseJobContext ctx) {
-        return SecQueryType.ADMIN_JOB;
+    public SplitQueryType visitPauseJob(PauseJobContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
     }
 
     @Override
-    public SecQueryType visitDropJob(DropJobContext ctx) {
-        return SecQueryType.DROP_JOB;
+    public SplitQueryType visitDropJob(DropJobContext ctx) {
+        return SplitQueryType.DROP_JOB;
     }
 
     @Override
-    public SecQueryType visitAnalyzeTable(AnalyzeTableContext ctx) {
-        return SecQueryType.ADMIN_TABLE;
+    public SplitQueryType visitAnalyzeTable(AnalyzeTableContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
     }
 
     @Override
-    public SecQueryType visitResumeJob(ResumeJobContext ctx) {
-        return SecQueryType.ADMIN_JOB;
+    public SplitQueryType visitResumeJob(ResumeJobContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
     }
 
     @Override
-    public SecQueryType visitDescribeTable(DescribeTableContext ctx) {
-        return SecQueryType.UNKNOWN;
+    public SplitQueryType visitDescribeTable(DescribeTableContext ctx) {
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitSupportedAdminStatementAlias(SupportedAdminStatementAliasContext ctx) {
-        return SecQueryType.ADMIN;
+    public SplitQueryType visitSupportedAdminStatementAlias(SupportedAdminStatementAliasContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
-    public SecQueryType visitSetTransaction(SetTransactionContext ctx) {
-        return SecQueryType.TRANSACTION;
+    public SplitQueryType visitSetTransaction(SetTransactionContext ctx) {
+        return SplitQueryType.TRANSACTION;
     }
 
     @Override
-    public SecQueryType visitDropMV(DropMVContext ctx) {
-        return SecQueryType.DROP_VIEW;
+    public SplitQueryType visitDropMV(DropMVContext ctx) {
+        return SplitQueryType.DROP_VIEW;
     }
 
     @Override
-    public SecQueryType visitCopyInto(CopyIntoContext ctx) {
-        return SecQueryType.DATA_IMPORT;
+    public SplitQueryType visitCopyInto(CopyIntoContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
     }
 
     @Override
-    public SecQueryType visitDropIndex(DropIndexContext ctx) {
-        return SecQueryType.DROP_INDEX;
+    public SplitQueryType visitDropIndex(DropIndexContext ctx) {
+        return SplitQueryType.DROP_INDEX;
     }
 
     @Override
-    public SecQueryType visitUseDatabase(UseDatabaseContext ctx) {
-        return SecQueryType.SWITCH_SCHEMA;
+    public SplitQueryType visitUseDatabase(UseDatabaseContext ctx) {
+        return SplitQueryType.SWITCH_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitAlterTableProperties(AlterTablePropertiesContext ctx) {
-        return SecQueryType.ALTER_TABLE;
+    public SplitQueryType visitAlterTableProperties(AlterTablePropertiesContext ctx) {
+        return SplitQueryType.ALTER_TABLE;
     }
 
     @Override
-    public SecQueryType visitCreateCatalog(CreateCatalogContext ctx) {
-        return SecQueryType.CREATE_CATALOG;
+    public SplitQueryType visitCreateCatalog(CreateCatalogContext ctx) {
+        return SplitQueryType.CREATE_CATALOG;
     }
 
     @Override
-    public SecQueryType visitDropCatalog(DropCatalogContext ctx) {
-        return SecQueryType.DROP_CATALOG;
+    public SplitQueryType visitDropCatalog(DropCatalogContext ctx) {
+        return SplitQueryType.DROP_CATALOG;
     }
 
     @Override
-    public SecQueryType visitCreateRole(CreateRoleContext ctx) {
-        return SecQueryType.CREATE_ROLE;
+    public SplitQueryType visitCreateRole(CreateRoleContext ctx) {
+        return SplitQueryType.CREATE_ROLE;
     }
 
     @Override
-    public SecQueryType visitDropUser(DropUserContext ctx) {
-        return SecQueryType.DROP_USER;
+    public SplitQueryType visitDropUser(DropUserContext ctx) {
+        return SplitQueryType.DROP_USER;
     }
 
     @Override
-    public SecQueryType visitGrantTablePrivilege(GrantTablePrivilegeContext ctx) {
-        return SecQueryType.GRANT;
+    public SplitQueryType visitGrantTablePrivilege(GrantTablePrivilegeContext ctx) {
+        return SplitQueryType.GRANT;
     }
 
     @Override
-    public SecQueryType visitGrantResourcePrivilege(GrantResourcePrivilegeContext ctx) {
-        return SecQueryType.GRANT;
+    public SplitQueryType visitGrantResourcePrivilege(GrantResourcePrivilegeContext ctx) {
+        return SplitQueryType.GRANT;
     }
 
     @Override
-    public SecQueryType visitGrantRole(GrantRoleContext ctx) {
-        return SecQueryType.GRANT;
+    public SplitQueryType visitGrantRole(GrantRoleContext ctx) {
+        return SplitQueryType.GRANT;
     }
 
     @Override
-    public SecQueryType visitRevokeTablePrivilege(RevokeTablePrivilegeContext ctx) {
-        return SecQueryType.REVOKE;
+    public SplitQueryType visitRevokeTablePrivilege(RevokeTablePrivilegeContext ctx) {
+        return SplitQueryType.REVOKE;
     }
 
     @Override
-    public SecQueryType visitRevokeRole(RevokeRoleContext ctx) {
-        return SecQueryType.REVOKE;
+    public SplitQueryType visitRevokeRole(RevokeRoleContext ctx) {
+        return SplitQueryType.REVOKE;
     }
 
     @Override
-    public SecQueryType visitRevokeResourcePrivilege(RevokeResourcePrivilegeContext ctx) {
-        return SecQueryType.REVOKE;
+    public SplitQueryType visitRevokeResourcePrivilege(RevokeResourcePrivilegeContext ctx) {
+        return SplitQueryType.REVOKE;
     }
 
     @Override
-    public SecQueryType visitDropRole(DropRoleContext ctx) {
-        return SecQueryType.DROP_ROLE;
+    public SplitQueryType visitDropRole(DropRoleContext ctx) {
+        return SplitQueryType.DROP_ROLE;
     }
 
     @Override
-    public SecQueryType visitCreateUser(CreateUserContext ctx) {
-        return SecQueryType.CREATE_USER;
+    public SplitQueryType visitCreateUser(CreateUserContext ctx) {
+        return SplitQueryType.CREATE_USER;
     }
 
     @Override
-    public SecQueryType visitAlterCatalogRename(AlterCatalogRenameContext ctx) {
-        return SecQueryType.RENAME_CATALOG;
+    public SplitQueryType visitAlterCatalogRename(AlterCatalogRenameContext ctx) {
+        return SplitQueryType.RENAME_CATALOG;
     }
 
     @Override
-    public SecQueryType visitAlterCatalogComment(AlterCatalogCommentContext ctx) {
-        return SecQueryType.COMMENT_CATALOG;
+    public SplitQueryType visitAlterCatalogComment(AlterCatalogCommentContext ctx) {
+        return SplitQueryType.COMMENT_CATALOG;
     }
 
     @Override
-    public SecQueryType visitSupportedShowStatementAlias(SupportedShowStatementAliasContext ctx) {
-        return SecQueryType.UNKNOWN;
+    public SplitQueryType visitSupportedShowStatementAlias(SupportedShowStatementAliasContext ctx) {
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
-    public SecQueryType visitCreateDatabase(CreateDatabaseContext ctx) {
-        return SecQueryType.CREATE_SCHEMA;
+    public SplitQueryType visitCreateDatabase(CreateDatabaseContext ctx) {
+        return SplitQueryType.CREATE_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitDropDatabase(DropDatabaseContext ctx) {
-        return SecQueryType.DROP_SCHEMA;
+    public SplitQueryType visitDropDatabase(DropDatabaseContext ctx) {
+        return SplitQueryType.DROP_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitAlterDatabaseRename(AlterDatabaseRenameContext ctx) {
-        return SecQueryType.RENAME_SCHEMA;
+    public SplitQueryType visitAlterDatabaseRename(AlterDatabaseRenameContext ctx) {
+        return SplitQueryType.RENAME_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitAlterDatabaseProperties(AlterDatabasePropertiesContext ctx) {
-        return SecQueryType.ALTER_SCHEMA;
+    public SplitQueryType visitAlterDatabaseProperties(AlterDatabasePropertiesContext ctx) {
+        return SplitQueryType.ALTER_SCHEMA;
     }
 
     @Override
-    public SecQueryType visitInsertTable(InsertTableContext ctx) {
-        return ctx.OVERWRITE() == null ? SecQueryType.INSERT : SecQueryType.MERGE;
+    public SplitQueryType visitInsertTable(InsertTableContext ctx) {
+        return ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
     }
 
     @Override
-    public SecQueryType visitUpdate(UpdateContext ctx) {
-        return SecQueryType.UPDATE;
+    public SplitQueryType visitUpdate(UpdateContext ctx) {
+        return SplitQueryType.UPDATE;
     }
 
     @Override
-    public SecQueryType visitCallProcedure(CallProcedureContext ctx) {
-        return SecQueryType.CALL_PROG_OBJ;
+    public SplitQueryType visitCallProcedure(CallProcedureContext ctx) {
+        return SplitQueryType.CALL_PROG_OBJ;
     }
 
     @Override
-    public SecQueryType visitCreateTable(CreateTableContext ctx) {
-        return SecQueryType.CREATE_TABLE;
+    public SplitQueryType visitCreateTable(CreateTableContext ctx) {
+        return SplitQueryType.CREATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitCreateTableLike(CreateTableLikeContext ctx) {
-        return SecQueryType.CREATE_TABLE;
+    public SplitQueryType visitCreateTableLike(CreateTableLikeContext ctx) {
+        return SplitQueryType.CREATE_TABLE;
     }
 
     @Override
-    public SecQueryType visitDelete(DeleteContext ctx) {
-        return SecQueryType.DELETE;
+    public SplitQueryType visitDelete(DeleteContext ctx) {
+        return SplitQueryType.DELETE;
     }
 
     @Override
-    public SecQueryType visitDropTable(DropTableContext ctx) {
-        return SecQueryType.DROP_TABLE;
+    public SplitQueryType visitDropTable(DropTableContext ctx) {
+        return SplitQueryType.DROP_TABLE;
     }
 }

@@ -34,7 +34,7 @@ import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
 import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -149,7 +149,7 @@ public class ChangeActionForExecute extends AbstractChangeAction {
             log.warn("can not parse sql");
             SplitScript splitScript = new SplitScript();
             splitScript.setScript(changeSql);
-            splitScript.setType(Collections.singleton(SecQueryType.UNKNOWN));
+            splitScript.setType(Collections.singleton(SplitQueryType.UNKNOWN));
             scripts = Collections.singletonList(splitScript);
         }
 

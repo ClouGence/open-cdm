@@ -18,11 +18,11 @@ package com.clougence.sql.doris.analysis.security.builder;
 import java.util.List;
 import java.util.Stack;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -58,7 +58,7 @@ public class DrBuilderFactory extends RdbBuilderFactory {
     protected ColumnDefBuilder<DrColumnDomain> getColumnDefBuilder() { return new DrColumnDefBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SecQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
         return new DrCatalogBuilder(type);
     }
 
@@ -93,7 +93,7 @@ public class DrBuilderFactory extends RdbBuilderFactory {
     @Override
     protected InsertBuilder getInsertBuilder() { return new DrInsertBuilder(); }
 
-    public void enterCreateTable(SecQueryType type) {
+    public void enterCreateTable(SplitQueryType type) {
         this.domainStack.add(new DrCreateTableBuilder(type));
     }
 

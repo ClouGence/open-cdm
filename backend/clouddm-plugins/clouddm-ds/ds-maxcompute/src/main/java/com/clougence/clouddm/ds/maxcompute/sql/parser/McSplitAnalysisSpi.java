@@ -26,7 +26,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -38,53 +38,53 @@ public class McSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return McSqlDslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return McSplitVisitor.INSTANCE;
     }
 
     @Override
-    protected SecQueryType additionalType(ParseTree tree) {
+    protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof McParserParser.Select_stmtContext && hasDmlOwner(tree)) {
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (tree instanceof McParserParser.AlterTableAddColumnsContext) {
-            return SecQueryType.ADD_COLUMN;
+            return SplitQueryType.ADD_COLUMN;
         }
         if (tree instanceof McParserParser.AlterTableDropColumnsContext) {
-            return SecQueryType.DROP_COLUMN;
+            return SplitQueryType.DROP_COLUMN;
         }
         if (tree instanceof McParserParser.AlterTableChangeColumnNameContext) {
-            return SecQueryType.RENAME_COLUMN;
+            return SplitQueryType.RENAME_COLUMN;
         }
         if (tree instanceof McParserParser.AlterTableChangeColumnContext || tree instanceof McParserParser.AlterTableChangeColumnNullContext) {
-            return SecQueryType.ALTER_COLUMN;
+            return SplitQueryType.ALTER_COLUMN;
         }
         if (tree instanceof McParserParser.AlterTableChangeColumnCommentContext) {
-            return SecQueryType.COMMENT_COLUMN;
+            return SplitQueryType.COMMENT_COLUMN;
         }
         if (tree instanceof McParserParser.AlterTableReanmeContext) {
-            return SecQueryType.RENAME_TABLE;
+            return SplitQueryType.RENAME_TABLE;
         }
         if (tree instanceof McParserParser.AlterTableCommentContext) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (tree instanceof McParserParser.Comment_clauseContext comment && comment.getParent() instanceof McParserParser.CreateTableColumnContext) {
-            return SecQueryType.COMMENT_TABLE;
+            return SplitQueryType.COMMENT_TABLE;
         }
         if (tree instanceof McParserParser.Comment_clauseContext comment && comment.getParent() instanceof McParserParser.AlterTableChangeColumnContext) {
-            return SecQueryType.COMMENT_COLUMN;
+            return SplitQueryType.COMMENT_COLUMN;
         }
         if (tree instanceof McParserParser.Create_table_columns_itemContext column && column.T_COMMENT() != null) {
-            return SecQueryType.COMMENT_COLUMN;
+            return SplitQueryType.COMMENT_COLUMN;
         }
         if (tree instanceof McParserParser.AlterTablePartitionContext partition) {
             if (partition.T_ADD2() != null) {
-                return SecQueryType.ADD_PARTITION;
+                return SplitQueryType.ADD_PARTITION;
             }
             if (partition.T_DROP() != null) {
-                return SecQueryType.DROP_PARTITION;
+                return SplitQueryType.DROP_PARTITION;
             }
-            return SecQueryType.ALTER_PARTITION;
+            return SplitQueryType.ALTER_PARTITION;
         }
         return null;
     }
@@ -92,7 +92,7 @@ public class McSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     @Override
     protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
         McParserParser.Select_stmtContext query = viewQuery(context);
-        return query == null ? Collections.emptyList() : List.of(createChild(query, tokens, Set.of(SecQueryType.SELECT), Collections.emptyList()));
+        return query == null ? Collections.emptyList() : List.of(createChild(query, tokens, Set.of(SplitQueryType.SELECT), Collections.emptyList()));
     }
 
     private boolean hasDmlOwner(ParseTree tree) {

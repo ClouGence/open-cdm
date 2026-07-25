@@ -17,15 +17,15 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.analysis.reference.MySqlObjectReferenceVisitor;
+import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlVersion;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser.*;
-import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 
 /**
  * Adds behavior-only object facts that must not alter legacy resource analysis.
@@ -35,7 +35,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     private final Parser                parser;
     private final int                   exactVersion;
     private final MySqlResourceRegistry resources;
-    private final Set<String>           cteNames     = new HashSet<>();
+    private final Set<String>           cteNames = new HashSet<>();
 
     MyBehaviorObjectReferenceVisitor(Parser parser, Map<UmiTypes, Object> levelsParam, int baseLine, int baseColumn, MySqlVersion version, int exactVersion,
                                      MySqlResourceRegistry resources){
@@ -86,7 +86,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
             int equals = MyBehaviorText.skipWhitespace(text, variableEnd);
             if (variableEnd > variableStart && equals < text.length() && text.charAt(equals) == '=') {
                 String variable = text.substring(variableStart, variableEnd);
-                addConfigKey(SecQueryType.SYSTEM_SETTING_WRITE, subToken(token, variableStart, variable), variable);
+                addConfigKey(SplitQueryType.SYSTEM_SETTING_WRITE, subToken(token, variableStart, variable), variable);
                 searchFrom = variableEnd;
             } else {
                 searchFrom = setVar + "SET_VAR".length();
@@ -134,7 +134,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
             if (fullId.DOT() == null) {
                 addFunction(fullId.getStart());
             } else {
-                add(SecQueryType.CALL_PROG_OBJ, TargetType.Function, true, fullId);
+                add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, true, fullId);
             }
         } else {
             Token token = ctx.genericFunction().name.getStart();
@@ -199,12 +199,12 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
             return;
         }
         BehaviorAction behavior = resources.functionBehavior(token.getText(), exactVersion);
-        SecQueryType type = switch (behavior) {
-            case CALL -> SecQueryType.CALL_PROG_OBJ;
-            case READ -> SecQueryType.SELECT;
-            case LOCK -> SecQueryType.QUERY_LOCK;
-            case CONFIGURE -> SecQueryType.SYSTEM_SETTING_WRITE;
-            case ADMIN -> SecQueryType.ADMIN;
+        SplitQueryType type = switch (behavior) {
+            case CALL -> SplitQueryType.CALL_PROG_OBJ;
+            case READ -> SplitQueryType.SELECT;
+            case LOCK -> SplitQueryType.QUERY_LOCK;
+            case CONFIGURE -> SplitQueryType.SYSTEM_SETTING_WRITE;
+            case ADMIN -> SplitQueryType.ADMIN;
             default -> throw new IllegalStateException("unsupported functional function action " + behavior);
         };
         add(type, TargetType.Function, true, token);
@@ -212,19 +212,19 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
 
     @Override
     public Void visitLockTableElement(LockTableElementContext ctx) {
-        add(SecQueryType.SESSION_LOCK, TargetType.Table, ctx.tableName());
+        add(SplitQueryType.SESSION_LOCK, TargetType.Table, ctx.tableName());
         return null;
     }
 
     @Override
     public Void visitUseStatement(UseStatementContext ctx) {
-        add(SecQueryType.SWITCH_SCHEMA, TargetType.Schema, true, ctx.uid());
+        add(SplitQueryType.SWITCH_SCHEMA, TargetType.Schema, true, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitAlterUpgradeName(AlterUpgradeNameContext ctx) {
-        add(SecQueryType.ALTER_SCHEMA, TargetType.Schema, true, ctx.uid());
+        add(SplitQueryType.ALTER_SCHEMA, TargetType.Schema, true, ctx.uid());
         return null;
     }
 
@@ -233,7 +233,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         if (isCte(ctx.tableName())) {
             return null;
         }
-        add(SecQueryType.SELECT, TargetType.Table, ctx.tableName());
+        add(SplitQueryType.SELECT, TargetType.Table, ctx.tableName());
         return null;
     }
 
@@ -243,7 +243,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
             return null;
         }
         if (isUnnamedTable(ctx.tableName())) {
-            addUnnamedAtCurrentSchema(SecQueryType.SELECT, TargetType.Table, true, ctx.tableName());
+            addUnnamedAtCurrentSchema(SplitQueryType.SELECT, TargetType.Table, true, ctx.tableName());
             return null;
         }
         return super.visitAtomTableItem(ctx);
@@ -254,7 +254,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         if (!isUnnamedTable(ctx.tableName())) {
             return super.visitInsertStatement(ctx);
         }
-        SecQueryType type = ctx.duplicatedFirst == null ? SecQueryType.INSERT : SecQueryType.MERGE;
+        SplitQueryType type = ctx.duplicatedFirst == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
         addUnnamedAtCurrentSchema(type, TargetType.Table, true, ctx.tableName());
         return null;
     }
@@ -264,96 +264,96 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         if (!isUnnamedTable(ctx.tableName())) {
             return super.visitReplaceStatement(ctx);
         }
-        addUnnamedAtCurrentSchema(SecQueryType.MERGE, TargetType.Table, true, ctx.tableName());
+        addUnnamedAtCurrentSchema(SplitQueryType.MERGE, TargetType.Table, true, ctx.tableName());
         return null;
     }
 
     @Override
     public Void visitReferenceDefinition(ReferenceDefinitionContext ctx) {
-        add(SecQueryType.SELECT, TargetType.Table, ctx.tableName());
+        add(SplitQueryType.SELECT, TargetType.Table, ctx.tableName());
         return null;
     }
 
     @Override
     public Void visitPrimaryKeyTableConstraint(PrimaryKeyTableConstraintContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
         if (ctx.index != null) {
-            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
+            add(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
         }
         return null;
     }
 
     @Override
     public Void visitUniqueKeyTableConstraint(UniqueKeyTableConstraintContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
         if (ctx.index != null) {
-            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
+            add(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
         }
         return null;
     }
 
     @Override
     public Void visitForeignKeyTableConstraint(ForeignKeyTableConstraintContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
         if (ctx.index != null) {
-            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
+            add(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
         }
         return null;
     }
 
     @Override
     public Void visitCheckTableConstraint(CheckTableConstraintContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
         return null;
     }
 
     @Override
     public Void visitReferenceColumnConstraint(ReferenceColumnConstraintContext ctx) {
-        addUnnamedAtCurrentSchema(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx);
+        addUnnamedAtCurrentSchema(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx);
         return null;
     }
 
     @Override
     public Void visitPrimaryKeyColumnConstraint(PrimaryKeyColumnConstraintContext ctx) {
-        addUnnamedAtCurrentSchema(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx);
+        addUnnamedAtCurrentSchema(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx);
         return null;
     }
 
     @Override
     public Void visitUniqueKeyColumnConstraint(UniqueKeyColumnConstraintContext ctx) {
-        addUnnamedAtCurrentSchema(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx);
+        addUnnamedAtCurrentSchema(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx);
         return null;
     }
 
     @Override
     public Void visitCheckColumnConstraint(CheckColumnConstraintContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
         return null;
     }
 
     @Override
     public Void visitSimpleIndexDeclaration(SimpleIndexDeclarationContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.uid(), ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.uid(), ctx);
         return null;
     }
 
     @Override
     public Void visitSpecialIndexDeclaration(SpecialIndexDeclarationContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.uid(), ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.uid(), ctx);
         return null;
     }
 
     @Override
     public Void visitAlterByAddIndex(AlterByAddIndexContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName(), ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName(), ctx);
         return null;
     }
 
     @Override
     public Void visitAlterByAddPrimaryKey(AlterByAddPrimaryKeyContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
         if (ctx.index != null) {
-            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
+            add(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
         }
         return null;
     }
@@ -361,79 +361,79 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     @Override
     public Void visitAlterByAddUniqueKey(AlterByAddUniqueKeyContext ctx) {
         if (ctx.CONSTRAINT() != null) {
-            addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+            addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
         }
-        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName(), ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName(), ctx);
         return null;
     }
 
     @Override
     public Void visitAlterByAddSpecialIndex(AlterByAddSpecialIndexContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName(), ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName(), ctx);
         return null;
     }
 
     @Override
     public Void visitAlterByAddForeignKey(AlterByAddForeignKeyContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
         if (ctx.indexName() != null) {
-            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName());
+            add(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName());
         }
         return null;
     }
 
     @Override
     public Void visitAlterByAddCheckTableConstraint(AlterByAddCheckTableConstraintContext ctx) {
-        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        addNamedOrUnnamed(SplitQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
         return null;
     }
 
     @Override
     public Void visitAlterByAlterConstraintEnforcement(AlterByAlterConstraintEnforcementContext ctx) {
-        add(SecQueryType.ALTER_CONSTRAINT, TargetType.Constraint, true, ctx.uid());
+        add(SplitQueryType.ALTER_CONSTRAINT, TargetType.Constraint, true, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitAlterByDropConstraintCheck(AlterByDropConstraintCheckContext ctx) {
-        add(SecQueryType.DROP_CONSTRAINT, TargetType.Constraint, true, ctx.uid());
+        add(SplitQueryType.DROP_CONSTRAINT, TargetType.Constraint, true, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitAlterByDropPrimaryKey(AlterByDropPrimaryKeyContext ctx) {
-        addUnnamedAtCurrentSchema(SecQueryType.DROP_CONSTRAINT, TargetType.Constraint, true, ctx);
+        addUnnamedAtCurrentSchema(SplitQueryType.DROP_CONSTRAINT, TargetType.Constraint, true, ctx);
         return null;
     }
 
     @Override
     public Void visitAlterByDropForeignKey(AlterByDropForeignKeyContext ctx) {
-        add(SecQueryType.DROP_CONSTRAINT, TargetType.Constraint, true, ctx.uid());
+        add(SplitQueryType.DROP_CONSTRAINT, TargetType.Constraint, true, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitAlterByDropIndex(AlterByDropIndexContext ctx) {
-        add(SecQueryType.DROP_INDEX, TargetType.Index, true, ctx.indexName());
+        add(SplitQueryType.DROP_INDEX, TargetType.Index, true, ctx.indexName());
         return null;
     }
 
     @Override
     public Void visitAlterByRenameIndex(AlterByRenameIndexContext ctx) {
-        add(SecQueryType.RENAME_INDEX, TargetType.Index, true, ctx.uid(0));
-        add(SecQueryType.RENAME_INDEX, TargetType.Index, false, ctx.uid(1));
+        add(SplitQueryType.RENAME_INDEX, TargetType.Index, true, ctx.uid(0));
+        add(SplitQueryType.RENAME_INDEX, TargetType.Index, false, ctx.uid(1));
         return null;
     }
 
     @Override
     public Void visitAlterByAlterIndexVisibility(AlterByAlterIndexVisibilityContext ctx) {
-        add(SecQueryType.ALTER_INDEX, TargetType.Index, true, ctx.uid());
+        add(SplitQueryType.ALTER_INDEX, TargetType.Index, true, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitHandlerOpenStatement(HandlerOpenStatementContext ctx) {
-        add(SecQueryType.SELECT, TargetType.Table, ctx.tableName());
+        add(SplitQueryType.SELECT, TargetType.Table, ctx.tableName());
         return super.visitHandlerOpenStatement(ctx);
     }
 
@@ -443,41 +443,41 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
             .stream()
             .map(clause -> clause.fromFirst)
             .filter(source -> source.CURRENT_USER() != null)
-            .forEach(source -> addUnnamedFallback(SecQueryType.RENAME_USER, TargetType.User, source));
+            .forEach(source -> addUnnamedFallback(SplitQueryType.RENAME_USER, TargetType.User, source));
         return super.visitRenameUser(ctx);
     }
 
     @Override
     public Void visitSetDefaultRole(SetDefaultRoleContext ctx) {
-        ctx.userName().forEach(user -> addAccount(SecQueryType.ALTER_USER, TargetType.User, true, user));
-        addDescendantAccounts(SecQueryType.ALTER_USER, TargetType.Role, true, ctx.roleOption());
+        ctx.userName().forEach(user -> addAccount(SplitQueryType.ALTER_USER, TargetType.User, true, user));
+        addDescendantAccounts(SplitQueryType.ALTER_USER, TargetType.Role, true, ctx.roleOption());
         return null;
     }
 
     @Override
     public Void visitAlterUserDefaultRole(AlterUserDefaultRoleContext ctx) {
-        addAccount(SecQueryType.ALTER_USER, TargetType.User, true, ctx.userName());
-        ctx.alterUserDefaultRoleClause().roleName().forEach(role -> addAccount(SecQueryType.ALTER_USER, TargetType.Role, true, role));
+        addAccount(SplitQueryType.ALTER_USER, TargetType.User, true, ctx.userName());
+        ctx.alterUserDefaultRoleClause().roleName().forEach(role -> addAccount(SplitQueryType.ALTER_USER, TargetType.Role, true, role));
         return null;
     }
 
     @Override
     public Void visitGrantStatement(GrantStatementContext ctx) {
         if (!ctx.privelegeClause().isEmpty()) {
-            addPrivilegeTarget(SecQueryType.GRANT, ctx.privilegeObject, ctx.privilegeLevel());
+            addPrivilegeTarget(SplitQueryType.GRANT, ctx.privilegeObject, ctx.privilegeLevel());
             ctx.grantUser().forEach(user -> {
                 if (user.accountTarget() != null && user.accountTarget().CURRENT_USER() != null) {
-                    addUnnamed(SecQueryType.GRANT, TargetType.UserOrRole, true, user.accountTarget().CURRENT_USER().getSymbol());
+                    addUnnamed(SplitQueryType.GRANT, TargetType.UserOrRole, true, user.accountTarget().CURRENT_USER().getSymbol());
                 } else if (user.currentUserGrantAuthOption() != null) {
-                    addUnnamed(SecQueryType.GRANT, TargetType.UserOrRole, true, user.currentUserGrantAuthOption().CURRENT_USER().getSymbol());
+                    addUnnamed(SplitQueryType.GRANT, TargetType.UserOrRole, true, user.currentUserGrantAuthOption().CURRENT_USER().getSymbol());
                 } else {
-                    addDescendantAccounts(SecQueryType.GRANT, TargetType.UserOrRole, true, user);
+                    addDescendantAccounts(SplitQueryType.GRANT, TargetType.UserOrRole, true, user);
                 }
             });
         } else {
-            ctx.roleName().forEach(role -> addAccount(SecQueryType.GRANT, TargetType.Role, true, role));
-            ctx.accountTarget().forEach(target -> addAccountTarget(SecQueryType.GRANT, target));
-            ctx.uid().forEach(target -> addAccount(SecQueryType.GRANT, TargetType.UserOrRole, true, target));
+            ctx.roleName().forEach(role -> addAccount(SplitQueryType.GRANT, TargetType.Role, true, role));
+            ctx.accountTarget().forEach(target -> addAccountTarget(SplitQueryType.GRANT, target));
+            ctx.uid().forEach(target -> addAccount(SplitQueryType.GRANT, TargetType.UserOrRole, true, target));
         }
         return null;
     }
@@ -485,19 +485,19 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     @Override
     public Void visitRevokeStatement(RevokeStatementContext ctx) {
         if (!ctx.privelegeClause().isEmpty()) {
-            addPrivilegeTarget(SecQueryType.REVOKE, ctx.privilegeObject, ctx.privilegeLevel());
-            ctx.accountTarget().forEach(target -> addAccountTarget(SecQueryType.REVOKE, target));
+            addPrivilegeTarget(SplitQueryType.REVOKE, ctx.privilegeObject, ctx.privilegeLevel());
+            ctx.accountTarget().forEach(target -> addAccountTarget(SplitQueryType.REVOKE, target));
         } else if (!ctx.roleName().isEmpty()) {
-            ctx.roleName().forEach(role -> addAccount(SecQueryType.REVOKE, TargetType.Role, true, role));
-            ctx.accountTarget().forEach(target -> addAccountTarget(SecQueryType.REVOKE, target));
-            ctx.uid().forEach(target -> addAccount(SecQueryType.REVOKE, TargetType.UserOrRole, true, target));
+            ctx.roleName().forEach(role -> addAccount(SplitQueryType.REVOKE, TargetType.Role, true, role));
+            ctx.accountTarget().forEach(target -> addAccountTarget(SplitQueryType.REVOKE, target));
+            ctx.uid().forEach(target -> addAccount(SplitQueryType.REVOKE, TargetType.UserOrRole, true, target));
         } else {
-            ctx.accountTarget().forEach(target -> addAccountTarget(SecQueryType.REVOKE, target));
+            ctx.accountTarget().forEach(target -> addAccountTarget(SplitQueryType.REVOKE, target));
         }
         return null;
     }
 
-    private void addAccountTarget(SecQueryType type, AccountTargetContext target) {
+    private void addAccountTarget(SplitQueryType type, AccountTargetContext target) {
         if (target.CURRENT_USER() != null) {
             addUnnamed(type, TargetType.UserOrRole, true, target.CURRENT_USER().getSymbol());
         } else {
@@ -577,7 +577,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         return null;
     }
 
-    private void addNamedOrUnnamed(SecQueryType type, TargetType targetType, boolean require, ParserRuleContext name, ParserRuleContext owner) {
+    private void addNamedOrUnnamed(SplitQueryType type, TargetType targetType, boolean require, ParserRuleContext name, ParserRuleContext owner) {
         if (name == null) {
             addUnnamedAtCurrentSchema(type, targetType, require, owner);
         } else {

@@ -9,8 +9,8 @@ package com.clougence.sql.mysql.analysis.behavior;
 import java.util.List;
 import java.util.Locale;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.mysql.analysis.reference.MySqlObjectReference;
 
 final class MyBehaviorStatementTypeResolver {
@@ -18,216 +18,216 @@ final class MyBehaviorStatementTypeResolver {
     private MyBehaviorStatementTypeResolver(){
     }
 
-    static SecQueryType resolve(String sql, List<MySqlObjectReference> references) {
+    static SplitQueryType resolve(String sql, List<MySqlObjectReference> references) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
         if (normalized.startsWith("EXPLAIN ANALYZE ")) {
             int optionsStart = indexAfterPrefix(sql, "EXPLAIN ANALYZE");
             int statementStart = MyBehaviorText.findWord(sql, optionsStart, "SELECT", "WITH", "UPDATE", "DELETE", "INSERT", "REPLACE");
-            return statementStart >= 0 ? resolve(sql.substring(statementStart), references) : SecQueryType.PERFORMANCE;
+            return statementStart >= 0 ? resolve(sql.substring(statementStart), references) : SplitQueryType.PERFORMANCE;
         }
         if (normalized.startsWith("EXPLAIN")) {
-            return SecQueryType.PERFORMANCE;
+            return SplitQueryType.PERFORMANCE;
         }
         if (normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE ")) {
-            return SecQueryType.METADATA;
+            return SplitQueryType.METADATA;
         }
         if (normalized.startsWith("DO ") || normalized.startsWith("DO(")) {
-            return SecQueryType.BLOCK;
+            return SplitQueryType.BLOCK;
         }
         if (normalized.startsWith("WITH ")) {
             int writeStart = findWithWrite(normalized);
             if (writeStart >= 0) {
                 int writeEnd = MyBehaviorText.wordEnd(normalized, writeStart);
                 return switch (normalized.substring(writeStart, writeEnd)) {
-                    case "UPDATE" -> SecQueryType.UPDATE;
-                    case "DELETE" -> SecQueryType.DELETE;
-                    case "REPLACE" -> SecQueryType.MERGE;
-                    default -> contains(references, SecQueryType.MERGE) ? SecQueryType.MERGE : SecQueryType.INSERT;
+                    case "UPDATE" -> SplitQueryType.UPDATE;
+                    case "DELETE" -> SplitQueryType.DELETE;
+                    case "REPLACE" -> SplitQueryType.MERGE;
+                    default -> contains(references, SplitQueryType.MERGE) ? SplitQueryType.MERGE : SplitQueryType.INSERT;
                 };
             }
             if (containsNode(references, "information_schema")) {
-                return SecQueryType.METADATA;
+                return SplitQueryType.METADATA;
             }
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (isSelectExpression(normalized)) {
-            if (contains(references, SecQueryType.LOG_READ)) {
-                return SecQueryType.LOG_READ;
+            if (contains(references, SplitQueryType.LOG_READ)) {
+                return SplitQueryType.LOG_READ;
             }
-            if (contains(references, SecQueryType.PERFORMANCE)) {
-                return SecQueryType.PERFORMANCE;
+            if (contains(references, SplitQueryType.PERFORMANCE)) {
+                return SplitQueryType.PERFORMANCE;
             }
-            if (contains(references, SecQueryType.DATA_EXPORT)) {
-                return SecQueryType.DATA_EXPORT;
+            if (contains(references, SplitQueryType.DATA_EXPORT)) {
+                return SplitQueryType.DATA_EXPORT;
             }
             List<MySqlObjectReference> dataObjects = references.stream()
                 .filter(reference -> reference.targetType() == TargetType.Table || reference.targetType() == TargetType.View || reference.targetType() == TargetType.Materialized)
                 .toList();
             if (dataObjects.isEmpty() && (normalized.contains("AUDIT_LOG_READ(") || normalized.contains("AUDIT_LOG_READ_BOOKMARK("))) {
-                return SecQueryType.LOG_READ;
+                return SplitQueryType.LOG_READ;
             }
             if (!dataObjects.isEmpty() && dataObjects.stream().allMatch(reference -> containsNode(reference, "information_schema"))) {
-                return SecQueryType.METADATA;
+                return SplitQueryType.METADATA;
             }
             if (!dataObjects.isEmpty() && dataObjects.stream().allMatch(reference -> containsNode(reference, "performance_schema"))) {
-                return SecQueryType.PERFORMANCE;
+                return SplitQueryType.PERFORMANCE;
             }
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (normalized.startsWith("INSERT")) {
-            return contains(references, SecQueryType.MERGE) ? SecQueryType.MERGE : SecQueryType.INSERT;
+            return contains(references, SplitQueryType.MERGE) ? SplitQueryType.MERGE : SplitQueryType.INSERT;
         }
         if (normalized.startsWith("REPLACE")) {
-            return SecQueryType.MERGE;
+            return SplitQueryType.MERGE;
         }
         if (normalized.startsWith("UPDATE")) {
-            return SecQueryType.UPDATE;
+            return SplitQueryType.UPDATE;
         }
         if (normalized.startsWith("DELETE")) {
-            return SecQueryType.DELETE;
+            return SplitQueryType.DELETE;
         }
         if (normalized.startsWith("CALL")) {
-            return SecQueryType.CALL_PROG_OBJ;
+            return SplitQueryType.CALL_PROG_OBJ;
         }
         if (normalized.startsWith("HANDLER ")) {
-            return SecQueryType.SELECT;
+            return SplitQueryType.SELECT;
         }
         if (normalized.startsWith("SHOW ")) {
             return resolveShow(normalized);
         }
         if (normalized.startsWith("GET DIAGNOSTICS") || normalized.startsWith("GET CURRENT DIAGNOSTICS") || normalized.startsWith("GET STACKED DIAGNOSTICS")) {
-            return SecQueryType.PERFORMANCE;
+            return SplitQueryType.PERFORMANCE;
         }
         if (normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE") || normalized.startsWith("DEALLOCATE PREPARE")) {
-            return SecQueryType.UNSAFE;
+            return SplitQueryType.UNSAFE;
         }
         if (normalized.startsWith("CLONE LOCAL DATA DIRECTORY")) {
-            return SecQueryType.DATA_EXPORT;
+            return SplitQueryType.DATA_EXPORT;
         }
         if (normalized.startsWith("LOCK INSTANCE") || normalized.startsWith("UNLOCK INSTANCE") || normalized.startsWith("LOCK TABLE") || normalized.startsWith("UNLOCK TABLE")) {
-            return SecQueryType.SESSION_LOCK;
+            return SplitQueryType.SESSION_LOCK;
         }
         if (normalized.startsWith("START TRANSACTION") || normalized.startsWith("COMMIT") || normalized.startsWith("ROLLBACK") || normalized.startsWith("SAVEPOINT")
             || normalized.startsWith("RELEASE SAVEPOINT") || normalized.startsWith("XA ") || normalized.startsWith("BEGIN") || normalized.startsWith("SET TRANSACTION")
             || normalized.startsWith("SET SESSION TRANSACTION") || normalized.startsWith("SET GLOBAL TRANSACTION")) {
-            return SecQueryType.TRANSACTION;
+            return SplitQueryType.TRANSACTION;
         }
         if (normalized.startsWith("START REPLICA") || normalized.startsWith("STOP REPLICA") || normalized.startsWith("START SLAVE") || normalized.startsWith("STOP SLAVE")
             || normalized.startsWith("START GROUP_REPLICATION") || normalized.startsWith("STOP GROUP_REPLICATION") || normalized.startsWith("RESET REPLICA")
             || normalized.startsWith("RESET SLAVE") || normalized.startsWith("CHANGE REPLICATION") || normalized.startsWith("CHANGE MASTER")) {
-            return SecQueryType.ALTER_REPLICATION;
+            return SplitQueryType.ALTER_REPLICATION;
         }
         if (normalized.startsWith("BINLOG ")) {
-            return SecQueryType.ADMIN_REPLICATION;
+            return SplitQueryType.ADMIN_REPLICATION;
         }
         if (normalized.startsWith("ALTER INSTANCE") && normalized.contains("LOG")) {
-            return SecQueryType.ADMIN_LOG;
+            return SplitQueryType.ADMIN_LOG;
         }
         if (normalized.startsWith("FLUSH")) {
             if (normalized.contains(" FOR EXPORT")) {
-                return SecQueryType.DATA_EXPORT;
+                return SplitQueryType.DATA_EXPORT;
             }
             if (normalized.contains(" LOG")) {
-                return SecQueryType.MAINTAIN_LOG;
+                return SplitQueryType.MAINTAIN_LOG;
             }
             if (normalized.contains("DES_KEY_FILE")) {
-                return SecQueryType.SYSTEM_SETTING_WRITE;
+                return SplitQueryType.SYSTEM_SETTING_WRITE;
             }
             if (normalized.contains("STATUS") || normalized.contains("USER_RESOURCES") || normalized.contains("OPTIMIZER_COSTS") || normalized.contains("HOSTS")
                 || normalized.contains("QUERY CACHE")) {
-                return SecQueryType.ADMIN_PERFORMANCE;
+                return SplitQueryType.ADMIN_PERFORMANCE;
             }
             if (normalized.contains("TABLE")) {
-                return SecQueryType.ADMIN_TABLE;
+                return SplitQueryType.ADMIN_TABLE;
             }
             if (normalized.contains("PRIVILEGES")) {
-                return SecQueryType.SYSTEM_SETTING_WRITE;
+                return SplitQueryType.SYSTEM_SETTING_WRITE;
             }
-            return SecQueryType.ADMIN;
+            return SplitQueryType.ADMIN;
         }
         if (normalized.startsWith("KILL ")) {
-            return SecQueryType.ADMIN;
+            return SplitQueryType.ADMIN;
         }
         if (normalized.startsWith("PURGE BINARY LOGS") || normalized.startsWith("PURGE MASTER LOGS") || normalized.startsWith("RESET BINARY LOGS")
             || normalized.startsWith("RESET MASTER")) {
-            return SecQueryType.MAINTAIN_LOG;
+            return SplitQueryType.MAINTAIN_LOG;
         }
         if (normalized.startsWith("RESET QUERY CACHE")) {
-            return SecQueryType.ADMIN_PERFORMANCE;
+            return SplitQueryType.ADMIN_PERFORMANCE;
         }
         if (normalized.startsWith("CACHE INDEX") || normalized.startsWith("LOAD INDEX INTO CACHE")) {
-            return SecQueryType.ADMIN_PERFORMANCE;
+            return SplitQueryType.ADMIN_PERFORMANCE;
         }
         if (normalized.startsWith("CHECK TABLE")) {
-            return SecQueryType.ADMIN_TABLE;
+            return SplitQueryType.ADMIN_TABLE;
         }
         if (normalized.startsWith("HELP ")) {
-            return SecQueryType.METADATA;
+            return SplitQueryType.METADATA;
         }
         if (normalized.startsWith("CLONE INSTANCE") || normalized.startsWith("IMPORT TABLE")) {
-            return SecQueryType.DATA_IMPORT;
+            return SplitQueryType.DATA_IMPORT;
         }
         if (normalized.startsWith("SET PASSWORD")) {
-            return SecQueryType.ALTER_USER;
+            return SplitQueryType.ALTER_USER;
         }
         if (normalized.startsWith("SET DEFAULT ROLE")) {
-            return SecQueryType.ALTER_USER;
+            return SplitQueryType.ALTER_USER;
         }
         if (normalized.startsWith("SET ROLE")) {
-            return SecQueryType.SWITCH_ROLE;
+            return SplitQueryType.SWITCH_ROLE;
         }
         if (normalized.startsWith("USE ")) {
-            return SecQueryType.SWITCH_SCHEMA;
+            return SplitQueryType.SWITCH_SCHEMA;
         }
         if (isScopedSetAssignment(normalized)) {
-            return SecQueryType.SESSION_SETTING_WRITE;
+            return SplitQueryType.SESSION_SETTING_WRITE;
         }
         if (normalized.startsWith("SET @@PERSIST") || normalized.startsWith("SET PERSIST")) {
-            return SecQueryType.SYSTEM_SETTING_WRITE;
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         if (normalized.startsWith("INSTALL PLUGIN")) {
-            return SecQueryType.CREATE_LIBRARY;
+            return SplitQueryType.CREATE_LIBRARY;
         }
         if (normalized.startsWith("UNINSTALL PLUGIN")) {
-            return SecQueryType.DROP_LIBRARY;
+            return SplitQueryType.DROP_LIBRARY;
         }
         if (normalized.startsWith("SIGNAL ") || normalized.startsWith("RESIGNAL")) {
-            return SecQueryType.PROGRAM_CONTROL;
+            return SplitQueryType.PROGRAM_CONTROL;
         }
         if (normalized.startsWith("RESTART") || normalized.startsWith("SHUTDOWN")) {
-            return SecQueryType.UNSAFE;
+            return SplitQueryType.UNSAFE;
         }
         if (normalized.startsWith("REVOKE ")) {
-            return SecQueryType.REVOKE;
+            return SplitQueryType.REVOKE;
         }
         if (normalized.startsWith("GRANT ")) {
-            return SecQueryType.GRANT;
+            return SplitQueryType.GRANT;
         }
         if (normalized.startsWith("DROP USER")) {
-            return SecQueryType.DROP_USER;
+            return SplitQueryType.DROP_USER;
         }
         int createOrReplaceEnd = MyBehaviorText.afterStartingWords(normalized, "CREATE", "OR", "REPLACE");
         if (createOrReplaceEnd >= 0 && MyBehaviorText.findWord(normalized, createOrReplaceEnd, "VIEW") >= 0) {
-            return SecQueryType.ALTER_VIEW;
+            return SplitQueryType.ALTER_VIEW;
         }
         if (normalized.startsWith("ALTER DATABASE") || normalized.startsWith("ALTER SCHEMA")) {
-            return SecQueryType.ALTER_SCHEMA;
+            return SplitQueryType.ALTER_SCHEMA;
         }
 
         for (MySqlObjectReference reference : references) {
-            if (reference.sqlType() != null && reference.sqlType() != SecQueryType.UNKNOWN) {
+            if (reference.sqlType() != null && reference.sqlType() != SplitQueryType.UNKNOWN) {
                 return reference.sqlType();
             }
         }
-        return SecQueryType.UNKNOWN;
+        return SplitQueryType.UNKNOWN;
     }
 
-    private static boolean contains(List<MySqlObjectReference> references, SecQueryType type) {
+    private static boolean contains(List<MySqlObjectReference> references, SplitQueryType type) {
         return references.stream().anyMatch(reference -> reference.sqlType() == type);
     }
 
-    private static SecQueryType first(List<MySqlObjectReference> references, SecQueryType... candidates) {
-        for (SecQueryType candidate : candidates) {
+    private static SplitQueryType first(List<MySqlObjectReference> references, SplitQueryType... candidates) {
+        for (SplitQueryType candidate : candidates) {
             if (contains(references, candidate)) {
                 return candidate;
             }
@@ -255,19 +255,18 @@ final class MyBehaviorStatementTypeResolver {
                              || MyBehaviorText.startsWithWord(normalized, index, "VALUES"));
     }
 
-    private static SecQueryType resolveShow(String normalized) {
+    private static SplitQueryType resolveShow(String normalized) {
         if (normalized.startsWith("SHOW MASTER STATUS") || normalized.startsWith("SHOW BINARY LOG") || normalized.startsWith("SHOW MASTER LOG")
             || normalized.startsWith("SHOW BINLOG") || normalized.startsWith("SHOW RELAYLOG") || isShowEngineCommand(normalized, "LOGS")) {
-            return SecQueryType.LOG_READ;
+            return SplitQueryType.LOG_READ;
         }
         if (normalized.startsWith("SHOW STATUS") || normalized.startsWith("SHOW GLOBAL STATUS") || normalized.startsWith("SHOW SESSION STATUS")
             || normalized.startsWith("SHOW LOCAL STATUS") || normalized.startsWith("SHOW WARNINGS") || normalized.startsWith("SHOW ERRORS") || normalized.startsWith("SHOW COUNT(")
             || normalized.startsWith("SHOW PROFILE") || normalized.startsWith("SHOW PROCESSLIST") || normalized.startsWith("SHOW FULL PROCESSLIST")
-            || normalized.startsWith("SHOW OPEN TABLES") || normalized.startsWith("SHOW PARSE_TREE")
-            || isShowEngineCommand(normalized, "STATUS", "MUTEX")) {
-            return SecQueryType.PERFORMANCE;
+            || normalized.startsWith("SHOW OPEN TABLES") || normalized.startsWith("SHOW PARSE_TREE") || isShowEngineCommand(normalized, "STATUS", "MUTEX")) {
+            return SplitQueryType.PERFORMANCE;
         }
-        return SecQueryType.METADATA;
+        return SplitQueryType.METADATA;
     }
 
     private static int indexAfterPrefix(String sql, String prefix) {
@@ -282,8 +281,8 @@ final class MyBehaviorStatementTypeResolver {
                 continue;
             }
             int start = MyBehaviorText.skipWhitespace(sql, i + 1);
-            if (MyBehaviorText.startsWithWord(sql, start, "UPDATE") || MyBehaviorText.startsWithWord(sql, start, "DELETE")
-                || MyBehaviorText.startsWithWord(sql, start, "INSERT") || MyBehaviorText.startsWithWord(sql, start, "REPLACE")) {
+            if (MyBehaviorText.startsWithWord(sql, start, "UPDATE") || MyBehaviorText.startsWithWord(sql, start, "DELETE") || MyBehaviorText.startsWithWord(sql, start, "INSERT")
+                || MyBehaviorText.startsWithWord(sql, start, "REPLACE")) {
                 return start;
             }
         }

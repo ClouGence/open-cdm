@@ -17,8 +17,8 @@ package com.clougence.sql.mysql.analysis.security.domain;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 
 import lombok.Getter;
 import lombok.Setter;

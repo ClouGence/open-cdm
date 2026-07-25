@@ -17,12 +17,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserBaseVisitor;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserParser.*;
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 
@@ -61,7 +57,7 @@ final class McStatementBehaviorVisitor extends McParserBaseVisitor<Void> {
     McStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
-        behavior.setStatementType(SecQueryType.UNKNOWN);
+        behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
@@ -70,7 +66,7 @@ final class McStatementBehaviorVisitor extends McParserBaseVisitor<Void> {
 
     @Override
     public Void visitFrom_table_name_clause(From_table_name_clauseContext ctx) {
-        add(SecQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.table_name()));
+        add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.table_name()));
         return null;
     }
 
@@ -82,73 +78,73 @@ final class McStatementBehaviorVisitor extends McParserBaseVisitor<Void> {
         } else if (ctx.create_table_definition() instanceof CreateTableLikeContext like) {
             addObject(sources, object(TargetType.Table, like.table_name()));
         }
-        add(SecQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.table_name()), sources);
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.table_name()), sources);
         return null;
     }
 
     @Override
     public Void visitCreate_database_stmt(Create_database_stmtContext ctx) {
-        add(SecQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.qident()));
+        add(SplitQueryType.CREATE_SCHEMA, BehaviorAction.CREATE, object(TargetType.Schema, ctx.qident()));
         return null;
     }
 
     @Override
     public Void visitDropSchema(DropSchemaContext ctx) {
-        add(SecQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.qident()));
+        add(SplitQueryType.DROP_SCHEMA, BehaviorAction.DROP, object(TargetType.Schema, ctx.qident()));
         return null;
     }
 
     @Override
     public Void visitDropTable(DropTableContext ctx) {
-        add(SecQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.table_name()));
+        add(SplitQueryType.DROP_TABLE, BehaviorAction.DROP, object(TargetType.Table, ctx.table_name()));
         return null;
     }
 
     @Override
     public Void visitDropView(DropViewContext ctx) {
-        add(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.table_name()));
+        add(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.View, ctx.table_name()));
         return null;
     }
 
     @Override
     public Void visitDropMView(DropMViewContext ctx) {
-        add(SecQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.Materialized, ctx.ident()));
+        add(SplitQueryType.DROP_VIEW, BehaviorAction.DROP, object(TargetType.Materialized, ctx.ident()));
         return null;
     }
 
     @Override
     public Void visitCreate_view_stmt(Create_view_stmtContext ctx) {
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.table_name()), tableSources(ctx.select_stmt()));
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.table_name()), tableSources(ctx.select_stmt()));
         return null;
     }
 
     @Override
     public Void visitCreate_materialized_view_stmt(Create_materialized_view_stmtContext ctx) {
-        add(SecQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.name), tableSources(ctx.select_stmt()));
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.Materialized, ctx.name), tableSources(ctx.select_stmt()));
         return null;
     }
 
     @Override
     public Void visitAlter_materialized_view_stmt(Alter_materialized_view_stmtContext ctx) {
-        add(SecQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(TargetType.Materialized, ctx.name));
+        add(SplitQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(TargetType.Materialized, ctx.name));
         return null;
     }
 
     @Override
     public Void visitAlter_table_stmt(Alter_table_stmtContext ctx) {
-        add(SecQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.table_name()));
+        add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.table_name()));
         return null;
     }
 
     @Override
     public Void visitTruncate_stmt(Truncate_stmtContext ctx) {
-        add(SecQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.table_name()));
+        add(SplitQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.table_name()));
         return null;
     }
 
     @Override
     public Void visitInsert_stmt(Insert_stmtContext ctx) {
-        add(SecQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.table_name()), tableSources(ctx.select_stmt()));
+        add(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.table_name()), tableSources(ctx.select_stmt()));
         return null;
     }
 
@@ -157,14 +153,14 @@ final class McStatementBehaviorVisitor extends McParserBaseVisitor<Void> {
         if (ctx.update_table() != null) {
             List<BehaviorObject> sources = tableSources(ctx.update_table().from_clause());
             addTableSources(sources, ctx.where_clause());
-            add(SecQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.update_table().table_name()), sources);
+            add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.update_table().table_name()), sources);
         }
         return null;
     }
 
     @Override
     public Void visitDelete_stmt(Delete_stmtContext ctx) {
-        add(SecQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.table_name()), tableSources(ctx.where_clause()));
+        add(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.table_name()), tableSources(ctx.where_clause()));
         return null;
     }
 
@@ -209,11 +205,11 @@ final class McStatementBehaviorVisitor extends McParserBaseVisitor<Void> {
         return value;
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         add(type, action, subject, List.of());
     }
 
-    private void add(SecQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }
@@ -224,7 +220,7 @@ final class McStatementBehaviorVisitor extends McParserBaseVisitor<Void> {
             addObject(relation.getTarget(), target);
         }
         behavior.getRelations().add(relation);
-        if (behavior.getStatementType() == SecQueryType.UNKNOWN || type != SecQueryType.SELECT) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN || type != SplitQueryType.SELECT) {
             behavior.setStatementType(type);
         }
     }

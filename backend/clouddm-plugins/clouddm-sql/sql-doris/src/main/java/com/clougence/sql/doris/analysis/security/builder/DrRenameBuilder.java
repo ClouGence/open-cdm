@@ -19,10 +19,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.RenameBuilder;
 import com.clougence.sql.doris.analysis.security.domain.DrCatalogDomain;
 import com.clougence.sql.doris.analysis.security.domain.DrSchemaDomain;
@@ -38,7 +38,7 @@ public class DrRenameBuilder extends RenameBuilder {
         if (targetType == TargetType.Schema) {
             DrSchemaDomain schemaDomain = new DrSchemaDomain();
             schemaDomain.setAuditKind(SecQueryKind.ALTER);
-            schemaDomain.setSqlType(SecQueryType.RENAME_SCHEMA);
+            schemaDomain.setSqlType(SplitQueryType.RENAME_SCHEMA);
             int size = nameList.size();
             if (size == 3) {
                 schemaDomain.setCatalog(nameList.get(0));
@@ -49,7 +49,7 @@ public class DrRenameBuilder extends RenameBuilder {
         } else if (targetType == TargetType.Catalog) {
             DrCatalogDomain catalogDomain = new DrCatalogDomain();
             catalogDomain.setAuditKind(SecQueryKind.ALTER);
-            catalogDomain.setSqlType(SecQueryType.RENAME_CATALOG);
+            catalogDomain.setSqlType(SplitQueryType.RENAME_CATALOG);
             catalogDomain.setCatalog(nameList.get(0));
             catalogDomain.setNewName(nameList.get(1));
             catalogDomain.setOptions(new HashMap<>());

@@ -28,10 +28,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
-import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -43,8 +43,8 @@ import com.clougence.sql.common.analysis.secrules.builder.mode.StringDomain;
 import com.clougence.sql.common.analysis.secrules.builder.utils.BuilderUtil;
 import com.clougence.sql.postgres.analysis.security.builder.PgBuilderFactory;
 import com.clougence.sql.postgres.analysis.security.builder.enums.PgAttribute;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParserBaseVisitor;
 import com.clougence.sql.postgres.analysis.security.domain.PgTableDomain;
+import com.clougence.sql.postgres.parser.antlr.PgSqlParserBaseVisitor;
 
 public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
 
@@ -81,7 +81,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     public Void visitVariableshowstmt(VariableshowstmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.setSqlType(SecQueryType.SESSION_VARIABLE_RW);
+        rdbResourceDomain.setSqlType(SplitQueryType.SESSION_VARIABLE_RW);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -91,7 +91,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     @Override
     public Void visitDostmt(DostmtContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
-        domain.setSqlType(SecQueryType.BLOCK);
+        domain.setSqlType(SplitQueryType.BLOCK);
         domain.setAuditKind(SecQueryKind.OTHER);
         domain.setTarget(TargetType.Unknown);
         this.builder.addDomain(domain);
@@ -102,7 +102,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     public Void visitAnalyzestmt(AnalyzestmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.setSqlType(SecQueryType.ADMIN_TABLE);
+        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_TABLE);
         if (ctx.vacuum_relation_list_() != null) {
             Vacuum_relationContext relation = ctx.vacuum_relation_list_().vacuum_relation_list().vacuum_relation(0);
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(handleQualifiedName(relation.qualified_name()));
@@ -123,7 +123,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     public Void visitRefreshmatviewstmt(RefreshmatviewstmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.setSqlType(SecQueryType.ADMIN);
+        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
         rdbResourceDomain.setTarget(TargetType.Materialized);
         rdbResourceDomain.setNeedSupply(true);
 
@@ -1085,7 +1085,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
                 ctx.qualified_name(1).accept(this);
                 PgTableDomain pgTableDomain = new PgTableDomain();
                 pgTableDomain.setAuditKind(SecQueryKind.ALTER);
-                pgTableDomain.setSqlType(SecQueryType.ALTER_TABLE);
+                pgTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
                 builder.handleDomain(pgTableDomain, DomainSource.ALTER_TABLE_ITEM);
             });
         } else {
