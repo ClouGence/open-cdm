@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.sql.postgres.parser;
+package com.clougence.clouddm.ds.gauss.sql.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,42 +22,30 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.gauss.sql.GaussSqlEngineSpi;
+import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlLexer;
+import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParser;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.dslpaser.parse.AstSplitScript;
-import com.clougence.sql.postgres.PgSqlEngineSpi;
-import com.clougence.sql.postgres.parser.antlr.PgSqlLexer;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
-public class PgDslProvider implements DslProvider {
+public class GaussDslProvider implements DslProvider {
 
-    private final AntlrStatementParser TREE_PARSER = new PgStatementParser();
-    private final PostgresVersion      version;
-
-    public PgDslProvider(PostgresVersion version){
-        this.version = version;
-    }
-
-    public PostgresVersion version() {
-        return version;
-    }
+    public static final DslProvider    INSTANCE    = new GaussDslProvider();
+    private final AntlrStatementParser TREE_PARSER = new GaussAntlrStatementParser();
 
     @Override
-    public String[] getDslName() { return new String[] { PgSqlEngineSpi.NAME }; }
+    public String[] getDslName() { return new String[] { GaussSqlEngineSpi.NAME }; }
 
     @Override
     public Lexer createLexer(CharStream charStream) {
-        PgSqlLexer lexer = new PgSqlLexer(charStream);
-        lexer.setVersion(version);
-        return lexer;
+        return new GaussSqlLexer(charStream);
     }
 
     @Override
     public Parser createParser(Lexer lexer) {
-        PgSqlParser parser = new PgSqlParser(new CommonTokenStream(lexer));
-        parser.setVersion(version);
-        return parser;
+        return new GaussSqlParser(new CommonTokenStream(lexer));
     }
 
     protected AntlrStatementParser treeParser() {

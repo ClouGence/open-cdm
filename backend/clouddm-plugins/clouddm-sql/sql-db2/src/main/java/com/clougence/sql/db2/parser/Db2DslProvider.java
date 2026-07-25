@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.sql.postgres.parser;
+package com.clougence.sql.db2.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,42 +26,26 @@ import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.dslpaser.parse.AstSplitScript;
-import com.clougence.sql.postgres.PgSqlEngineSpi;
-import com.clougence.sql.postgres.parser.antlr.PgSqlLexer;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
+import com.clougence.sql.db2.Db2SqlEngineSpi;
+import com.clougence.sql.db2.parser.antlr.Db2SqlLexer;
+import com.clougence.sql.db2.parser.antlr.Db2SqlParser;
 
-public class PgDslProvider implements DslProvider {
+public class Db2DslProvider implements DslProvider {
 
-    private final AntlrStatementParser TREE_PARSER = new PgStatementParser();
-    private final PostgresVersion      version;
-
-    public PgDslProvider(PostgresVersion version){
-        this.version = version;
-    }
-
-    public PostgresVersion version() {
-        return version;
-    }
+    public static final DslProvider    INSTANCE    = new Db2DslProvider();
+    private final AntlrStatementParser TREE_PARSER = new Db2AntlrStatementParser();
 
     @Override
-    public String[] getDslName() { return new String[] { PgSqlEngineSpi.NAME }; }
+    public String[] getDslName() { return new String[] { Db2SqlEngineSpi.NAME }; }
 
     @Override
     public Lexer createLexer(CharStream charStream) {
-        PgSqlLexer lexer = new PgSqlLexer(charStream);
-        lexer.setVersion(version);
-        return lexer;
+        return new Db2SqlLexer(new UpperCaseCharStream(charStream));
     }
 
     @Override
     public Parser createParser(Lexer lexer) {
-        PgSqlParser parser = new PgSqlParser(new CommonTokenStream(lexer));
-        parser.setVersion(version);
-        return parser;
-    }
-
-    protected AntlrStatementParser treeParser() {
-        return TREE_PARSER;
+        return new Db2SqlParser(new CommonTokenStream(lexer));
     }
 
     @Override
@@ -72,7 +56,7 @@ public class PgDslProvider implements DslProvider {
     @Override
     public List<AstSplitScript> doSplit(Lexer lexer, Parser parser) {
         TokenStream tokenStream = parser.getTokenStream();
-        List<ParseTree> astList = this.treeParser().statementList(lexer, parser);
+        List<ParseTree> astList = TREE_PARSER.statementList(lexer, parser);
 
         List<AstSplitScript> result = new ArrayList<>();
         ParseTree lastTree = null;
@@ -82,7 +66,7 @@ public class PgDslProvider implements DslProvider {
             Token stopToken = context.getStop();
 
             result.add(AstSplitScript.builder()
-                .script(this.treeParser().getTextKeepComment(tokenStream, lastTree, startToken, stopToken))
+                .script(TREE_PARSER.getTextKeepComment(tokenStream, lastTree, startToken, stopToken))
                 .astTree(parseTree)
                 .parser(parser)
                 .lexer(lexer)
@@ -96,7 +80,7 @@ public class PgDslProvider implements DslProvider {
 
     @Override
     public void doVisitor(Lexer lexer, Parser parser, AbstractParseTreeVisitor<?> visitor) {
-        List<ParseTree> astList = this.treeParser().statementList(lexer, parser);
+        List<ParseTree> astList = TREE_PARSER.statementList(lexer, parser);
         for (ParseTree astTree : astList) {
             visitor.visit(astTree);
         }

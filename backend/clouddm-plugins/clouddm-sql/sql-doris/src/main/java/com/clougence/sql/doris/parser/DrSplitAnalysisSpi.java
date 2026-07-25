@@ -1,0 +1,232 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.sql.doris.parser;
+
+import java.util.*;
+
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
+import com.clougence.dslpaser.antlr.DslProvider;
+import com.clougence.dslpaser.parse.AntlrStatementParser;
+import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.doris.parser.antlr.DorisParser;
+
+public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
+
+    private static final Set<String> KNOWN_USER_FUNCTIONS = Set.of("ads_version", "test", "test_func", "test_func1", "test_function");
+
+    protected DslProvider dslProvider() {
+        return DrDslProvider.INSTANCE;
+    }
+
+    protected AbstractParseTreeVisitor<SecQueryType> splitVisitor() {
+        return DrSplitVisitor.INSTANCE;
+    }
+
+    @Override
+    protected SecQueryType additionalType(ParseTree tree) {
+        if (tree instanceof DorisParser.QuerySpecificationContext && isExecutedDmlQuery(tree)) {
+            return SecQueryType.SELECT;
+        }
+        if (tree instanceof DorisParser.AddColumnClauseContext || tree instanceof DorisParser.AddColumnsClauseContext) {
+            return SecQueryType.ADD_COLUMN;
+        }
+        if (tree instanceof DorisParser.DropColumnClauseContext) {
+            return SecQueryType.DROP_COLUMN;
+        }
+        if (tree instanceof DorisParser.ModifyColumnClauseContext || tree instanceof DorisParser.ReorderColumnsClauseContext) {
+            return SecQueryType.ALTER_COLUMN;
+        }
+        if (tree instanceof DorisParser.RenameColumnClauseContext) {
+            return SecQueryType.RENAME_COLUMN;
+        }
+        if (tree instanceof DorisParser.AddPartitionClauseContext || tree instanceof DorisParser.AlterMultiPartitionClauseContext) {
+            return SecQueryType.ADD_PARTITION;
+        }
+        if (tree instanceof DorisParser.DropPartitionClauseContext) {
+            return SecQueryType.DROP_PARTITION;
+        }
+        if (tree instanceof DorisParser.ModifyPartitionClauseContext || tree instanceof DorisParser.ReplacePartitionClauseContext
+            || tree instanceof DorisParser.RenamePartitionClauseContext) {
+            return SecQueryType.ALTER_PARTITION;
+        }
+        if (tree instanceof DorisParser.AddIndexClauseContext || tree instanceof DorisParser.AlterTableAddRollupContext) {
+            return SecQueryType.ADD_INDEX;
+        }
+        if (tree instanceof DorisParser.DropIndexClauseContext || tree instanceof DorisParser.AlterTableDropRollupContext) {
+            return SecQueryType.DROP_INDEX;
+        }
+        if (tree instanceof DorisParser.RenameClauseContext) {
+            return SecQueryType.RENAME_TABLE;
+        }
+        if (tree instanceof DorisParser.ModifyTableCommentClauseContext) {
+            return SecQueryType.COMMENT_TABLE;
+        }
+        if (tree instanceof DorisParser.ModifyColumnCommentClauseContext) {
+            return SecQueryType.COMMENT_COLUMN;
+        }
+        if (tree instanceof DorisParser.AddConstraintContext) {
+            return SecQueryType.ADD_CONSTRAINT;
+        }
+        if (tree instanceof DorisParser.DropConstraintContext) {
+            return SecQueryType.DROP_CONSTRAINT;
+        }
+        if (tree instanceof DorisParser.CreateTableContext ctx && ctx.COMMENT() != null) {
+            return SecQueryType.COMMENT_TABLE;
+        }
+        if (tree instanceof DorisParser.ColumnDefContext ctx && ctx.comment != null) {
+            return SecQueryType.COMMENT_COLUMN;
+        }
+        if (tree instanceof DorisParser.IndexDefContext ctx && ctx.comment != null) {
+            return SecQueryType.COMMENT_INDEX;
+        }
+        if (tree instanceof DorisParser.CreateIndexContext ctx && ctx.STRING_LITERAL() != null) {
+            return SecQueryType.COMMENT_INDEX;
+        }
+        if (tree instanceof DorisParser.FunctionCallExpressionContext ctx && isExecutedFunction(ctx)) {
+            return functionType(ctx);
+        }
+        return null;
+    }
+
+    @Override
+    protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
+        ParserRuleContext body = definitionBody(context);
+        if (body == null) {
+            return Collections.emptyList();
+        }
+        return List.of(createChild(body, tokens, collectBodyTypes(body, tokens.getText(body)), Collections.emptyList()));
+    }
+
+    private boolean isExecutedDmlQuery(ParseTree tree) {
+        if (hasAncestor(tree, DorisParser.CreateScheduledJobContext.class)) {
+            return false;
+        }
+        for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
+            if (current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.UpdateContext || current instanceof DorisParser.DeleteContext) {
+                return true;
+            }
+            if (current instanceof DorisParser.CreateTableContext || current instanceof DorisParser.CreateViewContext || current instanceof DorisParser.CreateMTMVContext
+                || current instanceof DorisParser.AlterViewContext || current instanceof DorisParser.CreateScheduledJobContext) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private boolean isExecutedFunction(ParseTree tree) {
+        if (hasAncestor(tree, DorisParser.CreateScheduledJobContext.class)) {
+            return false;
+        }
+        for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
+            if (current instanceof DorisParser.StatementDefaultContext || current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.UpdateContext
+                || current instanceof DorisParser.DeleteContext) {
+                return true;
+            }
+            if (current instanceof DorisParser.CreateTableContext || current instanceof DorisParser.CreateAliasFunctionContext
+                || current instanceof DorisParser.CreateUserDefineFunctionContext) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private Set<SecQueryType> collectBodyTypes(ParserRuleContext body, String script) {
+        Set<SecQueryType> types = new LinkedHashSet<>();
+        types.add(body instanceof DorisParser.QueryContext ? SecQueryType.SELECT : normalizeType(body.accept(splitVisitor()), script));
+        collectBodyAdditionalTypes(body, types);
+        return types;
+    }
+
+    private void collectBodyAdditionalTypes(ParseTree tree, Set<SecQueryType> types) {
+        if (tree instanceof DorisParser.QuerySpecificationContext) {
+            types.add(SecQueryType.SELECT);
+        } else if (tree instanceof DorisParser.FunctionCallExpressionContext function) {
+            SecQueryType type = functionType(function);
+            if (type != null) {
+                types.add(type);
+            }
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collectBodyAdditionalTypes(tree.getChild(i), types);
+        }
+    }
+
+    private SecQueryType functionType(DorisParser.FunctionCallExpressionContext function) {
+        String name = function.functionIdentifier().functionNameIdentifier().getText().toLowerCase(Locale.ROOT);
+        return function.functionIdentifier().dbName != null || KNOWN_USER_FUNCTIONS.contains(name) ? SecQueryType.CALL_PROG_OBJ : null;
+    }
+
+    private boolean hasAncestor(ParseTree tree, Class<? extends ParseTree> type) {
+        for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
+            if (type.isInstance(current)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private ParserRuleContext definitionBody(ParseTree tree) {
+        DorisParser.CreateViewContext view = findContext(tree, DorisParser.CreateViewContext.class);
+        if (view != null) {
+            return view.query();
+        }
+        DorisParser.CreateMTMVContext materializedView = findContext(tree, DorisParser.CreateMTMVContext.class);
+        if (materializedView != null) {
+            return materializedView.query();
+        }
+        DorisParser.AlterViewContext alteredView = findContext(tree, DorisParser.AlterViewContext.class);
+        if (alteredView != null && alteredView.query() != null) {
+            return alteredView.query();
+        }
+        DorisParser.CreateScheduledJobContext job = findContext(tree, DorisParser.CreateScheduledJobContext.class);
+        return job == null ? null : job.supportedDmlStatement();
+    }
+
+    private <T extends ParserRuleContext> T findContext(ParseTree tree, Class<T> type) {
+        if (type.isInstance(tree)) {
+            return type.cast(tree);
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            T result = findContext(tree.getChild(i), type);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void parseRoot(Parser parser) {
+        ((DorisParser) parser).multiStatements();
+    }
+
+    @Override
+    protected boolean isStatementContext(ParserRuleContext context) {
+        return context instanceof DorisParser.StatementContext && context.getParent() instanceof DorisParser.MultiStatementsContext;
+    }
+
+    @Override
+    protected AntlrStatementParser statementParser() {
+        return new DrStatementParser();
+    }
+}

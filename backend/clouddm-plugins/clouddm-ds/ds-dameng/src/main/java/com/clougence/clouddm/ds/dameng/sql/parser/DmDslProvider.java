@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.sql.postgres.parser;
+package com.clougence.clouddm.ds.dameng.sql.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,46 +22,29 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.dameng.sql.DmSqlEngineSpi;
+import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlLexer;
+import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.dslpaser.parse.AstSplitScript;
-import com.clougence.sql.postgres.PgSqlEngineSpi;
-import com.clougence.sql.postgres.parser.antlr.PgSqlLexer;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
-public class PgDslProvider implements DslProvider {
-
-    private final AntlrStatementParser TREE_PARSER = new PgStatementParser();
-    private final PostgresVersion      version;
-
-    public PgDslProvider(PostgresVersion version){
-        this.version = version;
-    }
-
-    public PostgresVersion version() {
-        return version;
-    }
+public class DmDslProvider implements DslProvider {
+    public static final DslProvider           INSTANCE    = new DmDslProvider();
+    private static final AntlrStatementParser TREE_PARSER = new DmStatementParser();
 
     @Override
-    public String[] getDslName() { return new String[] { PgSqlEngineSpi.NAME }; }
+    public String[] getDslName() { return new String[] { DmSqlEngineSpi.NAME }; }
 
     @Override
     public Lexer createLexer(CharStream charStream) {
-        PgSqlLexer lexer = new PgSqlLexer(charStream);
-        lexer.setVersion(version);
-        return lexer;
+        return new DmSqlLexer(charStream);
     }
 
     @Override
     public Parser createParser(Lexer lexer) {
-        PgSqlParser parser = new PgSqlParser(new CommonTokenStream(lexer));
-        parser.setVersion(version);
-        return parser;
-    }
-
-    protected AntlrStatementParser treeParser() {
-        return TREE_PARSER;
+        return new DmSqlParser(new CommonTokenStream(lexer));
     }
 
     @Override
@@ -72,17 +55,15 @@ public class PgDslProvider implements DslProvider {
     @Override
     public List<AstSplitScript> doSplit(Lexer lexer, Parser parser) {
         TokenStream tokenStream = parser.getTokenStream();
-        List<ParseTree> astList = this.treeParser().statementList(lexer, parser);
-
+        List<ParseTree> astList = TREE_PARSER.statementList(lexer, parser);
         List<AstSplitScript> result = new ArrayList<>();
         ParseTree lastTree = null;
         for (ParseTree parseTree : astList) {
             ParserRuleContext context = (ParserRuleContext) parseTree;
             Token startToken = context.getStart();
             Token stopToken = context.getStop();
-
             result.add(AstSplitScript.builder()
-                .script(this.treeParser().getTextKeepComment(tokenStream, lastTree, startToken, stopToken))
+                .script(TREE_PARSER.getTextKeepComment(tokenStream, lastTree, startToken, stopToken))
                 .astTree(parseTree)
                 .parser(parser)
                 .lexer(lexer)
@@ -96,7 +77,7 @@ public class PgDslProvider implements DslProvider {
 
     @Override
     public void doVisitor(Lexer lexer, Parser parser, AbstractParseTreeVisitor<?> visitor) {
-        List<ParseTree> astList = this.treeParser().statementList(lexer, parser);
+        List<ParseTree> astList = TREE_PARSER.statementList(lexer, parser);
         for (ParseTree astTree : astList) {
             visitor.visit(astTree);
         }

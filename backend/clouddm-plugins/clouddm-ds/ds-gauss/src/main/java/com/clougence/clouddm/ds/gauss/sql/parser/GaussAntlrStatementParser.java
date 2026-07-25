@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.sql.mysql.parser;
+package com.clougence.clouddm.ds.gauss.sql.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.antlr.v4.runtime.Lexer;
@@ -23,24 +24,29 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
+import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlLexer;
+import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParser;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
-import com.clougence.sql.mysql.parser.antlr.MySqlLexer;
-import com.clougence.sql.mysql.parser.antlr.MySqlParser;
+import com.clougence.utils.CollectionUtils;
 
-public class MyStatementParser implements AntlrStatementParser {
+public class GaussAntlrStatementParser implements AntlrStatementParser {
 
     @Override
     public List<ParseTree> statementList(Lexer lexer, Parser parser) {
+        List<ParseTree> children = ((GaussSqlParser) parser).root().children;
+        GaussSqlParser.StmtmultiContext stmtmultiContext = (GaussSqlParser.StmtmultiContext) children.get(0).getChild(0);
+        if (CollectionUtils.isEmpty(stmtmultiContext.children)) {
+            return Collections.emptyList();
+        }
+
         List<ParseTree> result = new ArrayList<>();
-        List<ParseTree> children = ((MySqlParser) parser).root().children;
-        for (ParseTree child : children) {
-            if (child instanceof MySqlParser.SqlStatementsContext) {
-                for (ParseTree parseTree : ((MySqlParser.SqlStatementsContext) child).children) {
-                    if (parseTree instanceof MySqlParser.SqlStatementContext) {
-                        result.add(parseTree);
-                    }
-                }
+        for (ParseTree child : stmtmultiContext.children) {
+            if (child instanceof TerminalNodeImpl) {
+                continue;
+            } else {
+                result.add(child);
             }
         }
         return result;
@@ -50,14 +56,12 @@ public class MyStatementParser implements AntlrStatementParser {
     public String getTextKeepComment(TokenStream tokens, ParseTree lastTree, Token startToken, Token endToken) {
         for (int i = startToken.getTokenIndex() - 1; i >= 0; i--) {
             Token start = tokens.get(i);
-            if (start.getType() == MySqlLexer.SPACE) {
+            int type = start.getType();
+            if (type == GaussSqlLexer.Whitespace || type == GaussSqlLexer.Newline) {
                 // ignore
-            } else if (start.getType() == MySqlLexer.SEMI) {
-                if (start.getChannel() == Token.DEFAULT_CHANNEL) {
-                    break;
-                }
-                startToken = start;
-            } else if (isComment(start)) {
+            } else if (type == GaussSqlLexer.SEMI) {
+                break;
+            } else if (type == GaussSqlLexer.BlockComment || type == GaussSqlLexer.LineComment || type == GaussSqlLexer.UnterminatedBlockComment) {
                 startToken = start;
             } else {
                 break;
@@ -66,14 +70,13 @@ public class MyStatementParser implements AntlrStatementParser {
 
         for (int i = endToken.getTokenIndex() + 1; i < tokens.size(); i++) {
             Token end = tokens.get(i);
-            if (end.getType() == MySqlLexer.SPACE) {
+            int type = end.getType();
+            if (type == GaussSqlLexer.Whitespace || type == GaussSqlLexer.Newline) {
                 //ignore
-            } else if (end.getType() == MySqlLexer.SEMI) {
+            } else if (type == GaussSqlLexer.SEMI) {
                 endToken = end;
-                if (end.getChannel() == Token.DEFAULT_CHANNEL) {
-                    break;
-                }
-            } else if (isComment(end)) {
+                break;
+            } else if (type == GaussSqlLexer.BlockComment || type == GaussSqlLexer.LineComment || type == GaussSqlLexer.UnterminatedBlockComment) {
                 endToken = end;
             } else {
                 break;
@@ -81,10 +84,5 @@ public class MyStatementParser implements AntlrStatementParser {
         }
 
         return tokens.getText(startToken, endToken);
-    }
-
-    private static boolean isComment(Token token) {
-        int type = token.getType();
-        return type == MySqlLexer.COMMENT_INPUT || type == MySqlLexer.LINE_COMMENT || type == MySqlLexer.EXEC_COMMENT_LEFT || type == MySqlLexer.EXEC_COMMENT_RIGHT;
     }
 }
