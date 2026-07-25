@@ -38,7 +38,6 @@ public class DsConfig {
     private List<String>              ddlList;
     private List<DsIsolation>         isolations;
     private List<DsDriverFamily>      driverFamilies;
-    private DsLanguage                language;
     private List<DefaultDsKvConfigVO> configDef;
 
     @Override
@@ -61,7 +60,6 @@ public class DsConfig {
         dsConfig.setDdlList(this.ddlList.isEmpty() ? Collections.emptyList() : new ArrayList<>(this.ddlList));
         dsConfig.setIsolations(this.isolations.isEmpty() ? Collections.emptyList() : this.isolations.stream().map(DsIsolation::clone).collect(Collectors.toList()));
         dsConfig.setDriverFamilies(this.driverFamilies.isEmpty() ? Collections.emptyList() : this.driverFamilies.stream().map(DsDriverFamily::clone).collect(Collectors.toList()));
-        dsConfig.setLanguage(this.language == null ? null : this.language.clone());
         dsConfig.setConfigDef(this.configDef == null || this.configDef.isEmpty() ? Collections.emptyList() : new ArrayList<>(this.configDef));
         return dsConfig;
     }

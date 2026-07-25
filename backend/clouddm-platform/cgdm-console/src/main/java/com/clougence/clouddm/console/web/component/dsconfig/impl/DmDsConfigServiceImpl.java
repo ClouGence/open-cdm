@@ -19,15 +19,20 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
+
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.api.sidecar.session.execute.MetaRService;
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.comm.model.RSocketSendDTO;
+import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.*;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
@@ -36,6 +41,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.UiMenus18nKey;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
@@ -46,11 +52,9 @@ import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.sdk.language.DsLanguageSpi;
-import com.clougence.clouddm.sdk.language.DsLanguageSupport;
-import com.clougence.clouddm.sdk.resource.ResourceCategory;
-import com.clougence.clouddm.sdk.resource.ResourceSpi;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.clouddm.sdk.ui.ddl.ConvertTableDDLSpi;
 import com.clougence.clouddm.sdk.ui.ddl.DDLType;
@@ -63,6 +67,7 @@ import com.clougence.utils.ClassUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
+
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,6 +86,8 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     private ConsoleConfigService                configService;
     @Resource
     private WhiteListService                    whiteListService;
+    @Resource
+    private MetaRService                        metaRService;
 
     private final Map<DataSourceType, DsConfig> dsSettingsCache = new HashMap<>();
     private final Map<String, DsLevelLeaf>      dsLeafCache     = new HashMap<>();
@@ -142,7 +149,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             config.setDriverFamilies(familyNames.stream().map(s -> {
                 return DmConvertUtils.convertToDsDriverFamily(driverLoader.findDriver(s));
             }).filter(Objects::nonNull).collect(Collectors.toList()));
-            config.setLanguage(loadDsLanguage(dsPlugin));
 
             //
             RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsType);
@@ -331,6 +337,35 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
+    public SqlEngineSpi fetchSqlEngineSpi(long dsId) {
+        return this.fetchSqlEngineSpi(this.fetchDsConfigFromExists(dsId));
+    }
+
+    @Override
+    public SqlEngineSpi fetchSqlEngineSpi(DataSourceConfig dsConfig) {
+        return PluginManager.findParserSpi(dsConfig.getDataSourceType(), dsConfig.getSqlEngine());
+    }
+
+    @Override
+    public SqlParserParameters fetchSqlParserParameters(DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
+        DmDsDO dsDO = this.dsDal.dsMapper().getByInstanceId(dsConfig.getInstanceId());
+        return this.fetchSqlParserParameters(dsDO.getId(), levelsParam);
+    }
+
+    @Override
+    public SqlParserParameters fetchSqlParserParameters(long dsId, Map<UmiTypes, Object> levelsParam) {
+        DsCacheEntry cacheEntry = this.cacheDao.queryByDsId(dsId);
+        RSocketSendDTO sendDTO = new RSocketSendDTO();
+        sendDTO.setClusterId(cacheEntry.getClusterId());
+        sendDTO.setUid(AuthDal.ROOT_USER_UID);
+        sendDTO.setRSocketSendType(RSocketSendType.CLUSTER);
+
+        DataSourceConfig dsConfig = this.fetchDsConfigFromExists(dsId);
+        Map<String, String> parameters = this.metaRService.getSqlParserParameters(sendDTO, dsConfig, levelsParam);
+        return new SqlParserParameters(parameters);
+    }
+
+    @Override
     public DataSourceConfig fetchDsConfigFromExists(long dsId, Map<String, String> configOverrides) {
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
         List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsIdExcludeConfigNames(dsId, lazyConfigNames(dsDO.getDataSourceType()));
@@ -403,36 +438,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             log.error(msg, e);
             throw new RuntimeException(msg, e);
         }
-    }
-
-    private DsLanguage loadDsLanguage(DsPluginInfo dsPlugin) {
-        List<DsLanguageSpi> languageSpis = dsPlugin.findSpi(DsLanguageSpi.class);
-        if (CollectionUtils.isEmpty(languageSpis)) {
-            return null;
-        }
-
-        DsLanguageSpi languageSpi = languageSpis.get(0);
-        Set<DsLanguageSupport> supports = Optional.ofNullable(languageSpi.supports()).orElseGet(Collections::emptySet);
-        DsLanguage language = new DsLanguage();
-        language.setSupported(CollectionUtils.isNotEmpty(supports));
-        language.setSupports(Set.copyOf(supports));
-        language.setCompletion(supports.contains(DsLanguageSupport.COMPLETE));
-        language.setValidate(supports.contains(DsLanguageSupport.VALIDATE));
-        language.setSplit(supports.contains(DsLanguageSupport.SPLIT));
-        String keywordResourceModule = findEditorKeywordResourceModule(dsPlugin);
-        if (!StringUtils.isBlank(keywordResourceModule)) {
-            language.setKeywordResource(ResourceCategory.EDITOR.getCode() + "/" + keywordResourceModule + "@keywords");
-        }
-        return language;
-    }
-
-    private String findEditorKeywordResourceModule(DsPluginInfo dsPlugin) {
-        List<ResourceSpi> resourceSpis = dsPlugin.findSpi(ResourceSpi.class);
-        if (CollectionUtils.isEmpty(resourceSpis)) {
-            return null;
-        }
-
-        return resourceSpis.stream().filter(spi -> spi.findResource(ResourceCategory.EDITOR.getCode(), "keywords", null) != null).map(ResourceSpi::name).findFirst().orElse(null);
     }
 
     @Override

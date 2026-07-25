@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.dsconfig.mode;
+package com.clougence.clouddm.console.web.model.vo.editor.query;
 
 import java.util.Set;
 
@@ -24,24 +24,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DsLanguage {
+public class DsLanguageConfVO {
 
-    private boolean supported;
-    private boolean completion;
-    private boolean validate;
-    private boolean split;
+    private boolean                supported;
+    private boolean                completion;
+    private boolean                validate;
+    private boolean                split;
     private Set<DsLanguageSupport> supports;
-    private String  keywordResource;
-
-    @Override
-    public DsLanguage clone() {
-        DsLanguage language = new DsLanguage();
-        language.setSupported(this.supported);
-        language.setCompletion(this.completion);
-        language.setValidate(this.validate);
-        language.setSplit(this.split);
-        language.setSupports(this.supports == null ? null : Set.copyOf(this.supports));
-        language.setKeywordResource(this.keywordResource);
-        return language;
-    }
+    private String                 keywordResource;
 }

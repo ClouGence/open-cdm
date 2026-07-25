@@ -25,6 +25,9 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.schema.umi.struts.UmiTypes;
 
 /**
  * @author bucketli 2020/11/7 14:25
@@ -46,6 +49,14 @@ public interface DmDsConfigService {
     DataSourceConfig fetchDsConfigFromNotExist(DataSourceType dsType, Map<String, String> configMap);
 
     DataSourceConfig fetchDsConfigFromExists(long dsId);
+
+    SqlEngineSpi fetchSqlEngineSpi(long dsId);
+
+    SqlEngineSpi fetchSqlEngineSpi(DataSourceConfig dsConfig);
+
+    SqlParserParameters fetchSqlParserParameters(DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam);
+
+    SqlParserParameters fetchSqlParserParameters(long dsId, Map<UmiTypes, Object> levelsParam);
 
     DataSourceConfig fetchDsConfigFromExists(long dsId, Map<String, String> configOverrides);
 

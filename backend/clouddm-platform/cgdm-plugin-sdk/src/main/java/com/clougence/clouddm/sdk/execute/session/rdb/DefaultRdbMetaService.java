@@ -55,6 +55,9 @@ public abstract class DefaultRdbMetaService implements DsMetaService {
     protected abstract SqlBuilder getSqlBuilder();
 
     @Override
+    public Map<String, String> getSqlParserParameters() { return Map.of(); }
+
+    @Override
     public String loadTableEditor(Map<UmiTypes, Object> levelsParam, String table) {
         try {
             return this.rdbSession.executeQuery(con -> {
