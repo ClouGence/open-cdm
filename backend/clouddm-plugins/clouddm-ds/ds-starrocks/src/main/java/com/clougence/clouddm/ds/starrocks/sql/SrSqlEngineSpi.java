@@ -15,21 +15,20 @@
  */
 package com.clougence.clouddm.ds.starrocks.sql;
 
-import com.clougence.clouddm.ds.starrocks.sql.column.SrSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.analysis.behavior.SrBehaviorAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.analysis.column.SrSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.analysis.security.SrSecDomainResolveSpi;
+import com.clougence.clouddm.ds.starrocks.sql.editor.rewrite.SrRewriteSpi;
 import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
-import com.clougence.clouddm.ds.starrocks.sql.resource.SrResAnalysisSpi;
-import com.clougence.clouddm.ds.starrocks.sql.rewrite.SrRewriteSpi;
-import com.clougence.clouddm.ds.starrocks.sql.security.SrSecDomainResolveSpi;
-import com.clougence.clouddm.ds.starrocks.sql.split.SrSplitAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.parser.SrSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.sql.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitAnalysisSpi;
-import com.clougence.dslpaser.antlr.DslHelper;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
@@ -38,18 +37,14 @@ public class SrSqlEngineSpi implements SqlEngineSpi {
 
     private final SplitAnalysisSpi        splitAnalysisSpi;
     private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final ResAnalysisSpi          resAnalysisSpi;
+    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
     private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
     private final RewriteSpi              rewriteSpi;
-
-    static {
-        DslHelper.register(SrDslProvider.INSTANCE);
-    }
 
     public SrSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new SrSplitAnalysisSpi();
         this.secDomainResolveSpi = new SrSecDomainResolveSpi(metaService);
-        this.resAnalysisSpi = new SrResAnalysisSpi(metaService);
+        this.behaviorAnalysisSpi = new SrBehaviorAnalysisSpi();
         this.selectColumnAnalysisSpi = new SrSelectColumnAnalysisSpi(metaService);
         this.rewriteSpi = new SrRewriteSpi();
     }
@@ -59,37 +54,32 @@ public class SrSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public DslProvider dslProvider() {
+    public DslProvider dslProvider(SqlParserParameters parameters) {
         return SrDslProvider.INSTANCE;
     }
 
     @Override
-    public SplitAnalysisSpi splitAnalysisSpi() {
+    public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
         return splitAnalysisSpi;
     }
 
     @Override
-    public SecDomainResolveSpi secDomainResolveSpi() {
+    public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
         return secDomainResolveSpi;
     }
 
     @Override
-    public ResAnalysisSpi resAnalysisSpi() {
-        return resAnalysisSpi;
+    public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
+        return behaviorAnalysisSpi;
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi() {
+    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
         return selectColumnAnalysisSpi;
     }
 
     @Override
-    public SecRulesSupportSpi secRulesSupportSpi() {
-        return null;
-    }
-
-    @Override
-    public RewriteSpi rewriteSpi() {
+    public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
         return rewriteSpi;
     }
 

@@ -16,28 +16,61 @@
 package com.clougence.clouddm.sdk.sql;
 
 import com.clougence.clouddm.sdk.Spi;
-import com.clougence.clouddm.sdk.sql.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.sql.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
-import com.clougence.clouddm.sdk.sql.split.SplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 
 /** SQL parser engine capabilities. */
 public interface SqlEngineSpi extends Spi {
 
-    DslProvider dslProvider();
+    // parser
 
-    SplitAnalysisSpi splitAnalysisSpi();
+    /**
+     * Returns the SQL split and statement type analysis SPI. This method must not return null.
+     *
+     * @param parameters parser parameters, or null/empty to use implementation defaults.
+     */
+    SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters);
 
-    SecDomainResolveSpi secDomainResolveSpi();
+    /**
+     * Returns the ANTLR DSL provider, or null if language services are not supported.
+     *
+     * @param parameters parser parameters, or null/empty to use implementation defaults.
+     */
+    DslProvider dslProvider(SqlParserParameters parameters);
 
-    ResAnalysisSpi resAnalysisSpi();
+    // analysis
 
-    SelectColumnAnalysisSpi selectColumnAnalysisSpi();
+    /**
+     * Returns the SQL statement behavior analysis SPI. This method must not return null.
+     *
+     * @param parameters parser parameters, or null/empty to use implementation defaults.
+     */
+    BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters);
 
-    SecRulesSupportSpi secRulesSupportSpi();
+    /**
+     * Returns the SELECT column analysis SPI, or null if column-level analysis is not supported.
+     *
+     * @param parameters parser parameters, or null/empty to use implementation defaults.
+     */
+    SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters);
 
-    RewriteSpi rewriteSpi();
+    /**
+     * Returns the security-domain resolve SPI, or null if security-domain analysis is not supported.
+     *
+     * @param parameters parser parameters, or null/empty to use implementation defaults.
+     */
+    SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters);
+
+    // editor
+
+    /**
+     * Returns the SQL rewrite SPI, or null if query rewrite is not supported.
+     *
+     * @param parameters parser parameters, or null/empty to use implementation defaults.
+     */
+    RewriteSpi rewriteSpi(SqlParserParameters parameters);
 }

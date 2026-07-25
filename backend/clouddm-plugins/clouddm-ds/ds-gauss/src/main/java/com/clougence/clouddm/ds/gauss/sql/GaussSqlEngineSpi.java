@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.tidb.sql;
+package com.clougence.clouddm.ds.gauss.sql;
 
-import com.clougence.clouddm.ds.tidb.sql.analysis.behavior.TiBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.tidb.sql.analysis.column.TiSelectColumnAnalysisSpi;
-import com.clougence.clouddm.ds.tidb.sql.analysis.security.TiSecDomainResolveSpi;
-import com.clougence.clouddm.ds.tidb.sql.editor.rewrite.TiRewriteSpi;
-import com.clougence.clouddm.ds.tidb.sql.parser.TiDBDslProvider;
-import com.clougence.clouddm.ds.tidb.sql.parser.TiSplitAnalysisSpi;
+import com.clougence.clouddm.ds.gauss.sql.analysis.behavior.GaussBehaviorAnalysisSpi;
+import com.clougence.clouddm.ds.gauss.sql.analysis.column.GaussSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.gauss.sql.analysis.security.GaussSecDomainResolveSpi;
+import com.clougence.clouddm.ds.gauss.sql.editor.rewrite.GaussRewriteSpi;
+import com.clougence.clouddm.ds.gauss.sql.parser.GaussDslProvider;
+import com.clougence.clouddm.ds.gauss.sql.parser.GaussSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -32,8 +32,8 @@ import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
-public class TiSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "TiDB SQL";
+public class GaussSqlEngineSpi implements SqlEngineSpi {
+    public static final String            NAME = "Gauss SQL";
 
     private final SplitAnalysisSpi        splitAnalysisSpi;
     private final SecDomainResolveSpi     secDomainResolveSpi;
@@ -41,21 +41,22 @@ public class TiSqlEngineSpi implements SqlEngineSpi {
     private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
     private final RewriteSpi              rewriteSpi;
 
-    public TiSqlEngineSpi(MetaService metaService){
-        this.splitAnalysisSpi = new TiSplitAnalysisSpi();
-        this.secDomainResolveSpi = new TiSecDomainResolveSpi(metaService);
-        this.behaviorAnalysisSpi = new TiBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new TiSelectColumnAnalysisSpi(metaService);
-        this.rewriteSpi = new TiRewriteSpi();
+    public GaussSqlEngineSpi(MetaService metaService){
+        this.splitAnalysisSpi = new GaussSplitAnalysisSpi();
+        this.secDomainResolveSpi = new GaussSecDomainResolveSpi(metaService);
+        this.behaviorAnalysisSpi = new GaussBehaviorAnalysisSpi();
+        this.selectColumnAnalysisSpi = new GaussSelectColumnAnalysisSpi(metaService);
+        this.rewriteSpi = new GaussRewriteSpi();
     }
 
+    @Override
     public String name() {
         return NAME;
     }
 
     @Override
     public DslProvider dslProvider(SqlParserParameters parameters) {
-        return TiDBDslProvider.INSTANCE;
+        return GaussDslProvider.INSTANCE;
     }
 
     @Override
@@ -82,5 +83,4 @@ public class TiSqlEngineSpi implements SqlEngineSpi {
     public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
         return rewriteSpi;
     }
-
 }
