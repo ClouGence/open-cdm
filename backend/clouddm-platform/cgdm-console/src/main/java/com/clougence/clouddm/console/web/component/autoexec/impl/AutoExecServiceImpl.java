@@ -307,17 +307,15 @@ public class AutoExecServiceImpl implements AutoExecService {
         this.executionDal.autoJobMapper().insert(job);
 
         int order = 1;
-        for (int i = 0; i < scripts.size(); i++) {
-            SplitScript splitScript = scripts.get(i);
-            if (splitScript.getType() == SecQueryType.SWITCH_CATALOG || splitScript.getType() == SecQueryType.SWITCH_SCHEMA) {
-                throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NONSUPPORT_SWITCH_CTX_ERROR.name()));
-            } else if (splitScript.getType() == SecQueryType.TRANSACTION) {
+        for (SplitScript script : scripts) {
+            SplitQueryType primaryType = script.getPrimaryType();
+            if (primaryType == SplitQueryType.TRANSACTION) {
                 throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
             }
 
             DmExecAutoTaskDO execTask = new DmExecAutoTaskDO();
-            execTask.setExecSql(splitScript.getScript());
-            execTask.setSqlType(splitScript.getType());
+            execTask.setExecSql(script.getScript());
+            execTask.setSqlType(primaryType);
             execTask.setExecOrder(order++);
             execTask.setStatus(AutoExecTaskStatus.WAIT_EXEC);
 
