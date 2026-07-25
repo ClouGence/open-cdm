@@ -30,7 +30,6 @@ import com.clougence.schema.umi.service.RdbUmiServiceDm;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
-import com.clougence.sql.doris.parser.DrParserUtil;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;

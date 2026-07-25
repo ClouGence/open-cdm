@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.ds.starrocks.definition.ui.editor.table.SrEditorProvider;
-import com.clougence.clouddm.ds.starrocks.definition.ui.editor.table.SrParserUtil;
 import com.clougence.clouddm.dsfamily.mysql.execute.MyMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
