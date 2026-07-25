@@ -1,0 +1,634 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ */
+package com.clougence.sql.mysql.analysis.behavior;
+
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.mysql.analysis.reference.MySqlObjectReferenceVisitor;
+import com.clougence.sql.mysql.parser.MySqlVersion;
+import com.clougence.sql.mysql.parser.antlr.MySqlParser;
+import com.clougence.sql.mysql.parser.antlr.MySqlParser.*;
+import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
+
+/**
+ * Adds behavior-only object facts that must not alter legacy resource analysis.
+ */
+final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor {
+
+    private final Parser                parser;
+    private final int                   exactVersion;
+    private final MySqlResourceRegistry resources;
+    private final Set<String>           cteNames     = new HashSet<>();
+
+    MyBehaviorObjectReferenceVisitor(Parser parser, Map<UmiTypes, Object> levelsParam, int baseLine, int baseColumn, MySqlVersion version, int exactVersion,
+                                     MySqlResourceRegistry resources){
+        super(parser, levelsParam, baseLine, baseColumn, version, exactVersion, resources);
+        this.parser = parser;
+        this.exactVersion = exactVersion;
+        this.resources = resources;
+    }
+
+    void prepareStatement(ParserRuleContext statement) {
+        collectCteNames(statement);
+    }
+
+    void scanOptimizerHints(ParserRuleContext statement) {
+        int start = statement.getStart().getTokenIndex();
+        int stop = statement.getStop().getTokenIndex();
+        for (int i = start; i <= stop; i++) {
+            Token token = parser.getTokenStream().get(i);
+            if (token.getType() != MySqlParser.COMMENT_INPUT || !token.getText().startsWith("/*+")) {
+                continue;
+            }
+            scanSetVarHint(token);
+        }
+    }
+
+    private void scanSetVarHint(Token token) {
+        String text = token.getText();
+        int searchFrom = 0;
+        while (true) {
+            int setVar = MyBehaviorText.findWord(text, searchFrom, "SET_VAR");
+            if (setVar < 0) {
+                return;
+            }
+            int open = MyBehaviorText.skipWhitespace(text, setVar + "SET_VAR".length());
+            if (open >= text.length() || text.charAt(open) != '(') {
+                searchFrom = setVar + "SET_VAR".length();
+                continue;
+            }
+            int variableStart = MyBehaviorText.skipWhitespace(text, open + 1);
+            int scopeEnd = scopeEnd(text, variableStart);
+            if (scopeEnd >= 0) {
+                int afterScope = MyBehaviorText.skipWhitespace(text, scopeEnd);
+                if (afterScope > scopeEnd) {
+                    variableStart = afterScope;
+                }
+            }
+            int variableEnd = variableEnd(text, variableStart);
+            int equals = MyBehaviorText.skipWhitespace(text, variableEnd);
+            if (variableEnd > variableStart && equals < text.length() && text.charAt(equals) == '=') {
+                String variable = text.substring(variableStart, variableEnd);
+                addConfigKey(SecQueryType.SYSTEM_SETTING_WRITE, subToken(token, variableStart, variable), variable);
+                searchFrom = variableEnd;
+            } else {
+                searchFrom = setVar + "SET_VAR".length();
+            }
+        }
+    }
+
+    private static int variableEnd(String text, int start) {
+        int index = start;
+        if (index + 1 < text.length() && text.charAt(index) == '@' && text.charAt(index + 1) == '@') {
+            index += 2;
+            int scopeEnd = scopeEnd(text, index);
+            if (scopeEnd >= 0 && scopeEnd < text.length() && text.charAt(scopeEnd) == '.') {
+                index = scopeEnd + 1;
+            }
+        }
+        if (index < text.length() && text.charAt(index) == '`') {
+            int closing = text.indexOf('`', index + 1);
+            return closing < 0 ? start : closing + 1;
+        }
+        if (index >= text.length() || !MyBehaviorText.isIdentifierStart(text.charAt(index))) {
+            return start;
+        }
+        index++;
+        while (index < text.length() && MyBehaviorText.isIdentifierPart(text.charAt(index))) {
+            index++;
+        }
+        return index;
+    }
+
+    private static int scopeEnd(String text, int start) {
+        String[] scopes = { "GLOBAL", "SESSION", "LOCAL" };
+        for (String scope : scopes) {
+            if (MyBehaviorText.startsWithWord(text, start, scope)) {
+                return start + scope.length();
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public Void visitGenericFunctionCall(GenericFunctionCallContext ctx) {
+        if (ctx.genericFunction().name instanceof CustomGenericFunctionNameContext custom) {
+            FullIdContext fullId = custom.function.fullId();
+            if (fullId.DOT() == null) {
+                addFunction(fullId.getStart());
+            } else {
+                add(SecQueryType.CALL_PROG_OBJ, TargetType.Function, true, fullId);
+            }
+        } else {
+            Token token = ctx.genericFunction().name.getStart();
+            addFunction(token);
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
+        addFunction(ctx.aggregateFunction().getStart());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSpatialAggregateFunctionCall(SpatialAggregateFunctionCallContext ctx) {
+        addFunction(ctx.customFunctionName().getStart());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitNonKeywordFunctionCall(NonKeywordFunctionCallContext ctx) {
+        addFunction(ctx.getStart());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSpecificFunctionCall(SpecificFunctionCallContext ctx) {
+        SpecificFunctionContext function = ctx.specificFunction();
+        if (!(function instanceof CaseFunctionCallContext) && !(function instanceof SpecialTimeCallContext)) {
+            addFunction(ctx.getStart());
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitKeywordFunctionCall(KeywordFunctionCallContext ctx) {
+        addFunction(ctx.getStart());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitPasswordFunctionCall(PasswordFunctionCallContext ctx) {
+        addFunction(ctx.getStart());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitNonAggregateFunctionCall(NonAggregateFunctionCallContext ctx) {
+        addFunction(ctx.getStart());
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitJsonDualityObjectFunctionCall(JsonDualityObjectFunctionCallContext ctx) {
+        addFunction(ctx.getStart());
+        return visitChildren(ctx);
+    }
+
+    private void addFunction(Token token) {
+        if (token == null) {
+            return;
+        }
+        BehaviorAction behavior = resources.functionBehavior(token.getText(), exactVersion);
+        SecQueryType type = switch (behavior) {
+            case CALL -> SecQueryType.CALL_PROG_OBJ;
+            case READ -> SecQueryType.SELECT;
+            case LOCK -> SecQueryType.QUERY_LOCK;
+            case CONFIGURE -> SecQueryType.SYSTEM_SETTING_WRITE;
+            case ADMIN -> SecQueryType.ADMIN;
+            default -> throw new IllegalStateException("unsupported functional function action " + behavior);
+        };
+        add(type, TargetType.Function, true, token);
+    }
+
+    @Override
+    public Void visitLockTableElement(LockTableElementContext ctx) {
+        add(SecQueryType.SESSION_LOCK, TargetType.Table, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitUseStatement(UseStatementContext ctx) {
+        add(SecQueryType.SWITCH_SCHEMA, TargetType.Schema, true, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUpgradeName(AlterUpgradeNameContext ctx) {
+        add(SecQueryType.ALTER_SCHEMA, TargetType.Schema, true, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitTableStatement(TableStatementContext ctx) {
+        if (isCte(ctx.tableName())) {
+            return null;
+        }
+        add(SecQueryType.SELECT, TargetType.Table, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitAtomTableItem(AtomTableItemContext ctx) {
+        if (isCte(ctx.tableName())) {
+            return null;
+        }
+        if (isUnnamedTable(ctx.tableName())) {
+            addUnnamedAtCurrentSchema(SecQueryType.SELECT, TargetType.Table, true, ctx.tableName());
+            return null;
+        }
+        return super.visitAtomTableItem(ctx);
+    }
+
+    @Override
+    public Void visitInsertStatement(InsertStatementContext ctx) {
+        if (!isUnnamedTable(ctx.tableName())) {
+            return super.visitInsertStatement(ctx);
+        }
+        SecQueryType type = ctx.duplicatedFirst == null ? SecQueryType.INSERT : SecQueryType.MERGE;
+        addUnnamedAtCurrentSchema(type, TargetType.Table, true, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitReplaceStatement(ReplaceStatementContext ctx) {
+        if (!isUnnamedTable(ctx.tableName())) {
+            return super.visitReplaceStatement(ctx);
+        }
+        addUnnamedAtCurrentSchema(SecQueryType.MERGE, TargetType.Table, true, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitReferenceDefinition(ReferenceDefinitionContext ctx) {
+        add(SecQueryType.SELECT, TargetType.Table, ctx.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitPrimaryKeyTableConstraint(PrimaryKeyTableConstraintContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        if (ctx.index != null) {
+            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitUniqueKeyTableConstraint(UniqueKeyTableConstraintContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        if (ctx.index != null) {
+            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitForeignKeyTableConstraint(ForeignKeyTableConstraintContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        if (ctx.index != null) {
+            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCheckTableConstraint(CheckTableConstraintContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitReferenceColumnConstraint(ReferenceColumnConstraintContext ctx) {
+        addUnnamedAtCurrentSchema(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitPrimaryKeyColumnConstraint(PrimaryKeyColumnConstraintContext ctx) {
+        addUnnamedAtCurrentSchema(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitUniqueKeyColumnConstraint(UniqueKeyColumnConstraintContext ctx) {
+        addUnnamedAtCurrentSchema(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCheckColumnConstraint(CheckColumnConstraintContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSimpleIndexDeclaration(SimpleIndexDeclarationContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.uid(), ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitSpecialIndexDeclaration(SpecialIndexDeclarationContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.uid(), ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddIndex(AlterByAddIndexContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName(), ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddPrimaryKey(AlterByAddPrimaryKeyContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        if (ctx.index != null) {
+            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.index);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddUniqueKey(AlterByAddUniqueKeyContext ctx) {
+        if (ctx.CONSTRAINT() != null) {
+            addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        }
+        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName(), ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddSpecialIndex(AlterByAddSpecialIndexContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName(), ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddForeignKey(AlterByAddForeignKeyContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        if (ctx.indexName() != null) {
+            add(SecQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAddCheckTableConstraint(AlterByAddCheckTableConstraintContext ctx) {
+        addNamedOrUnnamed(SecQueryType.ADD_CONSTRAINT, TargetType.Constraint, false, ctx.name, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAlterConstraintEnforcement(AlterByAlterConstraintEnforcementContext ctx) {
+        add(SecQueryType.ALTER_CONSTRAINT, TargetType.Constraint, true, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropConstraintCheck(AlterByDropConstraintCheckContext ctx) {
+        add(SecQueryType.DROP_CONSTRAINT, TargetType.Constraint, true, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropPrimaryKey(AlterByDropPrimaryKeyContext ctx) {
+        addUnnamedAtCurrentSchema(SecQueryType.DROP_CONSTRAINT, TargetType.Constraint, true, ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropForeignKey(AlterByDropForeignKeyContext ctx) {
+        add(SecQueryType.DROP_CONSTRAINT, TargetType.Constraint, true, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByDropIndex(AlterByDropIndexContext ctx) {
+        add(SecQueryType.DROP_INDEX, TargetType.Index, true, ctx.indexName());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByRenameIndex(AlterByRenameIndexContext ctx) {
+        add(SecQueryType.RENAME_INDEX, TargetType.Index, true, ctx.uid(0));
+        add(SecQueryType.RENAME_INDEX, TargetType.Index, false, ctx.uid(1));
+        return null;
+    }
+
+    @Override
+    public Void visitAlterByAlterIndexVisibility(AlterByAlterIndexVisibilityContext ctx) {
+        add(SecQueryType.ALTER_INDEX, TargetType.Index, true, ctx.uid());
+        return null;
+    }
+
+    @Override
+    public Void visitHandlerOpenStatement(HandlerOpenStatementContext ctx) {
+        add(SecQueryType.SELECT, TargetType.Table, ctx.tableName());
+        return super.visitHandlerOpenStatement(ctx);
+    }
+
+    @Override
+    public Void visitRenameUser(RenameUserContext ctx) {
+        ctx.renameUserClause()
+            .stream()
+            .map(clause -> clause.fromFirst)
+            .filter(source -> source.CURRENT_USER() != null)
+            .forEach(source -> addUnnamedFallback(SecQueryType.RENAME_USER, TargetType.User, source));
+        return super.visitRenameUser(ctx);
+    }
+
+    @Override
+    public Void visitSetDefaultRole(SetDefaultRoleContext ctx) {
+        ctx.userName().forEach(user -> addAccount(SecQueryType.ALTER_USER, TargetType.User, true, user));
+        addDescendantAccounts(SecQueryType.ALTER_USER, TargetType.Role, true, ctx.roleOption());
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserDefaultRole(AlterUserDefaultRoleContext ctx) {
+        addAccount(SecQueryType.ALTER_USER, TargetType.User, true, ctx.userName());
+        ctx.alterUserDefaultRoleClause().roleName().forEach(role -> addAccount(SecQueryType.ALTER_USER, TargetType.Role, true, role));
+        return null;
+    }
+
+    @Override
+    public Void visitGrantStatement(GrantStatementContext ctx) {
+        if (!ctx.privelegeClause().isEmpty()) {
+            addPrivilegeTarget(SecQueryType.GRANT, ctx.privilegeObject, ctx.privilegeLevel());
+            ctx.grantUser().forEach(user -> {
+                if (user.accountTarget() != null && user.accountTarget().CURRENT_USER() != null) {
+                    addUnnamed(SecQueryType.GRANT, TargetType.UserOrRole, true, user.accountTarget().CURRENT_USER().getSymbol());
+                } else if (user.currentUserGrantAuthOption() != null) {
+                    addUnnamed(SecQueryType.GRANT, TargetType.UserOrRole, true, user.currentUserGrantAuthOption().CURRENT_USER().getSymbol());
+                } else {
+                    addDescendantAccounts(SecQueryType.GRANT, TargetType.UserOrRole, true, user);
+                }
+            });
+        } else {
+            ctx.roleName().forEach(role -> addAccount(SecQueryType.GRANT, TargetType.Role, true, role));
+            ctx.accountTarget().forEach(target -> addAccountTarget(SecQueryType.GRANT, target));
+            ctx.uid().forEach(target -> addAccount(SecQueryType.GRANT, TargetType.UserOrRole, true, target));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitRevokeStatement(RevokeStatementContext ctx) {
+        if (!ctx.privelegeClause().isEmpty()) {
+            addPrivilegeTarget(SecQueryType.REVOKE, ctx.privilegeObject, ctx.privilegeLevel());
+            ctx.accountTarget().forEach(target -> addAccountTarget(SecQueryType.REVOKE, target));
+        } else if (!ctx.roleName().isEmpty()) {
+            ctx.roleName().forEach(role -> addAccount(SecQueryType.REVOKE, TargetType.Role, true, role));
+            ctx.accountTarget().forEach(target -> addAccountTarget(SecQueryType.REVOKE, target));
+            ctx.uid().forEach(target -> addAccount(SecQueryType.REVOKE, TargetType.UserOrRole, true, target));
+        } else {
+            ctx.accountTarget().forEach(target -> addAccountTarget(SecQueryType.REVOKE, target));
+        }
+        return null;
+    }
+
+    private void addAccountTarget(SecQueryType type, AccountTargetContext target) {
+        if (target.CURRENT_USER() != null) {
+            addUnnamed(type, TargetType.UserOrRole, true, target.CURRENT_USER().getSymbol());
+        } else {
+            addDescendantAccounts(type, TargetType.UserOrRole, true, target);
+        }
+    }
+
+    @Override
+    public Void visitSignalAllowedExpression(SignalAllowedExpressionContext ctx) {
+        if (ctx.mysqlVariable() != null) {
+            addConfigKey(ctx.mysqlVariable());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitMysqlVariable(MysqlVariableContext ctx) {
+        addConfigKey(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitPrepareStatement(PrepareStatementContext ctx) {
+        if (ctx.variable != null) {
+            addSessionVariable(ctx.variable);
+        }
+        return super.visitPrepareStatement(ctx);
+    }
+
+    @Override
+    public Void visitUserVariables(UserVariablesContext ctx) {
+        ctx.LOCAL_ID().forEach(variable -> addSessionVariable(variable.getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitStableInteger(StableIntegerContext ctx) {
+        if (ctx.LOCAL_ID() != null) {
+            addSessionVariable(ctx.LOCAL_ID().getSymbol());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitTableSampleClause(TableSampleClauseContext ctx) {
+        if (ctx.LOCAL_ID() != null) {
+            addSessionVariable(ctx.LOCAL_ID().getSymbol());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSelectExpressionElement(SelectExpressionElementContext ctx) {
+        if (ctx.LOCAL_ID() != null) {
+            addSessionVariable(ctx.LOCAL_ID().getSymbol());
+        }
+        return super.visitSelectExpressionElement(ctx);
+    }
+
+    @Override
+    public Void visitVariableAssignmentExpression(VariableAssignmentExpressionContext ctx) {
+        addSessionVariable(ctx.LOCAL_ID().getSymbol());
+        return null;
+    }
+
+    @Override
+    public Void visitNestedVariableAssignmentExpression(NestedVariableAssignmentExpressionContext ctx) {
+        addSessionVariable(ctx.LOCAL_ID().getSymbol());
+        return null;
+    }
+
+    @Override
+    public Void visitFullDescribeStatement(FullDescribeStatementContext ctx) {
+        if (ctx.LOCAL_ID() != null) {
+            addSessionVariable(ctx.LOCAL_ID().getSymbol());
+        }
+        return null;
+    }
+
+    private void addNamedOrUnnamed(SecQueryType type, TargetType targetType, boolean require, ParserRuleContext name, ParserRuleContext owner) {
+        if (name == null) {
+            addUnnamedAtCurrentSchema(type, targetType, require, owner);
+        } else {
+            add(type, targetType, require, name);
+        }
+    }
+
+    private static Token subToken(Token source, int offset, String text) {
+        String prefix = source.getText().substring(0, offset);
+        int lineBreak = prefix.lastIndexOf('\n');
+        int line = source.getLine();
+        int column = source.getCharPositionInLine() + offset;
+        for (int i = 0; i < prefix.length(); i++) {
+            if (prefix.charAt(i) == '\n') {
+                line++;
+            }
+        }
+        if (lineBreak >= 0) {
+            column = prefix.length() - lineBreak - 1;
+        }
+        CommonToken token = new CommonToken(0, text);
+        token.setLine(line);
+        token.setCharPositionInLine(column);
+        return token;
+    }
+
+    private void collectCteNames(ParseTree tree) {
+        if (tree instanceof WithSelectExprContext cte) {
+            cteNames.add(normalizeIdentifier(cte.uid().getText()));
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collectCteNames(tree.getChild(i));
+        }
+    }
+
+    private boolean isCte(TableNameContext table) {
+        if (table == null || table.delphiName != null || table.fullId() == null || table.fullId().DOT() != null || table.fullId().uid().size() != 1) {
+            return false;
+        }
+        return cteNames.contains(normalizeIdentifier(table.getText()));
+    }
+
+    private static boolean isUnnamedTable(TableNameContext table) {
+        return table != null && table.getText().replace("`", "").isBlank();
+    }
+
+    private static String normalizeIdentifier(String identifier) {
+        String value = identifier;
+        if (value.length() >= 2 && value.startsWith("`") && value.endsWith("`")) {
+            value = value.substring(1, value.length() - 1).replace("``", "`");
+        }
+        return value.toLowerCase(Locale.ROOT);
+    }
+}
