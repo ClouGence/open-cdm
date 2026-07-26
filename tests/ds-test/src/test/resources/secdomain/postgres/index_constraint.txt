@@ -34,7 +34,7 @@ alter table abc add constraint pk_name primary key (id);
 expect:
 {
   "contains": [
-    {"class":"RdbConstraintDomain", "sqlType":"ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"pk_name"}
+    {"class":"RdbConstraintDomain", "sqlType":"ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"pk_name"}
   ]
 }
 ----------
@@ -44,7 +44,7 @@ alter table abc add constraint uk_name unique (name);
 expect:
 {
   "contains": [
-    {"class":"RdbConstraintDomain", "sqlType":"ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"uk_name"}
+    {"class":"RdbConstraintDomain", "sqlType":"ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"uk_name"}
   ]
 }
 ----------
@@ -54,6 +54,6 @@ alter table abc drop constraint pk_name;
 expect:
 {
   "contains": [
-    {"class":"RdbConstraintDomain", "sqlType":"ALTER_TABLE_DROP_CONSTRAINT", "auditKind":"DROP", "tableName":"abc", "name":"pk_name"}
+    {"class":"RdbConstraintDomain", "sqlType":"DROP_CONSTRAINT", "auditKind":"DROP", "tableName":"abc", "name":"pk_name"}
   ]
 }

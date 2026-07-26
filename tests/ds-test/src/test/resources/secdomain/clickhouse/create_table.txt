@@ -5,6 +5,6 @@ expect:
 {
   "contains": [
     {"class":"ChTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc"},
-    {"class":"ChColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"ChColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }

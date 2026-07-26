@@ -117,6 +117,6 @@ truncate table app.employee immediate
 expect:
 {
   "contains": [
-    {"class":"Db2TableDomain", "sqlType":"TRUNCATE", "auditKind":"DML", "schema":"app", "table":"employee"}
+    {"class":"Db2TableDomain", "sqlType":"TRUNCATE_TABLE", "auditKind":"DML", "schema":"app", "table":"employee"}
   ]
 }

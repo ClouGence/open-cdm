@@ -4,7 +4,7 @@
         hint "是否允许字符集和排序规则出现在列上"
 
 if
-  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+  @domain.sqlType in ['CREATE_TABLE', 'ADD_COLUMN', 'ALTER_COLUMN']
 then
 
   if @func.string.isNotBlank(@domain.characterSet) then

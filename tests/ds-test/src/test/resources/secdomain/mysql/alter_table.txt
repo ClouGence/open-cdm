@@ -4,7 +4,7 @@ alter table `test`.`user_table` add column `address` varchar(255);
 expect:
 {
   "contains": [
-    {"class":"MyColumnDomain", "sqlType":"ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeDesc":"varchar(255)"}
+    {"class":"MyColumnDomain", "sqlType":"ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeDesc":"varchar(255)"}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ alter table user_table drop address;
 expect:
 {
   "contains": [
-    {"class":"MyColumnDomain", "sqlType":"ALTER_TABLE_DROP_COLUMN", "auditKind":"DROP", "table":"user_table", "column":"address"}
+    {"class":"MyColumnDomain", "sqlType":"DROP_COLUMN", "auditKind":"DROP", "table":"user_table", "column":"address"}
   ]
 }
 ----------
@@ -24,8 +24,8 @@ alter table test change a1 a123456 char(10);
 expect:
 {
   "contains": [
-    {"class":"MyColumnDomain", "sqlType":"ALTER_TABLE_ALTER_COLUMN", "auditKind":"ALTER", "table":"test", "column":"a1", "typeDesc":"char(10)"},
-    {"class":"MyColumnDomain", "sqlType":"ALTER_TABLE_RENAME_COLUMN", "auditKind":"ALTER", "table":"test", "column":"a1", "newName":"a123456"}
+    {"class":"MyColumnDomain", "sqlType":"ALTER_COLUMN", "auditKind":"ALTER", "table":"test", "column":"a1", "typeDesc":"char(10)"},
+    {"class":"MyColumnDomain", "sqlType":"RENAME_COLUMN", "auditKind":"ALTER", "table":"test", "column":"a1", "newName":"a123456"}
   ]
 }
 ----------
@@ -35,7 +35,7 @@ alter table user_table add primary key (id);
 expect:
 {
   "contains": [
-    {"class":"RdbConstraintDomain", "sqlType":"ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"user_table", "type":"Primary", "columns":["id"]}
+    {"class":"RdbConstraintDomain", "sqlType":"ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"user_table", "type":"Primary", "columns":["id"]}
   ]
 }
 ----------
@@ -45,7 +45,7 @@ ALTER TABLE test ADD KEY www (c1(33), c2(33)) comment 'sss';
 expect:
 {
   "contains": [
-    {"class":"MyIndexDomain", "sqlType":"ALTER_TABLE_ADD_INDEX", "auditKind":"CREATE", "name":"www", "type":"index", "columns":["c1", "c2"], "comment":"sss"}
+    {"class":"MyIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "name":"www", "type":"index", "columns":["c1", "c2"], "comment":"sss"}
   ]
 }
 ----------
@@ -55,6 +55,6 @@ alter table user_table rename to user_table_new;
 expect:
 {
   "contains": [
-    {"class":"MyTableDomain", "sqlType":"ALTER_TABLE_RENAME", "auditKind":"ALTER", "table":"user_table", "newName":"user_table_new"}
+    {"class":"MyTableDomain", "sqlType":"RENAME_TABLE", "auditKind":"ALTER", "table":"user_table", "newName":"user_table_new"}
   ]
 }

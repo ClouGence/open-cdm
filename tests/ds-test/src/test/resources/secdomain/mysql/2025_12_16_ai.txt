@@ -89,7 +89,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "last_name",
@@ -107,7 +107,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "email",
@@ -156,7 +156,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "updated_at",
@@ -174,7 +174,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "password_hash",
@@ -192,7 +192,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "id",
@@ -209,7 +209,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "full_name",
@@ -227,7 +227,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "username",
@@ -245,7 +245,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "status",
@@ -263,7 +263,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "first_name",
@@ -281,7 +281,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "users",
       "type": "Unique",
@@ -292,7 +292,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "created_at",
@@ -310,7 +310,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "users",
       "type": "Unique",
@@ -320,7 +320,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "users",
       "type": "Primary",
@@ -330,7 +330,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "users",
       "column": "preferences",
@@ -396,7 +396,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "ForeignKey",
@@ -407,7 +407,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "body",
@@ -424,7 +424,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "title",
@@ -442,7 +442,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "tags",
@@ -460,7 +460,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "views",
@@ -478,7 +478,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "FULLTEXT",
@@ -489,7 +489,7 @@ expect:
       "sqlTarget": "Index"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "published",
@@ -507,7 +507,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "published_at",
@@ -524,7 +524,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "id",
@@ -541,7 +541,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "user_id",
@@ -558,7 +558,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "geom",
@@ -575,7 +575,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "Primary",
@@ -585,7 +585,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "index",
@@ -661,7 +661,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "tags",
       "type": "Unique",
@@ -671,7 +671,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "tags",
       "column": "name",
@@ -689,7 +689,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "tags",
       "type": "Primary",
@@ -720,7 +720,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "tags",
       "column": "id",
@@ -798,7 +798,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "post_tags",
       "type": "ForeignKey",
@@ -809,7 +809,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "post_tags",
       "column": "post_id",
@@ -826,7 +826,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "post_tags",
       "type": "ForeignKey",
@@ -837,7 +837,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "post_tags",
       "column": "tag_id",
@@ -854,7 +854,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "post_tags",
       "type": "Primary",
@@ -907,7 +907,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "products",
       "column": "color",
@@ -925,7 +925,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "Unique",
@@ -935,7 +935,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "products",
       "column": "price",
@@ -954,7 +954,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "index",
@@ -964,7 +964,7 @@ expect:
       "sqlTarget": "Index"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "products",
       "column": "sku",
@@ -982,7 +982,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "products",
       "column": "id",
@@ -999,7 +999,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "products",
       "column": "attributes",
@@ -1040,7 +1040,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "Primary",
@@ -1096,7 +1096,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "logs",
       "column": "msgContent",
@@ -1113,7 +1113,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "logs",
       "column": "created_date",
@@ -1130,7 +1130,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "logs",
       "column": "id",
@@ -1169,7 +1169,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "logs",
       "column": "level",
@@ -1186,7 +1186,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "logs",
       "type": "Primary",
@@ -2377,7 +2377,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "users",
       "column": "email",
@@ -2402,7 +2402,7 @@ expect:
       "sqlTarget": "Index"
     },
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "last_login",
@@ -2469,7 +2469,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_SELECT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "posts_backup",
@@ -2562,7 +2562,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "EXPLAIN",
+      "sqlType": "PERFORMANCE",
       "auditKind": "QUERY",
       "target": "Unknown",
       "needSupply": true,
@@ -2579,7 +2579,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ANALYZE",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
@@ -2597,7 +2597,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "OPTIMIZE",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
@@ -2615,7 +2615,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CHECK_TABLE",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "ALTER",
       "name": "posts",
       "target": "Table",
@@ -3779,7 +3779,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "id",
@@ -3796,7 +3796,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "email",
@@ -3814,7 +3814,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "password_hash",
@@ -3832,7 +3832,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "ddl_users",
       "type": "Primary",
@@ -3870,7 +3870,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "created_at",
@@ -3888,7 +3888,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "username",
@@ -3906,7 +3906,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "updated_at",
@@ -3924,7 +3924,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "ddl_users",
       "type": "Unique",
@@ -3935,7 +3935,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "status",
@@ -3953,7 +3953,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "ddl_users",
       "type": "Check",
@@ -3999,7 +3999,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_LIKE",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "ddl_users_like",
@@ -4030,7 +4030,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "tmp_results",
       "type": "Primary",
@@ -4040,7 +4040,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "tmp_results",
       "column": "id",
@@ -4057,7 +4057,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "tmp_results",
       "column": "val",
@@ -4141,7 +4141,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "ddl_orders",
       "type": "Primary",
@@ -4152,7 +4152,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_orders",
       "column": "user_id",
@@ -4191,7 +4191,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_orders",
       "column": "order_id",
@@ -4208,7 +4208,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_orders",
       "column": "amount",
@@ -4226,7 +4226,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_orders",
       "column": "order_date",
@@ -4282,7 +4282,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_sharded",
       "column": "id",
@@ -4299,7 +4299,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_sharded",
       "column": "data",
@@ -4317,7 +4317,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "ddl_sharded",
       "type": "Primary",
@@ -4450,7 +4450,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "bio",
@@ -4467,7 +4467,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "ddl_users",
       "column": "email",
@@ -4500,7 +4500,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "ALTER_TABLE_ADD_CONSTRAINT",
+      "sqlType": "ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "ddl_users",
       "type": "Unique",
@@ -4511,7 +4511,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "ALTER_TABLE_RENAME_COLUMN",
+      "sqlType": "RENAME_COLUMN",
       "auditKind": "ALTER",
       "table": "ddl_users",
       "column": "password_hash",
@@ -4527,7 +4527,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "nickname",
@@ -4545,7 +4545,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "ddl_users",
       "column": "password_hash",
@@ -4624,7 +4624,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_CONSTRAINT",
+      "sqlType": "ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "ForeignKey",
@@ -4647,7 +4647,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_DROP_CONSTRAINT",
+      "sqlType": "DROP_CONSTRAINT",
       "auditKind": "DROP",
       "tableName": "posts",
       "type": "ForeignKey",
@@ -4666,7 +4666,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_DROP_COLUMN",
+      "sqlType": "DROP_COLUMN",
       "auditKind": "DROP",
       "table": "ddl_users",
       "column": "bio",
@@ -4735,7 +4735,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "index",
@@ -4757,7 +4757,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "OPTIMIZE",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
@@ -4775,7 +4775,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ANALYZE",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
@@ -4871,7 +4871,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "TRUNCATE",
+      "sqlType": "TRUNCATE_TABLE",
       "auditKind": "DML",
       "table": "tmp_results",
       "hasPrimary": false,
@@ -4969,7 +4969,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_SELECT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "posts_backup",
@@ -5054,7 +5054,7 @@ expect:
       "sqlTarget": "Query"
     },
     {
-      "sqlType": "CREATE_TABLE_SELECT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "posts_copy",
@@ -5083,7 +5083,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "products",
       "column": "sku",
@@ -5138,7 +5138,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_CONSTRAINT",
+      "sqlType": "ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "Check",
@@ -5187,7 +5187,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_generated",
       "column": "data_len",
@@ -5204,7 +5204,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_generated",
       "column": "data",
@@ -5221,7 +5221,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_generated",
       "column": "data_key1",
@@ -5239,7 +5239,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "ddl_generated",
       "column": "id",
@@ -5256,7 +5256,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "ddl_generated",
       "type": "Primary",
@@ -5401,7 +5401,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "temp_flag",

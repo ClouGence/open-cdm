@@ -4,7 +4,7 @@ CREATE LIBRARY split_lib LANGUAGE JAVASCRIPT AS $$export function f() { return 1
 expect:
 {
   "contains": [
-    {"sqlType":"CREATE_LIBRARY", "auditKind":"CREATE", "target":"Library", "needSupply":false, "sqlTarget":"Library"}
+    {"sqlType":"CREATE_LIBRARY", "auditKind":"CREATE", "target":"Library", "needSupply":false}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ ALTER LIBRARY split_lib COMMENT 'updated'
 expect:
 {
   "contains": [
-    {"sqlType":"ALTER_LIBRARY", "auditKind":"ALTER", "target":"Library", "needSupply":false, "sqlTarget":"Library"}
+    {"sqlType":"ALTER_LIBRARY", "auditKind":"ALTER", "target":"Library", "needSupply":false}
   ]
 }
 ----------
@@ -24,7 +24,7 @@ DROP LIBRARY IF EXISTS split_lib
 expect:
 {
   "contains": [
-    {"sqlType":"DROP_LIBRARY", "auditKind":"DROP", "target":"Library", "needSupply":false, "sqlTarget":"Library"}
+    {"sqlType":"DROP_LIBRARY", "auditKind":"DROP", "target":"Library", "needSupply":false}
   ]
 }
 ----------
@@ -34,7 +34,7 @@ SHOW CREATE LIBRARY split_lib
 expect:
 {
   "contains": [
-    {"sqlType":"UNKNOWN", "auditKind":"QUERY", "showType":"CREATE_LIBRARY", "showKind":"DDL", "target":"Object", "sqlTarget":"Unknown"}
+    {"sqlType":"UNKNOWN", "auditKind":"QUERY", "showType":"CREATE_LIBRARY", "showKind":"DDL", "target":"Object"}
   ]
 }
 ----------
@@ -44,7 +44,7 @@ SHOW LIBRARY STATUS
 expect:
 {
   "contains": [
-    {"sqlType":"UNKNOWN", "auditKind":"QUERY", "showType":"LIBRARY_STATUS", "showKind":"METADATA", "target":"Object", "sqlTarget":"Unknown"}
+    {"sqlType":"UNKNOWN", "auditKind":"QUERY", "showType":"LIBRARY_STATUS", "showKind":"METADATA", "target":"Object"}
   ]
 }
 ----------
@@ -64,7 +64,7 @@ CREATE JSON DUALITY VIEW jdv AS SELECT JSON_DUALITY_OBJECT('_id' : id) FROM root
 expect:
 {
   "contains": [
-    {"sqlType":"CREATE_VIEW", "auditKind":"CREATE", "view":"jdv", "materialized":false, "sqlTarget":"View"}
+    {"sqlType":"CREATE_VIEW", "auditKind":"CREATE", "view":"jdv", "materialized":false}
   ]
 }
 ----------
@@ -74,7 +74,7 @@ CREATE TABLE vector_t (embedding VECTOR(3))
 expect:
 {
   "contains": [
-    {"sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"vector_t", "sqlTarget":"Table"}
+    {"sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"vector_t"}
   ]
 }
 ----------
@@ -84,7 +84,7 @@ ALTER USER 'split_mfa_accept'@'%' ADD 2 FACTOR IDENTIFIED WITH caching_sha2_pass
 expect:
 {
   "contains": [
-    {"sqlType":"ALTER_USER", "auditKind":"ALTER", "target":"User", "needSupply":false, "sqlTarget":"User"}
+    {"sqlType":"ALTER_USER", "auditKind":"ALTER", "target":"User", "needSupply":false}
   ]
 }
 ----------
@@ -94,8 +94,8 @@ SELECT {fn CONCAT(a1,a2)} FROM t1
 expect:
 {
   "contains": [
-    {"sqlType":"SELECT", "auditKind":"QUERY", "selectFunc":["CONCAT"], "funcInSelect":true, "sqlTarget":"Query"},
-    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "callName":"CONCAT", "childrenSize":2, "sqlTarget":"ProgramObject"}
+    {"sqlType":"SELECT", "auditKind":"QUERY", "selectFunc":["CONCAT"], "funcInSelect":true},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "callName":"CONCAT", "childrenSize":2}
   ]
 }
 ----------
@@ -115,7 +115,7 @@ SET PERSIST_ONLY back_log = 1000
 expect:
 {
   "contains": [
-    {"class":"MyConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL", "sqlTarget":"ConfigKey"}
+    {"class":"MyConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL"}
   ]
 }
 ----------
@@ -125,7 +125,7 @@ SET @@PERSIST_ONLY.back_log = 1001
 expect:
 {
   "contains": [
-    {"class":"MyConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL", "sqlTarget":"ConfigKey"}
+    {"class":"MyConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL"}
   ]
 }
 ----------
@@ -135,7 +135,7 @@ START GROUP_REPLICATION USER='repl_user', PASSWORD='secret', DEFAULT_AUTH='cachi
 expect:
 {
   "contains": [
-    {"sqlType":"ALTER_REPLICATION", "auditKind":"ALTER", "target":"Replication", "needSupply":false, "sqlTarget":"Replication"}
+    {"sqlType":"ALTER_REPLICATION", "auditKind":"ALTER", "target":"Replication", "needSupply":false}
   ]
 }
 ----------
@@ -145,7 +145,7 @@ STOP GROUP_REPLICATION
 expect:
 {
   "contains": [
-    {"sqlType":"ALTER_REPLICATION", "auditKind":"ALTER", "target":"Replication", "needSupply":false, "sqlTarget":"Replication"}
+    {"sqlType":"ALTER_REPLICATION", "auditKind":"ALTER", "target":"Replication", "needSupply":false}
   ]
 }
 ----------

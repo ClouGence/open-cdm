@@ -31,13 +31,24 @@ public class ResourceActionConverterTest {
     private final ResourceActionConverter converter = new ResourceActionConverter();
 
     @Test
+    public void switchStatementWithoutRelationsProducesAction() {
+        StatementBehavior behavior = behavior(SplitQueryType.SWITCH_ROLE);
+
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/", "/instance/");
+
+        assertEquals(1, actions.size());
+        assertAction(actions.get(0), BehaviorAction.SWITCH, "/instance/schema/");
+        assertEquals(SplitQueryType.SWITCH_ROLE, actions.get(0).getStatementType());
+    }
+
+    @Test
     public void convertReturnsEmptyForMissingBehavior() {
-        assertTrue(this.converter.convert(null, "/instance/schema/").isEmpty());
-        assertTrue(this.converter.convert(List.of(), "/instance/schema/").isEmpty());
+        assertTrue(this.converter.convert(null, "/instance/schema/", "/instance/").isEmpty());
+        assertTrue(this.converter.convert(List.of(), "/instance/schema/", "/instance/").isEmpty());
 
         StatementBehavior behavior = new StatementBehavior();
         behavior.setRelations(null);
-        assertTrue(this.converter.convert(List.of(behavior), "/instance/schema/").isEmpty());
+        assertTrue(this.converter.convert(List.of(behavior), "/instance/schema/", "/instance/").isEmpty());
     }
 
     @Test
@@ -45,7 +56,7 @@ public class ResourceActionConverterTest {
         StatementBehavior behavior = behavior(SplitQueryType.RENAME_TABLE, relation(BehaviorAction.RENAME, //
                 object(TargetType.Table, "/instance/schema/source/"), object(TargetType.Table, "/instance/schema/target/")));
 
-        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/", "/instance/");
 
         assertEquals(2, actions.size());
         assertAction(actions.get(0), BehaviorAction.DROP, "/instance/schema/source/");
@@ -57,7 +68,7 @@ public class ResourceActionConverterTest {
         StatementBehavior behavior = behavior(SplitQueryType.CREATE_TABLE, relation(BehaviorAction.CREATE, //
                 object(TargetType.Table, "/instance/schema/target/"), object(TargetType.Table, "/instance/schema/source/")));
 
-        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/", "/instance/");
 
         assertEquals(2, actions.size());
         assertAction(actions.get(0), BehaviorAction.CREATE, "/instance/schema/target/");
@@ -69,7 +80,7 @@ public class ResourceActionConverterTest {
         StatementBehavior behavior = behavior(SplitQueryType.ADD_INDEX, relation(BehaviorAction.CREATE, //
                 object(TargetType.Index, "/instance/schema/table/index/"), object(TargetType.Table, "/instance/schema/table/")));
 
-        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/", "/instance/");
 
         assertEquals(2, actions.size());
         assertAction(actions.get(0), BehaviorAction.CREATE, "/instance/schema/table/index/");
@@ -82,7 +93,7 @@ public class ResourceActionConverterTest {
         StatementBehavior behavior = behavior(SplitQueryType.MERGE, //
                 relation(BehaviorAction.READ, table), relation(BehaviorAction.UPDATE, table));
 
-        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/", "/instance/");
 
         assertEquals(2, actions.size());
         assertAction(actions.get(0), BehaviorAction.READ, "/instance/schema/table/");
@@ -94,7 +105,7 @@ public class ResourceActionConverterTest {
         StatementBehavior behavior = behavior(SplitQueryType.CREATE_USER, relation(BehaviorAction.CREATE, //
                 object(TargetType.User, "/instance/user/")));
 
-        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/", "/instance/");
 
         assertEquals(1, actions.size());
         assertEquals(SecDataAuthKind.ADMIN, actions.get(0).getAuthKind());
@@ -105,7 +116,7 @@ public class ResourceActionConverterTest {
         StatementBehavior behavior = behavior(SplitQueryType.SELECT, relation(BehaviorAction.ADMIN, //
                 object(TargetType.Procedure, "/instance/system/routine/")));
 
-        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/", "/instance/");
 
         assertEquals(1, actions.size());
         assertEquals(SecDataAuthKind.ADMIN, actions.get(0).getAuthKind());
@@ -116,7 +127,7 @@ public class ResourceActionConverterTest {
         BehaviorObject temporaryTables = object(TargetType.Table, "/instance/schema/");
         StatementBehavior behavior = behavior(SplitQueryType.DROP_TABLE, relation(BehaviorAction.DROP, temporaryTables));
 
-        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/");
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/schema/", "/instance/");
 
         assertEquals(1, actions.size());
         assertTrue(actions.get(0).isSkipPermission());
@@ -128,9 +139,37 @@ public class ResourceActionConverterTest {
         StatementBehavior first = behavior(SplitQueryType.SELECT, relation(BehaviorAction.READ, table));
         StatementBehavior second = behavior(SplitQueryType.SELECT, relation(BehaviorAction.READ, table));
 
-        List<ResourceAction> actions = this.converter.convert(List.of(first, second), "/instance/schema/");
+        List<ResourceAction> actions = this.converter.convert(List.of(first, second), "/instance/schema/", "/instance/");
 
         assertEquals(2, actions.size());
+    }
+
+    @Test
+    public void instanceScopedObjectIsBasedOnCurrentLevels() {
+        StatementBehavior behavior = behavior(SplitQueryType.SYSTEM_SETTING_WRITE, relation(BehaviorAction.CONFIGURE, //
+                object(TargetType.ConfigKey, "/instance/max_connections/")));
+
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/catalog/schema/", "/instance/");
+
+        assertEquals(1, actions.size());
+        ResourceAction action = actions.get(0);
+        assertEquals("/instance/max_connections/", action.getSourceResourcePath());
+        assertEquals("/instance/catalog/schema/max_connections/", action.getResourcePath());
+        assertTrue(action.isLevelsBased());
+    }
+
+    @Test
+    public void explicitCrossSchemaObjectKeepsOriginalPath() {
+        StatementBehavior behavior = behavior(SplitQueryType.SELECT, relation(BehaviorAction.READ, //
+                object(TargetType.Table, "/instance/other_catalog/other_schema/table_a/")));
+
+        List<ResourceAction> actions = this.converter.convert(List.of(behavior), "/instance/catalog/schema/", "/instance/");
+
+        assertEquals(1, actions.size());
+        ResourceAction action = actions.get(0);
+        assertEquals("/instance/other_catalog/other_schema/table_a/", action.getSourceResourcePath());
+        assertEquals(action.getSourceResourcePath(), action.getResourcePath());
+        assertTrue(!action.isLevelsBased());
     }
 
     private static StatementBehavior behavior(SplitQueryType statementType, BehaviorRelation... relations) {

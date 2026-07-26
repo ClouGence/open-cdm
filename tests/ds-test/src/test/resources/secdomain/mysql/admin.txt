@@ -394,7 +394,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ANALYZE",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
@@ -412,7 +412,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CHECK_TABLE",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "ALTER",
       "name": "posts",
       "target": "Table",
@@ -430,7 +430,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CHECK_TABLE",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
@@ -448,7 +448,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "OPTIMIZE",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
@@ -466,7 +466,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "REPAIR",
+      "sqlType": "ADMIN_TABLE",
       "auditKind": "OTHER",
       "name": "archive_table",
       "target": "Table",
@@ -514,7 +514,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_UDF_FUNCTION",
+      "sqlType": "SYSTEM_SETTING_WRITE",
       "auditKind": "CREATE",
       "target": "Function",
       "needSupply": false,
@@ -548,7 +548,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "INSTALL_PLUGIN",
+      "sqlType": "CREATE_LIBRARY",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -565,7 +565,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "UNINSTALL_PLUGIN",
+      "sqlType": "DROP_LIBRARY",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -582,7 +582,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "INSTALL_PLUGIN",
+      "sqlType": "CREATE_LIBRARY",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -599,7 +599,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "UNINSTALL_PLUGIN",
+      "sqlType": "DROP_LIBRARY",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -820,7 +820,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "RESET",
+      "sqlType": "SYSTEM_SETTING_WRITE",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -838,7 +838,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "PURGE",
+      "sqlType": "MAINTAIN_LOG",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -855,7 +855,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "PURGE",
+      "sqlType": "MAINTAIN_LOG",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -960,7 +960,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "LOAD_INDEX_INTO_CACHE",
+      "sqlType": "ADMIN_PERFORMANCE",
       "auditKind": "OTHER",
       "target": "Index",
       "needSupply": false,
@@ -999,7 +999,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "KILL",
+      "sqlType": "ADMIN",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -1017,7 +1017,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "KILL",
+      "sqlType": "ADMIN",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -1037,7 +1037,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "RESET",
+      "sqlType": "SYSTEM_SETTING_WRITE",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -1055,7 +1055,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "RESET",
+      "sqlType": "SYSTEM_SETTING_WRITE",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -1073,7 +1073,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "RESET",
+      "sqlType": "SYSTEM_SETTING_WRITE",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -1600,7 +1600,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "INSTALL_PLUGIN",
+      "sqlType": "CREATE_LIBRARY",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
@@ -1617,7 +1617,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "UNINSTALL_PLUGIN",
+      "sqlType": "DROP_LIBRARY",
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,

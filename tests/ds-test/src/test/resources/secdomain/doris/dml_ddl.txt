@@ -5,7 +5,7 @@ expect:
 {
   "contains": [
     {"class":"DrTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"test_db", "table":"abc"},
-    {"class":"DrColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test_db", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"DrColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"test_db", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }
 ----------

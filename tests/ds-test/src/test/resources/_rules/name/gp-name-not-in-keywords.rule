@@ -7,15 +7,15 @@ elseif
 then
   testName = @domain.schema
 elseif
-  @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE']
+  @domain.sqlType in ['CREATE_TABLE']
 then
   testName = @domain.table
 elseif
-  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
+  @domain.sqlType in ['CREATE_TABLE', 'ADD_COLUMN']
 then
   testName = @domain.column
 elseif
-  @domain.sqlType in ['RENAME_TABLE', 'ALTER_TABLE_RENAME', 'RENAME_CATALOG', 'RENAME_SCHEMA', 'ALTER_TABLE_RENAME_COLUMN']
+  @domain.sqlType in ['RENAME_TABLE', 'RENAME_TABLE', 'RENAME_CATALOG', 'RENAME_SCHEMA', 'RENAME_COLUMN']
 then
   testName = @domain.newName
 else

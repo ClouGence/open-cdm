@@ -9,7 +9,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "user_table",
@@ -41,7 +41,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "user_table",
@@ -61,7 +61,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "user_table",
@@ -92,7 +92,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_DROP_COLUMN",
+      "sqlType": "DROP_COLUMN",
       "auditKind": "DROP",
       "table": "user_table",
       "column": "address",
@@ -120,7 +120,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_DROP_COLUMN",
+      "sqlType": "DROP_COLUMN",
       "auditKind": "DROP",
       "table": "user_table",
       "column": "address",
@@ -135,7 +135,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_DROP_COLUMN",
+      "sqlType": "DROP_COLUMN",
       "auditKind": "DROP",
       "table": "user_table",
       "column": "id",
@@ -163,7 +163,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "test",
       "column": "a1",
@@ -181,7 +181,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_RENAME_COLUMN",
+      "sqlType": "RENAME_COLUMN",
       "auditKind": "ALTER",
       "table": "test",
       "column": "a1",
@@ -210,7 +210,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "catalog": "a",
       "schema": "b",
@@ -231,7 +231,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_RENAME_COLUMN",
+      "sqlType": "RENAME_COLUMN",
       "auditKind": "ALTER",
       "catalog": "a",
       "schema": "b",
@@ -262,7 +262,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "test",
       "column": "a1",
@@ -277,7 +277,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_RENAME_COLUMN",
+      "sqlType": "RENAME_COLUMN",
       "auditKind": "ALTER",
       "table": "test",
       "column": "a1",
@@ -306,7 +306,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "test",
       "column": "a1",
@@ -335,7 +335,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "test",
       "column": "a1",
@@ -8625,7 +8625,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "abc",
       "column": "id",
@@ -8674,7 +8674,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "abc",
       "column": "id",
@@ -8724,7 +8724,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "a",
       "schema": "test",
@@ -8774,7 +8774,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "abc",
       "column": "id",
@@ -8828,7 +8828,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -8846,7 +8846,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -8898,7 +8898,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -8916,7 +8916,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -8935,7 +8935,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableSchema": "test",
       "tableName": "abc",
@@ -8980,7 +8980,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -8998,7 +8998,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -9017,7 +9017,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableSchema": "test",
       "tableName": "abc",
@@ -9062,7 +9062,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -9081,7 +9081,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -9100,7 +9100,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableSchema": "test",
       "tableName": "abc",
@@ -9145,7 +9145,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -9164,7 +9164,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -9217,7 +9217,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -9236,7 +9236,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "test",
       "table": "abc",
@@ -9310,7 +9310,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "tinyint_name",
@@ -9328,7 +9328,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "smallint_name",
@@ -9346,7 +9346,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "int_name",
@@ -9364,7 +9364,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "bigint_name",
@@ -9382,7 +9382,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "binary_name",
@@ -9399,7 +9399,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "float_name",
@@ -9416,7 +9416,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "double_name",
@@ -9434,7 +9434,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "decimal_name",
@@ -9453,7 +9453,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "varchar_name",
@@ -9471,7 +9471,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "char_name",
@@ -9489,7 +9489,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "string_name",
@@ -9507,7 +9507,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_default",
       "column": "boolean_name",
@@ -9538,7 +9538,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_LIKE",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "schema": "test",
@@ -9570,7 +9570,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_LIKE",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "abc_copy",
@@ -9600,7 +9600,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_SELECT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "schema": "test",
@@ -9800,7 +9800,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_RENAME",
+      "sqlType": "RENAME_TABLE",
       "auditKind": "ALTER",
       "table": "abc",
       "hasPrimary": false,
@@ -10017,7 +10017,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "TRUNCATE",
+      "sqlType": "TRUNCATE_TABLE",
       "auditKind": "DML",
       "table": "abc",
       "hasPrimary": false,
@@ -10044,7 +10044,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "TRUNCATE",
+      "sqlType": "TRUNCATE_TABLE",
       "auditKind": "DML",
       "table": "abc",
       "hasPrimary": false,
@@ -10620,7 +10620,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -10653,7 +10653,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -10674,7 +10674,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -10706,7 +10706,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_DROP_COLUMN",
+      "sqlType": "DROP_COLUMN",
       "auditKind": "DROP",
       "schema": "default",
       "table": "user_table",
@@ -10735,7 +10735,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_DROP_COLUMN",
+      "sqlType": "DROP_COLUMN",
       "auditKind": "DROP",
       "schema": "default",
       "table": "user_table",
@@ -10751,7 +10751,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_DROP_COLUMN",
+      "sqlType": "DROP_COLUMN",
       "auditKind": "DROP",
       "schema": "default",
       "table": "user_table",
@@ -10780,7 +10780,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "schema": "default",
       "table": "test",
@@ -10799,7 +10799,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_RENAME_COLUMN",
+      "sqlType": "RENAME_COLUMN",
       "auditKind": "ALTER",
       "schema": "default",
       "table": "test",
@@ -10829,7 +10829,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "catalog": "a",
       "schema": "default",
@@ -10850,7 +10850,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_RENAME_COLUMN",
+      "sqlType": "RENAME_COLUMN",
       "auditKind": "ALTER",
       "catalog": "a",
       "schema": "default",
@@ -10881,7 +10881,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "schema": "default",
       "table": "test",
@@ -10897,7 +10897,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "ALTER_TABLE_RENAME_COLUMN",
+      "sqlType": "RENAME_COLUMN",
       "auditKind": "ALTER",
       "schema": "default",
       "table": "test",
@@ -10927,7 +10927,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "schema": "default",
       "table": "test",
@@ -10957,7 +10957,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
+      "sqlType": "ALTER_COLUMN",
       "auditKind": "ALTER",
       "schema": "default",
       "table": "test",
@@ -19259,7 +19259,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "abc",
@@ -19310,7 +19310,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "abc",
@@ -19361,7 +19361,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "a",
       "schema": "default",
@@ -19412,7 +19412,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "abc",
@@ -19468,7 +19468,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19487,7 +19487,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19541,7 +19541,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19560,7 +19560,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19580,7 +19580,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableCatalog": "test",
       "tableSchema": "default",
@@ -19628,7 +19628,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19647,7 +19647,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19667,7 +19667,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableCatalog": "test",
       "tableSchema": "default",
@@ -19715,7 +19715,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19735,7 +19735,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19755,7 +19755,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableCatalog": "test",
       "tableSchema": "default",
@@ -19803,7 +19803,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19823,7 +19823,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19878,7 +19878,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19898,7 +19898,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "catalog": "test",
       "schema": "default",
@@ -19974,7 +19974,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -19993,7 +19993,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20012,7 +20012,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20031,7 +20031,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20050,7 +20050,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20068,7 +20068,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20086,7 +20086,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20105,7 +20105,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20125,7 +20125,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20144,7 +20144,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20163,7 +20163,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20182,7 +20182,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "schema": "default",
       "table": "test_default",
@@ -20214,7 +20214,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_LIKE",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "catalog": "test",
@@ -20247,7 +20247,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_LIKE",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "schema": "default",
@@ -20279,7 +20279,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_TABLE_SELECT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "catalog": "test",
@@ -20485,7 +20485,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_RENAME",
+      "sqlType": "RENAME_TABLE",
       "auditKind": "ALTER",
       "schema": "default",
       "table": "abc",
@@ -20709,7 +20709,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "TRUNCATE",
+      "sqlType": "TRUNCATE_TABLE",
       "auditKind": "DML",
       "table": "abc",
       "hasPrimary": false,
@@ -20736,7 +20736,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "TRUNCATE",
+      "sqlType": "TRUNCATE_TABLE",
       "auditKind": "DML",
       "table": "abc",
       "hasPrimary": false,

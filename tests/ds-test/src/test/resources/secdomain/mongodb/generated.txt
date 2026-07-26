@@ -35,15 +35,15 @@ expect:
       "sqlTarget": "Query"
     },
     {
-      "sqlType": "READ",
-      "auditKind": "READ",
+      "sqlType": "SELECT",
+      "auditKind":"QUERY",
       "func": "findOne",
       "collection": "collection",
       "sqlTarget": "Unknown"
     },
     {
-      "sqlType": "READ",
-      "auditKind": "READ",
+      "sqlType": "SELECT",
+      "auditKind":"QUERY",
       "func": "countDocuments",
       "collection": "collection",
       "sqlTarget": "Unknown"

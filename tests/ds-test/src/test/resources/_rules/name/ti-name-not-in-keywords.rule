@@ -1,17 +1,17 @@
 if
-  @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE']
+  @domain.sqlType in ['CREATE_TABLE']
 then
   testName = @domain.table
 elseif
-  @domain.sqlType in ['RENAME_TABLE', 'ALTER_TABLE_RENAME']
+  @domain.sqlType in ['RENAME_TABLE', 'RENAME_TABLE']
 then
   testName = @domain.newName
 elseif
-  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
+  @domain.sqlType in ['CREATE_TABLE', 'ADD_COLUMN']
 then
   testName = @domain.column
 elseif
-  @domain.sqlType == 'ALTER_TABLE_RENAME_COLUMN'
+  @domain.sqlType == 'RENAME_COLUMN'
 then
   testName = @domain.newName
 else

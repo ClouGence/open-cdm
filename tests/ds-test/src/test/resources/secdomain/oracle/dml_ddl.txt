@@ -5,7 +5,7 @@ expect:
 {
   "contains": [
     {"class":"OraTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc"},
-    {"class":"OraColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"OraColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }
 ----------
@@ -16,7 +16,7 @@ expect:
 {
   "contains": [
     {"class":"OraTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"public", "table":"abc"},
-    {"class":"OraColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"OraColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }
 ----------
@@ -27,7 +27,7 @@ expect:
 {
   "contains": [
     {"class":"OraTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"public", "table":"abc"},
-    {"class":"OraColumnDomain", "sqlType":"CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int", "defaultValue":"1"}
+    {"class":"OraColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int", "defaultValue":"1"}
   ]
 }
 ----------
@@ -98,6 +98,6 @@ alter table abc add constraint pk_abc primary key (id)
 expect:
 {
   "contains": [
-    {"class":"RdbConstraintDomain", "sqlType":"ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"pk_abc"}
+    {"class":"RdbConstraintDomain", "sqlType":"ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"pk_abc"}
   ]
 }

@@ -253,7 +253,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "single_tbl",
       "column": "id",
@@ -270,7 +270,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "single_tbl",
       "column": "name",
@@ -288,7 +288,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "single_tbl",
       "type": "Primary",
@@ -325,7 +325,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "tb1",
       "column": "id",
@@ -370,7 +370,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "multi_db_single_tbl",
       "column": "id",
@@ -387,7 +387,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "multi_db_single_tbl",
       "column": "name",
@@ -405,7 +405,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "multi_db_single_tbl",
       "type": "Primary",
@@ -444,7 +444,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "multi_db_multi_tbl",
       "column": "id",
@@ -461,7 +461,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "multi_db_multi_tbl",
       "column": "bid",
@@ -478,7 +478,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "multi_db_multi_tbl",
       "column": "name",
@@ -496,7 +496,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "multi_db_multi_tbl",
       "type": "Primary",
@@ -539,7 +539,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_order_tb",
       "column": "id",
@@ -556,7 +556,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_order_tb",
       "column": "seller_id",
@@ -575,7 +575,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_order_tb",
       "column": "order_id",
@@ -594,7 +594,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_order_tb",
       "column": "buyer_id",
@@ -613,7 +613,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "test_order_tb",
       "column": "create_time",
@@ -631,7 +631,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "test_order_tb",
       "type": "Primary",
@@ -671,7 +671,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "user_log",
       "column": "userId",
@@ -688,7 +688,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "user_log",
       "column": "name",
@@ -706,7 +706,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "user_log",
       "column": "operation",
@@ -724,7 +724,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "user_log",
       "column": "actionDate",
@@ -769,7 +769,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "multi_db_single_tbl",
       "column": "id",
@@ -786,7 +786,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "multi_db_single_tbl",
       "column": "name",
@@ -804,7 +804,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "multi_db_single_tbl",
       "type": "Primary",
@@ -842,7 +842,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "prmkey_tbl",
       "column": "id",
@@ -859,7 +859,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "prmkey_tbl",
       "column": "name",
@@ -877,7 +877,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "prmkey_tbl",
       "type": "Primary",
@@ -915,7 +915,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "prmkey_multi_tbl",
       "column": "id",
@@ -932,7 +932,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "prmkey_multi_tbl",
       "column": "name",
@@ -950,7 +950,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "prmkey_multi_tbl",
       "type": "Primary",
@@ -990,7 +990,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "brd_tbl",
       "column": "id",
@@ -1007,7 +1007,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "brd_tbl",
       "column": "name",
@@ -1025,7 +1025,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "brd_tbl",
       "type": "Primary",
@@ -1065,7 +1065,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "multi_db_multi_tbl",
       "column": "id",
@@ -1082,7 +1082,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "multi_db_multi_tbl",
       "column": "name",
@@ -1100,7 +1100,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "multi_db_multi_tbl",
       "type": "Primary",
@@ -1153,7 +1153,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "id",
@@ -1171,7 +1171,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "order_id",
@@ -1190,7 +1190,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "buyer_id",
@@ -1209,7 +1209,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "seller_id",
@@ -1228,7 +1228,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "order_snapshot",
@@ -1246,7 +1246,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "order_detail",
@@ -1264,7 +1264,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "t_order",
       "type": "Primary",
@@ -1274,7 +1274,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "t_order",
       "type": "index",
@@ -1329,7 +1329,7 @@ expect:
       "sqlTarget": "Table"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "id",
@@ -1347,7 +1347,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "order_id",
@@ -1366,7 +1366,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "buyer_id",
@@ -1385,7 +1385,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "seller_id",
@@ -1404,7 +1404,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "order_snapshot",
@@ -1422,7 +1422,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_COLUMN",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "table": "t_order",
       "column": "order_detail",
@@ -1440,7 +1440,7 @@ expect:
       "sqlTarget": "Column"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "t_order",
       "type": "Primary",
@@ -1450,7 +1450,7 @@ expect:
       "sqlTarget": "Constraint"
     },
     {
-      "sqlType": "CREATE_TABLE_ADD_INDEX",
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "tableName": "t_order",
       "type": "index",
@@ -1470,7 +1470,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "user_log",
       "column": "idcard",
@@ -1497,7 +1497,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlType": "ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "user_log",
       "column": "idcard",
@@ -1524,7 +1524,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "t_order",
       "type": "unique",
@@ -1544,7 +1544,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "t_order",
       "type": "unique",
@@ -1623,7 +1623,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "t_order",
       "type": "unique",
@@ -1643,7 +1643,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE_ADD_INDEX",
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "t_order",
       "type": "unique",

@@ -13,10 +13,10 @@ expect:
       "sqlTarget": "Unknown"
     },
     {
-      "sqlType": "READ",
-      "auditKind": "READ",
+      "sqlType": "SELECT",
+      "auditKind":"QUERY",
       "command": "GET",
-      "commandType": "READ",
+      "commandType":"READ",
       "sqlTarget": "Unknown"
     }
   ]
