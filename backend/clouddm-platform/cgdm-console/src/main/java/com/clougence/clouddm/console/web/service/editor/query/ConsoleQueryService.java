@@ -17,7 +17,6 @@ package com.clougence.clouddm.console.web.service.editor.query;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -28,14 +27,13 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPhaseOfBatch;
 import com.clougence.clouddm.api.sidecar.session.execute.StatusDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
-import com.clougence.clouddm.console.web.component.analysis.ResourceAction;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
-import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
-import com.clougence.clouddm.console.web.component.detectrule.*;
+import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckContext;
+import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
+import com.clougence.clouddm.console.web.component.detectrule.SecRulesEngine;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
@@ -49,13 +47,8 @@ import com.clougence.clouddm.console.web.service.editor.DsQueryEditorService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
@@ -64,34 +57,22 @@ import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.echo.*;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
-import com.clougence.clouddm.sdk.execute.session.ResultLimit;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
-import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
-import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
-import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.analysis.resource.ResourceAction;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -110,10 +91,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     @Resource
     private ExecutionDal         executionDal;
     @Resource
-    private AuthDal              authDal;
-    @Resource
-    private ObjectCacheDao       cacheDao;
-    @Resource
     private ConsoleConfig        config;
     @Resource
     private ApplicationContext   appContext;
@@ -124,13 +101,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     @Resource
     private SystemDal            systemDal;
     @Resource
-    private SecRulesService      rulesService;
-    @Resource
     private SecRulesEngine       ruleCheckService;
     @Resource
     private DmAuthServiceForBiz  authCheckService;
-    @Resource
-    private DmResAuthService     resAuthService;
     @Resource
     private QueryAnalysisService analysisService;
     @Resource
@@ -316,154 +289,100 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private static final RuleLevel[] CHECK_LEVELS_FORCE  = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET };
     private static final RuleLevel[] CHECK_LEVELS_NORMAL = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET, RuleLevel.SUGGEST };
 
-    // 4.6. operate of query on specialCheck
-    private boolean specialCheck(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx) {
-        // 6.1 auth check
-        String authMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_AUTH_MESSAGE.name());
-        consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authMsg, MessageLevel.Info));
-        Map<RuleDomain, List<ResObject>> sqlResources;
-        List<SplitScript> sqlType;
-        String analysisMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_ANALYSIS_MESSAGE.name());
-        consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, analysisMsg, MessageLevel.Info));
-        try {
-            Map<String, Object> currentStatus = ctx.getCtxParams();
-            sqlResources = this.analysisService.analysisResourceV2(ctx.getDsConfig(), queryDTO.getQueryString(), currentStatus);
-            sqlType = ctx.getSqlEngine()
-                .splitAnalysisSpi()
-                .splitScript(queryDTO.getQueryString(), queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
-        } catch (AntlerSyntaxException e) {
-            CodeLocation location = e.offsetLocation(queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
-            String syntaxMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SYNTAX_ANALYSIS_ERROR.name(), location.getLineNumber(), location.getColumnNumber());
-            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, syntaxMsg, MessageLevel.Error));
-            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return false;
-        } catch (Throwable e) {
-            log.error(e.getMessage(), e);
-            String str = e.getClass().getSimpleName() + ":" + e.getMessage();
-            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, str, MessageLevel.Error));
-            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return false;
+    private List<QueryRequest> prepareQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, boolean isExplain) {
+        ContextInfo contextInfo = ContextInfo.builder()
+            .cuid(queryDTO.getCurrentUserId())
+            .puid(queryDTO.getPrimaryUserId())
+            .dsId(ctx.getLevels().dsDO().getId())
+            .dataSourceConfig(ctx.getDsConfig())
+            .levelsParam(ctx.getLevels().levelsParam())
+            .deepParser(false)
+            .build();
+        List<QueryRequest> requests = new ArrayList<>(this.analysisService.analysisRequests(contextInfo, queryDTO.getQueryString(),//
+                queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn()));
+
+        //
+        SessionSpi sessionSpi = ctx.getSessionSpi();
+        QueryRequest temp = sessionSpi.createQueryRequest(ctx.getCtxDTO(), ctx.getDsConfig(), ctx.getCtxParams(),//
+                queryDTO.getCurrentUserId(), queryDTO.getClientIp(), true);
+        temp.setRequester(Requester.CONSOLE);
+        if (this.isUsingCacheResult(queryDTO)) {
+            temp.getResultConf().setCacheResult(true);
+            temp.getResultConf().setReceiveMode(queryDTO.getReceiveMode() == null ? ReceiveMode.PAGINATED : queryDTO.getReceiveMode());
+        } else {
+            temp.getResultConf().setCacheResult(false);
+            temp.getResultConf().setReceiveMode(queryDTO.getReceiveMode() == null ? ReceiveMode.PAGE_FULL : queryDTO.getReceiveMode());
         }
 
-        // 6.2 at team all statements must be clear
-        String curOwnerUid = queryDTO.getPrimaryUserId();
-        for (SplitScript sql : sqlType) {
-            if (sql.getType() == SecQueryType.UNKNOWN) {
-                String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_QUERY_ERROR.name(), sql.getScript());
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
-            }
-
-            String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
-            if (sql.getType().getAuthKind() != SecDataAuthKind.READ && StringUtils.equalsIgnoreCase("true", enable)) {
-                String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
-            }
+        if (temp.getVariables() == null) {
+            temp.setVariables(new HashMap<>());
         }
+        temp.setUseExplain(isExplain);
 
-        // 6.3 disallow `use xxx` or `set search_path = xxx` or `alter session set container = xxx`
-        for (SplitScript sql : sqlType) {
-            if (sql.getType() == SecQueryType.SWITCH_CATALOG || sql.getType() == SecQueryType.SWITCH_SCHEMA) {
-                String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_SWITCH_CTX_ERROR.name());
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
-            } else if (sql.getType() == SecQueryType.TRANSACTION) {
-                String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name());
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
-            }
+        for (int i = 0; i < requests.size(); i++) {
+            QueryRequest analyzed = requests.get(i);
+            QueryRequest clone = temp.clone();
+            clone.setQueryId(sessionSpi.newQueryId());
+            clone.setQueryBody(analyzed.getQueryBody());
+            clone.setQueryArgs(analyzed.getQueryArgs());
+            clone.setQueryType(analyzed.getQueryType());
+            clone.setQueryTypes(analyzed.getQueryTypes());
+            clone.setResourceActions(analyzed.getResourceActions());
+            clone.setQueryDsType(analyzed.getQueryDsType());
+            clone.setColumnList(analyzed.getColumnList());
+            clone.setUsingValueProcess(analyzed.isUsingValueProcess());
+            clone.setHasRewrite(analyzed.isHasRewrite());
+            clone.setRewriteTag(analyzed.getRewriteTag());
+            clone.setOriginalBody(analyzed.getOriginalBody());
+            clone.getResultConf().setRefreshStatus(i == requests.size() - 1);
+            requests.set(i, clone);
         }
-
-        if (CollectionUtils.isNotEmpty(sqlResources)) {
-            String curUserUid = queryDTO.getCurrentUserId();
-            long dsId = ctx.getLevels().dsDO().getId();
-
-            for (RuleDomain ruleDomain : sqlResources.keySet()) {
-                String authLabel = ruleDomain.getSqlType().getAuthKind().getAuthLabel();
-                List<ResObject> resObjects = sqlResources.get(ruleDomain);
-                if (resObjects == null) {
-                    continue;
-                }
-                for (ResObject resObj : resObjects) {
-                    DsResPath resPath = resObj.toDsResPath();
-                    if (!this.authCheckService.checkResPathWithoutError(curOwnerUid, curUserUid, dsId, AuthKind.DataSource, resPath, authLabel)) {
-                        String authLabelI18n = DmI18nUtils.getMessage(authLabel);
-                        String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), resPath.getResPath(), authLabelI18n);
-                        consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
-                        consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                        consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                        return false;
-                    }
-                }
-            }
-
-            //
-            SelectColumnAnalysisSpi selectColumnAnalysisSpi = ctx.getSqlEngine().selectColumnAnalysisSpi();
-            if (!selectColumnAnalysisSpi.supportParseSelectColumn()) {
-                boolean viewOriginData = true;
-                for (RuleDomain ruleDomain : sqlResources.keySet()) {
-                    if (ruleDomain.getSqlType().getAuthKind() == SecDataAuthKind.READ) {
-                        List<ResObject> resObjects = sqlResources.get(ruleDomain);
-                        boolean b = resObjects.stream().allMatch(resObj -> {
-                            return this.authCheckService
-                                .checkResPathWithoutError(curOwnerUid, curUserUid, dsId, AuthKind.DataSource, resObj.toDsResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE);
-                        });
-                        if (!b) {
-                            viewOriginData = false;
-                            break;
-                        }
-                    }
-                }
-                queryDTO.setViewOriginData(viewOriginData);
-            }
-        }
-
-        // 6.4 rules check
-        String rulesMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_RULES_MESSAGE.name());
-        consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, rulesMsg, MessageLevel.Info));
-        try {
-            SecRulesCheckResult checkResult = rulesCheck(queryDTO, ctx);
-            RuleLevel[] failedLevels = queryDTO.isForce() ? CHECK_LEVELS_FORCE : CHECK_LEVELS_NORMAL;
-            if (checkResult.hasAnyTarget(failedLevels)) {
-                ctx.resetStatus();
-                consumer.accept(BuildResMsgUtils.buildRules(queryDTO, checkResult));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildClearHint(queryDTO));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, e.getMessage(), MessageLevel.Error));
-            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return false;
-        }
-
-        return true;
+        return requests;
     }
 
     private ExitCode asyncQueryPrepare(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx, boolean isExplain) {
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
 
-        // 4.6. check rules & auth & other...
-        if (!specialCheck(queryDTO, consumer, ctx)) {
+        // 4.6. analyze query requests
+        String authMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_AUTH_MESSAGE.name());
+        consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authMsg, MessageLevel.Info));
+        String analysisMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_ANALYSIS_MESSAGE.name());
+        consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, analysisMsg, MessageLevel.Info));
+        String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_REQUEST_MESSAGE.name());
+        consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Info));
+
+        SqlParserParameters parameters = this.dmDsConfigService.fetchSqlParserParameters(ctx.getDsConfig(), ctx.getLevels().levelsParam());
+        List<QueryRequest> requests;
+        try {
+            requests = this.prepareQueryRequests(queryDTO, ctx, isExplain);
+        } catch (AntlerSyntaxException e) {
+            CodeLocation location = e.offsetLocation(queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
+            String syntaxMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SYNTAX_ANALYSIS_ERROR.name(), location.getLineNumber(), location.getColumnNumber());
+            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, syntaxMsg, MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+        } catch (ErrorMessageException e) {
+            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, e.getErrorMessage(), MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
+            String str = e.getClass().getSimpleName() + ":" + e.getMessage();
+            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, str, MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
             return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
         }
 
-        // 4.7. prepare Session
+        // 4.7. check rules & auth & other...
+        if (!specialCheck(queryDTO, consumer, ctx, parameters, requests)) {
+            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+        }
+
+        // 4.8. prepare Session
         String eventMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_SESSION_MESSAGE.name());
         consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, eventMsg, MessageLevel.Info));
         boolean hasSession = this.queryService.hasSession(curUid, sessionId);
@@ -498,101 +417,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             }
         }
 
-        // 4.8. prepare query temp
-        String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_REQUEST_MESSAGE.name());
-        consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Info));
-        SessionSpi sessionSpi = ctx.getSessionSpi();
-
-        // 4.9. split query
-        ResAnalysisSpi resourceSpi = ctx.getSqlEngine().resAnalysisSpi();
-        List<SplitScript> scripts = ctx.getSqlEngine()
-            .splitAnalysisSpi()
-            .splitScript(queryDTO.getQueryString(), queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
-        List<QueryRequest> requestScripts;
-
-        Map<SplitScript, List<SelectItem>> scriptColumnMap = new HashMap<>();
-        if (checkSecAndParseColumn(queryDTO, consumer, ctx, scripts, scriptColumnMap)) {
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
-        }
-
-        QueryRequest temp = sessionSpi.createQueryRequest(ctx.getCtxDTO(), ctx.getDsConfig(), ctx.getCtxParams(), curUid, queryDTO.getClientIp(), true);
-        temp.setRequester(Requester.CONSOLE);
-        if (this.isUsingCacheResult(queryDTO)) {
-            temp.getResultConf().setCacheResult(true);
-            temp.getResultConf().setReceiveMode(queryDTO.getReceiveMode() == null ? ReceiveMode.PAGINATED : queryDTO.getReceiveMode());
-        } else {
-            temp.getResultConf().setCacheResult(false);
-            temp.getResultConf().setReceiveMode(queryDTO.getReceiveMode() == null ? ReceiveMode.PAGE_FULL : queryDTO.getReceiveMode());
-        }
-
-        if (temp.getVariables() == null) {
-            temp.setVariables(new HashMap<>());
-        }
-        temp.setUsingValueProcess(!queryDTO.isViewOriginData());
-
-        RdbSupportSpi rdbSupportSpi = PluginManager.findRdbSupportSpi(ctx.getDsConfig().getDataSourceType());
-        if (rdbSupportSpi.supportMultiStatement(false)) {
-            requestScripts = convertToQueryRequest(ctx, scripts, scriptColumnMap, temp, sessionSpi, resourceSpi);
-        } else {
-            SplitScript splitScript = new SplitScript();
-            if (scripts.size() > 1) {
-                splitScript.setType(SecQueryType.UNKNOWN);
-            } else {
-                splitScript.setType(scripts.get(0).getType());
-            }
-            splitScript.setScript(queryDTO.getQueryString());
-            requestScripts = convertToQueryRequest(ctx, Collections.singletonList(splitScript), scriptColumnMap, temp, sessionSpi, resourceSpi);
-        }
-
-        if (isExplain) {
-            for (QueryRequest requestScript : requestScripts) {
-                requestScript.setUseExplain(true);
-                if (!requestScript.getQueryType().isAllowPlan()) {
-                    String hintMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name(), requestScript.getQueryType());
-                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hintMessage, MessageLevel.Error));
-                    consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                    consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                    return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
-                }
-            }
-        }
-
-        // 4.10. rewrite query
-        RewriteSpi rewriteSpi = ctx.getSqlEngine().rewriteSpi();
-        if (rewriteSpi != null && this.isUsingSelectRewrite(queryDTO, ctx)) {
-            long dsId = ctx.getLevels().dsDO().getId();
-            DsCacheEntry dsCache = this.cacheDao.queryByDsId(dsId);
-            Map<String, String> configMap = dmDsConfigService.fetchSettingsMap(Arrays.asList(//
-                    RootUserConfig.Fields.defaultColumnDisplayChars, //
-                    RootUserConfig.Fields.onlineMaxRecordCount,      //
-                    RootUserConfig.Fields.onlineMaxResultSetMegaByte,//
-                    RootUserConfig.Fields.onlineMaxColumnMegaByte,   //
-                    RootUserConfig.Fields.onlineMaxElementMegaByte)  //
-            );
-
-            ResultLimit limit = DmDsUtils.fetchResultLimit(configMap, Requester.CONSOLE);
-            RewriteContext rewriteCtx = new RewriteContext();
-            rewriteCtx.setFetchLimit(limit.getFetchRecordCountLimit());
-
-            for (QueryRequest request : requestScripts) {
-                if (request.getQueryType() == SecQueryType.SELECT) {
-                    String beforeRewrite = request.getQueryBody();
-                    String afterRewrite = rewriteSpi.rewriterQuery(request, rewriteCtx);
-                    request.setOriginalBody(beforeRewrite);
-                    if (StringUtils.equals(beforeRewrite, afterRewrite)) {
-                        request.setHasRewrite(false);
-                        request.setRewriteTag(Collections.emptyList());
-                        request.setQueryBody(beforeRewrite);
-                    } else {
-                        request.setHasRewrite(true);
-                        request.setRewriteTag(rewriteCtx.getRewriterTags());
-                        request.setQueryBody(afterRewrite);
-                    }
-                }
-            }
-        }
-
-        // 4.11. execute query
+        // 4.9. execute query
         try {
             if (!ctx.getCtxDTO().isRdbAutoCommit()) {
                 ctx.setHasUnCommitted(true);
@@ -603,11 +428,11 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, false));
 
             String batchId = UUID.randomUUID().toString().replace("-", "");
-            this.queryService.asyncExecuteQuery(curUid, sessionId, batchId, requestScripts);
+            this.queryService.asyncExecuteQuery(curUid, sessionId, batchId, requests);
 
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_RESPONSE_MESSAGE.name());
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Info));
-            this.queryExecutor.submitTask(() -> asyncQueryWaitResult(queryDTO, consumer, ctx)); // 4.11. wait result.
+            this.queryExecutor.submitTask(() -> asyncQueryWaitResult(queryDTO, consumer, ctx)); // 4.9. wait result.
             return ExitCode.finish();
         } catch (Exception e) {
             String errorKey = HostUtil.getHostIp() + ":" + UUID.randomUUID().toString().replace("-", "");
@@ -625,143 +450,106 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
     }
 
-    private boolean checkSecAndParseColumn(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx,//
-                                           List<SplitScript> scripts, Map<SplitScript, List<SelectItem>> scriptColumnMap) {
-        String curUserUid = queryDTO.getCurrentUserId();
-        DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(curUserUid);
-
-        if (rdpUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || this.authCheckService.checkResPathWithoutError(queryDTO
-            .getPrimaryUserId(), curUserUid, ctx.getLevels().dsDO().getId(), AuthKind.DataSource, ctx.getLevels().asResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE)) {
-            queryDTO.setViewOriginData(true);
-            return false;
-        }
-
-        SecCheckerRules rules = this.rulesService.fetchCheckerRulesByDsId(ctx.getLevels().dsDO().getId());
-        if (!rules.isValid() || CollectionUtils.isEmpty(rules.getSenRuleList())) {
-            return false;
-        }
-
-        SelectColumnAnalysisSpi spi = ctx.getSqlEngine().selectColumnAnalysisSpi();
-        if (spi.supportParseSelectColumn()) {
-            for (SplitScript script : scripts) {
-                if (script.getType() != SecQueryType.SELECT) {
-                    continue;
-                }
-                ContextInfo contextInfo = ContextInfo.builder()
-                    .cuid(queryDTO.getCurrentUserId())
-                    .puid(queryDTO.getPrimaryUserId())
-                    .dsId(ctx.getLevels().dsDO().getId())
-                    .dataSourceConfig(ctx.getDsConfig())
-                    .levelsParam(ctx.getLevels().levelsParam())
-                    .deepParser(false)
-                    .build();
-
-                List<SelectItem> selectItems = spi.parseSelectColumn(script.getScript(), contextInfo);
-
-                boolean hasEmptyColumnName = selectItems.stream().anyMatch(s -> StringUtils.isEmpty(s.getItemAlias()));
-                if (hasEmptyColumnName) {
-                    String valueProcessFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_SPECIAL_FIELD_NOT_ALIAS.name());
-                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, valueProcessFailedMsg, MessageLevel.Error));
-                    consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                    consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                    return true;
-                }
-
-                Set<String> set = new HashSet<>();
-                boolean hasDuplicate = selectItems.stream().anyMatch(s -> !set.add(s.getItemAlias()));
-                if (hasDuplicate) {
-                    String valueProcessFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_FORBID_SELECT_COLUMN_SAME_NAME.name());
-                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, valueProcessFailedMsg, MessageLevel.Warn));
-                    consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                    consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                    return true;
-                }
-
-                scriptColumnMap.put(script, selectItems);
+    // 4.6. operate of query on specialCheck
+    private boolean specialCheck(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx,//
+                                 SqlParserParameters parameters, List<QueryRequest> requestScripts) {
+        // 6.2 at team all statements must be clear
+        String curOwnerUid = queryDTO.getPrimaryUserId();
+        for (QueryRequest request : requestScripts) {
+            SplitQueryType primaryType = request.getQueryType();
+            if (primaryType == SplitQueryType.UNKNOWN) {
+                String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_QUERY_ERROR.name(), request.getQueryBody());
+                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
+                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                return false;
             }
 
+            if (request.isUseExplain() && !primaryType.isAllowPlan()) {
+                String hintMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name(), primaryType);
+                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hintMessage, MessageLevel.Error));
+                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                return false;
+            }
+
+            String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
+            if (primaryType.getAuthKind() != SecDataAuthKind.READ && StringUtils.equalsIgnoreCase("true", enable)) {
+                String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
+                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
+                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                return false;
+            }
+        }
+
+        // 6.3 disallow `use xxx` or `set search_path = xxx` or `alter session set container = xxx`
+        for (QueryRequest request : requestScripts) {
+            SplitQueryType primaryType = request.getQueryType();
+            if (primaryType == SplitQueryType.SWITCH_CATALOG || primaryType == SplitQueryType.SWITCH_SCHEMA) {
+                String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_SWITCH_CTX_ERROR.name());
+                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
+                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                return false;
+            } else if (primaryType == SplitQueryType.TRANSACTION) {
+                String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name());
+                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Error));
+                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                return false;
+            }
+        }
+
+        List<ResourceAction> sqlResources = requestScripts.stream()
+            .filter(request -> CollectionUtils.isNotEmpty(request.getResourceActions()))
+            .flatMap(request -> request.getResourceActions().stream())
+            .toList();
+        if (CollectionUtils.isNotEmpty(sqlResources)) {
+            String curUserUid = queryDTO.getCurrentUserId();
             long dsId = ctx.getLevels().dsDO().getId();
 
-            List<RealColumn> columnList = scriptColumnMap.values().stream().flatMap(List::stream).map(SelectItem::getColumns).flatMap(List::stream).collect(Collectors.toList());
-            List<String> pathList = columnList.stream().map(RealColumn::toDsResPath).distinct().collect(Collectors.toList());
-
-            List<String> skipDesensitizationPath = resAuthService.listAuthByUser(dsId, curUserUid, AuthKind.DataSource, pathList).stream().map(DmAuthResDO::getResPath).toList();
-
-            for (RealColumn realColumn : columnList) {
-                for (String path : skipDesensitizationPath) {
-                    if (realColumn.toDsResPath().startsWith(path)) {
-                        realColumn.setSkipDesensitization(true);
-                        break;
-                    }
+            for (ResourceAction resourceAction : sqlResources) {
+                if (resourceAction.isSkipPermission()) {
+                    continue;
                 }
-            }
-        } else {
-            // value process check
-            DataSourceType dsType = ctx.getDsConfig().getDataSourceType();
-            SecDomainResolveSpi resolveSpi = ctx.getSqlEngine().secDomainResolveSpi();
-            CodeInfo codeInfo = CodeInfo.builder().baseLine(1).baseColumn(0).query(queryDTO.getQueryString()).build();
-            ContextInfo contextInfo = ContextInfo.builder().dataSourceConfig(ctx.getDsConfig()).deepParser(false).build();
-            List<RuleDomain> ruleDomains = resolveSpi.resolveDomain(dsType, codeInfo, contextInfo);
-            List<RdbSelectDomain> domains = ruleDomains.stream().filter(d -> d instanceof RdbSelectDomain).map(o -> (RdbSelectDomain) o).collect(Collectors.toList());
-            for (RdbSelectDomain queryDomain : domains) {
-                boolean testResult = true;
-                testResult = testResult && !queryDomain.isHasAs();
-                testResult = testResult && !queryDomain.isHasUnion();
-                testResult = testResult && queryDomain.isSimpleSelect();
-                testResult = testResult && queryDomain.getJoinTypes().isEmpty();
-                testResult = testResult && !queryDomain.isHasWith();
-                if (CollectionUtils.isNotEmpty(queryDomain.getChildren())) {
-                    RdbTableDomain ruleDomain = (RdbTableDomain) queryDomain.getChildren().get(0);
-                    if (ruleDomain.getSchema() != null) {
-                        testResult = false;
-                    }
-                }
-                if (!testResult) {
-                    String valueProcessFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_VALUE_PROCESS_CHECK_MESSAGE.name());
-                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, valueProcessFailedMsg, MessageLevel.Error));
+                String authLabel = resourceAction.getAuthKind().getAuthLabel();
+                DsResPath resPath = resourceAction.toDsResPath();
+                if (!this.authCheckService.checkResPathWithoutError(curOwnerUid, curUserUid, dsId, AuthKind.DataSource, resPath, authLabel)) {
+                    String authLabelI18n = DmI18nUtils.getMessage(authLabel);
+                    String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), resPath.getResPath(), authLabelI18n);
+                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
                     consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                     consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                    return true;
+                    return false;
                 }
             }
-        }
-        return false;
-    }
 
-    private List<QueryRequest> convertToQueryRequest(QueryCtx ctx, List<SplitScript> scripts, Map<SplitScript, List<SelectItem>> scriptSelectColumnMap, QueryRequest temp,
-                                                     SessionSpi sessionSpi, ResAnalysisSpi resourceSpi) {
-        List<QueryRequest> requestScripts = new ArrayList<>();
-        for (int i = 0; i < scripts.size(); i++) {
-            SplitScript s = scripts.get(i);
-            QueryRequest clone = temp.clone();
-            clone.setQueryId(sessionSpi.newQueryId());
-            clone.setQueryBody(s.getScript());
-            clone.setQueryArgs(s.getScriptArgs());
-            clone.setQueryType(s.getType());
-            List<SelectItem> selectItems = scriptSelectColumnMap.get(s);
-            if (CollectionUtils.isNotEmpty(selectItems)) {
-                clone.setColumnList(selectItems.stream().collect(Collectors.toMap(SelectItem::getItemAlias, SelectItem::getColumns)));
-            }
-            CodeInfo codeInfo = CodeInfo.builder().baseLine(s.getBodyStartCodeLine()).baseColumn(s.getBodyStartCodeColumn()).query(s.getScript()).build();
-            ContextInfo contextInfo = ContextInfo.builder().dataSourceConfig(ctx.getDsConfig()).deepParser(false).build();
-            Map<RuleDomain, List<ResObject>> ruleDomainListMap = resourceSpi.analysisResource(ctx.getDsConfig().getDataSourceType(), codeInfo, contextInfo, ctx.getCtxParams());
-            List<ResObject> list = ruleDomainListMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
-            list = list.stream().filter(o -> {
-                TargetType type = o.getType();
-                return type == TargetType.Table || type == TargetType.View || type == TargetType.Materialized;
-            }).toList();
-            if (CollectionUtils.isNotEmpty(list)) {
-                clone.setResource(list.stream().map(resObject -> {
-                    return DmConvertUtils.convertToResource(ctx.getLevels(), resObject.getName());
-                }).collect(Collectors.toList()));
-            } else {
-                clone.setResource(Collections.singletonList(DmConvertUtils.convertToResource(ctx.getLevels(), null)));
-            }
-
-            clone.getResultConf().setRefreshStatus(i == scripts.size() - 1);
-            requestScripts.add(clone);
         }
-        return requestScripts;
+
+        // 6.4 rules check
+        String rulesMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_RULES_MESSAGE.name());
+        consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, rulesMsg, MessageLevel.Info));
+        try {
+            SecRulesCheckResult checkResult = rulesCheck(queryDTO, ctx, parameters);
+            RuleLevel[] failedLevels = queryDTO.isForce() ? CHECK_LEVELS_FORCE : CHECK_LEVELS_NORMAL;
+            if (checkResult.hasAnyTarget(failedLevels)) {
+                ctx.resetStatus();
+                consumer.accept(BuildResMsgUtils.buildRules(queryDTO, checkResult));
+                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+                consumer.accept(BuildResMsgUtils.buildClearHint(queryDTO));
+                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                return false;
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, e.getMessage(), MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+            return false;
+        }
+
+        return true;
     }
 
     private ExitCode processAsyncQueryReturn(ExitCode result, WsQueryFO queryDTO, QueryCtx ctx) {
@@ -1008,12 +796,12 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
         RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsDO.getDataSourceType());
-        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsConfig.getDataSourceType(), dsConfig.getSqlEngine());
+        SqlEngineSpi engine = this.dmDsConfigService.fetchSqlEngineSpi(dsDO.getId());
 
         if (this.queryService.hasSession(curUid, sessionId)) {
             DmExecSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);
             SessionContextDTO contextDTO = sessionInfo.toRdbCtx();
-            QueryCtx queryCtx = new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, sqlEngine, supportSpi);
+            QueryCtx queryCtx = new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, engine, supportSpi);
 
             StatusDTO status;
             if (this.queryService.isExecuting(curUid, sessionId)) {
@@ -1049,7 +837,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             contextDTO.setRdbAutoCommit(queryDTO.isRdbAutoCommit());
             contextDTO.setRdbTxIsolation(queryDTO.getRdbIsolation());
             contextDTO.setRdbReadOnly(queryDTO.isRdbReadOnly());
-            return new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, sqlEngine, supportSpi);
+            return new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, engine, supportSpi);
         }
     }
 
@@ -1473,8 +1261,4 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         return configValue == null || configValue > 0;
     }
 
-    private boolean isUsingSelectRewrite(WsQueryFO queryDTO, QueryCtx ctx) {
-        Boolean configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineSelectRewriteDisable, Boolean.class);
-        return configValue == null || !configValue;
-    }
 }

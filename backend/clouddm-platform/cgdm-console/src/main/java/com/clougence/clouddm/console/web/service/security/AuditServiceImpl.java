@@ -33,7 +33,7 @@ import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.api.console.sqlaudit.Type;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
-import com.clougence.clouddm.console.web.component.analysis.ResourceAction;
+import com.clougence.clouddm.sdk.sql.analysis.resource.ResourceAction;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;

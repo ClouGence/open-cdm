@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
-import com.clougence.clouddm.console.web.component.analysis.ResourceAction;
+import com.clougence.clouddm.sdk.sql.analysis.resource.ResourceAction;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;

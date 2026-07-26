@@ -13,22 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.analysis;
+package com.clougence.clouddm.console.web.component.analysis.impl;
 
 import java.util.*;
 
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.analysis.resource.ResourceAction;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 final class ResourceActionConverter {
 
-    private static final Set<TargetType> LEVELS_BASED_TARGETS = EnumSet.of( //
-        TargetType.Environment, TargetType.Instance, TargetType.Machine, //
-        TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.ConfigKey, TargetType.File, //
-        TargetType.Query, TargetType.Update, TargetType.Delete, TargetType.Insert, TargetType.Call, //
-        TargetType.Tablespace, TargetType.Log, TargetType.Library, TargetType.ResourceGroup, TargetType.Replication, //
-        TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, TargetType.PrepareStatement);
+    private static final Set<SplitQueryType> SWITCH_TYPES         = EnumSet.of( //
+            SplitQueryType.SWITCH_CATALOG, SplitQueryType.SWITCH_SCHEMA, SplitQueryType.SWITCH_USER, SplitQueryType.SWITCH_ROLE);
+    private static final Set<TargetType>     LEVELS_BASED_TARGETS = EnumSet.of( //
+            TargetType.Environment, TargetType.Instance, TargetType.Machine, //
+            TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.ConfigKey, TargetType.File, //
+            TargetType.Query, TargetType.Update, TargetType.Delete, TargetType.Insert, TargetType.Call, //
+            TargetType.Tablespace, TargetType.Log, TargetType.Library, TargetType.ResourceGroup, TargetType.Replication, //
+            TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, TargetType.PrepareStatement);
 
     List<ResourceAction> convert(List<StatementBehavior> behaviors, String currentResourcePath, String instanceResourcePath) {
         if (behaviors == null || behaviors.isEmpty()) {
@@ -38,14 +41,35 @@ final class ResourceActionConverter {
         Map<String, ResourceAction> distinct = new LinkedHashMap<>();
         for (int statementIndex = 0; statementIndex < behaviors.size(); statementIndex++) {
             StatementBehavior behavior = behaviors.get(statementIndex);
-            if (behavior == null || behavior.getRelations() == null || behavior.getRelations().isEmpty()) {
+            if (behavior == null) {
                 continue;
             }
-            for (BehaviorRelation relation : behavior.getRelations()) {
-                append(distinct, statementIndex, behavior.getStatementType(), relation, currentResourcePath, instanceResourcePath);
+            if (behavior.getRelations() != null) {
+                for (BehaviorRelation relation : behavior.getRelations()) {
+                    append(distinct, statementIndex, behavior.getStatementType(), relation, currentResourcePath, instanceResourcePath);
+                }
+            }
+            int currentIndex = statementIndex;
+            if (SWITCH_TYPES.contains(behavior.getStatementType())
+                && distinct.values().stream().noneMatch(action -> action.getStatementIndex() == currentIndex && action.getAction() == BehaviorAction.SWITCH)) {
+                appendSwitch(distinct, statementIndex, behavior.getStatementType(), currentResourcePath);
             }
         }
         return new ArrayList<>(distinct.values());
+    }
+
+    private void appendSwitch(Map<String, ResourceAction> result, int statementIndex, SplitQueryType statementType, String currentResourcePath) {
+        ResourceAction action = new ResourceAction();
+        action.setStatementIndex(statementIndex);
+        action.setStatementType(statementType);
+        action.setAction(BehaviorAction.SWITCH);
+        action.setAuthKind(statementType.getAuthKind());
+        action.setTargetType(statementType.getTarget() == null ? TargetType.Unknown : statementType.getTarget());
+        action.setSourceResourcePath(normalizedPath(currentResourcePath));
+        action.setResourcePath(action.getSourceResourcePath());
+
+        String key = statementIndex + "|" + action.getAction() + "|" + action.getAuthKind() + "|" + action.getTargetType() + "|" + action.getResourcePath();
+        result.putIfAbsent(key, action);
     }
 
     private void append(Map<String, ResourceAction> result, int statementIndex, SplitQueryType statementType, BehaviorRelation relation, String currentResourcePath,
