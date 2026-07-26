@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.detectrule.handler;
+package com.clougence.clouddm.console.web.component.analysis.backfill;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -23,38 +23,39 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSchemaDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 import jakarta.annotation.Resource;
 
 @Component
-public class DropSchemaHandler implements QueryTypeHandler {
+public class CreateTableBackfillHandler implements ExecutionBackfillHandler {
     @Resource
     private DataSourceDal dsDal;
 
     @Override
-    public void handleAfterSqlOperation(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime) {
-        RdbSchemaDomain domain = (RdbSchemaDomain) ruleDomain;
+    public void backfill(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime) {
+        RdbTableDomain tableDomain = (RdbTableDomain) ruleDomain;
         StringBuilder path = new StringBuilder("/");
-        if (domain.getCatalog() != null) {
-            path.append(domain.getCatalog()).append("/");
+        if (tableDomain.getCatalog() != null) {
+            path.append(tableDomain.getCatalog()).append("/");
         } else if (map.get(SessionSpi.PARAMS_DEFAULT_DB) != null) {
             path.append(map.get(SessionSpi.PARAMS_DEFAULT_DB)).append("/");
         }
 
-        if (domain.getSchema() != null) {
-            path.append(domain.getSchema()).append("/");
+        if (tableDomain.getSchema() != null) {
+            path.append(tableDomain.getSchema()).append("/");
         } else if (map.get(SessionSpi.PARAMS_DEFAULT_SCHEMA) != null) {
             path.append(map.get(SessionSpi.PARAMS_DEFAULT_SCHEMA)).append("/");
         }
-        dsDal.metaDataMapper().deleteByPathLike(dsId, path.toString(), execTime);
+        dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.TableList, execTime);
     }
 
     @Override
-    public List<SecQueryType> canHandleType() {
-        return Collections.singletonList(SecQueryType.DROP_SCHEMA);
+    public List<SplitQueryType> canHandleType() {
+        return Arrays.asList(SplitQueryType.CREATE_TABLE, SplitQueryType.CREATE_TABLE, SplitQueryType.CREATE_TABLE);
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.detectrule.handler;
+package com.clougence.clouddm.console.web.component.analysis.backfill;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -26,38 +26,38 @@ import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbViewDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 import jakarta.annotation.Resource;
 
 @Component
-public class ViewHandler implements QueryTypeHandler {
+public class ColumnBackfillHandler implements ExecutionBackfillHandler {
     @Resource
     private DataSourceDal dsDal;
 
     @Override
-    public void handleAfterSqlOperation(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime) {
-        RdbViewDomain domain = (RdbViewDomain) ruleDomain;
+    public void backfill(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime) {
+        RdbColumnDomain tableDomain = (RdbColumnDomain) ruleDomain;
         StringBuilder path = new StringBuilder("/");
-        if (domain.getCatalog() != null) {
-            path.append(domain.getCatalog()).append("/");
+        if (tableDomain.getCatalog() != null) {
+            path.append(tableDomain.getCatalog()).append("/");
         } else if (map.get(SessionSpi.PARAMS_DEFAULT_DB) != null) {
             path.append(map.get(SessionSpi.PARAMS_DEFAULT_DB)).append("/");
         }
 
-        if (domain.getSchema() != null) {
-            path.append(domain.getSchema()).append("/");
+        if (tableDomain.getSchema() != null) {
+            path.append(tableDomain.getSchema()).append("/");
         } else if (map.get(SessionSpi.PARAMS_DEFAULT_SCHEMA) != null) {
             path.append(map.get(SessionSpi.PARAMS_DEFAULT_SCHEMA)).append("/");
         }
-        dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.ViewList, execTime);
-        path.append(domain.getView());
-        dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.ViewDetail, execTime);
+        path.append(tableDomain.getTable());
+        dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.TableDetail, execTime);
+        dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.ETable, execTime);
     }
 
     @Override
-    public List<SecQueryType> canHandleType() {
-        return Arrays.asList(SecQueryType.CREATE_VIEW, SecQueryType.DROP_VIEW, SecQueryType.ALTER_VIEW);
+    public List<SplitQueryType> canHandleType() {
+        return Arrays.asList(SplitQueryType.ADD_COLUMN, SplitQueryType.DROP_COLUMN, SplitQueryType.ALTER_COLUMN, SplitQueryType.RENAME_COLUMN, SplitQueryType.COMMENT_COLUMN);
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.detectrule.handler;
+package com.clougence.clouddm.console.web.component.analysis.backfill;
 
 import java.util.Collections;
 import java.util.Date;
@@ -32,12 +32,12 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import jakarta.annotation.Resource;
 
 @Component
-public class DropTableHandler implements QueryTypeHandler {
+public class DropTableBackfillHandler implements ExecutionBackfillHandler {
     @Resource
     private DataSourceDal dsDal;
 
     @Override
-    public void handleAfterSqlOperation(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime) {
+    public void backfill(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime) {
         RdbTableDomain tableDomain = (RdbTableDomain) ruleDomain;
         StringBuilder path = new StringBuilder("/");
         if (tableDomain.getCatalog() != null) {
@@ -59,7 +59,7 @@ public class DropTableHandler implements QueryTypeHandler {
     }
 
     @Override
-    public List<SecQueryType> canHandleType() {
-        return Collections.singletonList(SecQueryType.DROP_TABLE);
+    public List<SplitQueryType> canHandleType() {
+        return Collections.singletonList(SplitQueryType.DROP_TABLE);
     }
 }

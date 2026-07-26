@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.execute;
+package com.clougence.clouddm.console.web.component.analysis.backfill;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
+import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
-public interface AfterSqlExecuteService {
+public interface ExecutionBackfillHandler {
 
-    void handleAfterSqlSuccess(List<SqlExecNotifyDTO> audits);
+    void backfill(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime);
+
+    List<SplitQueryType> canHandleType();
 }

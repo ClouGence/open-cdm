@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.detectrule.handler;
+package com.clougence.clouddm.console.web.component.analysis.backfill;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -26,19 +26,19 @@ import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 import jakarta.annotation.Resource;
 
 @Component
-public class ColumnHandler implements QueryTypeHandler {
+public class AlterTableBackfillHandler implements ExecutionBackfillHandler {
     @Resource
     private DataSourceDal dsDal;
 
     @Override
-    public void handleAfterSqlOperation(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime) {
-        RdbColumnDomain tableDomain = (RdbColumnDomain) ruleDomain;
+    public void backfill(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime) {
+        RdbTableDomain tableDomain = (RdbTableDomain) ruleDomain;
         StringBuilder path = new StringBuilder("/");
         if (tableDomain.getCatalog() != null) {
             path.append(tableDomain.getCatalog()).append("/");
@@ -51,14 +51,17 @@ public class ColumnHandler implements QueryTypeHandler {
         } else if (map.get(SessionSpi.PARAMS_DEFAULT_SCHEMA) != null) {
             path.append(map.get(SessionSpi.PARAMS_DEFAULT_SCHEMA)).append("/");
         }
+        if (tableDomain.getSqlType() == SplitQueryType.RENAME_TABLE) {
+            dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.TableList, execTime);
+        }
+
         path.append(tableDomain.getTable());
         dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.TableDetail, execTime);
         dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.ETable, execTime);
     }
 
     @Override
-    public List<SecQueryType> canHandleType() {
-        return Arrays
-            .asList(SecQueryType.ALTER_TABLE_ADD_COLUMN, SecQueryType.ALTER_TABLE_DROP_COLUMN, SecQueryType.ALTER_TABLE_ALTER_COLUMN, SecQueryType.ALTER_TABLE_RENAME_COLUMN, SecQueryType.COMMENT_COLUMN);
+    public List<SplitQueryType> canHandleType() {
+        return Arrays.asList(SplitQueryType.ALTER_TABLE, SplitQueryType.RENAME_TABLE, SplitQueryType.RENAME_TABLE, SplitQueryType.COMMENT_TABLE);
     }
 }

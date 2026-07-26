@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.detectrule.handler;
+package com.clougence.clouddm.console.web.component.analysis;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
 
-public interface QueryTypeHandler {
+public interface ExecutionBackfillService {
 
-    void handleAfterSqlOperation(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime);
-
-    List<SecQueryType> canHandleType();
+    void backfill(List<SqlExecNotifyDTO> audits);
 }

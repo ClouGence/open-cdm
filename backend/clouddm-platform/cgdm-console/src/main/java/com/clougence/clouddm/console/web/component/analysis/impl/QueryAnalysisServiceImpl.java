@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.analysis;
+package com.clougence.clouddm.console.web.component.analysis.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
+import com.clougence.clouddm.console.web.component.analysis.ResourceAction;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
@@ -47,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     @Resource
-    private DmDsConfigService             dmDsConfigService;
+    private       DmDsConfigService       dmDsConfigService;
     private final ResourceActionConverter converter = new ResourceActionConverter();
 
     @Override
