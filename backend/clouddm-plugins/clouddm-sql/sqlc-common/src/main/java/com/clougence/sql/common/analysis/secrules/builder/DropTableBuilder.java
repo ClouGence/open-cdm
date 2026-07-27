@@ -22,7 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -37,7 +37,7 @@ public abstract class DropTableBuilder<T extends RdbTableDomain> extends Abstrac
         if (source == DomainSource.OBJ_NAME) {
             RdbTableDomain tableDomain = getTableDomain();
 
-            tableDomain.addSqlType(SplitQueryType.DROP_TABLE);
+            tableDomain.setSqlType(RuleQueryType.DROP_TABLE);
             tableDomain.setAuditKind(SecQueryKind.DROP);
 
             ObjNameDomain objNameDomain = (ObjNameDomain) list.get(0);

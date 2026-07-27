@@ -23,7 +23,7 @@ import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McTableD
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -46,7 +46,7 @@ public class McRenameBuilder extends AbstractDomainBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Table) {
             McTableDomain tableDomain = new McTableDomain();
-            tableDomain.addSqlType(SplitQueryType.RENAME_TABLE);
+            tableDomain.setSqlType(RuleQueryType.RENAME_TABLE);
             tableDomain.setAuditKind(SecQueryKind.ALTER);
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(oldNameList);
             tableDomain.setSchema(map.get(UmiTypes.Schema));

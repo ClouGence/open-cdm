@@ -22,7 +22,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -58,7 +58,7 @@ public class DrBuilderFactory extends RdbBuilderFactory {
     protected ColumnDefBuilder<DrColumnDomain> getColumnDefBuilder() { return new DrColumnDefBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(RuleQueryType type) {
         return new DrCatalogBuilder(type);
     }
 
@@ -93,7 +93,7 @@ public class DrBuilderFactory extends RdbBuilderFactory {
     @Override
     protected InsertBuilder getInsertBuilder() { return new DrInsertBuilder(); }
 
-    public void enterCreateTable(SplitQueryType type) {
+    public void enterCreateTable(RuleQueryType type) {
         this.domainStack.add(new DrCreateTableBuilder(type));
     }
 

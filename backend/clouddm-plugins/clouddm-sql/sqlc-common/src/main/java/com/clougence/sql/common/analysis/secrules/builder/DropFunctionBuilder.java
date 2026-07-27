@@ -22,7 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbFunctionDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -49,7 +49,7 @@ public class DropFunctionBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         functionDomain.setAuditKind(SecQueryKind.DROP);
-        functionDomain.addSqlType(SplitQueryType.DROP_PROG_OBJ);
+        functionDomain.setSqlType(RuleQueryType.DROP_PROG_OBJ);
         return Collections.singletonList(functionDomain);
     }
 }

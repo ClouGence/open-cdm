@@ -22,7 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbIndexDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.enums.NameType;
@@ -35,7 +35,7 @@ public class DropIndexBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        indexDomain.addSqlType(SplitQueryType.DROP_INDEX);
+        indexDomain.setSqlType(RuleQueryType.DROP_INDEX);
         indexDomain.setAuditKind(SecQueryKind.DROP);
         return Collections.singletonList(indexDomain);
     }

@@ -22,7 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbFunctionDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -34,7 +34,7 @@ public class CreateFunctionBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        rdbFunctionDomain.addSqlType(SplitQueryType.CREATE_PROG_OBJ);
+        rdbFunctionDomain.setSqlType(RuleQueryType.CREATE_PROG_OBJ);
         rdbFunctionDomain.setAuditKind(SecQueryKind.CREATE);
 
         return Collections.singletonList(rdbFunctionDomain);

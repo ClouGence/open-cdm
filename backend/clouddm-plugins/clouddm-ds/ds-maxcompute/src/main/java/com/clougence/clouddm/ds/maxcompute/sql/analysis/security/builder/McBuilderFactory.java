@@ -26,7 +26,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCatalogDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -89,7 +89,7 @@ public class McBuilderFactory extends RdbBuilderFactory {
     protected DeleteDomainBuilder getDeleteDomainBuilder() { return new McDeleteBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(RuleQueryType type) {
         return null;
     }
 
@@ -132,7 +132,7 @@ public class McBuilderFactory extends RdbBuilderFactory {
         this.domainStack.add(new McRenameBuilder(targetType));
     }
 
-    public void enterCreateTable(SplitQueryType type) {
+    public void enterCreateTable(RuleQueryType type) {
         this.domainStack.add(new McCreateTableBuilder(type, schemaEnabled));
     }
 

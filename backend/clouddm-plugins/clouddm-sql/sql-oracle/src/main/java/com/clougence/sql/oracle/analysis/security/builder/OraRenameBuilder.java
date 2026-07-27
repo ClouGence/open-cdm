@@ -23,7 +23,7 @@ import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.RenameBuilder;
 import com.clougence.sql.oracle.analysis.security.domain.OraColumnDomain;
 import com.clougence.sql.oracle.analysis.security.domain.OraTableDomain;
@@ -44,7 +44,7 @@ public class OraRenameBuilder extends RenameBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Column) {
             RdbColumnDomain rdbColumnDomain = getColumnDomain();
-            rdbColumnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
+            rdbColumnDomain.setSqlType(RuleQueryType.RENAME_COLUMN);
             rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
             int size = nameList.size();
             switch (size) {
@@ -60,7 +60,7 @@ public class OraRenameBuilder extends RenameBuilder {
             return Collections.singletonList(rdbColumnDomain);
         } else if (targetType == TargetType.Table) {
             OraTableDomain rdbColumnDomain = new OraTableDomain();
-            rdbColumnDomain.addSqlType(SplitQueryType.RENAME_TABLE);
+            rdbColumnDomain.setSqlType(RuleQueryType.RENAME_TABLE);
             rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
             int size = nameList.size();
             switch (size) {

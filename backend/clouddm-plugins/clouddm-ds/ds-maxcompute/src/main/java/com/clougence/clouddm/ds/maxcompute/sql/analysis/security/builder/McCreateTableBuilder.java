@@ -23,7 +23,7 @@ import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.builder.utils.M
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McTableDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -35,8 +35,8 @@ public class McCreateTableBuilder extends CreateTableBuilder<McTableDomain> {
 
     private final boolean schemaEnabled;
 
-    public McCreateTableBuilder(SplitQueryType type, boolean schemaEnabled){
-        rdbTableDomain.addSqlType(type);
+    public McCreateTableBuilder(RuleQueryType type, boolean schemaEnabled){
+        rdbTableDomain.setSqlType(type);
         this.schemaEnabled = schemaEnabled;
     }
 

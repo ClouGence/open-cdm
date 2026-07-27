@@ -22,7 +22,7 @@ import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.ModeDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 
 public class OtherDomainBuilder extends AbstractDomainBuilder {
@@ -36,8 +36,8 @@ public class OtherDomainBuilder extends AbstractDomainBuilder {
             if (ruleDomain.getAuditKind() == null) {
                 ruleDomain.setAuditKind(SecQueryKind.OTHER);
             }
-            if (ruleDomain.getSqlTypes().isEmpty()) {
-                ruleDomain.addSqlType(SplitQueryType.UNKNOWN);
+            if (ruleDomain.getSqlType() == null) {
+                ruleDomain.setSqlType(RuleQueryType.UNKNOWN);
             }
         }
         return this.domains;

@@ -26,7 +26,7 @@ import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstraintDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -79,7 +79,7 @@ public class McAlterTableBuilder extends AbstractDomainBuilder {
             for (Domain domain : list) {
                 RdbColumnDomain domainColumn = (RdbColumnDomain) domain;
                 domainColumn.setAuditKind(SecQueryKind.CREATE);
-                domainColumn.addSqlType(SplitQueryType.ADD_COLUMN);
+                domainColumn.setSqlType(RuleQueryType.ADD_COLUMN);
             }
             this.ruleDomains.addAll(list);
         } else if (source == DomainSource.COLUMN_LIST) {
@@ -87,7 +87,7 @@ public class McAlterTableBuilder extends AbstractDomainBuilder {
             for (String column : domain.getColumns()) {
                 McColumnDomain rdbColumnDomain = new McColumnDomain();
                 rdbColumnDomain.setAuditKind(SecQueryKind.DROP);
-                rdbColumnDomain.addSqlType(SplitQueryType.DROP_COLUMN);
+                rdbColumnDomain.setSqlType(RuleQueryType.DROP_COLUMN);
                 rdbColumnDomain.setColumn(column);
                 this.ruleDomains.add(rdbColumnDomain);
             }

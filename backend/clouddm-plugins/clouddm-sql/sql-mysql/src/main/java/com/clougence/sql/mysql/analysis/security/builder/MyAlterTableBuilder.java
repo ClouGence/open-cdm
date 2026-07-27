@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstraintDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbIndexDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -55,7 +55,7 @@ public class MyAlterTableBuilder extends AbstractDomainBuilder {
 
         if (newTableName != null) {
             MyTableDomain myTableDomain1 = new MyTableDomain();
-            myTableDomain1.addSqlType(SplitQueryType.RENAME_TABLE);
+            myTableDomain1.setSqlType(RuleQueryType.RENAME_TABLE);
             myTableDomain1.setAuditKind(SecQueryKind.ALTER);
             myTableDomain1.setTable(myTableDomain.getTable());
             myTableDomain1.setSchema(myTableDomain.getSchema());
@@ -66,7 +66,7 @@ public class MyAlterTableBuilder extends AbstractDomainBuilder {
             myTableDomain1.setNewSchemaName(newSchemaName);
             domains.add(myTableDomain1);
         }
-        myTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
+        myTableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
         myTableDomain.setAuditKind(SecQueryKind.ALTER);
 
         for (Domain ruleDomain : ruleDomains) {
@@ -83,7 +83,7 @@ public class MyAlterTableBuilder extends AbstractDomainBuilder {
                 tableDomain.setTable(myTableDomain.getTable());
                 tableDomain.setSchema(myTableDomain.getSchema());
                 tableDomain.setAuditKind(SecQueryKind.ALTER);
-                tableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
+                tableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
             }
         }
         domains.addAll(ruleDomains);

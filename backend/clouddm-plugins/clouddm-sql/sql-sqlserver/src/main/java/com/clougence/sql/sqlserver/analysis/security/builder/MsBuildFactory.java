@@ -24,7 +24,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -58,7 +58,7 @@ public class MsBuildFactory extends RdbBuilderFactory {
     }
 
     @Override
-    protected CatalogDomainBuilder<MsCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
+    protected CatalogDomainBuilder<MsCatalogDomain> getCatalogDomainBuilder(RuleQueryType type) {
         return new MsCatalogDomainBuilder(type);
     }
 
@@ -94,37 +94,37 @@ public class MsBuildFactory extends RdbBuilderFactory {
         return text;
     }
 
-    public MsCatalogDomain newCatalogDomain(SplitQueryType type) {
+    public MsCatalogDomain newCatalogDomain(RuleQueryType type) {
         MsCatalogDomain domain = new MsCatalogDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public MsSchemaDomain newSchemaDomain(SplitQueryType type) {
+    public MsSchemaDomain newSchemaDomain(RuleQueryType type) {
         MsSchemaDomain domain = new MsSchemaDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public MsTableDomain newTableDomain(SplitQueryType type, SecQueryKind kind) {
+    public MsTableDomain newTableDomain(RuleQueryType type, SecQueryKind kind) {
         MsTableDomain domain = new MsTableDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(kind);
         return domain;
     }
 
-    public MsColumnDomain newColumnDomain(SplitQueryType type, SecQueryKind kind) {
+    public MsColumnDomain newColumnDomain(RuleQueryType type, SecQueryKind kind) {
         MsColumnDomain domain = new MsColumnDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(kind);
         return domain;
     }
 
     public MsSelectDomain newSelectDomain() {
         MsSelectDomain domain = new MsSelectDomain();
-        domain.addSqlType(SplitQueryType.SELECT);
+        domain.setSqlType(RuleQueryType.SELECT);
         domain.setAuditKind(SecQueryKind.QUERY);
         domain.setMode(RdbQueryMode.NORMAL);
         domain.setSelectColumns(new ArrayList<>());
@@ -146,91 +146,91 @@ public class MsBuildFactory extends RdbBuilderFactory {
 
     public MsInsertDomain newInsertDomain() {
         MsInsertDomain domain = new MsInsertDomain();
-        domain.addSqlType(SplitQueryType.INSERT);
+        domain.setSqlType(RuleQueryType.INSERT);
         domain.setAuditKind(SecQueryKind.DML);
         return domain;
     }
 
     public MsUpdateDomain newUpdateDomain() {
         MsUpdateDomain domain = new MsUpdateDomain();
-        domain.addSqlType(SplitQueryType.UPDATE);
+        domain.setSqlType(RuleQueryType.UPDATE);
         domain.setAuditKind(SecQueryKind.DML);
         return domain;
     }
 
     public MsDeleteDomain newDeleteDomain() {
         MsDeleteDomain domain = new MsDeleteDomain();
-        domain.addSqlType(SplitQueryType.DELETE);
+        domain.setSqlType(RuleQueryType.DELETE);
         domain.setAuditKind(SecQueryKind.DML);
         return domain;
     }
 
     public RdbCallDomain newCallDomain() {
         RdbCallDomain domain = new RdbCallDomain();
-        domain.addSqlType(SplitQueryType.CALL_PROG_OBJ);
+        domain.setSqlType(RuleQueryType.CALL_PROG_OBJ);
         domain.setAuditKind(SecQueryKind.CALL);
         return domain;
     }
 
-    public RdbViewDomain newViewDomain(SplitQueryType type) {
+    public RdbViewDomain newViewDomain(RuleQueryType type) {
         RdbViewDomain domain = new RdbViewDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public RdbIndexDomain newIndexDomain(SplitQueryType type) {
+    public RdbIndexDomain newIndexDomain(RuleQueryType type) {
         RdbIndexDomain domain = new RdbIndexDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public RdbConstraintDomain newConstraintDomain(SplitQueryType type) {
+    public RdbConstraintDomain newConstraintDomain(RuleQueryType type) {
         RdbConstraintDomain domain = new RdbConstraintDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public RdbSequenceDomain newSequenceDomain(SplitQueryType type) {
+    public RdbSequenceDomain newSequenceDomain(RuleQueryType type) {
         RdbSequenceDomain domain = new RdbSequenceDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public RdbResourceDomain newResourceDomain(SplitQueryType type, SecQueryKind kind) {
+    public RdbResourceDomain newResourceDomain(RuleQueryType type, SecQueryKind kind) {
         RdbResourceDomain domain = new RdbResourceDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(kind);
         return domain;
     }
 
-    public RdbUserDomain newUserDomain(SplitQueryType type) {
+    public RdbUserDomain newUserDomain(RuleQueryType type) {
         RdbUserDomain domain = new RdbUserDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public RdbFunctionDomain newFunctionDomain(SplitQueryType type) {
+    public RdbFunctionDomain newFunctionDomain(RuleQueryType type) {
         RdbFunctionDomain domain = new RdbFunctionDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public RdbProcedureDomain newProcedureDomain(SplitQueryType type) {
+    public RdbProcedureDomain newProcedureDomain(RuleQueryType type) {
         RdbProcedureDomain domain = new RdbProcedureDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }
 
-    public RdbTriggerDomain newTriggerDomain(SplitQueryType type) {
+    public RdbTriggerDomain newTriggerDomain(RuleQueryType type) {
         RdbTriggerDomain domain = new RdbTriggerDomain();
-        domain.addSqlType(type);
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return domain;
     }

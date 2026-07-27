@@ -22,7 +22,7 @@ import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -44,7 +44,7 @@ public abstract class SelectDomainBuilder<T extends RdbSelectDomain> extends Abs
 
         this.selectDomain = getSelectDomain();
 
-        selectDomain.addSqlType(SplitQueryType.SELECT);
+        selectDomain.setSqlType(RuleQueryType.SELECT);
         selectDomain.setAuditKind(SecQueryKind.QUERY);
         selectDomain.setMode(RdbQueryMode.NORMAL);
         selectDomain.setOptions(new HashMap<>());

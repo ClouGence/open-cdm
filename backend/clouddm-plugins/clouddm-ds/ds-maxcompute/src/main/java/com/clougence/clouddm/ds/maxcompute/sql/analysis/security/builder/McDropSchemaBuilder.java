@@ -21,7 +21,7 @@ import java.util.Map;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McSchemaDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.DropSchemaBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -55,7 +55,7 @@ public class McDropSchemaBuilder extends DropSchemaBuilder<McSchemaDomain> {
             schemaDomain.setSchema(map.get(UmiTypes.Schema));
             schemaDomain.setCatalog(map.get(UmiTypes.Catalog));
             schemaDomain.setAuditKind(SecQueryKind.DROP);
-            schemaDomain.addSqlType(SplitQueryType.DROP_SCHEMA);
+            schemaDomain.setSqlType(RuleQueryType.DROP_SCHEMA);
             schemaDomain.setIfExists(ifExists);
             domains.add(schemaDomain);
         } else {

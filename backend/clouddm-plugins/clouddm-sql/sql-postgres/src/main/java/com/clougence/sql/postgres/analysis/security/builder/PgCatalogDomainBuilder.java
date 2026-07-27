@@ -15,7 +15,7 @@
  */
 package com.clougence.sql.postgres.analysis.security.builder;
 
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.CatalogDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -23,7 +23,7 @@ import com.clougence.sql.postgres.analysis.security.domain.PgCatalogDomain;
 
 public class PgCatalogDomainBuilder extends CatalogDomainBuilder<PgCatalogDomain> {
 
-    public PgCatalogDomainBuilder(SplitQueryType secQueryType){
+    public PgCatalogDomainBuilder(RuleQueryType secQueryType){
         super(secQueryType);
     }
 

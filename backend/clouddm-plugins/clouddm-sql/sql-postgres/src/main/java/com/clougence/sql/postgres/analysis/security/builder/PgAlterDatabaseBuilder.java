@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -59,7 +59,7 @@ public class PgAlterDatabaseBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        domain.addSqlType(SplitQueryType.ALTER_CATALOG);
+        domain.setSqlType(RuleQueryType.ALTER_CATALOG);
         domain.setAuditKind(SecQueryKind.ALTER);
         domain.setCatalog(name);
         return Collections.singletonList(domain);

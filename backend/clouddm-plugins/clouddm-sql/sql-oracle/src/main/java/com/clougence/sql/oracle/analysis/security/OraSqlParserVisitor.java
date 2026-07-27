@@ -34,7 +34,7 @@ import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstantDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbResourceDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.SqlConstraintType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -179,7 +179,7 @@ public class OraSqlParserVisitor extends PlSqlParserBaseVisitor<Void> {
         OraColumnDomain oraColumnDomain = new OraColumnDomain();
         oraColumnDomain.setColumn(getName(ctx.old_column_name().getText()));
         oraColumnDomain.setNewName(getName(ctx.new_column_name().getText()));
-        oraColumnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
+        oraColumnDomain.setSqlType(RuleQueryType.RENAME_COLUMN);
         oraColumnDomain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(oraColumnDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -664,7 +664,7 @@ public class OraSqlParserVisitor extends PlSqlParserBaseVisitor<Void> {
     @Override
     public Void visitAnonymous_block(Anonymous_blockContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.BLOCK);
+        rdbResourceDomain.setSqlType(RuleQueryType.BLOCK);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);

@@ -23,7 +23,7 @@ import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbResourceDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -35,7 +35,7 @@ public class AnalyzeTableBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        domain.addSqlType(SplitQueryType.ADMIN_TABLE);
+        domain.setSqlType(RuleQueryType.ADMIN_TABLE);
         domain.setAuditKind(SecQueryKind.ADMIN);
         domain.setNeedSupply(true);
         domain.setTarget(TargetType.Table);

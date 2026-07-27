@@ -20,7 +20,7 @@ import java.util.Map;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -35,15 +35,15 @@ import com.clougence.sql.mysql.analysis.security.builder.enums.MyAttribute;
 
 public class DrCreateTableBuilder extends CreateTableBuilder<DrTableDomain> {
 
-    public DrCreateTableBuilder(SplitQueryType type){
-        rdbTableDomain.addSqlType(type);
+    public DrCreateTableBuilder(RuleQueryType type){
+        rdbTableDomain.setSqlType(type);
     }
 
     @Override
     protected DrTableDomain getTableDomain() {
         DrTableDomain oraTableDomain = new DrTableDomain();
         oraTableDomain.setAuditKind(SecQueryKind.CREATE);
-        oraTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
+        oraTableDomain.setSqlType(RuleQueryType.CREATE_TABLE);
         return oraTableDomain;
     }
 

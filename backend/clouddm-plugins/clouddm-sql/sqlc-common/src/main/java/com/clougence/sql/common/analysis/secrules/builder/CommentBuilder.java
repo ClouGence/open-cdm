@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -66,7 +66,7 @@ public abstract class CommentBuilder implements DomainBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Column) {
             RdbColumnDomain rdbColumnDomain = getColumnDomain();
-            rdbColumnDomain.addSqlType(SplitQueryType.COMMENT_COLUMN);
+            rdbColumnDomain.setSqlType(RuleQueryType.COMMENT_COLUMN);
             rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
 
             Map<UmiTypes, String> map = BuilderUtil.parseColumnName(nameList);
@@ -79,7 +79,7 @@ public abstract class CommentBuilder implements DomainBuilder {
             return Collections.singletonList(rdbColumnDomain);
         } else if (targetType == TargetType.Table) {
             RdbTableDomain rdbTableDomain = getTableDomain();
-            rdbTableDomain.addSqlType(SplitQueryType.COMMENT_TABLE);
+            rdbTableDomain.setSqlType(RuleQueryType.COMMENT_TABLE);
             rdbTableDomain.setAuditKind(SecQueryKind.ALTER);
 
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(nameList);

@@ -38,7 +38,7 @@ import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstantDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbResourceDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbRoleDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -88,7 +88,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitAlterDbQuotaStatement(AlterDbQuotaStatementContext ctx) {
         SrSchemaDomain srSchemaDomain = new SrSchemaDomain();
         srSchemaDomain.setAuditKind(SecQueryKind.ALTER);
-        srSchemaDomain.addSqlType(SplitQueryType.ALTER_SCHEMA);
+        srSchemaDomain.setSqlType(RuleQueryType.ALTER_SCHEMA);
         srSchemaDomain.setSchema(getName(ctx.identifier(0).getText()));
         factory.addDomain(srSchemaDomain);
         return null;
@@ -162,7 +162,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitAlterDatabaseRenameStatement(AlterDatabaseRenameStatementContext ctx) {
         SrSchemaDomain srSchemaDomain = new SrSchemaDomain();
         srSchemaDomain.setAuditKind(SecQueryKind.ALTER);
-        srSchemaDomain.addSqlType(SplitQueryType.RENAME_SCHEMA);
+        srSchemaDomain.setSqlType(RuleQueryType.RENAME_SCHEMA);
         srSchemaDomain.setSchema(getName(ctx.identifier(0).getText()));
         srSchemaDomain.setNewName(getName(ctx.identifier(1).getText()));
         factory.addDomain(srSchemaDomain);
@@ -284,7 +284,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitCreateTableAsSelectStatement(CreateTableAsSelectStatementContext ctx) {
-        factory.enterCreateTable(SplitQueryType.CREATE_TABLE);
+        factory.enterCreateTable(RuleQueryType.CREATE_TABLE);
 
         if (ctx.TEMPORARY() != null) {
             factory.addAttr(MyAttribute.TEMPORARY, true);
@@ -385,7 +385,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         }
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setTarget(TargetType.Table);
         rdbResourceDomain.setNeedSupply(true);
         Map<UmiTypes, String> map = BuilderUtil.parseTableName(parseName(ctx.table));
@@ -399,7 +399,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitAnalyzeStatement(AnalyzeStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setTarget(TargetType.Table);
         rdbResourceDomain.setNeedSupply(true);
         Map<UmiTypes, String> map = BuilderUtil.parseTableName(parseName(ctx.tableName().qualifiedName()));
@@ -449,7 +449,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitAddPartitionClause(AddPartitionClauseContext ctx) {
         SrTableDomain srTableDomain = new SrTableDomain();
         srTableDomain.setAuditKind(SecQueryKind.ALTER);
-        srTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
+        srTableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
         factory.handleDomain(srTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -458,7 +458,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitModifyPartitionClause(ModifyPartitionClauseContext ctx) {
         SrTableDomain srTableDomain = new SrTableDomain();
         srTableDomain.setAuditKind(SecQueryKind.ALTER);
-        srTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
+        srTableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
         factory.handleDomain(srTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -467,7 +467,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitDropPartitionClause(DropPartitionClauseContext ctx) {
         SrTableDomain srTableDomain = new SrTableDomain();
         srTableDomain.setAuditKind(SecQueryKind.ALTER);
-        srTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
+        srTableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
         factory.handleDomain(srTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -512,7 +512,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowCreateExternalCatalogStatement(ShowCreateExternalCatalogStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setCatalog(getName(ctx.catalogName.getText()));
         rdbResourceDomain.setTarget(TargetType.Table);
 
@@ -525,9 +525,9 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.varType() == null || ctx.varType().LOCAL() != null || ctx.varType().SESSION() != null) {
-            rdbResourceDomain.addSqlType(SplitQueryType.SESSION_VARIABLE_RW);
+            rdbResourceDomain.setSqlType(RuleQueryType.SESSION_VARIABLE_RW);
         } else {
-            rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+            rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         }
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
@@ -540,7 +540,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowWarningStatement(ShowWarningStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
 
@@ -552,7 +552,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowDatabasesStatement(ShowDatabasesStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setTarget(TargetType.Schema);
         if (ctx.qualifiedName() != null) {
             if (ctx.qualifiedName().identifier().size() != 1) {
@@ -570,7 +570,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowPartitionsStatement(ShowPartitionsStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         if (ctx.qualifiedName().identifier().size() == 1) {
             rdbResourceDomain.setName(getName(ctx.qualifiedName().identifier(0).getText()));
         } else if (ctx.qualifiedName().identifier().size() == 2) {
@@ -592,7 +592,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowTableStatement(ShowTableStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         if (ctx.db != null) {
             List<String> names = new ArrayList<>();
             for (IdentifierContext identifierContext : ctx.qualifiedName().identifier()) {
@@ -618,7 +618,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowMaterializedViewsStatement(ShowMaterializedViewsStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         if (ctx.db != null) {
             List<String> names = new ArrayList<>();
             for (IdentifierContext identifierContext : ctx.qualifiedName().identifier()) {
@@ -644,7 +644,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowFunctionsStatement(ShowFunctionsStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         if (ctx.db != null) {
             List<String> names = new ArrayList<>();
             for (IdentifierContext identifierContext : ctx.qualifiedName().identifier()) {
@@ -670,7 +670,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowDictionaryStatement(ShowDictionaryStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
 
@@ -682,7 +682,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowCreateDbStatement(ShowCreateDbStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Schema);
 
@@ -696,7 +696,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowBrokerStatement(ShowBrokerStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
 
@@ -708,7 +708,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowComputeNodesStatement(ShowComputeNodesStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
 
@@ -720,7 +720,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowFrontendsStatement(ShowFrontendsStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
 
@@ -732,7 +732,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowProcesslistStatement(ShowProcesslistStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        rdbResourceDomain.setSqlType(RuleQueryType.PERFORMANCE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
 
@@ -744,7 +744,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowRunningQueriesStatement(ShowRunningQueriesStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        rdbResourceDomain.setSqlType(RuleQueryType.PERFORMANCE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
 
@@ -756,7 +756,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowAnalyzeStatement(ShowAnalyzeStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        rdbResourceDomain.setSqlType(RuleQueryType.PERFORMANCE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
 
@@ -768,7 +768,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowDataStmt(ShowDataStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        rdbResourceDomain.setSqlType(RuleQueryType.PERFORMANCE);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
 
@@ -780,7 +780,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowCreateTableStatement(ShowCreateTableStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         if (ctx.table != null) {
             List<String> names = new ArrayList<>();
             for (IdentifierContext identifierContext : ctx.qualifiedName().identifier()) {
@@ -814,7 +814,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         errorIfExist(ctx.db);
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         if (ctx.table != null) {
             List<String> names = new ArrayList<>();
             for (IdentifierContext identifierContext : ctx.table.identifier()) {
@@ -844,7 +844,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowAlterStatement(ShowAlterStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         if (ctx.db != null) {
             List<String> names = new ArrayList<>();
             for (IdentifierContext identifierContext : ctx.qualifiedName().identifier()) {
@@ -874,7 +874,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitCreateTableLikeStatement(CreateTableLikeStatementContext ctx) {
-        factory.enterCreateTable(SplitQueryType.CREATE_TABLE);
+        factory.enterCreateTable(RuleQueryType.CREATE_TABLE);
 
         if (ctx.TEMPORARY() != null) {
             factory.addAttr(MyAttribute.TEMPORARY, true);
@@ -897,7 +897,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowIndexStatement(ShowIndexStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         if (ctx.table != null) {
             List<String> names = new ArrayList<>();
             for (IdentifierContext identifierContext : ctx.table.identifier()) {
@@ -937,7 +937,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
             throw new UnsupportedOperationException("unsupported SQL: " + this.getText(ctx));
         }
         SrTableDomain drTableDomain = new SrTableDomain();
-        drTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
+        drTableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
 
         List<String> names = new ArrayList<>();
@@ -967,7 +967,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitDropViewStatement(DropViewStatementContext ctx) {
-        factory.enterView(SplitQueryType.DROP_VIEW);
+        factory.enterView(RuleQueryType.DROP_VIEW);
         dmVisitChildren(ctx);
         factory.exitView();
         return null;
@@ -985,7 +985,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitDropMaterializedViewStatement(DropMaterializedViewStatementContext ctx) {
-        factory.enterView(SplitQueryType.DROP_VIEW);
+        factory.enterView(RuleQueryType.DROP_VIEW);
         factory.addAttr(CommonAttribute.MATERIALIZED, true);
         ctx.qualifiedName().accept(this);
         factory.exitView();
@@ -1034,7 +1034,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Catalog);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         factory.addDomain(rdbResourceDomain);
         return null;
     }
@@ -1092,7 +1092,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         SrTableDomain srTableDomain = new SrTableDomain();
         srTableDomain.setNewName(getName(ctx.identifier().getText()));
         srTableDomain.setAuditKind(SecQueryKind.ALTER);
-        srTableDomain.addSqlType(SplitQueryType.RENAME_TABLE);
+        srTableDomain.setSqlType(RuleQueryType.RENAME_TABLE);
         factory.handleDomain(srTableDomain, DomainSource.ALTER_TABLE_ITEM);
 
         return null;
@@ -1103,7 +1103,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         SrTableDomain srTableDomain = new SrTableDomain();
         srTableDomain.setComment(getString(ctx.string().getText()));
         srTableDomain.setAuditKind(SecQueryKind.ALTER);
-        srTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
+        srTableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
         factory.handleDomain(srTableDomain, DomainSource.ALTER_TABLE_ITEM);
 
         return null;
@@ -1135,7 +1135,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     @Override
     public Void visitDropColumnClause(DropColumnClauseContext ctx) {
         SrColumnDomain columnDomain = new SrColumnDomain();
-        columnDomain.addSqlType(SplitQueryType.DROP_COLUMN);
+        columnDomain.setSqlType(RuleQueryType.DROP_COLUMN);
         columnDomain.setAuditKind(SecQueryKind.ALTER);
         columnDomain.setColumn(getName(ctx.identifier(0).getText()));
         factory.handleDomain(columnDomain, DomainSource.ALTER_TABLE_ITEM);
@@ -1154,7 +1154,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitColumnRenameClause(ColumnRenameClauseContext ctx) {
         SrColumnDomain columnDomain = new SrColumnDomain();
         columnDomain.setAuditKind(SecQueryKind.ALTER);
-        columnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
+        columnDomain.setSqlType(RuleQueryType.RENAME_COLUMN);
         columnDomain.setColumn(getName(ctx.oldColumn.getText()));
         columnDomain.setNewName(getName(ctx.newColumn.getText()));
         factory.handleDomain(columnDomain, DomainSource.ALTER_TABLE_ITEM);
@@ -1165,7 +1165,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitInsertStatement(InsertStatementContext ctx) {
         factory.enterInsertBuilder();
         if (ctx.OVERWRITE() != null) {
-            factory.addAttr(CommonAttribute.STATEMENT_TYPE, SplitQueryType.MERGE);
+            factory.addAttr(CommonAttribute.STATEMENT_TYPE, RuleQueryType.MERGE);
         }
         errorIfExist(ctx.explainDesc());
 
@@ -1273,7 +1273,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowDeleteStatement(ShowDeleteStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         if (ctx.db != null) {
             List<String> names = new ArrayList<>();
             for (IdentifierContext identifierContext : ctx.qualifiedName().identifier()) {
@@ -1296,7 +1296,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitCreateUserStatement(CreateUserStatementContext ctx) {
         SrUserDomain srUserDomain = new SrUserDomain();
         srUserDomain.setAuditKind(SecQueryKind.CREATE);
-        srUserDomain.addSqlType(SplitQueryType.CREATE_USER);
+        srUserDomain.setSqlType(RuleQueryType.CREATE_USER);
         srUserDomain.setHost("%");
 
         for (ParseTree child : ctx.user().children) {
@@ -1321,7 +1321,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitDropUserStatement(DropUserStatementContext ctx) {
         SrUserDomain srUserDomain = new SrUserDomain();
         srUserDomain.setAuditKind(SecQueryKind.DROP);
-        srUserDomain.addSqlType(SplitQueryType.DROP_USER);
+        srUserDomain.setSqlType(RuleQueryType.DROP_USER);
 
         for (ParseTree child : ctx.user().children) {
             if (child instanceof IdentifierOrStringContext) {
@@ -1342,7 +1342,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowUserStatement(ShowUserStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setTarget(TargetType.User);
         rdbResourceDomain.setNeedSupply(false);
         factory.addDomain(rdbResourceDomain);
@@ -1354,7 +1354,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         for (IdentifierOrStringContext identifierOrStringContext : ctx.roleList().identifierOrString()) {
             RdbRoleDomain rdbRoleDomain = new RdbRoleDomain();
             rdbRoleDomain.setAuditKind(SecQueryKind.CREATE);
-            rdbRoleDomain.addSqlType(SplitQueryType.CREATE_ROLE);
+            rdbRoleDomain.setSqlType(RuleQueryType.CREATE_ROLE);
             rdbRoleDomain.setRole(getString(identifierOrStringContext.getText()));
             factory.addDomain(rdbRoleDomain);
         }
@@ -1366,7 +1366,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         for (IdentifierOrStringContext identifierOrStringContext : ctx.roleList().identifierOrString()) {
             RdbRoleDomain rdbRoleDomain = new RdbRoleDomain();
             rdbRoleDomain.setAuditKind(SecQueryKind.DROP);
-            rdbRoleDomain.addSqlType(SplitQueryType.DROP_ROLE);
+            rdbRoleDomain.setSqlType(RuleQueryType.DROP_ROLE);
             rdbRoleDomain.setRole(getString(identifierOrStringContext.getText()));
             factory.addDomain(rdbRoleDomain);
         }
@@ -1377,7 +1377,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowRolesStatement(ShowRolesStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setTarget(TargetType.Role);
         rdbResourceDomain.setNeedSupply(false);
         factory.addDomain(rdbResourceDomain);
@@ -1388,7 +1388,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitGrantOnTableBrief(GrantOnTableBriefContext ctx) {
         SrGrantDomain rdbRevokeDomain = new SrGrantDomain();
         rdbRevokeDomain.setAuditKind(SecQueryKind.ALTER);
-        rdbRevokeDomain.addSqlType(SplitQueryType.GRANT);
+        rdbRevokeDomain.setSqlType(RuleQueryType.GRANT);
         if (ctx.grantRevokeClause().user() != null) {
             for (ParseTree child : ctx.grantRevokeClause().user().children) {
                 if (child instanceof IdentifierOrStringContext) {
@@ -1411,7 +1411,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitRevokeOnTableBrief(RevokeOnTableBriefContext ctx) {
         SrRevokeDomain rdbRevokeDomain = new SrRevokeDomain();
         rdbRevokeDomain.setAuditKind(SecQueryKind.ALTER);
-        rdbRevokeDomain.addSqlType(SplitQueryType.REVOKE);
+        rdbRevokeDomain.setSqlType(RuleQueryType.REVOKE);
         if (ctx.grantRevokeClause().user() != null) {
             for (ParseTree child : ctx.grantRevokeClause().user().children) {
                 if (child instanceof IdentifierOrStringContext) {
@@ -1434,7 +1434,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowGrantsStatement(ShowGrantsStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setTarget(TargetType.UserOrRole);
         rdbResourceDomain.setNeedSupply(false);
         factory.addDomain(rdbResourceDomain);
@@ -1446,7 +1446,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         String keyName = ctx.userVariable().identifierOrString().getText();
 
         SrConfigDomain domain = new SrConfigDomain(keyName, null);
-        domain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        domain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
         domain.setAuditKind(SecQueryKind.OTHER);
         factory.addDomain(domain);
         return null;
@@ -1479,7 +1479,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
         }
 
         SrConfigDomain domain = new SrConfigDomain(keyName, scopeType);
-        domain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        domain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
         domain.setAuditKind(SecQueryKind.OTHER);
         factory.addDomain(domain);
         return null;
@@ -1795,7 +1795,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitRefreshMaterializedViewStatement(RefreshMaterializedViewStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN);
         rdbResourceDomain.setNeedSupply(true);
         List<String> strings = parseName(ctx.mvName);
         Map<UmiTypes, String> map = BuilderUtil.parseViewName(strings);
@@ -1810,7 +1810,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowStatusStatement(ShowStatusStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
         factory.addDomain(rdbResourceDomain);

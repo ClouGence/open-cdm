@@ -23,7 +23,7 @@ import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbResourceDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.enums.NameType;
@@ -34,8 +34,8 @@ public class ResourceBuilder extends AbstractDomainBuilder {
 
     private final RdbResourceDomain domain = new RdbResourceDomain();
 
-    public ResourceBuilder(SplitQueryType sqlType, SecQueryKind auditKind, boolean needSupply, TargetType targetType){
-        domain.addSqlType(sqlType);
+    public ResourceBuilder(RuleQueryType sqlType, SecQueryKind auditKind, boolean needSupply, TargetType targetType){
+        domain.setSqlType(sqlType);
         domain.setAuditKind(auditKind);
         domain.setNeedSupply(needSupply);
         domain.setTarget(targetType);

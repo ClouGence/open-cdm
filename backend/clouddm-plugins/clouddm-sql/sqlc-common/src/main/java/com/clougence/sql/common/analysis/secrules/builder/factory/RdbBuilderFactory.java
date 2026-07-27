@@ -28,7 +28,7 @@ import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
@@ -88,7 +88,7 @@ public abstract class RdbBuilderFactory {
 
     protected DeleteDomainBuilder getDeleteDomainBuilder() { return new DeleteDomainBuilder(); }
 
-    protected abstract CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type);
+    protected abstract CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(RuleQueryType type);
 
     protected GrantBuilder getGrantBuilder() { return new GrantBuilder(); }
 
@@ -886,7 +886,7 @@ public abstract class RdbBuilderFactory {
     // create catalog ---------------------------------------------------------
 
     public void enterCreateCatalog() {
-        this.domainStack.add(getCatalogDomainBuilder(SplitQueryType.CREATE_CATALOG));
+        this.domainStack.add(getCatalogDomainBuilder(RuleQueryType.CREATE_CATALOG));
     }
 
     public void exitCreateCatalog() {
@@ -894,7 +894,7 @@ public abstract class RdbBuilderFactory {
     }
 
     public void enterDropCatalog() {
-        this.domainStack.add(getCatalogDomainBuilder(SplitQueryType.DROP_CATALOG));
+        this.domainStack.add(getCatalogDomainBuilder(RuleQueryType.DROP_CATALOG));
     }
 
     public void exitDropCatalog() {
@@ -1227,10 +1227,10 @@ public abstract class RdbBuilderFactory {
 
     @Deprecated
     public void enterCreateView() {
-        this.enterView(SplitQueryType.CREATE_VIEW);
+        this.enterView(RuleQueryType.CREATE_VIEW);
     }
 
-    public void enterView(SplitQueryType type) {
+    public void enterView(RuleQueryType type) {
         this.domainStack.add(new CreateViewBuilder(type));
     }
 
@@ -1309,7 +1309,7 @@ public abstract class RdbBuilderFactory {
         exitBuilder(DomainSource.NONE);
     }
 
-    public void handleResource(Handler handler, SplitQueryType sqlType, SecQueryKind auditKind, boolean needSupply, TargetType targetType) {
+    public void handleResource(Handler handler, RuleQueryType sqlType, SecQueryKind auditKind, boolean needSupply, TargetType targetType) {
         this.domainStack.add(new ResourceBuilder(sqlType, auditKind, needSupply, targetType));
         handler.handle();
         exitBuilder(DomainSource.NONE);
@@ -1343,7 +1343,7 @@ public abstract class RdbBuilderFactory {
         this.domainStack.add(new AlterViewBuilder());
     }
 
-    public void enterAlterView(SplitQueryType type) {
+    public void enterAlterView(RuleQueryType type) {
         this.domainStack.add(new AlterViewBuilder(type));
     }
 

@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.mongodb.analysis.security;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -76,8 +77,8 @@ public class MongoSecDomainResolveSpi implements SecDomainResolveSpi {
                 MongoFuncType funcType = mongoFunc.getFuncType();
                 String funcStr = funcType.getFuncStr();
 
-                SplitQueryType convert = MongoAnalysisHelper.convert(funcType);
-                mongoCmdDomain.addSqlType(convert);
+                RuleQueryType convert = MongoAnalysisHelper.convert(funcType);
+                mongoCmdDomain.setSqlType(convert);
                 mongoCmdDomain.setAuditKind(convert.getAuditKind());
                 mongoCmdDomain.setFunc(funcStr);
                 mongoCmdDomain.setDsType(dsType);

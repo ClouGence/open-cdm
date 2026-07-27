@@ -23,7 +23,7 @@ import java.util.Map;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -36,7 +36,7 @@ public class InsertBuilder extends AbstractDomainBuilder {
     private List<String>      nameList      = new ArrayList<>();
     protected RdbInsertDomain insertDomain  = getInsertDomain();
     private int               values        = 0;
-    private SplitQueryType    statementType = SplitQueryType.INSERT;
+    private RuleQueryType    statementType = RuleQueryType.INSERT;
 
     protected RdbInsertDomain getInsertDomain() { return new RdbInsertDomain(); }
 
@@ -46,7 +46,7 @@ public class InsertBuilder extends AbstractDomainBuilder {
             this.insertDomain.setMultipleValues(true);
         }
         insertDomain.setAuditKind(SecQueryKind.DML);
-        insertDomain.addSqlType(statementType);
+        insertDomain.setSqlType(statementType);
 
         Map<UmiTypes, String> map = BuilderUtil.parseTableName(nameList);
         insertDomain.setCatalog(map.get(UmiTypes.Catalog));
@@ -120,7 +120,7 @@ public class InsertBuilder extends AbstractDomainBuilder {
         if (attr == CommonAttribute.INSERT_CONFLICT) {
             insertDomain.setConflict((RdbInsertConflictStrategy) value);
         } else if (attr == CommonAttribute.STATEMENT_TYPE) {
-            statementType = (SplitQueryType) value;
+            statementType = (RuleQueryType) value;
         } else if (attr == CommonAttribute.MULTI_VALUE) {
             insertDomain.setMultipleValues(true);
         } else {

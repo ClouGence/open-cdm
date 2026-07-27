@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCallDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -52,7 +52,7 @@ public class CallDomainBuilder extends AbstractDomainBuilder {
             domain.setEmptyArg(true);
         }
         domain.setFunc(true);
-        domain.addSqlType(SplitQueryType.CALL_PROG_OBJ);
+        domain.setSqlType(RuleQueryType.CALL_PROG_OBJ);
         domain.setAuditKind(SecQueryKind.CALL);
 
         Map<UmiTypes, String> map = BuilderUtil.parseFunctionName(nameList);

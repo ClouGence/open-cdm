@@ -21,7 +21,7 @@ import java.util.Stack;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.factory.RdbBuilderFactory;
 import com.clougence.sql.common.analysis.secrules.builder.mode.WithSelectDomain;
@@ -52,7 +52,7 @@ public class ChBuilderFactory extends RdbBuilderFactory {
     protected ColumnDefBuilder<? extends RdbColumnDomain> getColumnDefBuilder() { return new ChColumnDefBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(RuleQueryType type) {
         return null;
     }
 

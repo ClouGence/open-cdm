@@ -15,13 +15,14 @@
  */
 package com.clougence.sql.common.analysis.secrules.builder;
 
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCatalogDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 
@@ -31,8 +32,8 @@ public abstract class CatalogDomainBuilder<T extends RdbCatalogDomain> extends A
 
     protected abstract T getCatalogDomain();
 
-    public CatalogDomainBuilder(SplitQueryType secQueryType){
-        rdbCatalogDomain.addSqlType(secQueryType);
+    public CatalogDomainBuilder(RuleQueryType secQueryType){
+        rdbCatalogDomain.setSqlType(secQueryType);
         rdbCatalogDomain.setAuditKind(secQueryType.getAuditKind());
     }
 

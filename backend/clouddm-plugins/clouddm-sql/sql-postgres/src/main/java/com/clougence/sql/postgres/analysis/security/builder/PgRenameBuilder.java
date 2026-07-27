@@ -26,7 +26,7 @@ import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCatalogDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSchemaDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.RenameBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -63,7 +63,7 @@ public class PgRenameBuilder extends RenameBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Column) {
             RdbColumnDomain rdbColumnDomain = getColumnDomain();
-            rdbColumnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
+            rdbColumnDomain.setSqlType(RuleQueryType.RENAME_COLUMN);
             rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
             int size = nameList.size();
             switch (size) {
@@ -82,7 +82,7 @@ public class PgRenameBuilder extends RenameBuilder {
             return Collections.singletonList(rdbColumnDomain);
         } else if (targetType == TargetType.Table) {
             PgTableDomain rdbColumnDomain = new PgTableDomain();
-            rdbColumnDomain.addSqlType(SplitQueryType.RENAME_TABLE);
+            rdbColumnDomain.setSqlType(RuleQueryType.RENAME_TABLE);
             rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
             int size = nameList.size();
             switch (size) {
@@ -104,7 +104,7 @@ public class PgRenameBuilder extends RenameBuilder {
         } else if (targetType == TargetType.Catalog) {
             RdbCatalogDomain catalogDomain = new RdbCatalogDomain();
             catalogDomain.setAuditKind(SecQueryKind.ALTER);
-            catalogDomain.addSqlType(SplitQueryType.RENAME_CATALOG);
+            catalogDomain.setSqlType(RuleQueryType.RENAME_CATALOG);
             catalogDomain.setCatalog(nameList.get(0));
             catalogDomain.setNewName(nameList.get(1));
             catalogDomain.setOptions(new HashMap<>());
@@ -112,7 +112,7 @@ public class PgRenameBuilder extends RenameBuilder {
         } else if (targetType == TargetType.Schema) {
             RdbSchemaDomain schemaDomain = getSchemaDomain();
             schemaDomain.setAuditKind(SecQueryKind.ALTER);
-            schemaDomain.addSqlType(SplitQueryType.RENAME_SCHEMA);
+            schemaDomain.setSqlType(RuleQueryType.RENAME_SCHEMA);
             int size = nameList.size();
             if (size == 3) {
                 schemaDomain.setCatalog(nameList.get(0));

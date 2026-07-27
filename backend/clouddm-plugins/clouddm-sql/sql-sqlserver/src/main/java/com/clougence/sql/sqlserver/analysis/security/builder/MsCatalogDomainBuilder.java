@@ -15,13 +15,13 @@
  */
 package com.clougence.sql.sqlserver.analysis.security.builder;
 
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.CatalogDomainBuilder;
 import com.clougence.sql.sqlserver.analysis.security.domain.MsCatalogDomain;
 
 public class MsCatalogDomainBuilder extends CatalogDomainBuilder<MsCatalogDomain> {
 
-    public MsCatalogDomainBuilder(SplitQueryType secQueryType){
+    public MsCatalogDomainBuilder(RuleQueryType secQueryType){
         super(secQueryType);
     }
 

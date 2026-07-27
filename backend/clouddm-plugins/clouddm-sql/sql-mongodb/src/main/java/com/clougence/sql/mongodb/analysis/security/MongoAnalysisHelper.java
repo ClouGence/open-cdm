@@ -15,52 +15,52 @@
  */
 package com.clougence.sql.mongodb.analysis.security;
 
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 
 public class MongoAnalysisHelper {
 
-    public static SplitQueryType convert(MongoFuncType type) {
+    public static RuleQueryType convert(MongoFuncType type) {
 
         switch (type) {
             case FIND:
             case AGGREGATE: {
-                return SplitQueryType.SELECT;
+                return RuleQueryType.SELECT;
             }
             case FIND_ONE:
             case COUNT:
             case DISTINCT:
             case COUNT_DOCUMENTS: {
-                return SplitQueryType.SELECT;
+                return RuleQueryType.SELECT;
             }
             case DATA_SIZE:
             case HELLO: {
-                return SplitQueryType.PERFORMANCE;
+                return RuleQueryType.PERFORMANCE;
             }
 
             case LIST_COLLECTIONS:
             case LIST_INDEXES:
             case SHOW_DATABASES:
             case SHOW_COLLECTIONS: {
-                return SplitQueryType.UNKNOWN;
+                return RuleQueryType.UNKNOWN;
             }
             case VALIDATE: {
-                return SplitQueryType.ADMIN_TABLE;
+                return RuleQueryType.ADMIN_TABLE;
             }
             case CREATE_INDEX:
             case CREATE_INDEXES: {
-                return SplitQueryType.ADD_INDEX;
+                return RuleQueryType.ADD_INDEX;
             }
             case CREATE_VIEW: {
-                return SplitQueryType.CREATE_VIEW;
+                return RuleQueryType.CREATE_VIEW;
             }
             case CREATE_COLLECTION: {
-                return SplitQueryType.CREATE_TABLE;
+                return RuleQueryType.CREATE_TABLE;
             }
             case INSERT:
             case INSERT_ONE:
             case INSERT_MANY: {
-                return SplitQueryType.INSERT;
+                return RuleQueryType.INSERT;
             }
             case UPDATE:
             case UPDATE_MANY:
@@ -68,34 +68,34 @@ public class MongoAnalysisHelper {
             case REPLACE_ONE:
             case FIND_ONE_AND_REPLACE:
             case FIND_ONE_AND_UPDATE: {
-                return SplitQueryType.UPDATE;
+                return RuleQueryType.UPDATE;
             }
             case FIND_ONE_AND_DELETE:
             case DELETE_ONE:
             case DELETE_MANY: {
-                return SplitQueryType.DELETE;
+                return RuleQueryType.DELETE;
             }
             case DROP: {
-                return SplitQueryType.DROP_TABLE;
+                return RuleQueryType.DROP_TABLE;
             }
             case DROP_DATABASE: {
-                return SplitQueryType.DROP_SCHEMA;
+                return RuleQueryType.DROP_SCHEMA;
             }
             case RENAME_COLLECTION: {
-                return SplitQueryType.RENAME_TABLE;
+                return RuleQueryType.RENAME_TABLE;
             }
             case ALTER_INDEX: {
-                return SplitQueryType.ALTER_INDEX;
+                return RuleQueryType.ALTER_INDEX;
             }
             case DROP_INDEXES:
             case DROP_INDEX: {
-                return SplitQueryType.DROP_INDEX;
+                return RuleQueryType.DROP_INDEX;
             }
             case EXPLAIN: {
-                return SplitQueryType.PERFORMANCE;
+                return RuleQueryType.PERFORMANCE;
             }
             case USE: {
-                return SplitQueryType.SWITCH_SCHEMA;
+                return RuleQueryType.SWITCH_SCHEMA;
             }
             case HOST_INFO:
             case FSYNC_LOCK:
@@ -108,9 +108,9 @@ public class MongoAnalysisHelper {
             case FSYNC_UNLOCK:
             case DB_STATS:
             case LATENCY_STATS: {
-                return SplitQueryType.ADMIN;
+                return RuleQueryType.ADMIN;
             }
         }
-        return SplitQueryType.UNKNOWN;
+        return RuleQueryType.UNKNOWN;
     }
 }

@@ -20,7 +20,7 @@ import java.util.Map;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -37,7 +37,7 @@ public class PgCreateTableBuilder extends CreateTableBuilder<PgTableDomain> {
     protected PgTableDomain getTableDomain() {
         PgTableDomain pgTableDomain = new PgTableDomain();
         pgTableDomain.setAuditKind(SecQueryKind.CREATE);
-        pgTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
+        pgTableDomain.setSqlType(RuleQueryType.CREATE_TABLE);
         return pgTableDomain;
     }
 
@@ -59,7 +59,7 @@ public class PgCreateTableBuilder extends CreateTableBuilder<PgTableDomain> {
                 Map<UmiTypes, String> map = BuilderUtil.parseTableName(objNameDomain.getNameList());
                 rdbTableDomain.setSourceSchema(map.get(UmiTypes.Schema));
                 rdbTableDomain.setSourceTable(map.get(UmiTypes.Table));
-                rdbTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
+                rdbTableDomain.setSqlType(RuleQueryType.CREATE_TABLE);
             }
         } else {
             super.handleSubDomain(list, source);

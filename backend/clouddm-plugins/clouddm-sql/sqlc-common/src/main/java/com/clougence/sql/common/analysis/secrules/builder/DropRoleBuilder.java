@@ -21,7 +21,7 @@ import java.util.List;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbRoleDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
 
@@ -42,7 +42,7 @@ public class DropRoleBuilder extends AbstractDomainBuilder {
         List<Domain> domains = new ArrayList<>();
         for (String user : roles) {
             RdbRoleDomain rdbUserDomain = getRoleDomain();
-            rdbUserDomain.addSqlType(SplitQueryType.DROP_ROLE);
+            rdbUserDomain.setSqlType(RuleQueryType.DROP_ROLE);
             rdbUserDomain.setAuditKind(SecQueryKind.DROP);
             rdbUserDomain.setRole(user);
             domains.add(rdbUserDomain);

@@ -22,7 +22,7 @@ import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParserBaseVisitor;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 
 public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     private final List<RuleDomain>   domains      = new ArrayList<>();
@@ -45,7 +45,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitSelectQuery(DmSqlParser.SelectQueryContext ctx) {
         if (ctx.fromClause() != null) {
             for (NameParts table : collectTables(ctx.fromClause())) {
-                tableDomain(table, SplitQueryType.SELECT);
+                tableDomain(table, RuleQueryType.SELECT);
             }
         }
         return visitChildren(ctx);
@@ -69,7 +69,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitInsertTableSource(DmSqlParser.InsertTableSourceContext ctx) {
         NameParts name = NameParts.from(ctx.qualifiedName());
         if (!isCteReference(name)) {
-            tableDomain(name, SplitQueryType.SELECT);
+            tableDomain(name, RuleQueryType.SELECT);
         }
         return visitChildren(ctx);
     }
@@ -82,7 +82,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             insertDomain(NameParts.from(ctx.qualifiedName()));
             return;
         }
-        addDmlTargetDomains(ctx.selectStatement(), SplitQueryType.INSERT);
+        addDmlTargetDomains(ctx.selectStatement(), RuleQueryType.INSERT);
     }
 
     private void insertDomain(NameParts name) {
@@ -94,10 +94,10 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         domain.setCatalog(name.catalog());
         domain.setSchema(name.schema());
         domain.setTable(name.name());
-        add(domain, SplitQueryType.INSERT);
+        add(domain, RuleQueryType.INSERT);
     }
 
-    private void updateDomains(DmSqlParser.TablePrimaryContext ctx, SplitQueryType type) {
+    private void updateDomains(DmSqlParser.TablePrimaryContext ctx, RuleQueryType type) {
         if (ctx == null) {
             return;
         }
@@ -116,7 +116,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         }
     }
 
-    private void updateDomains(DmSqlParser.TableSourceContext ctx, SplitQueryType type) {
+    private void updateDomains(DmSqlParser.TableSourceContext ctx, RuleQueryType type) {
         if (ctx == null) {
             return;
         }
@@ -130,7 +130,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         }
     }
 
-    private void updateDomain(NameParts name, SplitQueryType type) {
+    private void updateDomain(NameParts name, RuleQueryType type) {
         name = schemaScoped(name);
         if (name == null) {
             return;
@@ -151,17 +151,17 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         domain.setCatalog(name.catalog());
         domain.setSchema(name.schema());
         domain.setTable(name.name());
-        add(domain, SplitQueryType.DELETE);
+        add(domain, RuleQueryType.DELETE);
     }
 
     @Override
     public Void visitUpdateStatement(DmSqlParser.UpdateStatementContext ctx) {
         for (DmSqlParser.TableSourceContext tableSourceContext : ctx.updateTargetList().tableSource()) {
-            updateDomains(tableSourceContext, SplitQueryType.UPDATE);
+            updateDomains(tableSourceContext, RuleQueryType.UPDATE);
         }
         if (ctx.fromClause() != null) {
             for (NameParts table : collectTables(ctx.fromClause())) {
-                tableDomain(table, SplitQueryType.SELECT);
+                tableDomain(table, RuleQueryType.SELECT);
             }
         }
         return visitChildren(ctx);
@@ -174,7 +174,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         }
         if (ctx.deleteMultiTableClause() != null) {
             for (NameParts table : collectTables(ctx.deleteMultiTableClause().deleteTableList().tableSource())) {
-                tableDomain(table, SplitQueryType.SELECT);
+                tableDomain(table, RuleQueryType.SELECT);
             }
         }
         return visitChildren(ctx);
@@ -183,15 +183,15 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitMergeStatement(DmSqlParser.MergeStatementContext ctx) {
         if (ctx.mergeIntoTarget().qualifiedName() != null) {
-            updateDomain(NameParts.from(ctx.mergeIntoTarget().qualifiedName()), SplitQueryType.MERGE);
+            updateDomain(NameParts.from(ctx.mergeIntoTarget().qualifiedName()), RuleQueryType.MERGE);
         } else if (ctx.mergeIntoTarget().selectStatement() != null) {
-            addDmlTargetDomains(ctx.mergeIntoTarget().selectStatement(), SplitQueryType.MERGE);
+            addDmlTargetDomains(ctx.mergeIntoTarget().selectStatement(), RuleQueryType.MERGE);
         }
         if (ctx.mergeSource().tableSource() != null) {
             List<NameParts> tables = new ArrayList<>();
             collectTableSource(ctx.mergeSource().tableSource(), tables);
             for (NameParts table : tables) {
-                tableDomain(table, SplitQueryType.SELECT);
+                tableDomain(table, RuleQueryType.SELECT);
             }
         }
         return visitChildren(ctx);
@@ -200,7 +200,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitFlashbackStatement(DmSqlParser.FlashbackStatementContext ctx) {
         for (DmSqlParser.QualifiedNameContext nameContext : ctx.qualifiedName()) {
-            tableDomain(NameParts.from(nameContext), SplitQueryType.ADMIN_TABLE);
+            tableDomain(NameParts.from(nameContext), RuleQueryType.ADMIN_TABLE);
         }
         return null;
     }
@@ -210,16 +210,16 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         RdbViewDomain domain = new RdbViewDomain();
         setViewName(domain, NameParts.from(ctx.qualifiedName()));
         domain.setMaterialized(true);
-        add(domain, SplitQueryType.ADMIN);
+        add(domain, RuleQueryType.ADMIN);
         return null;
     }
 
     @Override
     public Void visitTableCreate(DmSqlParser.TableCreateContext ctx) {
-        SplitQueryType type = SplitQueryType.CREATE_TABLE;
+        RuleQueryType type = RuleQueryType.CREATE_TABLE;
         tableDomain(schemaScoped(NameParts.from(ctx.targetTable)), type);
         if (ctx.likeSourceTable != null) {
-            tableDomain(NameParts.from(ctx.likeSourceTable), SplitQueryType.SELECT);
+            tableDomain(NameParts.from(ctx.likeSourceTable), RuleQueryType.SELECT);
         }
         return visitChildren(ctx);
     }
@@ -232,14 +232,14 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         domain.setSchema(name.schema());
         domain.setView(name.name());
         domain.setMaterialized(ctx.MATERIALIZED() != null);
-        add(domain, SplitQueryType.CREATE_VIEW);
+        add(domain, RuleQueryType.CREATE_VIEW);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitMaterializedViewPrebuiltClause(DmSqlParser.MaterializedViewPrebuiltClauseContext ctx) {
         if (ctx.prebuiltTable != null) {
-            tableDomain(NameParts.from(ctx.prebuiltTable), SplitQueryType.ALTER_TABLE);
+            tableDomain(NameParts.from(ctx.prebuiltTable), RuleQueryType.ALTER_TABLE);
         }
         return visitChildren(ctx);
     }
@@ -247,8 +247,8 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitMaterializedViewLogCreate(DmSqlParser.MaterializedViewLogCreateContext ctx) {
         NameParts name = NameParts.from(ctx.qualifiedName());
-        objectDomain(name, SplitQueryType.CREATE_LOG);
-        tableDomain(name, SplitQueryType.ALTER_TABLE);
+        objectDomain(name, RuleQueryType.CREATE_LOG);
+        tableDomain(name, RuleQueryType.ALTER_TABLE);
         return null;
     }
 
@@ -268,7 +268,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             domain.setTableSchema(table.schema());
             domain.setTableName(table.name());
         }
-        add(domain, SplitQueryType.ADD_INDEX);
+        add(domain, RuleQueryType.ADD_INDEX);
         return null;
     }
 
@@ -281,7 +281,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             domain.setCatalog(name.catalog());
         }
         domain.setSchema(schema);
-        add(domain, SplitQueryType.CREATE_SCHEMA);
+        add(domain, RuleQueryType.CREATE_SCHEMA);
         if (schema == null) {
             return visitChildren(ctx);
         }
@@ -297,7 +297,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitSequenceCreate(DmSqlParser.SequenceCreateContext ctx) {
         RdbSequenceDomain domain = new RdbSequenceDomain();
         setObjectName(domain, NameParts.from(ctx.qualifiedName()));
-        add(domain, SplitQueryType.CREATE_SEQUENCE);
+        add(domain, RuleQueryType.CREATE_SEQUENCE);
         return null;
     }
 
@@ -305,7 +305,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitUserCreate(DmSqlParser.UserCreateContext ctx) {
         RdbUserDomain domain = new RdbUserDomain();
         domain.setUser(NameParts.clean(ctx.identifier().getText()));
-        add(domain, SplitQueryType.CREATE_USER);
+        add(domain, RuleQueryType.CREATE_USER);
         return null;
     }
 
@@ -313,7 +313,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitRoleCreate(DmSqlParser.RoleCreateContext ctx) {
         RdbRoleDomain domain = new RdbRoleDomain();
         domain.setRole(NameParts.clean(ctx.identifier().getText()));
-        add(domain, SplitQueryType.CREATE_ROLE);
+        add(domain, RuleQueryType.CREATE_ROLE);
         return null;
     }
 
@@ -321,7 +321,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitProcedureCreate(DmSqlParser.ProcedureCreateContext ctx) {
         RdbProcedureDomain domain = new RdbProcedureDomain();
         setObjectName(domain, NameParts.from(ctx.qualifiedName()));
-        add(domain, SplitQueryType.CREATE_PROG_OBJ);
+        add(domain, RuleQueryType.CREATE_PROG_OBJ);
         return visitChildren(ctx);
     }
 
@@ -329,7 +329,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitFunctionCreate(DmSqlParser.FunctionCreateContext ctx) {
         RdbFunctionDomain domain = new RdbFunctionDomain();
         setObjectName(domain, NameParts.from(ctx.qualifiedName()));
-        add(domain, SplitQueryType.CREATE_PROG_OBJ);
+        add(domain, RuleQueryType.CREATE_PROG_OBJ);
         return visitChildren(ctx);
     }
 
@@ -340,9 +340,9 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         domain.setCatalog(name.catalog());
         domain.setSchema(name.schema());
         domain.setName(name.name());
-        add(domain, SplitQueryType.CREATE_TRIGGER);
+        add(domain, RuleQueryType.CREATE_TRIGGER);
         if (ctx.triggerCreateTail().tableTriggerCreateTail() != null) {
-            tableDomain(NameParts.from(firstQualifiedName(ctx.triggerCreateTail().tableTriggerCreateTail().qualifiedName())), SplitQueryType.ALTER_TABLE);
+            tableDomain(NameParts.from(firstQualifiedName(ctx.triggerCreateTail().tableTriggerCreateTail().qualifiedName())), RuleQueryType.ALTER_TABLE);
         }
         return visitChildren(ctx);
     }
@@ -351,7 +351,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitSynonymCreate(DmSqlParser.SynonymCreateContext ctx) {
         RdbSynonymDomain domain = new RdbSynonymDomain();
         setObjectName(domain, NameParts.from(ctx.qualifiedName(0)));
-        add(domain, SplitQueryType.CREATE_SYNONYM);
+        add(domain, RuleQueryType.CREATE_SYNONYM);
         return null;
     }
 
@@ -362,15 +362,15 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         }
         NameParts name = schemaScoped(objectCreateName(ctx));
         if (ctx.TABLESPACE() != null) {
-            objectDomain(name, SplitQueryType.CREATE_TABLESPACE);
+            objectDomain(name, RuleQueryType.CREATE_TABLESPACE);
         } else if (ctx.DOMAIN() != null || ctx.typeBodyCreate() != null || ctx.typeCreate() != null) {
-            objectDomain(name, SplitQueryType.CREATE_TYPE);
+            objectDomain(name, RuleQueryType.CREATE_TYPE);
         } else if (ctx.operatorCreate() != null) {
-            objectDomain(name, SplitQueryType.CREATE_PROG_OBJ);
+            objectDomain(name, RuleQueryType.CREATE_PROG_OBJ);
         } else if (ctx.PROFILE() != null) {
             configDomain(name == null ? null : name.name());
         } else if (ctx.classBodyCreate() != null || ctx.javaClassCreate() != null || ctx.classCreate() != null) {
-            objectDomain(name, SplitQueryType.CREATE_TYPE);
+            objectDomain(name, RuleQueryType.CREATE_TYPE);
         }
         return visitChildren(ctx);
     }
@@ -379,13 +379,13 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitReplaceableObjectCreate(DmSqlParser.ReplaceableObjectCreateContext ctx) {
         NameParts name = schemaScoped(replaceableObjectCreateName(ctx));
         if (ctx.PACKAGE() != null) {
-            objectDomain(name, SplitQueryType.CREATE_PROG_OBJ);
+            objectDomain(name, RuleQueryType.CREATE_PROG_OBJ);
         } else if (ctx.LIBRARY() != null) {
-            objectDomain(name, SplitQueryType.CREATE_LIBRARY);
+            objectDomain(name, RuleQueryType.CREATE_LIBRARY);
         } else if (ctx.typeBodyCreate() != null || ctx.typeCreate() != null) {
-            objectDomain(name, SplitQueryType.CREATE_TYPE);
+            objectDomain(name, RuleQueryType.CREATE_TYPE);
         } else if (ctx.classBodyCreate() != null || ctx.javaClassCreate() != null || ctx.classCreate() != null) {
-            objectDomain(name, SplitQueryType.CREATE_TYPE);
+            objectDomain(name, RuleQueryType.CREATE_TYPE);
         } else if (ctx.LINK() != null || ctx.DIRECTORY() != null || ctx.CONTEXT() != null) {
             configDomain(name == null ? null : name.name());
         }
@@ -397,30 +397,30 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         DmSqlParser.QualifiedNameContext qualifiedName = firstQualifiedName(ctx.qualifiedName());
         NameParts name = qualifiedName == null ? null : schemaScoped(NameParts.from(qualifiedName));
         if (ctx.TABLE() != null) {
-            tableDomain(name, SplitQueryType.ALTER_TABLE);
+            tableDomain(name, RuleQueryType.ALTER_TABLE);
         } else if (ctx.INDEX() != null) {
-            indexDomain(contextIndexName(ctx.contextIndexName, name), contextTableName(ctx.contextTableName), SplitQueryType.ALTER_INDEX);
+            indexDomain(contextIndexName(ctx.contextIndexName, name), contextTableName(ctx.contextTableName), RuleQueryType.ALTER_INDEX);
         } else if (ctx.VIEW() != null) {
             RdbViewDomain domain = new RdbViewDomain();
             setViewName(domain, name);
             domain.setMaterialized(ctx.MATERIALIZED() != null);
-            add(domain, SplitQueryType.ALTER_VIEW);
+            add(domain, RuleQueryType.ALTER_VIEW);
         } else if (ctx.SEQUENCE() != null) {
             RdbSequenceDomain domain = new RdbSequenceDomain();
             setObjectName(domain, name);
-            add(domain, SplitQueryType.ALTER_SEQUENCE);
+            add(domain, RuleQueryType.ALTER_SEQUENCE);
         } else if (ctx.USER() != null) {
             RdbUserDomain domain = new RdbUserDomain();
             domain.setUser(NameParts.clean(ctx.identifier().getText()));
-            add(domain, SplitQueryType.ALTER_USER);
+            add(domain, RuleQueryType.ALTER_USER);
         } else if (ctx.PROCEDURE() != null) {
             RdbProcedureDomain domain = new RdbProcedureDomain();
             setObjectName(domain, name);
-            add(domain, SplitQueryType.ALTER_PROG_OBJ);
+            add(domain, RuleQueryType.ALTER_PROG_OBJ);
         } else if (ctx.FUNCTION() != null) {
             RdbFunctionDomain domain = new RdbFunctionDomain();
             setObjectName(domain, name);
-            add(domain, SplitQueryType.ALTER_PROG_OBJ);
+            add(domain, RuleQueryType.ALTER_PROG_OBJ);
         } else if (ctx.TRIGGER() != null) {
             RdbTriggerDomain domain = new RdbTriggerDomain();
             if (name != null) {
@@ -428,17 +428,17 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
                 domain.setSchema(name.schema());
                 domain.setName(name.name());
             }
-            add(domain, SplitQueryType.ALTER_TRIGGER);
+            add(domain, RuleQueryType.ALTER_TRIGGER);
         } else if (ctx.PACKAGE() != null) {
-            objectDomain(name, SplitQueryType.ADMIN_PROG_OBJ);
+            objectDomain(name, RuleQueryType.ADMIN_PROG_OBJ);
         } else if (ctx.TABLESPACE() != null) {
-            objectDomain(name, SplitQueryType.ALTER_TABLESPACE);
+            objectDomain(name, RuleQueryType.ALTER_TABLESPACE);
         } else if (ctx.PROFILE() != null) {
             configDomain(ctx.identifier() == null ? null : NameParts.clean(ctx.identifier().getText()));
         } else if (ctx.TYPE() != null) {
-            objectDomain(name, SplitQueryType.ADMIN_TYPE);
+            objectDomain(name, RuleQueryType.ADMIN_TYPE);
         } else if (ctx.CLASS() != null) {
-            objectDomain(name, SplitQueryType.ADMIN_TYPE);
+            objectDomain(name, RuleQueryType.ADMIN_TYPE);
         }
         return visitChildren(ctx);
     }
@@ -448,44 +448,44 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         DmSqlParser.QualifiedNameContext qualifiedName = firstQualifiedName(ctx.qualifiedName());
         NameParts name = qualifiedName == null ? null : NameParts.from(qualifiedName);
         if (ctx.TABLE() != null) {
-            tableDomain(name, SplitQueryType.DROP_TABLE);
+            tableDomain(name, RuleQueryType.DROP_TABLE);
         } else if (ctx.MATERIALIZED() != null && ctx.LOG() != null) {
-            objectDomain(name, SplitQueryType.DROP_LOG);
-            tableDomain(name, SplitQueryType.ALTER_TABLE);
+            objectDomain(name, RuleQueryType.DROP_LOG);
+            tableDomain(name, RuleQueryType.ALTER_TABLE);
         } else if (ctx.VIEW() != null) {
             RdbViewDomain domain = new RdbViewDomain();
             setViewName(domain, name);
             domain.setMaterialized(ctx.MATERIALIZED() != null);
-            add(domain, SplitQueryType.DROP_VIEW);
+            add(domain, RuleQueryType.DROP_VIEW);
         } else if (ctx.INDEX() != null) {
-            indexDomain(contextIndexName(ctx.contextIndexName, name), contextTableName(ctx.contextTableName), SplitQueryType.DROP_INDEX);
+            indexDomain(contextIndexName(ctx.contextIndexName, name), contextTableName(ctx.contextTableName), RuleQueryType.DROP_INDEX);
         } else if (ctx.SCHEMA() != null || ctx.DATABASE() != null) {
             RdbSchemaDomain domain = new RdbSchemaDomain();
             if (name != null) {
                 domain.setCatalog(name.catalog());
                 domain.setSchema(name.name());
             }
-            add(domain, SplitQueryType.DROP_SCHEMA);
+            add(domain, RuleQueryType.DROP_SCHEMA);
         } else if (ctx.SEQUENCE() != null) {
             RdbSequenceDomain domain = new RdbSequenceDomain();
             setObjectName(domain, name);
-            add(domain, SplitQueryType.DROP_SEQUENCE);
+            add(domain, RuleQueryType.DROP_SEQUENCE);
         } else if (ctx.USER() != null) {
             RdbUserDomain domain = new RdbUserDomain();
             domain.setUser(NameParts.clean(ctx.identifier().getText()));
-            add(domain, SplitQueryType.DROP_USER);
+            add(domain, RuleQueryType.DROP_USER);
         } else if (ctx.ROLE() != null) {
             RdbRoleDomain domain = new RdbRoleDomain();
             domain.setRole(NameParts.clean(ctx.identifier().getText()));
-            add(domain, SplitQueryType.DROP_ROLE);
+            add(domain, RuleQueryType.DROP_ROLE);
         } else if (ctx.PROCEDURE() != null) {
             RdbProcedureDomain domain = new RdbProcedureDomain();
             setObjectName(domain, name);
-            add(domain, SplitQueryType.DROP_PROG_OBJ);
+            add(domain, RuleQueryType.DROP_PROG_OBJ);
         } else if (ctx.FUNCTION() != null) {
             RdbFunctionDomain domain = new RdbFunctionDomain();
             setObjectName(domain, name);
-            add(domain, SplitQueryType.DROP_PROG_OBJ);
+            add(domain, RuleQueryType.DROP_PROG_OBJ);
         } else if (ctx.TRIGGER() != null) {
             RdbTriggerDomain domain = new RdbTriggerDomain();
             if (name != null) {
@@ -493,46 +493,46 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
                 domain.setSchema(name.schema());
                 domain.setName(name.name());
             }
-            add(domain, SplitQueryType.DROP_TRIGGER);
+            add(domain, RuleQueryType.DROP_TRIGGER);
         } else if (ctx.SYNONYM() != null) {
             RdbSynonymDomain domain = new RdbSynonymDomain();
             setObjectName(domain, name);
-            add(domain, SplitQueryType.DROP_SYNONYM);
+            add(domain, RuleQueryType.DROP_SYNONYM);
         } else if (ctx.PACKAGE() != null) {
-            objectDomain(name, SplitQueryType.DROP_PROG_OBJ);
+            objectDomain(name, RuleQueryType.DROP_PROG_OBJ);
         } else if (ctx.TABLESPACE() != null) {
-            objectDomain(name, SplitQueryType.DROP_TABLESPACE);
+            objectDomain(name, RuleQueryType.DROP_TABLESPACE);
         } else if (ctx.LIBRARY() != null) {
-            objectDomain(name, SplitQueryType.DROP_LIBRARY);
+            objectDomain(name, RuleQueryType.DROP_LIBRARY);
         } else if (ctx.DOMAIN() != null || ctx.TYPE() != null) {
-            objectDomain(name, SplitQueryType.DROP_TYPE);
+            objectDomain(name, RuleQueryType.DROP_TYPE);
         } else if (ctx.CLASS() != null) {
-            objectDomain(name, SplitQueryType.DROP_TYPE);
+            objectDomain(name, RuleQueryType.DROP_TYPE);
         } else if (ctx.LINK() != null || ctx.DIRECTORY() != null || ctx.CONTEXT() != null || ctx.PROFILE() != null) {
             NameParts objectName = objectTargetName(qualifiedName, ctx.identifier());
             configDomain(objectName == null ? null : objectName.name());
         } else if (ctx.OPERATOR() != null) {
-            objectDomain(operatorName(ctx.operatorQualifiedName()), SplitQueryType.DROP_PROG_OBJ);
+            objectDomain(operatorName(ctx.operatorQualifiedName()), RuleQueryType.DROP_PROG_OBJ);
         }
         return null;
     }
 
     @Override
     public Void visitTruncateStatement(DmSqlParser.TruncateStatementContext ctx) {
-        tableDomain(NameParts.from(ctx.qualifiedName()), SplitQueryType.TRUNCATE_TABLE);
+        tableDomain(NameParts.from(ctx.qualifiedName()), RuleQueryType.TRUNCATE_TABLE);
         return null;
     }
 
     @Override
     public Void visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
         if (ctx.commentTarget().TABLE() != null) {
-            tableDomain(schemaScoped(NameParts.from(ctx.commentTarget().qualifiedName())), SplitQueryType.COMMENT_TABLE);
+            tableDomain(schemaScoped(NameParts.from(ctx.commentTarget().qualifiedName())), RuleQueryType.COMMENT_TABLE);
         } else if (ctx.commentTarget().VIEW() != null) {
             RdbViewDomain domain = new RdbViewDomain();
             setViewName(domain, schemaScoped(NameParts.from(ctx.commentTarget().qualifiedName())));
-            add(domain, SplitQueryType.ALTER_VIEW);
+            add(domain, RuleQueryType.ALTER_VIEW);
         } else {
-            tableDomain(schemaScoped(columnTableName(ctx.commentTarget().qualifiedName())), SplitQueryType.COMMENT_COLUMN);
+            tableDomain(schemaScoped(columnTableName(ctx.commentTarget().qualifiedName())), RuleQueryType.COMMENT_COLUMN);
         }
         return null;
     }
@@ -543,7 +543,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         for (DmSqlParser.GranteeContext granteeContext : granteeList.grantee()) {
             RdbGrantDomain domain = new RdbGrantDomain();
             domain.setName(NameParts.clean(granteeContext.getText()));
-            add(domain, SplitQueryType.GRANT);
+            add(domain, RuleQueryType.GRANT);
         }
         return null;
     }
@@ -555,7 +555,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         for (DmSqlParser.GranteeContext granteeContext : granteeList.grantee()) {
             RdbRevokeDomain domain = new RdbRevokeDomain();
             domain.setName(NameParts.clean(granteeContext.getText()));
-            add(domain, SplitQueryType.REVOKE);
+            add(domain, RuleQueryType.REVOKE);
         }
         return null;
     }
@@ -581,12 +581,12 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         domain.setCatalog(name.catalog());
         domain.setSchema(name.schema());
         domain.setCallName(name.name());
-        add(domain, SplitQueryType.CALL_PROG_OBJ);
+        add(domain, RuleQueryType.CALL_PROG_OBJ);
     }
 
     @Override
     public Void visitLockTableStatement(DmSqlParser.LockTableStatementContext ctx) {
-        tableDomain(NameParts.from(ctx.qualifiedName()), SplitQueryType.TRANSACTION);
+        tableDomain(NameParts.from(ctx.qualifiedName()), RuleQueryType.TRANSACTION);
         return null;
     }
 
@@ -602,7 +602,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         NameParts name = NameParts.from(ctx.qualifiedName());
         domain.setCatalog(name.catalog());
         domain.setSchema(name.name());
-        add(domain, SplitQueryType.SWITCH_SCHEMA);
+        add(domain, RuleQueryType.SWITCH_SCHEMA);
         return null;
     }
 
@@ -614,13 +614,13 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitSetIdentityInsertStatement(DmSqlParser.SetIdentityInsertStatementContext ctx) {
-        tableDomain(NameParts.from(ctx.qualifiedName()), SplitQueryType.TRANSACTION);
+        tableDomain(NameParts.from(ctx.qualifiedName()), RuleQueryType.TRANSACTION);
         return null;
     }
 
     @Override
     public Void visitAdminStatement(DmSqlParser.AdminStatementContext ctx) {
-        objectDomain(new NameParts(null, null, "DATABASE"), SplitQueryType.ADMIN);
+        objectDomain(new NameParts(null, null, "DATABASE"), RuleQueryType.ADMIN);
         return null;
     }
 
@@ -630,10 +630,10 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         if (ctx.statTarget().INDEX() != null) {
             RdbIndexDomain domain = new RdbIndexDomain();
             setIndexName(domain, name);
-            add(domain, SplitQueryType.ADMIN_TABLE);
+            add(domain, RuleQueryType.ADMIN_TABLE);
             return null;
         }
-        tableDomain(name, SplitQueryType.ADMIN_TABLE);
+        tableDomain(name, RuleQueryType.ADMIN_TABLE);
         return null;
     }
 
@@ -642,16 +642,16 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         String procedure = ctx.statProcedureName().getText();
         List<DmSqlParser.ExpressionContext> args = ctx.expressionList() == null ? new ArrayList<>() : ctx.expressionList().expression();
         if (isTableStatProcedure(procedure) || isColumnStatProcedure(procedure)) {
-            tableDomain(statTargetName(args, 0, 1), SplitQueryType.ADMIN_TABLE);
+            tableDomain(statTargetName(args, 0, 1), RuleQueryType.ADMIN_TABLE);
             return null;
         }
         if (isIndexStatProcedure(procedure)) {
             RdbIndexDomain domain = new RdbIndexDomain();
             setIndexName(domain, statTargetName(args, 0, 1));
-            add(domain, SplitQueryType.ADMIN_TABLE);
+            add(domain, RuleQueryType.ADMIN_TABLE);
             return null;
         }
-        objectDomain(new NameParts(null, null, "DATABASE"), SplitQueryType.ADMIN_TABLE);
+        objectDomain(new NameParts(null, null, "DATABASE"), RuleQueryType.ADMIN_TABLE);
         return null;
     }
 
@@ -669,13 +669,13 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAuditAdminStatement(DmSqlParser.AuditAdminStatementContext ctx) {
-        objectDomain(new NameParts(null, null, "DATABASE"), SplitQueryType.ADMIN);
+        objectDomain(new NameParts(null, null, "DATABASE"), RuleQueryType.ADMIN);
         return null;
     }
 
     @Override
     public Void visitSecurityAdminStatement(DmSqlParser.SecurityAdminStatementContext ctx) {
-        objectDomain(new NameParts(null, null, "SECURITY"), SplitQueryType.ADMIN);
+        objectDomain(new NameParts(null, null, "SECURITY"), RuleQueryType.ADMIN);
         return null;
     }
 
@@ -813,11 +813,11 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         return false;
     }
 
-    private void addDmlTargetDomains(DmSqlParser.SelectStatementContext ctx, SplitQueryType type) {
+    private void addDmlTargetDomains(DmSqlParser.SelectStatementContext ctx, RuleQueryType type) {
         for (NameParts name : collectTables(ctx)) {
-            if (type == SplitQueryType.INSERT) {
+            if (type == RuleQueryType.INSERT) {
                 insertDomain(name);
-            } else if (type == SplitQueryType.DELETE) {
+            } else if (type == RuleQueryType.DELETE) {
                 deleteDomain(name);
             } else {
                 updateDomain(name, type);
@@ -912,7 +912,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         return new NameParts(NameParts.clean(parts[parts.length - 3]), NameParts.clean(parts[parts.length - 2]), NameParts.clean(parts[parts.length - 1]));
     }
 
-    private RdbTableDomain tableDomain(NameParts name, SplitQueryType type) {
+    private RdbTableDomain tableDomain(NameParts name, RuleQueryType type) {
         RdbTableDomain domain = new RdbTableDomain();
         if (name != null) {
             domain.setCatalog(name.catalog());
@@ -922,7 +922,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         return add(domain, type);
     }
 
-    private RdbIndexDomain indexDomain(NameParts index, NameParts table, SplitQueryType type) {
+    private RdbIndexDomain indexDomain(NameParts index, NameParts table, RuleQueryType type) {
         RdbIndexDomain domain = new RdbIndexDomain();
         setIndexName(domain, index);
         table = schemaScoped(table);
@@ -934,7 +934,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         return add(domain, type);
     }
 
-    private RdbObjectDomain objectDomain(NameParts name, SplitQueryType type) {
+    private RdbObjectDomain objectDomain(NameParts name, RuleQueryType type) {
         RdbObjectDomain domain = new RdbObjectDomain();
         name = schemaScoped(name);
         if (name != null) {
@@ -946,7 +946,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     }
 
     private RdbConfigDomain configDomain(String configKey) {
-        return add(new RdbConfigDomain(configKey), SplitQueryType.SYSTEM_SETTING_WRITE);
+        return add(new RdbConfigDomain(configKey), RuleQueryType.SYSTEM_SETTING_WRITE);
     }
 
     private boolean isTableStatProcedure(String procedure) {
@@ -1114,8 +1114,8 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         return new NameParts(null, NameParts.clean(text.substring(0, dot)), NameParts.clean(text.substring(dot + 1)));
     }
 
-    private <T extends RuleDomain> T add(T domain, SplitQueryType type) {
-        domain.addSqlType(type);
+    private <T extends RuleDomain> T add(T domain, RuleQueryType type) {
+        domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         domains.add(domain);
         return domain;

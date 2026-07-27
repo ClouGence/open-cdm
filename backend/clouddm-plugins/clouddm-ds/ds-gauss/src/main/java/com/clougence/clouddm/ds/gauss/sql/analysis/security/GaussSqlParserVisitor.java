@@ -32,7 +32,7 @@ import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParserBaseVisitor
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -81,7 +81,7 @@ public class GaussSqlParserVisitor extends GaussSqlParserBaseVisitor<Void> {
     public Void visitVariableshowstmt(VariableshowstmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.SESSION_VARIABLE_RW);
+        rdbResourceDomain.setSqlType(RuleQueryType.SESSION_VARIABLE_RW);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -91,7 +91,7 @@ public class GaussSqlParserVisitor extends GaussSqlParserBaseVisitor<Void> {
     @Override
     public Void visitDostmt(DostmtContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
-        domain.addSqlType(SplitQueryType.BLOCK);
+        domain.setSqlType(RuleQueryType.BLOCK);
         domain.setAuditKind(SecQueryKind.OTHER);
         domain.setTarget(TargetType.Unknown);
         this.builder.addDomain(domain);
@@ -102,7 +102,7 @@ public class GaussSqlParserVisitor extends GaussSqlParserBaseVisitor<Void> {
     public Void visitAnalyzestmt(AnalyzestmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN_TABLE);
+        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN_TABLE);
         if (ctx.schema != null) {
             rdbResourceDomain.setSchema(getName(getText(ctx.schema)));
         }
@@ -117,7 +117,7 @@ public class GaussSqlParserVisitor extends GaussSqlParserBaseVisitor<Void> {
     public Void visitRefreshmatviewstmt(RefreshmatviewstmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN);
         rdbResourceDomain.setTarget(TargetType.Materialized);
         rdbResourceDomain.setNeedSupply(true);
 
@@ -1079,7 +1079,7 @@ public class GaussSqlParserVisitor extends GaussSqlParserBaseVisitor<Void> {
                 ctx.qualified_name(1).accept(this);
                 PgTableDomain pgTableDomain = new PgTableDomain();
                 pgTableDomain.setAuditKind(SecQueryKind.ALTER);
-                pgTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
+                pgTableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
                 builder.handleDomain(pgTableDomain, DomainSource.ALTER_TABLE_ITEM);
             });
         } else {

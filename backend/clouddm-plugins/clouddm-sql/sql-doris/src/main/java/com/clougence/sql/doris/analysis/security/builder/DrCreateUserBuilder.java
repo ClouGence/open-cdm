@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.CreateUserBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -48,7 +48,7 @@ public class DrCreateUserBuilder extends CreateUserBuilder<DrUserDomain> {
     @Override
     public List<Domain> build() {
         rdbUserDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbUserDomain.addSqlType(SplitQueryType.CREATE_USER);
+        rdbUserDomain.setSqlType(RuleQueryType.CREATE_USER);
         if (rdbUserDomain.getHost() == null) {
             rdbUserDomain.setHost("%");
         }

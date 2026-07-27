@@ -33,7 +33,7 @@ import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParserBase
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -477,7 +477,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
 
     @Override
     public Void visitCopyCreateTable(CopyCreateTableContext ctx) {
-        builder.enterCreateTable(SplitQueryType.CREATE_TABLE);
+        builder.enterCreateTable(RuleQueryType.CREATE_TABLE);
         dmVisitChildren(ctx);
         builder.exitCreateTable();
         return null;
@@ -485,7 +485,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
 
     @Override
     public Void visitQueryCreateTable(QueryCreateTableContext ctx) {
-        builder.enterCreateTable(SplitQueryType.CREATE_TABLE);
+        builder.enterCreateTable(RuleQueryType.CREATE_TABLE);
         dmVisitChildren(ctx);
         builder.exitCreateTable();
         return null;
@@ -493,7 +493,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
 
     @Override
     public Void visitColumnCreateTable(ColumnCreateTableContext ctx) {
-        builder.enterCreateTable(SplitQueryType.CREATE_TABLE);
+        builder.enterCreateTable(RuleQueryType.CREATE_TABLE);
         dmVisitChildren(ctx);
         builder.exitCreateTable();
         return null;
@@ -681,7 +681,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
         for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleResource(() -> {
                 tableNameContext.accept(this);
-            }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+            }, RuleQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         }
         return null;
     }
@@ -691,7 +691,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
         for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleResource(() -> {
                 tableNameContext.accept(this);
-            }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+            }, RuleQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         }
         return null;
     }
@@ -699,7 +699,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitInstallPlugin(InstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_LIBRARY);
+        rdbResourceDomain.setSqlType(RuleQueryType.CREATE_LIBRARY);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Library);
@@ -710,7 +710,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitUninstallPlugin(UninstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.DROP_LIBRARY);
+        rdbResourceDomain.setSqlType(RuleQueryType.DROP_LIBRARY);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Library);
@@ -721,7 +721,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitCreateUdfFunction(CreateUdfFunctionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Function);
@@ -734,7 +734,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
         for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleResource(() -> {
                 tableNameContext.accept(this);
-            }, SplitQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+            }, RuleQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
         }
         return null;
     }
@@ -753,7 +753,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitFullDescribeStatement(FullDescribeStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        rdbResourceDomain.setSqlType(RuleQueryType.PERFORMANCE);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -774,7 +774,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitSetTransaction(SetTransactionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbResourceDomain.addSqlType(SplitQueryType.TRANSACTION);
+        rdbResourceDomain.setSqlType(RuleQueryType.TRANSACTION);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -968,7 +968,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitCreateTablespaceInnodb(CreateTablespaceInnodbContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_TABLESPACE);
+        rdbResourceDomain.setSqlType(RuleQueryType.CREATE_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -979,7 +979,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitAlterLogfileGroup(AlterLogfileGroupContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_LOG);
+        rdbResourceDomain.setSqlType(RuleQueryType.ALTER_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Log);
@@ -990,7 +990,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTablespace(AlterTablespaceContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_TABLESPACE);
+        rdbResourceDomain.setSqlType(RuleQueryType.ALTER_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -1001,7 +1001,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitDropTablespace(DropTablespaceContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.DROP_TABLESPACE);
+        rdbResourceDomain.setSqlType(RuleQueryType.DROP_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -1012,7 +1012,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitDropLogfileGroup(DropLogfileGroupContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.DROP_LOG);
+        rdbResourceDomain.setSqlType(RuleQueryType.DROP_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Log);
@@ -1023,7 +1023,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitCreateLogfileGroup(CreateLogfileGroupContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_LOG);
+        rdbResourceDomain.setSqlType(RuleQueryType.CREATE_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Log);
@@ -1034,7 +1034,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitCreateTablespaceNdb(CreateTablespaceNdbContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_TABLESPACE);
+        rdbResourceDomain.setSqlType(RuleQueryType.CREATE_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -1068,7 +1068,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitAlterByChangeDefault(AlterByChangeDefaultContext ctx) {
         MyColumnDomain myColumnDomain = new MyColumnDomain();
         myColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        myColumnDomain.addSqlType(SplitQueryType.ALTER_COLUMN);
+        myColumnDomain.setSqlType(RuleQueryType.ALTER_COLUMN);
         myColumnDomain.setColumn(getName(ctx.uid()));
         if (ctx.defaultValue() != null) {
             String text = this.getText(ctx.defaultValue());
@@ -1142,7 +1142,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitAlterByRenameIndex(AlterByRenameIndexContext ctx) {
         MyIndexDomain myIndexDomain = new MyIndexDomain();
-        myIndexDomain.addSqlType(SplitQueryType.ALTER_INDEX);
+        myIndexDomain.setSqlType(RuleQueryType.ALTER_INDEX);
         myIndexDomain.setAuditKind(SecQueryKind.ALTER);
         myIndexDomain.setName(getName(ctx.uid(0)));
         myIndexDomain.setNewName(getName(ctx.uid(1)));
@@ -1154,7 +1154,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitAlterByAlterIndexVisibility(AlterByAlterIndexVisibilityContext ctx) {
         MyIndexDomain myIndexDomain = new MyIndexDomain();
-        myIndexDomain.addSqlType(SplitQueryType.ALTER_INDEX);
+        myIndexDomain.setSqlType(RuleQueryType.ALTER_INDEX);
         myIndexDomain.setAuditKind(SecQueryKind.ALTER);
         myIndexDomain.setName(getName(ctx.uid()));
         myIndexDomain.setVisible(ctx.visivility.getType() == VISIBLE);
@@ -1186,7 +1186,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitAlterByConvertCharset(AlterByConvertCharsetContext ctx) {
         MyTableDomain myTableDomain = new MyTableDomain();
         myTableDomain.setAuditKind(SecQueryKind.ALTER);
-        myTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
+        myTableDomain.setSqlType(RuleQueryType.ALTER_TABLE);
 
         myTableDomain.setCharacterSet(ctx.charsetName().getText());
         if (ctx.collationName() != null) {
@@ -1246,7 +1246,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitTruncateTable(TruncateTableContext ctx) {
         MyTableDomain myTableDomain = new MyTableDomain();
         myTableDomain.setAuditKind(SecQueryKind.DML);
-        myTableDomain.addSqlType(SplitQueryType.TRUNCATE_TABLE);
+        myTableDomain.setSqlType(RuleQueryType.TRUNCATE_TABLE);
 
         List<String> names = new ArrayList<>();
         for (UidContext uid : ctx.tableName().fullId().uid()) {
@@ -1497,7 +1497,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
         //        dmVisitChildren(ctx);
         //        builder.exitCreateUser();
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_USER);
+        rdbResourceDomain.setSqlType(RuleQueryType.CREATE_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1569,7 +1569,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_USER);
+        rdbResourceDomain.setSqlType(RuleQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1580,7 +1580,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitAlterUserMysqlV56(AlterUserMysqlV56Context ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_USER);
+        rdbResourceDomain.setSqlType(RuleQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1591,7 +1591,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitGrantProxy(GrantProxyContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.GRANT);
+        rdbResourceDomain.setSqlType(RuleQueryType.GRANT);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1602,7 +1602,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeProxy(RevokeProxyContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.REVOKE);
+        rdbResourceDomain.setSqlType(RuleQueryType.REVOKE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1613,7 +1613,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitRenameUser(RenameUserContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.RENAME_USER);
+        rdbResourceDomain.setSqlType(RuleQueryType.RENAME_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1650,7 +1650,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
             }
 
             MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);
-            domain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+            domain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
             domain.setAuditKind(SecQueryKind.OTHER);
             builder.addDomain(domain);
         }
@@ -1661,7 +1661,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitSetPassword(SetPasswordContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_USER);
+        rdbResourceDomain.setSqlType(RuleQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1672,7 +1672,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowMasterLogs(ShowMasterLogsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.LOG_READ);
+        myShowDomain.setSqlType(RuleQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.BINARY_LOGS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1683,7 +1683,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowSlaveStatus(ShowSlaveStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.SALVE_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1694,7 +1694,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitResetReplica(ResetReplicaContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1705,7 +1705,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitResetSlave(ResetSlaveContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1722,7 +1722,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitLoadIndexIntoCache(LoadIndexIntoCacheContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN_PERFORMANCE);
+        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN_PERFORMANCE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Index);
         rdbResourceDomain.setNeedSupply(false);
@@ -1733,7 +1733,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitKillStatement(KillStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1744,7 +1744,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitPurgeBinaryLogs(PurgeBinaryLogsContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.MAINTAIN_LOG);
+        rdbResourceDomain.setSqlType(RuleQueryType.MAINTAIN_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1755,7 +1755,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitResetMaster(ResetMasterContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1766,7 +1766,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowReplicaStatus(ShowReplicaStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.REPLICA_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1777,7 +1777,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowCharset(ShowCharsetContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CHARACTER_SET);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1788,7 +1788,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowLogEvents(ShowLogEventsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.LOG_READ);
+        myShowDomain.setSqlType(RuleQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.logFormat.getType() == BINLOG) {
             myShowDomain.setShowType(MyShowType.BINLOG_EVENTS);
@@ -1804,7 +1804,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowObjectFilter(ShowObjectFilterContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         ParseTree child = ctx.showCommonEntity().getChild(0);
         TerminalNodeImpl node = (TerminalNodeImpl) child;
@@ -1819,7 +1819,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
             myShowDomain.setShowType(MyShowType.PROCEDURE_STATUS);
             myShowDomain.setTarget(TargetType.Procedure);
         } else if (type == STATUS) {
-            myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
+            myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
             myShowDomain.setShowType(MyShowType.STATUS);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == FUNCTION) {
@@ -1829,18 +1829,18 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
             myShowDomain.setShowType(MyShowType.COLLATION);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == VARIABLES) {
-            myShowDomain.addSqlType(SplitQueryType.SESSION_VARIABLE_RW);
+            myShowDomain.setSqlType(RuleQueryType.SESSION_VARIABLE_RW);
             myShowDomain.setShowType(MyShowType.VARIABLES);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == GLOBAL || type == SESSION) {
             if (((TerminalNodeImpl) ctx.showCommonEntity().getChild(1)).getSymbol().getType() == VARIABLES) {
                 if (type != GLOBAL) {
-                    myShowDomain.addSqlType(SplitQueryType.SESSION_VARIABLE_RW);
+                    myShowDomain.setSqlType(RuleQueryType.SESSION_VARIABLE_RW);
                 }
                 myShowDomain.setShowType(MyShowType.VARIABLES);
                 myShowDomain.setTarget(TargetType.Environment);
             } else {
-                myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
+                myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
                 myShowDomain.setShowType(MyShowType.STATUS);
                 myShowDomain.setTarget(TargetType.Environment);
             }
@@ -1854,7 +1854,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowColumns(ShowColumnsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.tableName().fullId().children) {
@@ -1894,7 +1894,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowTables(ShowTablesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.TABLES);
         myShowDomain.setTarget(TargetType.Table);
@@ -1908,7 +1908,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitShowCreateDb(ShowCreateDbContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CREATE_DATABASE);
         myShowDomain.setTarget(TargetType.Schema);
@@ -1938,7 +1938,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowCreateFullIdObject(ShowCreateFullIdObjectContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.fullId().children) {
@@ -1986,7 +1986,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowEngine(ShowEngineContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.ENGINE);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1997,7 +1997,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowEngines(ShowEnginesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.ENGINES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2008,7 +2008,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowPrivileges(ShowPrivilegesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PRIVILEGES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2019,7 +2019,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowPlugins(ShowPluginsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PLUGINS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2030,7 +2030,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowErrors(ShowErrorsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.errorFormat.getType() == ERRORS) {
             myShowDomain.setShowType(MyShowType.ERRORS);
@@ -2046,7 +2046,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitShowCountErrors(ShowCountErrorsContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.errorFormat.getType() == ERRORS) {
             myShowDomain.setShowType(MyShowType.ERRORS);
@@ -2061,7 +2061,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowSchemaFilter(ShowSchemaFilterContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         ParseTree child = ctx.showSchemaEntity().getChild(0);
         int type = ((TerminalNodeImpl) child).getSymbol().getType();
@@ -2096,7 +2096,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitShowRoutine(ShowRoutineContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.fullId().children) {
@@ -2129,7 +2129,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowGrants(ShowGrantsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.GRANTS);
         myShowDomain.setTarget(TargetType.UserOrRole);
@@ -2147,7 +2147,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitShowIndexes(ShowIndexesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.tableName().fullId().children) {
@@ -2176,7 +2176,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitShowOpenTables(ShowOpenTablesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.OPEN_TABLES);
         myShowDomain.setTarget(TargetType.Table);
@@ -2191,7 +2191,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowProfile(ShowProfileContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROFILE);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2202,7 +2202,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowProcessList(ShowProcessListContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROCESSLIST);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2214,7 +2214,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitShowProfiles(ShowProfilesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROFILES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2226,7 +2226,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitFlushStatement(FlushStatementContext ctx) {
         for (FlushOptionContext flushOptionContext : ctx.flushOption()) {
             MyFlushDomain myFlushDomain = new MyFlushDomain();
-            myFlushDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+            myFlushDomain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
             myFlushDomain.setAuditKind(SecQueryKind.OTHER);
 
             String text = this.getText(flushOptionContext);
@@ -2241,10 +2241,10 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
         if ("EXPLAIN".equalsIgnoreCase(ctx.command.getText())) {
-            myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
+            myShowDomain.setSqlType(RuleQueryType.PERFORMANCE);
             myShowDomain.setTarget(TargetType.Table);
         } else {
-            myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
+            myShowDomain.setSqlType(RuleQueryType.UNKNOWN);
             myShowDomain.setTarget(TargetType.Column);
         }
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
@@ -2270,7 +2270,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     @Override
     public Void visitShowStatus(ShowStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.addSqlType(SplitQueryType.LOG_READ);
+        myShowDomain.setSqlType(RuleQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.MASTER_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -3066,7 +3066,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitTransactionStatement(TransactionStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.QUERY);
-        domain.addSqlType(SplitQueryType.TRANSACTION);
+        domain.setSqlType(RuleQueryType.TRANSACTION);
         domain.setNeedSupply(true);
         domain.setTarget(TargetType.Unknown);
         builder.addDomain(domain);
@@ -3083,7 +3083,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitPrepareStatement(PrepareStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.addSqlType(SplitQueryType.UNSAFE);
+        domain.setSqlType(RuleQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);
@@ -3094,7 +3094,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitExecuteStatement(ExecuteStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.addSqlType(SplitQueryType.UNSAFE);
+        domain.setSqlType(RuleQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);
@@ -3105,7 +3105,7 @@ public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
     public Void visitDeallocatePrepare(DeallocatePrepareContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.addSqlType(SplitQueryType.UNSAFE);
+        domain.setSqlType(RuleQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);

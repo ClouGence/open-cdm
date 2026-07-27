@@ -16,7 +16,7 @@
 package com.clougence.sql.oracle.analysis.security.builder;
 
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.oracle.analysis.security.builder.enums.OraAttribute;
@@ -28,7 +28,7 @@ public class OraCreateTableBuilder extends CreateTableBuilder<OraTableDomain> {
     protected OraTableDomain getTableDomain() {
         OraTableDomain oraTableDomain = new OraTableDomain();
         oraTableDomain.setAuditKind(SecQueryKind.CREATE);
-        oraTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
+        oraTableDomain.setSqlType(RuleQueryType.CREATE_TABLE);
         return oraTableDomain;
     }
 

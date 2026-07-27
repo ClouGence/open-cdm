@@ -26,7 +26,7 @@ import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.sqlserver.analysis.security.builder.MsBuildFactory;
 import com.clougence.sql.sqlserver.analysis.security.domain.*;
 import com.clougence.sql.sqlserver.parser.antlr.SqlServerParser;
@@ -80,7 +80,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreate_database(SqlServerParser.Create_databaseContext ctx) {
-        RdbCatalogDomain domain = builder.newCatalogDomain(SplitQueryType.CREATE_CATALOG);
+        RdbCatalogDomain domain = builder.newCatalogDomain(RuleQueryType.CREATE_CATALOG);
         domain.setCatalog(clean(ctx.database));
         add(domain);
         return null;
@@ -89,7 +89,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     @Override
     public Void visitDrop_database(SqlServerParser.Drop_databaseContext ctx) {
         for (SqlServerParser.Id_Context id : ctx.id_()) {
-            RdbCatalogDomain domain = builder.newCatalogDomain(SplitQueryType.DROP_CATALOG);
+            RdbCatalogDomain domain = builder.newCatalogDomain(RuleQueryType.DROP_CATALOG);
             domain.setCatalog(clean(id));
             add(domain);
         }
@@ -100,7 +100,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     public Void visitCreate_schema(SqlServerParser.Create_schemaContext ctx) {
         List<String> names = names(ctx);
         if (!names.isEmpty()) {
-            MsSchemaDomain domain = builder.newSchemaDomain(SplitQueryType.CREATE_SCHEMA);
+            MsSchemaDomain domain = builder.newSchemaDomain(RuleQueryType.CREATE_SCHEMA);
             domain.setSchema(names.get(0));
             add(domain);
         }
@@ -111,7 +111,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     public Void visitDrop_schema(SqlServerParser.Drop_schemaContext ctx) {
         List<String> names = names(ctx);
         if (!names.isEmpty()) {
-            MsSchemaDomain domain = builder.newSchemaDomain(SplitQueryType.DROP_SCHEMA);
+            MsSchemaDomain domain = builder.newSchemaDomain(RuleQueryType.DROP_SCHEMA);
             domain.setSchema(names.get(names.size() - 1));
             domain.setIfExists(ctx.IF() != null);
             add(domain);
@@ -121,10 +121,10 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreate_table(SqlServerParser.Create_tableContext ctx) {
-        MsTableDomain domain = tableDomain(ctx.table_name(), SplitQueryType.CREATE_TABLE, SecQueryKind.CREATE);
+        MsTableDomain domain = tableDomain(ctx.table_name(), RuleQueryType.CREATE_TABLE, SecQueryKind.CREATE);
         domain.setColumns(new ArrayList<>());
         Map<String, MsColumnDomain> columns = new LinkedHashMap<>();
-        List<RuleDomain> children = tableElementDomains(ctx.column_def_table_constraints(), domain, columns, SplitQueryType.CREATE_TABLE, SplitQueryType.CREATE_TABLE);
+        List<RuleDomain> children = tableElementDomains(ctx.column_def_table_constraints(), domain, columns, RuleQueryType.CREATE_TABLE, RuleQueryType.CREATE_TABLE);
         add(domain);
         children.forEach(this::add);
         return null;
@@ -132,24 +132,24 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlter_table(SqlServerParser.Alter_tableContext ctx) {
-        MsTableDomain domain = tableDomain(ctx.table_name(0), SplitQueryType.ALTER_TABLE, SecQueryKind.ALTER);
+        MsTableDomain domain = tableDomain(ctx.table_name(0), RuleQueryType.ALTER_TABLE, SecQueryKind.ALTER);
         domain.setColumns(new ArrayList<>());
         Map<String, MsColumnDomain> columns = new LinkedHashMap<>();
         List<RuleDomain> children = new ArrayList<>();
         if (ctx.ADD() != null && ctx.column_def_table_constraints() != null) {
-            children.addAll(tableElementDomains(ctx.column_def_table_constraints(), domain, columns, SplitQueryType.ADD_COLUMN, SplitQueryType.ADD_CONSTRAINT));
+            children.addAll(tableElementDomains(ctx.column_def_table_constraints(), domain, columns, RuleQueryType.ADD_COLUMN, RuleQueryType.ADD_CONSTRAINT));
         } else if (ctx.ALTER().size() > 1 && ctx.column_definition() != null) {
-            MsColumnDomain column = columnDomain(ctx.column_definition(), domain, SplitQueryType.ALTER_COLUMN, SecQueryKind.ALTER);
+            MsColumnDomain column = columnDomain(ctx.column_definition(), domain, RuleQueryType.ALTER_COLUMN, SecQueryKind.ALTER);
             children.add(column);
             domain.getColumns().add(column.getColumn());
         } else if (ctx.DROP() != null && ctx.COLUMN() != null) {
             for (SqlServerParser.Id_Context id : ctx.id_()) {
-                MsColumnDomain column = simpleColumnDomain(domain, clean(id), SplitQueryType.DROP_COLUMN, SecQueryKind.DROP);
+                MsColumnDomain column = simpleColumnDomain(domain, clean(id), RuleQueryType.DROP_COLUMN, SecQueryKind.DROP);
                 children.add(column);
                 domain.getColumns().remove(column.getColumn());
             }
         } else if (ctx.DROP() != null && ctx.CONSTRAINT() != null && ctx.constraint != null) {
-            RdbConstraintDomain constraint = constraintDomain(domain, SplitQueryType.DROP_CONSTRAINT, SqlConstraintType.ByName, clean(ctx.constraint), Collections.emptyList());
+            RdbConstraintDomain constraint = constraintDomain(domain, RuleQueryType.DROP_CONSTRAINT, SqlConstraintType.ByName, clean(ctx.constraint), Collections.emptyList());
             constraint.setAuditKind(SecQueryKind.DROP);
             children.add(constraint);
         } else if (ctx.ADD() != null && ctx.CONSTRAINT() != null) {
@@ -163,7 +163,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     @Override
     public Void visitDrop_table(SqlServerParser.Drop_tableContext ctx) {
         for (SqlServerParser.Table_nameContext tableName : ctx.table_name()) {
-            MsTableDomain domain = tableDomain(tableName, SplitQueryType.DROP_TABLE, SecQueryKind.DROP);
+            MsTableDomain domain = tableDomain(tableName, RuleQueryType.DROP_TABLE, SecQueryKind.DROP);
             domain.setIfExists(ctx.IF() != null);
             add(domain);
         }
@@ -174,7 +174,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     public Void visitCreate_view(SqlServerParser.Create_viewContext ctx) {
         NameParts name = parts(ctx.simple_name());
         boolean alter = startsWithAlter(ctx);
-        RdbViewDomain domain = builder.newViewDomain(alter ? SplitQueryType.ALTER_VIEW : SplitQueryType.CREATE_VIEW);
+        RdbViewDomain domain = builder.newViewDomain(alter ? RuleQueryType.ALTER_VIEW : RuleQueryType.CREATE_VIEW);
         domain.setCatalog(name.catalog);
         domain.setSchema(name.schema);
         domain.setView(name.name);
@@ -186,7 +186,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     public Void visitDrop_view(SqlServerParser.Drop_viewContext ctx) {
         for (SqlServerParser.Simple_nameContext simpleName : ctx.simple_name()) {
             NameParts name = parts(simpleName);
-            RdbViewDomain domain = builder.newViewDomain(SplitQueryType.DROP_VIEW);
+            RdbViewDomain domain = builder.newViewDomain(RuleQueryType.DROP_VIEW);
             domain.setCatalog(name.catalog);
             domain.setSchema(name.schema);
             domain.setView(name.name);
@@ -198,7 +198,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     @Override
     public Void visitCreate_index(SqlServerParser.Create_indexContext ctx) {
         NameParts table = parts(ctx.table_name());
-        RdbIndexDomain domain = builder.newIndexDomain(SplitQueryType.ADD_INDEX);
+        RdbIndexDomain domain = builder.newIndexDomain(RuleQueryType.ADD_INDEX);
         domain.setName(clean(ctx.id_(0)));
         domain.setTableCatalog(table.catalog);
         domain.setTableSchema(table.schema);
@@ -212,7 +212,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     public Void visitDrop_index(SqlServerParser.Drop_indexContext ctx) {
         for (SqlServerParser.Drop_relational_or_xml_or_spatial_indexContext item : ctx.drop_relational_or_xml_or_spatial_index()) {
             List<String> itemNames = names(item);
-            RdbIndexDomain domain = builder.newIndexDomain(SplitQueryType.DROP_INDEX);
+            RdbIndexDomain domain = builder.newIndexDomain(RuleQueryType.DROP_INDEX);
             if (!itemNames.isEmpty()) {
                 domain.setName(itemNames.get(0));
             }
@@ -270,7 +270,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
                 continue;
             }
             domain.setEmptyFrom(false);
-            MsTableDomain tableDomain = tableDomain(tableName, SplitQueryType.SELECT, SecQueryKind.QUERY);
+            MsTableDomain tableDomain = tableDomain(tableName, RuleQueryType.SELECT, SecQueryKind.QUERY);
             if (domain.getTable() == null) {
                 domain.setCatalog(tableDomain.getCatalog());
                 domain.setSchema(tableDomain.getSchema());
@@ -369,7 +369,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
 
     @Override
     public Void visitUse_statement(SqlServerParser.Use_statementContext ctx) {
-        RdbCatalogDomain domain = builder.newCatalogDomain(SplitQueryType.SWITCH_CATALOG);
+        RdbCatalogDomain domain = builder.newCatalogDomain(RuleQueryType.SWITCH_CATALOG);
         domain.setCatalog(clean(ctx.database));
         add(domain);
         return null;
@@ -378,7 +378,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     @Override
     public Void visitCreate_sequence(SqlServerParser.Create_sequenceContext ctx) {
         NameParts name = parts(ctx);
-        RdbSequenceDomain domain = builder.newSequenceDomain(SplitQueryType.CREATE_SEQUENCE);
+        RdbSequenceDomain domain = builder.newSequenceDomain(RuleQueryType.CREATE_SEQUENCE);
         domain.setSchema(name.schema);
         domain.setName(name.name);
         add(domain);
@@ -387,7 +387,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreate_synonym(SqlServerParser.Create_synonymContext ctx) {
-        RdbResourceDomain domain = builder.newResourceDomain(SplitQueryType.CREATE_SYNONYM, SecQueryKind.CREATE);
+        RdbResourceDomain domain = builder.newResourceDomain(RuleQueryType.CREATE_SYNONYM, SecQueryKind.CREATE);
         domain.setSchema(clean(ctx.schema_name_1));
         domain.setName(clean(ctx.synonym_name));
         add(domain);
@@ -396,7 +396,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreate_login_sql_server(SqlServerParser.Create_login_sql_serverContext ctx) {
-        RdbUserDomain domain = builder.newUserDomain(SplitQueryType.CREATE_USER);
+        RdbUserDomain domain = builder.newUserDomain(RuleQueryType.CREATE_USER);
         domain.setUser(clean(ctx.login_name));
         if (ctx.password != null) {
             domain.setPassword(stripQuote(ctx.password.getText()));
@@ -411,7 +411,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     public Void visitCreate_or_alter_function(SqlServerParser.Create_or_alter_functionContext ctx) {
         NameParts name = parts(ctx.func_proc_name_schema());
         boolean alter = startsWithAlter(ctx);
-        RdbFunctionDomain domain = builder.newFunctionDomain(alter ? SplitQueryType.ALTER_PROG_OBJ : SplitQueryType.CREATE_PROG_OBJ);
+        RdbFunctionDomain domain = builder.newFunctionDomain(alter ? RuleQueryType.ALTER_PROG_OBJ : RuleQueryType.CREATE_PROG_OBJ);
         domain.setCatalog(name.catalog);
         domain.setSchema(name.schema);
         domain.setName(name.name);
@@ -423,7 +423,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     public Void visitCreate_or_alter_procedure(SqlServerParser.Create_or_alter_procedureContext ctx) {
         NameParts name = parts(ctx.func_proc_name_schema());
         boolean alter = startsWithAlter(ctx);
-        RdbProcedureDomain domain = builder.newProcedureDomain(alter ? SplitQueryType.ALTER_PROG_OBJ : SplitQueryType.CREATE_PROG_OBJ);
+        RdbProcedureDomain domain = builder.newProcedureDomain(alter ? RuleQueryType.ALTER_PROG_OBJ : RuleQueryType.CREATE_PROG_OBJ);
         domain.setCatalog(name.catalog);
         domain.setSchema(name.schema);
         domain.setName(name.name);
@@ -442,7 +442,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         NameParts trigger = parts(ctx.simple_name());
         NameParts table = parts(ctx.table_name());
         boolean alter = startsWithAlter(ctx);
-        RdbTriggerDomain domain = builder.newTriggerDomain(alter ? SplitQueryType.ALTER_TRIGGER : SplitQueryType.CREATE_TRIGGER);
+        RdbTriggerDomain domain = builder.newTriggerDomain(alter ? RuleQueryType.ALTER_TRIGGER : RuleQueryType.CREATE_TRIGGER);
         domain.setCatalog(table.catalog);
         domain.setSchema(table.schema);
         domain.setTable(table.name);
@@ -469,12 +469,12 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
 
     private void add(RuleDomain domain) {
         if (domain.getAuditKind() == null) {
-            domain.setAuditKind(domain.resolveAuditKind());
+            domain.setAuditKind(domain.getSqlType() == null ? SecQueryKind.OTHER : domain.getSqlType().getAuditKind());
         }
         builder.addDomain(domain);
     }
 
-    private MsTableDomain tableDomain(ParserRuleContext ctx, SplitQueryType type, SecQueryKind kind) {
+    private MsTableDomain tableDomain(ParserRuleContext ctx, RuleQueryType type, SecQueryKind kind) {
         NameParts name = parts(ctx);
         MsTableDomain domain = builder.newTableDomain(type, kind);
         domain.setCatalog(name.catalog);
@@ -484,7 +484,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     }
 
     private List<RuleDomain> tableElementDomains(SqlServerParser.Column_def_table_constraintsContext ctx, MsTableDomain tableDomain, Map<String, MsColumnDomain> columns,
-                                                 SplitQueryType columnType, SplitQueryType constraintType) {
+                                                 RuleQueryType columnType, RuleQueryType constraintType) {
         if (ctx == null) {
             return Collections.emptyList();
         }
@@ -515,7 +515,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         return result;
     }
 
-    private MsColumnDomain columnDomain(SqlServerParser.Column_definitionContext ctx, MsTableDomain tableDomain, SplitQueryType type, SecQueryKind kind) {
+    private MsColumnDomain columnDomain(SqlServerParser.Column_definitionContext ctx, MsTableDomain tableDomain, RuleQueryType type, SecQueryKind kind) {
         MsColumnDomain domain = simpleColumnDomain(tableDomain, clean(ctx.id_()), type, kind);
         if (ctx.data_type() != null) {
             domain.setTypeDesc(getText(ctx.data_type()));
@@ -545,7 +545,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         return domain;
     }
 
-    private MsColumnDomain simpleColumnDomain(MsTableDomain tableDomain, String column, SplitQueryType type, SecQueryKind kind) {
+    private MsColumnDomain simpleColumnDomain(MsTableDomain tableDomain, String column, RuleQueryType type, SecQueryKind kind) {
         MsColumnDomain domain = builder.newColumnDomain(type, kind);
         domain.setCatalog(tableDomain.getCatalog());
         domain.setSchema(tableDomain.getSchema());
@@ -554,7 +554,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         return domain;
     }
 
-    private RdbConstraintDomain tableConstraintDomain(SqlServerParser.Table_constraintContext ctx, MsTableDomain tableDomain, SplitQueryType type) {
+    private RdbConstraintDomain tableConstraintDomain(SqlServerParser.Table_constraintContext ctx, MsTableDomain tableDomain, RuleQueryType type) {
         SqlConstraintType constraintType = SqlConstraintType.Check;
         List<String> columns = Collections.emptyList();
         if (ctx.PRIMARY() != null) {
@@ -576,12 +576,12 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     private RdbConstraintDomain alterTableConstraintDomain(SqlServerParser.Alter_tableContext ctx, MsTableDomain tableDomain) {
         SqlConstraintType type = ctx.FOREIGN() != null ? SqlConstraintType.ForeignKey : SqlConstraintType.Check;
         List<String> columns = ctx.fk != null ? names(ctx.fk) : Collections.emptyList();
-        RdbConstraintDomain domain = constraintDomain(tableDomain, SplitQueryType.ADD_CONSTRAINT, type, clean(ctx.constraint), columns);
+        RdbConstraintDomain domain = constraintDomain(tableDomain, RuleQueryType.ADD_CONSTRAINT, type, clean(ctx.constraint), columns);
         markTableConstraint(tableDomain, Collections.emptyMap(), domain);
         return domain;
     }
 
-    private RdbConstraintDomain constraintDomain(MsTableDomain tableDomain, SplitQueryType queryType, SqlConstraintType constraintType, String name, List<String> columns) {
+    private RdbConstraintDomain constraintDomain(MsTableDomain tableDomain, RuleQueryType queryType, SqlConstraintType constraintType, String name, List<String> columns) {
         RdbConstraintDomain domain = builder.newConstraintDomain(queryType);
         domain.setTableCatalog(tableDomain.getCatalog());
         domain.setTableSchema(tableDomain.getSchema());
@@ -715,21 +715,21 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         }
         String target = args.size() > 2 ? args.get(2).toUpperCase(Locale.ROOT) : "";
         if (target.contains("DATABASE")) {
-            MsCatalogDomain domain = builder.newCatalogDomain(SplitQueryType.RENAME_CATALOG);
+            MsCatalogDomain domain = builder.newCatalogDomain(RuleQueryType.RENAME_CATALOG);
             domain.setCatalog(lastIdentifier(args.get(0)));
             domain.setNewName(lastIdentifier(args.get(1)));
             add(domain);
             return true;
         }
         if (target.contains("COLUMN")) {
-            MsColumnDomain domain = builder.newColumnDomain(SplitQueryType.RENAME_COLUMN, SecQueryKind.ALTER);
+            MsColumnDomain domain = builder.newColumnDomain(RuleQueryType.RENAME_COLUMN, SecQueryKind.ALTER);
             domain.setColumn(lastIdentifier(args.get(0)));
             domain.setNewName(lastIdentifier(args.get(1)));
             add(domain);
             return true;
         }
         if (target.contains("OBJECT")) {
-            MsTableDomain domain = builder.newTableDomain(SplitQueryType.RENAME_TABLE, SecQueryKind.ALTER);
+            MsTableDomain domain = builder.newTableDomain(RuleQueryType.RENAME_TABLE, SecQueryKind.ALTER);
             domain.setTable(lastIdentifier(args.get(0)));
             domain.setNewName(lastIdentifier(args.get(1)));
             add(domain);

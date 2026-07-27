@@ -24,7 +24,7 @@ import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbCatalogDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSchemaDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.*;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
@@ -47,7 +47,7 @@ public class OraBuilderFactory extends RdbBuilderFactory {
     protected ColumnDefBuilder<? extends RdbColumnDomain> getColumnDefBuilder() { return new OraColumnDefBuilder(); }
 
     @Override
-    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SplitQueryType type) {
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(RuleQueryType type) {
         return null;
     }
 

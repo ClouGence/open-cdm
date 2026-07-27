@@ -22,7 +22,7 @@ import com.clougence.clouddm.ds.starrocks.sql.analysis.security.builder.enums.Sr
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.domain.SrTableDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
@@ -35,15 +35,15 @@ import com.clougence.sql.mysql.analysis.security.builder.enums.MyAttribute;
 
 public class SrCreateTableBuilder extends CreateTableBuilder<SrTableDomain> {
 
-    public SrCreateTableBuilder(SplitQueryType type){
-        rdbTableDomain.addSqlType(type);
+    public SrCreateTableBuilder(RuleQueryType type){
+        rdbTableDomain.setSqlType(type);
     }
 
     @Override
     protected SrTableDomain getTableDomain() {
         SrTableDomain oraTableDomain = new SrTableDomain();
         oraTableDomain.setAuditKind(SecQueryKind.CREATE);
-        oraTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
+        oraTableDomain.setSqlType(RuleQueryType.CREATE_TABLE);
         return oraTableDomain;
     }
 

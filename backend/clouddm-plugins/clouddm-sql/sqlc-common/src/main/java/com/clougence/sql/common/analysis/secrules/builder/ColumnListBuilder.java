@@ -81,7 +81,7 @@ public class ColumnListBuilder extends AbstractDomainBuilder {
             } else if (child instanceof RdbConstantDomain) {
 
             } else {
-                throw new UnsupportedOperationException("Unknown child type: " + child.getSqlTypes());
+                throw new UnsupportedOperationException("Unknown child type: " + child.getSqlType());
             }
         }
     }

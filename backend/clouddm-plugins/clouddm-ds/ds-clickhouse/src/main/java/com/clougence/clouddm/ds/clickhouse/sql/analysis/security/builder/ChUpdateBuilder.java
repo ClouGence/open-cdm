@@ -21,7 +21,7 @@ import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.domain.ChUpdate
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUpdateDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.UpdateBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.mode.WithSelectDomain;
@@ -54,7 +54,7 @@ public class ChUpdateBuilder extends UpdateBuilder {
             this.updateDomain.setCatalog(map.get(UmiTypes.Catalog));
         }
         updateDomain.setAuditKind(SecQueryKind.DML);
-        updateDomain.addSqlType(SplitQueryType.UPDATE);
+        updateDomain.setSqlType(RuleQueryType.UPDATE);
         if (updateDomain.getWhereColumns() == null) {
             updateDomain.setWhereColumns(new ArrayList<>());
         }

@@ -21,7 +21,7 @@ import java.util.List;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUserDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -58,7 +58,7 @@ public class DropUserBuilder extends AbstractDomainBuilder {
         List<Domain> domains = new ArrayList<>();
         for (String user : users) {
             RdbUserDomain rdbUserDomain = new RdbUserDomain();
-            rdbUserDomain.addSqlType(SplitQueryType.DROP_USER);
+            rdbUserDomain.setSqlType(RuleQueryType.DROP_USER);
             rdbUserDomain.setAuditKind(SecQueryKind.DROP);
             rdbUserDomain.setUser(user);
             rdbUserDomain.setIfExists(isExists);
