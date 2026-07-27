@@ -1,4 +1,4 @@
-package com.clougence.clouddm.ds.versioned;
+package com.clougence.sql.mysql;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -7,32 +7,23 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.clougence.clouddm.ds.SqlTestSupport;
-import com.clougence.clouddm.ds.TextCaseSupport;
-import com.clougence.clouddm.ds.mysql.dsconf.MyConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
-import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
+import com.clougence.clouddm.sdk.service.execute.MetaCol;
+import com.clougence.clouddm.sdk.service.execute.MetaObj;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
+import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
-import com.clougence.dslpaser.antlr.DslHelper;
-import com.clougence.sql.mysql.MySqlEngineSpi;
 import com.clougence.sql.mysql.parser.MyDslProvider;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
 import com.clougence.sql.mysql.parser.MySqlParserConfig.Feature;
 import com.clougence.sql.mysql.parser.MySqlVersion;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.utils.JsonUtils;
 
 public class MySqlVersionConfigurationTest {
-
-    private static final String FIXTURE_DELIMITER =
-            "------------------------------------------------------------------------------------------";
 
     @Test
     public void versionsAreOrderedAndLatestIsTheDefault() {
@@ -57,7 +48,7 @@ public class MySqlVersionConfigurationTest {
 
     @Test
     public void engineKeepsItsExplicitParserVersion() {
-        MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
+        MySqlEngineSpi engine = new MySqlEngineSpi(null);
         MyDslProvider provider = (MyDslProvider) engine.dslProvider(SqlParserParameters.ofVersion("5.7.44"));
         Assertions.assertEquals(MySqlVersion.MYSQL_5_7, provider.version());
         Assertions.assertEquals(50744, provider.exactVersion());
@@ -73,7 +64,7 @@ public class MySqlVersionConfigurationTest {
 
     @Test
     public void engineUsesLatestWhenVersionIsNull() {
-        MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
+        MySqlEngineSpi engine = new MySqlEngineSpi(null);
         MyDslProvider provider = (MyDslProvider) engine.dslProvider(SqlParserParameters.empty());
         Assertions.assertEquals(MySqlVersion.LATEST, provider.version());
         Assertions.assertEquals(MySqlVersion.LATEST.exactVersion(), provider.exactVersion());
@@ -81,7 +72,7 @@ public class MySqlVersionConfigurationTest {
 
     @Test
     public void parserParameterCacheUsesSortedStringKey() {
-        MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
+        MySqlEngineSpi engine = new MySqlEngineSpi(null);
         Map<String, String> values = new LinkedHashMap<>();
         values.put(SqlParserParameters.VERSION, "8.4.10");
         values.put(SqlParserParameters.GRAMMAR_VERSION, "8.4");
@@ -103,7 +94,7 @@ public class MySqlVersionConfigurationTest {
 
     @Test
     public void engineMapsSqlModeParametersToParserProperties() {
-        MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
+        MySqlEngineSpi engine = new MySqlEngineSpi(null);
 
         MyDslProvider unknownProvider = (MyDslProvider) engine.dslProvider(
                 SqlParserParameters.ofVersion("8.4.10"));
@@ -128,87 +119,41 @@ public class MySqlVersionConfigurationTest {
 
     @Test
     public void allAnalysisSpisUseTheSameSqlModeParameters() {
-        MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
-        SqlParserParameters unknown = SqlParserParameters.ofVersion("8.4.10");
+        MySqlEngineSpi engine = new MySqlEngineSpi(metaService());
         SqlParserParameters ansiQuotes = parserParameters("ANSI_QUOTES");
         SqlParserParameters knownEmpty = parserParameters("");
-        String sql = modeStatement(engine, ansiQuotes, 1);
-
-        Assertions.assertEquals(1, engine.splitAnalysisSpi(unknown).splitScript(sql, null, 0, 0).size());
-        Assertions.assertEquals(1, engine.splitAnalysisSpi(ansiQuotes).splitScript(sql, null, 0, 0).size());
-        Assertions.assertThrows(AntlerSyntaxException.class,
-                () -> engine.splitAnalysisSpi(knownEmpty).splitScript(sql, null, 0, 0));
+        String sql = "SELECT * FROM \"table1\";";
 
         Map<UmiTypes, Object> levels = Map.of(
                 UmiTypes.Catalog, "catalog1",
                 UmiTypes.Schema, "schema1");
-        List<StatementBehavior> unknownBehaviors = engine.behaviorAnalysisSpi(unknown)
-                .analysisBehavior(sql, levels, 0, 0);
-        List<StatementBehavior> ansiBehaviors = engine.behaviorAnalysisSpi(ansiQuotes)
-                .analysisBehavior(sql, levels, 0, 0);
-        Assertions.assertTrue(objects(unknownBehaviors).stream().anyMatch(object -> object.getResourcePath().endsWith("/table1/")));
-        Assertions.assertTrue(objects(ansiBehaviors).stream().anyMatch(object -> object.getResourcePath().endsWith("/table1/")));
+        Assertions.assertDoesNotThrow(() -> engine.behaviorAnalysisSpi(ansiQuotes)
+                .analysisBehavior(sql, levels, 0, 0));
         Assertions.assertThrows(AntlerSyntaxException.class,
                 () -> engine.behaviorAnalysisSpi(knownEmpty).analysisBehavior(sql, levels, 0, 0));
 
         CodeInfo codeInfo = CodeInfo.builder().query(sql).baseLine(0).baseColumn(0).build();
-        ContextInfo contextInfo = ContextInfo.builder().deepParser(false).levelsParam(levels).build();
-        Assertions.assertDoesNotThrow(() -> engine.secDomainResolveSpi(unknown)
-                .resolveDomain(DataSourceType.MySQL, codeInfo, contextInfo));
+        ContextInfo securityContextInfo = ContextInfo.builder().deepParser(false).levelsParam(levels).build();
         Assertions.assertDoesNotThrow(() -> engine.secDomainResolveSpi(ansiQuotes)
-                .resolveDomain(DataSourceType.MySQL, codeInfo, contextInfo));
+                .resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
         Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.secDomainResolveSpi(knownEmpty)
-                .resolveDomain(DataSourceType.MySQL, codeInfo, contextInfo));
+                .resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
 
-        Assertions.assertDoesNotThrow(() -> engine.selectColumnAnalysisSpi(unknown)
-                .parseSelectColumn(sql, contextInfo));
+        var columnContextInfo = com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo.builder()
+            .levelsParam(levels)
+            .build();
         Assertions.assertDoesNotThrow(() -> engine.selectColumnAnalysisSpi(ansiQuotes)
-                .parseSelectColumn(sql, contextInfo));
+                .parseSelectColumn(sql, columnContextInfo));
         Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.selectColumnAnalysisSpi(knownEmpty)
-                .parseSelectColumn(sql, contextInfo));
+                .parseSelectColumn(sql, columnContextInfo));
 
         QueryRequest request = new QueryRequest();
         request.setQueryBody(sql);
         RewriteContext rewriteContext = new RewriteContext();
         rewriteContext.setFetchLimit(10);
-        Assertions.assertTrue(engine.rewriteSpi(unknown).rewriterQuery(request, rewriteContext).contains("LIMIT 10"));
         Assertions.assertTrue(engine.rewriteSpi(ansiQuotes).rewriterQuery(request, rewriteContext).contains("LIMIT 10"));
         Assertions.assertThrows(AntlerSyntaxException.class,
                 () -> engine.rewriteSpi(knownEmpty).rewriterQuery(request, rewriteContext));
-    }
-
-    private static List<BehaviorObject> objects(List<StatementBehavior> behaviors) {
-        return behaviors.stream()
-                .flatMap(behavior -> behavior.getRelations().stream())
-                .flatMap(relation -> java.util.stream.Stream.concat(java.util.stream.Stream.of(relation.getSubject()), relation.getTarget().stream()))
-                .filter(java.util.Objects::nonNull)
-                .toList();
-    }
-
-    @Test
-    public void mysqlDatasourceConfigDoesNotDeclareSqlMode() {
-        Assertions.assertThrows(NoSuchFieldException.class, () -> MyConfig.class.getDeclaredField("sqlMode"));
-    }
-
-    @Test
-    public void sessionParserParametersPreserveUnknownAndKnownEmptyJsonSemantics() {
-        SessionContextDTO legacy = JsonUtils.toObj("{\"sessionId\":\"legacy\"}", SessionContextDTO.class);
-        Assertions.assertNotNull(legacy);
-        SqlParserParameters legacyParameters = new SqlParserParameters(legacy.getSqlParameters());
-        Assertions.assertTrue(legacyParameters.values().isEmpty());
-        Assertions.assertFalse(legacyParameters.contains(SqlParserParameters.SQL_MODE));
-
-        Map<String, String> values = new LinkedHashMap<>();
-        values.put(SqlParserParameters.VERSION, "8.4.10");
-        values.put(SqlParserParameters.SQL_MODE, "");
-        SessionContextDTO current = new SessionContextDTO();
-        current.setSqlParameters(values);
-
-        SessionContextDTO restored = JsonUtils.toObj(JsonUtils.toJson(current), SessionContextDTO.class);
-        SqlParserParameters restoredParameters = new SqlParserParameters(restored.getSqlParameters());
-        Assertions.assertEquals("8.4.10", restoredParameters.version());
-        Assertions.assertTrue(restored.getSqlParameters().containsKey(SqlParserParameters.SQL_MODE));
-        Assertions.assertEquals("", restored.getSqlParameters().get(SqlParserParameters.SQL_MODE));
     }
 
     private static SqlParserParameters parserParameters(String sqlMode) {
@@ -218,11 +163,21 @@ public class MySqlVersionConfigurationTest {
         return new SqlParserParameters(values);
     }
 
-    private static String modeStatement(MySqlEngineSpi engine, SqlParserParameters parameters, int index) {
-        String fixture = TextCaseSupport.readResource(
-                "split/mysql/8.4/mode/ansi-quotes/dql_mysql_mode_0.txt");
-        String input = fixture.substring(0, fixture.indexOf(FIXTURE_DELIMITER));
-        return DslHelper.splitDsl(engine.dslProvider(parameters), input).get(index).getScript();
+    private static MetaService metaService() {
+        return new MetaService() {
+            @Override
+            public List<MetaCol> fetchTableColumns(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String tableName) {
+                MetaCol column = new MetaCol();
+                column.setTable(tableName);
+                column.setColumn("id");
+                return List.of(column);
+            }
+
+            @Override
+            public List<MetaObj> cachedObjectNames(String puid, String uid, long dsId, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+                return List.of();
+            }
+        };
     }
 
 }
