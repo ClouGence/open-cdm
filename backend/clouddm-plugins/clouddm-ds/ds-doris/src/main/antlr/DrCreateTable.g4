@@ -35,6 +35,7 @@ tableProperty
     | keyDesc
     | commentClause
     | distributionDesc
+    | PROPERTIES propertyList
     | unknownTableToken
     ;
 
