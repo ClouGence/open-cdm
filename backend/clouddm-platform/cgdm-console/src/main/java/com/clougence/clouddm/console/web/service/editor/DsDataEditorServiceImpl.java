@@ -284,7 +284,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
         request.setQueryBody(countSql);
         request.setQueryArgs(Collections.emptyList());
-        request.setQueryType(SplitQueryType.SELECT);
+        request.setQueryTypes(Set.of(SplitQueryType.SELECT));
         request.setRequester(Requester.CONSOLE);
 
         // execute sql
@@ -325,7 +325,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
         request.setQueryBody(fetchSql);
         request.setQueryArgs(Collections.emptyList());
-        request.setQueryType(SplitQueryType.SELECT);
+        request.setQueryTypes(Set.of(SplitQueryType.SELECT));
         request.setRequester(Requester.CONSOLE);
         request.setUsingValueProcess(!this.authCheckService
             .checkResPathWithoutError(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, levels.asResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE));
@@ -369,7 +369,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
         request.setQueryBody(dmlChange.getSql());
         request.setQueryArgs(Collections.emptyList());
-        request.setQueryType(DmConvertUtils.convertToSecQueryType(dmlChange.getSqlType()));
+        request.setQueryTypes(Set.of(DmConvertUtils.convertToSecQueryType(dmlChange.getSqlType())));
         request.setRequester(Requester.CONSOLE);
 
         // ReloadSpi  request

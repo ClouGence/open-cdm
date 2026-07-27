@@ -230,7 +230,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
                 QueryRequest request = queryDTO.clone();
                 request.setQueryBody(sql);
                 request.setQueryArgs(Collections.emptyList());
-                request.setQueryType(SplitQueryType.UNKNOWN); // TODO bad way
+                request.setQueryTypes(Set.of(SplitQueryType.UNKNOWN)); // TODO bad way
                 request.setRequester(Requester.CONSOLE);
 
                 ResultList list = this.queryService.syncExecuteQuery(uid, sessionId, request);

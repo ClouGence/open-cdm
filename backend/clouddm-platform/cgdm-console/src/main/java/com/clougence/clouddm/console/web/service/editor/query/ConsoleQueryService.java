@@ -325,7 +325,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             clone.setQueryId(sessionSpi.newQueryId());
             clone.setQueryBody(analyzed.getQueryBody());
             clone.setQueryArgs(analyzed.getQueryArgs());
-            clone.setQueryType(analyzed.getQueryType());
             clone.setQueryTypes(analyzed.getQueryTypes());
             clone.setResourceActions(analyzed.getResourceActions());
             clone.setQueryDsType(analyzed.getQueryDsType());
@@ -456,8 +455,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         // 6.2 at team all statements must be clear
         String curOwnerUid = queryDTO.getPrimaryUserId();
         for (QueryRequest request : requestScripts) {
-            SplitQueryType primaryType = request.getQueryType();
-            if (primaryType == SplitQueryType.UNKNOWN) {
+            Set<SplitQueryType> queryTypes = request.getQueryTypes();
+            if (CollectionUtils.isEmpty(queryTypes) || queryTypes.contains(SplitQueryType.UNKNOWN)) {
                 String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_QUERY_ERROR.name(), request.getQueryBody());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
@@ -465,8 +464,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 return false;
             }
 
-            if (request.isUseExplain() && !primaryType.isAllowPlan()) {
-                String hintMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name(), primaryType);
+            if (request.isUseExplain() && queryTypes.stream().noneMatch(SplitQueryType::isAllowPlan)) {
+                String hintMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name(), queryTypes);
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hintMessage, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
@@ -474,7 +473,10 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             }
 
             String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
-            if (primaryType.getAuthKind() != SecDataAuthKind.READ && StringUtils.equalsIgnoreCase("true", enable)) {
+            List<ResourceAction> resourceActions = request.getResourceActions();
+            if (StringUtils.equalsIgnoreCase("true", enable) && //
+                CollectionUtils.isNotEmpty(resourceActions) &&  //
+                resourceActions.stream().anyMatch(action -> action.getAuthKind() != SecDataAuthKind.READ)) {
                 String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
@@ -485,14 +487,14 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         // 6.3 disallow `use xxx` or `set search_path = xxx` or `alter session set container = xxx`
         for (QueryRequest request : requestScripts) {
-            SplitQueryType primaryType = request.getQueryType();
-            if (primaryType == SplitQueryType.SWITCH_CATALOG || primaryType == SplitQueryType.SWITCH_SCHEMA) {
+            Set<SplitQueryType> queryTypes = request.getQueryTypes();
+            if (queryTypes.contains(SplitQueryType.SWITCH_CATALOG) || queryTypes.contains(SplitQueryType.SWITCH_SCHEMA)) {
                 String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_SWITCH_CTX_ERROR.name());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
                 return false;
-            } else if (primaryType == SplitQueryType.TRANSACTION) {
+            } else if (queryTypes.contains(SplitQueryType.TRANSACTION)) {
                 String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));

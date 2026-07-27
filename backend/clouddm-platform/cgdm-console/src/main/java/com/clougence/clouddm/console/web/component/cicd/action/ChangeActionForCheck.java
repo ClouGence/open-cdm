@@ -100,8 +100,11 @@ public class ChangeActionForCheck extends AbstractChangeAction {
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(gitOpsFlowDO.getDsPath());
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsLevels.dsDO().getId());
         DataSourceType dsType = dsConfig.getDataSourceType();
-        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsType, dsConfig.getSqlEngine());
-        SplitAnalysisSpi analysisSpi = sqlEngine.splitAnalysisSpi();
+        SqlEngineSpi sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(dsLevels.dsDO().getId());
+        Map<UmiTypes, Object> levelsParam = dsLevels.levelsParam();
+        SqlParserParameters sqlParameters = this.dmDsConfigService.fetchSqlParserParameters(dsLevels.dsDO().getId(), levelsParam);
+
+        SplitAnalysisSpi analysisSpi = sqlEngine.splitAnalysisSpi(sqlParameters);
         if (analysisSpi == null) {
             log.error("changeAction[" + change.getId() + "] check review sql failed, SplitAnalysisSpi not found.");
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_MISSING_SPLIT_SQL_PLUGIN_ERROR.name(), locale, change.getChangeName(), dsType.name());
@@ -109,8 +112,6 @@ public class ChangeActionForCheck extends AbstractChangeAction {
             changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.FAILED, errorMsg);
             return;
         }
-
-        Map<UmiTypes, Object> levelsParam = dsLevels.levelsParam();
 
         // check
         WarnLevel maxLevel = WarnLevel.PASS;
@@ -150,7 +151,6 @@ public class ChangeActionForCheck extends AbstractChangeAction {
             // convert to DmChangeItemDO
             ChangeCheckMO checkMO = new ChangeCheckMO();
             checkMO.setContent(splitScript.getScript());
-            checkMO.setContentKind(splitScript.getType().getAuditKind());
             checkMO.setStartCodeLine(splitScript.getBodyStartCodeLine());
             checkMO.setStartCodeColumn(splitScript.getBodyStartCodeColumn());
             checkMO.setEndCodeLine(splitScript.getBodyEndCodeLine());

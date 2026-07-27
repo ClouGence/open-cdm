@@ -126,14 +126,14 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
 
                 DsConfig dsConfig = dmDsConfigService.dsConstantSettings(rdpDataSourceDO.getDataSourceType());
                 List<String> levels = dsConfig.getCategories().getLevels();
-                Map<String, Object> map = new HashMap<>();
+                Map<UmiTypes, Object> map = new HashMap<>();
 
                 for (int i = 0; i < dto.getLevels().size(); i++) {
                     UmiTypes umiTypes = UmiTypes.valueOfCode(levels.get(i + 2));
                     if (umiTypes == UmiTypes.Catalog) {
-                        map.put(SessionSpi.PARAMS_DEFAULT_DB, dto.getLevels().get(i));
+                        map.put(UmiTypes.Catalog, dto.getLevels().get(i));
                     } else {
-                        map.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, dto.getLevels().get(i));
+                        map.put(UmiTypes.Schema, dto.getLevels().get(i));
                     }
                 }
                 try {
