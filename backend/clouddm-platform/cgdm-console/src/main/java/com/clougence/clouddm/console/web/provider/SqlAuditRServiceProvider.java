@@ -23,11 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.console.sqlaudit.SqlAuditRService;
 import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
+import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
+import com.clougence.clouddm.api.console.sqlaudit.Type;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
-import com.clougence.clouddm.console.web.component.analysis.ExecutionBackfillService;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorCallBackService;
 import com.clougence.clouddm.console.web.service.security.AuditService;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +44,9 @@ import lombok.extern.slf4j.Slf4j;
 public class SqlAuditRServiceProvider extends AbstractBasicProvider implements SqlAuditRService {
 
     @Resource
-    private ExecutionBackfillService backfillService;
+    private BehaviorCallBackService callBackService;
     @Resource
-    private AuditService             auditService;
+    private AuditService            auditService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -54,8 +57,13 @@ public class SqlAuditRServiceProvider extends AbstractBasicProvider implements S
 
         log.info("receive worker auditLog request,date:" + sendTime);
         for (SqlExecNotifyDTO audit : audits) {
-            this.backfillService.backfill(audit);
             this.auditService.recordAudit(audit, identity.getWorkerSeqNumber());
+
+            if (audit.getType() == Type.SQL_END &&           //
+                audit.getSqlStatus() == SqlStatus.SUCCESS && //
+                StringUtils.isNotBlank(audit.getQueryId())) {
+                this.callBackService.onSuccess(audit.getQueryId());
+            }
         }
     }
 }

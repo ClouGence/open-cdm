@@ -15,16 +15,12 @@
  */
 package com.clougence.clouddm.console.web.component.analysis.backfill;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 
-public interface ExecutionBackfillHandler {
+public interface BehaviorCallBackHandler {
 
-    void backfill(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime);
-
-    List<SplitQueryType> canHandleType();
+    void backfill(DmExecSqlAuditDO audit, List<BehaviorRelation> behaviors);
 }

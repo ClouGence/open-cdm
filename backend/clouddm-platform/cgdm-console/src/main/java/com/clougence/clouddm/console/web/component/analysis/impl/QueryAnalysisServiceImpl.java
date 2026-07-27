@@ -22,7 +22,9 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
@@ -33,6 +35,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
+import com.clougence.clouddm.console.web.util.DsResPath;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
@@ -41,25 +44,19 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultLimit;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
-import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
-import com.clougence.clouddm.sdk.sql.analysis.resource.ResourceAction;
-import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbSelectDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -81,18 +78,17 @@ import lombok.extern.slf4j.Slf4j;
 public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     @Resource
-    private DmDsConfigService             dmDsConfigService;
+    private DmDsConfigService   dmDsConfigService;
     @Resource
-    private SystemDal                     systemDal;
+    private SystemDal           systemDal;
     @Resource
-    private AuthDal                       authDal;
+    private AuthDal             authDal;
     @Resource
-    private DmAuthServiceForBiz           authCheckService;
+    private DmAuthServiceForBiz authService;
     @Resource
-    private DmResAuthService              resAuthService;
+    private DmResAuthService    resAuthService;
     @Resource
-    private SecRulesService               rulesService;
-    private final ResourceActionConverter converter = new ResourceActionConverter();
+    private SecRulesService     rulesService;
 
     @Override
     public List<SplitScript> analysisSplit(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs,//
@@ -110,40 +106,16 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
     }
 
     @Override
-    public List<ResourceAction> analysisResource(DataSourceConfig dsConfig, String queryString,//
-                                                 Map<UmiTypes, Object> levels, int baseCodeLine, int baseCodeColumn) {
-        if (dsConfig == null) {
-            throw new IllegalArgumentException("DataSourceConfig is required for resource analysis.");
+    public List<QueryRequest> analysisRequests(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs,//
+                                               int baseCodeLine, int baseCodeColumn, QueryAnalysisOptions options) {
+        if (options == null) {
+            throw new IllegalArgumentException("QueryAnalysisOptions is required for query request analysis.");
         }
-
-        Map<UmiTypes, Object> safeLevels = levels == null ? Collections.emptyMap() : levels;
-        SqlEngineSpi engine = this.dmDsConfigService.fetchSqlEngineSpi(dsConfig);
-        if (engine == null) {
-            throw new IllegalStateException(dsConfig.getDataSourceType() + " has no SqlEngineSpi.");
-        }
-
-        SqlParserParameters parameters = this.dmDsConfigService.fetchSqlParserParameters(dsConfig, safeLevels);
-        BehaviorAnalysisSpi analysisSpi = engine.behaviorAnalysisSpi(parameters);
-        if (analysisSpi == null) {
-            throw new IllegalStateException(dsConfig.getDataSourceType() + " does not support BehaviorAnalysisSpi.");
-        }
-
-        List<StatementBehavior> behaviors = analysisSpi.analysisBehavior(queryString, safeLevels, baseCodeLine, baseCodeColumn);
-        return this.converter.convert(behaviors, currentResourcePath(safeLevels), instanceResourcePath(safeLevels));
-    }
-
-    @Override
-    public List<QueryRequest> analysisRequests(ContextInfo contextInfo, String queryString, List<QueryArg> queryArgs,//
-                                               int baseCodeLine, int baseCodeColumn) {
-        if (contextInfo == null) {
-            throw new IllegalArgumentException("ContextInfo is required for query request analysis.");
-        }
-        DataSourceConfig dsConfig = contextInfo.getDataSourceConfig();
         if (dsConfig == null) {
             throw new IllegalArgumentException("DataSourceConfig is required for query request analysis.");
         }
 
-        Map<UmiTypes, Object> levels = contextInfo.getLevelsParam();
+        Map<UmiTypes, Object> levels = options.getLevels();
         Map<UmiTypes, Object> safeLevels = levels == null ? Collections.emptyMap() : levels;
         SqlEngineSpi sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(dsConfig);
         if (sqlEngine == null) {
@@ -157,16 +129,21 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             QueryRequest request = new QueryRequest();
             request.setQueryBody(script.getScript());
             request.setQueryArgs(script.getScriptArgs());
-            request.setQueryType(script.getPrimaryType());
-            request.setQueryTypes(script.getType() == null ? Collections.emptySet() : new LinkedHashSet<>(script.getType()));
+            request.setQueryTypes(script.getType());
             request.setQueryDsType(dsConfig.getDataSourceType());
             requests.add(request);
         }
 
-        rewriteRequests(sqlEngine, parameters, requests);
+        if (options.isEnabled(QueryAnalysisFeature.SQL_REWRITE)) {
+            rewriteRequests(sqlEngine, parameters, requests);
+        }
         analysisResources(sqlEngine, parameters, safeLevels, scripts, requests);
-        analysisColumns(sqlEngine, parameters, contextInfo, requests);
-        analysisDesensitization(contextInfo, queryString, sqlEngine, parameters, requests);
+        if (options.isEnabled(QueryAnalysisFeature.COLUMN_ANALYSIS)) {
+            analysisColumns(sqlEngine, parameters, dsConfig, options, requests);
+        }
+        if (options.isEnabled(QueryAnalysisFeature.DESENSITIZATION)) {
+            analysisDesensitization(options, requests);
+        }
         return requests;
     }
 
@@ -202,7 +179,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         rewriteCtx.setFetchLimit(limit.getFetchRecordCountLimit());
 
         for (QueryRequest request : requests) {
-            if (request.getQueryType() != SplitQueryType.SELECT) {
+            if (!request.hasQueryType(SplitQueryType.SELECT)) {
                 continue;
             }
             String beforeRewrite = request.getQueryBody();
@@ -226,8 +203,6 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         if (behaviorSpi == null) {
             throw new IllegalStateException(sqlEngine + " does not support BehaviorAnalysisSpi.");
         }
-        String currentResourcePath = currentResourcePath(levels);
-        String instanceResourcePath = instanceResourcePath(levels);
         for (int i = 0; i < requests.size(); i++) {
             QueryRequest request = requests.get(i);
             SplitScript script = scripts.get(i);
@@ -237,14 +212,23 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         }
     }
 
-    private void analysisColumns(SqlEngineSpi sqlEngine, SqlParserParameters parameters, ContextInfo contextInfo,//
+    private void analysisColumns(SqlEngineSpi sqlEngine, SqlParserParameters parameters, DataSourceConfig dsConfig, QueryAnalysisOptions options,//
                                  List<QueryRequest> requests) {
         SelectColumnAnalysisSpi selectColumnSpi = sqlEngine.selectColumnAnalysisSpi(parameters);
         if (selectColumnSpi == null) {
             return;
         }
+
+        ContextInfo contextInfo = ContextInfo.builder()
+            .puid(options.getPrimaryUid())
+            .cuid(options.getCurrentUid())
+            .dsId(options.getDataSourceId())
+            .levelsParam(options.getLevels())
+            .deepParser(options.isDeepParser())
+            .dataSourceConfig(dsConfig)
+            .build();
         for (QueryRequest request : requests) {
-            if (request.getQueryType() == SplitQueryType.SELECT) {
+            if (request.hasQueryType(SplitQueryType.SELECT)) {
                 List<SelectItem> selectItems = selectColumnSpi.parseSelectColumn(request.getQueryBody(), contextInfo);
                 Set<String> aliases = new HashSet<>();
                 if (selectItems.stream().anyMatch(item -> !aliases.add(item.getItemAlias()))) {
@@ -330,49 +314,5 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             return;
         }
 
-        SecDomainResolveSpi resolveSpi = sqlEngine.secDomainResolveSpi(parameters);
-        if (resolveSpi == null) {
-            return;
-        }
-        DataSourceType dsType = contextInfo.getDataSourceConfig().getDataSourceType();
-        CodeInfo codeInfo = CodeInfo.builder().baseLine(1).baseColumn(0).query(queryString).build();
-        ContextInfo legacyContext = ContextInfo.builder().dataSourceConfig(contextInfo.getDataSourceConfig()).deepParser(false).build();
-        List<RuleDomain> ruleDomains = resolveSpi.resolveDomain(dsType, codeInfo, legacyContext);
-        List<RdbSelectDomain> domains = ruleDomains.stream().filter(RdbSelectDomain.class::isInstance).map(RdbSelectDomain.class::cast).toList();
-        for (RdbSelectDomain queryDomain : domains) {
-            boolean supported = !queryDomain.isHasAs() && !queryDomain.isHasUnion() && queryDomain.isSimpleSelect() && //
-                                queryDomain.getJoinTypes().isEmpty() && !queryDomain.isHasWith();
-            if (supported && CollectionUtils.isNotEmpty(queryDomain.getChildren())) {
-                RdbTableDomain tableDomain = (RdbTableDomain) queryDomain.getChildren().get(0);
-                supported = tableDomain.getSchema() == null;
-            }
-            if (!supported) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_VALUE_PROCESS_CHECK_MESSAGE.name()));
-            }
-        }
-    }
-
-    private String currentResourcePath(Map<UmiTypes, Object> levels) {
-        return resourcePath(levels, List.of(UmiTypes.Instance, UmiTypes.Catalog, UmiTypes.Schema));
-    }
-
-    private String instanceResourcePath(Map<UmiTypes, Object> levels) {
-        return resourcePath(levels, List.of(UmiTypes.Instance));
-    }
-
-    private String resourcePath(Map<UmiTypes, Object> levels, List<UmiTypes> types) {
-        List<String> nodes = new ArrayList<>();
-        for (UmiTypes type : types) {
-            Object value = levels.get(type);
-            if (value == null) {
-                continue;
-            }
-            for (String node : StringUtils.toString(value).split("/")) {
-                if (StringUtils.isNotBlank(node)) {
-                    nodes.add(node);
-                }
-            }
-        }
-        return nodes.isEmpty() ? "/" : "/" + String.join("/", nodes) + "/";
     }
 }
