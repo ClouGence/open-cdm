@@ -182,7 +182,7 @@ public class SecValueProcessServiceProvider implements ValueProcessService {
 
         RdbValueDomain domain = new RdbValueDomain();
 
-        domain.setSqlTypes(query.getQueryTypes());
+        domain.setSqlType(RuleQueryType.SELECT);
         domain.setAuditKind(SecQueryKind.QUERY);
         domain.setOptions(Collections.emptyMap());
 

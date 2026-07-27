@@ -19,7 +19,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.redis.analysis.security.builder.RedisBuilderFactory;
 import com.clougence.sql.redis.analysis.security.domain.RedisCmdDomain;
 import com.clougence.sql.redis.parser.antlr.RedisParser;
@@ -50,53 +50,21 @@ public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
     }
 
     private void buildCmdDomain(RedisCmdType cmdType, RuleNode ctx, String schema) {
-        this.buildCmdDomain(cmdType, ctx, schema, RedisAnalysisHelper.cmdTypeToSecQueryType(cmdType));
+        this.buildCmdDomain(cmdType, ctx, schema, RedisRuleAnalysisHelper.cmdTypeToRuleQueryType(cmdType));
     }
 
-    private void buildCmdDomain(RedisCmdType cmdType, RuleNode ctx, String schema, SplitQueryType queryType) {
+    private void buildCmdDomain(RedisCmdType cmdType, RuleNode ctx, String schema, RuleQueryType queryType) {
         String cmdStr = cmdType.getCommandStr().toUpperCase();
         String kindStr = cmdType.getKindType().getType().toUpperCase();
 
         RedisCmdDomain domain = new RedisCmdDomain(cmdStr, kindStr);
         domain.setAuditKind(queryType.getAuditKind());
-        domain.addSqlType(queryType);
+        domain.setSqlType(queryType);
         domain.setSchema(schema);
         this.builder.addDomain(domain);
 
         dmVisitChildren(ctx);
     }
-
-    //    private AccessType convertTo(RedisCmdType cmdType) {
-    //        SplitQueryType queryType = RedisAnalysisHelper.cmdTypeToSecQueryType(cmdType);
-    //        switch (queryType.getAuthKind()) {
-    //            case READ:
-    //                return AccessType.READ;
-    //            case WRITE:
-    //                return AccessType.WRITE;
-    //            case ADMIN:
-    //                return AccessType.ADMIN;
-    //            default:
-    //                return AccessType.OTHER;
-    //        }
-    //    }
-    //    private void buildKeyDomain(RedisCmdType cmdType, RuleNode ctx, String key) {
-    //        this.buildKeyDomain(cmdType, ctx, key, this.convertTo(cmdType));
-    //    }
-    //
-    //    private void buildKeyDomain(RedisCmdType cmdType, RuleNode ctx, String key, AccessType accessType) {
-    //        String cmdStr = cmdType.getCommandStr().toUpperCase();
-    //        String kindStr = cmdType.getKindType().getType().toUpperCase();
-    //        SplitQueryType queryType = RedisAnalysisHelper.cmdTypeToSecQueryType(cmdType);
-    //
-    //        RedisKeyDomain domain = new RedisKeyDomain(cmdStr, kindStr);
-    //        domain.setSqlKind(queryType.getAuditKind());
-    //        domain.addSqlType(queryType);
-    //        domain.setKey(key);
-    //        domain.setAccessType(accessType);
-    //        this.builder.addDomain(domain);
-    //
-    //        dmVisitChildren(ctx);
-    //    }
 
     /* ----------------------------------------------------------------------------------- Keys commands */
 
@@ -232,7 +200,7 @@ public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
 
     @Override
     public Void visitCmdSort(RedisParser.CmdSortContext ctx) {
-        SplitQueryType queryType = ctx.destination == null ? SplitQueryType.SELECT : SplitQueryType.MERGE;
+        RuleQueryType queryType = ctx.destination == null ? RuleQueryType.SELECT : RuleQueryType.MERGE;
         this.buildCmdDomain(RedisCmdType.SORT, ctx, null, queryType);
         return null;
     }

@@ -115,7 +115,7 @@ public class SecRulesEngineImpl implements SecRulesEngine {
         result.setSpecName(rules.getDsUseSpecName());
         for (RuleDomain ruleDomain : domainList) {
             List<CheckerRule> checkerRules = rules.getQueryRuleList().stream().filter(r -> {
-                return r.getTarget() == null || ruleDomain.getSqlTargets().contains(r.getTarget());
+                return r.getTarget() == null || ruleDomain.getSqlTarget() == r.getTarget();
             }).collect(Collectors.toList());
             if (checkerRules.isEmpty()) {
                 continue;

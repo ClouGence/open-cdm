@@ -87,7 +87,7 @@ public class Utils {
     }
 
     public static boolean checkRangeIncludeDomain(CheckerRange range, CheckerData domain) {
-        if (domain.getDomain().getSqlTargets().stream().noneMatch(target -> scopeInclude(range.getScope(), target))) {
+        if (!scopeInclude(range.getScope(), domain.getDomain().getSqlTarget())) {
             return false;
         }
 

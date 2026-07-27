@@ -221,7 +221,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDropstmt(DropstmtContext ctx) {
-        TargetType targetType = resolvedType.getTarget();
+        TargetType targetType = dropTarget(resolvedType);
         if (ctx.object_type_name_on_any_name() != null && ctx.object_type_name_on_any_name().POLICY() != null) {
             targetType = TargetType.RowAccessPolicy;
         }
@@ -245,6 +245,23 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
             addUnary(resolvedType, BehaviorAction.DROP, object(targetType, ctx.name()));
         }
         return null;
+    }
+
+    private TargetType dropTarget(SplitQueryType type) {
+        return switch (type) {
+            case DROP_LIBRARY -> TargetType.Library;
+            case DROP_INDEX -> TargetType.Index;
+            case DROP_VIEW -> TargetType.View;
+            case DROP_TRIGGER -> TargetType.Trigger;
+            case DROP_POLICY -> TargetType.Policy;
+            case DROP_PUB_SUB -> TargetType.PublicationSubscription;
+            case DROP_SEQUENCE -> TargetType.Sequence;
+            case DROP_TYPE -> TargetType.Type;
+            case DROP_PROG_OBJ -> TargetType.ProgramObject;
+            case DROP_USER -> TargetType.User;
+            case DROP_ROLE -> TargetType.Role;
+            default -> TargetType.Unknown;
+        };
     }
 
     @Override

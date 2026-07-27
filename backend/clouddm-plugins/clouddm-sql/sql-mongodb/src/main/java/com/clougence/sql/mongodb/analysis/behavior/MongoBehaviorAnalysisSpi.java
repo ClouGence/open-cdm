@@ -14,7 +14,6 @@ import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.Statement;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.sql.mongodb.analysis.security.MongoAnalysisHelper;
 import com.clougence.sql.mongodb.parser.MongoDslProvider;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 import com.clougence.sql.mongodb.parser.ast.commands.AbstractMongoFunc;
@@ -37,7 +36,7 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
                 continue;
             }
             MongoFuncType funcType = mongoFunc.getFuncType();
-            SplitQueryType statementType = MongoAnalysisHelper.convert(funcType);
+            SplitQueryType statementType = statementType(funcType);
             StatementBehavior behavior = new StatementBehavior();
             behavior.setStatementType(statementType);
 
@@ -61,6 +60,30 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             result.add(behavior);
         }
         return result;
+    }
+
+    @Deprecated
+    private SplitQueryType statementType(MongoFuncType type) {
+        return switch (type) {
+            case FIND, AGGREGATE, FIND_ONE, COUNT, DISTINCT, COUNT_DOCUMENTS -> SplitQueryType.SELECT;
+            case DATA_SIZE, HELLO, EXPLAIN -> SplitQueryType.PERFORMANCE;
+            case LIST_COLLECTIONS, LIST_INDEXES, SHOW_DATABASES, SHOW_COLLECTIONS -> SplitQueryType.UNKNOWN;
+            case VALIDATE -> SplitQueryType.ADMIN_TABLE;
+            case CREATE_INDEX, CREATE_INDEXES -> SplitQueryType.ADD_INDEX;
+            case CREATE_VIEW -> SplitQueryType.CREATE_VIEW;
+            case CREATE_COLLECTION -> SplitQueryType.CREATE_TABLE;
+            case INSERT, INSERT_ONE, INSERT_MANY -> SplitQueryType.INSERT;
+            case UPDATE, UPDATE_MANY, UPDATE_ONE, REPLACE_ONE, FIND_ONE_AND_REPLACE, FIND_ONE_AND_UPDATE -> SplitQueryType.UPDATE;
+            case FIND_ONE_AND_DELETE, DELETE_ONE, DELETE_MANY -> SplitQueryType.DELETE;
+            case DROP -> SplitQueryType.DROP_TABLE;
+            case DROP_DATABASE -> SplitQueryType.DROP_SCHEMA;
+            case RENAME_COLLECTION -> SplitQueryType.RENAME_TABLE;
+            case ALTER_INDEX -> SplitQueryType.ALTER_INDEX;
+            case DROP_INDEXES, DROP_INDEX -> SplitQueryType.DROP_INDEX;
+            case USE -> SplitQueryType.SWITCH_SCHEMA;
+            case HOST_INFO, FSYNC_LOCK, CURRENT_OP, KILL_OP, SERVER_STATUS, BUILD_INFO, GET_LOG_COMPONENTS, PROFILE, FSYNC_UNLOCK, DB_STATS, LATENCY_STATS -> SplitQueryType.ADMIN;
+            default -> SplitQueryType.UNKNOWN;
+        };
     }
 
     private BehaviorAction action(SplitQueryType type) {
