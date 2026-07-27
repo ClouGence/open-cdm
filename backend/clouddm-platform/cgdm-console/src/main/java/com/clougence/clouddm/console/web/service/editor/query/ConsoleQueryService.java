@@ -68,7 +68,6 @@ import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
@@ -297,16 +296,15 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private static final RuleLevel[] CHECK_LEVELS_NORMAL = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET, RuleLevel.SUGGEST };
 
     private List<QueryRequest> prepareQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, boolean isExplain) {
-        ContextInfo contextInfo = ContextInfo.builder()
-            .cuid(queryDTO.getCurrentUserId())
-            .puid(queryDTO.getPrimaryUserId())
-            .dsId(ctx.getLevels().dsDO().getId())
-            .dataSourceConfig(ctx.getDsConfig())
-            .levelsParam(ctx.getLevels().levelsParam())
+        QueryAnalysisOptions options = QueryAnalysisOptions.builder()
+            .currentUid(queryDTO.getCurrentUserId())
+            .primaryUid(queryDTO.getPrimaryUserId())
+            .dataSourceId(ctx.getLevels().dsDO().getId())
+            .levels(ctx.getLevels().levelsParam())
             .deepParser(false)
             .build();
-        List<QueryRequest> requests = new ArrayList<>(this.analysisService.analysisRequests(contextInfo, queryDTO.getQueryString(),//
-                queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn(), QueryAnalysisOptions.defaults()));
+        List<QueryRequest> requests = this.analysisService.analysisRequests(ctx.getDsConfig(), queryDTO.getQueryString(),//
+                queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn(), options);
 
         //
         SessionSpi sessionSpi = ctx.getSessionSpi();

@@ -53,7 +53,6 @@ import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
@@ -145,18 +144,16 @@ public class ApprovalTaskScheduleProcess {
 
             //
             DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
-            ContextInfo contextInfo = ContextInfo.builder()
-                .puid(approvalDO.getPrimaryUid())
-                .cuid(approvalDO.getOwnerUid())
-                .dsId(dsDO.getId())
-                .dataSourceConfig(dsConfig)
-                .levelsParam(dsLevels.levelsParam())
+            QueryAnalysisOptions options = QueryAnalysisOptions.builder()
+                .primaryUid(approvalDO.getPrimaryUid())
+                .currentUid(approvalDO.getOwnerUid())
+                .dataSourceId(dsDO.getId())
+                .levels(dsLevels.levelsParam())
                 .deepParser(false)
+                .skip(QueryAnalysisFeature.SQL_REWRITE, QueryAnalysisFeature.COLUMN_ANALYSIS, QueryAnalysisFeature.DESENSITIZATION)
                 .build();
-            QueryAnalysisOptions options = QueryAnalysisOptions
-                .skipping(QueryAnalysisFeature.SQL_REWRITE, QueryAnalysisFeature.COLUMN_ANALYSIS, QueryAnalysisFeature.DESENSITIZATION);
 
-            List<QueryRequest> requests = this.queryAnalysisService.analysisRequests(contextInfo, rawSql, Collections.emptyList(), 1, 0, options);
+            List<QueryRequest> requests = this.queryAnalysisService.analysisRequests(dsConfig, rawSql, Collections.emptyList(), 1, 0, options);
             List<ApprovalBehavior> behaviors = groupBehaviorsByResource(requests);
             if (behaviors.stream().anyMatch(behavior -> behavior.getActions().contains(BehaviorAction.SWITCH))) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NONSUPPORT_SWITCH_CTX_ERROR.name()));

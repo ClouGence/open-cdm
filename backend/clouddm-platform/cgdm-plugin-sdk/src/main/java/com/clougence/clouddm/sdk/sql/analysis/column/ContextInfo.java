@@ -15,11 +15,26 @@
  */
 package com.clougence.clouddm.sdk.sql.analysis.column;
 
-import java.util.List;
+import java.util.Map;
 
-import com.clougence.clouddm.sdk.Spi;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.schema.umi.struts.UmiTypes;
 
-public interface SelectColumnAnalysisSpi extends Spi {
+import lombok.Builder;
+import lombok.Getter;
 
-    List<SelectItem> parseSelectColumn(String script, ContextInfo info);
+/** @author mode 2020-01-20 21:04
+ * @since 1.1.3
+ */
+@Builder
+@Getter
+public class ContextInfo {
+    private String                puid;
+    private String                cuid;
+    private long                  dsId;
+    private Map<UmiTypes, Object> levelsParam;
+
+    // query meta info
+    private boolean               deepParser;
+    private DataSourceConfig      dataSourceConfig;
 }

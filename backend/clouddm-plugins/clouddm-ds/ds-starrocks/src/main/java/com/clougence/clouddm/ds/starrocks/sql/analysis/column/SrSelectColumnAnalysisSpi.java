@@ -20,11 +20,11 @@ import java.util.List;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
+import com.clougence.clouddm.ds.starrocks.sql.analysis.security.SrSqlParserVisitor;
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.builder.SrBuilderFactory;
 import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
-import com.clougence.clouddm.ds.starrocks.sql.analysis.security.SrSqlParserVisitor;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;

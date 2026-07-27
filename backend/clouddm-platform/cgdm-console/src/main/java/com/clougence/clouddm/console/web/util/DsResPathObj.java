@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.model.analysis.resource;
+package com.clougence.clouddm.console.web.util;
 
-/**
- * use DsTreeNodeMO
- * @author mode 2021/1/18 17:37
- */
-public interface DsResPath {
+import lombok.Getter;
+import lombok.Setter;
 
-    String getResPath();
+@Getter
+@Setter
+public class DsResPathObj implements DsResPath {
+
+    private String resPath;
+
+    public DsResPathObj(){
+    }
+
+    public DsResPathObj(String resPath){
+        this.resPath = resPath;
+    }
 }

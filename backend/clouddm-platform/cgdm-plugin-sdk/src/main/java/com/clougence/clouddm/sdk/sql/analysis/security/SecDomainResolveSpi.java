@@ -19,8 +19,6 @@ import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.Spi;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 
 /**

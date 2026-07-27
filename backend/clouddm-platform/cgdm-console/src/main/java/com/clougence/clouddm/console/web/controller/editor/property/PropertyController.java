@@ -34,9 +34,9 @@ import com.clougence.clouddm.console.web.model.fo.editor.property.PropertyInitFO
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorForm;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.editor.DsObjPropertyService;
+import com.clougence.clouddm.console.web.util.DsResPath;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.ui.editor.property.PropertyEditorUiData;

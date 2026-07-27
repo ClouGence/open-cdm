@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.model.analysis.resource;
+package com.clougence.clouddm.sdk.sql.analysis.security;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
+/** @author mode 2020-01-20 21:04
+ * @since 1.1.3
+ */
+@Builder
 @Getter
-@Setter
-public class DsResPathObj implements DsResPath {
+public class CodeInfo {
 
-    private String resPath;
-
-    public DsResPathObj(){
-    }
-
-    public DsResPathObj(String resPath){
-        this.resPath = resPath;
-    }
+    private int    baseLine;
+    private int    baseColumn;
+    private String query;
 }

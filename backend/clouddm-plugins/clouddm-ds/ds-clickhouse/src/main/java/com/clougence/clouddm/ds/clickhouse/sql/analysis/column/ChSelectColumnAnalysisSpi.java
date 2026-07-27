@@ -20,11 +20,11 @@ import java.util.List;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
+import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.ChSQLParserVisitor;
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.builder.ChBuilderFactory;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.ChSqlDslProvider;
-import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.ChSQLParserVisitor;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
 import com.clougence.dslpaser.antlr.DslHelper;

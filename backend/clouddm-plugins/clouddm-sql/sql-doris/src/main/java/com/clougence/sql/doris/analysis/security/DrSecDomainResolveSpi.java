@@ -22,18 +22,18 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
+import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.dslpaser.parse.AstSplitScript;
-import com.clougence.sql.doris.parser.DrDslProvider;
 import com.clougence.sql.doris.analysis.security.builder.DrBuilderFactory;
+import com.clougence.sql.doris.parser.DrDslProvider;
 
 public class DrSecDomainResolveSpi implements SecDomainResolveSpi {
 

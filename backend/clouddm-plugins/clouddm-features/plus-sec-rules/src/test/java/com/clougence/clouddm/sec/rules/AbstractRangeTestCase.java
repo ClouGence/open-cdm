@@ -20,9 +20,9 @@ import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
+import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.sql.mysql.analysis.security.MySecDomainResolveSpi;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
 import com.clougence.utils.CollectionUtils;

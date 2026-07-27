@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.model.analysis.resource;
+package com.clougence.clouddm.console.web.util;
 
 import java.util.Map;
 

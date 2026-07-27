@@ -20,17 +20,17 @@ import java.util.List;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.column.AbstractSelectColumnAnalysisSpi;
-import com.clougence.sql.doris.parser.DrDslProvider;
 import com.clougence.sql.doris.analysis.security.DrSqlParserVisitor;
 import com.clougence.sql.doris.analysis.security.builder.DrBuilderFactory;
+import com.clougence.sql.doris.parser.DrDslProvider;
 import com.clougence.utils.StringUtils;
 
 public class DrSelectColumnAnalysisSpi extends AbstractSelectColumnAnalysisSpi {

@@ -24,7 +24,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.parser.DmDslProvider;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
+import com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
@@ -335,38 +335,38 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
     private record NameParts(String catalog, String schema, String name) {
 
         private static NameParts from(DmSqlParser.QualifiedNameContext ctx) {
-                if (ctx == null) {
-                    return new NameParts(null, null, null);
-                }
-                List<String> parts = new ArrayList<>();
-                parts.add(clean(ctx.dottedName().identifier().getText()));
-                for (DmSqlParser.DottedNamePartContext partContext : ctx.dottedName().dottedNamePart()) {
-                    parts.add(clean(partContext.getText()));
-                }
-                return fromParts(parts);
+            if (ctx == null) {
+                return new NameParts(null, null, null);
             }
-
-            private static NameParts fromParts(List<String> parts) {
-                if (parts.isEmpty()) {
-                    return new NameParts(null, null, null);
-                }
-                String name = parts.get(parts.size() - 1);
-                String schema = parts.size() > 1 ? parts.get(parts.size() - 2) : null;
-                String catalog = parts.size() > 2 ? parts.get(parts.size() - 3) : null;
-                return new NameParts(catalog, schema, name);
+            List<String> parts = new ArrayList<>();
+            parts.add(clean(ctx.dottedName().identifier().getText()));
+            for (DmSqlParser.DottedNamePartContext partContext : ctx.dottedName().dottedNamePart()) {
+                parts.add(clean(partContext.getText()));
             }
+            return fromParts(parts);
+        }
 
-            private static String clean(String text) {
-                if (text == null || text.length() < 2) {
-                    return text;
-                }
-                if (text.startsWith("\"") && text.endsWith("\"")) {
-                    return text.substring(1, text.length() - 1).replace("\"\"", "\"");
-                }
-                if (text.startsWith("[") && text.endsWith("]")) {
-                    return text.substring(1, text.length() - 1);
-                }
+        private static NameParts fromParts(List<String> parts) {
+            if (parts.isEmpty()) {
+                return new NameParts(null, null, null);
+            }
+            String name = parts.get(parts.size() - 1);
+            String schema = parts.size() > 1 ? parts.get(parts.size() - 2) : null;
+            String catalog = parts.size() > 2 ? parts.get(parts.size() - 3) : null;
+            return new NameParts(catalog, schema, name);
+        }
+
+        private static String clean(String text) {
+            if (text == null || text.length() < 2) {
                 return text;
             }
+            if (text.startsWith("\"") && text.endsWith("\"")) {
+                return text.substring(1, text.length() - 1).replace("\"\"", "\"");
+            }
+            if (text.startsWith("[") && text.endsWith("]")) {
+                return text.substring(1, text.length() - 1);
+            }
+            return text;
         }
+    }
 }

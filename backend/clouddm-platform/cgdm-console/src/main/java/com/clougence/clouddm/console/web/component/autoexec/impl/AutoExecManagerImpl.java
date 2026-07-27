@@ -57,7 +57,6 @@ import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
@@ -164,16 +163,12 @@ public class AutoExecManagerImpl implements AutoExecManager {
         SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
         SessionContextDTO contextDTO = sessionSpi.createSessionContext(dsConfig, params);
 
-        ContextInfo analysisContext = ContextInfo.builder()//
-            .dsId(dsDO.getId())
-            .dataSourceConfig(dsConfig)
-            .levelsParam(levelsParam)
+        QueryAnalysisOptions analysisOptions = QueryAnalysisOptions.builder()//
+            .dataSourceId(dsDO.getId())
+            .levels(levelsParam)
             .deepParser(false)
+            .skip(QueryAnalysisFeature.SQL_REWRITE, QueryAnalysisFeature.COLUMN_ANALYSIS, QueryAnalysisFeature.DESENSITIZATION)
             .build();
-        QueryAnalysisOptions analysisOptions = QueryAnalysisOptions.skipping(//
-                QueryAnalysisFeature.SQL_REWRITE,       //
-                QueryAnalysisFeature.COLUMN_ANALYSIS,   //
-                QueryAnalysisFeature.DESENSITIZATION);
 
         List<DmExecAutoTaskDO> taskList = this.executionDal.autoTaskMapper().queryNeedExecTaskList(job.getId());
         for (DmExecAutoTaskDO task : taskList) {
@@ -185,7 +180,7 @@ public class AutoExecManagerImpl implements AutoExecManager {
             taskDTO.setExecOrder(task.getExecOrder());
             job4Auto.getTaskList().add(taskDTO);
 
-            List<QueryRequest> requests = this.analysisService.analysisRequests(analysisContext, task.getExecSql(), null, 1, 0, analysisOptions);
+            List<QueryRequest> requests = this.analysisService.analysisRequests(dsConfig, task.getExecSql(), null, 1, 0, analysisOptions);
             if (requests.size() != 1) {
                 throw new IllegalStateException("Auto execution task must contain exactly one SQL statement.");
             }

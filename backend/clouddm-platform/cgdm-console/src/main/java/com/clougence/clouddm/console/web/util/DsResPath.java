@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.model.analysis;
+package com.clougence.clouddm.console.web.util;
 
-import lombok.Builder;
-import lombok.Getter;
-
-/** @author mode 2020-01-20 21:04
- * @since 1.1.3
+/**
+ * use DsTreeNodeMO
+ * @author mode 2021/1/18 17:37
  */
-@Builder
-@Getter
-public class CodeInfo {
+public interface DsResPath {
 
-    private int    baseLine;
-    private int    baseColumn;
-    private String query;
+    String getResPath();
 }

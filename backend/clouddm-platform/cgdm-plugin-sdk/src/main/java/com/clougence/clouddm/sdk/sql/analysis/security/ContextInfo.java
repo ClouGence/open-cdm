@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.model.analysis;
+package com.clougence.clouddm.sdk.sql.analysis.security;
 
 import java.util.Map;
 
@@ -29,7 +29,6 @@ import lombok.Getter;
 @Builder
 @Getter
 public class ContextInfo {
-
     private String                puid;
     private String                cuid;
     private long                  dsId;
