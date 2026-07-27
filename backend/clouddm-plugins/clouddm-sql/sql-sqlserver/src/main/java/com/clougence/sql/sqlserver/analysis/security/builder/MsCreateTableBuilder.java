@@ -15,8 +15,8 @@
  */
 package com.clougence.sql.sqlserver.analysis.security.builder;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.sqlserver.analysis.security.domain.MsTableDomain;
 

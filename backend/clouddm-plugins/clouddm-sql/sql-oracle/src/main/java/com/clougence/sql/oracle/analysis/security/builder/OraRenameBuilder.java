@@ -18,12 +18,12 @@ package com.clougence.sql.oracle.analysis.security.builder;
 import java.util.Collections;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.RenameBuilder;
 import com.clougence.sql.oracle.analysis.security.domain.OraColumnDomain;
 import com.clougence.sql.oracle.analysis.security.domain.OraTableDomain;

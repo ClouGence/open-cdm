@@ -17,12 +17,12 @@ package com.clougence.sql.common.analysis.secrules.builder;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;

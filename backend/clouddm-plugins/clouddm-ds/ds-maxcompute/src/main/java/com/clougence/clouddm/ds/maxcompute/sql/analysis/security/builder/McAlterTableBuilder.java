@@ -21,12 +21,12 @@ import java.util.Map;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.builder.utils.McBuilderUtil;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McColumnDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstraintDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
@@ -35,9 +35,9 @@ import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
 
 public class McAlterTableBuilder extends AbstractDomainBuilder {
 
-    private       Map<UmiTypes, String> map;
-    private final List<Domain>          ruleDomains = new ArrayList<>();
-    private final boolean               schemaEnables;
+    private Map<UmiTypes, String> map;
+    private final List<Domain>    ruleDomains = new ArrayList<>();
+    private final boolean         schemaEnables;
 
     public McAlterTableBuilder(boolean schemaEnables){
         this.schemaEnables = schemaEnables;

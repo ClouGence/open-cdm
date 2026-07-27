@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McUserDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUserDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUserDomain;
 import com.clougence.sql.common.analysis.secrules.builder.DropUserBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;

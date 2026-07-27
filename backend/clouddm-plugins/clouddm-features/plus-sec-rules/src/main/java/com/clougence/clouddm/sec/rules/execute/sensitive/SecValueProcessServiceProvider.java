@@ -25,7 +25,6 @@ import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.secrules.*;

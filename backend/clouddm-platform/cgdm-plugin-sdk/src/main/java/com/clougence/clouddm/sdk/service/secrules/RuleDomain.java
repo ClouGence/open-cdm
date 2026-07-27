@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.detectrule.lang.reflect.RuleIgnore;
@@ -37,7 +35,7 @@ public abstract class RuleDomain implements SecResolveName, Domain {
     @RuleIgnore
     private SplitScript         splitScript;
 
-    private SplitQueryType        sqlType;
+    private RuleQueryType       sqlType;
     private SecQueryKind        auditKind;
     private Map<String, String> options;
 
@@ -52,13 +50,7 @@ public abstract class RuleDomain implements SecResolveName, Domain {
     @RuleIgnore
     private List<RuleDomain>    children;
 
-    public TargetType getSqlTarget() {
-        if (sqlType == null) {
-            return null;
-        } else {
-            return this.sqlType.getTarget();
-        }
-    }
+    public TargetType getSqlTarget() { return this.sqlType == null ? null : this.sqlType.getTarget(); }
 
     public void addChild(RuleDomain child) {
         if (CollectionUtils.isEmpty(children)) {

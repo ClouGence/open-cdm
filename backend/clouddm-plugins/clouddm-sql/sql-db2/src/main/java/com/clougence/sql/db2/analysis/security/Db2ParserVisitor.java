@@ -22,11 +22,11 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.db2.analysis.security.builder.Db2BuildFactory;
 import com.clougence.sql.db2.analysis.security.domain.*;
 import com.clougence.sql.db2.parser.antlr.Db2SqlParser;

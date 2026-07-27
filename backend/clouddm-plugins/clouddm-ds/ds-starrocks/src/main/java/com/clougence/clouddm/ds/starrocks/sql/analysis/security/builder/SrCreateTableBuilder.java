@@ -20,9 +20,9 @@ import java.util.Map;
 
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.builder.enums.SrAttribute;
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.domain.SrTableDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.CreateTableBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;

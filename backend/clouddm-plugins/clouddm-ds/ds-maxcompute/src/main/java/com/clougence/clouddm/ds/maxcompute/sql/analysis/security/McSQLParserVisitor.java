@@ -31,10 +31,10 @@ import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McColumn
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McTableDomain;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserBaseVisitor;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserParser;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;

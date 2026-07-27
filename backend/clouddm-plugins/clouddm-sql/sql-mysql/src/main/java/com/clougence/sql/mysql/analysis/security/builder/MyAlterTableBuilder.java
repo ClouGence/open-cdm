@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstraintDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbIndexDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.AbstractDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;

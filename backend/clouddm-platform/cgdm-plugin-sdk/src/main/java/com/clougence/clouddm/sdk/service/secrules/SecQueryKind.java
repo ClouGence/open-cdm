@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.security.auth;
+package com.clougence.clouddm.sdk.service.secrules;
 
 // is sql kind for
+@Deprecated
 public enum SecQueryKind {
 
     // for SQL

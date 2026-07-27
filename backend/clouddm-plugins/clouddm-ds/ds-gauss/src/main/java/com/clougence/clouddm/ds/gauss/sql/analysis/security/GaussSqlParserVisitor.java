@@ -29,10 +29,10 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParserBaseVisitor;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;

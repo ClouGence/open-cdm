@@ -19,10 +19,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -43,12 +43,12 @@ public class RdbResourceDomain extends RuleDomain {
     public RdbResourceDomain(){
     }
 
-    public RdbResourceDomain(SplitQueryType secQueryType, SecQueryKind kind){
+    public RdbResourceDomain(RuleQueryType secQueryType, SecQueryKind kind){
         this(secQueryType, kind, false, TargetType.Unknown);
     }
 
-    public RdbResourceDomain(SplitQueryType secQueryType, SecQueryKind kind, boolean needSupply, TargetType type){
-        this.addSqlType(secQueryType);
+    public RdbResourceDomain(RuleQueryType secQueryType, SecQueryKind kind, boolean needSupply, TargetType type){
+        this.setSqlType(secQueryType);
         this.setAuditKind(kind);
         this.needSupply = needSupply;
         this.target = type;

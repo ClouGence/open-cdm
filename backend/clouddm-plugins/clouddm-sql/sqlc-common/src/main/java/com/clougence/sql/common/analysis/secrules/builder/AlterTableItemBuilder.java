@@ -18,13 +18,13 @@ package com.clougence.sql.common.analysis.secrules.builder;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstraintDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbIndexDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.SqlConstraintType;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 

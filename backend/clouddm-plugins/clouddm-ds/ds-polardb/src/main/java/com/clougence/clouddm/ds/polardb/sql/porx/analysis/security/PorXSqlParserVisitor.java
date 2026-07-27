@@ -30,10 +30,10 @@ import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser;
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParserBaseVisitor;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;

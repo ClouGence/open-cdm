@@ -18,10 +18,10 @@ package com.clougence.clouddm.ds.clickhouse.sql.analysis.security.builder;
 import java.util.*;
 
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.domain.ChUpdateDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUpdateDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUpdateDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.UpdateBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.mode.WithSelectDomain;

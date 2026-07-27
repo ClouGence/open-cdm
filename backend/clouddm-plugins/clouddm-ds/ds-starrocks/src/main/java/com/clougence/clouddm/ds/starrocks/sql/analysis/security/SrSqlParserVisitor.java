@@ -32,13 +32,13 @@ import com.clougence.clouddm.ds.starrocks.sql.analysis.security.builder.SrBuilde
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.builder.enums.SrAttribute;
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.domain.*;
 import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksBaseVisitor;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbColumnDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbConstantDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbResourceDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbRoleDomain;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.secrules.builder.enums.AlterTableType;
 import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;

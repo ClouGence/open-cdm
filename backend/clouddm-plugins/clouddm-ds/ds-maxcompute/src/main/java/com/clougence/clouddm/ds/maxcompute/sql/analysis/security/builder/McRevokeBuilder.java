@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.domain.McRevokeDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.sql.common.analysis.secrules.builder.RevokeBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;

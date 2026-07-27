@@ -19,10 +19,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.secrules.builder.RenameBuilder;
 import com.clougence.sql.doris.analysis.security.domain.DrCatalogDomain;
 import com.clougence.sql.doris.analysis.security.domain.DrSchemaDomain;
