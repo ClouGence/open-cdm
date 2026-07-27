@@ -46,7 +46,7 @@ public class McRenameBuilder extends AbstractDomainBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Table) {
             McTableDomain tableDomain = new McTableDomain();
-            tableDomain.setSqlType(SplitQueryType.RENAME_TABLE);
+            tableDomain.addSqlType(SplitQueryType.RENAME_TABLE);
             tableDomain.setAuditKind(SecQueryKind.ALTER);
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(oldNameList);
             tableDomain.setSchema(map.get(UmiTypes.Schema));

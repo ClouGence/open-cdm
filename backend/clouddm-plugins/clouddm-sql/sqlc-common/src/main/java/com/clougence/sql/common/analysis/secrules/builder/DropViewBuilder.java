@@ -46,7 +46,7 @@ public class DropViewBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         functionDomain.setAuditKind(SecQueryKind.DROP);
-        functionDomain.setSqlType(SplitQueryType.DROP_VIEW);
+        functionDomain.addSqlType(SplitQueryType.DROP_VIEW);
         return Collections.singletonList(functionDomain);
     }
 }

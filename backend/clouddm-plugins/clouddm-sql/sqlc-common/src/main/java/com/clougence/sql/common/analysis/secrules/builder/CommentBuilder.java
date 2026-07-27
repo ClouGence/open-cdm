@@ -66,7 +66,7 @@ public abstract class CommentBuilder implements DomainBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Column) {
             RdbColumnDomain rdbColumnDomain = getColumnDomain();
-            rdbColumnDomain.setSqlType(SplitQueryType.COMMENT_COLUMN);
+            rdbColumnDomain.addSqlType(SplitQueryType.COMMENT_COLUMN);
             rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
 
             Map<UmiTypes, String> map = BuilderUtil.parseColumnName(nameList);
@@ -79,7 +79,7 @@ public abstract class CommentBuilder implements DomainBuilder {
             return Collections.singletonList(rdbColumnDomain);
         } else if (targetType == TargetType.Table) {
             RdbTableDomain rdbTableDomain = getTableDomain();
-            rdbTableDomain.setSqlType(SplitQueryType.COMMENT_TABLE);
+            rdbTableDomain.addSqlType(SplitQueryType.COMMENT_TABLE);
             rdbTableDomain.setAuditKind(SecQueryKind.ALTER);
 
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(nameList);

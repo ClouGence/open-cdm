@@ -36,14 +36,14 @@ import com.clougence.sql.mysql.analysis.security.builder.enums.MyAttribute;
 public class SrCreateTableBuilder extends CreateTableBuilder<SrTableDomain> {
 
     public SrCreateTableBuilder(SplitQueryType type){
-        rdbTableDomain.setSqlType(type);
+        rdbTableDomain.addSqlType(type);
     }
 
     @Override
     protected SrTableDomain getTableDomain() {
         SrTableDomain oraTableDomain = new SrTableDomain();
         oraTableDomain.setAuditKind(SecQueryKind.CREATE);
-        oraTableDomain.setSqlType(SplitQueryType.CREATE_TABLE);
+        oraTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
         return oraTableDomain;
     }
 

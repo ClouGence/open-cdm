@@ -5,10 +5,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_PROG_OBJ",
+      "sqlTypes": ["DROP_PROG_OBJ"],
       "auditKind": "DROP",
       "name": "test",
-      "sqlTarget": "Function"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -20,11 +20,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_PROG_OBJ",
+      "sqlTypes": ["DROP_PROG_OBJ"],
       "auditKind": "DROP",
       "schema": "schema1",
       "name": "test",
-      "sqlTarget": "Function"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -36,11 +36,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_PROG_OBJ",
+      "sqlTypes": ["DROP_PROG_OBJ"],
       "auditKind": "DROP",
       "schema": "schema1",
       "name": "test",
-      "sqlTarget": "Function"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -52,10 +52,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_PROG_OBJ",
+      "sqlTypes": ["DROP_PROG_OBJ"],
       "auditKind": "DROP",
       "name": "test",
-      "sqlTarget": "Procedure"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -67,11 +67,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_PROG_OBJ",
+      "sqlTypes": ["DROP_PROG_OBJ"],
       "auditKind": "DROP",
       "schema": "schema1",
       "name": "test",
-      "sqlTarget": "Procedure"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -83,11 +83,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_PROG_OBJ",
+      "sqlTypes": ["DROP_PROG_OBJ"],
       "auditKind": "DROP",
       "schema": "schema1",
       "name": "test",
-      "sqlTarget": "Procedure"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -112,10 +112,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_PROG_OBJ",
+      "sqlTypes": ["CREATE_PROG_OBJ"],
       "auditKind": "CREATE",
       "name": "test",
-      "sqlTarget": "Function"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -131,10 +131,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_PROG_OBJ",
+      "sqlTypes": ["CREATE_PROG_OBJ"],
       "auditKind": "CREATE",
       "name": "test",
-      "sqlTarget": "Procedure"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -159,11 +159,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_PROG_OBJ",
+      "sqlTypes": ["CREATE_PROG_OBJ"],
       "auditKind": "CREATE",
       "schema": "schema1",
       "name": "test",
-      "sqlTarget": "Function"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -179,11 +179,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_PROG_OBJ",
+      "sqlTypes": ["CREATE_PROG_OBJ"],
       "auditKind": "CREATE",
       "schema": "schema1",
       "name": "test",
-      "sqlTarget": "Procedure"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }

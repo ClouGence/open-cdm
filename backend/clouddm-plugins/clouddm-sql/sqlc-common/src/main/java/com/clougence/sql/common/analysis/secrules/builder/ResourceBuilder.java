@@ -35,7 +35,7 @@ public class ResourceBuilder extends AbstractDomainBuilder {
     private final RdbResourceDomain domain = new RdbResourceDomain();
 
     public ResourceBuilder(SplitQueryType sqlType, SecQueryKind auditKind, boolean needSupply, TargetType targetType){
-        domain.setSqlType(sqlType);
+        domain.addSqlType(sqlType);
         domain.setAuditKind(auditKind);
         domain.setNeedSupply(needSupply);
         domain.setTarget(targetType);

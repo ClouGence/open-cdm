@@ -36,7 +36,7 @@ public class RevokeBuilder extends AbstractDomainBuilder {
         for (String user : users) {
             RdbRevokeDomain rdbGrantDomain = new RdbRevokeDomain();
             rdbGrantDomain.setName(user);
-            rdbGrantDomain.setSqlType(SplitQueryType.REVOKE);
+            rdbGrantDomain.addSqlType(SplitQueryType.REVOKE);
             rdbGrantDomain.setAuditKind(SecQueryKind.ALTER);
             result.add(rdbGrantDomain);
         }

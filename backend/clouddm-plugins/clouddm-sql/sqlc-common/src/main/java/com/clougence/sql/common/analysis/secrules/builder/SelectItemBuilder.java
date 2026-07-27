@@ -60,7 +60,7 @@ public class SelectItemBuilder extends AbstractDomainBuilder {
             || status == DomainSource.VARIABLE) {
             for (Domain ruleDomain : list) {
                 if (ruleDomain instanceof RdbColumnDomain rdbColumnDomain) {
-                    rdbColumnDomain.setSqlType(SplitQueryType.SELECT);
+                    rdbColumnDomain.addSqlType(SplitQueryType.SELECT);
                     rdbColumnDomain.setAuditKind(SecQueryKind.QUERY);
                 }
             }

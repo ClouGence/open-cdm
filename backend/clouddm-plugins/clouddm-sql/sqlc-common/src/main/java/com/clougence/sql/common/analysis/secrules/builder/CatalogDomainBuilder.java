@@ -32,7 +32,7 @@ public abstract class CatalogDomainBuilder<T extends RdbCatalogDomain> extends A
     protected abstract T getCatalogDomain();
 
     public CatalogDomainBuilder(SplitQueryType secQueryType){
-        rdbCatalogDomain.setSqlType(secQueryType);
+        rdbCatalogDomain.addSqlType(secQueryType);
         rdbCatalogDomain.setAuditKind(secQueryType.getAuditKind());
     }
 

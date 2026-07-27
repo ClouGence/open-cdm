@@ -44,7 +44,7 @@ public class CreateRoleBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         rdbRoleDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbRoleDomain.setSqlType(SplitQueryType.CREATE_ROLE);
+        rdbRoleDomain.addSqlType(SplitQueryType.CREATE_ROLE);
         return Collections.singletonList(rdbRoleDomain);
     }
 }

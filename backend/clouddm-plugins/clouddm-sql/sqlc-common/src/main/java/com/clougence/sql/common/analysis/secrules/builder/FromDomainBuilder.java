@@ -39,7 +39,7 @@ public class FromDomainBuilder extends AbstractDomainBuilder {
             for (Domain ruleDomain : list) {
                 if (ruleDomain instanceof RdbTableDomain rdbTableDomain) {
                     rdbTableDomain.setAuditKind(SecQueryKind.QUERY);
-                    rdbTableDomain.setSqlType(SplitQueryType.SELECT);
+                    rdbTableDomain.addSqlType(SplitQueryType.SELECT);
                 }
             }
             this.ruleDomains.addAll(list);

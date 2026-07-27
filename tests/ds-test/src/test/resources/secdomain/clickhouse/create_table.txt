@@ -4,7 +4,7 @@ create table abc(id int)
 expect:
 {
   "contains": [
-    {"class":"ChTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc"},
-    {"class":"ChColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"ChTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc"},
+    {"class":"ChColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }

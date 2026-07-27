@@ -36,7 +36,7 @@ public class McCreateTableBuilder extends CreateTableBuilder<McTableDomain> {
     private final boolean schemaEnabled;
 
     public McCreateTableBuilder(SplitQueryType type, boolean schemaEnabled){
-        rdbTableDomain.setSqlType(type);
+        rdbTableDomain.addSqlType(type);
         this.schemaEnabled = schemaEnabled;
     }
 

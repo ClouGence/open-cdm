@@ -53,7 +53,7 @@ public class CreateUserBuilder<T extends RdbUserDomain> extends AbstractDomainBu
     @Override
     public List<Domain> build() {
         rdbUserDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbUserDomain.setSqlType(SplitQueryType.CREATE_USER);
+        rdbUserDomain.addSqlType(SplitQueryType.CREATE_USER);
         return Collections.singletonList(rdbUserDomain);
     }
 }

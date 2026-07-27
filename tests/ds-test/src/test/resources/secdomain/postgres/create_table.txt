@@ -4,8 +4,8 @@ create table abc(id int)
 expect:
 {
   "contains": [
-    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc", "ifNotExists":false},
-    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int", "typeName":"int", "array":false}
+    {"class":"PgTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc", "ifNotExists":false},
+    {"class":"PgColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int", "typeName":"int", "array":false}
   ]
 }
 ----------
@@ -15,8 +15,8 @@ create table if not exists abc(id int)
 expect:
 {
   "contains": [
-    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc", "ifNotExists":true},
-    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int", "typeName":"int"}
+    {"class":"PgTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc", "ifNotExists":true},
+    {"class":"PgColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int", "typeName":"int"}
   ]
 }
 ----------
@@ -26,8 +26,8 @@ create table schema1.abc(id int)
 expect:
 {
   "contains": [
-    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"schema1", "table":"abc"},
-    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"schema1", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"PgTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"schema1", "table":"abc"},
+    {"class":"PgColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"schema1", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }
 ----------
@@ -37,8 +37,8 @@ create table abc.public.abc(id int);
 expect:
 {
   "contains": [
-    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc"},
-    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"PgTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc"},
+    {"class":"PgColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }
 ----------
@@ -48,8 +48,8 @@ create table abc.public.abc(id int[]);
 expect:
 {
   "contains": [
-    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc"},
-    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int[]", "typeName":"int", "array":true}
+    {"class":"PgTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc"},
+    {"class":"PgColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int[]", "typeName":"int", "array":true}
   ]
 }
 ----------
@@ -59,8 +59,8 @@ create table abc.public.abc(id int default 1);
 expect:
 {
   "contains": [
-    {"class":"PgTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc"},
-    {"class":"PgColumnDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int", "defaultValue":"1"}
+    {"class":"PgTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc"},
+    {"class":"PgColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "catalog":"abc", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int", "defaultValue":"1"}
   ]
 }
 ----------
@@ -72,7 +72,7 @@ expect:
   "contains": [
     {
       "class": "PgTableDomain",
-      "sqlType": "CREATE_TABLE",
+      "sqlTypes": ["CREATE_TABLE"],
       "auditKind": "CREATE",
       "table": "abc"
     },

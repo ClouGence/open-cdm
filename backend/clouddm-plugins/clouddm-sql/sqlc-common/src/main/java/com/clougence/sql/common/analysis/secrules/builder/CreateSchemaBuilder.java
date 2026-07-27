@@ -48,7 +48,7 @@ public abstract class CreateSchemaBuilder<T extends RdbSchemaDomain> extends Abs
     @Override
     public List<Domain> build() {
         schemaDomain.setAuditKind(SecQueryKind.CREATE);
-        schemaDomain.setSqlType(SplitQueryType.CREATE_SCHEMA);
+        schemaDomain.addSqlType(SplitQueryType.CREATE_SCHEMA);
         if (schemaDomain.getOptions() == null) {
             schemaDomain.setOptions(new HashMap<>());
         }

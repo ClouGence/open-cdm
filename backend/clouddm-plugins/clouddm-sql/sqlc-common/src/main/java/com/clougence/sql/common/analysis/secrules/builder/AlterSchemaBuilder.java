@@ -48,7 +48,7 @@ public abstract class AlterSchemaBuilder<T extends RdbSchemaDomain> extends Abst
     @Override
     public List<Domain> build() {
         schemaDomain.setAuditKind(SecQueryKind.ALTER);
-        schemaDomain.setSqlType(SplitQueryType.ALTER_SCHEMA);
+        schemaDomain.addSqlType(SplitQueryType.ALTER_SCHEMA);
         if (schemaDomain.getOptions() == null) {
             schemaDomain.setOptions(new HashMap<>());
         }

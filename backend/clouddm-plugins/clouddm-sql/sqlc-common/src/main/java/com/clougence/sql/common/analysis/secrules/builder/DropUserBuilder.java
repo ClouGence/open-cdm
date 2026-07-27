@@ -58,7 +58,7 @@ public class DropUserBuilder extends AbstractDomainBuilder {
         List<Domain> domains = new ArrayList<>();
         for (String user : users) {
             RdbUserDomain rdbUserDomain = new RdbUserDomain();
-            rdbUserDomain.setSqlType(SplitQueryType.DROP_USER);
+            rdbUserDomain.addSqlType(SplitQueryType.DROP_USER);
             rdbUserDomain.setAuditKind(SecQueryKind.DROP);
             rdbUserDomain.setUser(user);
             rdbUserDomain.setIfExists(isExists);

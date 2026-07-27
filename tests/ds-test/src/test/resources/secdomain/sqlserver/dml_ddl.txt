@@ -4,8 +4,8 @@ select * from dbo.table1
 expect:
 {
   "contains": [
-    {"class":"MsSelectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "childrenSize":1},
-    {"class":"MsTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"dbo", "table":"table1"}
+    {"class":"MsSelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "childrenSize":1},
+    {"class":"MsTableDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "schema":"dbo", "table":"table1"}
   ]
 }
 ----------
@@ -15,7 +15,7 @@ insert into dbo.table1 (id) values (1)
 expect:
 {
   "contains": [
-    {"class":"MsInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"dbo", "table":"table1"}
+    {"class":"MsInsertDomain", "sqlTypes": ["INSERT"], "auditKind":"DML", "schema":"dbo", "table":"table1"}
   ]
 }
 ----------
@@ -25,7 +25,7 @@ update dbo.table1 set id=2 where id=1
 expect:
 {
   "contains": [
-    {"class":"MsUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"dbo", "table":"table1"}
+    {"class":"MsUpdateDomain", "sqlTypes": ["UPDATE"], "auditKind":"DML", "schema":"dbo", "table":"table1"}
   ]
 }
 ----------
@@ -35,7 +35,7 @@ delete from dbo.table1 where id=1
 expect:
 {
   "contains": [
-    {"class":"MsDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"dbo", "table":"table1"}
+    {"class":"MsDeleteDomain", "sqlTypes": ["DELETE"], "auditKind":"DML", "schema":"dbo", "table":"table1"}
   ]
 }
 ----------
@@ -45,7 +45,7 @@ exec sys.sp_cdc_enable_db;exec sys.sp_cdc_disable_db
 expect:
 {
   "domains": [
-    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"sys", "callName":"sp_cdc_enable_db"},
-    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"sys", "callName":"sp_cdc_disable_db"}
+    {"class":"RdbCallDomain", "sqlTypes": ["CALL_PROG_OBJ"], "auditKind":"CALL", "schema":"sys", "callName":"sp_cdc_enable_db"},
+    {"class":"RdbCallDomain", "sqlTypes": ["CALL_PROG_OBJ"], "auditKind":"CALL", "schema":"sys", "callName":"sp_cdc_disable_db"}
   ]
 }

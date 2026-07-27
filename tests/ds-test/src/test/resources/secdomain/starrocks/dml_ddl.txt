@@ -4,7 +4,7 @@ select * from test_db.table1
 expect:
 {
   "contains": [
-    {"class":"SrSelectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "childrenSize":1},
+    {"class":"SrSelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "childrenSize":1},
     {"class":"RdbTableDomain", "schema":"test_db", "table":"table1"}
   ]
 }
@@ -15,7 +15,7 @@ insert into test_db.table1 (id) values (1)
 expect:
 {
   "contains": [
-    {"class":"SrInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"test_db", "table":"table1"}
+    {"class":"SrInsertDomain", "sqlTypes": ["INSERT"], "auditKind":"DML", "schema":"test_db", "table":"table1"}
   ]
 }
 ----------
@@ -25,6 +25,6 @@ drop table test_db.table1
 expect:
 {
   "contains": [
-    {"class":"SrTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"test_db", "table":"table1"}
+    {"class":"SrTableDomain", "sqlTypes": ["DROP_TABLE"], "auditKind":"DROP", "schema":"test_db", "table":"table1"}
   ]
 }

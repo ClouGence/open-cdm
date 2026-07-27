@@ -63,7 +63,7 @@ public class PgRenameBuilder extends RenameBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Column) {
             RdbColumnDomain rdbColumnDomain = getColumnDomain();
-            rdbColumnDomain.setSqlType(SplitQueryType.RENAME_COLUMN);
+            rdbColumnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
             rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
             int size = nameList.size();
             switch (size) {
@@ -82,7 +82,7 @@ public class PgRenameBuilder extends RenameBuilder {
             return Collections.singletonList(rdbColumnDomain);
         } else if (targetType == TargetType.Table) {
             PgTableDomain rdbColumnDomain = new PgTableDomain();
-            rdbColumnDomain.setSqlType(SplitQueryType.RENAME_TABLE);
+            rdbColumnDomain.addSqlType(SplitQueryType.RENAME_TABLE);
             rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
             int size = nameList.size();
             switch (size) {
@@ -104,7 +104,7 @@ public class PgRenameBuilder extends RenameBuilder {
         } else if (targetType == TargetType.Catalog) {
             RdbCatalogDomain catalogDomain = new RdbCatalogDomain();
             catalogDomain.setAuditKind(SecQueryKind.ALTER);
-            catalogDomain.setSqlType(SplitQueryType.RENAME_CATALOG);
+            catalogDomain.addSqlType(SplitQueryType.RENAME_CATALOG);
             catalogDomain.setCatalog(nameList.get(0));
             catalogDomain.setNewName(nameList.get(1));
             catalogDomain.setOptions(new HashMap<>());
@@ -112,7 +112,7 @@ public class PgRenameBuilder extends RenameBuilder {
         } else if (targetType == TargetType.Schema) {
             RdbSchemaDomain schemaDomain = getSchemaDomain();
             schemaDomain.setAuditKind(SecQueryKind.ALTER);
-            schemaDomain.setSqlType(SplitQueryType.RENAME_SCHEMA);
+            schemaDomain.addSqlType(SplitQueryType.RENAME_SCHEMA);
             int size = nameList.size();
             if (size == 3) {
                 schemaDomain.setCatalog(nameList.get(0));

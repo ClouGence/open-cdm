@@ -45,6 +45,4 @@ public class SplitScript {
         this.script = script;
         this.scriptArgs = scriptArgs;
     }
-
-    public SplitQueryType getPrimaryType() { return this.type == null || this.type.isEmpty() ? SplitQueryType.UNKNOWN : this.type.iterator().next(); }
 }

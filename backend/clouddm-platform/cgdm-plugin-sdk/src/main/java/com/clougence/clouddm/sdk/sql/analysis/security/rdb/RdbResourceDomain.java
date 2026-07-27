@@ -48,7 +48,7 @@ public class RdbResourceDomain extends RuleDomain {
     }
 
     public RdbResourceDomain(SplitQueryType secQueryType, SecQueryKind kind, boolean needSupply, TargetType type){
-        this.setSqlType(secQueryType);
+        this.addSqlType(secQueryType);
         this.setAuditKind(kind);
         this.needSupply = needSupply;
         this.target = type;

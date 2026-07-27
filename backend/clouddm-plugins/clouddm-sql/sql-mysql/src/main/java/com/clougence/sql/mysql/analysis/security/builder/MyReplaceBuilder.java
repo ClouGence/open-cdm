@@ -39,7 +39,7 @@ public class MyReplaceBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         insertDomain.setAuditKind(SecQueryKind.DML);
-        insertDomain.setSqlType(SplitQueryType.MERGE);
+        insertDomain.addSqlType(SplitQueryType.MERGE);
 
         Map<UmiTypes, String> map = BuilderUtil.parseTableName(nameList);
         insertDomain.setCatalog(map.get(UmiTypes.Catalog));

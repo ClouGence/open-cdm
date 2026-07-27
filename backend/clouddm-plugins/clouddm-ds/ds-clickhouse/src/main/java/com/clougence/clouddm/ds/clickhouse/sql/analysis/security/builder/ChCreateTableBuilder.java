@@ -39,7 +39,7 @@ public class ChCreateTableBuilder extends CreateTableBuilder<ChTableDomain> {
     protected ChTableDomain getTableDomain() {
         ChTableDomain oraTableDomain = new ChTableDomain();
         oraTableDomain.setAuditKind(SecQueryKind.CREATE);
-        oraTableDomain.setSqlType(SplitQueryType.CREATE_TABLE);
+        oraTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
         return oraTableDomain;
     }
 
@@ -57,7 +57,7 @@ public class ChCreateTableBuilder extends CreateTableBuilder<ChTableDomain> {
                 Map<UmiTypes, String> map = BuilderUtil.parseTableName(objNameDomain.getNameList());
                 rdbTableDomain.setSourceSchema(map.get(UmiTypes.Schema));
                 rdbTableDomain.setSourceTable(map.get(UmiTypes.Table));
-                rdbTableDomain.setSqlType(SplitQueryType.CREATE_TABLE);
+                rdbTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
             }
 
         } else if (source == DomainSource.CONSTRAINT) {
@@ -67,7 +67,7 @@ public class ChCreateTableBuilder extends CreateTableBuilder<ChTableDomain> {
                     return;
                 }
                 rdbConstantDomain.setAuditKind(SecQueryKind.CREATE);
-                rdbConstantDomain.setSqlType(SplitQueryType.CREATE_TABLE);
+                rdbConstantDomain.addSqlType(SplitQueryType.CREATE_TABLE);
                 rdbTableDomain.getConstraintDomains().add(rdbConstantDomain);
             }
         } else if (source == DomainSource.OPTIONS) {

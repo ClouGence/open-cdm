@@ -64,7 +64,7 @@ public class AlterViewBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        domain.setSqlType(type);
+        domain.addSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         return Collections.singletonList(domain);
     }

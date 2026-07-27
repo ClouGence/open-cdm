@@ -37,7 +37,7 @@ public class PgCreateTableBuilder extends CreateTableBuilder<PgTableDomain> {
     protected PgTableDomain getTableDomain() {
         PgTableDomain pgTableDomain = new PgTableDomain();
         pgTableDomain.setAuditKind(SecQueryKind.CREATE);
-        pgTableDomain.setSqlType(SplitQueryType.CREATE_TABLE);
+        pgTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
         return pgTableDomain;
     }
 
@@ -59,7 +59,7 @@ public class PgCreateTableBuilder extends CreateTableBuilder<PgTableDomain> {
                 Map<UmiTypes, String> map = BuilderUtil.parseTableName(objNameDomain.getNameList());
                 rdbTableDomain.setSourceSchema(map.get(UmiTypes.Schema));
                 rdbTableDomain.setSourceTable(map.get(UmiTypes.Table));
-                rdbTableDomain.setSqlType(SplitQueryType.CREATE_TABLE);
+                rdbTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
             }
         } else {
             super.handleSubDomain(list, source);

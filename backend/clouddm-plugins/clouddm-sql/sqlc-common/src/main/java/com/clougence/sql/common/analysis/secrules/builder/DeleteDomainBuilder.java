@@ -38,7 +38,7 @@ public class DeleteDomainBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         rdbDeleteDomain.setAuditKind(SecQueryKind.DML);
-        rdbDeleteDomain.setSqlType(SplitQueryType.DELETE);
+        rdbDeleteDomain.addSqlType(SplitQueryType.DELETE);
         if (rdbDeleteDomain.getWhereColumns() == null) {
             rdbDeleteDomain.setWhereColumns(new ArrayList<>());
         }

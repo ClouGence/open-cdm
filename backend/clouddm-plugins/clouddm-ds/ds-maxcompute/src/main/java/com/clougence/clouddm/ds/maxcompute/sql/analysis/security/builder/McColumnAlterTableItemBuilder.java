@@ -42,7 +42,7 @@ public class McColumnAlterTableItemBuilder extends AlterTableItemBuilder {
         if (domain instanceof RdbColumnDomain rdbColumn) {
             if (oldColumnName != null && !rdbColumn.getColumn().equals(oldColumnName)) {
                 McColumnDomain rdbColumnDomain = new McColumnDomain();
-                rdbColumnDomain.setSqlType(SplitQueryType.RENAME_COLUMN);
+                rdbColumnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
                 rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
                 rdbColumnDomain.setColumn(oldColumnName);
                 rdbColumnDomain.setNewName(rdbColumn.getColumn());

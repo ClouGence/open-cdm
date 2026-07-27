@@ -19,7 +19,7 @@ public class Db2CreateTableBuilder extends CreateTableBuilder<Db2TableDomain> {
     protected Db2TableDomain getTableDomain() {
         Db2TableDomain domain = new Db2TableDomain();
         domain.setAuditKind(SecQueryKind.CREATE);
-        domain.setSqlType(SplitQueryType.CREATE_TABLE);
+        domain.addSqlType(SplitQueryType.CREATE_TABLE);
         return domain;
     }
 }

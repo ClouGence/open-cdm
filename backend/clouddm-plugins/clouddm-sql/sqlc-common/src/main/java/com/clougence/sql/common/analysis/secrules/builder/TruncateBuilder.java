@@ -46,7 +46,7 @@ public class TruncateBuilder<T extends RdbTableDomain> extends AbstractDomainBui
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(domain.getNameList());
             T tableDomain = getTableDomain();
             tableDomain.setAuditKind(SecQueryKind.DML);
-            tableDomain.setSqlType(SplitQueryType.TRUNCATE_TABLE);
+            tableDomain.addSqlType(SplitQueryType.TRUNCATE_TABLE);
             tableDomain.setCatalog(map.get(UmiTypes.Catalog));
             tableDomain.setSchema(map.get(UmiTypes.Schema));
             tableDomain.setTable(map.get(UmiTypes.Table));

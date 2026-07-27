@@ -81,7 +81,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     public Void visitVariableshowstmt(VariableshowstmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.setSqlType(SplitQueryType.SESSION_VARIABLE_RW);
+        rdbResourceDomain.addSqlType(SplitQueryType.SESSION_VARIABLE_RW);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -91,7 +91,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     @Override
     public Void visitDostmt(DostmtContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
-        domain.setSqlType(SplitQueryType.BLOCK);
+        domain.addSqlType(SplitQueryType.BLOCK);
         domain.setAuditKind(SecQueryKind.OTHER);
         domain.setTarget(TargetType.Unknown);
         this.builder.addDomain(domain);
@@ -102,7 +102,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     public Void visitAnalyzestmt(AnalyzestmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_TABLE);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN_TABLE);
         if (ctx.vacuum_relation_list_() != null) {
             Vacuum_relationContext relation = ctx.vacuum_relation_list_().vacuum_relation_list().vacuum_relation(0);
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(handleQualifiedName(relation.qualified_name()));
@@ -123,7 +123,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     public Void visitRefreshmatviewstmt(RefreshmatviewstmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN);
         rdbResourceDomain.setTarget(TargetType.Materialized);
         rdbResourceDomain.setNeedSupply(true);
 
@@ -1085,7 +1085,7 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
                 ctx.qualified_name(1).accept(this);
                 PgTableDomain pgTableDomain = new PgTableDomain();
                 pgTableDomain.setAuditKind(SecQueryKind.ALTER);
-                pgTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+                pgTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
                 builder.handleDomain(pgTableDomain, DomainSource.ALTER_TABLE_ITEM);
             });
         } else {

@@ -47,7 +47,7 @@ public class PgAlterOwnerBuilder implements DomainBuilder {
     public List<Domain> build() {
         if (targetType == TargetType.Catalog) {
             RdbCatalogDomain domain = new PgCatalogDomain();
-            domain.setSqlType(SplitQueryType.ALTER_CATALOG);
+            domain.addSqlType(SplitQueryType.ALTER_CATALOG);
             domain.setAuditKind(SecQueryKind.ALTER);
             domain.setCatalog(nameList.get(0));
             domain.setOptions(new HashMap<>());
@@ -59,7 +59,7 @@ public class PgAlterOwnerBuilder implements DomainBuilder {
             return Collections.singletonList(domain);
         } else if (targetType == TargetType.Schema) {
             PgSchemaDomain domain = new PgSchemaDomain();
-            domain.setSqlType(SplitQueryType.ALTER_SCHEMA);
+            domain.addSqlType(SplitQueryType.ALTER_SCHEMA);
             domain.setAuditKind(SecQueryKind.ALTER);
             Map<UmiTypes, String> map = BuilderUtil.parseSchemaName(nameList);
             domain.setCatalog(map.get(UmiTypes.Catalog));

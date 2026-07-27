@@ -55,7 +55,7 @@ public class MyAlterTableBuilder extends AbstractDomainBuilder {
 
         if (newTableName != null) {
             MyTableDomain myTableDomain1 = new MyTableDomain();
-            myTableDomain1.setSqlType(SplitQueryType.RENAME_TABLE);
+            myTableDomain1.addSqlType(SplitQueryType.RENAME_TABLE);
             myTableDomain1.setAuditKind(SecQueryKind.ALTER);
             myTableDomain1.setTable(myTableDomain.getTable());
             myTableDomain1.setSchema(myTableDomain.getSchema());
@@ -66,7 +66,7 @@ public class MyAlterTableBuilder extends AbstractDomainBuilder {
             myTableDomain1.setNewSchemaName(newSchemaName);
             domains.add(myTableDomain1);
         }
-        myTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        myTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         myTableDomain.setAuditKind(SecQueryKind.ALTER);
 
         for (Domain ruleDomain : ruleDomains) {
@@ -83,7 +83,7 @@ public class MyAlterTableBuilder extends AbstractDomainBuilder {
                 tableDomain.setTable(myTableDomain.getTable());
                 tableDomain.setSchema(myTableDomain.getSchema());
                 tableDomain.setAuditKind(SecQueryKind.ALTER);
-                tableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+                tableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
             }
         }
         domains.addAll(ruleDomains);

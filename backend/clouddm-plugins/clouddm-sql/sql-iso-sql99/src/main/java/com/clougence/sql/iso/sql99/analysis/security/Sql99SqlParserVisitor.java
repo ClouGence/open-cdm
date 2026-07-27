@@ -220,7 +220,7 @@ public class Sql99SqlParserVisitor extends Sql99ParserBaseVisitor<Void> {
     protected List<RdbTableDomain> resourceTableDomains(Sql99Parser.QuerySpecificationContext ctx) {
         List<RdbTableDomain> domains = tableDomains(ctx.tableExpression().fromClause());
         for (RdbTableDomain domain : domains) {
-            domain.setSqlType(SplitQueryType.SELECT);
+            domain.addSqlType(SplitQueryType.SELECT);
             domain.setAuditKind(SplitQueryType.SELECT.getAuditKind());
         }
         return domains;
@@ -297,7 +297,7 @@ public class Sql99SqlParserVisitor extends Sql99ParserBaseVisitor<Void> {
     }
 
     private void add(RuleDomain domain, SplitQueryType type) {
-        domain.setSqlType(type);
+        domain.addSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         collector.add(domain);
     }

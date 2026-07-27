@@ -44,7 +44,7 @@ public abstract class SelectDomainBuilder<T extends RdbSelectDomain> extends Abs
 
         this.selectDomain = getSelectDomain();
 
-        selectDomain.setSqlType(SplitQueryType.SELECT);
+        selectDomain.addSqlType(SplitQueryType.SELECT);
         selectDomain.setAuditKind(SecQueryKind.QUERY);
         selectDomain.setMode(RdbQueryMode.NORMAL);
         selectDomain.setOptions(new HashMap<>());

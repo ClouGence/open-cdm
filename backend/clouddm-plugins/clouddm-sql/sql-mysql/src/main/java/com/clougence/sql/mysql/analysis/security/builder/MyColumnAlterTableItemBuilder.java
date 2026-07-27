@@ -42,7 +42,7 @@ public class MyColumnAlterTableItemBuilder extends AlterTableItemBuilder {
         if (domain instanceof RdbColumnDomain rdbColumn) {
             if (oldColumnName != null && !rdbColumn.getColumn().equals(oldColumnName)) {
                 MyColumnDomain rdbColumnDomain = new MyColumnDomain();
-                rdbColumnDomain.setSqlType(SplitQueryType.RENAME_COLUMN);
+                rdbColumnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
                 rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
                 rdbColumnDomain.setColumn(oldColumnName);
                 rdbColumnDomain.setNewName(rdbColumn.getColumn());

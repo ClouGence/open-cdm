@@ -37,7 +37,7 @@ public class McDropUserBuilder extends DropUserBuilder {
             ObjNameDomain domain = (ObjNameDomain) list.get(0);
 
             McUserDomain rdbUserDomain = new McUserDomain();
-            rdbUserDomain.setSqlType(SplitQueryType.DROP_USER);
+            rdbUserDomain.addSqlType(SplitQueryType.DROP_USER);
             rdbUserDomain.setAuditKind(SecQueryKind.DROP);
             rdbUserDomain.setUser(domain.getNameList().get(0));
             if (domain.getNameList().size() > 1) {

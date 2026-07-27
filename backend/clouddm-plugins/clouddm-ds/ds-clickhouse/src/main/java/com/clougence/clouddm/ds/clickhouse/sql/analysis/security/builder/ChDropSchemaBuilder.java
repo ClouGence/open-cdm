@@ -55,7 +55,7 @@ public class ChDropSchemaBuilder extends DropSchemaBuilder<ChSchemaDomain> {
             schemaDomain.setSchema(map.get(UmiTypes.Schema));
             schemaDomain.setCatalog(map.get(UmiTypes.Catalog));
             schemaDomain.setAuditKind(SecQueryKind.DROP);
-            schemaDomain.setSqlType(SplitQueryType.DROP_SCHEMA);
+            schemaDomain.addSqlType(SplitQueryType.DROP_SCHEMA);
             schemaDomain.setIfExists(ifExists);
             domains.add(schemaDomain);
         } else {

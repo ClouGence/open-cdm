@@ -34,7 +34,7 @@ public class CreateFunctionBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        rdbFunctionDomain.setSqlType(SplitQueryType.CREATE_PROG_OBJ);
+        rdbFunctionDomain.addSqlType(SplitQueryType.CREATE_PROG_OBJ);
         rdbFunctionDomain.setAuditKind(SecQueryKind.CREATE);
 
         return Collections.singletonList(rdbFunctionDomain);

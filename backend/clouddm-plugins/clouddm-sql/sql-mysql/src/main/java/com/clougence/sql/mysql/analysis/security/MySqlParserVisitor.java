@@ -76,7 +76,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     private void addStatementDomain(SplitQueryType sqlType) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(sqlType);
+        rdbResourceDomain.addSqlType(sqlType);
         rdbResourceDomain.setAuditKind(sqlType.getAuditKind());
         rdbResourceDomain.setTarget(sqlType.getTarget());
         rdbResourceDomain.setNeedSupply(false);
@@ -85,7 +85,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     private void addUnknownTargetDomain(SplitQueryType sqlType, SecQueryKind auditKind) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(sqlType);
+        rdbResourceDomain.addSqlType(sqlType);
         rdbResourceDomain.setAuditKind(auditKind);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
@@ -912,7 +912,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitInstallPlugin(InstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_LIBRARY);
+        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_LIBRARY);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Library);
@@ -923,7 +923,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitUninstallPlugin(UninstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.DROP_LIBRARY);
+        rdbResourceDomain.addSqlType(SplitQueryType.DROP_LIBRARY);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Library);
@@ -946,7 +946,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitCreateUdfFunction(CreateUdfFunctionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Function);
@@ -1004,7 +1004,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitSetTransaction(SetTransactionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbResourceDomain.setSqlType(SplitQueryType.TRANSACTION);
+        rdbResourceDomain.addSqlType(SplitQueryType.TRANSACTION);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -1015,7 +1015,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitSetAutocommit(SetAutocommitContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbResourceDomain.setSqlType(SplitQueryType.SESSION_SETTING_WRITE);
+        rdbResourceDomain.addSqlType(SplitQueryType.SESSION_SETTING_WRITE);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -1406,7 +1406,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitAlterByChangeDefault(AlterByChangeDefaultContext ctx) {
         MyColumnDomain myColumnDomain = new MyColumnDomain();
         myColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        myColumnDomain.setSqlType(SplitQueryType.ALTER_COLUMN);
+        myColumnDomain.addSqlType(SplitQueryType.ALTER_COLUMN);
         myColumnDomain.setColumn(getName(ctx.uid()));
         if (ctx.defaultValue() != null) {
             String text = this.getText(ctx.defaultValue());
@@ -1434,7 +1434,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     private void addMaskingPolicyColumn(UidContext column) {
         MyColumnDomain domain = new MyColumnDomain();
         domain.setAuditKind(SecQueryKind.ALTER);
-        domain.setSqlType(SplitQueryType.ALTER_COLUMN);
+        domain.addSqlType(SplitQueryType.ALTER_COLUMN);
         domain.setColumn(getName(column));
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
     }
@@ -1500,7 +1500,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitAlterByRenameIndex(AlterByRenameIndexContext ctx) {
         MyIndexDomain myIndexDomain = new MyIndexDomain();
-        myIndexDomain.setSqlType(SplitQueryType.ALTER_INDEX);
+        myIndexDomain.addSqlType(SplitQueryType.ALTER_INDEX);
         myIndexDomain.setAuditKind(SecQueryKind.ALTER);
         myIndexDomain.setName(getName(ctx.uid(0)));
         myIndexDomain.setNewName(getName(ctx.uid(1)));
@@ -1512,7 +1512,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitAlterByAlterIndexVisibility(AlterByAlterIndexVisibilityContext ctx) {
         MyIndexDomain myIndexDomain = new MyIndexDomain();
-        myIndexDomain.setSqlType(SplitQueryType.ALTER_INDEX);
+        myIndexDomain.addSqlType(SplitQueryType.ALTER_INDEX);
         myIndexDomain.setAuditKind(SecQueryKind.ALTER);
         myIndexDomain.setName(getName(ctx.uid()));
         myIndexDomain.setVisible(ctx.visivility.getType() == VISIBLE);
@@ -1544,7 +1544,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitAlterByConvertCharset(AlterByConvertCharsetContext ctx) {
         MyTableDomain myTableDomain = new MyTableDomain();
         myTableDomain.setAuditKind(SecQueryKind.ALTER);
-        myTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        myTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
 
         myTableDomain.setCharacterSet(ctx.charsetName().getText());
         if (ctx.collationName() != null) {
@@ -1604,7 +1604,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitTruncateTable(TruncateTableContext ctx) {
         MyTableDomain myTableDomain = new MyTableDomain();
         myTableDomain.setAuditKind(SecQueryKind.DML);
-        myTableDomain.setSqlType(SplitQueryType.TRUNCATE_TABLE);
+        myTableDomain.addSqlType(SplitQueryType.TRUNCATE_TABLE);
 
         List<String> names = tableNameParts(ctx.tableName());
         if (names.size() == 1) {
@@ -1852,7 +1852,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         //        dmVisitChildren(ctx);
         //        builder.exitCreateUser();
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_USER);
+        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -2003,7 +2003,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitGrantProxy(GrantProxyContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.GRANT);
+        rdbResourceDomain.addSqlType(SplitQueryType.GRANT);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -2014,7 +2014,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeProxy(RevokeProxyContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.REVOKE);
+        rdbResourceDomain.addSqlType(SplitQueryType.REVOKE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -2025,7 +2025,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitRenameUser(RenameUserContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.RENAME_USER);
+        rdbResourceDomain.addSqlType(SplitQueryType.RENAME_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -2082,13 +2082,13 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
             MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);
             String normalizedKey = keyName.toUpperCase(Locale.ROOT);
             if (normalizedKey.contains("GTID_") || normalizedKey.contains("SLAVE_") || normalizedKey.contains("REPLICA_")) {
-                domain.setSqlType(SplitQueryType.ALTER_REPLICATION);
+                domain.addSqlType(SplitQueryType.ALTER_REPLICATION);
             } else if (scopeType == MyScopeType.GLOBAL) {
-                domain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+                domain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
             } else if (configKey.LOCAL_ID() != null) {
-                domain.setSqlType(SplitQueryType.SESSION_VARIABLE_RW);
+                domain.addSqlType(SplitQueryType.SESSION_VARIABLE_RW);
             } else {
-                domain.setSqlType(SplitQueryType.SESSION_SETTING_WRITE);
+                domain.addSqlType(SplitQueryType.SESSION_SETTING_WRITE);
             }
             domain.setAuditKind(SecQueryKind.OTHER);
             builder.addDomain(domain);
@@ -2112,7 +2112,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitSetPassword(SetPasswordContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_USER);
+        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -2135,7 +2135,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowMasterLogs(ShowMasterLogsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.BINARY_LOGS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2146,7 +2146,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowBinaryLogStatus(ShowBinaryLogStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.BINARY_LOG_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2157,7 +2157,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowSlaveStatus(ShowSlaveStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.SALVE_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2174,7 +2174,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitResetBinaryLogsAndGtids(ResetBinaryLogsAndGtidsContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.MAINTAIN_LOG);
+        rdbResourceDomain.addSqlType(SplitQueryType.MAINTAIN_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -2185,7 +2185,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitResetQueryCache(ResetQueryCacheContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_PERFORMANCE);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN_PERFORMANCE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
@@ -2208,7 +2208,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         } else {
             type = SplitQueryType.SYSTEM_SETTING_WRITE;
         }
-        rdbResourceDomain.setSqlType(type);
+        rdbResourceDomain.addSqlType(type);
         rdbResourceDomain.setAuditKind(type.getAuditKind());
         rdbResourceDomain.setTarget(type.getTarget());
         rdbResourceDomain.setNeedSupply(false);
@@ -2219,7 +2219,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitResetPersist(ResetPersistContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -2332,7 +2332,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitLoadIndexIntoCache(LoadIndexIntoCacheContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_PERFORMANCE);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN_PERFORMANCE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Index);
         rdbResourceDomain.setNeedSupply(false);
@@ -2373,7 +2373,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitKillStatement(KillStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -2384,7 +2384,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitPurgeBinaryLogs(PurgeBinaryLogsContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.MAINTAIN_LOG);
+        rdbResourceDomain.addSqlType(SplitQueryType.MAINTAIN_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -2395,7 +2395,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitResetMaster(ResetMasterContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -2406,7 +2406,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowReplicaStatus(ShowReplicaStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.REPLICA_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2417,7 +2417,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowReplicas(ShowReplicasContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.REPLICAS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2428,7 +2428,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowParseTree(ShowParseTreeContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PARSE_TREE);
         myShowDomain.setTarget(TargetType.Query);
@@ -2439,7 +2439,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowCharset(ShowCharsetContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CHARACTER_SET);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2450,7 +2450,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowBinlogEvents(ShowBinlogEventsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.LOG_READ);
+        myShowDomain.addSqlType(SplitQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.BINLOG_EVENTS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2461,7 +2461,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowRelayLogEvents(ShowRelayLogEventsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.LOG_READ);
+        myShowDomain.addSqlType(SplitQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.RELAYLOG_EVENTS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2472,7 +2472,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowObjectFilter(ShowObjectFilterContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         ParseTree child = ctx.showCommonEntity().getChild(0);
         TerminalNodeImpl node = (TerminalNodeImpl) child;
@@ -2487,7 +2487,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
             myShowDomain.setShowType(MyShowType.PROCEDURE_STATUS);
             myShowDomain.setTarget(TargetType.Procedure);
         } else if (type == STATUS) {
-            myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+            myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
             myShowDomain.setShowType(MyShowType.STATUS);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == FUNCTION) {
@@ -2504,7 +2504,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
                 myShowDomain.setShowType(MyShowType.VARIABLES);
                 myShowDomain.setTarget(TargetType.Environment);
             } else {
-                myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+                myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
                 myShowDomain.setShowType(MyShowType.STATUS);
                 myShowDomain.setTarget(TargetType.Environment);
             }
@@ -2518,7 +2518,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowColumns(ShowColumnsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = tableNameParts(ctx.tableName());
         if (nameList.size() == 2) {
@@ -2552,7 +2552,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowTables(ShowTablesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.TABLES);
         myShowDomain.setTarget(TargetType.Table);
@@ -2566,7 +2566,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitShowCreateDb(ShowCreateDbContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CREATE_DATABASE);
         myShowDomain.setTarget(TargetType.Schema);
@@ -2596,7 +2596,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowCreateFullIdObject(ShowCreateFullIdObjectContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.fullId().children) {
@@ -2647,7 +2647,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowCreateMaskingPolicy(ShowCreateMaskingPolicyContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CREATE_MASKING_POLICY);
         myShowDomain.setTarget(TargetType.Object);
@@ -2658,7 +2658,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowCreateUser(ShowCreateUserContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CREATE_USER);
         myShowDomain.setTarget(TargetType.User);
@@ -2671,9 +2671,9 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitShowEngine(ShowEngineContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
         if (ctx.engineOption.getType() == LOGS) {
-            myShowDomain.setSqlType(SplitQueryType.LOG_READ);
+            myShowDomain.addSqlType(SplitQueryType.LOG_READ);
         } else {
-            myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+            myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         }
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.ENGINE);
@@ -2685,7 +2685,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowEngines(ShowEnginesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.ENGINES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2696,7 +2696,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowPrivileges(ShowPrivilegesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PRIVILEGES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2707,7 +2707,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowPlugins(ShowPluginsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PLUGINS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2718,7 +2718,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowErrors(ShowErrorsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.errorFormat.getType() == ERRORS) {
             myShowDomain.setShowType(MyShowType.ERRORS);
@@ -2734,7 +2734,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitShowCountErrors(ShowCountErrorsContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.errorFormat.getType() == ERRORS) {
             myShowDomain.setShowType(MyShowType.ERRORS);
@@ -2749,7 +2749,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowSchemaFilter(ShowSchemaFilterContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         ParseTree child = ctx.showSchemaEntity().getChild(0);
         int type = ((TerminalNodeImpl) child).getSymbol().getType();
@@ -2784,7 +2784,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitShowRoutine(ShowRoutineContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.fullId().children) {
@@ -2817,7 +2817,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowGrants(ShowGrantsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.GRANTS);
         myShowDomain.setTarget(TargetType.UserOrRole);
@@ -2834,7 +2834,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowLibraryStatus(ShowLibraryStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.LIBRARY_STATUS);
         myShowDomain.setTarget(TargetType.Object);
@@ -2846,7 +2846,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitShowIndexes(ShowIndexesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = tableNameParts(ctx.tableName());
         if (nameList.size() == 2) {
@@ -2869,7 +2869,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitShowOpenTables(ShowOpenTablesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.OPEN_TABLES);
         myShowDomain.setTarget(TargetType.Table);
@@ -2884,7 +2884,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowProfile(ShowProfileContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROFILE);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2895,7 +2895,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowProcessList(ShowProcessListContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROCESSLIST);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2907,7 +2907,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitShowProfiles(ShowProfilesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROFILES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2937,7 +2937,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
             case TABLES -> SplitQueryType.ADMIN_TABLE;
             default -> SplitQueryType.SYSTEM_SETTING_WRITE;
         };
-        myFlushDomain.setSqlType(type);
+        myFlushDomain.addSqlType(type);
         myFlushDomain.setAuditKind(SecQueryKind.OTHER);
         myFlushDomain.setFlushType(flushType);
         builder.addDomain(myFlushDomain);
@@ -2947,10 +2947,10 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
         if ("EXPLAIN".equalsIgnoreCase(ctx.command.getText())) {
-            myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+            myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
             myShowDomain.setTarget(TargetType.Table);
         } else {
-            myShowDomain.setSqlType(SplitQueryType.METADATA);
+            myShowDomain.addSqlType(SplitQueryType.METADATA);
             myShowDomain.setTarget(TargetType.Column);
         }
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
@@ -2970,7 +2970,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowStatus(ShowStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.MASTER_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -3602,7 +3602,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowSlaveHosts(ShowSlaveHostsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.METADATA);
+        myShowDomain.addSqlType(SplitQueryType.METADATA);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.REPLICAS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -3929,7 +3929,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitPrepareStatement(PrepareStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.setSqlType(SplitQueryType.UNSAFE);
+        domain.addSqlType(SplitQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);
@@ -3940,7 +3940,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitExecuteStatement(ExecuteStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.setSqlType(SplitQueryType.UNSAFE);
+        domain.addSqlType(SplitQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);
@@ -3951,7 +3951,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitDeallocatePrepare(DeallocatePrepareContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.setSqlType(SplitQueryType.UNSAFE);
+        domain.addSqlType(SplitQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);

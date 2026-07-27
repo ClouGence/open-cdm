@@ -46,7 +46,7 @@ public class InsertBuilder extends AbstractDomainBuilder {
             this.insertDomain.setMultipleValues(true);
         }
         insertDomain.setAuditKind(SecQueryKind.DML);
-        insertDomain.setSqlType(statementType);
+        insertDomain.addSqlType(statementType);
 
         Map<UmiTypes, String> map = BuilderUtil.parseTableName(nameList);
         insertDomain.setCatalog(map.get(UmiTypes.Catalog));

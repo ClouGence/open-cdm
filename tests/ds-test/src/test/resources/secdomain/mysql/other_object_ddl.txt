@@ -8,11 +8,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlTypes": ["CREATE_OBJECT"],
       "auditKind": "CREATE",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -27,11 +27,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlTypes": ["CREATE_OBJECT"],
       "auditKind": "CREATE",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -47,11 +47,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlTypes": ["CREATE_OBJECT"],
       "auditKind": "CREATE",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -68,11 +68,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlTypes": ["CREATE_OBJECT"],
       "auditKind": "CREATE",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -89,11 +89,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlTypes": ["CREATE_OBJECT"],
       "auditKind": "CREATE",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -109,11 +109,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_OBJECT",
+      "sqlTypes": ["ALTER_OBJECT"],
       "auditKind": "ALTER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -126,11 +126,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_OBJECT",
+      "sqlTypes": ["ALTER_OBJECT"],
       "auditKind": "ALTER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -147,11 +147,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_OBJECT",
+      "sqlTypes": ["ALTER_OBJECT"],
       "auditKind": "ALTER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -164,11 +164,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_OBJECT",
+      "sqlTypes": ["DROP_OBJECT"],
       "auditKind": "DROP",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -182,11 +182,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_OBJECT",
+      "sqlTypes": ["DROP_OBJECT"],
       "auditKind": "DROP",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -200,11 +200,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_OBJECT",
+      "sqlTypes": ["DROP_OBJECT"],
       "auditKind": "DROP",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }

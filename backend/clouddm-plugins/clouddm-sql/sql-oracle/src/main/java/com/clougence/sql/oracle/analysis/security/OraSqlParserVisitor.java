@@ -179,7 +179,7 @@ public class OraSqlParserVisitor extends PlSqlParserBaseVisitor<Void> {
         OraColumnDomain oraColumnDomain = new OraColumnDomain();
         oraColumnDomain.setColumn(getName(ctx.old_column_name().getText()));
         oraColumnDomain.setNewName(getName(ctx.new_column_name().getText()));
-        oraColumnDomain.setSqlType(SplitQueryType.RENAME_COLUMN);
+        oraColumnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
         oraColumnDomain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(oraColumnDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -664,7 +664,7 @@ public class OraSqlParserVisitor extends PlSqlParserBaseVisitor<Void> {
     @Override
     public Void visitAnonymous_block(Anonymous_blockContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.BLOCK);
+        rdbResourceDomain.addSqlType(SplitQueryType.BLOCK);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);

@@ -34,7 +34,7 @@ public class AlterTriggerBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        triggerDomain.setSqlType(SplitQueryType.ALTER_TRIGGER);
+        triggerDomain.addSqlType(SplitQueryType.ALTER_TRIGGER);
         triggerDomain.setAuditKind(SecQueryKind.ALTER);
 
         return Collections.singletonList(triggerDomain);

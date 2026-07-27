@@ -38,7 +38,7 @@ public class DrRenameBuilder extends RenameBuilder {
         if (targetType == TargetType.Schema) {
             DrSchemaDomain schemaDomain = new DrSchemaDomain();
             schemaDomain.setAuditKind(SecQueryKind.ALTER);
-            schemaDomain.setSqlType(SplitQueryType.RENAME_SCHEMA);
+            schemaDomain.addSqlType(SplitQueryType.RENAME_SCHEMA);
             int size = nameList.size();
             if (size == 3) {
                 schemaDomain.setCatalog(nameList.get(0));
@@ -49,7 +49,7 @@ public class DrRenameBuilder extends RenameBuilder {
         } else if (targetType == TargetType.Catalog) {
             DrCatalogDomain catalogDomain = new DrCatalogDomain();
             catalogDomain.setAuditKind(SecQueryKind.ALTER);
-            catalogDomain.setSqlType(SplitQueryType.RENAME_CATALOG);
+            catalogDomain.addSqlType(SplitQueryType.RENAME_CATALOG);
             catalogDomain.setCatalog(nameList.get(0));
             catalogDomain.setNewName(nameList.get(1));
             catalogDomain.setOptions(new HashMap<>());

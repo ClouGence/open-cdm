@@ -4,8 +4,8 @@ select e.id, d.name from app.employee e join app.department d on e.dept_id = d.i
 expect:
 {
   "contains": [
-    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"},
-    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"department"}
+    {"class":"RdbTableDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "schema":"app", "table":"employee"},
+    {"class":"RdbTableDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "schema":"app", "table":"department"}
   ]
 }
 ----------
@@ -15,8 +15,8 @@ create table app.employee_archive as select id, name from app.employee where act
 expect:
 {
   "contains": [
-    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"employee_archive"},
-    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+    {"class":"RdbTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"app", "table":"employee_archive"},
+    {"class":"RdbTableDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "schema":"app", "table":"employee"}
   ]
 }
 ----------
@@ -26,7 +26,7 @@ create index app.idx_employee_name on app.employee(name)
 expect:
 {
   "contains": [
-    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "name":"idx_employee_name", "tableSchema":"app", "tableName":"employee"}
+    {"class":"RdbIndexDomain", "sqlTypes": ["ADD_INDEX"], "auditKind":"CREATE", "schema":"app", "name":"idx_employee_name", "tableSchema":"app", "tableName":"employee"}
   ]
 }
 ----------
@@ -36,7 +36,7 @@ exec app.refresh_employee 1, 'force'
 expect:
 {
   "contains": [
-    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"app", "callName":"refresh_employee"}
+    {"class":"RdbCallDomain", "sqlTypes": ["CALL_PROG_OBJ"], "auditKind":"CALL", "schema":"app", "callName":"refresh_employee"}
   ]
 }
 ----------
@@ -50,6 +50,6 @@ end;
 expect:
 {
   "contains": [
-    {"class":"RdbProcedureDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"refresh_employee"}
+    {"class":"RdbProcedureDomain", "sqlTypes": ["CREATE_PROG_OBJ"], "auditKind":"CREATE", "schema":"app", "name":"refresh_employee"}
   ]
 }

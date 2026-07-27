@@ -73,7 +73,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_TABLE);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN_TABLE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -84,7 +84,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Role);
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -95,7 +95,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.User);
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -106,7 +106,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Catalog);
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -117,7 +117,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        rdbResourceDomain.addSqlType(SplitQueryType.PERFORMANCE);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, this.builder.getSchemaEnabled());
@@ -135,7 +135,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -146,7 +146,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, this.builder.getSchemaEnabled());
@@ -164,7 +164,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, this.builder.getSchemaEnabled());
@@ -182,7 +182,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, this.builder.getSchemaEnabled());
@@ -255,7 +255,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTablePartition(McParserParser.AlterTablePartitionContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        mcTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         builder.handleDomain(mcTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -264,7 +264,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTableProp(McParserParser.AlterTablePropContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        mcTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         builder.handleDomain(mcTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -276,7 +276,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         }
         RdbConfigDomain rdbConfigDomain = new RdbConfigDomain(getText(ctx.key));
         rdbConfigDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbConfigDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbConfigDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         builder.addDomain(rdbConfigDomain);
         return null;
     }
@@ -310,7 +310,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTableCompctMajor(McParserParser.AlterTableCompctMajorContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        mcTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         builder.handleDomain(mcTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -395,7 +395,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTableComment(McParserParser.AlterTableCommentContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        mcTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         mcTableDomain.setComment(getString(ctx.comment.getText()));
         builder.handleDomain(mcTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -405,7 +405,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTableLifeCycle(McParserParser.AlterTableLifeCycleContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        mcTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         builder.handleDomain(mcTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -414,7 +414,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTableEnableLifeCycle(McParserParser.AlterTableEnableLifeCycleContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        mcTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         builder.handleDomain(mcTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -423,7 +423,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTableClustered(McParserParser.AlterTableClusteredContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        mcTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         builder.handleDomain(mcTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -432,7 +432,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTableTouch(McParserParser.AlterTableTouchContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        mcTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         builder.handleDomain(mcTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
     }
@@ -441,7 +441,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTableReanme(McParserParser.AlterTableReanmeContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(SplitQueryType.RENAME_TABLE);
+        mcTableDomain.addSqlType(SplitQueryType.RENAME_TABLE);
         String text = getText(ctx.ident());
         if (text.startsWith("`")) {
             text = text.substring(1, text.length() - 1);
@@ -500,7 +500,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         McColumnDomain mcColumnDomain = new McColumnDomain();
         mcColumnDomain.setColumn(getName(getText(ctx.oldname)));
         mcColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        mcColumnDomain.setSqlType(SplitQueryType.ALTER_COLUMN);
+        mcColumnDomain.addSqlType(SplitQueryType.ALTER_COLUMN);
         mcColumnDomain.setNullable(true);
         builder.handleDomain(mcColumnDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -511,7 +511,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         McColumnDomain mcColumnDomain = new McColumnDomain();
         mcColumnDomain.setColumn(getName(getText(ctx.oldname)));
         mcColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        mcColumnDomain.setSqlType(SplitQueryType.ALTER_COLUMN);
+        mcColumnDomain.addSqlType(SplitQueryType.ALTER_COLUMN);
         mcColumnDomain.setComment(getString(ctx.comment_clause().L_S_STRING().getText()));
         builder.handleDomain(mcColumnDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -798,7 +798,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, builder.getSchemaEnabled());
@@ -866,7 +866,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.tableName);
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, builder.getSchemaEnabled());

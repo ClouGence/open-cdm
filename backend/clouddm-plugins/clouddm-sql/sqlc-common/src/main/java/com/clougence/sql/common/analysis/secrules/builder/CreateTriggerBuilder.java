@@ -34,7 +34,7 @@ public class CreateTriggerBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        triggerDomain.setSqlType(SplitQueryType.CREATE_TRIGGER);
+        triggerDomain.addSqlType(SplitQueryType.CREATE_TRIGGER);
         triggerDomain.setAuditKind(SecQueryKind.CREATE);
 
         return Collections.singletonList(triggerDomain);

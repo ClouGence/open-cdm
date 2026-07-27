@@ -4,14 +4,14 @@ FLUSH BINARY LOGS, ENGINE LOGS, ERROR LOGS, GENERAL LOGS, RELAY LOGS FOR CHANNEL
 expect:
 {
   "contains": [
-    { "sqlType": "MYSQL_FLUSH", "flushType": "BINARY_LOGS" },
-    { "sqlType": "MYSQL_FLUSH", "flushType": "ENGINE_LOGS" },
-    { "sqlType": "MYSQL_FLUSH", "flushType": "ERROR_LOGS" },
-    { "sqlType": "MYSQL_FLUSH", "flushType": "GENERAL_LOGS" },
-    { "sqlType": "MYSQL_FLUSH", "flushType": "RELAY_LOGS" },
-    { "sqlType": "MYSQL_FLUSH", "flushType": "SLOW_LOGS" },
-    { "sqlType": "MYSQL_FLUSH", "flushType": "OPTIMIZER_COSTS" },
-    { "sqlType": "MYSQL_FLUSH", "flushType": "USER_RESOURCE" }
+    { "sqlTypes": ["MYSQL_FLUSH"], "flushType": "BINARY_LOGS" },
+    { "sqlTypes": ["MYSQL_FLUSH"], "flushType": "ENGINE_LOGS" },
+    { "sqlTypes": ["MYSQL_FLUSH"], "flushType": "ERROR_LOGS" },
+    { "sqlTypes": ["MYSQL_FLUSH"], "flushType": "GENERAL_LOGS" },
+    { "sqlTypes": ["MYSQL_FLUSH"], "flushType": "RELAY_LOGS" },
+    { "sqlTypes": ["MYSQL_FLUSH"], "flushType": "SLOW_LOGS" },
+    { "sqlTypes": ["MYSQL_FLUSH"], "flushType": "OPTIMIZER_COSTS" },
+    { "sqlTypes": ["MYSQL_FLUSH"], "flushType": "USER_RESOURCE" }
   ]
 }
 ----------
@@ -22,6 +22,6 @@ FLUSH TABLE split_verify.flush_a;
 expect:
 {
   "contains": [
-    { "sqlType": "MYSQL_FLUSH", "flushType": "TABLES" }
+    { "sqlTypes": ["MYSQL_FLUSH"], "flushType": "TABLES" }
   ]
 }

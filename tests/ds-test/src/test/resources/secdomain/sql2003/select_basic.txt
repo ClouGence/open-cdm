@@ -6,7 +6,7 @@ expect:
   "domains": [
     {
       "class": "RdbSelectDomain",
-      "sqlType": "SELECT",
+      "sqlTypes": ["SELECT"],
       "childrenSize": 1,
       "columns": [
         {"column": "column1"}

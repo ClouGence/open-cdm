@@ -59,7 +59,7 @@ public class DrDropSchemaBuilder extends DropSchemaBuilder<DrSchemaDomain> {
             schemaDomain.setSchema(map.get(UmiTypes.Schema));
             schemaDomain.setCatalog(map.get(UmiTypes.Catalog));
             schemaDomain.setAuditKind(SecQueryKind.DROP);
-            schemaDomain.setSqlType(SplitQueryType.DROP_SCHEMA);
+            schemaDomain.addSqlType(SplitQueryType.DROP_SCHEMA);
             schemaDomain.setIfExists(ifExists);
             schemaDomain.setForce(force);
             domains.add(schemaDomain);

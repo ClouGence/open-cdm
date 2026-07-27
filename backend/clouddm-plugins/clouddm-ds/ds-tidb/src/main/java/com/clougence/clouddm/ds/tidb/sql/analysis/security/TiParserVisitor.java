@@ -698,7 +698,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitInstallPlugin(InstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_LIBRARY);
+        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_LIBRARY);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Library);
@@ -709,7 +709,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitUninstallPlugin(UninstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.DROP_LIBRARY);
+        rdbResourceDomain.addSqlType(SplitQueryType.DROP_LIBRARY);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Library);
@@ -720,7 +720,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitCreateUdfFunction(CreateUdfFunctionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Function);
@@ -752,7 +752,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitFullDescribeStatement(FullDescribeStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        rdbResourceDomain.addSqlType(SplitQueryType.PERFORMANCE);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -773,7 +773,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitSetTransaction(SetTransactionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbResourceDomain.setSqlType(SplitQueryType.TRANSACTION);
+        rdbResourceDomain.addSqlType(SplitQueryType.TRANSACTION);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -967,7 +967,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitCreateTablespaceInnodb(CreateTablespaceInnodbContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_TABLESPACE);
+        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -978,7 +978,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitAlterLogfileGroup(AlterLogfileGroupContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_LOG);
+        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Log);
@@ -989,7 +989,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTablespace(AlterTablespaceContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_TABLESPACE);
+        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -1000,7 +1000,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitDropTablespace(DropTablespaceContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.DROP_TABLESPACE);
+        rdbResourceDomain.addSqlType(SplitQueryType.DROP_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -1011,7 +1011,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitDropLogfileGroup(DropLogfileGroupContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.DROP_LOG);
+        rdbResourceDomain.addSqlType(SplitQueryType.DROP_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Log);
@@ -1022,7 +1022,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitCreateLogfileGroup(CreateLogfileGroupContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_LOG);
+        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Log);
@@ -1033,7 +1033,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitCreateTablespaceNdb(CreateTablespaceNdbContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_TABLESPACE);
+        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_TABLESPACE);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Tablespace);
@@ -1067,7 +1067,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitAlterByChangeDefault(AlterByChangeDefaultContext ctx) {
         MyColumnDomain myColumnDomain = new MyColumnDomain();
         myColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        myColumnDomain.setSqlType(SplitQueryType.ALTER_COLUMN);
+        myColumnDomain.addSqlType(SplitQueryType.ALTER_COLUMN);
         myColumnDomain.setColumn(getName(ctx.uid()));
         if (ctx.defaultValue() != null) {
             String text = this.getText(ctx.defaultValue());
@@ -1141,7 +1141,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitAlterByRenameIndex(AlterByRenameIndexContext ctx) {
         MyIndexDomain myIndexDomain = new MyIndexDomain();
-        myIndexDomain.setSqlType(SplitQueryType.ALTER_INDEX);
+        myIndexDomain.addSqlType(SplitQueryType.ALTER_INDEX);
         myIndexDomain.setAuditKind(SecQueryKind.ALTER);
         myIndexDomain.setName(getName(ctx.uid(0)));
         myIndexDomain.setNewName(getName(ctx.uid(1)));
@@ -1153,7 +1153,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitAlterByAlterIndexVisibility(AlterByAlterIndexVisibilityContext ctx) {
         MyIndexDomain myIndexDomain = new MyIndexDomain();
-        myIndexDomain.setSqlType(SplitQueryType.ALTER_INDEX);
+        myIndexDomain.addSqlType(SplitQueryType.ALTER_INDEX);
         myIndexDomain.setAuditKind(SecQueryKind.ALTER);
         myIndexDomain.setName(getName(ctx.uid()));
         myIndexDomain.setVisible(ctx.visivility.getType() == VISIBLE);
@@ -1185,7 +1185,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitAlterByConvertCharset(AlterByConvertCharsetContext ctx) {
         MyTableDomain myTableDomain = new MyTableDomain();
         myTableDomain.setAuditKind(SecQueryKind.ALTER);
-        myTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        myTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
 
         myTableDomain.setCharacterSet(ctx.charsetName().getText());
         if (ctx.collationName() != null) {
@@ -1245,7 +1245,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitTruncateTable(TruncateTableContext ctx) {
         MyTableDomain myTableDomain = new MyTableDomain();
         myTableDomain.setAuditKind(SecQueryKind.DML);
-        myTableDomain.setSqlType(SplitQueryType.TRUNCATE_TABLE);
+        myTableDomain.addSqlType(SplitQueryType.TRUNCATE_TABLE);
 
         List<String> names = new ArrayList<>();
         for (UidContext uid : ctx.tableName().fullId().uid()) {
@@ -1496,7 +1496,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
         //        dmVisitChildren(ctx);
         //        builder.exitCreateUser();
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_USER);
+        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1568,7 +1568,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_USER);
+        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1579,7 +1579,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitAlterUserMysqlV56(AlterUserMysqlV56Context ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_USER);
+        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1590,7 +1590,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitGrantProxy(GrantProxyContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.GRANT);
+        rdbResourceDomain.addSqlType(SplitQueryType.GRANT);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1601,7 +1601,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeProxy(RevokeProxyContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.REVOKE);
+        rdbResourceDomain.addSqlType(SplitQueryType.REVOKE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1612,7 +1612,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitRenameUser(RenameUserContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.RENAME_USER);
+        rdbResourceDomain.addSqlType(SplitQueryType.RENAME_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1649,7 +1649,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
             }
 
             MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);
-            domain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+            domain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
             domain.setAuditKind(SecQueryKind.OTHER);
             builder.addDomain(domain);
         }
@@ -1660,7 +1660,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitSetPassword(SetPasswordContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ALTER_USER);
+        rdbResourceDomain.addSqlType(SplitQueryType.ALTER_USER);
         rdbResourceDomain.setAuditKind(SecQueryKind.ALTER);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.User);
@@ -1671,7 +1671,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowMasterLogs(ShowMasterLogsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.LOG_READ);
+        myShowDomain.addSqlType(SplitQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.BINARY_LOGS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1682,7 +1682,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowSlaveStatus(ShowSlaveStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.SALVE_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1693,7 +1693,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitResetReplica(ResetReplicaContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1704,7 +1704,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitResetSlave(ResetSlaveContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1721,7 +1721,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitLoadIndexIntoCache(LoadIndexIntoCacheContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_PERFORMANCE);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN_PERFORMANCE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Index);
         rdbResourceDomain.setNeedSupply(false);
@@ -1732,7 +1732,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitKillStatement(KillStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1743,7 +1743,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitPurgeBinaryLogs(PurgeBinaryLogsContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.MAINTAIN_LOG);
+        rdbResourceDomain.addSqlType(SplitQueryType.MAINTAIN_LOG);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1754,7 +1754,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitResetMaster(ResetMasterContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -1765,7 +1765,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowReplicaStatus(ShowReplicaStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.REPLICA_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1776,7 +1776,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowCharset(ShowCharsetContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CHARACTER_SET);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1787,7 +1787,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowLogEvents(ShowLogEventsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.LOG_READ);
+        myShowDomain.addSqlType(SplitQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.logFormat.getType() == BINLOG) {
             myShowDomain.setShowType(MyShowType.BINLOG_EVENTS);
@@ -1803,7 +1803,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowObjectFilter(ShowObjectFilterContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         ParseTree child = ctx.showCommonEntity().getChild(0);
         TerminalNodeImpl node = (TerminalNodeImpl) child;
@@ -1818,7 +1818,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
             myShowDomain.setShowType(MyShowType.PROCEDURE_STATUS);
             myShowDomain.setTarget(TargetType.Procedure);
         } else if (type == STATUS) {
-            myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+            myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
             myShowDomain.setShowType(MyShowType.STATUS);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == FUNCTION) {
@@ -1828,18 +1828,18 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
             myShowDomain.setShowType(MyShowType.COLLATION);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == VARIABLES) {
-            myShowDomain.setSqlType(SplitQueryType.SESSION_VARIABLE_RW);
+            myShowDomain.addSqlType(SplitQueryType.SESSION_VARIABLE_RW);
             myShowDomain.setShowType(MyShowType.VARIABLES);
             myShowDomain.setTarget(TargetType.Environment);
         } else if (type == GLOBAL || type == SESSION) {
             if (((TerminalNodeImpl) ctx.showCommonEntity().getChild(1)).getSymbol().getType() == VARIABLES) {
                 if (type != GLOBAL) {
-                    myShowDomain.setSqlType(SplitQueryType.SESSION_VARIABLE_RW);
+                    myShowDomain.addSqlType(SplitQueryType.SESSION_VARIABLE_RW);
                 }
                 myShowDomain.setShowType(MyShowType.VARIABLES);
                 myShowDomain.setTarget(TargetType.Environment);
             } else {
-                myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+                myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
                 myShowDomain.setShowType(MyShowType.STATUS);
                 myShowDomain.setTarget(TargetType.Environment);
             }
@@ -1853,7 +1853,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowColumns(ShowColumnsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.tableName().fullId().children) {
@@ -1893,7 +1893,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowTables(ShowTablesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.TABLES);
         myShowDomain.setTarget(TargetType.Table);
@@ -1907,7 +1907,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitShowCreateDb(ShowCreateDbContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.CREATE_DATABASE);
         myShowDomain.setTarget(TargetType.Schema);
@@ -1937,7 +1937,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowCreateFullIdObject(ShowCreateFullIdObjectContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.fullId().children) {
@@ -1985,7 +1985,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowEngine(ShowEngineContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.ENGINE);
         myShowDomain.setTarget(TargetType.Environment);
@@ -1996,7 +1996,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowEngines(ShowEnginesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.ENGINES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2007,7 +2007,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowPrivileges(ShowPrivilegesContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PRIVILEGES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2018,7 +2018,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowPlugins(ShowPluginsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PLUGINS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2029,7 +2029,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowErrors(ShowErrorsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.errorFormat.getType() == ERRORS) {
             myShowDomain.setShowType(MyShowType.ERRORS);
@@ -2045,7 +2045,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitShowCountErrors(ShowCountErrorsContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         if (ctx.errorFormat.getType() == ERRORS) {
             myShowDomain.setShowType(MyShowType.ERRORS);
@@ -2060,7 +2060,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowSchemaFilter(ShowSchemaFilterContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         ParseTree child = ctx.showSchemaEntity().getChild(0);
         int type = ((TerminalNodeImpl) child).getSymbol().getType();
@@ -2095,7 +2095,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitShowRoutine(ShowRoutineContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.fullId().children) {
@@ -2128,7 +2128,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowGrants(ShowGrantsContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.GRANTS);
         myShowDomain.setTarget(TargetType.UserOrRole);
@@ -2146,7 +2146,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitShowIndexes(ShowIndexesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> nameList = new ArrayList<>();
         for (ParseTree child : ctx.tableName().fullId().children) {
@@ -2175,7 +2175,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitShowOpenTables(ShowOpenTablesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.OPEN_TABLES);
         myShowDomain.setTarget(TargetType.Table);
@@ -2190,7 +2190,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowProfile(ShowProfileContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROFILE);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2201,7 +2201,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowProcessList(ShowProcessListContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROCESSLIST);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2213,7 +2213,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitShowProfiles(ShowProfilesContext ctx) {
 
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.PROFILES);
         myShowDomain.setTarget(TargetType.Environment);
@@ -2225,7 +2225,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitFlushStatement(FlushStatementContext ctx) {
         for (FlushOptionContext flushOptionContext : ctx.flushOption()) {
             MyFlushDomain myFlushDomain = new MyFlushDomain();
-            myFlushDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+            myFlushDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
             myFlushDomain.setAuditKind(SecQueryKind.OTHER);
 
             String text = this.getText(flushOptionContext);
@@ -2240,10 +2240,10 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
         if ("EXPLAIN".equalsIgnoreCase(ctx.command.getText())) {
-            myShowDomain.setSqlType(SplitQueryType.PERFORMANCE);
+            myShowDomain.addSqlType(SplitQueryType.PERFORMANCE);
             myShowDomain.setTarget(TargetType.Table);
         } else {
-            myShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+            myShowDomain.addSqlType(SplitQueryType.UNKNOWN);
             myShowDomain.setTarget(TargetType.Column);
         }
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
@@ -2269,7 +2269,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitShowStatus(ShowStatusContext ctx) {
         MyShowDomain myShowDomain = new MyShowDomain();
-        myShowDomain.setSqlType(SplitQueryType.LOG_READ);
+        myShowDomain.addSqlType(SplitQueryType.LOG_READ);
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.MASTER_STATUS);
         myShowDomain.setTarget(TargetType.Environment);
@@ -3065,7 +3065,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitTransactionStatement(TransactionStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.QUERY);
-        domain.setSqlType(SplitQueryType.TRANSACTION);
+        domain.addSqlType(SplitQueryType.TRANSACTION);
         domain.setNeedSupply(true);
         domain.setTarget(TargetType.Unknown);
         builder.addDomain(domain);
@@ -3082,7 +3082,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitPrepareStatement(PrepareStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.setSqlType(SplitQueryType.UNSAFE);
+        domain.addSqlType(SplitQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);
@@ -3093,7 +3093,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitExecuteStatement(ExecuteStatementContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.setSqlType(SplitQueryType.UNSAFE);
+        domain.addSqlType(SplitQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);
@@ -3104,7 +3104,7 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitDeallocatePrepare(DeallocatePrepareContext ctx) {
         RdbResourceDomain domain = new RdbResourceDomain();
         domain.setAuditKind(SecQueryKind.OTHER);
-        domain.setSqlType(SplitQueryType.UNSAFE);
+        domain.addSqlType(SplitQueryType.UNSAFE);
         domain.setNeedSupply(false);
         domain.setTarget(TargetType.PrepareStatement);
         builder.addDomain(domain);

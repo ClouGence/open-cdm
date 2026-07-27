@@ -468,8 +468,8 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     }
 
     private void add(RuleDomain domain) {
-        if (domain.getAuditKind() == null && domain.getSqlType() != null) {
-            domain.setAuditKind(domain.getSqlType().getAuditKind());
+        if (domain.getAuditKind() == null) {
+            domain.setAuditKind(domain.resolveAuditKind());
         }
         builder.addDomain(domain);
     }

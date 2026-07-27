@@ -35,7 +35,7 @@ public class DropIndexBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        indexDomain.setSqlType(SplitQueryType.DROP_INDEX);
+        indexDomain.addSqlType(SplitQueryType.DROP_INDEX);
         indexDomain.setAuditKind(SecQueryKind.DROP);
         return Collections.singletonList(indexDomain);
     }

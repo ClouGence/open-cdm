@@ -36,7 +36,7 @@ public class GrantBuilder extends AbstractDomainBuilder {
         for (String user : users) {
             RdbGrantDomain rdbGrantDomain = new RdbGrantDomain();
             rdbGrantDomain.setName(user);
-            rdbGrantDomain.setSqlType(SplitQueryType.GRANT);
+            rdbGrantDomain.addSqlType(SplitQueryType.GRANT);
             rdbGrantDomain.setAuditKind(SecQueryKind.ALTER);
             result.add(rdbGrantDomain);
         }

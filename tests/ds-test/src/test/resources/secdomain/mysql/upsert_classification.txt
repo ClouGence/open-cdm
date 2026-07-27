@@ -6,7 +6,7 @@ expect:
   "contains": [
     {
       "class": "MyInsertDomain",
-      "sqlType": "MERGE",
+      "sqlTypes": ["MERGE"],
       "conflict": "UPDATE"
     }
   ]
@@ -20,7 +20,7 @@ expect:
   "contains": [
     {
       "class": "MyReplaceDomain",
-      "sqlType": "MERGE"
+      "sqlTypes": ["MERGE"]
     }
   ]
 }

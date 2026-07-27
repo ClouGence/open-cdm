@@ -26,7 +26,7 @@ public class MsCreateTableBuilder extends CreateTableBuilder<MsTableDomain> {
     protected MsTableDomain getTableDomain() {
         MsTableDomain domain = new MsTableDomain();
         domain.setAuditKind(SecQueryKind.CREATE);
-        domain.setSqlType(SplitQueryType.CREATE_TABLE);
+        domain.addSqlType(SplitQueryType.CREATE_TABLE);
         return domain;
     }
 }

@@ -33,7 +33,7 @@ public class MyInsertBuilder extends InsertBuilder {
     public List<Domain> build() {
         List<Domain> domains = super.build();
         if (insertDomain.getConflict() == RdbInsertConflictStrategy.UPDATE) {
-            insertDomain.setSqlType(SplitQueryType.MERGE);
+            insertDomain.addSqlType(SplitQueryType.MERGE);
         }
         return domains;
     }

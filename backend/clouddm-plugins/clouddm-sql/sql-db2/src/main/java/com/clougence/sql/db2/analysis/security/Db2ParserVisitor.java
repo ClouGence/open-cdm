@@ -297,7 +297,7 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
             column.setNewName(clean(text(opt.t)));
             children.add(column);
         } else if (opt.target_identifier() != null) {
-            table.setSqlType(SplitQueryType.RENAME_TABLE);
+            table.addSqlType(SplitQueryType.RENAME_TABLE);
             table.setNewName(lastName(text(opt.target_identifier())));
         } else if (opt.column_name().size() == 1 && opt.DROP().size() > 0) {
             children.add(simpleColumnDomain(table, text(opt.column_name(0)), SplitQueryType.DROP_COLUMN, SecQueryKind.ALTER));
@@ -807,8 +807,8 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
     }
 
     private void add(RuleDomain domain) {
-        if (domain.getAuditKind() == null && domain.getSqlType() != null) {
-            domain.setAuditKind(domain.getSqlType().getAuditKind());
+        if (domain.getAuditKind() == null) {
+            domain.setAuditKind(domain.resolveAuditKind());
         }
         builder.addDomain(domain);
     }

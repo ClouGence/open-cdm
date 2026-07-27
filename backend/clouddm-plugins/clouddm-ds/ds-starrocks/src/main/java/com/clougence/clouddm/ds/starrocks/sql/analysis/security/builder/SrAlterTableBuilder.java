@@ -51,7 +51,7 @@ public class SrAlterTableBuilder extends AbstractDomainBuilder {
             srTableDomain.setCatalog(catalog);
             srTableDomain.setSchema(schema);
             srTableDomain.setTable(table);
-            srTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+            srTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
             srTableDomain.setAuditKind(SecQueryKind.ALTER);
             ruleDomains.add(srTableDomain);
         }
@@ -89,7 +89,7 @@ public class SrAlterTableBuilder extends AbstractDomainBuilder {
         } else if (source == DomainSource.OPTIONS) {
             SrTableDomain srTableDomain = new SrTableDomain();
             srTableDomain.setAuditKind(SecQueryKind.ALTER);
-            srTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+            srTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
             OptionsDomain optionsDomain = (OptionsDomain) list.get(0);
             srTableDomain.setOptions(optionsDomain.getOptions());
             this.ruleDomains.add(srTableDomain);

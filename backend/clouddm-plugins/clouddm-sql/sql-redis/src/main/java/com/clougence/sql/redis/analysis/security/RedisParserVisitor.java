@@ -59,7 +59,7 @@ public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
 
         RedisCmdDomain domain = new RedisCmdDomain(cmdStr, kindStr);
         domain.setAuditKind(queryType.getAuditKind());
-        domain.setSqlType(queryType);
+        domain.addSqlType(queryType);
         domain.setSchema(schema);
         this.builder.addDomain(domain);
 
@@ -90,7 +90,7 @@ public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
     //
     //        RedisKeyDomain domain = new RedisKeyDomain(cmdStr, kindStr);
     //        domain.setSqlKind(queryType.getAuditKind());
-    //        domain.setSqlType(queryType);
+    //        domain.addSqlType(queryType);
     //        domain.setKey(key);
     //        domain.setAccessType(accessType);
     //        this.builder.addDomain(domain);

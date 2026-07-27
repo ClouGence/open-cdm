@@ -35,7 +35,7 @@ public class OptimizeTableBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        domain.setSqlType(SplitQueryType.ADMIN_TABLE);
+        domain.addSqlType(SplitQueryType.ADMIN_TABLE);
         domain.setAuditKind(SecQueryKind.ADMIN);
         domain.setNeedSupply(true);
         domain.setTarget(TargetType.Table);

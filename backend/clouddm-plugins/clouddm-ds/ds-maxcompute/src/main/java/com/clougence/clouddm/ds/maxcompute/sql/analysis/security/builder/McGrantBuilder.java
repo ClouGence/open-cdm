@@ -36,7 +36,7 @@ public class McGrantBuilder extends GrantBuilder {
             ObjNameDomain domain = (ObjNameDomain) list.get(0);
 
             McGrantDomain rdbUserDomain = new McGrantDomain();
-            rdbUserDomain.setSqlType(SplitQueryType.GRANT);
+            rdbUserDomain.addSqlType(SplitQueryType.GRANT);
             rdbUserDomain.setAuditKind(SecQueryKind.ALTER);
             rdbUserDomain.setName(domain.getNameList().get(0));
             if (domain.getNameList().size() > 1) {

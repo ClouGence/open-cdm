@@ -47,7 +47,7 @@ public class ChRenameBuilder extends AbstractDomainBuilder {
         if (targetType == TargetType.Table) {
             ChTableDomain domain = new ChTableDomain();
             domain.setAuditKind(SecQueryKind.ALTER);
-            domain.setSqlType(SplitQueryType.RENAME_TABLE);
+            domain.addSqlType(SplitQueryType.RENAME_TABLE);
 
             Map<UmiTypes, String> map = BuilderUtil.parseTableName(oldName.getNameList());
             domain.setSchema(map.get(UmiTypes.Schema));
@@ -61,7 +61,7 @@ public class ChRenameBuilder extends AbstractDomainBuilder {
         } else if (targetType == TargetType.Schema) {
             ChSchemaDomain domain = new ChSchemaDomain();
             domain.setAuditKind(SecQueryKind.ALTER);
-            domain.setSqlType(SplitQueryType.RENAME_SCHEMA);
+            domain.addSqlType(SplitQueryType.RENAME_SCHEMA);
             Map<UmiTypes, String> map = BuilderUtil.parseSchemaName(oldName.getNameList());
             domain.setSchema(map.get(UmiTypes.Schema));
 

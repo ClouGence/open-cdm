@@ -14,11 +14,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_USER",
+      "sqlTypes": ["CREATE_USER"],
       "auditKind": "CREATE",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -31,11 +31,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_USER",
+      "sqlTypes": ["CREATE_USER"],
       "auditKind": "CREATE",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -49,11 +49,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_USER",
+      "sqlTypes": ["ALTER_USER"],
       "auditKind": "ADMIN",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -66,11 +66,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_USER",
+      "sqlTypes": ["ALTER_USER"],
       "auditKind": "ADMIN",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -84,11 +84,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_USER",
+      "sqlTypes": ["ALTER_USER"],
       "auditKind": "ADMIN",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -102,12 +102,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_USER",
+      "sqlTypes": ["DROP_USER"],
       "auditKind": "DROP",
       "user": "temp",
       "ifExists": true,
       "host": "localhost",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -121,11 +121,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "RENAME_USER",
+      "sqlTypes": ["RENAME_USER"],
       "auditKind": "ADMIN",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -139,10 +139,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_ROLE",
+      "sqlTypes": ["CREATE_ROLE"],
       "auditKind": "CREATE",
       "role": "'reporting_role'",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["Role"]
     }
   ]
 }
@@ -155,10 +155,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_ROLE",
+      "sqlTypes": ["CREATE_ROLE"],
       "auditKind": "CREATE",
       "role": "'devops'",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["Role"]
     }
   ]
 }
@@ -171,10 +171,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_ROLE",
+      "sqlTypes": ["DROP_ROLE"],
       "auditKind": "DROP",
       "role": "'old_role'",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["Role"]
     }
   ]
 }
@@ -188,12 +188,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "GRANT",
+      "sqlTypes": ["GRANT"],
       "auditKind": "ALTER",
       "name": "app_user",
       "withGrantOption": false,
       "host": "localhost",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -206,12 +206,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "GRANT",
+      "sqlTypes": ["GRANT"],
       "auditKind": "ALTER",
       "name": "admin_user",
       "withGrantOption": false,
       "host": "localhost",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -224,11 +224,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "REVOKE",
+      "sqlTypes": ["REVOKE"],
       "auditKind": "ALTER",
       "name": "app_user",
       "host": "localhost",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -241,11 +241,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "REVOKE",
+      "sqlTypes": ["REVOKE"],
       "auditKind": "ALTER",
       "name": "admin_user",
       "host": "localhost",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -259,19 +259,19 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "GRANT",
+      "sqlTypes": ["GRANT"],
       "auditKind": "ALTER",
       "name": "'reporting_role'",
       "withGrantOption": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     },
     {
-      "sqlType": "GRANT",
+      "sqlTypes": ["GRANT"],
       "auditKind": "ALTER",
       "name": "analyst",
       "withGrantOption": false,
       "host": "localhost",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -284,11 +284,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "REVOKE",
+      "sqlTypes": ["REVOKE"],
       "auditKind": "ALTER",
       "name": "analyst",
       "host": "localhost",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -302,11 +302,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "GRANT",
+      "sqlTypes": ["GRANT"],
       "auditKind": "ADMIN",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -319,11 +319,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "REVOKE",
+      "sqlTypes": ["REVOKE"],
       "auditKind": "ADMIN",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -337,11 +337,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "GRANT",
+      "sqlTypes": ["GRANT"],
       "auditKind": "ADMIN",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -355,13 +355,13 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "GRANTS",
       "target": "UserOrRole",
       "userOrRole": "'app_user'@'localhost'",
       "showKind": "PRIVILEGE",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -374,13 +374,13 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "GRANTS",
       "target": "UserOrRole",
       "userOrRole": "CURRENT_USER",
       "showKind": "PRIVILEGE",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -394,12 +394,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ADMIN_TABLE",
+      "sqlTypes": ["ADMIN_TABLE"],
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
       "needSupply": true,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Table"]
     }
   ]
 }
@@ -412,12 +412,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ADMIN_TABLE",
+      "sqlTypes": ["ADMIN_TABLE"],
       "auditKind": "ALTER",
       "name": "posts",
       "target": "Table",
       "needSupply": true,
-      "sqlTarget": "Table"
+      "sqlTargets": ["Table"]
     }
   ]
 }
@@ -430,12 +430,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ADMIN_TABLE",
+      "sqlTypes": ["ADMIN_TABLE"],
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
       "needSupply": true,
-      "sqlTarget": "Table"
+      "sqlTargets": ["Table"]
     }
   ]
 }
@@ -448,12 +448,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ADMIN_TABLE",
+      "sqlTypes": ["ADMIN_TABLE"],
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
       "needSupply": true,
-      "sqlTarget": "Table"
+      "sqlTargets": ["Table"]
     }
   ]
 }
@@ -466,12 +466,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ADMIN_TABLE",
+      "sqlTypes": ["ADMIN_TABLE"],
       "auditKind": "OTHER",
       "name": "archive_table",
       "target": "Table",
       "needSupply": true,
-      "sqlTarget": "Table"
+      "sqlTargets": ["Table"]
     }
   ]
 }
@@ -485,7 +485,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_TABLE",
+      "sqlTypes": ["ALTER_TABLE"],
       "auditKind": "ALTER",
       "table": "posts",
       "hasPrimary": false,
@@ -497,7 +497,7 @@ expect:
       "ifExists": false,
       "engine": "InnoDB",
       "temporary": false,
-      "sqlTarget": "Table"
+      "sqlTargets": ["Table"]
     }
   ]
 }
@@ -514,11 +514,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SYSTEM_SETTING_WRITE",
+      "sqlTypes": ["SYSTEM_SETTING_WRITE"],
       "auditKind": "CREATE",
       "target": "Function",
       "needSupply": false,
-      "sqlTarget": "Function"
+      "sqlTargets": ["ConfigKey"]
     }
   ]
 }
@@ -531,10 +531,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_PROG_OBJ",
+      "sqlTypes": ["DROP_PROG_OBJ"],
       "auditKind": "DROP",
       "name": "example_udf",
-      "sqlTarget": "Function"
+      "sqlTargets": ["ProgramObject"]
     }
   ]
 }
@@ -548,11 +548,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_LIBRARY",
+      "sqlTypes": ["CREATE_LIBRARY"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Library"]
     }
   ]
 }
@@ -565,11 +565,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_LIBRARY",
+      "sqlTypes": ["DROP_LIBRARY"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Library"]
     }
   ]
 }
@@ -582,11 +582,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_LIBRARY",
+      "sqlTypes": ["CREATE_LIBRARY"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Library"]
     }
   ]
 }
@@ -599,11 +599,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_LIBRARY",
+      "sqlTypes": ["DROP_LIBRARY"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Library"]
     }
   ]
 }
@@ -617,11 +617,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CONFIG_WRITE",
+      "sqlTypes": ["CONFIG_WRITE"],
       "auditKind": "OTHER",
       "configKey": "sql_mode",
       "type": "SESSION",
-      "sqlTarget": "ConfigKey"
+      "sqlTargets": []
     }
   ]
 }
@@ -634,11 +634,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CONFIG_WRITE",
+      "sqlTypes": ["CONFIG_WRITE"],
       "auditKind": "OTHER",
       "configKey": "max_connections",
       "type": "GLOBAL",
-      "sqlTarget": "ConfigKey"
+      "sqlTargets": []
     }
   ]
 }
@@ -652,11 +652,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CONFIG_WRITE",
+      "sqlTypes": ["CONFIG_WRITE"],
       "auditKind": "OTHER",
       "configKey": "innodb_buffer_pool_size",
       "type": "GLOBAL",
-      "sqlTarget": "ConfigKey"
+      "sqlTargets": []
     }
   ]
 }
@@ -669,11 +669,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_USER",
+      "sqlTypes": ["ALTER_USER"],
       "auditKind": "ALTER",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -687,12 +687,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "VARIABLES",
       "target": "Environment",
       "showKind": "ENVIRONMENT",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -705,12 +705,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "STATUS",
       "target": "Environment",
       "showKind": "ENVIRONMENT",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -723,12 +723,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "PROCESSLIST",
       "target": "Environment",
       "showKind": "PERFORMANCE",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -741,12 +741,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "SALVE_STATUS",
       "target": "Environment",
       "showKind": "ENVIRONMENT",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -760,12 +760,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "REPLICA_STATUS",
       "target": "Environment",
       "showKind": "REPLICATION",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -779,12 +779,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "BINARY_LOGS",
       "target": "Environment",
       "showKind": "REPLICATION",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -797,12 +797,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "BINLOG_EVENTS",
       "target": "Environment",
       "showKind": "REPLICATION",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -820,11 +820,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SYSTEM_SETTING_WRITE",
+      "sqlTypes": ["SYSTEM_SETTING_WRITE"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["ConfigKey"]
     }
   ]
 }
@@ -838,11 +838,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "MAINTAIN_LOG",
+      "sqlTypes": ["MAINTAIN_LOG"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Log"]
     }
   ]
 }
@@ -855,11 +855,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "MAINTAIN_LOG",
+      "sqlTypes": ["MAINTAIN_LOG"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Log"]
     }
   ]
 }
@@ -873,10 +873,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "MYSQL_FLUSH",
+      "sqlTypes": ["MYSQL_FLUSH"],
       "auditKind": "OTHER",
       "flushType": "PRIVILEGES",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -890,10 +890,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "MYSQL_FLUSH",
+      "sqlTypes": ["MYSQL_FLUSH"],
       "auditKind": "OTHER",
       "flushType": "LOGS",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -907,10 +907,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "MYSQL_FLUSH",
+      "sqlTypes": ["MYSQL_FLUSH"],
       "auditKind": "OTHER",
       "flushType": "TABLES",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -924,10 +924,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "MYSQL_FLUSH",
+      "sqlTypes": ["MYSQL_FLUSH"],
       "auditKind": "OTHER",
       "flushType": "HOSTS",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -941,10 +941,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "MYSQL_FLUSH",
+      "sqlTypes": ["MYSQL_FLUSH"],
       "auditKind": "OTHER",
       "flushType": "STATUS",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -960,11 +960,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ADMIN_PERFORMANCE",
+      "sqlTypes": ["ADMIN_PERFORMANCE"],
       "auditKind": "OTHER",
       "target": "Index",
       "needSupply": false,
-      "sqlTarget": "Index"
+      "sqlTargets": ["Unknown"]
     }
   ]
 }
@@ -981,12 +981,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "PROCESSLIST",
       "target": "Environment",
       "showKind": "PERFORMANCE",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -999,11 +999,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ADMIN",
+      "sqlTypes": ["ADMIN"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Unknown"]
     }
   ]
 }
@@ -1017,11 +1017,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ADMIN",
+      "sqlTypes": ["ADMIN"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Unknown"]
     }
   ]
 }
@@ -1037,11 +1037,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SYSTEM_SETTING_WRITE",
+      "sqlTypes": ["SYSTEM_SETTING_WRITE"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["ConfigKey"]
     }
   ]
 }
@@ -1055,11 +1055,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SYSTEM_SETTING_WRITE",
+      "sqlTypes": ["SYSTEM_SETTING_WRITE"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["ConfigKey"]
     }
   ]
 }
@@ -1073,11 +1073,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SYSTEM_SETTING_WRITE",
+      "sqlTypes": ["SYSTEM_SETTING_WRITE"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["ConfigKey"]
     }
   ]
 }
@@ -1097,11 +1097,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_USER",
+      "sqlTypes": ["CREATE_USER"],
       "auditKind": "CREATE",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -1114,11 +1114,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_USER",
+      "sqlTypes": ["ALTER_USER"],
       "auditKind": "ADMIN",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -1131,11 +1131,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_USER",
+      "sqlTypes": ["ALTER_USER"],
       "auditKind": "ADMIN",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -1149,11 +1149,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_USER",
+      "sqlTypes": ["CREATE_USER"],
       "auditKind": "CREATE",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -1166,11 +1166,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_USER",
+      "sqlTypes": ["CREATE_USER"],
       "auditKind": "CREATE",
       "target": "UserOrRole",
       "needSupply": false,
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["User"]
     }
   ]
 }
@@ -1184,12 +1184,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "PLUGINS",
       "target": "Environment",
       "showKind": "COMPATIBILITY",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -1207,12 +1207,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_INDEX",
+      "sqlTypes": ["ALTER_INDEX"],
       "auditKind": "ALTER",
       "tableName": "products",
       "name": "idx_products_price_invis",
       "visible": true,
-      "sqlTarget": "Index"
+      "sqlTargets": ["Index"]
     }
   ]
 }
@@ -1226,12 +1226,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_INDEX",
+      "sqlTypes": ["ALTER_INDEX"],
       "auditKind": "ALTER",
       "tableName": "products",
       "name": "idx_products_price_invis",
       "visible": false,
-      "sqlTarget": "Index"
+      "sqlTargets": ["Index"]
     }
   ]
 }
@@ -1245,12 +1245,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "ENGINE",
       "target": "Environment",
       "showKind": "COMPATIBILITY",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -1263,7 +1263,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SELECT",
+      "sqlTypes": ["SELECT"],
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1289,7 +1289,7 @@ expect:
       "selectItems": [],
       "joinTypes": [],
       "hasLimit": true,
-      "sqlTarget": "Query"
+      "sqlTargets": ["Query"]
     }
   ]
 }
@@ -1304,10 +1304,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "MYSQL_FLUSH",
+      "sqlTypes": ["MYSQL_FLUSH"],
       "auditKind": "OTHER",
       "flushType": "TABLES",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -1321,11 +1321,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "TRANSACTION",
+      "sqlTypes": ["TRANSACTION"],
       "auditKind": "QUERY",
       "target": "Unknown",
       "needSupply": true,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Unknown"]
     }
   ]
 }
@@ -1339,7 +1339,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SELECT",
+      "sqlTypes": ["SELECT"],
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1368,7 +1368,7 @@ expect:
       "selectItems": [],
       "joinTypes": [],
       "hasLimit": true,
-      "sqlTarget": "Query"
+      "sqlTargets": ["Query"]
     }
   ]
 }
@@ -1381,13 +1381,13 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "GRANTS",
       "target": "UserOrRole",
       "userOrRole": "'ssl_user'@'%'",
       "showKind": "PRIVILEGE",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -1407,12 +1407,12 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SHOW",
+      "sqlTypes": ["SHOW"],
       "auditKind": "QUERY",
       "showType": "EVENTS",
       "target": "Event",
       "showKind": "METADATA",
-      "sqlTarget": "Unknown"
+      "sqlTargets": []
     }
   ]
 }
@@ -1426,10 +1426,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_EVENT",
+      "sqlTypes": ["CREATE_EVENT"],
       "auditKind": "CREATE",
       "name": "ev_cleanup_old_logs",
-      "sqlTarget": "Event"
+      "sqlTargets": ["Event"]
     }
   ]
 }
@@ -1442,10 +1442,10 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_EVENT",
+      "sqlTypes": ["DROP_EVENT"],
       "auditKind": "DROP",
       "name": "ev_cleanup_old_logs",
-      "sqlTarget": "Event"
+      "sqlTargets": ["Event"]
     }
   ]
 }
@@ -1459,7 +1459,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SELECT",
+      "sqlTypes": ["SELECT"],
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1487,7 +1487,7 @@ expect:
       "selectItems": [],
       "joinTypes": [],
       "hasLimit": false,
-      "sqlTarget": "Query"
+      "sqlTargets": ["Query"]
     }
   ]
 }
@@ -1500,7 +1500,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SELECT",
+      "sqlTypes": ["SELECT"],
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1526,7 +1526,7 @@ expect:
       "selectItems": [],
       "joinTypes": [],
       "hasLimit": true,
-      "sqlTarget": "Query"
+      "sqlTargets": ["Query"]
     }
   ]
 }
@@ -1540,11 +1540,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "REVOKE",
+      "sqlTypes": ["REVOKE"],
       "auditKind": "ALTER",
       "name": "someuser",
       "host": "localhost",
-      "sqlTarget": "UserOrRole"
+      "sqlTargets": ["UserOrRole"]
     }
   ]
 }
@@ -1558,7 +1558,7 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "SELECT",
+      "sqlTypes": ["SELECT"],
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1584,7 +1584,7 @@ expect:
       "selectItems": [],
       "joinTypes": [],
       "hasLimit": true,
-      "sqlTarget": "Query"
+      "sqlTargets": ["Query"]
     }
   ]
 }
@@ -1600,11 +1600,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_LIBRARY",
+      "sqlTypes": ["CREATE_LIBRARY"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Library"]
     }
   ]
 }
@@ -1617,11 +1617,11 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_LIBRARY",
+      "sqlTypes": ["DROP_LIBRARY"],
       "auditKind": "OTHER",
       "target": "Unknown",
       "needSupply": false,
-      "sqlTarget": "Unknown"
+      "sqlTargets": ["Library"]
     }
   ]
 }

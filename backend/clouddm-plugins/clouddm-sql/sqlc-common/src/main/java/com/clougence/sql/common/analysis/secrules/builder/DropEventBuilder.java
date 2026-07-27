@@ -49,7 +49,7 @@ public class DropEventBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         domain.setAuditKind(SecQueryKind.DROP);
-        domain.setSqlType(SplitQueryType.DROP_EVENT);
+        domain.addSqlType(SplitQueryType.DROP_EVENT);
         return Collections.singletonList(domain);
     }
 }

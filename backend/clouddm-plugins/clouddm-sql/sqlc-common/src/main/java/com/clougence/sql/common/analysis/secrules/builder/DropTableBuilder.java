@@ -37,7 +37,7 @@ public abstract class DropTableBuilder<T extends RdbTableDomain> extends Abstrac
         if (source == DomainSource.OBJ_NAME) {
             RdbTableDomain tableDomain = getTableDomain();
 
-            tableDomain.setSqlType(SplitQueryType.DROP_TABLE);
+            tableDomain.addSqlType(SplitQueryType.DROP_TABLE);
             tableDomain.setAuditKind(SecQueryKind.DROP);
 
             ObjNameDomain objNameDomain = (ObjNameDomain) list.get(0);

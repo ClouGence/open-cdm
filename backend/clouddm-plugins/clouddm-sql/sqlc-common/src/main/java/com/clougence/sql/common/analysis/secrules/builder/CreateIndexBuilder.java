@@ -81,7 +81,7 @@ public class CreateIndexBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        indexDomain.setSqlType(SplitQueryType.ADD_INDEX);
+        indexDomain.addSqlType(SplitQueryType.ADD_INDEX);
         indexDomain.setAuditKind(SecQueryKind.CREATE);
         if (StringUtils.isEmpty(indexDomain.getType())) {
             indexDomain.setType("index");

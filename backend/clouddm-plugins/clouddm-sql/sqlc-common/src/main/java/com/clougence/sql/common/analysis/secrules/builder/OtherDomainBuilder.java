@@ -36,8 +36,8 @@ public class OtherDomainBuilder extends AbstractDomainBuilder {
             if (ruleDomain.getAuditKind() == null) {
                 ruleDomain.setAuditKind(SecQueryKind.OTHER);
             }
-            if (ruleDomain.getSqlType() == null) {
-                ruleDomain.setSqlType(SplitQueryType.UNKNOWN);
+            if (ruleDomain.getSqlTypes().isEmpty()) {
+                ruleDomain.addSqlType(SplitQueryType.UNKNOWN);
             }
         }
         return this.domains;

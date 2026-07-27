@@ -25,7 +25,7 @@ expect:
   "contains": [
     {
       "class": "MyColumnDomain",
-      "sqlType": "ALTER_TABLE_ADD_COLUMN",
+      "sqlTypes": ["ALTER_TABLE_ADD_COLUMN"],
       "auditKind": "CREATE",
       "schema": "test",
       "table": "user_table",
@@ -50,7 +50,7 @@ expect:
 ```json
 {
   "contains": [
-    {"class":"MyTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "table":"t1"}
+    {"class":"MyTableDomain", "sqlTypes":["CREATE_TABLE"], "auditKind":"CREATE", "table":"t1"}
   ]
 }
 ```
@@ -73,7 +73,7 @@ expect:
 ```json
 {
   "contains": [
-    {"class":"PgSelectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "childrenSize":2},
+    {"class":"PgSelectDomain", "sqlTypes":["SELECT"], "auditKind":"QUERY", "childrenSize":2},
     {"class":"RdbTableDomain", "schema":"test_schema", "table":"table1"},
     {"class":"RdbTableDomain", "schema":"test_schema", "table":"table2"}
   ]

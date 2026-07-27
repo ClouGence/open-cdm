@@ -1115,7 +1115,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     }
 
     private <T extends RuleDomain> T add(T domain, SplitQueryType type) {
-        domain.setSqlType(type);
+        domain.addSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         domains.add(domain);
         return domain;

@@ -113,7 +113,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCreateMTMV(CreateMTMVContext ctx) {
         RdbViewDomain rdbViewDomain = new RdbViewDomain();
         rdbViewDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbViewDomain.setSqlType(SplitQueryType.CREATE_VIEW);
+        rdbViewDomain.addSqlType(SplitQueryType.CREATE_VIEW);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
             list.add(getName(errorCapturingIdentifierContext));
@@ -255,7 +255,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitTruncateTable(TruncateTableContext ctx) {
         RdbTableDomain rdbTableDomain = new DrTableDomain();
-        rdbTableDomain.setSqlType(SplitQueryType.TRUNCATE_TABLE);
+        rdbTableDomain.addSqlType(SplitQueryType.TRUNCATE_TABLE);
         rdbTableDomain.setAuditKind(SecQueryKind.DML);
 
         List<String> names = new ArrayList<>();
@@ -331,7 +331,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCreateView(CreateViewContext ctx) {
         RdbViewDomain rdbViewDomain = new RdbViewDomain();
         rdbViewDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbViewDomain.setSqlType(SplitQueryType.CREATE_VIEW);
+        rdbViewDomain.addSqlType(SplitQueryType.CREATE_VIEW);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
             list.add(getName(errorCapturingIdentifierContext));
@@ -699,7 +699,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
         RdbIndexDomain indexDomain = new RdbIndexDomain();
 
         indexDomain.setAuditKind(SecQueryKind.CREATE);
-        indexDomain.setSqlType(SplitQueryType.ADD_INDEX);
+        indexDomain.addSqlType(SplitQueryType.ADD_INDEX);
         indexDomain.setType("index");
         indexDomain.setName(getName(ctx.name));
 
@@ -727,7 +727,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCreateUserDefineFunction(CreateUserDefineFunctionContext ctx) {
         RdbFunctionDomain rdbFunctionDomain = new RdbFunctionDomain();
         rdbFunctionDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbFunctionDomain.setSqlType(SplitQueryType.CREATE_PROG_OBJ);
+        rdbFunctionDomain.addSqlType(SplitQueryType.CREATE_PROG_OBJ);
 
         if (ctx.functionIdentifier().dbName != null) {
             rdbFunctionDomain.setSchema(getName(ctx.functionIdentifier().dbName));
@@ -831,7 +831,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAlterCatalogComment(AlterCatalogCommentContext ctx) {
         DrCatalogDomain domain = new DrCatalogDomain();
-        domain.setSqlType(SplitQueryType.ALTER_CATALOG);
+        domain.addSqlType(SplitQueryType.ALTER_CATALOG);
         domain.setAuditKind(SecQueryKind.ALTER);
         domain.setCatalog(getName(ctx.name));
         String text = ctx.comment.getText();
@@ -880,7 +880,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableAddRollup(AlterTableAddRollupContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        drTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
@@ -897,7 +897,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableDropRollup(AlterTableDropRollupContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        drTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
@@ -915,7 +915,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableProperties(AlterTablePropertiesContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        drTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
         List<String> list = new ArrayList<>();
         for (ErrorCapturingIdentifierContext errorCapturingIdentifierContext : ctx.multipartIdentifier().errorCapturingIdentifier()) {
@@ -972,7 +972,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitDropUser(DropUserContext ctx) {
         DrUserDomain drUserDomain = new DrUserDomain();
-        drUserDomain.setSqlType(SplitQueryType.DROP_USER);
+        drUserDomain.addSqlType(SplitQueryType.DROP_USER);
         drUserDomain.setAuditKind(SecQueryKind.DROP);
         drUserDomain.setUser(getText(this.getText(ctx.userIdentify().user)));
         if (ctx.userIdentify().host != null) {
@@ -1031,7 +1031,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitDropIndex(DropIndexContext ctx) {
         RdbIndexDomain indexDomain = new RdbIndexDomain();
         indexDomain.setAuditKind(SecQueryKind.DROP);
-        indexDomain.setSqlType(SplitQueryType.DROP_INDEX);
+        indexDomain.addSqlType(SplitQueryType.DROP_INDEX);
 
         indexDomain.setName(getName(ctx.name));
         List<String> list = new ArrayList<>();
@@ -1050,7 +1050,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitSupportedShowStatementAlias(SupportedShowStatementAliasContext ctx) {
         DrShowDomain drShowDomain = new DrShowDomain();
-        drShowDomain.setSqlType(SplitQueryType.UNKNOWN);
+        drShowDomain.addSqlType(SplitQueryType.UNKNOWN);
         drShowDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(drShowDomain);
         return null;
@@ -1059,7 +1059,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitCancelAlterTable(CancelAlterTableContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        drTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
 
         List<String> names = new ArrayList<>();
@@ -1081,7 +1081,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitGrantTablePrivilege(GrantTablePrivilegeContext ctx) {
         DrGrantDomain drGrantDomain = new DrGrantDomain();
-        drGrantDomain.setSqlType(SplitQueryType.GRANT);
+        drGrantDomain.addSqlType(SplitQueryType.GRANT);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         if (ctx.userIdentify() != null) {
@@ -1100,7 +1100,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitGrantResourcePrivilege(GrantResourcePrivilegeContext ctx) {
         DrGrantDomain drGrantDomain = new DrGrantDomain();
-        drGrantDomain.setSqlType(SplitQueryType.GRANT);
+        drGrantDomain.addSqlType(SplitQueryType.GRANT);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         if (ctx.userIdentify() != null) {
@@ -1119,7 +1119,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitGrantRole(GrantRoleContext ctx) {
         DrGrantDomain drGrantDomain = new DrGrantDomain();
-        drGrantDomain.setSqlType(SplitQueryType.GRANT);
+        drGrantDomain.addSqlType(SplitQueryType.GRANT);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         drGrantDomain.setName(getText(this.getText(ctx.userIdentify().user)));
@@ -1134,7 +1134,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeRole(RevokeRoleContext ctx) {
         DrRevokeDomain drGrantDomain = new DrRevokeDomain();
-        drGrantDomain.setSqlType(SplitQueryType.REVOKE);
+        drGrantDomain.addSqlType(SplitQueryType.REVOKE);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         drGrantDomain.setName(getText(this.getText(ctx.userIdentify().user)));
@@ -1149,7 +1149,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeResourcePrivilege(RevokeResourcePrivilegeContext ctx) {
         DrRevokeDomain drGrantDomain = new DrRevokeDomain();
-        drGrantDomain.setSqlType(SplitQueryType.REVOKE);
+        drGrantDomain.addSqlType(SplitQueryType.REVOKE);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         if (ctx.userIdentify() != null) {
@@ -1168,7 +1168,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRevokeTablePrivilege(RevokeTablePrivilegeContext ctx) {
         DrRevokeDomain drGrantDomain = new DrRevokeDomain();
-        drGrantDomain.setSqlType(SplitQueryType.REVOKE);
+        drGrantDomain.addSqlType(SplitQueryType.REVOKE);
         drGrantDomain.setAuditKind(SecQueryKind.ALTER);
 
         if (ctx.userIdentify() != null) {
@@ -1223,7 +1223,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRenameClause(RenameClauseContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
-        drTableDomain.setSqlType(SplitQueryType.RENAME_TABLE);
+        drTableDomain.addSqlType(SplitQueryType.RENAME_TABLE);
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
 
         String name = getName(ctx.newName);
@@ -1237,7 +1237,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitRenameColumnClause(RenameColumnClauseContext ctx) {
         DrColumnDomain drColumnDomain = new DrColumnDomain();
-        drColumnDomain.setSqlType(SplitQueryType.RENAME_COLUMN);
+        drColumnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
         drColumnDomain.setAuditKind(SecQueryKind.ALTER);
 
         drColumnDomain.setColumn(getName(ctx.name));
@@ -1250,7 +1250,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAddIndexClause(AddIndexClauseContext ctx) {
         RdbIndexDomain indexDomain = new RdbIndexDomain();
-        indexDomain.setSqlType(SplitQueryType.ADD_INDEX);
+        indexDomain.addSqlType(SplitQueryType.ADD_INDEX);
         indexDomain.setAuditKind(SecQueryKind.CREATE);
         indexDomain.setType("index");
 
@@ -1269,7 +1269,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitDropIndexClause(DropIndexClauseContext ctx) {
         RdbIndexDomain indexDomain = new RdbIndexDomain();
-        indexDomain.setSqlType(SplitQueryType.DROP_INDEX);
+        indexDomain.addSqlType(SplitQueryType.DROP_INDEX);
         indexDomain.setAuditKind(SecQueryKind.DROP);
         indexDomain.setName(getName(ctx.name));
         builder.handleDomain(indexDomain, DomainSource.ALTER_TABLE_ITEM);
@@ -1280,7 +1280,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitModifyTableCommentClause(ModifyTableCommentClauseContext ctx) {
         DrTableDomain drTableDomain = new DrTableDomain();
         drTableDomain.setAuditKind(SecQueryKind.ALTER);
-        drTableDomain.setSqlType(SplitQueryType.ALTER_TABLE);
+        drTableDomain.addSqlType(SplitQueryType.ALTER_TABLE);
         drTableDomain.setComment(getText(ctx.comment.getText()));
         builder.handleDomain(drTableDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -1306,7 +1306,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
         }
 
         DrConfigDomain domain = new DrConfigDomain(keyName, scopeType);
-        domain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        domain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         domain.setAuditKind(SecQueryKind.OTHER);
         builder.addDomain(domain);
         return null;
@@ -1318,7 +1318,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
         String keyName = ctx.identifier().getText();
 
         DrConfigDomain domain = new DrConfigDomain(keyName, scopeType);
-        domain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        domain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         domain.setAuditKind(SecQueryKind.OTHER);
         builder.addDomain(domain);
         return null;
@@ -1330,7 +1330,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
         String keyName = ctx.identifier().getText();
 
         DrConfigDomain domain = new DrConfigDomain(keyName, scopeType);
-        domain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        domain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         domain.setAuditKind(SecQueryKind.OTHER);
         builder.addDomain(domain);
         return null;
@@ -1785,7 +1785,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitSupportedTransactionStatementAlias(SupportedTransactionStatementAliasContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbResourceDomain.setSqlType(SplitQueryType.TRANSACTION);
+        rdbResourceDomain.addSqlType(SplitQueryType.TRANSACTION);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -1796,7 +1796,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitSetTransaction(SetTransactionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbResourceDomain.setSqlType(SplitQueryType.TRANSACTION);
+        rdbResourceDomain.addSqlType(SplitQueryType.TRANSACTION);
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -1807,7 +1807,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitSupportedAdminStatementAlias(SupportedAdminStatementAliasContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
@@ -1840,7 +1840,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCreateScheduledJob(CreateScheduledJobContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Job);
-        rdbResourceDomain.setSqlType(SplitQueryType.CREATE_JOB);
+        rdbResourceDomain.addSqlType(SplitQueryType.CREATE_JOB);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -1867,7 +1867,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitResumeJob(ResumeJobContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Job);
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_JOB);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN_JOB);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -1884,8 +1884,8 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitCancelJobTask(CancelJobTaskContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Unknown);
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -1961,7 +1961,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitDropJob(DropJobContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Job);
-        rdbResourceDomain.setSqlType(SplitQueryType.DROP_JOB);
+        rdbResourceDomain.addSqlType(SplitQueryType.DROP_JOB);
         rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -1972,7 +1972,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitPauseJob(PauseJobContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setTarget(TargetType.Job);
-        rdbResourceDomain.setSqlType(SplitQueryType.ADMIN_JOB);
+        rdbResourceDomain.addSqlType(SplitQueryType.ADMIN_JOB);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setNeedSupply(false);
         builder.addDomain(rdbResourceDomain);
@@ -2314,7 +2314,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitCreateFile(CreateFileContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         rdbResourceDomain.setTarget(TargetType.ConfigKey);
         builder.addDomain(rdbResourceDomain);

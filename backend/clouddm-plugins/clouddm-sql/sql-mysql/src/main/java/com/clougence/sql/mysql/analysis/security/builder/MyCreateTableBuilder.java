@@ -34,7 +34,7 @@ import com.clougence.sql.mysql.analysis.security.domain.MyTableDomain;
 public class MyCreateTableBuilder extends CreateTableBuilder<MyTableDomain> {
 
     public MyCreateTableBuilder(SplitQueryType type){
-        rdbTableDomain.setSqlType(type);
+        rdbTableDomain.addSqlType(type);
     }
 
     @Override

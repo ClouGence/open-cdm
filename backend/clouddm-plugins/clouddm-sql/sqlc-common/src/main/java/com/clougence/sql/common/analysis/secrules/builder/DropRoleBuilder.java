@@ -42,7 +42,7 @@ public class DropRoleBuilder extends AbstractDomainBuilder {
         List<Domain> domains = new ArrayList<>();
         for (String user : roles) {
             RdbRoleDomain rdbUserDomain = getRoleDomain();
-            rdbUserDomain.setSqlType(SplitQueryType.DROP_ROLE);
+            rdbUserDomain.addSqlType(SplitQueryType.DROP_ROLE);
             rdbUserDomain.setAuditKind(SecQueryKind.DROP);
             rdbUserDomain.setRole(user);
             domains.add(rdbUserDomain);

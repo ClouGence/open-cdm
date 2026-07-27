@@ -51,7 +51,7 @@ public class MySession extends DefaultRdbSession {
 
     protected Statement createStatement(Connection conn, QueryRequest query) throws SQLException {
         QueryRequest queryObject = query;
-        if (!query.isUseExplain() && query.getResultConf().getFetchRecordCountLimit() > 0 && query.getQueryType() == SplitQueryType.SELECT) {
+        if (!query.isUseExplain() && query.getResultConf().getFetchRecordCountLimit() > 0 && query.hasQueryType(SplitQueryType.SELECT)) {
             QueryRequest tmp = query.clone();
             String trimQueryBody = tmp.getQueryBody().trim();
             if (trimQueryBody.endsWith(";")) {
@@ -65,7 +65,7 @@ public class MySession extends DefaultRdbSession {
 
     //    protected Statement createStatement(Connection conn, QueryRequest query) throws SQLException {
     //        QueryRequest queryObject = query;
-    //        if (!query.isRdbUseExplain() && query.getResultConf().getFetchRecordCountLimit() > 0 && query.getQueryType() == SplitQueryType.SELECT) {
+    //        if (!query.isRdbUseExplain() && query.getResultConf().getFetchRecordCountLimit() > 0 && query.hasQueryType(SplitQueryType.SELECT)) {
     //            try {
     //                QueryRequest tmp = query.clone();
     //

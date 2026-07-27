@@ -77,7 +77,7 @@ public class MongoSecDomainResolveSpi implements SecDomainResolveSpi {
                 String funcStr = funcType.getFuncStr();
 
                 SplitQueryType convert = MongoAnalysisHelper.convert(funcType);
-                mongoCmdDomain.setSqlType(convert);
+                mongoCmdDomain.addSqlType(convert);
                 mongoCmdDomain.setAuditKind(convert.getAuditKind());
                 mongoCmdDomain.setFunc(funcStr);
                 mongoCmdDomain.setDsType(dsType);

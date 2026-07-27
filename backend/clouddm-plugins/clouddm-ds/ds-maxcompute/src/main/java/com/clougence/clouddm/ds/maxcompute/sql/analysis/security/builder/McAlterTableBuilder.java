@@ -79,7 +79,7 @@ public class McAlterTableBuilder extends AbstractDomainBuilder {
             for (Domain domain : list) {
                 RdbColumnDomain domainColumn = (RdbColumnDomain) domain;
                 domainColumn.setAuditKind(SecQueryKind.CREATE);
-                domainColumn.setSqlType(SplitQueryType.ADD_COLUMN);
+                domainColumn.addSqlType(SplitQueryType.ADD_COLUMN);
             }
             this.ruleDomains.addAll(list);
         } else if (source == DomainSource.COLUMN_LIST) {
@@ -87,7 +87,7 @@ public class McAlterTableBuilder extends AbstractDomainBuilder {
             for (String column : domain.getColumns()) {
                 McColumnDomain rdbColumnDomain = new McColumnDomain();
                 rdbColumnDomain.setAuditKind(SecQueryKind.DROP);
-                rdbColumnDomain.setSqlType(SplitQueryType.DROP_COLUMN);
+                rdbColumnDomain.addSqlType(SplitQueryType.DROP_COLUMN);
                 rdbColumnDomain.setColumn(column);
                 this.ruleDomains.add(rdbColumnDomain);
             }

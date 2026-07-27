@@ -48,7 +48,7 @@ public class DrCreateUserBuilder extends CreateUserBuilder<DrUserDomain> {
     @Override
     public List<Domain> build() {
         rdbUserDomain.setAuditKind(SecQueryKind.CREATE);
-        rdbUserDomain.setSqlType(SplitQueryType.CREATE_USER);
+        rdbUserDomain.addSqlType(SplitQueryType.CREATE_USER);
         if (rdbUserDomain.getHost() == null) {
             rdbUserDomain.setHost("%");
         }

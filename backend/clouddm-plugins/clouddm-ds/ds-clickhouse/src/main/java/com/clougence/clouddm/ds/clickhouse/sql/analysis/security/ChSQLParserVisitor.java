@@ -337,7 +337,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
         for (ClickHouseParser.SettingExprContext settingExprContext : ctx.settingExprList().settingExpr()) {
             RdbConfigDomain rdbConfigDomain = new RdbConfigDomain(getName(getText(settingExprContext.identifier())));
             rdbConfigDomain.setAuditKind(SecQueryKind.OTHER);
-            rdbConfigDomain.setSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
+            rdbConfigDomain.addSqlType(SplitQueryType.SYSTEM_SETTING_WRITE);
 
             builder.addDomain(rdbConfigDomain);
         }
@@ -773,7 +773,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableClauseModifyTTL(ClickHouseParser.AlterTableClauseModifyTTLContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ADMIN_TABLE);
+        domain.addSqlType(SplitQueryType.ADMIN_TABLE);
         domain.setAuditKind(SecQueryKind.ADMIN);
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -782,7 +782,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableClauseDropPartition(ClickHouseParser.AlterTableClauseDropPartitionContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ALTER_TABLE);
+        domain.addSqlType(SplitQueryType.ALTER_TABLE);
         domain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -791,7 +791,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableModifyColumnDefault(ClickHouseParser.AlterTableModifyColumnDefaultContext ctx) {
         ChColumnDomain domain = new ChColumnDomain();
-        domain.setSqlType(SplitQueryType.ALTER_COLUMN);
+        domain.addSqlType(SplitQueryType.ALTER_COLUMN);
         domain.setAuditKind(SecQueryKind.ALTER);
         domain.setDefaultValue(getString(getText(ctx.literal())));
         domain.setColumn(getName(getText(ctx.identifier())));
@@ -802,7 +802,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableModifyComment(ClickHouseParser.AlterTableModifyCommentContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ALTER_TABLE);
+        domain.addSqlType(SplitQueryType.ALTER_TABLE);
         domain.setAuditKind(SecQueryKind.ALTER);
         domain.setComment(getString(ctx.commentClause().STRING_LITERAL().getText()));
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
@@ -812,7 +812,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableClauseMovePartition(ClickHouseParser.AlterTableClauseMovePartitionContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ALTER_TABLE);
+        domain.addSqlType(SplitQueryType.ALTER_TABLE);
         domain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -821,7 +821,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableClauseFreezePartition(ClickHouseParser.AlterTableClauseFreezePartitionContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ALTER_TABLE);
+        domain.addSqlType(SplitQueryType.ALTER_TABLE);
         domain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -830,7 +830,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableClauseAddProjection(ClickHouseParser.AlterTableClauseAddProjectionContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ALTER_TABLE);
+        domain.addSqlType(SplitQueryType.ALTER_TABLE);
         domain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -839,7 +839,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableClauseClearProjection(ClickHouseParser.AlterTableClauseClearProjectionContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ALTER_TABLE);
+        domain.addSqlType(SplitQueryType.ALTER_TABLE);
         domain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -848,7 +848,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableClauseDropProjection(ClickHouseParser.AlterTableClauseDropProjectionContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ALTER_TABLE);
+        domain.addSqlType(SplitQueryType.ALTER_TABLE);
         domain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -916,7 +916,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     public Void visitAlterTableClauseComment(ClickHouseParser.AlterTableClauseCommentContext ctx) {
         ChColumnDomain chColumnDomain = new ChColumnDomain();
         chColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        chColumnDomain.setSqlType(SplitQueryType.COMMENT_COLUMN);
+        chColumnDomain.addSqlType(SplitQueryType.COMMENT_COLUMN);
         chColumnDomain.setColumn(getName(getText(ctx.identifier())));
         chColumnDomain.setComment(getString(getText(ctx.stringLiteral())));
         builder.handleDomain(chColumnDomain, DomainSource.ALTER_TABLE_ITEM);
@@ -927,7 +927,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     public Void visitAlterTableClauseRenameColumn(ClickHouseParser.AlterTableClauseRenameColumnContext ctx) {
         ChColumnDomain chColumnDomain = new ChColumnDomain();
         chColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        chColumnDomain.setSqlType(SplitQueryType.RENAME_COLUMN);
+        chColumnDomain.addSqlType(SplitQueryType.RENAME_COLUMN);
         chColumnDomain.setColumn(getName(getText(ctx.identifier(0))));
         chColumnDomain.setNewName(getName(getText(ctx.identifier(1))));
         builder.handleDomain(chColumnDomain, DomainSource.ALTER_TABLE_ITEM);
@@ -1008,7 +1008,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitAlterTableClauseRemoveTTL(ClickHouseParser.AlterTableClauseRemoveTTLContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ALTER_TABLE);
+        domain.addSqlType(SplitQueryType.ALTER_TABLE);
         domain.setAuditKind(SecQueryKind.ALTER);
         builder.handleDomain(domain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -1017,7 +1017,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitOptimizeStmt(ClickHouseParser.OptimizeStmtContext ctx) {
         ChTableDomain domain = new ChTableDomain();
-        domain.setSqlType(SplitQueryType.ALTER_TABLE);
+        domain.addSqlType(SplitQueryType.ALTER_TABLE);
         domain.setAuditKind(SecQueryKind.ALTER);
         if (ctx.tableIdentifier().databaseIdentifier() != null) {
             domain.setSchema(getText(ctx.tableIdentifier().databaseIdentifier()));
@@ -1099,7 +1099,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowCreateTableStmt(ClickHouseParser.ShowCreateTableStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Table);
 
@@ -1114,7 +1114,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowTablesStmt(ClickHouseParser.ShowTablesStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Table);
 
@@ -1129,7 +1129,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowPrivilegesStmt(ClickHouseParser.ShowPrivilegesStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
@@ -1141,7 +1141,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowUsersStmt(ClickHouseParser.ShowUsersStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.User);
         rdbResourceDomain.setNeedSupply(false);
@@ -1153,7 +1153,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowRolesStmt(ClickHouseParser.ShowRolesStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Role);
         rdbResourceDomain.setNeedSupply(false);
@@ -1165,7 +1165,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowFilesystemCaches(ClickHouseParser.ShowFilesystemCachesContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        rdbResourceDomain.addSqlType(SplitQueryType.PERFORMANCE);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
@@ -1205,7 +1205,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
 
     private Void envShowDomain() {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
@@ -1217,7 +1217,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowAccessStmt(ClickHouseParser.ShowAccessStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
@@ -1229,7 +1229,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowClustersStmt(ClickHouseParser.ShowClustersStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
@@ -1241,7 +1241,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowFunctionsStmt(ClickHouseParser.ShowFunctionsStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Function);
         rdbResourceDomain.setNeedSupply(false);
@@ -1253,7 +1253,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowEnginesStmt(ClickHouseParser.ShowEnginesStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
@@ -1265,7 +1265,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowMergesStmt(ClickHouseParser.ShowMergesStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.PERFORMANCE);
+        rdbResourceDomain.addSqlType(SplitQueryType.PERFORMANCE);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Environment);
         rdbResourceDomain.setNeedSupply(false);
@@ -1286,7 +1286,7 @@ public class ChSQLParserVisitor extends ClickHouseParserBaseVisitor<Void> {
     @Override
     public Void visitShowCreateDatabaseStmt(ClickHouseParser.ShowCreateDatabaseStmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(SplitQueryType.UNKNOWN);
+        rdbResourceDomain.addSqlType(SplitQueryType.UNKNOWN);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         rdbResourceDomain.setTarget(TargetType.Schema);
         rdbResourceDomain.setNeedSupply(false);

@@ -36,7 +36,7 @@ public class McRevokeBuilder extends RevokeBuilder {
             ObjNameDomain domain = (ObjNameDomain) list.get(0);
 
             McRevokeDomain rdbUserDomain = new McRevokeDomain();
-            rdbUserDomain.setSqlType(SplitQueryType.REVOKE);
+            rdbUserDomain.addSqlType(SplitQueryType.REVOKE);
             rdbUserDomain.setAuditKind(SecQueryKind.ALTER);
             rdbUserDomain.setName(domain.getNameList().get(0));
             if (domain.getNameList().size() > 1) {

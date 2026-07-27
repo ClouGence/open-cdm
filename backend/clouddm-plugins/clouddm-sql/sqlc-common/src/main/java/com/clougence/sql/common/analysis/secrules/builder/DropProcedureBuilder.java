@@ -50,7 +50,7 @@ public class DropProcedureBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         functionDomain.setAuditKind(SecQueryKind.DROP);
-        functionDomain.setSqlType(SplitQueryType.DROP_PROG_OBJ);
+        functionDomain.addSqlType(SplitQueryType.DROP_PROG_OBJ);
         return Collections.singletonList(functionDomain);
     }
 }

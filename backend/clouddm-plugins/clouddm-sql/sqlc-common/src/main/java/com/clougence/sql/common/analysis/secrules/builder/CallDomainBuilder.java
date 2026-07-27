@@ -52,7 +52,7 @@ public class CallDomainBuilder extends AbstractDomainBuilder {
             domain.setEmptyArg(true);
         }
         domain.setFunc(true);
-        domain.setSqlType(SplitQueryType.CALL_PROG_OBJ);
+        domain.addSqlType(SplitQueryType.CALL_PROG_OBJ);
         domain.setAuditKind(SecQueryKind.CALL);
 
         Map<UmiTypes, String> map = BuilderUtil.parseFunctionName(nameList);

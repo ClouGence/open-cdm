@@ -48,7 +48,7 @@ public class CreateObjectBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         domain.setAuditKind(SecQueryKind.CREATE);
-        domain.setSqlType(SplitQueryType.CREATE_SYNONYM);
+        domain.addSqlType(SplitQueryType.CREATE_SYNONYM);
 
         return Collections.singletonList(domain);
     }

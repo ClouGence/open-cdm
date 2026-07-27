@@ -34,7 +34,7 @@ public class DropTriggerBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        triggerDomain.setSqlType(SplitQueryType.DROP_TRIGGER);
+        triggerDomain.addSqlType(SplitQueryType.DROP_TRIGGER);
         triggerDomain.setAuditKind(SecQueryKind.DROP);
 
         return Collections.singletonList(triggerDomain);

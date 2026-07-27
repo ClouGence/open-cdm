@@ -28,7 +28,7 @@ public class OraCreateTableBuilder extends CreateTableBuilder<OraTableDomain> {
     protected OraTableDomain getTableDomain() {
         OraTableDomain oraTableDomain = new OraTableDomain();
         oraTableDomain.setAuditKind(SecQueryKind.CREATE);
-        oraTableDomain.setSqlType(SplitQueryType.CREATE_TABLE);
+        oraTableDomain.addSqlType(SplitQueryType.CREATE_TABLE);
         return oraTableDomain;
     }
 

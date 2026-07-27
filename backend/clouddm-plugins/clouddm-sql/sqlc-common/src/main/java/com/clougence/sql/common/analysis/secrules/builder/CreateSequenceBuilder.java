@@ -48,7 +48,7 @@ public class CreateSequenceBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         domain.setAuditKind(SecQueryKind.CREATE);
-        domain.setSqlType(SplitQueryType.CREATE_SEQUENCE);
+        domain.addSqlType(SplitQueryType.CREATE_SEQUENCE);
 
         return Collections.singletonList(domain);
     }

@@ -59,7 +59,7 @@ public class PgAlterDatabaseBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        domain.setSqlType(SplitQueryType.ALTER_CATALOG);
+        domain.addSqlType(SplitQueryType.ALTER_CATALOG);
         domain.setAuditKind(SecQueryKind.ALTER);
         domain.setCatalog(name);
         return Collections.singletonList(domain);

@@ -34,7 +34,7 @@ public class CreateEventBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        domain.setSqlType(SplitQueryType.CREATE_EVENT);
+        domain.addSqlType(SplitQueryType.CREATE_EVENT);
         domain.setAuditKind(SecQueryKind.CREATE);
 
         return Collections.singletonList(domain);

@@ -48,7 +48,7 @@ public class CreateProcedureBuilder extends AbstractDomainBuilder {
     @Override
     public List<Domain> build() {
         domain.setAuditKind(SecQueryKind.CREATE);
-        domain.setSqlType(SplitQueryType.CREATE_PROG_OBJ);
+        domain.addSqlType(SplitQueryType.CREATE_PROG_OBJ);
 
         return Collections.singletonList(domain);
     }

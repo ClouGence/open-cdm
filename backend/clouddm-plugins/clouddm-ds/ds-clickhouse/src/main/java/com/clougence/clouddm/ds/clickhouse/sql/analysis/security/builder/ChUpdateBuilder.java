@@ -54,7 +54,7 @@ public class ChUpdateBuilder extends UpdateBuilder {
             this.updateDomain.setCatalog(map.get(UmiTypes.Catalog));
         }
         updateDomain.setAuditKind(SecQueryKind.DML);
-        updateDomain.setSqlType(SplitQueryType.UPDATE);
+        updateDomain.addSqlType(SplitQueryType.UPDATE);
         if (updateDomain.getWhereColumns() == null) {
             updateDomain.setWhereColumns(new ArrayList<>());
         }
