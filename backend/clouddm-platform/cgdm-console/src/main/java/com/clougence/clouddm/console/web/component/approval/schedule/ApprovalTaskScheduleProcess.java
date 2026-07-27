@@ -33,7 +33,6 @@ import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
-import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
@@ -59,6 +58,7 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.NumberUtils;
@@ -103,8 +103,6 @@ public class ApprovalTaskScheduleProcess {
     @Resource
     private QueryAnalysisService                    queryAnalysisService;
     @Resource
-    private DmAuthServiceForBiz                     authServiceForBiz;
-    @Resource
     private ApprovalProviderServiceImpl             approvalProviderService;
     @Resource
     private ImSenderService                         imSenderService;
@@ -143,26 +141,27 @@ public class ApprovalTaskScheduleProcess {
             } else if (StringUtils.isNotBlank(approvalDO.getTargetInfo())) {
                 levels.addAll(Arrays.stream(approvalDO.getTargetInfo().split("/")).filter(StringUtils::isNotBlank).toList());
             }
-
             DsLevels dsLevels = this.dmDsConfigService.parseLevels(levels);
+
+            //
             DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
-            List<ResourceAction> actions = this.queryAnalysisService.analysisResource(dsConfig, rawSql, dsLevels.levelsParam(), 1, 0);
-            if (actions.stream().anyMatch(action -> action.getAction() == BehaviorAction.SWITCH)) {
+            ContextInfo contextInfo = ContextInfo.builder()
+                .puid(approvalDO.getPrimaryUid())
+                .cuid(approvalDO.getOwnerUid())
+                .dsId(dsDO.getId())
+                .dataSourceConfig(dsConfig)
+                .levelsParam(dsLevels.levelsParam())
+                .deepParser(false)
+                .build();
+            QueryAnalysisOptions options = QueryAnalysisOptions
+                .skipping(QueryAnalysisFeature.SQL_REWRITE, QueryAnalysisFeature.COLUMN_ANALYSIS, QueryAnalysisFeature.DESENSITIZATION);
+
+            List<QueryRequest> requests = this.queryAnalysisService.analysisRequests(contextInfo, rawSql, Collections.emptyList(), 1, 0, options);
+            List<ApprovalBehavior> behaviors = groupBehaviorsByResource(requests);
+            if (behaviors.stream().anyMatch(behavior -> behavior.getActions().contains(BehaviorAction.SWITCH))) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NONSUPPORT_SWITCH_CTX_ERROR.name()));
             }
-
-            for (ResourceAction action : actions) {
-                if (action.isSkipPermission()) {
-                    continue;
-                }
-                String authLabel = action.getAuthKind().getAuthLabel();
-                if (!this.authServiceForBiz.checkResPathWithoutError( //
-                        approvalDO.getPrimaryUid(), approvalDO.getOwnerUid(), dsDO.getId(), AuthKind.DataSource, action.toDsResPath(), authLabel)) {
-                    String authName = DmI18nUtils.getMessage(authLabel);
-                    throw new ErrorMessageException(DmI18nUtils.getMessage( //
-                            I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), action.getResourcePath(), authName));
-                }
-            }
+            this.approvalDal.approvalMapper().updateAnalysis(ticketId, behaviors);
         }
 
         DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXPLAIN);
@@ -173,6 +172,28 @@ public class ApprovalTaskScheduleProcess {
         }
         this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, null);
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_APPROVAL, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
+    }
+
+    static List<ApprovalBehavior> groupBehaviorsByResource(List<QueryRequest> requests) {
+        Map<String, ApprovalBehavior> grouped = new LinkedHashMap<>();
+        if (CollectionUtils.isEmpty(requests)) {
+            return Collections.emptyList();
+        }
+        for (QueryRequest request : requests) {
+            BehaviorRelations.forEach(request.getRelations(), (action, resource) -> {
+                TargetType resourceType = Objects.requireNonNullElse(resource.getTargetType(), TargetType.Unknown);
+                String resourcePath = BehaviorRelations.normalize(resource.getResourcePath());
+                String resourceKey = resourceType + "|" + resourcePath;
+                ApprovalBehavior behavior = grouped.computeIfAbsent(resourceKey, ignored -> {
+                    ApprovalBehavior value = new ApprovalBehavior();
+                    value.setResourceType(resourceType);
+                    value.setResourcePath(resourcePath);
+                    return value;
+                });
+                behavior.getActions().add(action);
+            });
+        }
+        return new ArrayList<>(grouped.values());
     }
 
     // WAIT_APPROVAL -> [WAIT_APPROVAL \ WAIT_CONFIRM \ REJECTED]

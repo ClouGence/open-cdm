@@ -27,9 +27,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
+import com.clougence.clouddm.console.web.component.auth.model.QueryRelationAuthResult;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -44,11 +47,14 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -115,6 +121,41 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
             log.error(e.getMessage(), e);
             return false;
         }
+    }
+
+    @Override
+    public QueryRelationAuthResult checkQueryRelationAuth(String puid, String uid, DsLevels levels, List<QueryRequest> requests) {
+        List<BehaviorRelation> deniedRelations = new ArrayList<>();
+        if (CollectionUtils.isEmpty(requests)) {
+            return new QueryRelationAuthResult(deniedRelations);
+        }
+
+        long dsId = levels.dsDO().getId();
+        String currentResourcePath = BehaviorRelations.currentResourcePath(levels.levelsParam());
+        String instanceResourcePath = BehaviorRelations.instanceResourcePath(levels.levelsParam());
+        for (QueryRequest request : requests) {
+            BehaviorRelations.forEach(request.getRelations(), (action, object) -> {
+                if (BehaviorRelations.skipPermission(request.getQueryTypes(), action, object, currentResourcePath, instanceResourcePath)) {
+                    return;
+                }
+                String authLabel = BehaviorRelations.authKind(action, object.getTargetType()).getAuthLabel();
+                String resourcePath = BehaviorRelations.resourcePath(object, currentResourcePath, instanceResourcePath);
+                if (!this.checkResPathWithoutError(puid, uid, dsId, AuthKind.DataSource, () -> resourcePath, authLabel)) {
+                    BehaviorObject deniedObject = new BehaviorObject();
+                    deniedObject.setTargetType(object.getTargetType());
+                    deniedObject.setResourcePath(resourcePath);
+                    deniedObject.setStartLine(object.getStartLine());
+                    deniedObject.setStartColumn(object.getStartColumn());
+                    deniedObject.setEndLine(object.getEndLine());
+                    deniedObject.setEndColumn(object.getEndColumn());
+                    BehaviorRelation deniedRelation = new BehaviorRelation();
+                    deniedRelation.setAction(action);
+                    deniedRelation.setSubject(deniedObject);
+                    deniedRelations.add(deniedRelation);
+                }
+            });
+        }
+        return new QueryRelationAuthResult(deniedRelations);
     }
 
     @Override

@@ -499,6 +499,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         vo.setRollBackSql(dmTicketDO.getRollBackSql());
         vo.setTotalCount(dmTicketDO.getTotalCount());
         vo.setExpectedAffectedRows(dmTicketDO.getExpectedAffectedRows());
+        vo.setBehaviors(dmTicketDO.getBehaviors());
         if (StringUtils.isNotEmpty(dmTicketDO.getTicketInfo())) {
             ApprovalMO ticketInfo = JsonUtils.toObj(dmTicketDO.getTicketInfo(), ApprovalMO.class);
             String message = ticketInfo.getMessage();

@@ -34,6 +34,7 @@ import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
+import com.clougence.clouddm.console.web.component.auth.model.QueryRelationAuthResult;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckContext;
@@ -69,13 +70,13 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
@@ -528,30 +529,17 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             }
         }
 
-        List<ResourceAction> sqlResources = requestScripts.stream()
-            .filter(request -> CollectionUtils.isNotEmpty(request.getResourceActions()))
-            .flatMap(request -> request.getResourceActions().stream())
-            .toList();
-        if (CollectionUtils.isNotEmpty(sqlResources)) {
-            String curUserUid = queryDTO.getCurrentUserId();
-            long dsId = ctx.getLevels().dsDO().getId();
-
-            for (ResourceAction resourceAction : sqlResources) {
-                if (resourceAction.isSkipPermission()) {
-                    continue;
-                }
-                String authLabel = resourceAction.getAuthKind().getAuthLabel();
-                DsResPath resPath = resourceAction.toDsResPath();
-                if (!this.authCheckService.checkResPathWithoutError(curOwnerUid, curUserUid, dsId, AuthKind.DataSource, resPath, authLabel)) {
-                    String authLabelI18n = DmI18nUtils.getMessage(authLabel);
-                    String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), resPath.getResPath(), authLabelI18n);
-                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
-                    consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                    consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                    return false;
-                }
-            }
-
+        String curUserUid = queryDTO.getCurrentUserId();
+        QueryRelationAuthResult authResult = this.authCheckService.checkQueryRelationAuth(curOwnerUid, curUserUid, ctx.getLevels(), requestScripts);
+        if (!authResult.isPassed()) {
+            BehaviorRelation denied = authResult.getDeniedRelations().get(0);
+            String authLabel = BehaviorRelations.authKind(denied.getAction(), denied.getSubject().getTargetType()).getAuthLabel();
+            String authLabelI18n = DmI18nUtils.getMessage(authLabel);
+            String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), denied.getSubject().getResourcePath(), authLabelI18n);
+            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+            return false;
         }
 
         // 6.4 rules check

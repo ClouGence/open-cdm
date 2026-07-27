@@ -17,7 +17,10 @@ package com.clougence.clouddm.console.web.component.auth;
 
 import java.util.List;
 
+import com.clougence.clouddm.console.web.component.auth.model.QueryRelationAuthResult;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 
@@ -47,6 +50,8 @@ public interface DmAuthServiceForBiz {
     void checkBrowseAuth(String puid, String uid, long resId, AuthKind authKind, DsResPath dsResource, String dataAuthLabel);
 
     boolean checkResPathWithoutError(String puid, String uid, long resID, AuthKind authKind, DsResPath resPath, String dataAuthLabel);
+
+    QueryRelationAuthResult checkQueryRelationAuth(String puid, String uid, DsLevels levels, List<QueryRequest> requests);
 
     boolean checkResPathChildrenWithoutError(String puid, String uid, long resID, AuthKind authKind, DsResPath resPath, String dataAuthLabel);
 
