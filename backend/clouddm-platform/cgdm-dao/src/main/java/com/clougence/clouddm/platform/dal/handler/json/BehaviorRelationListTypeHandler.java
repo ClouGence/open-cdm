@@ -19,19 +19,19 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.clougence.clouddm.api.console.sqlaudit.SqlAuditRequestDTO;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-public class SqlAuditRequestListTypeHandler extends JacksonTypeHandler {
+public class BehaviorRelationListTypeHandler extends JacksonTypeHandler {
 
-    private static final java.lang.reflect.Type LIST_TYPE = new TypeReference<List<SqlAuditRequestDTO>>() {}.getType();
+    private static final java.lang.reflect.Type LIST_TYPE = new TypeReference<List<BehaviorRelation>>() {}.getType();
 
-    public SqlAuditRequestListTypeHandler(Class<?> type){
+    public BehaviorRelationListTypeHandler(Class<?> type){
         super(type);
         this.genericType = LIST_TYPE;
     }
 
-    public SqlAuditRequestListTypeHandler(Class<?> type, Field field){
+    public BehaviorRelationListTypeHandler(Class<?> type, Field field){
         super(type, field);
     }
 }

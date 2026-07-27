@@ -15,15 +15,15 @@
  */
 package com.clougence.clouddm.console.web.model.vo.audit;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
+import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
-import com.clougence.clouddm.platform.dal.model.execution.SqlAuditRequest;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.utils.StringUtils;
 
 import lombok.Getter;
@@ -33,30 +33,29 @@ import lombok.Setter;
 @Setter
 public class SqlAuditVO {
 
-    private Long                     id;
+    private Long                    id;
 
-    private String                   uid;
-    private String                   userName;
-    private Date                     operateTime;
-    private Long                     cost;
-    private String                   clientIp;
-    private String                   logIp;
-    private String                   execSql;
-    private Requester                requester;
-    private List<SplitQueryType>     queryTypes;
-    private List<SqlAuditRequest>    requests;
-    private long                     affectLine;
-    private SqlStatus                status;
+    private String                  uid;
+    private String                  userName;
+    private Date                    operateTime;
+    private Long                    cost;
+    private String                  clientIp;
+    private String                  logIp;
+    private String                  execSql;
+    private Requester               requester;
+    private List<SqlAuditRequestVO> requests;
+    private long                    affectLine;
+    private SqlStatus               status;
 
-    private boolean                  rewrite;
-    private String                   originalSql;
+    private boolean                 rewrite;
+    private String                  originalSql;
 
-    private Long                     dsId;
-    private String                   dsDesc;
-    private String                   dsResourceId;
-    private String                   dsRemark;
-    private DataSourceType           dataSourceType;
-    private String                   message;
+    private Long                    dsId;
+    private String                  dsDesc;
+    private String                  dsResourceId;
+    private String                  dsRemark;
+    private DataSourceType          dataSourceType;
+    private String                  message;
 
     public static SqlAuditVO convertFromDO(DmExecSqlAuditDO auditDO) {
         SqlAuditVO vo = new SqlAuditVO();
@@ -81,8 +80,7 @@ public class SqlAuditVO {
         vo.setLogIp(auditDO.getLogIp());
 
         vo.setRequester(auditDO.getRequester());
-        vo.setQueryTypes(auditDO.getQueryTypes());
-        vo.setRequests(auditDO.getRequests());
+        vo.setRequests(convertRequests(auditDO.getBehaviors()));
         vo.setAffectLine(auditDO.getAffectLine());
         vo.setStatus(auditDO.getStatus());
 
@@ -92,5 +90,17 @@ public class SqlAuditVO {
         vo.setMessage(auditDO.getMessage());
 
         return vo;
+    }
+
+    private static List<SqlAuditRequestVO> convertRequests(List<BehaviorRelation> behaviors) {
+        Map<String, SqlAuditRequestVO> requests = new LinkedHashMap<>();
+        BehaviorRelations.forEach(behaviors, (action, resource) -> {
+            SqlAuditRequestVO request = DmConvertUtils.convertToSqlAuditRequestVO(action, resource);
+            if (request != null) {
+                String key = request.getAction() + "|" + request.getResourceType() + "|" + request.getResourcePath();
+                requests.putIfAbsent(key, request);
+            }
+        });
+        return new ArrayList<>(requests.values());
     }
 }

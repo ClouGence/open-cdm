@@ -16,9 +16,7 @@
 package com.clougence.clouddm.console.web.service.security;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,7 +30,6 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.api.console.sqlaudit.Type;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
@@ -43,7 +40,6 @@ import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
-import com.clougence.clouddm.platform.dal.model.execution.SqlAuditRequest;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
@@ -72,8 +68,6 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
     private DataSourceDal               dsDal;
     @Resource
     private RdpUserService              userService;
-    @Resource
-    private QueryAnalysisService        analysisService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -105,11 +99,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
 
         DmExecSqlAuditDO auditDO = new DmExecSqlAuditDO();
         auditDO.setQueryId(request.getQueryId());
-        if (request.getQueryTypes() != null && !request.getQueryTypes().isEmpty()) {
-            auditDO.setQueryTypes(new ArrayList<>(request.getQueryTypes()));
-        }
-        List<SqlAuditRequest> requests = this.analysisService.analysisResourceRequests(request);
-        auditDO.setRequests(requests);
+        auditDO.setBehaviors(request.getRelations());
         auditDO.setExecSql(getString(request.getQueryBody()));
         auditDO.setOriginalSql(request.isHasRewrite() ? getString(request.getOriginalBody()) : null);
         auditDO.setDsId(dsId);

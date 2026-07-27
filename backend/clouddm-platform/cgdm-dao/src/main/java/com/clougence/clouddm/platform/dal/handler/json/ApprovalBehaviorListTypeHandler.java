@@ -16,22 +16,23 @@
 package com.clougence.clouddm.platform.dal.handler.json;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-public class SplitQueryTypeListTypeHandler extends JacksonTypeHandler {
+public class ApprovalBehaviorListTypeHandler extends JacksonTypeHandler {
 
-    private static final java.lang.reflect.Type LIST_TYPE = new TypeReference<List<SplitQueryType>>() {}.getType();
+    private static final Type LIST_TYPE = new TypeReference<List<ApprovalBehavior>>() {}.getType();
 
-    public SplitQueryTypeListTypeHandler(Class<?> type){
+    public ApprovalBehaviorListTypeHandler(Class<?> type){
         super(type);
         this.genericType = LIST_TYPE;
     }
 
-    public SplitQueryTypeListTypeHandler(Class<?> type, Field field){
+    public ApprovalBehaviorListTypeHandler(Class<?> type, Field field){
         super(type, field);
     }
 }

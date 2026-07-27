@@ -30,6 +30,7 @@ import com.clougence.clouddm.api.common.ResultEnum;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
@@ -50,6 +51,7 @@ import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigSaveFO;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshProxyFeaturesFO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.audit.OperateUserVO;
+import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditRequestVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.model.vo.browse.cache.BrowseKeyVO;
 import com.clougence.clouddm.console.web.model.vo.browse.rdb.*;
@@ -99,6 +101,8 @@ import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.LanguageResult;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRange;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
@@ -138,6 +142,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
  **/
 public class DmConvertUtils {
 
+    public static SqlAuditRequestVO convertToSqlAuditRequestVO(BehaviorAction action, BehaviorObject resource) {
+        if (action == null || resource == null) {
+            return null;
+        }
+        SqlAuditRequestVO request = new SqlAuditRequestVO();
+        request.setResourceType(Objects.requireNonNullElse(resource.getTargetType(), TargetType.Unknown));
+        request.setResourcePath(BehaviorRelations.normalize(resource.getResourcePath()));
+        request.setAction(action);
+        return request;
+    }
+
     public static WsLanguageResult convertToWsLanguageResult(WsLanguageFO fo, LanguageResult result) {
         WsLanguageResult res = new WsLanguageResult();
         res.setCurUserId(fo.getCurrentUserId());
@@ -169,28 +184,6 @@ public class DmConvertUtils {
         res.setMsg(msg);
         res.setResult(result);
         return res;
-    }
-
-    public static Map<TargetType, String> convertToResource(DsLevels dsLevels, String tableOrView) {
-        Map<TargetType, String> result = new HashMap<>();
-
-        result.put(TargetType.Environment, dsLevels.envId());
-        result.put(TargetType.Instance, String.valueOf(dsLevels.dsDO().getId()));
-
-        Map<UmiTypes, Object> levelsParam = dsLevels.levelsParam();
-        for (UmiTypes umiType : dsLevels.levelsDef()) {
-            switch (umiType) {
-                case Catalog:
-                    result.put(TargetType.Catalog, (String) levelsParam.get(umiType));
-                    break;
-                case Schema:
-                    result.put(TargetType.Schema, (String) levelsParam.get(umiType));
-                    break;
-            }
-        }
-        result.put(TargetType.Table, tableOrView);
-
-        return result;
     }
 
     public static BrowseLevelsVO convertToBrowseLevelsVO(DmSysEnvDO dsEnvDO) {

@@ -15,10 +15,8 @@
         <result column="original_sql" property="originalSql"/>
         <result column="requester" property="requester"/>
         <result column="query_id" property="queryId"/>
-        <result column="query_types" property="queryTypes"
-                typeHandler="com.clougence.clouddm.platform.dal.handler.json.SplitQueryTypeListTypeHandler"/>
-        <result column="requests" property="requests"
-                typeHandler="com.clougence.clouddm.platform.dal.handler.json.SqlAuditRequestListTypeHandler"/>
+        <result column="behaviors" property="behaviors"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.json.BehaviorRelationListTypeHandler"/>
         <result column="session_id" property="sessionId"/>
         <result column="ds_id" property="dsId"/>
         <result column="affect_line" property="affectLine"/>
@@ -46,8 +44,7 @@
         work_seq_number,
         requester,
         query_id,
-        query_types,
-        requests,
+        behaviors,
         exec_sql,
         original_sql,
         message,
