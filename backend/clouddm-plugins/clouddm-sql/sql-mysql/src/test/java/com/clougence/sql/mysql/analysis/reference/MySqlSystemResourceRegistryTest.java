@@ -56,7 +56,7 @@ public class MySqlSystemResourceRegistryTest {
         Assertions.assertEquals(SplitQueryType.ALTER_REPLICATION, registry.functionStatementType("GROUP_REPLICATION_SET_AS_PRIMARY", MySqlVersion.MYSQL_8_0, true));
         Assertions.assertEquals(SplitQueryType.ADMIN, registry.functionStatementType("MYSQL_FIREWALL_FLUSH_STATUS", MySqlVersion.MYSQL_8_0, false));
         Assertions.assertEquals(SplitQueryType.SYSTEM_SETTING_WRITE, registry.functionStatementType("AUDIT_LOG_ENCRYPTION_PASSWORD_SET", MySqlVersion.MYSQL_8_0, true));
-        Assertions.assertEquals(SplitQueryType.SESSION_SETTING_WRITE, registry.functionStatementType("OPTION_TRACKER_USAGE_SET", MySqlVersion.MYSQL_9_7, true));
+        Assertions.assertEquals(SplitQueryType.SYSTEM_SETTING_WRITE, registry.functionStatementType("OPTION_TRACKER_USAGE_SET", MySqlVersion.MYSQL_9_7, true));
         Assertions.assertNull(registry.functionStatementType("LAST_INSERT_ID", MySqlVersion.MYSQL_8_0, false));
         Assertions.assertEquals(SplitQueryType.SESSION_SETTING_WRITE, registry.functionStatementType("LAST_INSERT_ID", MySqlVersion.MYSQL_8_0, true));
         Assertions.assertNull(registry.functionStatementType("score_udf", MySqlVersion.MYSQL_8_0, true));
