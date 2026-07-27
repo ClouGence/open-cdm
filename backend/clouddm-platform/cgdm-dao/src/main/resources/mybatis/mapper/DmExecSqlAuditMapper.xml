@@ -9,20 +9,22 @@
         <result column="end_time" property="endTime"/>
         <result column="uid" property="uid"/>
         <result column="user_name" property="userName"/>
-        <result column="primary_uid" property="primaryUid"/>
-        <result column="operate_time" property="operateTime"/>
         <result column="log_ip" property="logIp"/>
         <result column="work_seq_number" property="workSeqNumber"/>
         <result column="exec_sql" property="execSql"/>
         <result column="original_sql" property="originalSql"/>
         <result column="requester" property="requester"/>
+        <result column="query_id" property="queryId"/>
+        <result column="query_types" property="queryTypes"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.json.SplitQueryTypeListTypeHandler"/>
+        <result column="requests" property="requests"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.json.SqlAuditRequestListTypeHandler"/>
+        <result column="session_id" property="sessionId"/>
         <result column="ds_id" property="dsId"/>
-        <result column="resource" property="resource"/>
         <result column="affect_line" property="affectLine"/>
         <result column="status" property="status"/>
         <result column="ds_desc" property="dsDesc"/>
         <result column="message" property="message"/>
-        <result column="sql_kind" property="sqlKind"/>
         <result column="data_source_type" property="dataSourceType"/>
     </resultMap>
 
@@ -34,7 +36,6 @@
         end_time,
         uid,
         user_name,
-        primary_uid,
         affect_line,
         ds_id,
         ds_desc,
@@ -42,19 +43,39 @@
         status,
         log_ip,
         client_ip,
+        work_seq_number,
         requester,
+        query_id,
+        query_types,
+        requests,
         exec_sql,
         original_sql,
-        resource,
         message,
-        sql_kind,
         data_source_type
     </sql>
 
-    <update id="updateBySessionId">
+    <update id="markRunningByQueryId">
         update dm_exec_sql_audit
-        set status = #{status},affect_line = #{affectLine},status = #{status},message = #{message},end_time = #{time}
-        where session_id = #{sessionId} and status = 'RUNNING'
+        set status = 'RUNNING',
+            session_id = #{sessionId},
+            work_seq_number = #{workSeqNumber},
+            operate_time = #{operateTime},
+            affect_line = 0,
+            end_time = null,
+            message = null,
+            gmt_modified = CURRENT_TIMESTAMP
+        where query_id = #{queryId} and status in ('PENDING', 'FAILURE', 'ERROR')
+    </update>
+
+    <update id="completeByQueryId">
+        update dm_exec_sql_audit
+        set status = #{status},
+            session_id = coalesce(#{sessionId}, session_id),
+            affect_line = #{affectLine},
+            message = #{message},
+            end_time = #{time},
+            gmt_modified = CURRENT_TIMESTAMP
+        where query_id = #{queryId} and status in ('PENDING', 'RUNNING')
     </update>
 
     <update id="confirmSession">
@@ -68,6 +89,21 @@
         set status = 'ROLLBACK'
         where session_id = #{sessionId} and status = 'WAIT_CONFIRM'
     </update>
+
+    <select id="queryByQueryId" resultMap="dmSqlAudit">
+        select
+            <include refid="dmSqlAuditDOMap"/>
+        from dm_exec_sql_audit
+        where query_id = #{queryId}
+    </select>
+
+    <select id="queryWaitConfirmBySessionId" resultMap="dmSqlAudit">
+        select
+            <include refid="dmSqlAuditDOMap"/>
+        from dm_exec_sql_audit
+        where session_id = #{sessionId} and status = 'WAIT_CONFIRM'
+        order by id
+    </select>
     
     <update id="updateErrorSql">
         update dm_exec_sql_audit
@@ -77,16 +113,21 @@
 
     <delete id="deleteAuditBeforeDate">
         delete from dm_exec_sql_audit
-        where primary_uid = #{puid} and #{date} > end_time limit 500
+        where uid in (
+            select scoped_user.uid
+            from dm_auth_user scoped_user
+            left join dm_auth_user primary_user on primary_user.id = scoped_user.parent_id
+            where scoped_user.uid = #{puid} or primary_user.uid = #{puid}
+        )
+        and #{date} > end_time
+        limit 500
     </delete>
 
     <select id="queryByCondition" resultMap="dmSqlAudit">
         select
             <include refid="dmSqlAuditDOMap"/>
-        from
-            dm_exec_sql_audit
+        from dm_exec_sql_audit
         WHERE 1=1
-        AND primary_uid = #{puid}
         <if test="startId != 0">
             <![CDATA[ AND id < #{startId} ]]>
         </if>
@@ -99,17 +140,11 @@
         <if test="dateEnd != null">
             <![CDATA[ AND gmt_create <= #{dateEnd} ]]>
         </if>
-        <if test="sqlKind != null">
-            <![CDATA[ AND sql_kind = #{sqlKind} ]]>
-        </if>
         <if test="status != null">
             <![CDATA[ AND status = #{status} ]]>
         </if>
         <if test="requester != null">
             <![CDATA[ AND requester = #{requester} ]]>
-        </if>
-        <if test="resourcePath != null and resourcePath != ''">
-            <![CDATA[ AND resource like CONCAT('%',#{resourcePath},'%') ]]>
         </if>
         <if test="dsId != null">
             <![CDATA[ AND ds_id = #{dsId} ]]>

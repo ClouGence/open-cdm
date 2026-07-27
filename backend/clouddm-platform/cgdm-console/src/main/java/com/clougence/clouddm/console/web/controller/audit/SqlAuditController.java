@@ -62,11 +62,15 @@ public class SqlAuditController {
 
     @RequestAuth(DM_SQL_AUDIT)
     @RequestMapping(value = "/queryAll", method = RequestMethod.POST)
-    public ResWebData<?> queryAll(@Valid @RequestBody SqlAuditFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        List<SqlAuditVO> sqlAuditVOS = sqlAuditService.queryUserAllAudit(puid, fo.getUserUid(), fo.getSqlKind(), fo.getResourcePath(), fo.getDsId(), fo.getRequester(), fo
-            .getStatus(), fo.getOpStart(), fo.getOpEnd(), fo.getPageData().getStartId(), fo.getPageData().getPageSize());
+    public ResWebData<?> queryAll(@Valid @RequestBody SqlAuditFO fo) {
+        List<SqlAuditVO> sqlAuditVOS = sqlAuditService.queryUserAllAudit(//
+                fo.getUserUid(),    //
+                fo.getDsId(),       //
+                fo.getRequester(),  //
+                fo.getStatus(),     //
+                fo.getOpStart(),    //
+                fo.getOpEnd(),      //
+                fo.getPageData());
 
         return ResWebDataUtils.buildSuccess(sqlAuditVOS);
     }

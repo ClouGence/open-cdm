@@ -16,12 +16,14 @@
 package com.clougence.clouddm.console.web.model.vo.audit;
 
 import java.util.Date;
+import java.util.List;
 
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
-import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.platform.dal.model.execution.SqlAuditRequest;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.utils.StringUtils;
 
 import lombok.Getter;
@@ -31,32 +33,30 @@ import lombok.Setter;
 @Setter
 public class SqlAuditVO {
 
-    private Long           id;
+    private Long                     id;
 
-    private String         uid;
-    private String         userName;
-    private String         primaryUid;
+    private String                   uid;
+    private String                   userName;
+    private Date                     operateTime;
+    private Long                     cost;
+    private String                   clientIp;
+    private String                   logIp;
+    private String                   execSql;
+    private Requester                requester;
+    private List<SplitQueryType>     queryTypes;
+    private List<SqlAuditRequest>    requests;
+    private long                     affectLine;
+    private SqlStatus                status;
 
-    private Date           operateTime;
-    private Long           cost;
-    private String         clientIp;
-    private String         logIp;
-    private String         execSql;
-    private Requester      requester;
-    private String         resource;
-    private SecQueryKind   sqlKind;
-    private long           affectLine;
-    private SqlStatus      status;
+    private boolean                  rewrite;
+    private String                   originalSql;
 
-    private boolean        rewrite;
-    private String         originalSql;
-
-    private Long           dsId;
-    private String         dsDesc;
-    private String         dsResourceId;
-    private String         dsRemark;
-    private DataSourceType dataSourceType;
-    private String         message;
+    private Long                     dsId;
+    private String                   dsDesc;
+    private String                   dsResourceId;
+    private String                   dsRemark;
+    private DataSourceType           dataSourceType;
+    private String                   message;
 
     public static SqlAuditVO convertFromDO(DmExecSqlAuditDO auditDO) {
         SqlAuditVO vo = new SqlAuditVO();
@@ -72,7 +72,6 @@ public class SqlAuditVO {
         vo.setDataSourceType(auditDO.getDataSourceType());
         vo.setUid(auditDO.getUid());
         vo.setUserName(auditDO.getUserName());
-        vo.setPrimaryUid(auditDO.getPrimaryUid());
         vo.setOperateTime(auditDO.getOperateTime());
         vo.setExecSql(auditDO.getExecSql());
         vo.setRewrite(StringUtils.isNotBlank(auditDO.getOriginalSql()));
@@ -82,8 +81,8 @@ public class SqlAuditVO {
         vo.setLogIp(auditDO.getLogIp());
 
         vo.setRequester(auditDO.getRequester());
-        vo.setResource(auditDO.getResource());
-        vo.setSqlKind(auditDO.getSqlKind());
+        vo.setQueryTypes(auditDO.getQueryTypes());
+        vo.setRequests(auditDO.getRequests());
         vo.setAffectLine(auditDO.getAffectLine());
         vo.setStatus(auditDO.getStatus());
 

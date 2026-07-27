@@ -23,6 +23,7 @@ import lombok.Setter;
 public class AutoExecTaskDTO {
 
     private Long    taskId;
+    private String  queryId;
     private String  execSql;
     private Integer execOrder;
 }

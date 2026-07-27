@@ -36,6 +36,8 @@ public interface DmExecAutoJobMapper extends BaseMapper<DmExecAutoJobDO> {
 
     DmExecAutoJobDO queryByIdForUpdate(@Param("id") Long id);
 
+    int startJob(@Param("jobId") Long jobId, @Param("wsn") String wsn);
+
     List<Long> listUnFinishJobIdList(@Param("time") Date date);
 
     int updateJobStatus(@Param("jobId") Long jobId, @Param("status") AutoExecJobStatus status);

@@ -24,11 +24,11 @@ import lombok.Setter;
 @Setter
 public class SqlExecNotifyDTO {
 
-    private Type         type;
-    private SqlStatus    sqlStatus;
-    private String       sessionId;
-    private String       queryId;
-    private long         line;
-    private String       message;
-    private Date         time;
+    private Type      type;
+    private SqlStatus sqlStatus;
+    private String    sessionId;
+    private String    queryId;
+    private long      line;
+    private String    message;
+    private Date      time;
 }

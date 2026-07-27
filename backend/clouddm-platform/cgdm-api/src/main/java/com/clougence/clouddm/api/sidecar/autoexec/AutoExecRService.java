@@ -21,7 +21,7 @@ import com.clougence.clouddm.comm.model.RSocketSendDTO;
 @RSocketApiClass
 public interface AutoExecRService {
 
-    void dispatchJob(RSocketSendDTO dto, Long jobId);
+    void dispatchJob(RSocketSendDTO dto, AutoExecJobDTO job);
 
     void pauseJob(RSocketSendDTO dto, Long jobId);
 }
