@@ -136,10 +136,6 @@ public class DmChangeFlowWebhookController {
         if (!ChangeFlowWebhookPolicy.isDeliveryIdValid(event.getDeliveryId())) {
             throw new ScmWebhookException(400, "webhook delivery identifier is too long");
         }
-        // Provider authentication has completed; invalid requests must not consume the authenticated flow quota.
-        if (!ChangeFlowWebhookPolicy.allowRequest(owner, flowId)) {
-            throw new ScmWebhookException(429, "webhook rate limit exceeded");
-        }
         try {
             dmChangeService.verifyFlow(owner, flowId);
         } catch (ErrorMessageException e) {

@@ -28,7 +28,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.scm.ScmPathUtils;
+import com.clougence.clouddm.sdk.scm.ScmUtils;
 import com.clougence.clouddm.sdk.scm.ScmPathValidation;
 import com.clougence.clouddm.sdk.scm.ScmProvider;
 import com.clougence.clouddm.sdk.scm.ScmRepo;
@@ -333,7 +333,7 @@ final class GitlabArchiveService {
 
     private static String normalizeScriptPath(String value) {
         try {
-            return ScmPathUtils.normalizeDirectoryPath(value);
+            return ScmUtils.normalizeDirectoryPath(value);
         } catch (IllegalArgumentException e) {
             throw archiveLimit("invalid script path");
         }

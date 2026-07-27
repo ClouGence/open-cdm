@@ -19,11 +19,16 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
+import java.util.Locale;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.springframework.context.i18n.LocaleContextHolder;
+
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 
 public class CicdSqlFileUtilsTest {
 
@@ -42,12 +47,35 @@ public class CicdSqlFileUtilsTest {
     public void shouldRejectInvalidUtf8AndIncludeFilename() throws Exception {
         File sql = temporaryFolder.newFile("invalid.sql");
         Files.write(sql.toPath(), new byte[] { (byte) 0xC3, (byte) 0x28 });
+        DmI18nUtils.getInstance();
+        LocaleContextHolder.setLocale(Locale.US);
 
         try {
             CicdSqlFileUtils.readUtf8(sql);
             fail("invalid UTF-8 must be rejected");
         } catch (IOException expected) {
-            assertTrue(expected.getMessage().contains("invalid.sql"));
+            assertEquals("SQL file is not valid UTF-8: invalid.sql", expected.getMessage());
+        } finally {
+            LocaleContextHolder.resetLocaleContext();
+        }
+    }
+
+    @Test
+    public void shouldRejectOversizedSqlFileWithLocalizedMessage() throws Exception {
+        File sql = temporaryFolder.newFile("oversized.sql");
+        try (RandomAccessFile randomAccessFile = new RandomAccessFile(sql, "rw")) {
+            randomAccessFile.setLength(CicdSqlFileUtils.MAX_SQL_FILE_BYTES + 1);
+        }
+        DmI18nUtils.getInstance();
+        LocaleContextHolder.setLocale(Locale.SIMPLIFIED_CHINESE);
+
+        try {
+            CicdSqlFileUtils.readUtf8(sql);
+            fail("oversized SQL file must be rejected");
+        } catch (IOException expected) {
+            assertEquals("SQL 文件超过 50 MiB：oversized.sql", expected.getMessage());
+        } finally {
+            LocaleContextHolder.resetLocaleContext();
         }
     }
 }

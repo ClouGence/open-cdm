@@ -229,7 +229,7 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
         }
 
         ScmRepo repo = new ScmRepo();
-        String repoPath = ScmPathUtils.buildRepoPath(repoSpace, repoName);
+        String repoPath = ScmUtils.buildRepoPath(repoSpace, repoName);
         repo.setRepoId(StringUtils.isBlank(repoId) ? repoPath : repoId);
         repo.setRepoPath(repoPath);
         repo.setRepoSpace(repoSpace);
@@ -290,7 +290,7 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
         String result = serviceUrl;
         if (type == ScmType.Gitlab) {
             try {
-                result = ScmUrlUtils.normalizeGitlabWebUrl(serviceUrl);
+                result = ScmUtils.normalizeGitlabWebUrl(serviceUrl);
             } catch (IllegalArgumentException e) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_URL_INVALID.name()));
             }
@@ -306,7 +306,7 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
         repo.setRepoId(flow.getScmRepoIdentifier());
         repo.setRepoSpace(flow.getScmRepoSpace());
         repo.setRepoName(flow.getScmRepoName());
-        repo.setRepoPath(ScmPathUtils.buildRepoPath(flow.getScmRepoSpace(), flow.getScmRepoName()));
+        repo.setRepoPath(ScmUtils.buildRepoPath(flow.getScmRepoSpace(), flow.getScmRepoName()));
         return repo;
     }
 }

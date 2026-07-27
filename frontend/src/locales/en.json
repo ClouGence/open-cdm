@@ -4164,7 +4164,6 @@
   "gitlab-signing-token": "Signing Token",
   "gitlab-signing-token-hint": "GitLab 19.1+ signing tokens are recommended. Leave blank to keep an existing token.",
   "gitlab-signing-token-configured": "Signing token configured",
-  "clear-signing-token": "Clear signing token",
   "zhi-xing-ci-shu": "Execution Count",
   "shi-ji-kai-shi-shi-jian": "SQL Start Time",
   "shi-ji-jie-shu-shi-jian": "SQL End Time",

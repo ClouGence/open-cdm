@@ -20,20 +20,27 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-public class ScmPathUtilsTest {
+public class ScmUtilsTest {
 
     @Test
     public void shouldBuildRepositoryPath() {
-        assertEquals("database", ScmPathUtils.buildRepoPath(null, "database"));
-        assertEquals("database", ScmPathUtils.buildRepoPath(" ", "database"));
-        assertEquals("group/sub/database", ScmPathUtils.buildRepoPath("group/sub", "database"));
+        assertEquals("database", ScmUtils.buildRepoPath(null, "database"));
+        assertEquals("database", ScmUtils.buildRepoPath(" ", "database"));
+        assertEquals("group/sub/database", ScmUtils.buildRepoPath("group/sub", "database"));
     }
 
     @Test
     public void shouldNormalizeRepositoryRelativeDirectory() {
-        assertEquals("", ScmPathUtils.normalizeDirectoryPath(null));
-        assertEquals("scripts/mysql", ScmPathUtils.normalizeDirectoryPath(" /scripts//./mysql/ "));
-        assertEquals("scripts/mysql", ScmPathUtils.normalizeDirectoryPath("scripts\\mysql"));
+        assertEquals("", ScmUtils.normalizeDirectoryPath(null));
+        assertEquals("scripts/mysql", ScmUtils.normalizeDirectoryPath(" /scripts//./mysql/ "));
+        assertEquals("scripts/mysql", ScmUtils.normalizeDirectoryPath("scripts\\mysql"));
+    }
+
+    @Test
+    public void shouldNormalizeGitlabWebUrl() {
+        assertEquals("https://gitlab.example.com/group", ScmUtils.normalizeGitlabWebUrl(" https://gitlab.example.com/group/// "));
+        assertInvalidUrl("https://gitlab.example.com/api/v4");
+        assertInvalidUrl("https://user@gitlab.example.com");
     }
 
     @Test
@@ -45,8 +52,17 @@ public class ScmPathUtilsTest {
 
     private static void assertInvalid(String value) {
         try {
-            ScmPathUtils.normalizeDirectoryPath(value);
+            ScmUtils.normalizeDirectoryPath(value);
             fail("path must be rejected: " + value);
+        } catch (IllegalArgumentException expected) {
+            // expected
+        }
+    }
+
+    private static void assertInvalidUrl(String value) {
+        try {
+            ScmUtils.normalizeGitlabWebUrl(value);
+            fail("URL must be rejected: " + value);
         } catch (IllegalArgumentException expected) {
             // expected
         }

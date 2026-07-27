@@ -304,7 +304,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
         String scriptPath;
         try {
-            scriptPath = ScmPathUtils.normalizeDirectoryPath(pipeline.getRepoScriptPath());
+            scriptPath = ScmUtils.normalizeDirectoryPath(pipeline.getRepoScriptPath());
         } catch (IllegalArgumentException e) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }

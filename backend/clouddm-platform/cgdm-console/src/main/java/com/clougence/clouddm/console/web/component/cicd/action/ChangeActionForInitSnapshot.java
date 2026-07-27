@@ -127,7 +127,7 @@ public class ChangeActionForInitSnapshot extends AbstractChangeAction {
         String repoSpace = gitOpsFlowDO.getScmRepoSpace();
         String repoName = gitOpsFlowDO.getScmRepoName();
         repo.setRepoId(gitOpsFlowDO.getScmRepoIdentifier());
-        repo.setRepoPath(ScmPathUtils.buildRepoPath(repoSpace, repoName));
+        repo.setRepoPath(ScmUtils.buildRepoPath(repoSpace, repoName));
         repo.setRepoSpace(repoSpace);
         repo.setRepoUrl(gitOpsFlowDO.getScmRepoUrl());
         repo.setRepoName(repoName);

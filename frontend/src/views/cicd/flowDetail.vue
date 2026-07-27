@@ -479,17 +479,14 @@
               </div>
               <div v-if="triggerOriginal.scmType === 'Gitlab'" class="config-modal-row">
                 <div class="config-modal-label">{{ $t('gitlab-signing-token') }}</div>
-                <div class="config-modal-control signing-token-control">
+                <div class="config-modal-control">
                   <Input
                     v-model="trigger.hookSigningToken"
                     type="password"
                     autocomplete="new-password"
-                    :disabled="!trigger.hookEnable || trigger.clearHookSigningToken"
+                    :disabled="!trigger.hookEnable"
                     :placeholder="trigger.hookSigningTokenConfigured ? $t('gitlab-signing-token-configured') : ''"
                   />
-                  <Checkbox v-if="trigger.hookSigningTokenConfigured" v-model="trigger.clearHookSigningToken">
-                    {{ $t('clear-signing-token') }}
-                  </Checkbox>
                 </div>
                 <div class="config-modal-desc">{{ $t('gitlab-signing-token-hint') }}</div>
               </div>
@@ -863,7 +860,6 @@ export default {
         hookPassword: '',
         hookSigningToken: '',
         hookSigningTokenConfigured: false,
-        clearHookSigningToken: false,
         hookRepoUrl: '',
         hookHelpUrl: '',
         triggerEnable: false,
@@ -1536,7 +1532,6 @@ export default {
         hookPassword: item.webHookPwd,
         hookSigningToken: '',
         hookSigningTokenConfigured: item.webHookSigningTokenConfigured,
-        clearHookSigningToken: false,
         hookHelpUrl: item.webHookHelpUrl,
         hookRepoUrl: item.repoUrl,
         triggerEnable: item.triggerEnable,
@@ -1595,8 +1590,7 @@ export default {
           updateHook: this.triggerTab === 'WebHook',
           updateTrigger: this.triggerTab === 'TriggerUrl',
           hookEnable: this.trigger.hookEnable,
-          hookSigningToken: this.trigger.clearHookSigningToken ? '' : this.trigger.hookSigningToken,
-          clearHookSigningToken: this.trigger.clearHookSigningToken,
+          hookSigningToken: this.trigger.hookSigningToken,
           triggerEnable: this.trigger.triggerEnable
         }
       });
@@ -2899,11 +2893,6 @@ export default {
     align-items: center;
     cursor: pointer;
   }
-}
-
-.signing-token-control {
-  display: grid;
-  gap: 8px;
 }
 
 .config-modal-radio {

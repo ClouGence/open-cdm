@@ -366,7 +366,7 @@ final class GitlabApiClient {
 
     static String normalizeServiceUrl(String serviceUrl) {
         try {
-            return ScmUrlUtils.normalizeGitlabWebUrl(serviceUrl);
+            return ScmUtils.normalizeGitlabWebUrl(serviceUrl);
         } catch (Exception e) {
             throw ThirdPartyApiException.as().with(e, GitlabI18nKeys.GITLAB_SCM_INVALID_URL, e.getMessage());
         }

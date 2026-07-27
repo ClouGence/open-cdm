@@ -23,6 +23,9 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+
 public final class CicdSqlFileUtils {
 
     /**
@@ -36,7 +39,8 @@ public final class CicdSqlFileUtils {
 
     public static String readUtf8(File file) throws IOException {
         if (Files.size(file.toPath()) > MAX_SQL_FILE_BYTES) {
-            throw new IOException("SQL file exceeds 50 MiB: " + file.getName());
+            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_SQL_FILE_TOO_LARGE_ERROR, file.getName());
+            throw new IOException(message);
         }
         byte[] bytes = Files.readAllBytes(file.toPath());
         try {
@@ -47,7 +51,8 @@ public final class CicdSqlFileUtils {
                 .toString();
             return content.startsWith("\uFEFF") ? content.substring(1) : content;
         } catch (CharacterCodingException e) {
-            throw new IOException("SQL file is not valid UTF-8: " + file.getName(), e);
+            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_SQL_FILE_INVALID_UTF8_ERROR, file.getName());
+            throw new IOException(message, e);
         }
     }
 }

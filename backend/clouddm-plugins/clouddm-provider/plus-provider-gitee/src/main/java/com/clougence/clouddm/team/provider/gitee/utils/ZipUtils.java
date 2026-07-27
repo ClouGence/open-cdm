@@ -27,7 +27,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.scm.ScmPathUtils;
+import com.clougence.clouddm.sdk.scm.ScmUtils;
 import com.clougence.clouddm.team.provider.gitee.constants.GiteeI18nKeys;
 import com.clougence.utils.ArrayUtils;
 import com.clougence.utils.StringUtils;
@@ -161,7 +161,7 @@ public class ZipUtils {
 
     private static String normalizeKeepPath(String keepPath) throws IOException {
         try {
-            return ScmPathUtils.normalizeDirectoryPath(keepPath);
+            return ScmUtils.normalizeDirectoryPath(keepPath);
         } catch (IllegalArgumentException e) {
             throw new IOException("invalid script path", e);
         }

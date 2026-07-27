@@ -28,16 +28,6 @@ public final class ChangeFlowConstants {
      */
     public static final int     MAX_WEBHOOK_BODY_BYTES                  = 2 * 1024 * 1024;
     /**
-     * Maximum authenticated Webhook requests accepted for one owner and change flow in one fixed minute, per
-     * Console process.
-     */
-    public static final int     MAX_WEBHOOK_REQUESTS_PER_MINUTE         = 300;
-    /**
-     * Maximum number of owner-and-flow rate-limit windows retained in process memory. New windows are rejected
-     * after expired entries are removed if this limit is still reached.
-     */
-    public static final int     MAX_TRACKED_WEBHOOK_RATE_WINDOWS        = 10_000;
-    /**
      * Maximum Webhook delivery-ID length, in characters. This matches the {@code delivery_id varchar(255)}
      * persistence column.
      */

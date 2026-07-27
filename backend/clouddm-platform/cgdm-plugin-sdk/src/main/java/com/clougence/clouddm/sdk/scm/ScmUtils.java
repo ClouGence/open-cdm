@@ -16,10 +16,42 @@
 package com.clougence.clouddm.sdk.scm;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
-public final class ScmUrlUtils {
+public final class ScmUtils {
 
-    private ScmUrlUtils(){
+    private ScmUtils(){
+    }
+
+    public static String buildRepoPath(String repoSpace, String repoName) {
+        if (repoSpace == null || repoSpace.trim().isEmpty()) {
+            return repoName;
+        }
+        return repoSpace + "/" + repoName;
+    }
+
+    /**
+     * Normalize a repository-relative directory path. An empty value means the
+     * repository root. Parent traversal and NUL bytes are never permitted.
+     */
+    public static String normalizeDirectoryPath(String value) {
+        String path = value == null ? "" : value.trim().replace('\\', '/');
+        if (path.indexOf('\u0000') >= 0) {
+            throw new IllegalArgumentException("invalid repository path");
+        }
+
+        List<String> segments = new ArrayList<>();
+        for (String segment : path.split("/")) {
+            if (segment.isEmpty() || ".".equals(segment)) {
+                continue;
+            }
+            if ("..".equals(segment)) {
+                throw new IllegalArgumentException("repository path must not contain parent traversal");
+            }
+            segments.add(segment);
+        }
+        return String.join("/", segments);
     }
 
     public static String normalizeGitlabWebUrl(String serviceUrl) {

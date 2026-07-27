@@ -32,8 +32,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.component.cicd.ChangeFlowConstants;
-import com.clougence.clouddm.console.web.component.cicd.ChangeFlowWebhookPolicy;
 import com.clougence.clouddm.console.web.controller.cicd.DmChangeFlowWebhookController;
 import com.clougence.clouddm.console.web.service.cicd.DmChangeService;
 import com.clougence.clouddm.console.web.service.cicd.DmScmService;
@@ -138,42 +136,6 @@ public class DmChangeFlowWebhookControllerTest {
 
         assertEquals(400, response.getStatusCode().value());
         verifyNoInteractions(changeService);
-    }
-
-    @Test
-    public void shouldNotConsumeFlowRateLimitForUnauthenticatedWebhook() throws Exception {
-        String owner = "rate-limit-owner";
-        stubFlow(owner);
-        when(changeService.triggerChangeSuggest(eq(owner), eq(1L), any(ChangeTriggerContext.class))).thenReturn(ResWebDataUtils.buildSuccess("created"));
-
-        for (int i = 0; i < ChangeFlowConstants.MAX_WEBHOOK_REQUESTS_PER_MINUTE; i++) {
-            assertEquals(401, callback(owner, "accepted", "wrong").getStatusCode().value());
-        }
-
-        ResponseEntity<ResWebData<?>> response = callback(owner, "accepted", "legacy");
-
-        assertEquals(200, response.getStatusCode().value());
-        verify(changeService).triggerChangeSuggest(eq(owner), eq(1L), any(ChangeTriggerContext.class));
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void shouldKeepTrackedRateWindowsWithinConfiguredCapacity() {
-        Map<String, Map.Entry<Long, Integer>> rateWindows =
-            (Map<String, Map.Entry<Long, Integer>>) ReflectionTestUtils.getField(ChangeFlowWebhookPolicy.class, "RATE_WINDOWS");
-        assertNotNull(rateWindows);
-        rateWindows.clear();
-        try {
-            for (int i = 0; i < ChangeFlowConstants.MAX_TRACKED_WEBHOOK_RATE_WINDOWS; i++) {
-                assertTrue(ChangeFlowWebhookPolicy.allowRequest("capacity-owner-" + i, i));
-            }
-
-            assertFalse(ChangeFlowWebhookPolicy.allowRequest("capacity-overflow", Long.MAX_VALUE));
-            assertEquals(ChangeFlowConstants.MAX_TRACKED_WEBHOOK_RATE_WINDOWS, rateWindows.size());
-            assertTrue(ChangeFlowWebhookPolicy.allowRequest("capacity-owner-0", 0));
-        } finally {
-            rateWindows.clear();
-        }
     }
 
     private void stubFlow() {

@@ -4160,7 +4160,6 @@
   "gitlab-signing-token": "Signing Token",
   "gitlab-signing-token-hint": "建议使用 GitLab 19.1+ 的 Signing Token；已配置时留空保持不变。",
   "gitlab-signing-token-configured": "Signing Token 已配置",
-  "clear-signing-token": "清除 Signing Token",
   "zhi-xing-ci-shu": "执行次数",
   "shi-ji-kai-shi-shi-jian": "SQL 开始时间",
   "shi-ji-jie-shu-shi-jian": "SQL 结束时间",

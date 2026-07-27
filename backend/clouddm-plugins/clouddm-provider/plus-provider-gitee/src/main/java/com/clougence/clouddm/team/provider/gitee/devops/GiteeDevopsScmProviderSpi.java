@@ -217,7 +217,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
 
     private static String normalizeScriptPath(String scriptPath) {
         try {
-            return ScmPathUtils.normalizeDirectoryPath(scriptPath);
+            return ScmUtils.normalizeDirectoryPath(scriptPath);
         } catch (IllegalArgumentException e) {
             throw ThirdPartyApiException.as().with(e, GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "invalid script path");
         }
