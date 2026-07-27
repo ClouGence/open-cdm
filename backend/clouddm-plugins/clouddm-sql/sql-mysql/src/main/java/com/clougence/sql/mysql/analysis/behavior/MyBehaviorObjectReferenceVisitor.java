@@ -33,6 +33,7 @@ import com.clougence.sql.mysql.parser.antlr.MySqlParser.*;
 final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor {
 
     private final Parser                parser;
+    private final MySqlVersion          version;
     private final int                   exactVersion;
     private final MySqlResourceRegistry resources;
     private final Set<String>           cteNames = new HashSet<>();
@@ -41,6 +42,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
                                      MySqlResourceRegistry resources){
         super(parser, levelsParam, baseLine, baseColumn, version, exactVersion, resources);
         this.parser = parser;
+        this.version = version;
         this.exactVersion = exactVersion;
         this.resources = resources;
     }
@@ -132,7 +134,12 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         if (ctx.genericFunction().name instanceof CustomGenericFunctionNameContext custom) {
             FullIdContext fullId = custom.function.fullId();
             if (fullId.DOT() == null) {
-                addFunction(fullId.getStart());
+                String functionName = parser.getTokenStream().getText(fullId.getStart(), fullId.getStop());
+                if (resources.isUserDefinedFunction(functionName, false, version)) {
+                    add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, true, fullId);
+                } else {
+                    addFunction(fullId.getStart());
+                }
             } else {
                 add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, true, fullId);
             }
@@ -207,7 +214,12 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
             case ADMIN -> SplitQueryType.ADMIN;
             default -> throw new IllegalStateException("unsupported functional function action " + behavior);
         };
-        add(type, TargetType.Function, true, token);
+        boolean quotedIdentifier = token.getType() == MySqlParser.REVERSE_QUOTE_ID || token.getType() == MySqlParser.DOUBLE_QUOTE_ID;
+        if (quotedIdentifier || resources.isUserDefinedFunction(token.getText(), false, version)) {
+            add(type, TargetType.Function, true, token);
+        } else {
+            addInstanceResource(type, TargetType.Function, true, token, token.getText());
+        }
     }
 
     @Override
@@ -233,7 +245,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         if (isCte(ctx.tableName())) {
             return null;
         }
-        add(SplitQueryType.SELECT, TargetType.Table, ctx.tableName());
+        addReadTable(ctx.tableName());
         return null;
     }
 
@@ -246,7 +258,23 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
             addUnnamedAtCurrentSchema(SplitQueryType.SELECT, TargetType.Table, true, ctx.tableName());
             return null;
         }
+        if (isDual(ctx.tableName())) {
+            addReadTable(ctx.tableName());
+            return null;
+        }
         return super.visitAtomTableItem(ctx);
+    }
+
+    private void addReadTable(TableNameContext tableName) {
+        if (isDual(tableName)) {
+            addInstanceResource(SplitQueryType.SELECT, TargetType.Table, true, tableName, "DUAL");
+        } else {
+            add(SplitQueryType.SELECT, TargetType.Table, tableName);
+        }
+    }
+
+    private static boolean isDual(TableNameContext tableName) {
+        return tableName != null && tableName.fullId() != null && tableName.fullId().DOT() == null && "DUAL".equalsIgnoreCase(tableName.fullId().uid(0).getText());
     }
 
     @Override

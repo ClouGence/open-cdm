@@ -33,6 +33,7 @@ import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.auth.model.QueryRelationAuthResult;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -50,6 +51,7 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
+import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
@@ -58,6 +60,7 @@ import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -82,6 +85,8 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     private DmAuthServiceForManage authServiceForManage;
     @Resource
     private DmEnvParamService      dmEnvParamService;
+    @Resource
+    private DmDsConfigService      dmDsConfigService;
 
     @Override
     public void checkResPath(String puid, String uid, long resId, AuthKind authKind, DsResPath resPath, String dataAuthLabel) {
@@ -133,22 +138,29 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
             return new QueryRelationAuthResult(deniedRelations);
         }
 
-        long dsId = levels.dsDO().getId();
+        DmDsDO dsDO = levels.dsDO();
+        long dsId = dsDO.getId();
+        String sqlEngineName = this.dmDsConfigService.fetchSqlEngineSpi(dsId).name();
+        SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngineName);
         String currentResourcePath = DmDsUtils.currentResourcePath(levels.levelsParam());
         String instanceResourcePath = DmDsUtils.instanceResourcePath(levels.levelsParam());
         for (QueryRequest request : requests) {
-            List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(request.getRelations()).stream().filter(b -> !b.skipPermission()).toList();
+            List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations(), request.getQueryTypes())
+                .stream()
+                .filter(b -> !b.skipPermission())
+                .toList();
 
             for (BehaviorRequest behavior : behaviors) {
                 BehaviorAction action = behavior.action();
                 BehaviorObject object = behavior.resource();
 
-                String authLabel = BehaviorRelations.authKind(action, object.getTargetType()).getAuthLabel();
+                String authLabel = BehaviorRelations.authKind(action, object.getObjectType()).getAuthLabel();
                 String resourcePath = BehaviorRelations.resourcePath(object, currentResourcePath, instanceResourcePath);
                 if (!this.checkResPathWithoutError(puid, uid, dsId, AuthKind.DataSource, () -> resourcePath, authLabel)) {
                     BehaviorObject deniedObject = new BehaviorObject();
-                    deniedObject.setTargetType(object.getTargetType());
-                    deniedObject.setResourcePath(resourcePath);
+                    deniedObject.setObjectType(object.getObjectType());
+                    deniedObject.setObjectPath(resourcePath);
+                    deniedObject.setObjectName(object.getObjectName());
                     deniedObject.setStartLine(object.getStartLine());
                     deniedObject.setStartColumn(object.getStartColumn());
                     deniedObject.setEndLine(object.getEndLine());

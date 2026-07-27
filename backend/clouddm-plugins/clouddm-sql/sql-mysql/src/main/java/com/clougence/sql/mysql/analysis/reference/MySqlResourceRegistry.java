@@ -7,6 +7,7 @@
 package com.clougence.sql.mysql.analysis.reference;
 
 import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
+import static com.clougence.sql.common.registry.RegisteredResourceType.PROCEDURE;
 import static com.clougence.sql.common.registry.RegisteredResourceType.TABLE;
 
 import java.util.*;
@@ -18,6 +19,7 @@ import com.clougence.sql.common.registry.RegisteredResourceType;
 import com.clougence.sql.common.registry.ResourceRegistryDialect;
 import com.clougence.sql.common.registry.VersionedResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlVersion;
+import com.clougence.utils.StringUtils;
 
 /**
  * MySQL-owned registered resource facts shared by split, resource, and behavior analysis.
@@ -86,7 +88,7 @@ public final class MySqlResourceRegistry {
             return null;
         }
         String normalized = dialect.normalizeIdentifier(functionName);
-        if ("last_insert_id".equals(normalized) && !hasArguments) {
+        if (StringUtils.equalsIgnoreCase("last_insert_id", normalized) && !hasArguments) {
             return null;
         }
         return functionStatementTypes.find(FUNCTION, versionCode(version), functionName).orElse(null);
@@ -98,6 +100,10 @@ public final class MySqlResourceRegistry {
 
     public boolean isSystemFunction(String schema, String object, MySqlVersion version) {
         return systemResources.contains(FUNCTION, versionCode(version), schema, object);
+    }
+
+    public boolean isSystemProcedure(String schema, String object, MySqlVersion version) {
+        return systemResources.contains(PROCEDURE, versionCode(version), schema, object);
     }
 
     public Set<String> registeredAggregateFunctions(int exactVersion) {

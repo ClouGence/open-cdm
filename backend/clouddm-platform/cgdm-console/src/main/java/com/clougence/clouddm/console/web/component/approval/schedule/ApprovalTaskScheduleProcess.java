@@ -175,11 +175,11 @@ public class ApprovalTaskScheduleProcess {
             return Collections.emptyList();
         }
         for (QueryRequest request : requests) {
-            for (BehaviorRequest behaviorRequest : BehaviorRelations.flattenResource(request.getRelations())) {
+            for (BehaviorRequest behaviorRequest : BehaviorRelations.flattenResourceIgnoringPermission(request.getRelations())) {
                 BehaviorAction action = behaviorRequest.action();
                 BehaviorObject resource = behaviorRequest.resource();
-                TargetType resourceType = Objects.requireNonNullElse(resource.getTargetType(), TargetType.Unknown);
-                String resourcePath = DmDsUtils.normalizeResourcePath(resource.getResourcePath());
+                TargetType resourceType = Objects.requireNonNullElse(resource.getObjectType(), TargetType.Unknown);
+                String resourcePath = DmDsUtils.normalizeResourcePath(resource.getObjectPath());
                 String resourceKey = resourceType + "|" + resourcePath;
                 ApprovalBehavior behavior = grouped.computeIfAbsent(resourceKey, ignored -> {
                     ApprovalBehavior value = new ApprovalBehavior();

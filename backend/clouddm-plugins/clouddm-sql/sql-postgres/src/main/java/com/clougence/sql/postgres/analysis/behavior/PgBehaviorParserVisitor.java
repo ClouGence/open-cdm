@@ -527,13 +527,23 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         if (source == null || target == null) {
             return;
         }
-        String sourcePath = source.getResourcePath();
-        String targetPath = target.getResourcePath();
+        String sourcePath = source.getObjectPath();
+        String targetPath = target.getObjectPath();
         int sourceNameStart = sourcePath.lastIndexOf('/', sourcePath.length() - 2);
         int targetNameStart = targetPath.lastIndexOf('/', targetPath.length() - 2);
         if (sourceNameStart >= 0 && targetNameStart >= 0) {
-            target.setResourcePath(sourcePath.substring(0, sourceNameStart + 1) + targetPath.substring(targetNameStart + 1));
+            target.setObjectPath(sourcePath.substring(0, sourceNameStart + 1) + targetPath.substring(targetNameStart + 1));
+            moveObjectNameToSameContainer(source, target);
         }
+    }
+
+    private void moveObjectNameToSameContainer(BehaviorObject source, BehaviorObject target) {
+        ObjectName sourceName = source.getObjectName();
+        ObjectName targetName = target.getObjectName();
+        if (sourceName == null || targetName == null) {
+            return;
+        }
+        target.setObjectName(new ObjectName(sourceName.getCatalog(), sourceName.getSchema(), targetName.getObjectName()));
     }
 
     private BehaviorObject sessionTemporaryTableScope(ParserRuleContext context) {
@@ -545,8 +555,8 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         Token start = context.getStart();
         Token stop = context.getStop();
         BehaviorObject object = new BehaviorObject();
-        object.setTargetType(TargetType.Table);
-        object.setResourcePath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
+        object.setObjectType(TargetType.Table);
+        object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
         object.setStartLine(line(start));
         object.setStartColumn(column(start));
         object.setEndLine(line(stop));

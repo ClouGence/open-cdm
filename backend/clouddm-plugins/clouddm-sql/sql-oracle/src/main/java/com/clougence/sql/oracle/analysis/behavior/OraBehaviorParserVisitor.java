@@ -233,6 +233,9 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         }
         List<String> names = new ArrayList<>();
         collectNames(context, names);
+        if (type == TargetType.Table && names.size() == 1 && "DUAL".equalsIgnoreCase(names.get(0))) {
+            return objects.instanceObject(type, context, names.get(0));
+        }
         return objects.object(type, context, names);
     }
 
@@ -310,13 +313,23 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         if (source == null || target == null) {
             return;
         }
-        String sourcePath = source.getResourcePath();
-        String targetPath = target.getResourcePath();
+        String sourcePath = source.getObjectPath();
+        String targetPath = target.getObjectPath();
         int sourceNameStart = sourcePath.lastIndexOf('/', sourcePath.length() - 2);
         int targetNameStart = targetPath.lastIndexOf('/', targetPath.length() - 2);
         if (sourceNameStart >= 0 && targetNameStart >= 0) {
-            target.setResourcePath(sourcePath.substring(0, sourceNameStart + 1) + targetPath.substring(targetNameStart + 1));
+            target.setObjectPath(sourcePath.substring(0, sourceNameStart + 1) + targetPath.substring(targetNameStart + 1));
+            moveObjectNameToSameContainer(source, target);
         }
+    }
+
+    private void moveObjectNameToSameContainer(BehaviorObject source, BehaviorObject target) {
+        ObjectName sourceName = source.getObjectName();
+        ObjectName targetName = target.getObjectName();
+        if (sourceName == null || targetName == null) {
+            return;
+        }
+        target.setObjectName(new ObjectName(sourceName.getCatalog(), sourceName.getSchema(), targetName.getObjectName()));
     }
 
     private <T extends ParserRuleContext> List<T> descendants(ParseTree tree, Class<T> type) {

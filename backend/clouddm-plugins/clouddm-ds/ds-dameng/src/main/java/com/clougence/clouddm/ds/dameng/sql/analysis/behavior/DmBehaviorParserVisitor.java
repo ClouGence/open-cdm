@@ -536,7 +536,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     }
 
     private void addObject(List<BehaviorObject> values, BehaviorObject value) {
-        if (value != null && values.stream().noneMatch(existing -> existing.getResourcePath().equals(value.getResourcePath()))) {
+        if (value != null && values.stream().noneMatch(existing -> existing.getObjectPath().equals(value.getObjectPath()))) {
             values.add(value);
         }
     }

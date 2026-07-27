@@ -49,8 +49,9 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             searchOffset = Math.min(query.length(), offset + marker.length());
 
             BehaviorObject object = new BehaviorObject();
-            object.setTargetType(StringUtils.isNotBlank(collection) ? TargetType.Table : TargetType.Schema);
-            object.setResourcePath(resourcePath(levels, collection));
+            object.setObjectType(StringUtils.isNotBlank(collection) ? TargetType.Table : TargetType.Schema);
+            object.setObjectPath(resourcePath(levels, collection));
+            object.setObjectName(new ObjectName(null, level(levels, UmiTypes.Schema), collection));
             setRange(object, query, offset, marker.length(), baseLine, baseColumn);
 
             BehaviorRelation relation = new BehaviorRelation();
@@ -67,7 +68,7 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         return switch (type) {
             case FIND, AGGREGATE, FIND_ONE, COUNT, DISTINCT, COUNT_DOCUMENTS -> SplitQueryType.SELECT;
             case DATA_SIZE, HELLO, EXPLAIN -> SplitQueryType.PERFORMANCE;
-            case LIST_COLLECTIONS, LIST_INDEXES, SHOW_DATABASES, SHOW_COLLECTIONS -> SplitQueryType.UNKNOWN;
+            case LIST_COLLECTIONS, LIST_INDEXES, SHOW_DATABASES, SHOW_COLLECTIONS -> SplitQueryType.METADATA;
             case VALIDATE -> SplitQueryType.ADMIN_TABLE;
             case CREATE_INDEX, CREATE_INDEXES -> SplitQueryType.ADD_INDEX;
             case CREATE_VIEW -> SplitQueryType.CREATE_VIEW;
@@ -120,6 +121,10 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
                 nodes.add(node);
             }
         }
+    }
+
+    private String level(Map<UmiTypes, Object> levels, UmiTypes type) {
+        return levels == null || levels.get(type) == null ? null : StringUtils.toString(levels.get(type));
     }
 
     private int indexOfIgnoreCase(String text, String marker, int fromIndex) {

@@ -17,6 +17,7 @@ import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.redis.analysis.security.RedisAnalysisHelper;
 import com.clougence.sql.redis.parser.RedisDslProvider;
+import com.clougence.sql.redis.parser.ast.RedisCmdType;
 import com.clougence.sql.redis.parser.ast.commands.AbstractRedisCmd;
 import com.clougence.sql.redis.parser.ast.token.ArgToken;
 import com.clougence.sql.redis.parser.ast.token.StrToken;
@@ -52,8 +53,18 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
                 }
 
                 BehaviorObject object = new BehaviorObject();
-                object.setTargetType(TargetType.Schema);
-                object.setResourcePath(resourcePath(levels, null));
+                boolean registeredCommand = command.getCmdType() == RedisCmdType.TIME;
+                if (registeredCommand) {
+                    String commandName = command.getCmdType().name();
+                    object.setObjectType(TargetType.Function);
+                    object.setObjectPath(resourcePath(levels, commandName));
+                    object.setObjectName(new ObjectName(null, null, commandName));
+                } else {
+                    String schema = level(levels, UmiTypes.Schema);
+                    object.setObjectType(TargetType.Schema);
+                    object.setObjectPath(resourcePath(levels, null));
+                    object.setObjectName(new ObjectName(null, schema, null));
+                }
                 setRange(object, query, offset, end - offset, baseLine, baseColumn);
                 addRelation(behavior, object, action(statementType));
                 searchOffset = end;
@@ -67,8 +78,9 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
                 searchOffset = offset + value.length();
 
                 BehaviorObject object = new BehaviorObject();
-                object.setTargetType(TargetType.Key);
-                object.setResourcePath(resourcePath(levels, value));
+                object.setObjectType(TargetType.Key);
+                object.setObjectPath(resourcePath(levels, value));
+                object.setObjectName(new ObjectName(null, level(levels, UmiTypes.Schema), value));
                 setRange(object, query, offset, value.length(), baseLine, baseColumn);
 
                 addRelation(behavior, object, action(statementType));
@@ -141,6 +153,10 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         }
     }
 
+    private String level(Map<UmiTypes, Object> levels, UmiTypes type) {
+        return levels == null || levels.get(type) == null ? null : StringUtils.toString(levels.get(type));
+    }
+
     private void setRange(BehaviorObject object, String query, int offset, int length, int baseLine, int baseColumn) {
         int line = Math.max(1, baseLine);
         int column = Math.max(0, baseColumn);
@@ -158,11 +174,12 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         object.setEndColumn(column + length);
     }
 
-    private void addRelation(StatementBehavior behavior, BehaviorObject object, BehaviorAction action) {
+    private BehaviorRelation addRelation(StatementBehavior behavior, BehaviorObject object, BehaviorAction action) {
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(object);
         relation.setAction(action);
         behavior.getRelations().add(relation);
+        return relation;
     }
 
     private BehaviorAction action(SplitQueryType type) {

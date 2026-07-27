@@ -1253,16 +1253,27 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         }
         String file = unquote(name(ctx));
         List<String> nodes = new ArrayList<>();
-        for (String part : file.split("/")) {
-            addPart(nodes, part);
-        }
+        addPart(nodes, normalizePath(file));
         addWithNodes(sqlType, TargetType.File, require, ctx, nodes);
     }
 
-    private void addInstanceResource(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, String name) {
+    private String normalizePath(String path) {
+        if (StringUtils.isBlank(path)) {
+            return path;
+        }
+        return String.join("/", Arrays.stream(path.split("/")).filter(StringUtils::isNotBlank).toList());
+    }
+
+    protected final void addInstanceResource(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, String name) {
         List<String> nodes = new ArrayList<>();
         addPart(nodes, name);
         addWithNodes(sqlType, targetType, require, ctx, nodes);
+    }
+
+    protected final void addInstanceResource(SplitQueryType sqlType, TargetType targetType, boolean require, Token token, String name) {
+        List<String> nodes = new ArrayList<>();
+        addPart(nodes, name);
+        addWithNodes(sqlType, targetType, require, token, nodes);
     }
 
     private void addWithNodes(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> nodes) {

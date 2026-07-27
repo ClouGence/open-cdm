@@ -28,8 +28,10 @@ import lombok.Setter;
 @Setter
 public class BehaviorObject {
 
-    private TargetType targetType;
-    private String     resourcePath;
+    private String     objectPath;
+    private ObjectName objectName;
+    private TargetType objectType;
+
     private int        startLine;
     private int        startColumn;
     private int        endLine;

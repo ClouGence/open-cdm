@@ -31,5 +31,4 @@ public class BehaviorRelation {
     private BehaviorObject       subject;
     private BehaviorAction       action;
     private List<BehaviorObject> target = new ArrayList<>();
-    private boolean              skipPermission;
 }

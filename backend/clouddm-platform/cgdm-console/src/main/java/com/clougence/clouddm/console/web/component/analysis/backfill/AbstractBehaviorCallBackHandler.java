@@ -45,12 +45,12 @@ public abstract class AbstractBehaviorCallBackHandler implements BehaviorCallBac
 
         EnumSet<BehaviorAction> actionSet = EnumSet.noneOf(BehaviorAction.class);
         Collections.addAll(actionSet, actions);
-        return BehaviorRelations.flattenResource(behaviors).stream().filter(behavior -> {
+        return BehaviorRelations.flattenResourceIgnoringPermission(behaviors).stream().filter(behavior -> {
             return behavior.resource() != null //
-                   && behavior.resource().getTargetType() == targetType //
+                   && behavior.resource().getObjectType() == targetType //
                    && actionSet.contains(behavior.action());
         }).map(behavior -> {
-            return DmDsUtils.normalizeResourcePath(behavior.resource().getResourcePath(), false);
+            return DmDsUtils.normalizeResourcePath(behavior.resource().getObjectPath(), false);
         }).distinct().toList();
     }
 

@@ -17,10 +17,7 @@ package com.clougence.sql.mysql.analysis.behavior;
 
 import java.util.*;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.analysis.reference.MySqlObjectReference;
@@ -300,13 +297,48 @@ final class MyBehaviorRelationAssembler {
 
     private BehaviorObject toObject(MySqlObjectReference reference) {
         BehaviorObject object = new BehaviorObject();
-        object.setTargetType(reference.targetType());
-        object.setResourcePath(resourcePath(reference.nodes()));
+        object.setObjectType(reference.targetType());
+        List<String> nodes = reference.nodes();
+        List<String> displayNodes = nodes;
+        if (nodes.size() == 1 && (reference.targetType() == TargetType.Function || reference.targetType() == TargetType.Table)) {
+            displayNodes = new ArrayList<>();
+            addLevel(displayNodes, UmiTypes.Catalog);
+            addLevel(displayNodes, UmiTypes.Schema);
+            displayNodes.add(nodes.get(0));
+        }
+        object.setObjectPath(resourcePath(displayNodes));
+        if (!nodes.isEmpty()) {
+            object.setObjectName(objectName(reference.targetType(), nodes));
+        }
         object.setStartLine(reference.startLine());
         object.setStartColumn(reference.startColumn());
         object.setEndLine(reference.endLine());
         object.setEndColumn(reference.endColumn());
         return object;
+    }
+
+    private ObjectName objectName(TargetType targetType, List<String> nodes) {
+        if (targetType == TargetType.File) {
+            return new ObjectName(null, null, nodes.get(0));
+        }
+        if (nodes.size() >= 3) {
+            return new ObjectName(nodes.get(nodes.size() - 3), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1));
+        }
+        if (nodes.size() == 2) {
+            return new ObjectName(level(UmiTypes.Catalog), nodes.get(0), nodes.get(1));
+        }
+        return new ObjectName(null, null, nodes.get(0));
+    }
+
+    private void addLevel(List<String> nodes, UmiTypes type) {
+        String value = level(type);
+        if (StringUtils.isNotBlank(value)) {
+            nodes.add(value);
+        }
+    }
+
+    private String level(UmiTypes type) {
+        return levels == null || levels.get(type) == null ? null : StringUtils.toString(levels.get(type));
     }
 
     private String resourcePath(List<String> nodes) {
@@ -353,8 +385,9 @@ final class MyBehaviorRelationAssembler {
     }
 
     private String objectKey(BehaviorObject object) {
-        String key = object.getTargetType() + "|" + object.getResourcePath();
-        if (object.getResourcePath().equals(currentSchemaPath()) && object.getTargetType() != TargetType.Catalog && object.getTargetType() != TargetType.Schema) {
+        ObjectName name = object.getObjectName();
+        String key = object.getObjectType() + "|" + object.getObjectPath() + "|" + (name == null ? "" : name.getCatalog() + "|" + name.getSchema() + "|" + name.getObjectName());
+        if (object.getObjectPath().equals(currentSchemaPath()) && object.getObjectType() != TargetType.Catalog && object.getObjectType() != TargetType.Schema) {
             key += "|" + object.getStartLine() + ":" + object.getStartColumn() + "~" + object.getEndLine() + ":" + object.getEndColumn();
         }
         return key;

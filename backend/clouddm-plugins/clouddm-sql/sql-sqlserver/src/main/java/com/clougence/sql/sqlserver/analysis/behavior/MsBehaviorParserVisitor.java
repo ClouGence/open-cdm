@@ -181,11 +181,18 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
         if (context == null) {
             return null;
         }
+        return objects.object(type, context, names(context));
+    }
+
+    private List<String> names(ParserRuleContext context) {
         List<String> names = new ArrayList<>();
+        if (context == null) {
+            return names;
+        }
         for (SqlServerParser.Id_Context id : descendants(context, SqlServerParser.Id_Context.class)) {
             names.add(unquote(parser.getTokenStream().getText(id.getStart(), id.getStop())));
         }
-        return objects.object(type, context, names);
+        return names;
     }
 
     private void addUnary(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {

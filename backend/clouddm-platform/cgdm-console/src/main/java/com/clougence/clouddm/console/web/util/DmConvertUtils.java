@@ -165,7 +165,7 @@ public class DmConvertUtils {
         vo.setRequester(auditDO.getRequester());
 
         Map<String, SqlAuditRequestVO> requests = new LinkedHashMap<>();
-        for (BehaviorRequest behavior : BehaviorRelations.flattenResource(auditDO.getBehaviors())) {
+        for (BehaviorRequest behavior : BehaviorRelations.flattenResourceIgnoringPermission(auditDO.getBehaviors())) {
             SqlAuditRequestVO request = convertToSqlAuditRequestVO(behavior.action(), behavior.resource());
             if (request != null) {
                 String key = request.getAction() + "|" + request.getResourceType() + "|" + request.getResourcePath();
@@ -187,8 +187,8 @@ public class DmConvertUtils {
             return null;
         }
         SqlAuditRequestVO request = new SqlAuditRequestVO();
-        request.setResourceType(Objects.requireNonNullElse(resource.getTargetType(), TargetType.Unknown));
-        request.setResourcePath(DmDsUtils.normalizeResourcePath(resource.getResourcePath()));
+        request.setResourceType(Objects.requireNonNullElse(resource.getObjectType(), TargetType.Unknown));
+        request.setResourcePath(DmDsUtils.normalizeResourcePath(resource.getObjectPath()));
         request.setAction(action);
         return request;
     }

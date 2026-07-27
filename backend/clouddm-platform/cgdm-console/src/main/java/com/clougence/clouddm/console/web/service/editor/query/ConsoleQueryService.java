@@ -76,6 +76,7 @@ import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
@@ -496,9 +497,12 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
             String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
             if (StringUtils.equalsIgnoreCase("true", enable)) {
-                boolean hasNonReadBehavior = BehaviorRelations.flattenResource(request.getRelations())
+                SqlEngineSpi sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(ctx.getLevels().dsDO().getId());
+                SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngine.name());
+                boolean hasNonReadBehavior = BehaviorRelations.flattenResource(registry, parameters.version(), request.getRelations(), request.getQueryTypes())
                     .stream()
-                    .anyMatch(behavior -> BehaviorRelations.authKind(behavior.action(), behavior.resource().getTargetType()) != SecDataAuthKind.READ);
+                    .filter(behavior -> !behavior.skipPermission())
+                    .anyMatch(behavior -> BehaviorRelations.authKind(behavior.action(), behavior.resource().getObjectType()) != SecDataAuthKind.READ);
                 if (hasNonReadBehavior) {
                     String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
                     consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
@@ -530,9 +534,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         QueryRelationAuthResult authResult = this.authCheckService.checkQueryRelationAuth(curOwnerUid, curUserUid, ctx.getLevels(), requestScripts);
         if (!authResult.isPassed()) {
             BehaviorRelation denied = authResult.getDeniedRelations().get(0);
-            String authLabel = BehaviorRelations.authKind(denied.getAction(), denied.getSubject().getTargetType()).getAuthLabel();
+            String authLabel = BehaviorRelations.authKind(denied.getAction(), denied.getSubject().getObjectType()).getAuthLabel();
             String authLabelI18n = DmI18nUtils.getMessage(authLabel);
-            String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), denied.getSubject().getResourcePath(), authLabelI18n);
+            String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), denied.getSubject().getObjectPath(), authLabelI18n);
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));

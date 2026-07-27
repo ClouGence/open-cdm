@@ -39,6 +39,7 @@ import com.clougence.clouddm.console.web.util.DsResPathObj;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultLimit;
@@ -48,11 +49,14 @@ import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -144,7 +148,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             provenanceColumns(sqlEngine, parameters, dsConfig, options, requests);
         }
         if (options.isEnabled(QueryAnalysisFeature.MASKING)) {
-            configMasking(options, requests);
+            configMasking(sqlEngine, parameters, options, requests);
         }
         return requests;
     }
@@ -199,10 +203,14 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             int codeColumn = script.getBodyStartCodeColumn();
 
             List<StatementBehavior> behaviors = behaviorSpi.analysisBehavior(request.getQueryBody(), levels, codeLine, codeColumn);
-            List<BehaviorRelation> relations = Collections.emptyList();
-
+            List<BehaviorRelation> relations = new ArrayList<>();
             if (behaviors != null) {
-                relations = behaviors.stream().filter(Objects::nonNull).map(StatementBehavior::getRelations).filter(Objects::nonNull).flatMap(Collection::stream).toList();
+                for (StatementBehavior behavior : behaviors) {
+                    if (behavior == null || behavior.getRelations() == null) {
+                        continue;
+                    }
+                    relations.addAll(behavior.getRelations().stream().filter(Objects::nonNull).toList());
+                }
             }
             request.setRelations(relations);
         }
@@ -235,7 +243,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         }
     }
 
-    private void configMasking(QueryAnalysisOptions options, List<QueryRequest> requests) {
+    private void configMasking(SqlEngineSpi sqlEngine, SqlParserParameters parameters, QueryAnalysisOptions options, List<QueryRequest> requests) {
         requests.forEach(r -> r.setUsingValueProcess(true));
         String userUid = options.getCurrentUid();
         long dsId = options.getDataSourceId();
@@ -250,30 +258,37 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             return;
         }
 
-        if (hasColumnAnalysis) {
-            for (QueryRequest request : selectRequests) {
-                boolean hasEmptyColumnName = request.getColumnList().keySet().stream().anyMatch(StringUtils::isEmpty);
-                if (hasEmptyColumnName) {
-                    throw new ErrorMessageException(DmI18nUtils.getMessage(//
-                            I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_SPECIAL_FIELD_NOT_ALIAS.name()));
-                }
+        //
+        Map<UmiTypes, Object> levels = options.getLevels();
+        SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngine.name());
+        String currentResourcePath = DmDsUtils.currentResourcePath(levels);
+        String instanceResourcePath = DmDsUtils.instanceResourcePath(levels);
+        for (QueryRequest request : requests) {
+            if (CollectionUtils.isEmpty(request.getColumnList())) {
+                this.configMaskingWithoutProvenance(request, registry, parameters.version(), userUid, dsId, currentResourcePath, instanceResourcePath);
+            } else {
+                this.configMaskingWithProvenance(request, userUid, dsId);
             }
-
-            List<RealColumn> columnList = selectRequests.stream()
-                .map(QueryRequest::getColumnList)
-                .filter(CollectionUtils::isNotEmpty)
-                .map(Map::values)
-                .flatMap(Collection::stream)
-                .flatMap(Collection::stream)
-                .toList();
-            List<String> pathList = columnList.stream().map(RealColumn::toDsResPath).distinct().toList();
-            List<String> skipPaths = this.resAuthService.listAuthByUser(dsId, curUserUid, AuthKind.DataSource, pathList).stream().map(DmAuthResDO::getResPath).toList();
-            for (RealColumn realColumn : columnList) {
-                if (skipPaths.stream().anyMatch(path -> realColumn.toDsResPath().startsWith(path))) {
-                    realColumn.setSkipDesensitization(true);
-                }
-            }
-            return;
         }
     }
+
+    private void configMaskingWithoutProvenance(QueryRequest request, SysObjectRegistrySpi sysObjRegistry, String dbVersion, String userUid, long dsId,//
+                                                String currentResourcePath, String instanceResourcePath) {
+        List<DsResPathObj> readPaths = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations(), request.getQueryTypes())
+            .stream()
+            .filter(b -> !b.skipPermission())
+            .filter(b -> BehaviorRelations.authKind(b.action(), b.resource().getObjectType()) == SecDataAuthKind.READ)
+            .map(b -> new DsResPathObj(BehaviorRelations.resourcePath(b.resource(), currentResourcePath, instanceResourcePath)))
+            .toList();
+
+        //
+        boolean allAuthorized = CollectionUtils.isNotEmpty(readPaths) && readPaths.stream().allMatch(path -> {
+            return this.authService.checkResPathWithoutError(AuthDal.ROOT_USER_UID, userUid, dsId, AuthKind.DataSource, path, SecDataAuthLabel.DM_DAUTH_SENSITIVE);
+        });
+        if (allAuthorized) {
+            request.setUsingValueProcess(false);
+        }
+    }
+
+
 }

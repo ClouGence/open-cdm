@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.oceanbase.sql.ob4ora;
 
 import com.clougence.clouddm.ds.oceanbase.i18n.ob4ora.ObOraSqlI18nKeys;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.analysis.sysobj.ObOraSysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -28,5 +29,6 @@ public class ObOraSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(ObOraSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new ObOraSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new ObOraSysObjectRegistrySpi());
     }
 }

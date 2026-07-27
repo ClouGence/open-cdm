@@ -18,14 +18,10 @@ package com.clougence.clouddm.dsfamily.language.validate;
 import java.util.*;
 
 import com.clougence.clouddm.sdk.language.validate.Diagnostic;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.dslpaser.ast.location.BlockLocation;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -111,11 +107,11 @@ public class TablePermissionValidateStrategy implements ValidateStrategy {
     }
 
     private static void addTableResource(List<TableResource> resources, BehaviorObject object) {
-        if (object == null || !isTableResource(object.getTargetType()) || StringUtils.isBlank(object.getResourcePath())) {
+        if (object == null || !isTableResource(object.getObjectType()) || StringUtils.isBlank(object.getObjectPath())) {
             return;
         }
 
-        String[] nodes = object.getResourcePath().split("/");
+        String[] nodes = object.getObjectPath().split("/");
         for (int i = nodes.length - 1; i >= 0; i--) {
             if (StringUtils.isNotBlank(nodes[i])) {
                 BlockLocation objectRange = new BlockLocation();

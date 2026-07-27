@@ -9,6 +9,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.sql.sqlserver.analysis.sysobj.MsSysObjectRegistrySpi;
 import com.clougence.sql.sqlserver.i18n.MsSqlSqlI18nKeys;
 
 @Plugin(name = "MS T-SQL", display = false)
@@ -18,5 +19,6 @@ public class MsSqlSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(MsSqlSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new MsSqlSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new MsSysObjectRegistrySpi());
     }
 }

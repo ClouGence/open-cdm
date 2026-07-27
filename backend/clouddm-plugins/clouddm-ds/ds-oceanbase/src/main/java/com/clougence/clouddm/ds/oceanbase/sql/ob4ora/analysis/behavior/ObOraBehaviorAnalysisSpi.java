@@ -113,6 +113,9 @@ final class ObOraStatementBehaviorVisitor extends ObForOracleParserBaseVisitor<V
         }
         List<String> names = new ArrayList<>();
         collectNames(context, names);
+        if (type == TargetType.Table && names.size() == 1 && "DUAL".equalsIgnoreCase(names.get(0))) {
+            return objects.instanceObject(type, context, names.get(0));
+        }
         return objects.object(type, context, names);
     }
 
@@ -134,9 +137,9 @@ final class ObOraStatementBehaviorVisitor extends ObForOracleParserBaseVisitor<V
         return value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"' ? value.substring(1, value.length() - 1) : value;
     }
 
-    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private BehaviorRelation add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
-            return;
+            return null;
         }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
@@ -144,6 +147,7 @@ final class ObOraStatementBehaviorVisitor extends ObForOracleParserBaseVisitor<V
         relation.getTarget().addAll(targets);
         behavior.getRelations().add(relation);
         behavior.setStatementType(type);
+        return relation;
     }
 
     private <T extends ParserRuleContext> List<T> descendants(ParseTree tree, Class<T> type) {

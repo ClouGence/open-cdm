@@ -13,13 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.analysis;
+package com.clougence.clouddm.sdk.sql.analysis.behavior;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * One flattened resource request derived from a behavior relation.
+ * Structured name of a behavior object.
  */
-public record BehaviorRequest(BehaviorAction action, BehaviorObject resource, boolean skipPermission) {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ObjectName {
+
+    private String catalog;
+    private String schema;
+    private String objectName;
 }

@@ -9,6 +9,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.sql.redis.analysis.sysobj.RedisSysObjectRegistrySpi;
 import com.clougence.sql.redis.i18n.RedisSqlI18nKeys;
 
 @Plugin(name = "Redis Commands", display = false)
@@ -18,5 +19,6 @@ public class RedisSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(RedisSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new RedisSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new RedisSysObjectRegistrySpi());
     }
 }
