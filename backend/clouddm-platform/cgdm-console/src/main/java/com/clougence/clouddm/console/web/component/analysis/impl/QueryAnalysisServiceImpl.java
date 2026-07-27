@@ -134,14 +134,14 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             requests.add(request);
         }
 
-        if (options.isEnabled(QueryAnalysisFeature.SQL_REWRITE)) {
+        if (options.isEnabled(QueryAnalysisFeature.REWRITE)) {
             rewriteRequests(sqlEngine, parameters, requests);
         }
         analysisResources(sqlEngine, parameters, safeLevels, scripts, requests);
-        if (options.isEnabled(QueryAnalysisFeature.COLUMN_ANALYSIS)) {
+        if (options.isEnabled(QueryAnalysisFeature.PROVENANCE)) {
             analysisColumns(sqlEngine, parameters, dsConfig, options, requests);
         }
-        if (options.isEnabled(QueryAnalysisFeature.DESENSITIZATION)) {
+        if (options.isEnabled(QueryAnalysisFeature.MASKING)) {
             analysisDesensitization(options, requests);
         }
         return requests;
