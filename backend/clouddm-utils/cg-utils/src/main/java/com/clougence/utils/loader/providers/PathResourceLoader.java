@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.jar.Manifest;
@@ -136,6 +138,7 @@ public class PathResourceLoader extends AbstractResourceLoader {
         if (listFiles == null) {
             return;
         }
+        Arrays.sort(listFiles, Comparator.comparing(File::getName));
         for (File fileItem : listFiles) {
             if (matchOnce && !result.isEmpty()) {
                 return;
