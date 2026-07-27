@@ -23,10 +23,15 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
+import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
+import com.clougence.clouddm.api.console.sqlaudit.Type;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPhaseOfBatch;
 import com.clougence.clouddm.api.sidecar.session.execute.StatusDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
@@ -45,6 +50,7 @@ import com.clougence.clouddm.console.web.model.vo.editor.query.MessageLevel;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsQueryResult;
 import com.clougence.clouddm.console.web.service.editor.DsQueryEditorService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
+import com.clougence.clouddm.console.web.service.security.AuditService;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -62,7 +68,6 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
-import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
@@ -71,7 +76,6 @@ import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.resource.ResourceAction;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
@@ -108,6 +112,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private QueryAnalysisService analysisService;
     @Resource
     private QueryService         queryService;
+    @Resource
+    private AuditService         auditService;
     @Resource
     private DmEnvParamService    dmEnvParamService;
     private QueryTaskExecutor    queryExecutor;
@@ -299,7 +305,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             .deepParser(false)
             .build();
         List<QueryRequest> requests = new ArrayList<>(this.analysisService.analysisRequests(contextInfo, queryDTO.getQueryString(),//
-                queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn()));
+                queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn(), QueryAnalysisOptions.defaults()));
 
         //
         SessionSpi sessionSpi = ctx.getSessionSpi();
@@ -326,7 +332,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             clone.setQueryBody(analyzed.getQueryBody());
             clone.setQueryArgs(analyzed.getQueryArgs());
             clone.setQueryTypes(analyzed.getQueryTypes());
-            clone.setResourceActions(analyzed.getResourceActions());
+            clone.setRelations(analyzed.getRelations());
             clone.setQueryDsType(analyzed.getQueryDsType());
             clone.setColumnList(analyzed.getColumnList());
             clone.setUsingValueProcess(analyzed.isUsingValueProcess());
@@ -426,6 +432,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             ctx.setPrepareCost(System.currentTimeMillis() - ctx.getStartTime());
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, false));
 
+            for (QueryRequest request : requests) {
+                this.auditService.prepareAudit(ctx.getLevels().dsDO().getId(), request);
+            }
             String batchId = UUID.randomUUID().toString().replace("-", "");
             this.queryService.asyncExecuteQuery(curUid, sessionId, batchId, requests);
 
@@ -434,6 +443,21 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             this.queryExecutor.submitTask(() -> asyncQueryWaitResult(queryDTO, consumer, ctx)); // 4.9. wait result.
             return ExitCode.finish();
         } catch (Exception e) {
+            try {
+                String message = ExceptionUtils.getRootCauseMessage(e);
+                for (QueryRequest request : requests) {
+                    SqlExecNotifyDTO audit = new SqlExecNotifyDTO();
+                    audit.setType(Type.SQL_END);
+                    audit.setSqlStatus(SqlStatus.ERROR);
+                    audit.setQueryId(request.getQueryId());
+                    audit.setSessionId(sessionId);
+                    audit.setMessage(message);
+                    audit.setTime(new Date());
+                    this.auditService.recordAudit(audit, null);
+                }
+            } catch (Throwable auditError) {
+                log.error("Failed to mark prepared SQL audits as error.", auditError);
+            }
             String errorKey = HostUtil.getHostIp() + ":" + UUID.randomUUID().toString().replace("-", "");
             log.error("errorKey: " + errorKey + ", error is ", e.getMessage(), e);
             ctx.resetStatus();
@@ -473,28 +497,29 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             }
 
             String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
-            List<ResourceAction> resourceActions = request.getResourceActions();
-            if (StringUtils.equalsIgnoreCase("true", enable) && //
-                CollectionUtils.isNotEmpty(resourceActions) &&  //
-                resourceActions.stream().anyMatch(action -> action.getAuthKind() != SecDataAuthKind.READ)) {
-                String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
+            if (StringUtils.equalsIgnoreCase("true", enable)) {
+                boolean hasNonReadBehavior = BehaviorRelations.anyMatch(request.getRelations(), (action, object) -> {
+                    return BehaviorRelations.authKind(action, object.getTargetType()) != SecDataAuthKind.READ;
+                });
+                if (hasNonReadBehavior) {
+                    String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
+                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
+                    consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+                    consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                    return false;
+                }
             }
         }
 
         // 6.3 disallow `use xxx` or `set search_path = xxx` or `alter session set container = xxx`
         for (QueryRequest request : requestScripts) {
-            Set<SplitQueryType> queryTypes = request.getQueryTypes();
-            if (queryTypes.contains(SplitQueryType.SWITCH_CATALOG) || queryTypes.contains(SplitQueryType.SWITCH_SCHEMA)) {
+            if (request.hasQueryType(SplitQueryType.SWITCH_CATALOG) || request.hasQueryType(SplitQueryType.SWITCH_SCHEMA)) {
                 String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_SWITCH_CTX_ERROR.name());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
                 return false;
-            } else if (queryTypes.contains(SplitQueryType.TRANSACTION)) {
+            } else if (request.hasQueryType(SplitQueryType.TRANSACTION)) {
                 String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));

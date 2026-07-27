@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.component.autoexec.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -245,7 +246,6 @@ public class AutoExecServiceImpl implements AutoExecService {
         for (DmExecAutoTaskDO taskDO : iPage.getRecords()) {
             DmAutoExecTaskVO vo = new DmAutoExecTaskVO();
             vo.setTaskId(taskDO.getId());
-            vo.setSqlType(taskDO.getSqlType());
             vo.setStatus(taskDO.getStatus());
             vo.setExecSql(taskDO.getExecSql());
             if (taskDO.getAffectRow() != null) {
@@ -308,14 +308,13 @@ public class AutoExecServiceImpl implements AutoExecService {
 
         int order = 1;
         for (SplitScript script : scripts) {
-            SplitQueryType primaryType = script.getPrimaryType();
-            if (primaryType == SplitQueryType.TRANSACTION) {
+            Set<SplitQueryType> queryTypes = script.getType();
+            if (queryTypes.contains(SplitQueryType.TRANSACTION)) {
                 throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
             }
 
             DmExecAutoTaskDO execTask = new DmExecAutoTaskDO();
             execTask.setExecSql(script.getScript());
-            execTask.setSqlType(primaryType);
             execTask.setExecOrder(order++);
             execTask.setStatus(AutoExecTaskStatus.WAIT_EXEC);
 

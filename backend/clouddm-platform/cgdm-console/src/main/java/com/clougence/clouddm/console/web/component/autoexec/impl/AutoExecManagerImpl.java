@@ -15,35 +15,52 @@
  */
 package com.clougence.clouddm.console.web.component.autoexec.impl;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.api.sidecar.autoexec.AutoExecJobDTO;
 import com.clougence.clouddm.api.sidecar.autoexec.AutoExecRService;
+import com.clougence.clouddm.api.sidecar.autoexec.AutoExecTaskDTO;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisOptions;
+import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecManager;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.service.security.AuditService;
 import com.clougence.clouddm.console.web.util.CallUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
-import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.MonitorDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
+import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
 import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
 import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
+import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.execute.ExecuteVariables;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
+import com.clougence.clouddm.sdk.execute.session.SessionSpi;
+import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
+import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -52,15 +69,23 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class AutoExecManagerImpl implements AutoExecManager {
     @Resource
-    private SystemDal        systemDal;
+    private SystemDal            systemDal;
     @Resource
-    private MonitorDal       monitorDal;
+    private MonitorDal           monitorDal;
     @Resource
-    private ExecutionDal     executionDal;
+    private ExecutionDal         executionDal;
     @Resource
-    private ObjectCacheDao   objectCacheDao;
+    private DataSourceDal        dataSourceDal;
     @Resource
-    private AutoExecRService autoExecRService;
+    private ObjectCacheDao       objectCacheDao;
+    @Resource
+    private AutoExecRService     autoExecRService;
+    @Resource
+    private DmDsConfigService    dmDsConfigService;
+    @Resource
+    private QueryAnalysisService analysisService;
+    @Resource
+    private AuditService         auditService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -83,7 +108,7 @@ public class AutoExecManagerImpl implements AutoExecManager {
             return;
         }
         RSocketSendDTO dto = this.buildRSocketSendDTO(dsCacheEntry.getClusterId());
-        autoExecRService.dispatchJob(dto, jobId);
+        AutoExecJobDTO job = this.prepareJob(dmAutoExecJobDO);
 
         DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO,
             DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_START_MESSAGE.name(), dto.getWorkerIP()),
@@ -96,6 +121,92 @@ public class AutoExecManagerImpl implements AutoExecManager {
         dmAutoExecJobDO.setLastReportTime(new Date());
         dmAutoExecJobDO.setWorkerSeqNumber(dto.getWorkerSeqNumber());
         this.executionDal.autoJobMapper().updateById(dmAutoExecJobDO);
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    autoExecRService.dispatchJob(dto, job);
+                } catch (Throwable e) {
+                    log.error("dispatch auto exec job failed after commit, jobId: " + jobId, e);
+                }
+            }
+        });
+    }
+
+    private AutoExecJobDTO prepareJob(DmExecAutoJobDO job) {
+        AutoExecJobDTO job4Auto = new AutoExecJobDTO();
+        Requester requester;
+        if (job.getDependOnBizType() == SQLJobBizType.TICKET) {
+            requester = Requester.TICKET;
+        } else if (job.getDependOnBizType() == SQLJobBizType.CHANGE) {
+            requester = Requester.CHANGE;
+        } else {
+            throw new UnsupportedOperationException("Unsupported type : " + job.getDependOnBizType());
+        }
+
+        job4Auto.setErrorStrategy(job.getConfig().getErrorStrategy());
+        job4Auto.setRetryCount(job.getConfig().getRetryCount());
+        job4Auto.setRetryWaitTime(job.getConfig().getRetryWaitTime());
+        job4Auto.setEnableTransactional(job.getConfig().isEnableTransactional());
+        DmDsDO dsDO = this.dataSourceDal.dsMapper().queryDsIdentityById(job.getDataSourceId());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
+
+        ArrayList<String> levels = new ArrayList<>();
+        levels.add(dsDO.getDsEnvId().toString());
+        levels.add(dsDO.getId().toString());
+        levels.addAll(job.getLevels());
+        Map<UmiTypes, Object> levelsParam = this.dmDsConfigService.parseLevels(levels).levelsParam();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(SessionSpi.PARAMS_DEFAULT_DB, StringUtils.toString(levelsParam.get(UmiTypes.Catalog)));
+        params.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, StringUtils.toString(levelsParam.get(UmiTypes.Schema)));
+        SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
+        SessionContextDTO contextDTO = sessionSpi.createSessionContext(dsConfig, params);
+
+        ContextInfo analysisContext = ContextInfo.builder()//
+            .dsId(dsDO.getId())
+            .dataSourceConfig(dsConfig)
+            .levelsParam(levelsParam)
+            .deepParser(false)
+            .build();
+        QueryAnalysisOptions analysisOptions = QueryAnalysisOptions.skipping(//
+                QueryAnalysisFeature.SQL_REWRITE,       //
+                QueryAnalysisFeature.COLUMN_ANALYSIS,   //
+                QueryAnalysisFeature.DESENSITIZATION);
+
+        List<DmExecAutoTaskDO> taskList = this.executionDal.autoTaskMapper().queryNeedExecTaskList(job.getId());
+        for (DmExecAutoTaskDO task : taskList) {
+            String queryId = "A" + job.getId() + "-" + task.getId();
+            AutoExecTaskDTO taskDTO = new AutoExecTaskDTO();
+            taskDTO.setTaskId(task.getId());
+            taskDTO.setQueryId(queryId);
+            taskDTO.setExecSql(task.getExecSql());
+            taskDTO.setExecOrder(task.getExecOrder());
+            job4Auto.getTaskList().add(taskDTO);
+
+            List<QueryRequest> requests = this.analysisService.analysisRequests(analysisContext, task.getExecSql(), null, 1, 0, analysisOptions);
+            if (requests.size() != 1) {
+                throw new IllegalStateException("Auto execution task must contain exactly one SQL statement.");
+            }
+
+            QueryRequest auditRequest = requests.get(0);
+            auditRequest.setQueryId(queryId);
+            auditRequest.setRequester(requester);
+            auditRequest.setRequestTime(new Date());
+            Map<String, String> variables = new HashMap<>();
+            variables.put(ExecuteVariables.CURRENT_UID, job.getUid());
+            variables.put(ExecuteVariables.DS_ID, String.valueOf(dsDO.getId()));
+            variables.put(ExecuteVariables.CURRENT_CATALOG, StringUtils.toString(levelsParam.get(UmiTypes.Catalog)));
+            variables.put(ExecuteVariables.CURRENT_SCHEMA, StringUtils.toString(levelsParam.get(UmiTypes.Schema)));
+            auditRequest.setVariables(variables);
+            this.auditService.prepareAudit(dsDO.getId(), auditRequest);
+        }
+
+        job4Auto.setContextDTO(contextDTO);
+        job4Auto.setDsId(dsDO.getId());
+        job4Auto.setJobId(job.getId());
+        return job4Auto;
     }
 
     @Transactional(rollbackFor = Throwable.class)

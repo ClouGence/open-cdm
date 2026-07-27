@@ -21,18 +21,18 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import jakarta.annotation.Resource;
-
 import org.slf4j.MDC;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.console.autoexec.ExecJobRService;
+import com.clougence.clouddm.api.sidecar.autoexec.AutoExecJobDTO;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.worker.component.report.ReportUtils;
 import com.clougence.utils.ThreadUtils;
 
+import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,16 +42,11 @@ public class AutoExecJobManagerImpl implements AutoExecJobManager, UnifiedPostCo
 
     @Resource
     private ApplicationContext           applicationContext;
-
     @Resource
     private ExecJobRService              execJobRService;
-
     private ThreadPoolExecutor           threadPoolExecutor;
-
     private ScheduledThreadPoolExecutor  scheduledThreadPoolExecutor;
-
     private final Map<Long, AutoExecJob> map    = new ConcurrentHashMap<>();
-
     private final AtomicBoolean          inited = new AtomicBoolean();
     private WorkerIdentity               workerIdentity;
 
@@ -63,7 +58,6 @@ public class AutoExecJobManagerImpl implements AutoExecJobManager, UnifiedPostCo
         ThreadFactory tf = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "AutoExecWorker-%s");
         // if jobIdQueue is full, ignore the latest additions
         this.threadPoolExecutor = new ThreadPoolExecutor(2, 20, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(200), tf, new ThreadPoolExecutor.AbortPolicy());
-
         this.scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1, tf);
         this.scheduledThreadPoolExecutor.scheduleWithFixedDelay(this::activeJobReport, 10, 10, TimeUnit.SECONDS);
 
@@ -97,21 +91,25 @@ public class AutoExecJobManagerImpl implements AutoExecJobManager, UnifiedPostCo
         }
     }
 
-    public void submit(Long jobId) {
-        if (map.containsKey(jobId)) {
+    @Override
+    public void submit(AutoExecJobDTO job) {
+        Long jobId = job.getJobId();
+        AutoExecJob task = this.applicationContext.getBean(AutoExecJob.class);
+        task.init(job);
+        if (map.putIfAbsent(jobId, task) != null) {
             return;
         }
-
-        AutoExecJob task = this.applicationContext.getBean(AutoExecJob.class);
-
-        task.init(jobId);
-
-        map.put(jobId, task);
         try {
             threadPoolExecutor.execute(() -> {
                 try {
                     MDC.put("jobId", jobId.toString());
+                    if (!this.execJobRService.startJob(identity(), jobId)) {
+                        log.warn("job was not accepted, jobId: {}", jobId);
+                        return;
+                    }
                     task.run();
+                } catch (Exception e) {
+                    log.error("start auto exec job failed, jobId: " + jobId, e);
                 } finally {
                     map.remove(jobId);
                     MDC.remove("jobId");

@@ -28,15 +28,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.console.sqlaudit.SqlAuditContextDTO;
 import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.api.console.sqlaudit.Type;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
-import com.clougence.clouddm.sdk.sql.analysis.resource.ResourceAction;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpHostUtil;
@@ -47,10 +44,13 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.sql.parser.SplitScript;
-import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -74,18 +74,41 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
     @Resource
     private DataSourceDal               dsDal;
     @Resource
-    private QueryAnalysisService        queryAnalysisService;
-    @Resource
     private RdpUserService              rdpUserService;
-    @Resource
-    private DmDsConfigService           dmDsConfigService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void recordAudit(List<SqlExecNotifyDTO> audits, String wsn) {
-        List<LogInfo> logInfos = recodeSql(audits, wsn);
-        for (LogInfo info : logInfos) {
-            logger.info(info.toString());
+    public void prepareAudit(Long dsId, QueryRequest request) {
+        if (request == null) {
+            return;
+        }
+        DmExecSqlAuditDO exists = this.executionDal.sqlAuditMapper().queryByQueryId(request.getQueryId());
+        if (exists != null && request.getRequester() == Requester.CONSOLE) {
+            throw new IllegalStateException("Duplicate SQL audit ACK: " + request.getQueryId());
+        }
+        if (exists != null) {
+            return;
+        }
+        SqlAuditContextDTO context = new SqlAuditContextDTO();
+        context.setQueryTypes(request.getQueryTypes() == null ? new LinkedHashSet<>() : new LinkedHashSet<>(request.getQueryTypes()));
+        context.setRelations(request.getRelations() == null ? Collections.emptyList() : List.copyOf(request.getRelations()));
+
+        DmExecSqlAuditDO auditDO = new DmExecSqlAuditDO();
+        auditDO.setQueryId(request.getQueryId());
+        auditDO.setAnalysisContext(context);
+        auditDO.setExecSql(getString(request.getQueryBody()));
+        auditDO.setOriginalSql(request.isHasRewrite() ? getString(request.getOriginalBody()) : null);
+        auditDO.setDsId(dsId);
+        auditDO.setStatus(SqlStatus.PENDING);
+        this.executionDal.sqlAuditMapper().insert(auditDO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void recordAudit(SqlExecNotifyDTO audit, String wsn) {
+        LogInfo logInfo = recodeSql(audit, wsn);
+        if (logInfo != null) {
+            logger.info(logInfo.toString());
         }
     }
 

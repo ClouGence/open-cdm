@@ -41,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SqlAuditRServiceProvider extends AbstractBasicProvider implements SqlAuditRService {
 
     @Resource
-    private ExecutionBackfillService executionBackfillService;
+    private ExecutionBackfillService backfillService;
     @Resource
     private AuditService             auditService;
 
@@ -51,8 +51,11 @@ public class SqlAuditRServiceProvider extends AbstractBasicProvider implements S
         if (!this.checkAccessKey(identity) || CollectionUtils.isEmpty(audits)) {
             return;
         }
+
         log.info("receive worker auditLog request,date:" + sendTime);
-        this.auditService.recordAudit(audits, identity.getWorkerSeqNumber());
-        this.executionBackfillService.backfill(audits);
+        for (SqlExecNotifyDTO audit : audits) {
+            this.backfillService.backfill(audit);
+            this.auditService.recordAudit(audit, identity.getWorkerSeqNumber());
+        }
     }
 }

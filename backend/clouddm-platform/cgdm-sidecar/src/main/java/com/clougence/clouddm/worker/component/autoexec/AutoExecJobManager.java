@@ -15,9 +15,11 @@
  */
 package com.clougence.clouddm.worker.component.autoexec;
 
+import com.clougence.clouddm.api.sidecar.autoexec.AutoExecJobDTO;
+
 public interface AutoExecJobManager {
 
-    void submit(Long jobId);
+    void submit(AutoExecJobDTO job);
 
     void pauseJob(Long jobId) throws Exception;
 }

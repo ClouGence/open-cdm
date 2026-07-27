@@ -15,14 +15,12 @@
  */
 package com.clougence.clouddm.sdk.execute.session;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -40,7 +38,8 @@ public class QueryRequest implements Cloneable {
     private String                        queryId;
     private String                        queryBody;
     private List<QueryArg>                queryArgs;
-    private SplitQueryType                queryType;
+    private Set<SplitQueryType>           queryTypes;
+    private List<BehaviorRelation>        relations;
     private DataSourceType                queryDsType;
     private Requester                     requester;
     private Date                          requestTime;
@@ -73,7 +72,12 @@ public class QueryRequest implements Cloneable {
         if (this.queryArgs != null) {
             req.queryArgs = this.queryArgs.stream().map(QueryArg::clone).collect(Collectors.toList());
         }
-        req.queryType = this.queryType;
+        if (this.queryTypes != null) {
+            req.queryTypes = new LinkedHashSet<>(this.queryTypes);
+        }
+        if (this.relations != null) {
+            req.relations = List.copyOf(this.relations);
+        }
         req.queryDsType = this.queryDsType;
         req.requester = this.requester;
         req.requestTime = this.requestTime;
@@ -84,7 +88,11 @@ public class QueryRequest implements Cloneable {
         }
 
         req.useCallable = this.useCallable;
-        req.resultConf = this.resultConf.clone();
+        req.resultConf = this.resultConf == null ? null : this.resultConf.clone();
         return req;
+    }
+
+    public boolean hasQueryType(SplitQueryType queryType) {
+        return this.queryTypes != null && this.queryTypes.contains(queryType);
     }
 }
