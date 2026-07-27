@@ -114,7 +114,11 @@ export default {
         })
       );
       this.monacoEditor.onMouseDown((event) => {
-        const decorations = this.monacoEditor.getLineDecorations(event.target.position.lineNumber);
+        const position = event.target?.position;
+        if (!position) {
+          return;
+        }
+        const decorations = this.monacoEditor.getLineDecorations(position.lineNumber);
         if (decorations) {
           let glyphMarginDecoration;
           decorations.forEach((decoration) => {

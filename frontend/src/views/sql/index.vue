@@ -134,7 +134,13 @@
                     />
                   </div>
                   <div ref="result" class="result-wrapper">
-                    <Result :id="`result_${currentTab.key}`" :ref="`result_`" :resultList="currentTab.resultList" :tab="currentTab" />
+                    <Result
+                      :id="`result_${currentTab.key}`"
+                      :ref="`result_`"
+                      :resultList="currentTab.resultList"
+                      :tab="currentTab"
+                      @reloadResult="handleReloadResult"
+                    />
                   </div>
                 </div>
               </div>
@@ -322,6 +328,9 @@ export default {
     ...mapGetters(['isDesktop', 'getNodeType', 'getLeafGroup', 'getLevels', 'getLeafExpand'])
   },
   methods: {
+    handleReloadResult() {
+      this.$refs.sqlViewer?.onRun();
+    },
     onContextmenu(event, tab) {
       this.contextData = tab;
       ContextMenu.showContextMenu({

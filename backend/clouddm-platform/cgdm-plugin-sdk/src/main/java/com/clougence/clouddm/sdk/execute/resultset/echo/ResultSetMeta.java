@@ -35,6 +35,12 @@ public class ResultSetMeta extends Result {
 
     private List<String> columnList;
     private List<String> columnType;
+
+    private String catalog;
+    private String schema;
+    private String table;
+    private String targetType;
+
     private String       cacheFilePath;
     private String       cacheFileUri;
     private DmFileType   cacheFileFormat;

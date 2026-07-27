@@ -35,6 +35,7 @@ import com.clougence.clouddm.console.web.model.fo.editor.data.ExecuteSqlFO;
 import com.clougence.clouddm.console.web.model.fo.editor.data.GenerateDataFO;
 import com.clougence.clouddm.console.web.model.fo.editor.data.SelectCountFO;
 import com.clougence.clouddm.console.web.model.fo.editor.data.SelectDataFO;
+import com.clougence.clouddm.console.web.model.vo.editor.data.DataEditorColumnVO;
 import com.clougence.clouddm.console.web.model.vo.editor.data.DataEditorResultVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.editor.DsDataEditorService;
@@ -144,5 +145,20 @@ public class DataEditorController {
             dto.setSuccess(result.getSuccess());
             return ResWebDataUtils.buildSuccess(dto);
         }
+    }
+
+    @RequestAuth(DM_QUERY_CONSOLE)
+    @RequestMapping(value = "/fetchColumnMeta", method = RequestMethod.POST)
+    public ResWebData<?> fetchColumnMeta(@Valid @RequestBody SelectDataFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+
+        DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels(), fo.getTargetName());
+        this.dmAuthServiceForBiz.checkResPath(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
+
+        List<DataEditorColumnVO> columnList = this.dataEditorService.fetchColumnMeta(levels, fo);
+        return ResWebDataUtils.buildSuccess(columnList);
     }
 }

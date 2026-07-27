@@ -40,4 +40,9 @@ public class WsResultSetMetaMsg extends WsQueryResult {
     private String       querySql;
     private String       original;
     private List<String> rewriteTags;
+
+    private String       catalog;
+    private String       schema;
+    private String       table;
+    private String       targetType;
 }

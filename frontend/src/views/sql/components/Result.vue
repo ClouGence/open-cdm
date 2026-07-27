@@ -94,19 +94,24 @@
       >
         <div class="tip-footer">
           <div class="tip-footer-main">
-            <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
+            <div v-if="selectedTab.resultId && selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
               <div v-if="selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
                 <div class="loading-spinner"></div>
               </div>
-              <Page
-                :model-value="selectedTab.page"
-                :page-size="selectedTab.receiveMode === 'PAGINATED' ? 30 : 50"
-                :total="selectedTab.receiveMode === 'PAGINATED' ? selectedTab.fetchCount || selectedTab.total : selectedTab.total"
-                placement="top"
-                show-total
-                size="small"
-                @on-change="changePage($event)"
-              ></Page>
+              <a-tooltip :title="editMode && hasResultPagination ? $t('jie-guo-bian-ji-jin-zhi-fen-ye-ti-shi') : ''" placement="top">
+                <div class="tip-footer-page-control" :class="{ 'is-disabled': editMode && hasResultPagination }">
+                  <Page
+                    :model-value="selectedTab.page"
+                    :page-size="resultPageSize"
+                    :total="resultTotalRows"
+                    placement="top"
+                    show-total
+                    size="small"
+                    @on-change="handlePageChange"
+                  ></Page>
+                </div>
+              </a-tooltip>
+              <span v-if="editMode" class="tip-footer-edit-page-hint">{{ $t('jie-guo-bian-ji-dang-qian-ye-ti-shi') }}</span>
             </div>
             <div v-else class="stream-info">
               <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
@@ -146,6 +151,18 @@
             </a-popover>
           </div>
           <div class="tip-footer-right">
+            <template v-if="!editMode">
+              <a-tooltip v-if="!isEditable" :title="editDisabledReason" placement="top">
+                <div class="tip-footer-edit-btn disabled">
+                  <CustomIcon type="icon-v2-EditSimple" size="16px" />
+                  <span>{{ $t('bian-ji') }}</span>
+                </div>
+              </a-tooltip>
+              <div v-else class="tip-footer-edit-btn" @click="enterEditMode">
+                <CustomIcon type="icon-v2-EditSimple" hoverStyle size="16px" />
+                <span>{{ $t('bian-ji') }}</span>
+              </div>
+            </template>
             <div class="tip-footer-export" v-if="!selectedTab.exportState?.exporting && selectedTab.exportState?.percent !== 100">
               <Poptip
                 v-if="selectedTab.exportState?.errorStatus === 'FAILED' && selectedTab.exportState?.errorMessage"
@@ -171,12 +188,12 @@
             </div>
           </div>
         </div>
-        <div class="result-table-container" v-if="selectedTab">
+        <div class="result-table-container" v-if="selectedTab.resultId && !editMode">
           <a-table
             class="result-set-style"
             :ref="`result_table_${tab.result.active}`"
             :columns="antdColumns"
-            :dataSource="selectedTab.showData"
+            :dataSource="selectedTab.showData || []"
             :pagination="false"
             :scroll="tableScroll"
             size="small"
@@ -193,7 +210,7 @@
               </div>
             </template>
             <template #bodyCell="{ column, record, index }">
-              <template v-if="column.dataIndex !== 'seq'">
+              <template v-if="record && column.dataIndex !== 'seq'">
                 <div class="vxe-input-tpl" @dblclick.stop="handleCellDetail(record, column, index)">
                   <span v-if="record[column.dataIndex] === null" style="color: #ccc; font-style: italic">NULL</span>
                   <pre v-else style="overflow: hidden; margin: 0" v-html="record[column.dataIndex]"></pre>
@@ -214,6 +231,18 @@
             </template>
           </a-table>
         </div>
+        <ResultEditView
+          v-if="selectedTab.resultId && editMode && editableMeta"
+          :key="selectedTab.resultId"
+          style="flex: 1; min-height: 0"
+          :resultData="selectedTab"
+          :columnMeta="editableMeta.columnList"
+          :levels="editableMeta.levels"
+          :targetName="editableMeta.targetName"
+          :targetType="editableMeta.targetType"
+          @saved="handleEditSaved"
+          @cancel="handleEditCancel"
+        />
       </div>
     </div>
     <CCModal v-model="showInsertSqlModal" @on-cancel="hideShowInsertSqlModal" title="Insert SQL" :width="1000" :mask-closable="false" transfer>
@@ -400,22 +429,27 @@ import dayjs from 'dayjs';
 import { Modal, Tooltip } from 'ant-design-vue';
 import { mysqlInsert, pgInsert } from '@/views/sql/components/typeGroup';
 import copyMixin from '@/mixins/copyMixin';
+import browseMixin from '@/mixins/browseMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { mapGetters, mapState } from 'vuex';
 import CustomIcon from '@/components/function/CustomIcon.vue';
+import ResultEditView from '@/views/sql/components/ResultEditView.vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import XEClipboard from 'xe-clipboard';
+import { cloneDeep as deepClone } from '@/utils/lodash';
+
+// Align with backend default onlineMaxRecordCount; only block editing for very large result sets.
+const RESULT_EDIT_MAX_ROWS = 3000;
 
 export default {
   name: 'Result',
-  mixins: [copyMixin],
+  mixins: [copyMixin, browseMixin],
   props: {
     tab: Object
   },
   components: {
-    CustomIcon
-    // AsyncJobDetail,
-    // AsyncJobList
+    CustomIcon,
+    ResultEditView
   },
   data() {
     return {
@@ -476,7 +510,12 @@ export default {
       paginatedLoadingTimer: null, // Loading timer
       columnWidths: {}, // Stored column widths
       tableScrollY: 240,
-      tableResizeObserver: null
+      tableResizeObserver: null,
+
+      // edit mode
+      editMode: false,
+      editableMeta: null,
+      editShowDataSnapshot: null
     };
   },
   computed: {
@@ -561,6 +600,57 @@ export default {
         x: 'max-content',
         y: this.tableScrollY
       };
+    },
+    isEditable() {
+      if (this.editMode) return false;
+      return !this.editDisabledReason;
+    },
+    editDisabledReason() {
+      const tab = this.selectedTab;
+      if (!tab || !tab.columnList) {
+        return '无结果数据';
+      }
+      if (!tab.table) {
+        return '该结果涉及多表，暂不支持直接编辑';
+      }
+      if (tab.targetType === 'VIEW') {
+        return '视图为只读，暂不支持编辑';
+      }
+      const totalRows = tab.fetchCount || tab.total || 0;
+      if (totalRows > RESULT_EDIT_MAX_ROWS) {
+        return `结果集超过 ${RESULT_EDIT_MAX_ROWS} 行，暂不支持编辑`;
+      }
+      if (tab.receiveMode === 'STREAM') {
+        return '流式结果暂不支持编辑';
+      }
+      return '';
+    },
+    editLevels() {
+      if (!this.tab || !this.tab.node) return [];
+      return this.browseGenLevelsData(this.tab.node);
+    },
+    resultPageSize() {
+      const tab = this.selectedTab;
+      if (!tab) {
+        return 50;
+      }
+      if (tab.receiveMode === 'PAGINATED') {
+        return 30;
+      }
+      return tab.size || 50;
+    },
+    resultTotalRows() {
+      const tab = this.selectedTab;
+      if (!tab) {
+        return 0;
+      }
+      if (tab.receiveMode === 'PAGINATED') {
+        return tab.fetchCount || tab.total || 0;
+      }
+      return tab.total || 0;
+    },
+    hasResultPagination() {
+      return this.resultTotalRows > this.resultPageSize;
     }
   },
   watch: {
@@ -586,6 +676,7 @@ export default {
     'tab.running': {
       handler(running) {
         if (running) {
+          this.exitEditMode();
           return;
         }
         if (this.paginatedLoadingTimer) {
@@ -599,12 +690,23 @@ export default {
       }
     },
     'tab.result.active'(activeKey) {
+      this.exitEditMode();
       if (activeKey === 'message' || activeKey === 'async') {
         this.destroyTableScrollObserver();
         return;
       }
+      this.refreshResultTableLayout();
+    },
+    'tab.result.list.length'() {
+      this.exitEditMode();
+    },
+    editMode(val) {
+      if (val) {
+        this.destroyTableScrollObserver();
+        return;
+      }
       this.$nextTick(() => {
-        this.initTableScrollObserver();
+        this.refreshResultTableLayout();
       });
     }
   },
@@ -655,6 +757,7 @@ export default {
     this.initDsTypeOptions();
   },
   beforeUnmount() {
+    this.exitEditMode();
     this.destroyTableScrollObserver();
     this.$bus.off('setEditorHeight');
     this.$bus.off('consoleMessageAppend');
@@ -786,6 +889,7 @@ export default {
       });
     },
     handleResultTabChange(activeKey) {
+      this.exitEditMode();
       this.tab.result.active = activeKey;
 
       // process message table scroll position
@@ -881,6 +985,13 @@ export default {
         this.tableResizeObserver.disconnect();
         this.tableResizeObserver = null;
       }
+    },
+    refreshResultTableLayout() {
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          this.initTableScrollObserver();
+        });
+      });
     },
     //
     handleViewNoPassedRuleList(index) {
@@ -1207,6 +1318,12 @@ export default {
         filename: `${instance}-${database}-${currentTable}`,
         types: ['csv']
       });
+    },
+    handlePageChange(page) {
+      if (this.editMode) {
+        return;
+      }
+      this.changePage(page);
     },
     async changePage(page) {
       const tab = this.selectedTab;
@@ -1607,6 +1724,66 @@ export default {
         this.selectedTab.exportState.errorStatus = null;
         this.selectedTab.exportState.errorMessage = null;
       }
+    },
+    exitEditMode() {
+      if (!this.editMode) {
+        return;
+      }
+      this.editMode = false;
+      this.editableMeta = null;
+    },
+    async enterEditMode() {
+      const tab = this.selectedTab;
+      if (!tab || !tab.table) return;
+
+      try {
+        const res = await this.$services.dmEditorDataFetchColumnMeta({
+          data: {
+            levels: this.editLevels,
+            targetName: tab.table,
+            targetType: tab.targetType || 'TABLE'
+          }
+        });
+        if (res.success) {
+          const columnList = res.data;
+          const hasPk = columnList.some((c) => c.isPk);
+          if (!hasPk) {
+            Modal.info({
+              title: this.$t('ti-shi'),
+              content: '该表无主键，无法定位数据行'
+            });
+            return;
+          }
+          this.editableMeta = {
+            resultId: tab.resultId,
+            levels: this.editLevels,
+            targetName: tab.table,
+            targetType: tab.targetType || 'TABLE',
+            columnList
+          };
+          this.editShowDataSnapshot = Array.isArray(tab.showData) ? deepClone(tab.showData) : null;
+          this.editMode = true;
+        }
+      } catch (e) {
+        console.error('Failed to fetch column meta:', e);
+      }
+    },
+    restoreEditShowData() {
+      const tab = this.selectedTab;
+      if (!tab || !this.editShowDataSnapshot) {
+        return;
+      }
+      tab.showData = deepClone(this.editShowDataSnapshot);
+    },
+    handleEditSaved() {
+      this.editShowDataSnapshot = null;
+      this.exitEditMode();
+      this.$emit('reloadResult');
+    },
+    handleEditCancel() {
+      this.restoreEditShowData();
+      this.editShowDataSnapshot = null;
+      this.exitEditMode();
     }
   }
 };
@@ -1902,6 +2079,28 @@ export default {
   flex-shrink: 0;
 }
 
+.tip-footer-page-control {
+  display: inline-flex;
+  align-items: center;
+
+  &.is-disabled {
+    cursor: not-allowed;
+
+    :deep(.ivu-page) {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+  }
+}
+
+.tip-footer-edit-page-hint {
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 30px;
+  color: #41454d;
+  white-space: nowrap;
+}
+
 .stream-info {
   flex-shrink: 0;
   line-height: 30px;
@@ -1964,6 +2163,20 @@ export default {
   gap: 4px;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.tip-footer-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-right: 8px;
+
+  &.disabled {
+    cursor: not-allowed;
+    color: #ccc;
+  }
 }
 
 :deep(.ant-table-wrapper .ant-table-resize-handle) {

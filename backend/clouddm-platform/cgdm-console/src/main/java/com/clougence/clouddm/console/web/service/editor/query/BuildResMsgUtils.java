@@ -102,6 +102,10 @@ public class BuildResMsgUtils {
         dto.setCacheFile(result.getCacheFileUri());
         dto.setQuerySql(result.getQuerySql());
         dto.setOriginal(result.getOriginalScript());
+        dto.setCatalog(result.getCatalog());
+        dto.setSchema(result.getSchema());
+        dto.setTable(result.getTable());
+        dto.setTargetType(result.getTargetType());
 
         if (result.isHasRewrite()) {
             dto.setOriginal(result.getOriginalScript().trim());

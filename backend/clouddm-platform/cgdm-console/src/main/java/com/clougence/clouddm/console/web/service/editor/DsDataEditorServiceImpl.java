@@ -32,6 +32,7 @@ import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.editor.data.*;
+import com.clougence.clouddm.console.web.model.vo.editor.data.DataEditorColumnVO;
 import com.clougence.clouddm.console.web.model.vo.editor.data.DataEditorResultVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataEditorChangeDTO;
 import com.clougence.clouddm.console.web.service.editor.model.DataEditorExecuteResultDTO;
@@ -72,6 +73,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class DsDataEditorServiceImpl implements DsDataEditorService {
 
+    @Resource
     private DmDsConfigService   dmDsConfigService;
     @Resource
     private DsSchemaService     dsSchemaService;
@@ -270,6 +272,27 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         } finally {
             this.queryService.closeSession(uid, sessionId);
         }
+    }
+
+    /** for service API '/editor/meta/fetchColumnMeta' */
+    @Override
+    public List<DataEditorColumnVO> fetchColumnMeta(DsLevels levels, SelectDataFO selectFO) {
+        DmDsDO dsDO = levels.dsDO();
+        Map<UmiTypes, Object> levelsParam = levels.levelsParam();
+        String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+        String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
+        String table = selectFO.getTargetName();
+        UmiTypes targetType = UmiTypes.valueOfCode(selectFO.getTargetType());
+
+        RdbTable rdbTable = (RdbTable) this.dsSchemaService.detailLeaf(dsDO, levelsParam, targetType, table, true);
+        if (rdbTable == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_TABLE_NOT_EXIST_ERROR.name(), table));
+        }
+
+        List<RdbColumn> columns = new ArrayList<>(rdbTable.getColumns().values());
+        DataEditorResultDTO resultDto = new DataEditorResultDTO();
+        EditorConvertUtils.convertDataEditorResultDto(columns, resultDto, rdbTable);
+        return EditorConvertUtils.convertColumnDTO2VO(resultDto.getColumnList());
     }
 
     //
