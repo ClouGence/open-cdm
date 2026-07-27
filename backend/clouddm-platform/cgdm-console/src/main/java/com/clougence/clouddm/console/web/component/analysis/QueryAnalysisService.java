@@ -16,15 +16,11 @@
 package com.clougence.clouddm.console.web.component.analysis;
 
 import java.util.List;
-import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
-import com.clougence.clouddm.sdk.sql.analysis.resource.ResourceAction;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
-import com.clougence.schema.umi.struts.UmiTypes;
 
 /**
  * @author mode 2020-01-20 21:04
@@ -35,9 +31,6 @@ public interface QueryAnalysisService {
     List<SplitScript> analysisSplit(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs,//
                                     int baseCodeLine, int baseCodeColumn);
 
-    List<ResourceAction> analysisResource(DataSourceConfig dsConfig, String queryString,//
-                                          Map<UmiTypes, Object> levels, int baseCodeLine, int baseCodeColumn);
-
-    List<QueryRequest> analysisRequests(ContextInfo contextInfo, String queryString, List<QueryArg> queryArgs,//
-                                        int baseCodeLine, int baseCodeColumn);
+    List<QueryRequest> analysisRequests(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs,//
+                                        int baseCodeLine, int baseCodeColumn, QueryAnalysisOptions options);
 }

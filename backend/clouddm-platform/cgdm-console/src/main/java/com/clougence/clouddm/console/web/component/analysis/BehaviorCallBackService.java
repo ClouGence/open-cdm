@@ -15,11 +15,6 @@
  */
 package com.clougence.clouddm.console.web.component.analysis;
 
-import java.util.List;
-
-import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
-
-public interface ExecutionBackfillService {
-
-    void backfill(List<SqlExecNotifyDTO> audits);
+public interface BehaviorCallBackService {
+    void onSuccess(String queryId);
 }

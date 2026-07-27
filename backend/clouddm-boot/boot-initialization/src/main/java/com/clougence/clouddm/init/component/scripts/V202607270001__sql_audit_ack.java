@@ -26,7 +26,6 @@ public class V202607270001__sql_audit_ack extends AbstractUpgradeJavaMigration {
         return List.of("""
                     alter table dm_exec_sql_audit
                         add query_id varchar(64) null,
-                        add analysis_context longtext null,
                         modify session_id varchar(255) null,
                         modify work_seq_number varchar(255) null
                 """, """
@@ -35,6 +34,29 @@ public class V202607270001__sql_audit_ack extends AbstractUpgradeJavaMigration {
                 """, """
                     create index idx_exec_sql_audit_session_status
                         on dm_exec_sql_audit (session_id, status)
+                """, """
+                    alter table dm_exec_sql_audit
+                        modify operate_time datetime(3) null,
+                        modify uid varchar(36) null,
+                        modify user_name varchar(255) null,
+                        modify ds_desc varchar(1024) null,
+                        modify data_source_type varchar(128) null,
+                        modify log_ip varchar(255) null,
+                        modify requester varchar(32) null
+                """, """
+                    alter table dm_exec_auto_task
+                        drop column sql_type
+                """, """
+                    alter table dm_exec_sql_audit
+                        add behaviors longtext null
+                """, """
+                    alter table dm_exec_sql_audit
+                        drop column primary_uid,
+                        drop column resource,
+                        drop column sql_kind
+                """, """
+                    alter table dm_approval
+                        add behaviors longtext null
                 """);
     }
 }
