@@ -4,7 +4,7 @@ alter table "test"."user_table" add address varchar(255);
 expect:
 {
   "contains": [
-    {"class":"OraColumnDomain", "sqlTypes": ["ADD_COLUMN"], "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeName":"varchar", "typeDesc":"varchar(255)"}
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeName":"varchar", "typeDesc":"varchar(255)"}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ alter table user_table add address varchar(255) primary key;
 expect:
 {
   "contains": [
-    {"class":"OraColumnDomain", "sqlTypes": ["ADD_COLUMN"], "auditKind":"CREATE", "table":"user_table", "column":"address", "typeName":"varchar", "typeDesc":"varchar(255)", "primary":true}
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"user_table", "column":"address", "typeName":"varchar", "typeDesc":"varchar(255)", "primary":true}
   ]
 }
 ----------
@@ -24,7 +24,7 @@ alter table user_table add address varchar(255) references abc(id2);
 expect:
 {
   "contains": [
-    {"class":"OraColumnDomain", "sqlTypes": ["ADD_COLUMN"], "auditKind":"CREATE", "table":"user_table", "column":"address", "typeName":"varchar", "typeDesc":"varchar(255)", "foreign":true}
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"user_table", "column":"address", "typeName":"varchar", "typeDesc":"varchar(255)", "foreign":true}
   ]
 }
 ----------
@@ -34,7 +34,7 @@ alter table user_table drop column address;
 expect:
 {
   "contains": [
-    {"class":"OraColumnDomain", "sqlTypes": ["DROP_COLUMN"], "auditKind":"DROP", "table":"user_table", "column":"address"}
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_DROP_COLUMN", "auditKind":"DROP", "table":"user_table", "column":"address"}
   ]
 }
 ----------
@@ -44,7 +44,7 @@ alter table "abc" modify column1 nvarchar2(22);
 expect:
 {
   "contains": [
-    {"class":"OraColumnDomain", "sqlTypes": ["ALTER_COLUMN"], "auditKind":"ALTER", "table":"abc", "column":"column1", "typeName":"nvarchar2", "typeDesc":"nvarchar2(22)", "nullable":true}
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ALTER_COLUMN", "auditKind":"ALTER", "table":"abc", "column":"column1", "typeName":"nvarchar2", "typeDesc":"nvarchar2(22)", "nullable":true}
   ]
 }
 ----------
@@ -54,6 +54,6 @@ alter table "abc" modify column1 nvarchar2(22) not null;
 expect:
 {
   "contains": [
-    {"class":"OraColumnDomain", "sqlTypes": ["ALTER_COLUMN"], "auditKind":"ALTER", "table":"abc", "column":"column1", "typeName":"nvarchar2", "typeDesc":"nvarchar2(22)", "nullable":false}
+    {"class":"OraColumnDomain", "sqlType": "ALTER_TABLE_ALTER_COLUMN", "auditKind":"ALTER", "table":"abc", "column":"column1", "typeName":"nvarchar2", "typeDesc":"nvarchar2(22)", "nullable":false}
   ]
 }

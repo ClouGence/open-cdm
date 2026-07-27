@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 
 import lombok.Getter;
@@ -30,6 +31,11 @@ import lombok.Setter;
 public class MyFlushDomain extends RuleDomain {
 
     private MyFlushType flushType;
+
+    @Override
+    public RuleQueryType getSqlType() {
+        return RuleQueryType.MYSQL_FLUSH;
+    }
 
     @Override
     public List<Map<TargetType, String>> resolveResource() {

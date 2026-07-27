@@ -4,7 +4,7 @@ update test_schema.table2 set a=1 where id=2;
 expect:
 {
   "contains": [
-    {"class":"PgUpdateDomain", "sqlTypes": ["UPDATE"], "auditKind":"DML", "schema":"test_schema", "table":"table2"}
+    {"class":"PgUpdateDomain", "sqlType": "UPDATE", "auditKind":"DML", "schema":"test_schema", "table":"table2"}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ update pub.test_schema.table2 set a=1 where id=2;
 expect:
 {
   "contains": [
-    {"class":"PgUpdateDomain", "sqlTypes": ["UPDATE"], "auditKind":"DML", "catalog":"pub", "schema":"test_schema", "table":"table2"}
+    {"class":"PgUpdateDomain", "sqlType": "UPDATE", "auditKind":"DML", "catalog":"pub", "schema":"test_schema", "table":"table2"}
   ]
 }
 ----------
@@ -24,7 +24,7 @@ delete from test_schema.table2 where id=2;
 expect:
 {
   "contains": [
-    {"class":"PgDeleteDomain", "sqlTypes": ["DELETE"], "auditKind":"DML", "schema":"test_schema", "table":"table2"}
+    {"class":"PgDeleteDomain", "sqlType": "DELETE", "auditKind":"DML", "schema":"test_schema", "table":"table2"}
   ]
 }
 ----------
@@ -34,7 +34,7 @@ select * from test_schema.table2;
 expect:
 {
   "contains": [
-    {"class":"PgSelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "childrenSize":1},
+    {"class":"PgSelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "childrenSize":1},
     {"class":"RdbTableDomain", "schema":"test_schema", "table":"table2"}
   ]
 }
@@ -45,7 +45,7 @@ select t1.*, t2.b from test_schema.table1 t1 join test_schema.table2 t2 on t1.id
 expect:
 {
   "contains": [
-    {"class":"PgSelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "childrenSize":2},
+    {"class":"PgSelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "childrenSize":2},
     {"class":"RdbTableDomain", "schema":"test_schema", "table":"table1"},
     {"class":"RdbTableDomain", "schema":"test_schema", "table":"table2"}
   ]
@@ -57,7 +57,7 @@ drop table test_schema.table2;
 expect:
 {
   "contains": [
-    {"class":"PgTableDomain", "sqlTypes": ["DROP_TABLE"], "auditKind":"DROP", "schema":"test_schema", "table":"table2"}
+    {"class":"PgTableDomain", "sqlType": "DROP_TABLE", "auditKind":"DROP", "schema":"test_schema", "table":"table2"}
   ]
 }
 ----------
@@ -67,7 +67,7 @@ create schema test_schema;
 expect:
 {
   "contains": [
-    {"class":"PgSchemaDomain", "sqlTypes": ["CREATE_SCHEMA"], "auditKind":"CREATE", "schema":"test_schema"}
+    {"class":"PgSchemaDomain", "sqlType": "CREATE_SCHEMA", "auditKind":"CREATE", "schema":"test_schema"}
   ]
 }
 ----------
@@ -77,6 +77,6 @@ drop schema test_schema;
 expect:
 {
   "contains": [
-    {"class":"PgSchemaDomain", "sqlTypes": ["DROP_SCHEMA"], "auditKind":"DROP", "schema":"test_schema"}
+    {"class":"PgSchemaDomain", "sqlType": "DROP_SCHEMA", "auditKind":"DROP", "schema":"test_schema"}
   ]
 }

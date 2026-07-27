@@ -4,7 +4,7 @@
         hint "是否允许使用外键约束"
 
 if
-  @domain.sqlType in ['CREATE_TABLE', 'ADD_CONSTRAINT']
+  @domain.sqlType in ['CREATE_TABLE_ADD_CONSTRAINT', 'ALTER_TABLE_ADD_CONSTRAINT']
 then
 
   if @domain.type == 'ForeignKey' then

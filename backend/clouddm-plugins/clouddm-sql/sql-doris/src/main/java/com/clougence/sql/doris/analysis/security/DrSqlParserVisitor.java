@@ -1250,7 +1250,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAddIndexClause(AddIndexClauseContext ctx) {
         RdbIndexDomain indexDomain = new RdbIndexDomain();
-        indexDomain.setSqlType(RuleQueryType.ADD_INDEX);
+        indexDomain.setSqlType(RuleQueryType.ALTER_TABLE_ADD_INDEX);
         indexDomain.setAuditKind(SecQueryKind.CREATE);
         indexDomain.setType("index");
 

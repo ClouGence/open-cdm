@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.utils.StringUtils;
 
@@ -44,6 +45,11 @@ public final class MyShowDomain extends RuleDomain {
     private String     trigger;
     private String     userOrRole;
     private String     func;
+
+    @Override
+    public RuleQueryType getSqlType() {
+        return RuleQueryType.SHOW;
+    }
 
     public MyShowTypeKind getShowKind() {
         if (this.showType == null) {

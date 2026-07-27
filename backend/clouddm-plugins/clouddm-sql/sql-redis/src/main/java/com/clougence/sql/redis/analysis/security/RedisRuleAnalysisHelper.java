@@ -263,7 +263,7 @@ public class RedisRuleAnalysisHelper extends RedisParserBaseVisitor<RuleQueryTyp
             case ZUNIONSTORE:
             case PFADD:
             case PFMERGE:
-                return RuleQueryType.MERGE;
+                return RuleQueryType.WRITE;
 
             case COPY:
             case MSETNX:
@@ -338,9 +338,9 @@ public class RedisRuleAnalysisHelper extends RedisParserBaseVisitor<RuleQueryTyp
 
         switch (cmdType.getKindType()) {
             case Read:
-                return RuleQueryType.SELECT;
+                return RuleQueryType.READ;
             case Write:
-                return RuleQueryType.UNKNOWN;
+                return RuleQueryType.WRITE;
             case Script:
                 return RuleQueryType.UNKNOWN;
             case Maintenance:

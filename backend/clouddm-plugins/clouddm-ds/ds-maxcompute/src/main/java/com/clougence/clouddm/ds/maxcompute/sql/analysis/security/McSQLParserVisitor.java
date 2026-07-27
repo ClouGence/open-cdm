@@ -73,7 +73,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN_TABLE);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -83,8 +83,8 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitShowRoles(McParserParser.ShowRolesContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
-        rdbResourceDomain.setTarget(TargetType.Role);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setTarget(TargetType.UserOrRole);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -95,7 +95,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.User);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -106,7 +106,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Catalog);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -117,7 +117,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(RuleQueryType.PERFORMANCE);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, this.builder.getSchemaEnabled());
@@ -135,7 +135,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(rdbResourceDomain);
         return null;
@@ -146,7 +146,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, this.builder.getSchemaEnabled());
@@ -164,7 +164,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, this.builder.getSchemaEnabled());
@@ -182,7 +182,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, this.builder.getSchemaEnabled());
@@ -276,7 +276,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         }
         RdbConfigDomain rdbConfigDomain = new RdbConfigDomain(getText(ctx.key));
         rdbConfigDomain.setAuditKind(SecQueryKind.OTHER);
-        rdbConfigDomain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
+        rdbConfigDomain.setSqlType(RuleQueryType.CONFIG_WRITE);
         builder.addDomain(rdbConfigDomain);
         return null;
     }
@@ -294,9 +294,9 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         if (ctx.create_table_definition() instanceof McParserParser.CreateTableColumnContext) {
             builder.enterCreateTable(RuleQueryType.CREATE_TABLE);
         } else if (ctx.create_table_definition() instanceof McParserParser.CreateTableLikeContext) {
-            builder.enterCreateTable(RuleQueryType.CREATE_TABLE);
+            builder.enterCreateTable(RuleQueryType.CREATE_TABLE_LIKE);
         } else {
-            builder.enterCreateTable(RuleQueryType.CREATE_TABLE);
+            builder.enterCreateTable(RuleQueryType.CREATE_TABLE_SELECT);
         }
         if (ctx.T_EXISTS() != null) {
             builder.addAttr(CommonAttribute.IF_NOT_EXISTS, true);
@@ -441,7 +441,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
     public Void visitAlterTableReanme(McParserParser.AlterTableReanmeContext ctx) {
         McTableDomain mcTableDomain = new McTableDomain();
         mcTableDomain.setAuditKind(SecQueryKind.ALTER);
-        mcTableDomain.setSqlType(RuleQueryType.RENAME_TABLE);
+        mcTableDomain.setSqlType(RuleQueryType.ALTER_TABLE_RENAME);
         String text = getText(ctx.ident());
         if (text.startsWith("`")) {
             text = text.substring(1, text.length() - 1);
@@ -500,7 +500,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         McColumnDomain mcColumnDomain = new McColumnDomain();
         mcColumnDomain.setColumn(getName(getText(ctx.oldname)));
         mcColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        mcColumnDomain.setSqlType(RuleQueryType.ALTER_COLUMN);
+        mcColumnDomain.setSqlType(RuleQueryType.ALTER_TABLE_ALTER_COLUMN);
         mcColumnDomain.setNullable(true);
         builder.handleDomain(mcColumnDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -511,7 +511,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         McColumnDomain mcColumnDomain = new McColumnDomain();
         mcColumnDomain.setColumn(getName(getText(ctx.oldname)));
         mcColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        mcColumnDomain.setSqlType(RuleQueryType.ALTER_COLUMN);
+        mcColumnDomain.setSqlType(RuleQueryType.ALTER_TABLE_ALTER_COLUMN);
         mcColumnDomain.setComment(getString(ctx.comment_clause().L_S_STRING().getText()));
         builder.handleDomain(mcColumnDomain, DomainSource.ALTER_TABLE_ITEM);
         return null;
@@ -798,7 +798,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.table_name().qident());
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, builder.getSchemaEnabled());
@@ -866,7 +866,7 @@ public class McSQLParserVisitor extends McParserBaseVisitor<Void> {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setNeedSupply(true);
         rdbResourceDomain.setTarget(TargetType.Table);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.SHOW);
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
         List<String> list = parserQident(ctx.tableName);
         Map<UmiTypes, String> map = McBuilderUtil.parseTableName(list, builder.getSchemaEnabled());

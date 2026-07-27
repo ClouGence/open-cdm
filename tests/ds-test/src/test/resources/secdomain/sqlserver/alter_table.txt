@@ -4,7 +4,7 @@ alter table [dbo].[user_table] add [address] varchar(255);
 expect:
 {
   "contains": [
-    {"class":"MsTableDomain", "sqlTypes": ["ALTER_TABLE"], "auditKind":"ALTER", "schema":"dbo", "table":"user_table"}
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "schema":"dbo", "table":"user_table"}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ alter table user_table add address varchar(255) primary key;
 expect:
 {
   "contains": [
-    {"class":"MsTableDomain", "sqlTypes": ["ALTER_TABLE"], "auditKind":"ALTER", "table":"user_table"}
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"user_table"}
   ]
 }
 ----------
@@ -24,7 +24,7 @@ alter table user_table add address int references abc(id2);
 expect:
 {
   "contains": [
-    {"class":"MsTableDomain", "sqlTypes": ["ALTER_TABLE"], "auditKind":"ALTER", "table":"user_table"}
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"user_table"}
   ]
 }
 ----------
@@ -34,7 +34,7 @@ alter table user_table drop column address;
 expect:
 {
   "contains": [
-    {"class":"MsTableDomain", "sqlTypes": ["ALTER_TABLE"], "auditKind":"ALTER", "table":"user_table"}
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"user_table"}
   ]
 }
 ----------
@@ -44,6 +44,6 @@ alter table test alter column a1 char(10);
 expect:
 {
   "contains": [
-    {"class":"MsTableDomain", "sqlTypes": ["ALTER_TABLE"], "auditKind":"ALTER", "table":"test"}
+    {"class":"MsTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"test"}
   ]
 }

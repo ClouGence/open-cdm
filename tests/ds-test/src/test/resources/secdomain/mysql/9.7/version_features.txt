@@ -4,7 +4,7 @@ CREATE LIBRARY split_lib LANGUAGE JAVASCRIPT AS $$export function f() { return 1
 expect:
 {
   "contains": [
-    {"sqlTypes": ["CREATE_LIBRARY"], "auditKind":"CREATE", "target":"Library", "needSupply":false}
+    {"sqlType": "CREATE_LIBRARY", "auditKind":"CREATE", "target":"Library", "needSupply":false}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ ALTER LIBRARY split_lib COMMENT 'updated'
 expect:
 {
   "contains": [
-    {"sqlTypes": ["ALTER_LIBRARY"], "auditKind":"ALTER", "target":"Library", "needSupply":false}
+    {"sqlType": "ALTER_LIBRARY", "auditKind":"ALTER", "target":"Library", "needSupply":false}
   ]
 }
 ----------
@@ -24,7 +24,7 @@ DROP LIBRARY IF EXISTS split_lib
 expect:
 {
   "contains": [
-    {"sqlTypes": ["DROP_LIBRARY"], "auditKind":"DROP", "target":"Library", "needSupply":false}
+    {"sqlType": "DROP_LIBRARY", "auditKind":"DROP", "target":"Library", "needSupply":false}
   ]
 }
 ----------
@@ -34,7 +34,7 @@ SHOW CREATE LIBRARY split_lib
 expect:
 {
   "contains": [
-    {"sqlTypes": ["UNKNOWN"], "auditKind":"QUERY", "showType":"CREATE_LIBRARY", "showKind":"DDL", "target":"Object"}
+    {"sqlType": "SHOW", "auditKind":"QUERY", "showType":"CREATE_LIBRARY", "showKind":"DDL", "target":"Object"}
   ]
 }
 ----------
@@ -44,7 +44,7 @@ SHOW LIBRARY STATUS
 expect:
 {
   "contains": [
-    {"sqlTypes": ["UNKNOWN"], "auditKind":"QUERY", "showType":"LIBRARY_STATUS", "showKind":"METADATA", "target":"Object"}
+    {"sqlType": "SHOW", "auditKind":"QUERY", "showType":"LIBRARY_STATUS", "showKind":"METADATA", "target":"Object"}
   ]
 }
 ----------
@@ -54,7 +54,7 @@ ALTER TABLE t_mask ALTER COLUMN ssn SET MASKING POLICY split_mask
 expect:
 {
   "contains": [
-    {"class":"MyColumnDomain", "sqlTypes": ["ALTER_COLUMN"], "auditKind":"ALTER", "table":"t_mask", "column":"ssn"}
+    {"class":"MyColumnDomain", "sqlType": "ALTER_TABLE_ALTER_COLUMN", "auditKind":"ALTER", "table":"t_mask", "column":"ssn"}
   ]
 }
 ----------
@@ -64,7 +64,7 @@ CREATE JSON DUALITY VIEW jdv AS SELECT JSON_DUALITY_OBJECT('_id' : id) FROM root
 expect:
 {
   "contains": [
-    {"sqlTypes": ["CREATE_VIEW"], "auditKind":"CREATE", "view":"jdv", "materialized":false}
+    {"sqlType": "CREATE_VIEW", "auditKind":"CREATE", "view":"jdv", "materialized":false}
   ]
 }
 ----------
@@ -74,7 +74,7 @@ CREATE TABLE vector_t (embedding VECTOR(3))
 expect:
 {
   "contains": [
-    {"sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"vector_t"}
+    {"sqlType": "CREATE_TABLE", "auditKind":"CREATE", "table":"vector_t"}
   ]
 }
 ----------
@@ -84,7 +84,7 @@ ALTER USER 'split_mfa_accept'@'%' ADD 2 FACTOR IDENTIFIED WITH caching_sha2_pass
 expect:
 {
   "contains": [
-    {"sqlTypes": ["ALTER_USER"], "auditKind":"ALTER", "target":"User", "needSupply":false}
+    {"sqlType": "ALTER_USER", "auditKind":"ADMIN", "target":"UserOrRole", "needSupply":false}
   ]
 }
 ----------
@@ -94,8 +94,8 @@ SELECT {fn CONCAT(a1,a2)} FROM t1
 expect:
 {
   "contains": [
-    {"sqlTypes": ["SELECT"], "auditKind":"QUERY", "selectFunc":["CONCAT"], "funcInSelect":true},
-    {"class":"RdbCallDomain", "sqlTypes": ["CALL_PROG_OBJ"], "auditKind":"CALL", "callName":"CONCAT", "childrenSize":2}
+    {"sqlType": "SELECT", "auditKind":"QUERY", "selectFunc":["CONCAT"], "funcInSelect":true},
+    {"class":"RdbCallDomain", "sqlType": "CALL_PROG_OBJ", "auditKind":"CALL", "callName":"CONCAT", "childrenSize":2}
   ]
 }
 ----------
@@ -105,7 +105,7 @@ SELECT split_parser_identifier.star_t.* FROM star_t
 expect:
 {
   "contains": [
-    {"class":"MySelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "hasSelectAll":true}
+    {"class":"MySelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "hasSelectAll":true}
   ]
 }
 ----------
@@ -115,7 +115,7 @@ SET PERSIST_ONLY back_log = 1000
 expect:
 {
   "contains": [
-    {"class":"MyConfigDomain", "sqlTypes": ["SYSTEM_SETTING_WRITE"], "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL"}
+    {"class":"MyConfigDomain", "sqlType": "CONFIG_WRITE", "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL"}
   ]
 }
 ----------
@@ -125,7 +125,7 @@ SET @@PERSIST_ONLY.back_log = 1001
 expect:
 {
   "contains": [
-    {"class":"MyConfigDomain", "sqlTypes": ["SYSTEM_SETTING_WRITE"], "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL"}
+    {"class":"MyConfigDomain", "sqlType": "CONFIG_WRITE", "auditKind":"OTHER", "configKey":"back_log", "type":"GLOBAL"}
   ]
 }
 ----------
@@ -135,7 +135,7 @@ START GROUP_REPLICATION USER='repl_user', PASSWORD='secret', DEFAULT_AUTH='cachi
 expect:
 {
   "contains": [
-    {"sqlTypes": ["ALTER_REPLICATION"], "auditKind":"ALTER", "target":"Replication", "needSupply":false}
+    {"sqlType": "ALTER_REPLICATION", "auditKind":"ALTER", "target":"Replication", "needSupply":false}
   ]
 }
 ----------
@@ -145,7 +145,7 @@ STOP GROUP_REPLICATION
 expect:
 {
   "contains": [
-    {"sqlTypes": ["ALTER_REPLICATION"], "auditKind":"ALTER", "target":"Replication", "needSupply":false}
+    {"sqlType": "ALTER_REPLICATION", "auditKind":"ALTER", "target":"Replication", "needSupply":false}
   ]
 }
 ----------
@@ -158,6 +158,6 @@ ON c.col_int=b.pk
 expect:
 {
   "contains": [
-    {"class":"MySelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "joinTypes":["INNER_JOIN"]}
+    {"class":"MySelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "joinTypes":["INNER_JOIN"]}
   ]
 }

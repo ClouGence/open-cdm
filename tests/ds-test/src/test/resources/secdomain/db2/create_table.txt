@@ -4,8 +4,8 @@ create table abc(id int)
 expect:
 {
   "contains": [
-    {"class":"Db2TableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc"},
-    {"class":"Db2ColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"Db2TableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "table":"abc"},
+    {"class":"Db2ColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }
 ----------
@@ -23,11 +23,11 @@ create table app.employee(
 expect:
 {
   "contains": [
-    {"class":"Db2TableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"app", "table":"employee", "hasPrimary":true, "hasUnique":true, "hasForeignKey":true, "hasIndex":true, "columns":["id","dept_id","name"]},
-    {"class":"Db2ColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"app", "table":"employee", "column":"id", "typeDesc":"int", "typeName":"int", "nullable":false, "primary":true},
-    {"class":"Db2ColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"app", "table":"employee", "column":"name", "typeDesc":"varchar(50)", "typeName":"varchar", "defaultValue":"n/a", "unique":true},
-    {"class":"RdbConstraintDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "tableSchema":"app", "tableName":"employee", "name":"pk_employee", "type":"Primary", "columns":["id"]},
-    {"class":"RdbConstraintDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "tableSchema":"app", "tableName":"employee", "name":"fk_employee", "type":"ForeignKey", "columns":["dept_id"]},
-    {"class":"RdbIndexDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "tableSchema":"app", "tableName":"employee", "columns":["name"]}
+    {"class":"Db2TableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"employee", "hasPrimary":true, "hasUnique":true, "hasForeignKey":true, "hasIndex":true, "columns":["id","dept_id","name"]},
+    {"class":"Db2ColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"app", "table":"employee", "column":"id", "typeDesc":"int", "typeName":"int", "nullable":false, "primary":true},
+    {"class":"Db2ColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"app", "table":"employee", "column":"name", "typeDesc":"varchar(50)", "typeName":"varchar", "defaultValue":"n/a", "unique":true},
+    {"class":"RdbConstraintDomain", "sqlType": "CREATE_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableSchema":"app", "tableName":"employee", "name":"pk_employee", "type":"Primary", "columns":["id"]},
+    {"class":"RdbConstraintDomain", "sqlType": "CREATE_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableSchema":"app", "tableName":"employee", "name":"fk_employee", "type":"ForeignKey", "columns":["dept_id"]},
+    {"class":"RdbIndexDomain", "sqlType": "CREATE_TABLE_ADD_INDEX", "auditKind":"CREATE", "tableSchema":"app", "tableName":"employee", "columns":["name"]}
   ]
 }

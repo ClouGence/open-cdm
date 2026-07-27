@@ -78,6 +78,18 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitColumn_and_period_list(com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_listContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitColumn_and_period_list_(com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_list_Context ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
     public Void visitVariableshowstmt(VariableshowstmtContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);

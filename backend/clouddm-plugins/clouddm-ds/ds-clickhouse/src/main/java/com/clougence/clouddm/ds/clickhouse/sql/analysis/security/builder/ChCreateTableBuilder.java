@@ -67,7 +67,7 @@ public class ChCreateTableBuilder extends CreateTableBuilder<ChTableDomain> {
                     return;
                 }
                 rdbConstantDomain.setAuditKind(SecQueryKind.CREATE);
-                rdbConstantDomain.setSqlType(RuleQueryType.CREATE_TABLE);
+                rdbConstantDomain.setSqlType(RuleQueryType.CREATE_TABLE_ADD_CONSTRAINT);
                 rdbTableDomain.getConstraintDomains().add(rdbConstantDomain);
             }
         } else if (source == DomainSource.OPTIONS) {

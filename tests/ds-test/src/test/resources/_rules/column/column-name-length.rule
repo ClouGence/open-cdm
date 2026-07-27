@@ -2,9 +2,9 @@
         default "30"
         hint "列名的最大长度"
 
-if @domain.sqlType in ['CREATE_TABLE', 'ADD_COLUMN'] then
+if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
   checkName = @domain.column
-elseif @domain.sqlType == 'RENAME_COLUMN' then
+elseif @domain.sqlType == 'ALTER_TABLE_RENAME_COLUMN' then
   checkName = @domain.newName
 else
   return true

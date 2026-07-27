@@ -22,6 +22,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
@@ -78,7 +79,7 @@ public class MongoSecDomainResolveSpi implements SecDomainResolveSpi {
 
                 RuleQueryType convert = MongoAnalysisHelper.convert(funcType);
                 mongoCmdDomain.setSqlType(convert);
-                mongoCmdDomain.setAuditKind(convert.getAuditKind());
+                mongoCmdDomain.setAuditKind(convert == RuleQueryType.READ ? SecQueryKind.QUERY : convert.getAuditKind());
                 mongoCmdDomain.setFunc(funcStr);
                 mongoCmdDomain.setDsType(dsType);
                 mongoCmdDomain.setSplitScript(ss);

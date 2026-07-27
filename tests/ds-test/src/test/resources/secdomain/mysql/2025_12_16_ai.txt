@@ -11,12 +11,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_SCHEMA"],
+      "sqlType": "DROP_SCHEMA",
       "auditKind": "DROP",
       "schema": "example_db",
       "ifNotExists": false,
-      "ifExists": true,
-      "sqlTargets": ["Schema"]
+      "ifExists": true
     }
   ]
 }
@@ -29,15 +28,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_SCHEMA"],
+      "sqlType": "CREATE_SCHEMA",
       "auditKind": "CREATE",
       "options": {},
       "schema": "example_db",
       "ifNotExists": false,
       "ifExists": false,
       "collate": "utf8mb4_general_ci",
-      "characterSet": "utf8mb4",
-      "sqlTargets": ["Schema"]
+      "characterSet": "utf8mb4"
     }
   ]
 }
@@ -51,7 +49,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "users",
       "hasPrimary": false,
@@ -61,8 +59,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -89,7 +86,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "last_name",
@@ -103,11 +100,10 @@ expect:
       "length": "50",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "email",
@@ -121,11 +117,10 @@ expect:
       "length": "255",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "users",
@@ -152,11 +147,10 @@ expect:
       "collate": "utf8mb4_general_ci",
       "characterSet": "utf8mb4",
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "updated_at",
@@ -170,11 +164,10 @@ expect:
       "defaultValue": "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "password_hash",
@@ -188,11 +181,10 @@ expect:
       "length": "64",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "id",
@@ -205,11 +197,10 @@ expect:
       "index": false,
       "auto": true,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "full_name",
@@ -223,11 +214,10 @@ expect:
       "length": "101",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "username",
@@ -241,11 +231,10 @@ expect:
       "length": "50",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "status",
@@ -259,11 +248,10 @@ expect:
       "defaultValue": "active",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "first_name",
@@ -277,22 +265,20 @@ expect:
       "length": "50",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "users",
       "type": "Unique",
       "name": "ux_email",
       "columns": [
         "email"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "created_at",
@@ -306,31 +292,28 @@ expect:
       "defaultValue": "CURRENT_TIMESTAMP",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "users",
       "type": "Unique",
       "columns": [
         "username"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "users",
       "type": "Primary",
       "columns": [
         "id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "preferences",
@@ -344,8 +327,7 @@ expect:
       "defaultValue": "(JSON_OBJECT())",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     }
   ]
 }
@@ -359,7 +341,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "posts",
       "hasPrimary": false,
@@ -369,8 +351,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -396,18 +377,17 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "ForeignKey",
       "name": "fk_posts_user",
       "columns": [
         "user_id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "body",
@@ -420,11 +400,10 @@ expect:
       "index": true,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "title",
@@ -438,11 +417,10 @@ expect:
       "length": "255",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "tags",
@@ -456,11 +434,10 @@ expect:
       "defaultValue": "NULL",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "views",
@@ -474,22 +451,20 @@ expect:
       "defaultValue": "0",
       "auto": false,
       "zerofill": false,
-      "unsigned": true,
-      "sqlTargets": ["Table"]
+      "unsigned": true
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "FULLTEXT",
       "columns": [
         "title",
         "body"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "published",
@@ -503,11 +478,10 @@ expect:
       "defaultValue": "FALSE",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "published_at",
@@ -520,11 +494,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "id",
@@ -537,11 +510,10 @@ expect:
       "index": false,
       "auto": true,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "user_id",
@@ -554,11 +526,10 @@ expect:
       "index": true,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "posts",
       "column": "geom",
@@ -571,32 +542,29 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "Primary",
       "columns": [
         "id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "index",
       "columns": [
         "user_id",
         "published"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "posts",
@@ -620,8 +588,7 @@ expect:
       "ifExists": false,
       "characterSet": "utf8mb4",
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -634,7 +601,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "tags",
       "hasPrimary": false,
@@ -644,8 +611,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -661,17 +627,16 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "tags",
       "type": "Unique",
       "columns": [
         "name"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "tags",
       "column": "name",
@@ -685,21 +650,19 @@ expect:
       "length": "50",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "tags",
       "type": "Primary",
       "columns": [
         "id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "tags",
@@ -716,11 +679,10 @@ expect:
       "ifExists": false,
       "characterSet": "utf8mb4",
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "tags",
       "column": "id",
@@ -733,8 +695,7 @@ expect:
       "index": false,
       "auto": true,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     }
   ]
 }
@@ -747,7 +708,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "post_tags",
       "hasPrimary": false,
@@ -757,8 +718,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -777,7 +737,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "post_tags",
@@ -794,22 +754,20 @@ expect:
       "ifExists": false,
       "characterSet": "utf8mb4",
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "post_tags",
       "type": "ForeignKey",
       "name": "fk_pt_post",
       "columns": [
         "post_id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "post_tags",
       "column": "post_id",
@@ -822,22 +780,20 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "post_tags",
       "type": "ForeignKey",
       "name": "fk_pt_tag",
       "columns": [
         "tag_id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "post_tags",
       "column": "tag_id",
@@ -850,19 +806,17 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "post_tags",
       "type": "Primary",
       "columns": [
         "post_id",
         "tag_id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     }
   ]
 }
@@ -876,7 +830,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "products",
       "hasPrimary": false,
@@ -886,8 +840,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -907,7 +860,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "products",
       "column": "color",
@@ -921,21 +874,19 @@ expect:
       "length": "32",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "Unique",
       "columns": [
         "sku"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "products",
       "column": "price",
@@ -950,21 +901,19 @@ expect:
       "defaultValue": "0.00",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "index",
       "columns": [
         "color"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "products",
       "column": "sku",
@@ -978,11 +927,10 @@ expect:
       "length": "64",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "products",
       "column": "id",
@@ -995,11 +943,10 @@ expect:
       "index": false,
       "auto": true,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "products",
       "column": "attributes",
@@ -1012,11 +959,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "products",
@@ -1036,18 +982,16 @@ expect:
       "ifExists": false,
       "characterSet": "utf8mb4",
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "Primary",
       "columns": [
         "id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     }
   ]
 }
@@ -1061,7 +1005,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "logs",
       "hasPrimary": false,
@@ -1071,8 +1015,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -1096,7 +1039,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "logs",
       "column": "msgContent",
@@ -1109,11 +1052,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "logs",
       "column": "created_date",
@@ -1126,11 +1068,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "logs",
       "column": "id",
@@ -1143,11 +1084,10 @@ expect:
       "index": false,
       "auto": true,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "logs",
@@ -1165,11 +1105,10 @@ expect:
       "ifNotExists": false,
       "ifExists": false,
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "logs",
       "column": "level",
@@ -1182,19 +1121,17 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "logs",
       "type": "Primary",
       "columns": [
         "id",
         "created_date"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     }
   ]
 }
@@ -1211,7 +1148,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "REPEAT",
       "func": true,
@@ -1219,11 +1156,10 @@ expect:
         "'b'",
         "64"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["INSERT"],
+      "sqlType": "INSERT",
       "auditKind": "DML",
       "hasWith": false,
       "table": "users",
@@ -1239,11 +1175,10 @@ expect:
       "conflict": "NONE",
       "fromSelect": false,
       "hasSubQuery": false,
-      "hasNullValue": false,
-      "sqlTargets": ["Insert"]
+      "hasNullValue": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "REPEAT",
       "func": true,
@@ -1251,8 +1186,7 @@ expect:
         "'a'",
         "64"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1269,7 +1203,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "JSON_OBJECT",
       "func": true,
@@ -1279,22 +1213,20 @@ expect:
         "'size'",
         "'L'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "values",
       "func": true,
       "args": [
         "price"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["MERGE"],
+      "sqlType": "MERGE",
       "auditKind": "DML",
       "hasWith": false,
       "table": "products",
@@ -1309,11 +1241,10 @@ expect:
       "conflict": "UPDATE",
       "fromSelect": false,
       "hasSubQuery": false,
-      "hasNullValue": false,
-      "sqlTargets": ["Update"]
+      "hasNullValue": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "JSON_OBJECT",
       "func": true,
@@ -1323,8 +1254,7 @@ expect:
         "'size'",
         "'M'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1350,7 +1280,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1381,20 +1311,18 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "ROW_NUMBER",
       "func": true,
       "args": [],
-      "emptyArg": true,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": true
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": true,
@@ -1427,19 +1355,17 @@ expect:
       "joinTypes": [
         "LEFT_JOIN"
       ],
-      "hasLimit": true,
-      "sqlTargets": ["Query"]
+      "hasLimit": true
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "COUNT",
       "func": true,
       "args": [
         "*"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1454,7 +1380,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1479,11 +1405,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1514,8 +1439,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -1531,7 +1455,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1562,30 +1486,27 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "SUM",
       "func": true,
       "args": [
         "views"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "COUNT",
       "func": true,
       "args": [
         "*"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1602,7 +1523,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1630,8 +1551,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -1645,7 +1565,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1675,11 +1595,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "JSON_EXTRACT",
       "func": true,
@@ -1687,8 +1606,7 @@ expect:
         "attributes",
         "'$.size'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1701,7 +1619,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1729,8 +1647,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -1744,7 +1661,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1772,8 +1689,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -1789,18 +1705,17 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "ST_GeomFromText",
       "func": true,
       "args": [
         "'POINT(116.38 39.90)'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["INSERT"],
+      "sqlType": "INSERT",
       "auditKind": "DML",
       "hasWith": false,
       "table": "posts",
@@ -1815,8 +1730,7 @@ expect:
       "conflict": "NONE",
       "fromSelect": false,
       "hasSubQuery": false,
-      "hasNullValue": false,
-      "sqlTargets": ["Insert"]
+      "hasNullValue": false
     }
   ]
 }
@@ -1829,7 +1743,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1858,11 +1772,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "ST_Contains",
       "func": true,
@@ -1870,19 +1783,17 @@ expect:
         "ST_GeomFromText('POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))')",
         "geom"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "ST_GeomFromText",
       "func": true,
       "args": [
         "'POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1896,11 +1807,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRANSACTION"],
+      "sqlType": "TRANSACTION",
       "auditKind": "OTHER",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Unknown"]
+      "needSupply": true
     }
   ]
 }
@@ -1913,11 +1823,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRANSACTION"],
+      "sqlType": "TRANSACTION",
       "auditKind": "QUERY",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Unknown"]
+      "needSupply": true
     }
   ]
 }
@@ -1930,7 +1839,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["UPDATE"],
+      "sqlType": "UPDATE",
       "auditKind": "DML",
       "hasWith": false,
       "hasWhere": true,
@@ -1947,8 +1856,7 @@ expect:
       "multiUpdate": false,
       "joinTypes": [],
       "hasLimit": false,
-      "hasIgnore": false,
-      "sqlTargets": ["Update"]
+      "hasIgnore": false
     }
   ]
 }
@@ -1962,11 +1870,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRANSACTION"],
+      "sqlType": "TRANSACTION",
       "auditKind": "QUERY",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Unknown"]
+      "needSupply": true
     }
   ]
 }
@@ -1980,11 +1887,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRANSACTION"],
+      "sqlType": "TRANSACTION",
       "auditKind": "QUERY",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Unknown"]
+      "needSupply": true
     }
   ]
 }
@@ -1997,11 +1903,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRANSACTION"],
+      "sqlType": "TRANSACTION",
       "auditKind": "QUERY",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Unknown"]
+      "needSupply": true
     }
   ]
 }
@@ -2015,11 +1920,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRANSACTION"],
+      "sqlType": "TRANSACTION",
       "auditKind": "QUERY",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Unknown"]
+      "needSupply": true
     }
   ]
 }
@@ -2033,11 +1937,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRANSACTION"],
+      "sqlType": "TRANSACTION",
       "auditKind": "QUERY",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Unknown"]
+      "needSupply": true
     }
   ]
 }
@@ -2051,11 +1954,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["UNSAFE"],
+      "sqlType": "UNSAFE",
       "auditKind": "OTHER",
       "target": "PrepareStatement",
-      "needSupply": false,
-      "sqlTargets": ["Unknown"]
+      "needSupply": false
     }
   ]
 }
@@ -2068,11 +1970,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CONFIG_WRITE"],
+      "sqlType": "CONFIG_WRITE",
       "auditKind": "OTHER",
       "configKey": "u",
-      "type": "LOCAL",
-      "sqlTargets": []
+      "type": "LOCAL"
     }
   ]
 }
@@ -2085,11 +1986,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["UNSAFE"],
+      "sqlType": "UNSAFE",
       "auditKind": "OTHER",
       "target": "PrepareStatement",
-      "needSupply": false,
-      "sqlTargets": ["Unknown"]
+      "needSupply": false
     }
   ]
 }
@@ -2102,11 +2002,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["UNSAFE"],
+      "sqlType": "UNSAFE",
       "auditKind": "OTHER",
       "target": "PrepareStatement",
-      "needSupply": false,
-      "sqlTargets": ["Unknown"]
+      "needSupply": false
     }
   ]
 }
@@ -2120,10 +2019,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_PROG_OBJ"],
+      "sqlType": "DROP_PROG_OBJ",
       "auditKind": "DROP",
-      "name": "sp_count_posts_by_user",
-      "sqlTargets": ["ProgramObject"]
+      "name": "sp_count_posts_by_user"
     }
   ]
 }
@@ -2139,10 +2037,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_PROG_OBJ"],
+      "sqlType": "CREATE_PROG_OBJ",
       "auditKind": "CREATE",
-      "name": "sp_count_posts_by_user",
-      "sqlTargets": ["ProgramObject"]
+      "name": "sp_count_posts_by_user"
     }
   ]
 }
@@ -2156,7 +2053,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "sp_count_posts_by_user",
       "func": false,
@@ -2164,8 +2061,7 @@ expect:
         "1",
         "@cnt"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -2178,7 +2074,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -2205,8 +2101,7 @@ expect:
       "emptyFrom": true,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -2220,10 +2115,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_PROG_OBJ"],
+      "sqlType": "DROP_PROG_OBJ",
       "auditKind": "DROP",
-      "name": "fn_user_display_name",
-      "sqlTargets": ["ProgramObject"]
+      "name": "fn_user_display_name"
     }
   ]
 }
@@ -2242,10 +2136,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_PROG_OBJ"],
+      "sqlType": "CREATE_PROG_OBJ",
       "auditKind": "CREATE",
-      "name": "fn_user_display_name",
-      "sqlTargets": ["ProgramObject"]
+      "name": "fn_user_display_name"
     }
   ]
 }
@@ -2259,10 +2152,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TRIGGER"],
+      "sqlType": "DROP_TRIGGER",
       "auditKind": "DROP",
-      "name": "trg_posts_before_insert",
-      "sqlTargets": ["Trigger"]
+      "name": "trg_posts_before_insert"
     }
   ]
 }
@@ -2282,10 +2174,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TRIGGER"],
+      "sqlType": "CREATE_TRIGGER",
       "auditKind": "CREATE",
-      "name": "trg_posts_before_insert",
-      "sqlTargets": ["Trigger"]
+      "name": "trg_posts_before_insert"
     }
   ]
 }
@@ -2299,11 +2190,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_VIEW"],
+      "sqlType": "DROP_VIEW",
       "auditKind": "DROP",
       "view": "v_user_post_counts",
-      "materialized": false,
-      "sqlTargets": ["View"]
+      "materialized": false
     }
   ]
 }
@@ -2320,11 +2210,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_VIEW"],
+      "sqlType": "CREATE_VIEW",
       "auditKind": "CREATE",
       "view": "v_user_post_counts",
-      "materialized": false,
-      "sqlTargets": ["View"]
+      "materialized": false
     }
   ]
 }
@@ -2338,10 +2227,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_EVENT"],
+      "sqlType": "DROP_EVENT",
       "auditKind": "DROP",
-      "name": "ev_cleanup_old_logs",
-      "sqlTargets": ["Event"]
+      "name": "ev_cleanup_old_logs"
     }
   ]
 }
@@ -2357,10 +2245,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_EVENT"],
+      "sqlType": "CREATE_EVENT",
       "auditKind": "CREATE",
-      "name": "ev_cleanup_old_logs",
-      "sqlTargets": ["Event"]
+      "name": "ev_cleanup_old_logs"
     }
   ]
 }
@@ -2377,7 +2264,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ALTER_COLUMN"],
+      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "users",
       "column": "email",
@@ -2391,18 +2278,16 @@ expect:
       "length": "320",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["DROP_INDEX"],
+      "sqlType": "DROP_INDEX",
       "auditKind": "DROP",
       "tableName": "users",
-      "name": "ux_email",
-      "sqlTargets": ["Index"]
+      "name": "ux_email"
     },
     {
-      "sqlTypes": ["ADD_COLUMN"],
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "last_login",
@@ -2415,8 +2300,7 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     }
   ]
 }
@@ -2430,15 +2314,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_INDEX"],
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "index",
       "name": "idx_posts_title",
       "columns": [
         "title"
-      ],
-      "sqlTargets": ["Index"]
+      ]
     }
   ]
 }
@@ -2451,11 +2334,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_INDEX"],
+      "sqlType": "DROP_INDEX",
       "auditKind": "DROP",
       "tableName": "posts",
-      "name": "idx_posts_title",
-      "sqlTargets": ["Index"]
+      "name": "idx_posts_title"
     }
   ]
 }
@@ -2469,7 +2351,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_SELECT",
       "auditKind": "CREATE",
       "options": {},
       "table": "posts_backup",
@@ -2482,11 +2364,10 @@ expect:
       "ifNotExists": false,
       "ifExists": false,
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -2511,8 +2392,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": true,
-      "sqlTargets": ["Query"]
+      "hasLimit": true
     }
   ]
 }
@@ -2526,12 +2406,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SHOW"],
+      "sqlType": "SHOW",
       "auditKind": "QUERY",
       "showType": "VARIABLES",
       "target": "Environment",
-      "showKind": "ENVIRONMENT",
-      "sqlTargets": []
+      "showKind": "ENVIRONMENT"
     }
   ]
 }
@@ -2544,12 +2423,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SHOW"],
+      "sqlType": "SHOW",
       "auditKind": "QUERY",
       "showType": "STATUS",
       "target": "Environment",
-      "showKind": "ENVIRONMENT",
-      "sqlTargets": []
+      "showKind": "ENVIRONMENT"
     }
   ]
 }
@@ -2562,11 +2440,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["PERFORMANCE"],
+      "sqlType": "EXPLAIN",
       "auditKind": "QUERY",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Query"]
+      "needSupply": true
     }
   ]
 }
@@ -2579,12 +2456,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADMIN_TABLE"],
+      "sqlType": "ANALYZE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
-      "needSupply": true,
-      "sqlTargets": ["Table"]
+      "needSupply": true
     }
   ]
 }
@@ -2597,12 +2473,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADMIN_TABLE"],
+      "sqlType": "OPTIMIZE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
-      "needSupply": true,
-      "sqlTargets": ["Table"]
+      "needSupply": true
     }
   ]
 }
@@ -2615,12 +2490,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADMIN_TABLE"],
+      "sqlType": "CHECK_TABLE",
       "auditKind": "ALTER",
       "name": "posts",
       "target": "Table",
-      "needSupply": true,
-      "sqlTargets": ["Table"]
+      "needSupply": true
     }
   ]
 }
@@ -2644,7 +2518,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["MERGE"],
+      "sqlType": "MERGE",
       "auditKind": "DML",
       "table": "users",
       "fromSelect": false,
@@ -2657,8 +2531,7 @@ expect:
         "password_hash"
       ],
       "setColumns": [],
-      "selectInSet": false,
-      "sqlTargets": ["Update"]
+      "selectInSet": false
     }
   ]
 }
@@ -2671,7 +2544,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["INSERT"],
+      "sqlType": "INSERT",
       "auditKind": "DML",
       "hasWith": false,
       "table": "tags",
@@ -2683,8 +2556,7 @@ expect:
       "conflict": "IGNORE",
       "fromSelect": false,
       "hasSubQuery": false,
-      "hasNullValue": false,
-      "sqlTargets": ["Insert"]
+      "hasNullValue": false
     }
   ]
 }
@@ -2701,7 +2573,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["UPDATE"],
+      "sqlType": "UPDATE",
       "auditKind": "DML",
       "hasWith": false,
       "hasWhere": true,
@@ -2720,8 +2592,7 @@ expect:
         "INNER_JOIN"
       ],
       "hasLimit": false,
-      "hasIgnore": false,
-      "sqlTargets": ["Update"]
+      "hasIgnore": false
     }
   ]
 }
@@ -2735,7 +2606,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -2762,8 +2633,7 @@ expect:
       "emptyFrom": true,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -2778,7 +2648,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -2805,8 +2675,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -2819,7 +2688,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -2846,8 +2715,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -2861,7 +2729,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -2888,8 +2756,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -2902,7 +2769,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -2931,11 +2798,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -2962,8 +2828,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -2976,7 +2841,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3003,11 +2868,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3036,8 +2900,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3055,7 +2918,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3080,11 +2943,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3115,8 +2977,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3131,7 +2992,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3156,11 +3017,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3191,8 +3051,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3206,7 +3065,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3231,8 +3090,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3245,7 +3103,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3270,8 +3128,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3285,7 +3142,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3312,8 +3169,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3326,7 +3182,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3351,8 +3207,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3366,7 +3221,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3393,8 +3248,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3407,7 +3261,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3434,8 +3288,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3449,7 +3302,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "JSON_CONTAINS",
       "func": true,
@@ -3458,11 +3311,10 @@ expect:
         "'\"M\"'",
         "'$.size'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3489,8 +3341,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3504,7 +3355,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3531,8 +3382,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3546,7 +3396,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "ST_Within",
       "func": true,
@@ -3554,22 +3404,20 @@ expect:
         "geom",
         "ST_GeomFromText('POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))')"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "ST_GeomFromText",
       "func": true,
       "args": [
         "'POLYGON((116.0 39.7,117.0 39.7,117.0 40.2,116.0 40.2,116.0 39.7))'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3596,8 +3444,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3611,7 +3458,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3636,8 +3483,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -3655,7 +3501,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3686,11 +3532,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -3718,19 +3563,17 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "COUNT",
       "func": true,
       "args": [
         "*"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -3744,7 +3587,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "ddl_users",
       "hasPrimary": false,
@@ -3754,8 +3597,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -3779,7 +3621,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "id",
@@ -3792,11 +3634,10 @@ expect:
       "index": false,
       "auto": true,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "email",
@@ -3810,11 +3651,10 @@ expect:
       "length": "255",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "password_hash",
@@ -3828,21 +3668,19 @@ expect:
       "length": "64",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "ddl_users",
       "type": "Primary",
       "columns": [
         "id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "ddl_users",
@@ -3866,11 +3704,10 @@ expect:
       "collate": "utf8mb4_unicode_ci",
       "characterSet": "utf8mb4",
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "created_at",
@@ -3884,11 +3721,10 @@ expect:
       "defaultValue": "CURRENT_TIMESTAMP",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "username",
@@ -3902,11 +3738,10 @@ expect:
       "length": "100",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "updated_at",
@@ -3920,22 +3755,20 @@ expect:
       "defaultValue": "NULL",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "ddl_users",
       "type": "Unique",
       "name": "ux_username",
       "columns": [
         "username"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "status",
@@ -3949,19 +3782,17 @@ expect:
       "defaultValue": "1",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "ddl_users",
       "type": "Check",
       "name": "chk_email",
       "columns": [
         "email"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     }
   ]
 }
@@ -3975,7 +3806,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "ddl_users_like",
       "hasPrimary": false,
@@ -3985,8 +3816,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -3999,7 +3829,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_LIKE",
       "auditKind": "CREATE",
       "options": {},
       "table": "ddl_users_like",
@@ -4012,8 +3842,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": false,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4030,17 +3859,16 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "tmp_results",
       "type": "Primary",
       "columns": [
         "id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "tmp_results",
       "column": "id",
@@ -4053,11 +3881,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "tmp_results",
       "column": "val",
@@ -4071,11 +3898,10 @@ expect:
       "length": "100",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "tmp_results",
@@ -4091,8 +3917,7 @@ expect:
       "ifNotExists": false,
       "ifExists": false,
       "engine": "MEMORY",
-      "temporary": true,
-      "sqlTargets": ["Table"]
+      "temporary": true
     }
   ]
 }
@@ -4106,7 +3931,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "ddl_orders",
       "hasPrimary": false,
@@ -4116,8 +3941,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4141,18 +3965,17 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "ddl_orders",
       "type": "Primary",
       "columns": [
         "order_id",
         "order_date"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_orders",
       "column": "user_id",
@@ -4165,11 +3988,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "ddl_orders",
@@ -4187,11 +4009,10 @@ expect:
       "ifNotExists": false,
       "ifExists": false,
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_orders",
       "column": "order_id",
@@ -4204,11 +4025,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_orders",
       "column": "amount",
@@ -4222,11 +4042,10 @@ expect:
       "length": "10",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_orders",
       "column": "order_date",
@@ -4239,8 +4058,7 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     }
   ]
 }
@@ -4254,7 +4072,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "ddl_sharded",
       "hasPrimary": false,
@@ -4264,8 +4082,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4282,7 +4099,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_sharded",
       "column": "id",
@@ -4295,11 +4112,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_sharded",
       "column": "data",
@@ -4313,21 +4129,19 @@ expect:
       "length": "200",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "ddl_sharded",
       "type": "Primary",
       "columns": [
         "id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "ddl_sharded",
@@ -4343,8 +4157,7 @@ expect:
       "ifNotExists": false,
       "ifExists": false,
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4358,15 +4171,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_INDEX"],
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "ddl_users",
       "type": "index",
       "name": "idx_ddl_users_email",
       "columns": [
         "email"
-      ],
-      "sqlTargets": ["Index"]
+      ]
     }
   ]
 }
@@ -4379,15 +4191,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_INDEX"],
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "index",
       "name": "ft_posts_title",
       "columns": [
         "title"
-      ],
-      "sqlTargets": ["Index"]
+      ]
     }
   ]
 }
@@ -4400,15 +4211,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_INDEX"],
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "index",
       "name": "sp_posts_geom",
       "columns": [
         "geom"
-      ],
-      "sqlTargets": ["Index"]
+      ]
     }
   ]
 }
@@ -4421,15 +4231,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_INDEX"],
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "index",
       "name": "idx_products_color_invisible",
       "columns": [
         "color"
-      ],
-      "sqlTargets": ["Index"]
+      ]
     }
   ]
 }
@@ -4450,7 +4259,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_COLUMN"],
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "bio",
@@ -4463,11 +4272,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["ALTER_COLUMN"],
+      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "ddl_users",
       "column": "email",
@@ -4481,11 +4289,10 @@ expect:
       "length": "320",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["ALTER_TABLE"],
+      "sqlType": "ALTER_TABLE",
       "auditKind": "ALTER",
       "table": "ddl_users",
       "comment": "更新后的用户表",
@@ -4496,22 +4303,20 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": false,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["ADD_CONSTRAINT"],
+      "sqlType": "ALTER_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "ddl_users",
       "type": "Unique",
       "name": "ux_email",
       "columns": [
         "email"
-      ],
-      "sqlTargets": ["Constraint"]
+      ]
     },
     {
-      "sqlTypes": ["RENAME_COLUMN"],
+      "sqlType": "ALTER_TABLE_RENAME_COLUMN",
       "auditKind": "ALTER",
       "table": "ddl_users",
       "column": "password_hash",
@@ -4523,11 +4328,10 @@ expect:
       "newName": "password",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["ADD_COLUMN"],
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_users",
       "column": "nickname",
@@ -4541,11 +4345,10 @@ expect:
       "length": "50",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["ALTER_COLUMN"],
+      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "ddl_users",
       "column": "password_hash",
@@ -4559,15 +4362,13 @@ expect:
       "length": "128",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["DROP_INDEX"],
+      "sqlType": "DROP_INDEX",
       "auditKind": "DROP",
       "tableName": "ddl_users",
-      "name": "ux_username",
-      "sqlTargets": ["Index"]
+      "name": "ux_username"
     }
   ]
 }
@@ -4581,7 +4382,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ALTER_TABLE"],
+      "sqlType": "ALTER_TABLE",
       "auditKind": "ALTER",
       "table": "ddl_users",
       "hasPrimary": false,
@@ -4592,11 +4393,10 @@ expect:
       "ifNotExists": false,
       "ifExists": false,
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["ALTER_TABLE"],
+      "sqlType": "ALTER_TABLE",
       "auditKind": "ALTER",
       "table": "ddl_users",
       "hasPrimary": false,
@@ -4608,8 +4408,7 @@ expect:
       "ifExists": false,
       "collate": "utf8mb4_bin",
       "characterSet": "utf8mb4",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4624,15 +4423,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_CONSTRAINT"],
+      "sqlType": "ALTER_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "ForeignKey",
       "name": "fk_posts_user_example",
       "columns": [
         "user_id"
-      ],
-      "sqlTargets": ["Constraint"]
+      ]
     }
   ]
 }
@@ -4647,13 +4445,12 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_CONSTRAINT"],
+      "sqlType": "ALTER_TABLE_DROP_CONSTRAINT",
       "auditKind": "DROP",
       "tableName": "posts",
       "type": "ForeignKey",
       "name": "fk_posts_user_example",
-      "columns": [],
-      "sqlTargets": ["Constraint"]
+      "columns": []
     }
   ]
 }
@@ -4666,7 +4463,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_COLUMN"],
+      "sqlType": "ALTER_TABLE_DROP_COLUMN",
       "auditKind": "DROP",
       "table": "ddl_users",
       "column": "bio",
@@ -4677,8 +4474,7 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     }
   ]
 }
@@ -4692,7 +4488,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["RENAME_TABLE"],
+      "sqlType": "RENAME_TABLE",
       "auditKind": "ALTER",
       "table": "ddl_users_like",
       "hasPrimary": false,
@@ -4703,8 +4499,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": false,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4718,11 +4513,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_INDEX"],
+      "sqlType": "DROP_INDEX",
       "auditKind": "DROP",
       "tableName": "posts",
-      "name": "idx_user_published",
-      "sqlTargets": ["Index"]
+      "name": "idx_user_published"
     }
   ]
 }
@@ -4735,7 +4529,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_INDEX"],
+      "sqlType": "ALTER_TABLE_ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "posts",
       "type": "index",
@@ -4743,8 +4537,7 @@ expect:
       "columns": [
         "user_id",
         "published"
-      ],
-      "sqlTargets": ["Index"]
+      ]
     }
   ]
 }
@@ -4757,12 +4550,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADMIN_TABLE"],
+      "sqlType": "OPTIMIZE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
-      "needSupply": true,
-      "sqlTargets": ["Table"]
+      "needSupply": true
     }
   ]
 }
@@ -4775,12 +4567,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADMIN_TABLE"],
+      "sqlType": "ANALYZE",
       "auditKind": "OTHER",
       "name": "posts",
       "target": "Table",
-      "needSupply": true,
-      "sqlTargets": ["Table"]
+      "needSupply": true
     }
   ]
 }
@@ -4794,11 +4585,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_VIEW"],
+      "sqlType": "DROP_VIEW",
       "auditKind": "DROP",
       "view": "v_recent_posts",
-      "materialized": false,
-      "sqlTargets": ["View"]
+      "materialized": false
     }
   ]
 }
@@ -4812,11 +4602,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_VIEW"],
+      "sqlType": "CREATE_VIEW",
       "auditKind": "CREATE",
       "view": "v_recent_posts",
-      "materialized": false,
-      "sqlTargets": ["View"]
+      "materialized": false
     }
   ]
 }
@@ -4831,11 +4620,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_VIEW"],
+      "sqlType": "CREATE_VIEW",
       "auditKind": "CREATE",
       "view": "v_recent_posts",
-      "materialized": false,
-      "sqlTargets": ["View"]
+      "materialized": false
     }
   ]
 }
@@ -4848,11 +4636,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_VIEW"],
+      "sqlType": "DROP_VIEW",
       "auditKind": "DROP",
       "view": "v_recent_posts",
-      "materialized": false,
-      "sqlTargets": ["View"]
+      "materialized": false
     }
   ]
 }
@@ -4871,7 +4658,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRUNCATE_TABLE"],
+      "sqlType": "TRUNCATE",
       "auditKind": "DML",
       "table": "tmp_results",
       "hasPrimary": false,
@@ -4881,8 +4668,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": false,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4895,7 +4681,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "tmp_results",
       "hasPrimary": false,
@@ -4905,8 +4691,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4920,7 +4705,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "ddl_users_archive",
       "hasPrimary": false,
@@ -4930,8 +4715,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4945,7 +4729,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "table": "posts_backup",
       "hasPrimary": false,
@@ -4955,8 +4739,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": true,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -4969,7 +4752,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_SELECT",
       "auditKind": "CREATE",
       "options": {},
       "table": "posts_backup",
@@ -4981,11 +4764,10 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": false,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -5010,8 +4792,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": true,
-      "sqlTargets": ["Query"]
+      "hasLimit": true
     }
   ]
 }
@@ -5025,7 +4806,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -5050,11 +4831,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_SELECT",
       "auditKind": "CREATE",
       "options": {},
       "table": "posts_copy",
@@ -5066,8 +4846,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": false,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -5083,7 +4862,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ALTER_COLUMN"],
+      "sqlType": "ALTER_TABLE_ALTER_COLUMN",
       "auditKind": "ALTER",
       "table": "products",
       "column": "sku",
@@ -5098,8 +4877,7 @@ expect:
       "length": "64",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     }
   ]
 }
@@ -5112,7 +4890,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ALTER_TABLE"],
+      "sqlType": "ALTER_TABLE",
       "auditKind": "ALTER",
       "table": "products",
       "comment": "商品主表",
@@ -5123,8 +4901,7 @@ expect:
       "virtual": false,
       "ifNotExists": false,
       "ifExists": false,
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     }
   ]
 }
@@ -5138,15 +4915,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_CONSTRAINT"],
+      "sqlType": "ALTER_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "Check",
       "name": "chk_price_nonnegative",
       "columns": [
         "price"
-      ],
-      "sqlTargets": ["Constraint"]
+      ]
     }
   ]
 }
@@ -5165,7 +4941,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
       "options": {},
       "table": "ddl_generated",
@@ -5183,11 +4959,10 @@ expect:
       "ifNotExists": false,
       "ifExists": false,
       "engine": "InnoDB",
-      "temporary": false,
-      "sqlTargets": ["Table"]
+      "temporary": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_generated",
       "column": "data_len",
@@ -5200,11 +4975,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_generated",
       "column": "data",
@@ -5217,11 +4991,10 @@ expect:
       "index": false,
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_generated",
       "column": "data_key1",
@@ -5235,11 +5008,10 @@ expect:
       "length": "100",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "ddl_generated",
       "column": "id",
@@ -5252,18 +5024,16 @@ expect:
       "index": false,
       "auto": true,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Table"]
+      "unsigned": false
     },
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE_ADD_CONSTRAINT",
       "auditKind": "CREATE",
       "tableName": "ddl_generated",
       "type": "Primary",
       "columns": [
         "id"
-      ],
-      "sqlTargets": ["Table"]
+      ]
     }
   ]
 }
@@ -5276,15 +5046,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_INDEX"],
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "ddl_generated",
       "type": "index",
       "name": "idx_generated_key1",
       "columns": [
         "data_key1"
-      ],
-      "sqlTargets": ["Index"]
+      ]
     }
   ]
 }
@@ -5298,15 +5067,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_INDEX"],
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "tableName": "products",
       "type": "index",
       "name": "idx_products_price_invis",
       "columns": [
         "price"
-      ],
-      "sqlTargets": ["Index"]
+      ]
     }
   ]
 }
@@ -5319,12 +5087,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ALTER_INDEX"],
+      "sqlType": "ALTER_INDEX",
       "auditKind": "ALTER",
       "tableName": "products",
       "name": "idx_products_price_invis",
-      "visible": true,
-      "sqlTargets": ["Index"]
+      "visible": true
     }
   ]
 }
@@ -5342,11 +5109,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRANSACTION"],
+      "sqlType": "TRANSACTION",
       "auditKind": "QUERY",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Unknown"]
+      "needSupply": true
     }
   ]
 }
@@ -5360,7 +5126,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["INSERT"],
+      "sqlType": "INSERT",
       "auditKind": "DML",
       "hasWith": false,
       "table": "users",
@@ -5374,11 +5140,10 @@ expect:
       "conflict": "NONE",
       "fromSelect": false,
       "hasSubQuery": false,
-      "hasNullValue": false,
-      "sqlTargets": ["Insert"]
+      "hasNullValue": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "REPEAT",
       "func": true,
@@ -5386,8 +5151,7 @@ expect:
         "'t'",
         "64"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -5401,7 +5165,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_COLUMN"],
+      "sqlType": "ALTER_TABLE_ADD_COLUMN",
       "auditKind": "CREATE",
       "table": "users",
       "column": "temp_flag",
@@ -5415,8 +5179,7 @@ expect:
       "defaultValue": "0",
       "auto": false,
       "zerofill": false,
-      "unsigned": false,
-      "sqlTargets": ["Column"]
+      "unsigned": false
     }
   ]
 }
@@ -5429,11 +5192,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["TRANSACTION"],
+      "sqlType": "TRANSACTION",
       "auditKind": "QUERY",
       "target": "Unknown",
-      "needSupply": true,
-      "sqlTargets": ["Unknown"]
+      "needSupply": true
     }
   ]
 }

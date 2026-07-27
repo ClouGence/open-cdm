@@ -20,6 +20,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.sql.redis.analysis.security.builder.RedisBuilderFactory;
 import com.clougence.sql.redis.analysis.security.domain.RedisCmdDomain;
 import com.clougence.sql.redis.parser.antlr.RedisParser;
@@ -58,7 +59,7 @@ public class RedisParserVisitor extends RedisParserBaseVisitor<Void> {
         String kindStr = cmdType.getKindType().getType().toUpperCase();
 
         RedisCmdDomain domain = new RedisCmdDomain(cmdStr, kindStr);
-        domain.setAuditKind(queryType.getAuditKind());
+        domain.setAuditKind(queryType == RuleQueryType.READ ? SecQueryKind.QUERY : queryType.getAuditKind());
         domain.setSqlType(queryType);
         domain.setSchema(schema);
         this.builder.addDomain(domain);

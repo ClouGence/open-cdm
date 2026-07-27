@@ -4,7 +4,7 @@ select * from test_db.table1
 expect:
 {
   "contains": [
-    {"class":"Db2SelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "schema":"test_db", "table":"table1"}
+    {"class":"Db2SelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "schema":"test_db", "table":"table1"}
   ]
 }
 ----------
@@ -14,9 +14,9 @@ select e.id, d.name from app.employee e join app.department d on e.dept_id=d.id 
 expect:
 {
   "contains": [
-    {"class":"Db2SelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "hasWhere":true, "joinTypes":["INNER_JOIN"], "childrenSize":2},
-    {"class":"Db2TableDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "schema":"app", "table":"employee", "alias":"e"},
-    {"class":"Db2TableDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "schema":"app", "table":"department", "alias":"d"}
+    {"class":"Db2SelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "hasWhere":true, "joinTypes":["INNER_JOIN"], "childrenSize":2},
+    {"class":"Db2TableDomain", "sqlType": "SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee", "alias":"e"},
+    {"class":"Db2TableDomain", "sqlType": "SELECT", "auditKind":"QUERY", "schema":"app", "table":"department", "alias":"d"}
   ]
 }
 ----------
@@ -26,7 +26,7 @@ insert into test_db.table1 (id) values (1)
 expect:
 {
   "contains": [
-    {"class":"Db2InsertDomain", "sqlTypes": ["INSERT"], "auditKind":"DML", "schema":"test_db", "table":"table1"}
+    {"class":"Db2InsertDomain", "sqlType": "INSERT", "auditKind":"DML", "schema":"test_db", "table":"table1"}
   ]
 }
 ----------
@@ -36,9 +36,9 @@ insert into app.employee_archive (id, name) select id, name from app.employee wh
 expect:
 {
   "contains": [
-    {"class":"Db2InsertDomain", "sqlTypes": ["INSERT"], "auditKind":"DML", "schema":"app", "table":"employee_archive", "columns":["id","name"], "fromSelect":true, "hasSubQuery":true},
-    {"class":"Db2SelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "hasWhere":true, "childrenSize":1},
-    {"class":"Db2TableDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "schema":"app", "table":"employee"}
+    {"class":"Db2InsertDomain", "sqlType": "INSERT", "auditKind":"DML", "schema":"app", "table":"employee_archive", "columns":["id","name"], "fromSelect":true, "hasSubQuery":true},
+    {"class":"Db2SelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "hasWhere":true, "childrenSize":1},
+    {"class":"Db2TableDomain", "sqlType": "SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
   ]
 }
 ----------
@@ -48,7 +48,7 @@ update app.employee set name='new_name' where id=1
 expect:
 {
   "contains": [
-    {"class":"Db2UpdateDomain", "sqlTypes": ["UPDATE"], "auditKind":"DML", "schema":"app", "table":"employee", "setColumns":["name"], "hasWhere":true, "whereColumns":["id"]}
+    {"class":"Db2UpdateDomain", "sqlType": "UPDATE", "auditKind":"DML", "schema":"app", "table":"employee", "setColumns":["name"], "hasWhere":true, "whereColumns":["id"]}
   ]
 }
 ----------
@@ -58,7 +58,7 @@ delete from app.employee where id=1
 expect:
 {
   "contains": [
-    {"class":"Db2DeleteDomain", "sqlTypes": ["DELETE"], "auditKind":"DML", "schema":"app", "table":"employee", "hasWhere":true, "whereColumns":["id"]}
+    {"class":"Db2DeleteDomain", "sqlType": "DELETE", "auditKind":"DML", "schema":"app", "table":"employee", "hasWhere":true, "whereColumns":["id"]}
   ]
 }
 ----------
@@ -68,7 +68,7 @@ call app.refresh_employee(1, 'force')
 expect:
 {
   "contains": [
-    {"class":"RdbCallDomain", "sqlTypes": ["CALL_PROG_OBJ"], "auditKind":"CALL", "schema":"app", "callName":"refresh_employee", "emptyArg":false}
+    {"class":"RdbCallDomain", "sqlType": "CALL_PROG_OBJ", "auditKind":"CALL", "schema":"app", "callName":"refresh_employee", "emptyArg":false}
   ]
 }
 ----------
@@ -78,6 +78,6 @@ drop table test_db.table1
 expect:
 {
   "contains": [
-    {"class":"Db2TableDomain", "sqlTypes": ["DROP_TABLE"], "auditKind":"DROP", "schema":"test_db", "table":"table1"}
+    {"class":"Db2TableDomain", "sqlType": "DROP_TABLE", "auditKind":"DROP", "schema":"test_db", "table":"table1"}
   ]
 }

@@ -4,7 +4,7 @@ alter table `test`.`user_table` add column `address` varchar(255);
 expect:
 {
   "contains": [
-    {"class":"DrColumnDomain", "sqlTypes": ["ADD_COLUMN"], "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeDesc":"varchar(255)"}
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeDesc":"varchar(255)"}
   ]
 }
 ----------
@@ -14,8 +14,8 @@ alter table `test`.`user_table` add column (`address` varchar(255), aa int);
 expect:
 {
   "contains": [
-    {"class":"DrColumnDomain", "sqlTypes": ["ADD_COLUMN"], "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeDesc":"varchar(255)"},
-    {"class":"DrColumnDomain", "sqlTypes": ["ADD_COLUMN"], "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"aa", "typeDesc":"int"}
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"address", "typeDesc":"varchar(255)"},
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"test", "table":"user_table", "column":"aa", "typeDesc":"int"}
   ]
 }
 ----------
@@ -25,7 +25,7 @@ alter table user_table drop column address;
 expect:
 {
   "contains": [
-    {"class":"DrColumnDomain", "sqlTypes": ["DROP_COLUMN"], "auditKind":"DROP", "table":"user_table", "column":"address"}
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_DROP_COLUMN", "auditKind":"DROP", "table":"user_table", "column":"address"}
   ]
 }
 ----------
@@ -35,7 +35,7 @@ alter table user_table rename column c1 c2;
 expect:
 {
   "contains": [
-    {"class":"DrColumnDomain", "sqlTypes": ["RENAME_COLUMN"], "auditKind":"ALTER", "table":"user_table", "column":"c1", "newName":"c2"}
+    {"class":"DrColumnDomain", "sqlType": "ALTER_TABLE_RENAME_COLUMN", "auditKind":"ALTER", "table":"user_table", "column":"c1", "newName":"c2"}
   ]
 }
 ----------
@@ -45,7 +45,7 @@ alter table user_table add index idx_name (`name`);
 expect:
 {
   "contains": [
-    {"class":"RdbIndexDomain", "sqlTypes": ["ADD_INDEX"], "auditKind":"CREATE", "tableName":"user_table", "name":"idx_name", "columns":["name"]}
+    {"class":"RdbIndexDomain", "sqlType": "ALTER_TABLE_ADD_INDEX", "auditKind":"CREATE", "tableName":"user_table", "name":"idx_name", "columns":["name"]}
   ]
 }
 ----------
@@ -55,7 +55,7 @@ alter table user_table rename user_table_new;
 expect:
 {
   "contains": [
-    {"class":"DrTableDomain", "sqlTypes": ["RENAME_TABLE"], "auditKind":"ALTER", "table":"user_table", "newName":"user_table_new"}
+    {"class":"DrTableDomain", "sqlType": "RENAME_TABLE", "auditKind":"ALTER", "table":"user_table", "newName":"user_table_new"}
   ]
 }
 ----------
@@ -65,6 +65,6 @@ alter table user_table set ("comment" = "new table comment");
 expect:
 {
   "contains": [
-    {"class":"DrTableDomain", "sqlTypes": ["ALTER_TABLE"], "auditKind":"ALTER", "table":"user_table"}
+    {"class":"DrTableDomain", "sqlType": "ALTER_TABLE", "auditKind":"ALTER", "table":"user_table"}
   ]
 }

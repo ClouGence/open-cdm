@@ -2,9 +2,9 @@
         default "30"
         hint "表名的最大长度"
 
-if @domain.sqlType in ['CREATE_TABLE'] then
+if @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE'] then
   checkName = @domain.table
-elseif @domain.sqlType in ['RENAME_TABLE', 'RENAME_TABLE'] then
+elseif @domain.sqlType in ['RENAME_TABLE', 'ALTER_TABLE_RENAME'] then
   checkName = @domain.newName
 else
   return true

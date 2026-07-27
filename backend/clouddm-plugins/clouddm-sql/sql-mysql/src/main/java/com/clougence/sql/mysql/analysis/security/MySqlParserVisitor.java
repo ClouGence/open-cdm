@@ -77,10 +77,19 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     private void addStatementDomain(RuleQueryType sqlType) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setSqlType(sqlType);
-        rdbResourceDomain.setAuditKind(sqlType.getAuditKind());
-        rdbResourceDomain.setTarget(sqlType.getTarget());
-        rdbResourceDomain.setNeedSupply(false);
+        rdbResourceDomain.setAuditKind(sqlType == RuleQueryType.ALTER_USER ? SecQueryKind.ADMIN : sqlType.getAuditKind());
+        rdbResourceDomain.setTarget(sqlType == RuleQueryType.EXPLAIN ? TargetType.Unknown : sqlType.getTarget());
+        rdbResourceDomain.setNeedSupply(sqlType == RuleQueryType.EXPLAIN);
         builder.addDomain(rdbResourceDomain);
+    }
+
+    private void addUserAdministrationDomain(RuleQueryType sqlType) {
+        RdbResourceDomain domain = new RdbResourceDomain();
+        domain.setSqlType(sqlType);
+        domain.setAuditKind(SecQueryKind.ADMIN);
+        domain.setTarget(TargetType.UserOrRole);
+        domain.setNeedSupply(false);
+        builder.addDomain(domain);
     }
 
     private void addUnknownTargetDomain(RuleQueryType sqlType, SecQueryKind auditKind) {
@@ -672,7 +681,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCopyCreateTable(CopyCreateTableContext ctx) {
-        builder.enterCreateTable(RuleQueryType.CREATE_TABLE);
+        builder.enterCreateTable(RuleQueryType.CREATE_TABLE_LIKE);
         dmVisitChildren(ctx);
         builder.exitCreateTable();
         return null;
@@ -680,7 +689,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitQueryCreateTable(QueryCreateTableContext ctx) {
-        builder.enterCreateTable(RuleQueryType.CREATE_TABLE);
+        builder.enterCreateTable(RuleQueryType.CREATE_TABLE_SELECT);
         dmVisitChildren(ctx);
         builder.exitCreateTable();
         return null;
@@ -894,7 +903,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleResource(() -> {
                 tableNameContext.accept(this);
-            }, RuleQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+            }, RuleQueryType.CHECK_TABLE, SecQueryKind.ALTER, true, TargetType.Table);
         }
         return null;
     }
@@ -904,7 +913,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleResource(() -> {
                 tableNameContext.accept(this);
-            }, RuleQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+            }, RuleQueryType.CHECK_TABLE, SecQueryKind.OTHER, true, TargetType.Table);
         }
         return null;
     }
@@ -912,10 +921,10 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitInstallPlugin(InstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(RuleQueryType.CREATE_LIBRARY);
-        rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
+        rdbResourceDomain.setSqlType(RuleQueryType.INSTALL_PLUGIN);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setNeedSupply(false);
-        rdbResourceDomain.setTarget(TargetType.Library);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
         return null;
     }
@@ -923,10 +932,10 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitUninstallPlugin(UninstallPluginContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(RuleQueryType.DROP_LIBRARY);
-        rdbResourceDomain.setAuditKind(SecQueryKind.DROP);
+        rdbResourceDomain.setSqlType(RuleQueryType.UNINSTALL_PLUGIN);
+        rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setNeedSupply(false);
-        rdbResourceDomain.setTarget(TargetType.Library);
+        rdbResourceDomain.setTarget(TargetType.Unknown);
         builder.addDomain(rdbResourceDomain);
         return null;
     }
@@ -946,7 +955,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitCreateUdfFunction(CreateUdfFunctionContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(RuleQueryType.CREATE_UDF_FUNCTION);
         rdbResourceDomain.setAuditKind(SecQueryKind.CREATE);
         rdbResourceDomain.setNeedSupply(false);
         rdbResourceDomain.setTarget(TargetType.Function);
@@ -959,7 +968,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleResource(() -> {
                 tableNameContext.accept(this);
-            }, RuleQueryType.ADMIN_TABLE, SecQueryKind.ADMIN, true, TargetType.Table);
+            }, RuleQueryType.REPAIR, SecQueryKind.OTHER, true, TargetType.Table);
         }
         return null;
     }
@@ -985,7 +994,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         if (ctx.analyze != null) {
             ctx.describeObjectClause().accept(this);
         } else {
-            addStatementDomain(RuleQueryType.PERFORMANCE);
+            addStatementDomain(RuleQueryType.EXPLAIN);
         }
         return null;
     }
@@ -1214,7 +1223,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateTablespaceInnodb(CreateTablespaceInnodbContext ctx) {
-        addStatementDomain(RuleQueryType.CREATE_TABLESPACE);
+        addStatementDomain(RuleQueryType.CREATE_OBJECT);
         return null;
     }
 
@@ -1226,13 +1235,13 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterLogfileGroup(AlterLogfileGroupContext ctx) {
-        addStatementDomain(RuleQueryType.ALTER_LOG);
+        addStatementDomain(RuleQueryType.ALTER_OBJECT);
         return null;
     }
 
     @Override
     public Void visitAlterTablespace(AlterTablespaceContext ctx) {
-        addStatementDomain(RuleQueryType.ALTER_TABLESPACE);
+        addStatementDomain(RuleQueryType.ALTER_OBJECT);
         return null;
     }
 
@@ -1244,7 +1253,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDropTablespace(DropTablespaceContext ctx) {
-        addStatementDomain(RuleQueryType.DROP_TABLESPACE);
+        addStatementDomain(RuleQueryType.DROP_OBJECT);
         return null;
     }
 
@@ -1256,19 +1265,19 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDropLogfileGroup(DropLogfileGroupContext ctx) {
-        addStatementDomain(RuleQueryType.DROP_LOG);
+        addStatementDomain(RuleQueryType.DROP_OBJECT);
         return null;
     }
 
     @Override
     public Void visitCreateLogfileGroup(CreateLogfileGroupContext ctx) {
-        addStatementDomain(RuleQueryType.CREATE_LOG);
+        addStatementDomain(RuleQueryType.CREATE_OBJECT);
         return null;
     }
 
     @Override
     public Void visitCreateTablespaceNdb(CreateTablespaceNdbContext ctx) {
-        addStatementDomain(RuleQueryType.CREATE_TABLESPACE);
+        addStatementDomain(RuleQueryType.CREATE_OBJECT);
         return null;
     }
 
@@ -1406,7 +1415,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitAlterByChangeDefault(AlterByChangeDefaultContext ctx) {
         MyColumnDomain myColumnDomain = new MyColumnDomain();
         myColumnDomain.setAuditKind(SecQueryKind.ALTER);
-        myColumnDomain.setSqlType(RuleQueryType.ALTER_COLUMN);
+        myColumnDomain.setSqlType(RuleQueryType.ALTER_TABLE_ALTER_COLUMN);
         myColumnDomain.setColumn(getName(ctx.uid()));
         if (ctx.defaultValue() != null) {
             String text = this.getText(ctx.defaultValue());
@@ -1604,7 +1613,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitTruncateTable(TruncateTableContext ctx) {
         MyTableDomain myTableDomain = new MyTableDomain();
         myTableDomain.setAuditKind(SecQueryKind.DML);
-        myTableDomain.setSqlType(RuleQueryType.TRUNCATE_TABLE);
+        myTableDomain.setSqlType(RuleQueryType.TRUNCATE);
 
         List<String> names = tableNameParts(ctx.tableName());
         if (names.size() == 1) {
@@ -1960,13 +1969,13 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
-        addStatementDomain(RuleQueryType.ALTER_USER);
+        addUserAdministrationDomain(RuleQueryType.ALTER_USER);
         return null;
     }
 
     @Override
     public Void visitAlterUserMysqlV56(AlterUserMysqlV56Context ctx) {
-        addStatementDomain(RuleQueryType.ALTER_USER);
+        addUserAdministrationDomain(RuleQueryType.ALTER_USER);
         return null;
     }
 
@@ -2082,13 +2091,13 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
             MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);
             String normalizedKey = keyName.toUpperCase(Locale.ROOT);
             if (normalizedKey.contains("GTID_") || normalizedKey.contains("SLAVE_") || normalizedKey.contains("REPLICA_")) {
-                domain.setSqlType(RuleQueryType.ALTER_REPLICATION);
+                domain.setSqlType(RuleQueryType.CONFIG_WRITE);
             } else if (scopeType == MyScopeType.GLOBAL) {
-                domain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
+                domain.setSqlType(RuleQueryType.CONFIG_WRITE);
             } else if (configKey.LOCAL_ID() != null) {
-                domain.setSqlType(RuleQueryType.SESSION_VARIABLE_RW);
+                domain.setSqlType(RuleQueryType.CONFIG_WRITE);
             } else {
-                domain.setSqlType(RuleQueryType.SESSION_SETTING_WRITE);
+                domain.setSqlType(RuleQueryType.CONFIG_WRITE);
             }
             domain.setAuditKind(SecQueryKind.OTHER);
             builder.addDomain(domain);
@@ -2167,7 +2176,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitResetReplica(ResetReplicaContext ctx) {
-        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        addStatementDomain(RuleQueryType.RESET);
         return null;
     }
 
@@ -2229,7 +2238,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitResetSlave(ResetSlaveContext ctx) {
-        addStatementDomain(RuleQueryType.ALTER_REPLICATION);
+        addStatementDomain(RuleQueryType.RESET);
         return null;
     }
 
@@ -2332,7 +2341,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitLoadIndexIntoCache(LoadIndexIntoCacheContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN_PERFORMANCE);
+        rdbResourceDomain.setSqlType(RuleQueryType.LOAD_INDEX_INTO_CACHE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Index);
         rdbResourceDomain.setNeedSupply(false);
@@ -2373,7 +2382,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitKillStatement(KillStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN);
+        rdbResourceDomain.setSqlType(RuleQueryType.KILL);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -2384,7 +2393,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitPurgeBinaryLogs(PurgeBinaryLogsContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(RuleQueryType.MAINTAIN_LOG);
+        rdbResourceDomain.setSqlType(RuleQueryType.PURGE);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -2395,7 +2404,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitResetMaster(ResetMasterContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
+        rdbResourceDomain.setSqlType(RuleQueryType.RESET);
         rdbResourceDomain.setAuditKind(SecQueryKind.OTHER);
         rdbResourceDomain.setTarget(TargetType.Unknown);
         rdbResourceDomain.setNeedSupply(false);
@@ -3911,11 +3920,12 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitTransactionStatement(TransactionStatementContext ctx) {
-        if (ctx.lockInstance() != null || ctx.unlockInstance() != null) {
-            addStatementDomain(RuleQueryType.DATA_EXPORT);
-        } else {
-            addStatementDomain(RuleQueryType.TRANSACTION);
-        }
+        RdbResourceDomain domain = new RdbResourceDomain();
+        domain.setAuditKind(SecQueryKind.QUERY);
+        domain.setSqlType(RuleQueryType.TRANSACTION);
+        domain.setNeedSupply(true);
+        domain.setTarget(TargetType.Unknown);
+        builder.addDomain(domain);
         return null;
     }
 

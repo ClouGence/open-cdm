@@ -4,7 +4,7 @@
         hint "是否允许删除列"
 
 if
-  @domain.sqlType == 'DROP_COLUMN' and
+  @domain.sqlType == 'ALTER_TABLE_DROP_COLUMN' and
   !cast(#{allow} as bool)
 then
   return false

@@ -50,7 +50,27 @@ public abstract class RuleDomain implements SecResolveName, Domain {
     @RuleIgnore
     private List<RuleDomain>    children;
 
-    public TargetType getSqlTarget() { return this.sqlType == null ? null : this.sqlType.getTarget(); }
+    public RuleQueryType getSqlType() {
+        if (this.sqlType == null) {
+            return null;
+        }
+        return switch (this.sqlType) {
+            case ADD_COLUMN -> RuleQueryType.ALTER_TABLE_ADD_COLUMN;
+            case ALTER_COLUMN -> RuleQueryType.ALTER_TABLE_ALTER_COLUMN;
+            case DROP_COLUMN -> RuleQueryType.ALTER_TABLE_DROP_COLUMN;
+            case RENAME_COLUMN -> RuleQueryType.ALTER_TABLE_RENAME_COLUMN;
+            case ADD_CONSTRAINT -> RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT;
+            case DROP_CONSTRAINT -> RuleQueryType.ALTER_TABLE_DROP_CONSTRAINT;
+            case SESSION_VARIABLE_RW, SESSION_SETTING_WRITE, SYSTEM_SETTING_WRITE -> RuleQueryType.CONFIG_WRITE;
+            case TRUNCATE_TABLE -> RuleQueryType.TRUNCATE;
+            default -> this.sqlType;
+        };
+    }
+
+    public TargetType getSqlTarget() {
+        RuleQueryType compatibleType = this.getSqlType();
+        return compatibleType == null ? null : compatibleType.getTarget();
+    }
 
     public void addChild(RuleDomain child) {
         if (CollectionUtils.isEmpty(children)) {

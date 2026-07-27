@@ -6,18 +6,16 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["WRITE"],
+      "sqlType": "WRITE",
       "auditKind": "WRITE",
       "command": "SET",
-      "commandType": "WRITE",
-      "sqlTargets": []
+      "commandType": "WRITE"
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "READ",
       "auditKind":"QUERY",
       "command": "GET",
-      "commandType":"READ",
-      "sqlTargets": ["Query"]
+      "commandType":"READ"
     }
   ]
 }

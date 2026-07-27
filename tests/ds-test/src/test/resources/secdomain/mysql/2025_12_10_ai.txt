@@ -5,7 +5,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -36,8 +36,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -64,7 +63,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "LEAD",
       "func": true,
@@ -73,49 +72,44 @@ expect:
         "1",
         "0"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "RANK",
       "func": true,
       "args": [],
-      "emptyArg": true,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": true
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "DENSE_RANK",
       "func": true,
       "args": [],
-      "emptyArg": true,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": true
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "ROW_NUMBER",
       "func": true,
       "args": [],
-      "emptyArg": true,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": true
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "LAST_VALUE",
       "func": true,
       "args": [
         "employee_name"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -158,33 +152,30 @@ expect:
       "joinTypes": [
         "INNER_JOIN"
       ],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "FIRST_VALUE",
       "func": true,
       "args": [
         "employee_name"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "NTILE",
       "func": true,
       "args": [
         "4"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "LAG",
       "func": true,
@@ -193,8 +184,7 @@ expect:
         "1",
         "0"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -220,7 +210,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "REPEAT",
       "func": true,
@@ -228,11 +218,10 @@ expect:
         "'  '",
         "level"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -265,11 +254,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": true,
@@ -300,8 +288,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -329,29 +316,27 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "SUM",
       "func": true,
       "args": [
         "oi.quantity * oi.unit_price"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "AVG",
       "func": true,
       "args": [
         "oi.quantity * oi.unit_price"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -392,8 +377,7 @@ expect:
         "LEFT_JOIN",
         "RIGHT_JOIN"
       ],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -422,7 +406,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -451,20 +435,18 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "NOW",
       "func": true,
       "args": [],
-      "emptyArg": true,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": true
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -495,11 +477,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -528,33 +509,30 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "AVG",
       "func": true,
       "args": [
         "unit_price"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "INTERVAL",
       "func": true,
       "args": [
         "1"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -586,11 +564,10 @@ expect:
       "joinTypes": [
         "INNER_JOIN"
       ],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -619,22 +596,20 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "COUNT",
       "func": true,
       "args": [
         "*"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "DATE_SUB",
       "func": true,
@@ -642,8 +617,7 @@ expect:
         "NOW()",
         "INTERVAL 1 YEAR"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -667,7 +641,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -699,11 +673,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -735,11 +708,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -771,8 +743,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -788,7 +759,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -813,8 +784,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -830,7 +800,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -858,8 +828,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -878,18 +847,17 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "JSON_UNQUOTE",
       "func": true,
       "args": [
         "JSON_EXTRACT(user_data, '$.profile.lastName')"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "JSON_EXTRACT",
       "func": true,
@@ -897,11 +865,10 @@ expect:
         "user_data",
         "'$.preferences.notifications'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "JSON_EXTRACT",
       "func": true,
@@ -909,11 +876,10 @@ expect:
         "user_data",
         "'$.profile.lastName'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "JSON_EXTRACT",
       "func": true,
@@ -921,11 +887,10 @@ expect:
         "user_data",
         "'$.preferences.theme'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -958,11 +923,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "JSON_EXTRACT",
       "func": true,
@@ -970,8 +934,7 @@ expect:
         "user_data",
         "'$.profile.firstName'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -996,29 +959,27 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "MONTH",
       "func": true,
       "args": [
         "order_date"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "MIN",
       "func": true,
       "args": [
         "total_amount"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1056,75 +1017,68 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "NOW",
       "func": true,
       "args": [],
-      "emptyArg": true,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": true
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "AVG",
       "func": true,
       "args": [
         "total_amount"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "YEAR",
       "func": true,
       "args": [
         "order_date"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "SUM",
       "func": true,
       "args": [
         "total_amount"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "INTERVAL",
       "func": true,
       "args": [
         "2"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "COUNT",
       "func": true,
       "args": [
         "*"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "DATE_SUB",
       "func": true,
@@ -1132,19 +1086,17 @@ expect:
         "NOW()",
         "INTERVAL 2 YEAR"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "MAX",
       "func": true,
       "args": [
         "total_amount"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1178,7 +1130,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "CASE",
       "func": true,
@@ -1193,11 +1145,10 @@ expect:
         "'Junior'",
         "'Entry-Level'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "CASE",
       "func": true,
@@ -1215,11 +1166,10 @@ expect:
         "'Finance'",
         "'Other'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1251,8 +1201,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -1265,11 +1214,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CONFIG_WRITE"],
+      "sqlType": "CONFIG_WRITE",
       "auditKind": "OTHER",
       "configKey": "row_number",
-      "type": "LOCAL",
-      "sqlTargets": []
+      "type": "LOCAL"
     }
   ]
 }
@@ -1288,7 +1236,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1322,8 +1270,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -1349,7 +1296,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "DATE_SUB",
       "func": true,
@@ -1357,11 +1304,10 @@ expect:
         "NOW()",
         "INTERVAL 12 MONTH"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1395,31 +1341,28 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "NOW",
       "func": true,
       "args": [],
-      "emptyArg": true,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": true
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "INTERVAL",
       "func": true,
       "args": [
         "12"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "ROUND",
       "func": true,
@@ -1427,11 +1370,10 @@ expect:
         "(COUNT(*) - LAG(COUNT(*), 1) OVER (ORDER BY DATE_FORMAT(created_at, '%Y-%m')))\n        / LAG(COUNT(*), 1) OVER (ORDER BY DATE_FORMAT(created_at, '%Y-%m')) * 100",
         "2"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "DATE_FORMAT",
       "func": true,
@@ -1439,11 +1381,10 @@ expect:
         "created_at",
         "'%Y-%m'"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "LAG",
       "func": true,
@@ -1451,19 +1392,17 @@ expect:
         "COUNT(*)",
         "1"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "COUNT",
       "func": true,
       "args": [
         "*"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1482,7 +1421,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1516,19 +1455,17 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "GetEmployeeSalary",
       "func": true,
       "args": [
         "employee_id"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1551,7 +1488,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1583,11 +1520,10 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1616,8 +1552,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }
@@ -1645,7 +1580,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "DATE_SUB",
       "func": true,
@@ -1653,20 +1588,18 @@ expect:
         "NOW()",
         "INTERVAL 1 MONTH"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "NOW",
       "func": true,
       "args": [],
-      "emptyArg": true,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": true
     },
     {
-      "sqlTypes": ["MERGE"],
+      "sqlType": "MERGE",
       "auditKind": "DML",
       "hasWith": false,
       "table": "monthly_sales_summary",
@@ -1684,55 +1617,50 @@ expect:
       "conflict": "UPDATE",
       "fromSelect": true,
       "hasSubQuery": false,
-      "hasNullValue": false,
-      "sqlTargets": ["Update"]
+      "hasNullValue": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "MONTH",
       "func": true,
       "args": [
         "o.order_date"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "SUM",
       "func": true,
       "args": [
         "oi.quantity * oi.unit_price"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "YEAR",
       "func": true,
       "args": [
         "o.order_date"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "INTERVAL",
       "func": true,
       "args": [
         "1"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1772,41 +1700,37 @@ expect:
         "INNER_JOIN",
         "INNER_JOIN"
       ],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "values",
       "func": true,
       "args": [
         "transaction_count"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "COUNT",
       "func": true,
       "args": [
         "*"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     },
     {
-      "sqlTypes": ["CALL_PROG_OBJ"],
+      "sqlType": "CALL_PROG_OBJ",
       "auditKind": "CALL",
       "callName": "values",
       "func": true,
       "args": [
         "total_sales"
       ],
-      "emptyArg": false,
-      "sqlTargets": ["ProgramObject"]
+      "emptyArg": false
     }
   ]
 }
@@ -1833,11 +1757,10 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_VIEW"],
+      "sqlType": "CREATE_VIEW",
       "auditKind": "CREATE",
       "view": "employee_performance_view",
-      "materialized": false,
-      "sqlTargets": ["View"]
+      "materialized": false
     }
   ]
 }
@@ -1850,7 +1773,7 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "options": {},
       "hasWith": false,
@@ -1877,8 +1800,7 @@ expect:
       "emptyFrom": false,
       "selectItems": [],
       "joinTypes": [],
-      "hasLimit": false,
-      "sqlTargets": ["Query"]
+      "hasLimit": false
     }
   ]
 }

@@ -18,10 +18,10 @@ import com.clougence.clouddm.ds.TextCaseSupport;
 import com.clougence.clouddm.ds.TextCaseSupport.CaseBlock;
 import com.clougence.clouddm.ds.TextTestCase;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
-import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
-import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
+import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -156,8 +156,7 @@ public final class SecDomainTextTest {
             case "mysql", "mariadb", "por4my" -> "8.0.46";
             default -> null;
         };
-        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(
-                version == null ? SqlParserParameters.empty() : SqlParserParameters.ofVersion(version));
+        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(version == null ? SqlParserParameters.empty() : SqlParserParameters.ofVersion(version));
         if (spi == null) {
             throw new IllegalStateException("No SecDomainResolveSpi for datasource: " + datasource);
         }
@@ -199,11 +198,27 @@ public final class SecDomainTextTest {
             JsonNode expectedDomain = expectedDomains.get(i);
             int matched = findMatch(expectedDomain, domains, used);
             if (matched < 0) {
-                failures.add(label + ".contains[" + i + "] not found: " + expectedDomain + " in " + summarize(domains));
+                failures.add(label + ".contains[" + i + "] not found: " + expectedDomain + " in " + summarize(domains) + ", closest mismatch: "
+                             + closestMismatch(expectedDomain, domains, used));
             } else {
                 used[matched] = true;
             }
         }
+    }
+
+    private static List<String> closestMismatch(JsonNode expectedDomain, List<RuleDomain> domains, boolean[] used) {
+        List<String> closest = null;
+        for (int i = 0; i < domains.size(); i++) {
+            if (used[i]) {
+                continue;
+            }
+            List<String> candidate = new ArrayList<>();
+            verifyDomain("domain[" + i + "]", expectedDomain, domains.get(i), candidate);
+            if (closest == null || candidate.size() < closest.size()) {
+                closest = candidate;
+            }
+        }
+        return closest == null ? Collections.emptyList() : closest;
     }
 
     private static int findMatch(JsonNode expectedDomain, List<RuleDomain> domains, boolean[] used) {
@@ -234,13 +249,21 @@ public final class SecDomainTextTest {
                 assertEquals(failures, prefix + ".class", expectedValue, actual.getClass().getSimpleName());
             } else {
                 try {
-                    Object actualValue = readProperty(actual, name);
+                    Object actualValue = readDomainProperty(actual, name);
                     assertEquals(failures, prefix + "." + name, expectedValue, actualValue);
                 } catch (IllegalArgumentException e) {
                     failures.add(prefix + "." + name + ": " + e.getMessage());
                 }
             }
         }
+    }
+
+    private static Object readDomainProperty(RuleDomain domain, String name) {
+        return switch (name) {
+            case "sqlTypes" -> domain.getSqlType() == null ? Collections.emptyList() : List.of(domain.getSqlType());
+            case "sqlTargets" -> domain.getSqlTarget() == null ? Collections.emptyList() : List.of(domain.getSqlTarget());
+            default -> readProperty(domain, name);
+        };
     }
 
     private static Object readProperty(Object target, String name) {
@@ -290,11 +313,11 @@ public final class SecDomainTextTest {
     }
 
     private static void assertArrayEquals(List<String> failures, String label, JsonNode expected, Object actual) {
-        if (!(actual instanceof List<?>)) {
-            failures.add(label + ": expected list=" + expected + ", actual=" + actual);
+        if (!(actual instanceof Collection<?>)) {
+            failures.add(label + ": expected collection=" + expected + ", actual=" + actual);
             return;
         }
-        List<?> actualList = (List<?>) actual;
+        List<?> actualList = new ArrayList<>((Collection<?>) actual);
         if (expected.size() != actualList.size()) {
             failures.add(label + ".size: expected=" + expected.size() + ", actual=" + actualList.size() + " (" + actualList + ")");
             return;

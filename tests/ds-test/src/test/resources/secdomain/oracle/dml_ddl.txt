@@ -4,8 +4,8 @@ create table abc(id int)
 expect:
 {
   "contains": [
-    {"class":"OraTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc"},
-    {"class":"OraColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"OraTableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "table":"abc"},
+    {"class":"OraColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }
 ----------
@@ -15,8 +15,8 @@ create table public.abc(id int);
 expect:
 {
   "contains": [
-    {"class":"OraTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"public", "table":"abc"},
-    {"class":"OraColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int"}
+    {"class":"OraTableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "schema":"public", "table":"abc"},
+    {"class":"OraColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int"}
   ]
 }
 ----------
@@ -26,8 +26,8 @@ create table public.abc(id int default 1);
 expect:
 {
   "contains": [
-    {"class":"OraTableDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"public", "table":"abc"},
-    {"class":"OraColumnDomain", "sqlTypes": ["CREATE_TABLE"], "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int", "defaultValue":"1"}
+    {"class":"OraTableDomain", "sqlType": "CREATE_TABLE", "auditKind":"CREATE", "schema":"public", "table":"abc"},
+    {"class":"OraColumnDomain", "sqlType": "CREATE_TABLE_ADD_COLUMN", "auditKind":"CREATE", "schema":"public", "table":"abc", "column":"id", "typeDesc":"int", "defaultValue":"1"}
   ]
 }
 ----------
@@ -37,7 +37,7 @@ insert into abc(id) values (1)
 expect:
 {
   "contains": [
-    {"class":"OraInsertDomain", "sqlTypes": ["INSERT"], "auditKind":"DML", "table":"abc"}
+    {"class":"OraInsertDomain", "sqlType": "INSERT", "auditKind":"DML", "table":"abc"}
   ]
 }
 ----------
@@ -47,7 +47,7 @@ update abc set id=2 where id=1
 expect:
 {
   "contains": [
-    {"class":"OraUpdateDomain", "sqlTypes": ["UPDATE"], "auditKind":"DML", "table":"abc"}
+    {"class":"OraUpdateDomain", "sqlType": "UPDATE", "auditKind":"DML", "table":"abc"}
   ]
 }
 ----------
@@ -57,7 +57,7 @@ delete from abc where id=1
 expect:
 {
   "contains": [
-    {"class":"OraDeleteDomain", "sqlTypes": ["DELETE"], "auditKind":"DML", "table":"abc"}
+    {"class":"OraDeleteDomain", "sqlType": "DELETE", "auditKind":"DML", "table":"abc"}
   ]
 }
 ----------
@@ -67,7 +67,7 @@ drop table abc
 expect:
 {
   "contains": [
-    {"class":"OraTableDomain", "sqlTypes": ["DROP_TABLE"], "auditKind":"DROP", "table":"abc"}
+    {"class":"OraTableDomain", "sqlType": "DROP_TABLE", "auditKind":"DROP", "table":"abc"}
   ]
 }
 ----------
@@ -77,7 +77,7 @@ select * from abc
 expect:
 {
   "contains": [
-    {"class":"OraSelectDomain", "sqlTypes": ["SELECT"], "auditKind":"QUERY", "childrenSize":1},
+    {"class":"OraSelectDomain", "sqlType": "SELECT", "auditKind":"QUERY", "childrenSize":1},
     {"class":"RdbTableDomain", "table":"abc"}
   ]
 }
@@ -88,7 +88,7 @@ create index idx_abc on abc(id)
 expect:
 {
   "contains": [
-    {"class":"RdbIndexDomain", "sqlTypes": ["ADD_INDEX"], "auditKind":"CREATE", "tableName":"abc", "name":"idx_abc"}
+    {"class":"RdbIndexDomain", "sqlType": "ADD_INDEX", "auditKind":"CREATE", "tableName":"abc", "name":"idx_abc"}
   ]
 }
 ----------
@@ -98,6 +98,6 @@ alter table abc add constraint pk_abc primary key (id)
 expect:
 {
   "contains": [
-    {"class":"RdbConstraintDomain", "sqlTypes": ["ADD_CONSTRAINT"], "auditKind":"CREATE", "tableName":"abc", "name":"pk_abc"}
+    {"class":"RdbConstraintDomain", "sqlType": "ALTER_TABLE_ADD_CONSTRAINT", "auditKind":"CREATE", "tableName":"abc", "name":"pk_abc"}
   ]
 }

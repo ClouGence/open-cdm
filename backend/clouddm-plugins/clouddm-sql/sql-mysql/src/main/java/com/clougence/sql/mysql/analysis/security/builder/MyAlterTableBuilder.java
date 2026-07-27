@@ -55,7 +55,7 @@ public class MyAlterTableBuilder extends AbstractDomainBuilder {
 
         if (newTableName != null) {
             MyTableDomain myTableDomain1 = new MyTableDomain();
-            myTableDomain1.setSqlType(RuleQueryType.RENAME_TABLE);
+            myTableDomain1.setSqlType(RuleQueryType.ALTER_TABLE_RENAME);
             myTableDomain1.setAuditKind(SecQueryKind.ALTER);
             myTableDomain1.setTable(myTableDomain.getTable());
             myTableDomain1.setSchema(myTableDomain.getSchema());

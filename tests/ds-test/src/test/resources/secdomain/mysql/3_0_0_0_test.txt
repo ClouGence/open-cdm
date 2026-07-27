@@ -15,14 +15,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_PROG_OBJ"],
+      "sqlType": "CREATE_PROG_OBJ",
       "auditKind": "CREATE",
-      "name": "GetEmployeeSalary",
-      "sqlTargets": ["ProgramObject"]
+      "name": "GetEmployeeSalary"
     }
   ]
 }
 ----------
+
 
 [3_0_0_0_test_CREATE_PROCEDURE_2]
 sql:
@@ -34,10 +34,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_PROG_OBJ"],
+      "sqlType": "CREATE_PROG_OBJ",
       "auditKind": "CREATE",
-      "name": "GetEmployeesAboveSalary",
-      "sqlTargets": ["ProgramObject"]
+      "name": "GetEmployeesAboveSalary"
     }
   ]
 }
@@ -55,10 +54,9 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TRIGGER"],
+      "sqlType": "CREATE_TRIGGER",
       "auditKind": "CREATE",
-      "name": "check_age_before_insert3",
-      "sqlTargets": ["Trigger"]
+      "name": "check_age_before_insert3"
     }
   ]
 }
@@ -71,13 +69,11 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_VIEW"],
+      "sqlType": "CREATE_VIEW",
       "auditKind": "CREATE",
       "view": "v_biz_model3",
-      "materialized": false,
-      "sqlTargets": ["View"]
+      "materialized": false
     }
   ]
 }
 ----------
-

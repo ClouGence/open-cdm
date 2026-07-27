@@ -35,8 +35,8 @@ public class AnalyzeTableBuilder extends AbstractDomainBuilder {
 
     @Override
     public List<Domain> build() {
-        domain.setSqlType(RuleQueryType.ADMIN_TABLE);
-        domain.setAuditKind(SecQueryKind.ADMIN);
+        domain.setSqlType(RuleQueryType.ANALYZE);
+        domain.setAuditKind(SecQueryKind.OTHER);
         domain.setNeedSupply(true);
         domain.setTarget(TargetType.Table);
 

@@ -257,17 +257,17 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     private void collectCreateTableItem(Db2TableDomain table, Map<String, Db2ColumnDomain> columns, List<RuleDomain> children, Db2SqlParser.Element_list_itemContext item) {
         if (item.column_definition() != null) {
-            Db2ColumnDomain column = columnDomain(table, item.column_definition(), RuleQueryType.CREATE_TABLE, SecQueryKind.CREATE);
+            Db2ColumnDomain column = columnDomain(table, item.column_definition(), RuleQueryType.CREATE_TABLE_ADD_COLUMN, SecQueryKind.CREATE);
             children.add(column);
             table.getColumns().add(column.getColumn());
             columns.put(column.getColumn(), column);
             markColumnConstraint(table, column);
         } else if (item.index_name() != null) {
-            RdbIndexDomain index = indexDomain(table, text(item.index_name()), item.index_col_opts(), RuleQueryType.CREATE_TABLE);
+            RdbIndexDomain index = indexDomain(table, text(item.index_name()), item.index_col_opts(), RuleQueryType.CREATE_TABLE_ADD_INDEX);
             children.add(index);
             table.setHasIndex(true);
         } else {
-            RdbConstraintDomain constraint = constraintDomain(table, item, RuleQueryType.CREATE_TABLE);
+            RdbConstraintDomain constraint = constraintDomain(table, item, RuleQueryType.CREATE_TABLE_ADD_CONSTRAINT);
             if (constraint != null) {
                 children.add(constraint);
                 markTableConstraint(table, columns, constraint);
@@ -277,30 +277,31 @@ public class Db2ParserVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     private void collectAlterTableOpt(Db2TableDomain table, Map<String, Db2ColumnDomain> columns, List<RuleDomain> children, Db2SqlParser.Alter_table_optsContext opt) {
         if (opt.column_definition() != null) {
-            Db2ColumnDomain column = columnDomain(table, opt.column_definition(), RuleQueryType.ADD_COLUMN, SecQueryKind.ALTER);
+            Db2ColumnDomain column = columnDomain(table, opt.column_definition(), RuleQueryType.ALTER_TABLE_ADD_COLUMN, SecQueryKind.ALTER);
             children.add(column);
             table.getColumns().add(column.getColumn());
             columns.put(column.getColumn(), column);
             markColumnConstraint(table, column);
         } else if (opt.unique_constraint() != null || opt.referential_constraint() != null || opt.check_constraint() != null) {
-            RdbConstraintDomain constraint = constraintDomain(table, opt, RuleQueryType.ADD_CONSTRAINT);
+            RdbConstraintDomain constraint = constraintDomain(table, opt, RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT);
             if (constraint != null) {
                 children.add(constraint);
                 markTableConstraint(table, columns, constraint);
             }
         } else if (opt.index_name() != null) {
-            RdbIndexDomain index = indexDomain(table, text(opt.index_name()), opt.index_col_opts(), RuleQueryType.ADD_INDEX);
+            RdbIndexDomain index = indexDomain(table, text(opt.index_name()), opt.index_col_opts(), RuleQueryType.ALTER_TABLE_ADD_INDEX);
+            index.setAuditKind(SecQueryKind.ALTER);
             children.add(index);
             table.setHasIndex(true);
         } else if (opt.s != null && opt.t != null) {
-            Db2ColumnDomain column = simpleColumnDomain(table, text(opt.s), RuleQueryType.RENAME_COLUMN, SecQueryKind.ALTER);
+            Db2ColumnDomain column = simpleColumnDomain(table, text(opt.s), RuleQueryType.ALTER_TABLE_RENAME_COLUMN, SecQueryKind.ALTER);
             column.setNewName(clean(text(opt.t)));
             children.add(column);
         } else if (opt.target_identifier() != null) {
-            table.setSqlType(RuleQueryType.RENAME_TABLE);
+            table.setSqlType(RuleQueryType.ALTER_TABLE_RENAME);
             table.setNewName(lastName(text(opt.target_identifier())));
         } else if (opt.column_name().size() == 1 && opt.DROP().size() > 0) {
-            children.add(simpleColumnDomain(table, text(opt.column_name(0)), RuleQueryType.DROP_COLUMN, SecQueryKind.ALTER));
+            children.add(simpleColumnDomain(table, text(opt.column_name(0)), RuleQueryType.ALTER_TABLE_DROP_COLUMN, SecQueryKind.ALTER));
         }
     }
 

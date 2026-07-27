@@ -5,18 +5,16 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "func": "find",
-      "collection": "aa",
-      "sqlTargets": ["Query"]
+      "collection": "aa"
     },
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "func": "drop",
-      "collection": "aa",
-      "sqlTargets": ["Table"]
+      "collection": "aa"
     }
   ]
 }
@@ -28,25 +26,22 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "SELECT",
       "auditKind": "QUERY",
       "func": "find",
-      "collection": "collection",
-      "sqlTargets": ["Query"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "READ",
       "auditKind":"QUERY",
       "func": "findOne",
-      "collection": "collection",
-      "sqlTargets": ["Query"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["SELECT"],
+      "sqlType": "READ",
       "auditKind":"QUERY",
       "func": "countDocuments",
-      "collection": "collection",
-      "sqlTargets": ["Query"]
+      "collection": "collection"
     }
   ]
 }
@@ -58,25 +53,22 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["INSERT"],
+      "sqlType": "INSERT",
       "auditKind": "DML",
       "func": "insert",
-      "collection": "collection",
-      "sqlTargets": ["Insert"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["INSERT"],
+      "sqlType": "INSERT",
       "auditKind": "DML",
       "func": "insertOne",
-      "collection": "collection",
-      "sqlTargets": ["Insert"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["INSERT"],
+      "sqlType": "INSERT",
       "auditKind": "DML",
       "func": "insertMany",
-      "collection": "collection",
-      "sqlTargets": ["Insert"]
+      "collection": "collection"
     }
   ]
 }
@@ -88,25 +80,22 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["UPDATE"],
+      "sqlType": "UPDATE",
       "auditKind": "DML",
       "func": "update",
-      "collection": "collection",
-      "sqlTargets": ["Update"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["UPDATE"],
+      "sqlType": "UPDATE",
       "auditKind": "DML",
       "func": "updateOne",
-      "collection": "collection",
-      "sqlTargets": ["Update"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["UPDATE"],
+      "sqlType": "UPDATE",
       "auditKind": "DML",
       "func": "replaceOne",
-      "collection": "collection",
-      "sqlTargets": ["Update"]
+      "collection": "collection"
     }
   ]
 }
@@ -118,25 +107,22 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["DELETE"],
+      "sqlType": "DELETE",
       "auditKind": "DML",
       "func": "deleteOne",
-      "collection": "collection",
-      "sqlTargets": ["Delete"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["DELETE"],
+      "sqlType": "DELETE",
       "auditKind": "DML",
       "func": "deleteMany",
-      "collection": "collection",
-      "sqlTargets": ["Delete"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["DELETE"],
+      "sqlType": "DELETE",
       "auditKind": "DML",
       "func": "findOneAndDelete",
-      "collection": "collection",
-      "sqlTargets": ["Delete"]
+      "collection": "collection"
     }
   ]
 }
@@ -148,25 +134,22 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADD_INDEX"],
+      "sqlType": "ADD_INDEX",
       "auditKind": "CREATE",
       "func": "createIndex",
-      "collection": "collection",
-      "sqlTargets": ["Index"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["DROP_INDEX"],
+      "sqlType": "DROP_INDEX",
       "auditKind": "DROP",
       "func": "dropIndex",
-      "collection": "collection",
-      "sqlTargets": ["Index"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["DROP_INDEX"],
+      "sqlType": "DROP_INDEX",
       "auditKind": "DROP",
       "func": "dropIndexes",
-      "collection": "collection",
-      "sqlTargets": ["Index"]
+      "collection": "collection"
     }
   ]
 }
@@ -178,24 +161,21 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["CREATE_TABLE"],
+      "sqlType": "CREATE_TABLE",
       "auditKind": "CREATE",
-      "func": "createCollection",
-      "sqlTargets": ["Table"]
+      "func": "createCollection"
     },
     {
-      "sqlTypes": ["DROP_TABLE"],
+      "sqlType": "DROP_TABLE",
       "auditKind": "DROP",
       "func": "drop",
-      "collection": "collection",
-      "sqlTargets": ["Table"]
+      "collection": "collection"
     },
     {
-      "sqlTypes": ["RENAME_TABLE"],
+      "sqlType": "RENAME_TABLE",
       "auditKind": "ALTER",
       "func": "renameCollection",
-      "collection": "collection",
-      "sqlTargets": ["Table"]
+      "collection": "collection"
     }
   ]
 }
@@ -207,16 +187,14 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["SWITCH_SCHEMA"],
+      "sqlType": "SWITCH_SCHEMA",
       "auditKind": "QUERY",
-      "func": "use",
-      "sqlTargets": ["Schema"]
+      "func": "use"
     },
     {
-      "sqlTypes": ["DROP_SCHEMA"],
+      "sqlType": "DROP_SCHEMA",
       "auditKind": "DROP",
-      "func": "dropDatabase",
-      "sqlTargets": ["Schema"]
+      "func": "dropDatabase"
     }
   ]
 }
@@ -228,22 +206,19 @@ expect:
 {
   "contains": [
     {
-      "sqlTypes": ["ADMIN"],
+      "sqlType": "ADMIN",
       "auditKind": "ADMIN",
-      "func": "hostInfo",
-      "sqlTargets": ["Unknown"]
+      "func": "hostInfo"
     },
     {
-      "sqlTypes": ["ADMIN"],
+      "sqlType": "ADMIN",
       "auditKind": "ADMIN",
-      "func": "serverStatus",
-      "sqlTargets": ["Unknown"]
+      "func": "serverStatus"
     },
     {
-      "sqlTypes": ["ADMIN"],
+      "sqlType": "ADMIN",
       "auditKind": "ADMIN",
-      "func": "currentOp",
-      "sqlTargets": ["Unknown"]
+      "func": "currentOp"
     }
   ]
 }

@@ -3,9 +3,9 @@
         enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
         hint "列名拼写规则"
 
-if @domain.sqlType in ['CREATE_TABLE', 'ADD_COLUMN'] then
+if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
   checkName = @domain.column
-elseif @domain.sqlType == 'RENAME_COLUMN' then
+elseif @domain.sqlType == 'ALTER_TABLE_RENAME_COLUMN' then
   checkName = @domain.newName
 else
   return true

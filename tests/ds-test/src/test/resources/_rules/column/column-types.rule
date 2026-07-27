@@ -7,7 +7,7 @@
         hint "允许或禁止的类型列表"
 
 if
-  @domain.sqlType not in ['CREATE_TABLE', 'ADD_COLUMN', 'ALTER_COLUMN']
+  @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
 then
   return true
 end

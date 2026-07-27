@@ -9,7 +9,7 @@
 
 // 对于 modify/change 语句，只有当设置了 character set 选项时候才进行校验
 if
-  @domain.sqlType == 'ALTER_COLUMN' and
+  @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
   @func.string.isNotBlank(@domain.characterSet)
 then
 
@@ -22,7 +22,7 @@ then
 end
 
 // 对于 add column or create table 语句，检测是否必须设置 character set 选项
-if @domain.sqlType in ['CREATE_TABLE', 'ADD_COLUMN'] then
+if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
 
   if cast(#{require} as bool) then
 

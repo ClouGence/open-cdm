@@ -4,7 +4,7 @@ insert into "pub"."test_schema"."table2" ("id", "b") values (2, 1);
 expect:
 {
   "contains": [
-    {"class":"PgInsertDomain", "sqlTypes": ["INSERT"], "auditKind":"DML", "catalog":"pub", "schema":"test_schema", "table":"table2"}
+    {"class":"PgInsertDomain", "sqlType": "INSERT", "auditKind":"DML", "catalog":"pub", "schema":"test_schema", "table":"table2"}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ insert into pub.test_schema.table2 (id, b) values (2, 1);
 expect:
 {
   "contains": [
-    {"class":"PgInsertDomain", "sqlTypes": ["INSERT"], "auditKind":"DML", "catalog":"pub", "schema":"test_schema", "table":"table2"}
+    {"class":"PgInsertDomain", "sqlType": "INSERT", "auditKind":"DML", "catalog":"pub", "schema":"test_schema", "table":"table2"}
   ]
 }
 ----------
@@ -24,7 +24,7 @@ insert into test_schema.table2 (id, b) values (2, 1);
 expect:
 {
   "contains": [
-    {"class":"PgInsertDomain", "sqlTypes": ["INSERT"], "auditKind":"DML", "schema":"test_schema", "table":"table2"}
+    {"class":"PgInsertDomain", "sqlType": "INSERT", "auditKind":"DML", "schema":"test_schema", "table":"table2"}
   ]
 }
 ----------
@@ -34,6 +34,6 @@ insert into test_schema.table2 (id, b) values ((select id from table1 limit 1), 
 expect:
 {
   "contains": [
-    {"class":"PgInsertDomain", "sqlTypes": ["INSERT"], "auditKind":"DML", "schema":"test_schema", "table":"table2"}
+    {"class":"PgInsertDomain", "sqlType": "INSERT", "auditKind":"DML", "schema":"test_schema", "table":"table2"}
   ]
 }

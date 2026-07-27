@@ -49,13 +49,13 @@ public class AlterTableItemBuilder extends AbstractDomainBuilder {
                 RdbColumnDomain rdbColumnDomain = (RdbColumnDomain) ruleDomain;
                 if (alterTableType == AlterTableType.ADD_COLUMN) {
                     rdbColumnDomain.setAuditKind(SecQueryKind.CREATE);
-                    rdbColumnDomain.setSqlType(RuleQueryType.ADD_COLUMN);
+                    rdbColumnDomain.setSqlType(RuleQueryType.ALTER_TABLE_ADD_COLUMN);
                 } else if (alterTableType == AlterTableType.DROP_COLUMN) {
                     rdbColumnDomain.setAuditKind(SecQueryKind.DROP);
-                    rdbColumnDomain.setSqlType(RuleQueryType.DROP_COLUMN);
+                    rdbColumnDomain.setSqlType(RuleQueryType.ALTER_TABLE_DROP_COLUMN);
                 } else if (alterTableType == AlterTableType.ALTER_COLUMN) {
                     rdbColumnDomain.setAuditKind(SecQueryKind.ALTER);
-                    rdbColumnDomain.setSqlType(RuleQueryType.ALTER_COLUMN);
+                    rdbColumnDomain.setSqlType(RuleQueryType.ALTER_TABLE_ALTER_COLUMN);
                 }
             }
             domainList.addAll(list);
@@ -63,14 +63,14 @@ public class AlterTableItemBuilder extends AbstractDomainBuilder {
             for (Domain ruleDomain : list) {
                 if (alterTableType == AlterTableType.DROP_CONSTRAINT) {
                     RdbConstraintDomain rdbConstraintDomain = (RdbConstraintDomain) ruleDomain;
-                    rdbConstraintDomain.setSqlType(RuleQueryType.DROP_CONSTRAINT);
+                    rdbConstraintDomain.setSqlType(RuleQueryType.ALTER_TABLE_DROP_CONSTRAINT);
                     rdbConstraintDomain.setAuditKind(SecQueryKind.DROP);
                     if (rdbConstraintDomain.getType() == null) {
                         rdbConstraintDomain.setType(SqlConstraintType.ByName);
                     }
                 } else {
                     RdbConstraintDomain rdbConstraintDomain = (RdbConstraintDomain) ruleDomain;
-                    rdbConstraintDomain.setSqlType(RuleQueryType.ADD_CONSTRAINT);
+                    rdbConstraintDomain.setSqlType(RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT);
                     rdbConstraintDomain.setAuditKind(SecQueryKind.CREATE);
                 }
             }
@@ -80,7 +80,7 @@ public class AlterTableItemBuilder extends AbstractDomainBuilder {
                 if (alterTableType == AlterTableType.ADD_INDEX) {
                     RdbIndexDomain domain1 = (RdbIndexDomain) domain;
                     domain1.setAuditKind(SecQueryKind.CREATE);
-                    domain1.setSqlType(RuleQueryType.ADD_INDEX);
+                    domain1.setSqlType(RuleQueryType.ALTER_TABLE_ADD_INDEX);
                 } else if (alterTableType == AlterTableType.DROP_INDEX) {
                     RdbIndexDomain domain1 = (RdbIndexDomain) domain;
                     domain1.setAuditKind(SecQueryKind.DROP);

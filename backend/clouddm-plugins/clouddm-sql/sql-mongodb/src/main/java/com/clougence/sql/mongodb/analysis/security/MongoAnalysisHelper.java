@@ -31,7 +31,7 @@ public class MongoAnalysisHelper {
             case COUNT:
             case DISTINCT:
             case COUNT_DOCUMENTS: {
-                return RuleQueryType.SELECT;
+                return RuleQueryType.READ;
             }
             case DATA_SIZE:
             case HELLO: {

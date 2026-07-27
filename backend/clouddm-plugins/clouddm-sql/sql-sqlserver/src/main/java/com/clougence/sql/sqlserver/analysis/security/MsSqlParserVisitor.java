@@ -124,7 +124,8 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         MsTableDomain domain = tableDomain(ctx.table_name(), RuleQueryType.CREATE_TABLE, SecQueryKind.CREATE);
         domain.setColumns(new ArrayList<>());
         Map<String, MsColumnDomain> columns = new LinkedHashMap<>();
-        List<RuleDomain> children = tableElementDomains(ctx.column_def_table_constraints(), domain, columns, RuleQueryType.CREATE_TABLE, RuleQueryType.CREATE_TABLE);
+        List<RuleDomain> children = tableElementDomains(ctx.column_def_table_constraints(), domain, columns, RuleQueryType.CREATE_TABLE_ADD_COLUMN,
+                RuleQueryType.CREATE_TABLE_ADD_CONSTRAINT);
         add(domain);
         children.forEach(this::add);
         return null;
@@ -137,19 +138,21 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         Map<String, MsColumnDomain> columns = new LinkedHashMap<>();
         List<RuleDomain> children = new ArrayList<>();
         if (ctx.ADD() != null && ctx.column_def_table_constraints() != null) {
-            children.addAll(tableElementDomains(ctx.column_def_table_constraints(), domain, columns, RuleQueryType.ADD_COLUMN, RuleQueryType.ADD_CONSTRAINT));
+            children.addAll(tableElementDomains(ctx.column_def_table_constraints(), domain, columns, RuleQueryType.ALTER_TABLE_ADD_COLUMN,
+                    RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT));
         } else if (ctx.ALTER().size() > 1 && ctx.column_definition() != null) {
-            MsColumnDomain column = columnDomain(ctx.column_definition(), domain, RuleQueryType.ALTER_COLUMN, SecQueryKind.ALTER);
+            MsColumnDomain column = columnDomain(ctx.column_definition(), domain, RuleQueryType.ALTER_TABLE_ALTER_COLUMN, SecQueryKind.ALTER);
             children.add(column);
             domain.getColumns().add(column.getColumn());
         } else if (ctx.DROP() != null && ctx.COLUMN() != null) {
             for (SqlServerParser.Id_Context id : ctx.id_()) {
-                MsColumnDomain column = simpleColumnDomain(domain, clean(id), RuleQueryType.DROP_COLUMN, SecQueryKind.DROP);
+                MsColumnDomain column = simpleColumnDomain(domain, clean(id), RuleQueryType.ALTER_TABLE_DROP_COLUMN, SecQueryKind.DROP);
                 children.add(column);
                 domain.getColumns().remove(column.getColumn());
             }
         } else if (ctx.DROP() != null && ctx.CONSTRAINT() != null && ctx.constraint != null) {
-            RdbConstraintDomain constraint = constraintDomain(domain, RuleQueryType.DROP_CONSTRAINT, SqlConstraintType.ByName, clean(ctx.constraint), Collections.emptyList());
+            RdbConstraintDomain constraint = constraintDomain(domain, RuleQueryType.ALTER_TABLE_DROP_CONSTRAINT, SqlConstraintType.ByName, clean(ctx.constraint),
+                    Collections.emptyList());
             constraint.setAuditKind(SecQueryKind.DROP);
             children.add(constraint);
         } else if (ctx.ADD() != null && ctx.CONSTRAINT() != null) {
@@ -524,6 +527,9 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         }
         String text = compactLower(ctx);
         domain.setNullable(!text.contains("notnull"));
+        domain.setPrimary(text.contains("primarykey"));
+        domain.setUnique(text.contains("unique"));
+        domain.setForeign(text.contains("foreignkey"));
         for (SqlServerParser.Column_definition_elementContext element : ctx.column_definition_element()) {
             if (element.constant_expr != null) {
                 domain.setDefaultValue(stripQuote(getText(element.constant_expr)));
@@ -576,7 +582,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     private RdbConstraintDomain alterTableConstraintDomain(SqlServerParser.Alter_tableContext ctx, MsTableDomain tableDomain) {
         SqlConstraintType type = ctx.FOREIGN() != null ? SqlConstraintType.ForeignKey : SqlConstraintType.Check;
         List<String> columns = ctx.fk != null ? names(ctx.fk) : Collections.emptyList();
-        RdbConstraintDomain domain = constraintDomain(tableDomain, RuleQueryType.ADD_CONSTRAINT, type, clean(ctx.constraint), columns);
+        RdbConstraintDomain domain = constraintDomain(tableDomain, RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT, type, clean(ctx.constraint), columns);
         markTableConstraint(tableDomain, Collections.emptyMap(), domain);
         return domain;
     }

@@ -21,8 +21,8 @@ import java.util.List;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParserBaseVisitor;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
 
 public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     private final List<RuleDomain>   domains      = new ArrayList<>();
@@ -216,7 +216,8 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitTableCreate(DmSqlParser.TableCreateContext ctx) {
-        RuleQueryType type = RuleQueryType.CREATE_TABLE;
+        RuleQueryType type = ctx.likeSourceTable != null ? RuleQueryType.CREATE_TABLE_LIKE : ctx.tableCreateBody() != null && ctx.tableCreateBody()
+            .selectStatement() != null ? RuleQueryType.CREATE_TABLE_SELECT : RuleQueryType.CREATE_TABLE;
         tableDomain(schemaScoped(NameParts.from(ctx.targetTable)), type);
         if (ctx.likeSourceTable != null) {
             tableDomain(NameParts.from(ctx.likeSourceTable), RuleQueryType.SELECT);
