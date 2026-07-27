@@ -25,9 +25,14 @@
           </FormItem>
           <FormItem :label="$t('fu-wu-di-zhi')" prop="serviceUrl">
             <Input v-model="scmForm.serviceUrl" :disabled="selectedScmType?.custom === 'false'" />
+            <div v-if="isGitlab" class="field-hint">{{ $t('gitlab-web-root-hint') }}</div>
           </FormItem>
           <FormItem :label="$t('accesstoken')" prop="accessToken" class="devops-form-grid__wide">
-            <Input v-model="scmForm.accessToken" />
+            <Input v-model="scmForm.accessToken" type="password" autocomplete="new-password" />
+            <div v-if="isEdit" class="field-hint">{{ $t('access-token-edit-hint') }}</div>
+          </FormItem>
+          <FormItem v-if="isPlainHttp" class="devops-form-grid__wide plain-http-ack">
+            <Checkbox v-model="scmForm.plainHttpAcknowledged">{{ $t('gitlab-http-token-risk') }}</Checkbox>
           </FormItem>
         </div>
       </Form>
@@ -36,9 +41,15 @@
         <a v-if="selectedScmType && selectedScmType.helpUrl" @click="jumpToHelp">{{ $t('ru-he-huo-qu-accesstoken') }}</a>
         <span v-else></span>
         <div class="devops-test-result">
-          <span v-show="isCorrect !== 'init'" :class="isCorrect ? 'green-text' : 'error-text'">
-            {{ isCorrect ? $t('ce-shi-tong-guo') : $t('ce-shi-shi-bai') }}
-          </span>
+          <div v-show="isCorrect !== 'init'" class="devops-test-result__content">
+            <span :class="isCorrect ? 'green-text' : 'error-text'">
+              {{ isCorrect ? $t('ce-shi-tong-guo') : $t('ce-shi-shi-bai') }}
+            </span>
+            <span v-if="isCorrect && scmTestResult" class="devops-test-result__meta">
+              <span v-if="scmTestResult.serverVersion">{{ $t('gitlab-version') }}: {{ scmTestResult.serverVersion }}</span>
+              <span>{{ $t('visible-project-count') }}: {{ scmTestResult.projectCount }}</span>
+            </span>
+          </div>
           <Button @click="handleTestScm" :loading="testLoading">{{ $t('ce-shi') }}</Button>
         </div>
       </div>
@@ -46,7 +57,9 @@
       <div class="devops-form-footer">
         <div class="devops-form-footer__right">
           <Button @click="goBack">{{ $t('qu-xiao') }}</Button>
-          <Button type="primary" :loading="submitLoading" @click="handleSubmit">{{ isEdit ? $t('bao-cun') : $t('tian-jia') }}</Button>
+          <Button type="primary" :loading="submitLoading" @click="handleSubmit">
+            {{ isEdit ? $t('bao-cun') : $t('tian-jia') }}
+          </Button>
         </div>
       </div>
     </section>
@@ -58,7 +71,8 @@ const EMPTY_SCM = {
   scmType: '',
   display: '',
   serviceUrl: '',
-  accessToken: ''
+  accessToken: '',
+  plainHttpAcknowledged: false
 };
 
 export default {
@@ -72,23 +86,30 @@ export default {
       selectedScmType: {},
       scmForm: { ...EMPTY_SCM },
       isCorrect: 'init',
+      scmTestResult: null,
       scmRules: {
         scmType: [
           {
             required: true,
-            message: '类型不能为空'
+            message: this.$t('scm-type-required')
           }
         ],
         display: [
           {
             required: true,
-            message: '展示名称不能为空'
+            message: this.$t('scm-display-required')
           }
         ],
         serviceUrl: [
           {
             required: true,
-            message: '服务地址不能为空'
+            message: this.$t('scm-service-url-required')
+          }
+        ],
+        accessToken: [
+          {
+            required: true,
+            message: this.$t('scm-access-token-required')
           }
         ]
       },
@@ -96,19 +117,19 @@ export default {
         scmType: [
           {
             required: true,
-            message: '类型不能为空'
+            message: this.$t('scm-type-required')
           }
         ],
         display: [
           {
             required: true,
-            message: '展示名称不能为空'
+            message: this.$t('scm-display-required')
           }
         ],
         serviceUrl: [
           {
             required: true,
-            message: '服务地址不能为空'
+            message: this.$t('scm-service-url-required')
           }
         ]
       }
@@ -123,6 +144,12 @@ export default {
     },
     computedScmRules() {
       return this.isEdit ? this.editScmRules : this.scmRules;
+    },
+    isGitlab() {
+      return this.scmForm.scmType === 'Gitlab';
+    },
+    isPlainHttp() {
+      return this.isGitlab && /^http:\/\//i.test((this.scmForm.serviceUrl || '').trim());
     },
     visibleScmTypeList() {
       return this.isEdit && this.selectedScmType?.scmType ? [this.selectedScmType] : this.scmTypeList;
@@ -162,7 +189,14 @@ export default {
         return;
       }
 
-      this.scmForm = { ...scm };
+      this.scmForm = {
+        ...EMPTY_SCM,
+        scmId: scm.scmId,
+        scmType: scm.scmType,
+        display: scm.display,
+        serviceUrl: scm.serviceUrl,
+        accessToken: ''
+      };
       this.selectedScmType = this.scmTypeList.find((item) => item.scmType === scm.scmType) || {
         scmType: scm.scmType,
         scmTypeI18n: scm.scmTypeI18n,
@@ -176,6 +210,9 @@ export default {
       this.selectedScmType = item;
       this.scmForm.scmType = item.scmType;
       this.scmForm.serviceUrl = item.serviceUrl;
+      this.scmForm.plainHttpAcknowledged = false;
+      this.isCorrect = 'init';
+      this.scmTestResult = null;
     },
     handleSubmit() {
       if (this.isEdit) {
@@ -193,7 +230,7 @@ export default {
         const res = await this.$services.dmDevopsScmAdd({ data: this.scmForm });
         this.submitLoading = false;
         if (res.success) {
-          this.$Message.success('提供者添加成功');
+          this.$Message.success(this.$t('scm-provider-add-success'));
           this.goBack();
         }
       });
@@ -211,6 +248,7 @@ export default {
             newDisplay: this.scmForm.display,
             newServiceUrl: this.scmForm.serviceUrl,
             newAccessToken: this.scmForm.accessToken,
+            plainHttpAcknowledged: this.scmForm.plainHttpAcknowledged,
             force: false
           }
         });
@@ -236,6 +274,7 @@ export default {
                 newDisplay: this.scmForm.display,
                 newServiceUrl: this.scmForm.serviceUrl,
                 newAccessToken: this.scmForm.accessToken,
+                plainHttpAcknowledged: this.scmForm.plainHttpAcknowledged,
                 force: true
               }
             });
@@ -258,8 +297,12 @@ export default {
       const res = await this.$services.dmDevopsScmTest({ data: testData });
       this.testLoading = false;
       this.isCorrect = res.success;
+      this.scmTestResult = res.success ? res.data || {} : null;
       if (res.success) {
         this.$Message.success(this.$t('ce-shi-tong-guo'));
+        if (res.data?.warning) {
+          this.$Message.warning(res.data.warning);
+        }
       }
     },
     jumpToHelp() {
@@ -362,6 +405,18 @@ export default {
   grid-column: auto;
 }
 
+.field-hint {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.plain-http-ack {
+  margin-bottom: 0;
+  color: var(--warning-color);
+}
+
 .devops-form-help {
   display: flex;
   align-items: center;
@@ -377,6 +432,18 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+}
+
+.devops-test-result__content,
+.devops-test-result__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.devops-test-result__meta {
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .devops-form-footer {

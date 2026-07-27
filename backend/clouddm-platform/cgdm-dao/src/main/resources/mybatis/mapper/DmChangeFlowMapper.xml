@@ -27,12 +27,14 @@
         <result column="ref_scm_type" property="refScmType"
                 javaType="com.clougence.clouddm.platform.dal.model.gitops.ScmType"/>
         <result column="scm_repo_space" property="scmRepoSpace"/>
+        <result column="scm_repo_identifier" property="scmRepoIdentifier"/>
         <result column="scm_repo_name" property="scmRepoName"/>
         <result column="scm_repo_url" property="scmRepoUrl"/>
         <result column="scm_repo_branch" property="scmRepoBranch"/>
         <result column="scm_repo_event" property="scmRepoEvent" javaType="com.clougence.clouddm.sdk.scm.ScmEventType"/>
         <result column="scm_repo_script" property="scmRepoScript"/>
         <result column="scm_repo_hook_pwd" property="scmBindWebhookPwd"/>
+        <result column="scm_repo_hook_signing_token" property="scmBindWebhookSigningToken"/>
         <result column="enable_hook" property="enableWebhook"/>
         <result column="enable_trigger" property="enableTrigger"/>
         <result column="trigger_token" property="triggerToken"/>
@@ -61,8 +63,8 @@
         id
         , gmt_create, gmt_modified, owner_uid, flow_uid, flow_name, flow_desc, flow_manager_uid,
         flow_status, flow_check, flow_approve, flow_execute, flow_options, flow_scm_options,
-        ref_scm_id, ref_scm_type, scm_repo_space, scm_repo_name, scm_repo_url, scm_repo_branch,
-        scm_repo_event, scm_repo_script, scm_repo_hook_pwd, enable_hook, enable_trigger, trigger_token,
+        ref_scm_id, ref_scm_type, scm_repo_space, scm_repo_identifier, scm_repo_name, scm_repo_url, scm_repo_branch,
+        scm_repo_event, scm_repo_script, scm_repo_hook_pwd, scm_repo_hook_signing_token, enable_hook, enable_trigger, trigger_token,
         ds_id, ds_type, ds_instance, ds_desc, ds_path, ref_msg_id, ref_msg_type, msg_language,
         enable_msg, event_flow_status, event_flow_config, event_change_life, event_change_notice,
         callback_url, callback_method, enable_callback, flow_hashcode, enable, deleted
@@ -99,6 +101,14 @@
         from dm_change_flow
         where owner_uid = #{ownerUid} and id = #{flowId}
         limit 1
+    </select>
+    <select id="queryByOwnerAndIdForUpdate" resultMap="dmChangeFlowDO">
+        select
+        <include refid="dmChangeFlowDO_select"/>
+        from dm_change_flow
+        where owner_uid = #{ownerUid} and id = #{flowId}
+        limit 1
+        for update
     </select>
     <select id="queryEnabledByOwnerAndDsId" resultMap="dmChangeFlowDO">
         select
@@ -274,6 +284,24 @@
         set enable_trigger = #{enable},
             trigger_token  = #{token},
             gmt_modified   = now()
+        where owner_uid = #{ownerUid}
+          and id = #{flowId}
+          and deleted = 0
+    </update>
+    <update id="updateScmRepoMetadata">
+        update dm_change_flow
+        set scm_repo_space = #{repoSpace},
+            scm_repo_name  = #{repoName},
+            scm_repo_url   = #{repoUrl},
+            gmt_modified   = now()
+        where owner_uid = #{ownerUid}
+          and id = #{flowId}
+          and deleted = 0
+    </update>
+    <update id="updateWebhookSigningToken">
+        update dm_change_flow
+        set scm_repo_hook_signing_token = #{signingToken},
+            gmt_modified                = now()
         where owner_uid = #{ownerUid}
           and id = #{flowId}
           and deleted = 0

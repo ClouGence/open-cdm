@@ -1,4 +1,5 @@
 <script>
+import appLogger from '@/utils/logger';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 
 export default {
@@ -93,7 +94,7 @@ export default {
       handler(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.options = deepClone(this.rawOptions);
-          console.log(this.cellData);
+          appLogger.debug(this.cellData);
           if (this.cellData.length) {
             window.luckysheet.destroy();
             this.options.data[0].celldata = this.cellData;

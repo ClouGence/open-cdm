@@ -141,18 +141,8 @@ public class DmScmController {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
         }
 
-        // key config change
-        if (StringUtils.isNotBlank(fo.getNewAccessToken()) || StringUtils.isNotBlank(fo.getNewServiceUrl())) {
-            if (!fo.isForce()) {
-                List<DmChangeFlowDO> useList = this.dmProjectService.queryEnableDevopsByScmId(puid, fo.getScmId());
-                if (!useList.isEmpty()) {
-                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_INUSE_ERROR.name(), scmDO.getScmDisplay()));
-                }
-            }
-        }
-
-        this.dmScmService.updateScmById(puid, fo);
-        return ResWebDataUtils.buildSuccess(true);
+        List<Long> affectedFlowIds = this.dmScmService.updateScmById(puid, fo);
+        return ResWebDataUtils.buildSuccess(affectedFlowIds);
     }
 
     @RequestAuth(value = DM_GIT_OPS_MANAGE)
@@ -162,13 +152,24 @@ public class DmScmController {
 
         if (fo.getScmId() != null) {
             DmGitOpsScmDO scmDO = this.dmScmService.queryScmById(puid, fo.getScmId());
+            if (scmDO == null) {
+                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
+            }
             fo.setScmType(scmDO.getScmType());
-            fo.setDisplay(scmDO.getScmDisplay());
-            fo.setServiceUrl(scmDO.getScmServiceUrl());
-            fo.setAccessToken(scmDO.getScmAccessToken());
+            if (StringUtils.isBlank(fo.getDisplay())) {
+                fo.setDisplay(scmDO.getScmDisplay());
+            }
+            if (StringUtils.isBlank(fo.getServiceUrl())) {
+                fo.setServiceUrl(scmDO.getScmServiceUrl());
+            }
+            if (StringUtils.isBlank(fo.getAccessToken())) {
+                fo.setAccessToken(scmDO.getScmAccessToken());
+            }
+            if (StringUtils.equals(fo.getServiceUrl(), scmDO.getScmServiceUrl())) {
+                fo.setPlainHttpAcknowledged(true);
+            }
         }
 
-        this.dmScmService.testScmByConfig(puid, fo);
-        return ResWebDataUtils.buildSuccess(true);
+        return ResWebDataUtils.buildSuccess(this.dmScmService.testScmByConfig(puid, fo));
     }
 }

@@ -1,4 +1,5 @@
 <script>
+import appLogger from '@/utils/logger';
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { hasSchema } from '@/utils';
@@ -130,7 +131,7 @@ export default {
   methods: {
     ...mapActions(['getRuleSetting']),
     handleMatchModeChange() {
-      console.log('match mode change');
+      appLogger.debug('match mode change');
       this.scopeList = this.getScopeListByMatchMode(this.ruleKind, this.rangeForm.matchMode);
       this.rangeForm = {
         ...this.rangeForm,
@@ -346,7 +347,7 @@ export default {
 
         this.showAddRangeModal = true;
       } catch (e) {
-        console.log(e);
+        appLogger.debug(e);
       }
     },
     generateInstanceScopeSetting(type) {
@@ -402,7 +403,7 @@ export default {
         }
       });
 
-      console.log(this.rangeForm.rangeType);
+      appLogger.debug(this.rangeForm.rangeType);
 
       scopeItemList[scopeItemList.length - 1].last = true;
 
@@ -413,7 +414,7 @@ export default {
       const scopeItemList = [];
       for (let i = 0; i < this.scopeSort.length; i++) {
         const scopeItem = this.commonScopeItemList[i];
-        console.log(scopeItem.loaded);
+        appLogger.debug(scopeItem.loaded);
         if (this.rangeForm.rangeType === this.scopeList[i].name) {
           scopeItemList.push({
             ...scopeItem,
@@ -506,13 +507,13 @@ export default {
       }
     },
     handleSelectOpenChange(scope, force, open) {
-      console.log(scope, force, open);
+      appLogger.debug(scope, force, open);
       if ((!scope.loaded || force) && open) {
         scope.loaded = true;
         const { key } = scope;
         const { environment, instance, catalog, schema, tableorview } = this.rangeForm;
 
-        console.log(key);
+        appLogger.debug(key);
 
         const levels = [];
         switch (key) {
@@ -593,7 +594,7 @@ export default {
       }
     },
     handleGetList(scope = { nextKey: 'environment' }, selectedItem = {}) {
-      console.log(scope.key, selectedItem.value);
+      appLogger.debug(scope.key, selectedItem.value);
       const { nextKey, key, last } = scope;
 
       if (last) {
@@ -623,7 +624,7 @@ export default {
       }
 
       const levels = [];
-      console.log(nextKey);
+      appLogger.debug(nextKey);
       switch (nextKey) {
         case 'environment':
           this.handleListEnv(nextKey);
@@ -788,7 +789,7 @@ export default {
       });
       if (res.success) {
         this.scopeItemList.forEach((scope) => {
-          console.log(scope.key, type);
+          appLogger.debug(scope.key, type);
           if (scope.key === type) {
             scope.list = res.data;
             scope.loaded = true;
@@ -797,7 +798,7 @@ export default {
       }
     },
     async handleListTableOrView(type, data) {
-      console.log(type);
+      appLogger.debug(type);
       const res = await this.$services.dmSecurityRangeListLeaf({
         data
       });
@@ -812,7 +813,7 @@ export default {
       }
     },
     async handleListColumn(type, data) {
-      console.log(type, data);
+      appLogger.debug(type, data);
       const res = await this.$services.dmSecurityRangeListColumn({
         data
       });

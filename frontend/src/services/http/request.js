@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import axios from 'axios';
 import Toast from '@/utils/toast';
 import { Modal } from 'view-ui-plus';
@@ -37,7 +38,7 @@ let baseURL = '';
 if (process.env.VUE_APP_BASE_URL) {
   baseURL = process.env.VUE_APP_BASE_URL;
 }
-console.log('request url', baseURL);
+appLogger.debug('request url', baseURL);
 
 const instance = axios.create({
   baseURL,
@@ -65,7 +66,7 @@ const instance = axios.create({
                 data[key] = trimObj(value);
               }
             } catch (e) {
-              console.error(e);
+              appLogger.error(e);
             }
           }
         });
@@ -87,7 +88,7 @@ instance.interceptors.request.use(
       ...config.headers
     };
 
-    console.log(i18n?.global?.locale?.value);
+    appLogger.debug(i18n?.global?.locale?.value);
 
     if (config.data && config.data.cancelPending) {
       cancelPending(config);
@@ -144,7 +145,7 @@ const request = async (opt) => {
       if (options.data.levels.length && options.data.levels.length > 1) {
         const instanceId = options.data.levels[1];
         if (res.code === '10103' || res.code === '10201') {
-          console.log(res);
+          appLogger.debug(res);
           eventBus.emit(EVENT_BUS_NAME_LIST.SET_DATA_SOURCE_STATUS, {
             instanceId,
             connected: false,
@@ -227,9 +228,9 @@ const request = async (opt) => {
     }
     switch (err.status) {
       case 401:
-        console.log('router', Router);
+        appLogger.debug('router', Router);
         if (Router.history?.current && Router.history?.current.name === 'Login') {
-          console.log('No Redirect');
+          appLogger.debug('No Redirect');
         } else {
           await Router.push({ name: 'Login' });
         }

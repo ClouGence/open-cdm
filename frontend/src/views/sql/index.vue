@@ -174,6 +174,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons-vue';
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/css/index.css';
@@ -277,7 +278,7 @@ export default {
     };
   },
   beforeRouteEnter(to, from, next) {
-    console.log(to, from);
+    appLogger.debug(to, from);
     next((vm) => {
       if (from.name) {
         vm.needGetDataFromIndexedDb = true;
@@ -439,7 +440,7 @@ export default {
       }
     },
     async listLevels(node = null, params = {}, resolve, reject, isRefreshCache = false) {
-      console.log('listLevels', node);
+      appLogger.debug('listLevels', node);
       if (!node) {
         this.treeData = [];
       }
@@ -555,9 +556,9 @@ export default {
             }
           }
         } else {
-          console.log('fail', levelRes);
+          appLogger.debug('fail', levelRes);
           if (typeof levelRes === 'object' && levelRes.toString().includes('Cancel')) {
-            console.log('reset');
+            appLogger.debug('reset');
             return;
           }
 
@@ -569,7 +570,7 @@ export default {
           }
         }
       } catch (e) {
-        console.error(e);
+        appLogger.error(e);
       }
     },
     async setInstanceErrorIcon(data) {
@@ -995,7 +996,7 @@ export default {
       }
     },
     async getLocalQueryData() {
-      console.log('getLocalQueryData', this.userInfo.uid);
+      appLogger.debug('getLocalQueryData', this.userInfo.uid);
       try {
         const localData = localStorage.getItem(`clouddm_new_tabs_${this.userInfo.uid}`);
         if (localData) {
@@ -1072,11 +1073,11 @@ export default {
           }
         }
       } catch (e) {
-        console.log(e);
+        appLogger.debug(e);
       }
     },
     storeActiveTab() {
-      console.log('store active tab', this.currentTab.type, this.currentTab.tabId);
+      appLogger.debug('store active tab', this.currentTab.type, this.currentTab.tabId);
       if (this.currentTab.type === 'DATA') {
         const { uid } = this.userInfo;
         if (this.currentTab.options) {
@@ -1097,7 +1098,7 @@ export default {
       this.currentTab.text = sqlViewer.monacoEditor.getValue();
     },
     storeQueryTabs() {
-      console.log('store query tabs');
+      appLogger.debug('store query tabs');
       const { uid } = this.userInfo;
       const key = `clouddm_new_tabs_${uid}`;
 
@@ -1229,7 +1230,7 @@ export default {
           resolve();
         }
       } catch (e) {
-        console.error(e);
+        appLogger.error(e);
         this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id);
         // await this.$refs.tableList.handleSetData(this.currentTab[this.currentTab.leafType].treeData);
         resolve();
@@ -1386,16 +1387,16 @@ export default {
       this.active = key;
     },
     async handleChangeTab(activeKey) {
-      console.log(this.currentTab.type);
+      appLogger.debug(this.currentTab.type);
       if (this.currentTab.type === 'STRUCT') {
-        console.log('editing', this.structViewIsEditing(this.currentTab));
+        appLogger.debug('editing', this.structViewIsEditing(this.currentTab));
         this.currentTab.isEditing = this.structViewIsEditing(this.currentTab);
       } else if (this.currentTab.type === 'DATA') {
-        console.log('editing', this.dataViewIsEditing(this.currentTab));
+        appLogger.debug('editing', this.dataViewIsEditing(this.currentTab));
         this.currentTab.isEditing = this.dataViewIsEditing(this.currentTab);
       }
 
-      console.log('change tab', activeKey);
+      appLogger.debug('change tab', activeKey);
       this.syncCurrentEditorTextToTab();
       const changeTab = async (key) => {
         if (this.$refs['data-view']) {
@@ -1441,7 +1442,7 @@ export default {
             }
           });
         } catch (e) {
-          console.error(e);
+          appLogger.error(e);
         }
       }
     },
@@ -1454,7 +1455,7 @@ export default {
             }
           });
         } catch (e) {
-          console.error(e);
+          appLogger.error(e);
         }
       }
     },

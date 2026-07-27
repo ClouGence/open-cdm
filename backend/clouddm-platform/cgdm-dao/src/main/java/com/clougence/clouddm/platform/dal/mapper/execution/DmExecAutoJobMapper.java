@@ -23,12 +23,13 @@ import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
+import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 public interface DmExecAutoJobMapper extends BaseMapper<DmExecAutoJobDO> {
 
     DmExecAutoJobDO queryById(long jobId);
 
-    DmExecAutoJobDO queryByDependOnBizId(@Param("bizId") String bizId);
+    DmExecAutoJobDO queryByDependOnBiz(@Param("bizId") String bizId, @Param("bizType") SQLJobBizType bizType);
 
     DmExecAutoJobDO queryByBizId(@Param("bizId") String bizId);
 
@@ -39,6 +40,18 @@ public interface DmExecAutoJobMapper extends BaseMapper<DmExecAutoJobDO> {
     List<Long> listUnFinishJobIdList(@Param("time") Date date);
 
     int updateJobStatus(@Param("jobId") Long jobId, @Param("status") AutoExecJobStatus status);
+
+    int markJobFailedIfActive(@Param("jobId") Long jobId);
+
+    int finishJobIfActive(@Param("jobId") Long jobId);
+
+    /**
+     * Changes a non-terminal job to {@link AutoExecJobStatus#PAUSE} atomically.
+     *
+     * @return {@code 1} when this call changes the state; {@code 0} when the job is missing, already paused, or in
+     *         a terminal state
+     */
+    int pauseJobIfActive(@Param("jobId") Long jobId);
 
     void finishJob(@Param("jobId") Long jobId);
 

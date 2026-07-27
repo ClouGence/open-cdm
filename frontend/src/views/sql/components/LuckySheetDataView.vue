@@ -1,4 +1,5 @@
 <script>
+import appLogger from '@/utils/logger';
 import { h } from 'vue';
 import {
   VerticalRightOutlined,
@@ -187,7 +188,7 @@ export default {
         },
         hook: {
           updated: (operate) => {
-            console.log('update');
+            appLogger.debug('update');
             if (operate && operate.curData) {
               operate.curData.forEach((row, rowIndex) => {
                 let arr;
@@ -218,7 +219,7 @@ export default {
             }
           },
           cellUpdateBefore: () => {
-            console.log('cell update before');
+            appLogger.debug('cell update before');
           },
           cellRenderAfter: (cell, position, sheet, ctx) => {
             if (cell && cell.custom && Object.is(cell.v, null)) {
@@ -467,7 +468,7 @@ export default {
       }
     },
     async handleCloseExecuteInfoModal() {
-      console.log('handleCloseExecuteInfoModal');
+      appLogger.debug('handleCloseExecuteInfoModal');
       this.showExecuteInfoModal = false;
       if (this.refreshAfterExecute) {
         await this.handleGetTableData(-2, true, true, true);
@@ -567,7 +568,7 @@ export default {
 
         celldata.forEach((cell) => {
           if (cell.v.custom.new) {
-            console.log(cell.v.custom.r);
+            appLogger.debug(cell.v.custom.r);
             if (!addRows.includes(cell.v.custom.r)) {
               addRows.push(cell.v.custom.r);
             }
@@ -775,7 +776,7 @@ export default {
         if (sheetList && sheetList.length && sheetList[0].celldata && sheetList[0].celldata.length && cancelSelect) {
           window.luckysheet.setRangeShow({ row: [0, 0], column: [0, 0] }, { show: false });
         }
-        console.log('mounted', mounted, this.tab);
+        appLogger.debug('mounted', mounted, this.tab);
         if (mounted && this.tab.rawTableData?.columnList) {
           window.luckysheetData.activeKey = this.tab.key;
           window.luckysheetData[this.tab.key] = {
@@ -1047,7 +1048,7 @@ export default {
       }
     },
     handleCellMousedown(cell, position) {
-      console.log('cell mouse down', cell, position);
+      appLogger.debug('cell mouse down', cell, position);
 
       if (!cell) {
         window.luckysheet.setRangeShow({ row: [0, 0], column: [0, 0] }, { show: false });
@@ -1196,7 +1197,7 @@ export default {
           this.tab.deleteRows.push(rowIndex);
 
           this.tab.columnWithoutHidden.forEach((column, columnIndex) => {
-            console.log(column.column, columnIndex);
+            appLogger.debug(column.column, columnIndex);
             const isRefresh = columnIndex === this.tab.columnWithoutHidden.length - 1;
             const cell = window.luckysheet.getLuckysheetfile()[0].data[rowIndex][columnIndex];
             window.luckysheet.setCellValue(
@@ -1225,7 +1226,7 @@ export default {
               const isRefresh = columnIndex === this.tab.columnWithoutHidden.length - 1;
               const cell = window.luckysheet.getLuckysheetfile()[0].data[rowIndex][columnIndex];
               const bg = isNew ? BG_COLOR.ADD : cell.custom.update ? BG_COLOR.UPDATE : BG_COLOR.CUSTOM;
-              console.log(cell.custom.update, bg);
+              appLogger.debug(cell.custom.update, bg);
               window.luckysheet.setCellValue(
                 rowIndex,
                 columnIndex,

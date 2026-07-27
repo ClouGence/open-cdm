@@ -54,7 +54,7 @@ public interface DmChangeFlowService {
 
     void updateFlowConfigByFlowId(String ownerUid, long flowId, ChangeFlowConfigFO fo);
 
-    long createGitOpsFlow(String ownerUid, long flowId, ChangeFlowGitOpsCreateFO fo);
+    GuideCreateChangeFlowVO createGitOpsFlow(String ownerUid, long flowId, ChangeFlowGitOpsCreateFO fo);
 
     void updateInfoByFlowId(String ownerUid, long flowId, ChangeFlowUpdateFO fo);
 
@@ -64,7 +64,7 @@ public interface DmChangeFlowService {
 
     void disableGitOpsFlow(String ownerUid, long flowId);
 
-    void configGitOpsWebhook(String ownerUid, long flowId, boolean enable);
+    void configGitOpsWebhook(String ownerUid, long flowId, boolean enable, String signingToken, boolean clearSigningToken);
 
     void configGitOpsTrigger(String ownerUid, long flowId, boolean enable);
 

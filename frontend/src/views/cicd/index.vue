@@ -21,7 +21,7 @@
               </Button>
             </div>
           </div>
-          <div class="table-container flow-table-container">
+          <div class="table-container flow-table-container flow-desktop-table">
             <Table
               :columns="flowTableColumns"
               :data="flowList"
@@ -36,7 +36,13 @@
               </template>
               <template #gitOps="{ row }">
                 <div class="flow-list-inline flow-list-gitops">
-                  <CustomIcon v-if="row.scmType" :type="row.scmType" size="18px" rightMargin />
+                  <CustomIcon
+                    v-if="row.scmType"
+                    :resource="getScmIconResource(row.scmType)"
+                    :alt="getScmDisplayName(row.scmType)"
+                    size="18px"
+                    rightMargin
+                  />
                   <Tooltip :content="formatGitOps(row)">
                     <span class="flow-list-ellipsis">{{ formatGitOps(row) }}</span>
                   </Tooltip>
@@ -87,6 +93,72 @@
                 </div>
               </template>
             </Table>
+          </div>
+          <div class="flow-mobile-list">
+            <Spin fix v-if="loading" />
+            <template v-if="flowList.length">
+              <article class="flow-mobile-card" v-for="row in flowList" :key="row.flowId">
+                <div class="flow-mobile-card-header">
+                  <strong>{{ row.flowName || '-' }}</strong>
+                  <span class="flow-status-tag" :class="flowStatusMeta(row).className">{{ flowStatusMeta(row).text }}</span>
+                </div>
+                <div class="flow-mobile-card-meta">
+                  <div class="flow-list-inline">
+                    <CustomIcon
+                      v-if="row.scmType"
+                      :resource="getScmIconResource(row.scmType)"
+                      :alt="getScmDisplayName(row.scmType)"
+                      size="18px"
+                      rightMargin
+                    />
+                    <span>{{ formatGitOps(row) }}</span>
+                  </div>
+                  <div class="flow-list-inline">
+                    <CustomIcon v-if="row.dsType" :type="row.dsType" size="18px" rightMargin />
+                    <span>{{ databaseTypeText(row) }}</span>
+                  </div>
+                  <span>{{ row.flowManagerName || '-' }}</span>
+                  <span>{{ row.createTime || '-' }}</span>
+                </div>
+                <div class="flow-actions flow-mobile-actions">
+                  <span class="flow-action-item">
+                    <Button type="text" @click="goDetail(row)" :disabled="rowFlowStatus(row) === 'DELETE'">{{ $t('xiang-qing') }}</Button>
+                  </span>
+                  <Tooltip
+                    v-if="canManageFlow"
+                    :content="flowSwitchDisabledReason(row)"
+                    :disabled="!flowSwitchDisabledReason(row)"
+                    transfer
+                    placement="top"
+                  >
+                    <span class="flow-action-item">
+                      <Button type="text" :disabled="!!flowSwitchDisabledReason(row)" @click="handleSwitchFlow(row)">
+                        {{ flowSwitchText(row) }}
+                      </Button>
+                    </span>
+                  </Tooltip>
+                  <span v-if="canManageFlow" class="flow-action-item">
+                    <Button type="text" :disabled="rowFlowStatus(row) === 'DELETE'" @click="handleArchiveToggleFlow(row)">
+                      {{ rowFlowStatus(row) === 'ARCHIVE' ? $t('hui-fu-gui-dang') : $t('gui-dang-xiang-mu') }}
+                    </Button>
+                  </span>
+                  <Tooltip
+                    v-if="canManageFlow"
+                    :content="flowDeleteDisabledReason(row)"
+                    :disabled="!flowDeleteDisabledReason(row)"
+                    transfer
+                    placement="top"
+                  >
+                    <span class="flow-action-item">
+                      <Button class="flow-action-danger" type="text" :disabled="!!flowDeleteDisabledReason(row)" @click="handleDeleteFlow(row)">
+                        {{ $t('shan-chu-xiang-mu') }}
+                      </Button>
+                    </span>
+                  </Tooltip>
+                </div>
+              </article>
+            </template>
+            <div class="flow-mobile-empty" v-else-if="!loading">{{ $t('zan-wu-shu-ju') }}</div>
           </div>
         </div>
       </div>
@@ -142,7 +214,12 @@
       <div v-show="step === FLOW_STEP.S0" class="step-0">
         <div class="flow-container">
           <div class="icon github">
-            <CustomIcon :type="devopsFrom" size="26px" />
+            <CustomIcon
+              :resource="getScmIconResource(devopsScmSelected?.scmType)"
+              :type="devopsFrom"
+              :alt="devopsScmSelected?.scmType || ''"
+              size="26px"
+            />
           </div>
 
           <svg class="flow-line" width="300" height="4">
@@ -164,24 +241,31 @@
             <FormItem :label="$t('fu-wu-shang')" prop="repoScmId">
               <Select class="s0-base" v-if="devopsScmList.length" v-model="flowGitOpsForm.repoScmId" @on-change="handleDevopsScmSelected">
                 <Option v-for="item in devopsScmList" :value="item.scmId" :key="item.scmId">
-                  <CustomIcon :type="item?.scmType" rightMargin />
+                  <CustomIcon :resource="getScmIconResource(item?.scmType)" :type="item?.scmType" :alt="item?.scmTypeI18n || ''" rightMargin />
                   {{ item.scmDisplay }}
                 </Option>
               </Select>
               <Button v-else type="text" @click="goToAddScm">{{ $t('qu-pei-zhi') }}</Button>
             </FormItem>
-            <FormItem :label="$t('xuan-ze-cang-ku')" prop="repoName">
+            <FormItem :label="$t('xuan-ze-cang-ku')" prop="repoSelectionKey">
               <div style="display: flex; align-items: center">
                 <Select
-                  v-model="flowGitOpsForm.repoName"
+                  v-model="flowGitOpsForm.repoSelectionKey"
                   class="s0-base select-warp"
                   :disabled="!devopsScmSelected"
                   @on-change="handleDevopsRepoSelected"
                   filterable
                 >
                   <OptionGroup v-for="(repoGroup, namespace) in devopsRepoListByGroup" :label="namespace" :key="namespace">
-                    <Option v-for="repo in repoGroup" :value="repo.repoName" :key="repo.repoUrl" :label="repo.repoName">
+                    <Option
+                      v-for="repo in repoGroup"
+                      :value="getRepoSelectionKey(repo)"
+                      :key="getRepoSelectionKey(repo)"
+                      :label="repo.repoPath || repo.repoName"
+                      :disabled="repo.empty"
+                    >
                       <span>{{ repo.repoName }}</span>
+                      <span v-if="repo.empty">（{{ $t('kong-cang-ku') }}）</span>
                       <span style="float: right">
                         <CustomIcon type="icon-v2-jicheng" @click.native.stop="handleDevopsJumpToRepo(repo.repoHome)" />
                       </span>
@@ -473,7 +557,9 @@
         >
           {{ $t('chuang-jian-xiang-mu') }}
         </Button>
-        <Button type="primary" @click="jumpToWebhookDoc" v-if="step === FLOW_STEP.FINISH">{{ $t('cha-kan-wen-dang') }}</Button>
+        <Button type="primary" @click="jumpToWebhookDoc" v-if="step === FLOW_STEP.FINISH">
+          {{ $t('cha-kan-wen-dang') }}
+        </Button>
         <Button @click="handleCloseModal" v-if="step === FLOW_STEP.FINISH">{{ $t('zhi-dao-le') }}</Button>
       </template>
     </CCModal>
@@ -481,6 +567,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
@@ -503,7 +590,7 @@ import {
   PUBLISH_MAP,
   SQL_REVIEW_MAP
 } from './constant';
-import { DEFAULT_DEVOPS_INFO, DEFAULT_FLOW_INFO, groupByRepoNamespace } from './utils';
+import { DEFAULT_DEVOPS_INFO, DEFAULT_FLOW_INFO, getRepoSelectionKey, getScmDisplayName, getScmIconResource, groupByRepoNamespace } from './utils';
 
 export default {
   name: 'CicdFlowList',
@@ -521,7 +608,7 @@ export default {
         webHookHelpUrl: '',
         repoUrl: ''
       },
-      pageTotal: '',
+      pageTotal: 0,
       pageNum: 1,
       pageSize: 10,
       flowList: [],
@@ -627,6 +714,9 @@ export default {
     await this.fetchFlowList();
   },
   methods: {
+    getRepoSelectionKey,
+    getScmDisplayName,
+    getScmIconResource,
     handleCopy,
     groupByRepoNamespace,
     rowFlowStatus(row = {}) {
@@ -685,7 +775,7 @@ export default {
       return this.$t('cicd-delete-flow-unavailable-normal');
     },
     formatGitOps(row = {}) {
-      return row.scmType || '-';
+      return getScmDisplayName(row.scmType) || '-';
     },
     databaseTypeText(row = {}) {
       return row.dsType || '-';
@@ -776,11 +866,14 @@ export default {
 
       this.loading = false;
 
-      if (res.success) {
-        this.flowList = res.data.records;
-        this.pageTotal = res.data?.total;
-        this.pageSize = res.data?.size;
-        this.pageNum = res.data?.current;
+      if (res.success && res.data) {
+        this.flowList = res.data.records || [];
+        this.pageTotal = res.data.total || 0;
+        this.pageSize = res.data.size || this.pageSize;
+        this.pageNum = res.data.current || this.pageNum;
+      } else {
+        this.flowList = [];
+        this.pageTotal = 0;
       }
     },
     async handleShowAddFlowModal() {
@@ -827,7 +920,7 @@ export default {
       try {
         return GITOPS_DESCRIPTION[option];
       } catch (e) {
-        console.error(e);
+        appLogger.error(e);
         return this.$t('zan-wu-miao-shu');
       }
     },
@@ -841,6 +934,10 @@ export default {
     async handleDevopsScmSelected() {
       this.devopsScmSelected = this.devopsScmList.find((scm) => scm.scmId === this.flowGitOpsForm.repoScmId);
       this.devopsFrom = this.devopsScmSelected?.scmType || 'icon-v2-Save-fromCloud';
+      this.flowGitOpsForm.repoSelectionKey = '';
+      this.flowGitOpsForm.repoId = '';
+      this.flowGitOpsForm.repoPath = '';
+      this.flowGitOpsForm.repoName = '';
       if (this.flowGitOpsForm.repoScmId) {
         await this.fetchDevopsScmRepos();
       }
@@ -865,8 +962,11 @@ export default {
       }
     },
     handleDevopsRepoSelected() {
-      this.devopsRepoSelected = this.devopsRepoList.find((repo) => repo.repoName === this.flowGitOpsForm.repoName);
+      this.devopsRepoSelected = this.devopsRepoList.find((repo) => this.getRepoSelectionKey(repo) === this.flowGitOpsForm.repoSelectionKey);
       if (this.devopsRepoSelected) {
+        this.flowGitOpsForm.repoId = this.devopsRepoSelected.repoId;
+        this.flowGitOpsForm.repoPath = this.devopsRepoSelected.repoPath;
+        this.flowGitOpsForm.repoName = this.devopsRepoSelected.repoName;
         this.flowGitOpsForm.repoScmUrl = this.devopsRepoSelected.repoUrl;
         this.flowGitOpsForm.repoBranch = this.devopsRepoSelected.repoBranch;
         this.flowGitOpsForm.repoSpace = this.devopsRepoSelected.repoSpace;
@@ -1017,7 +1117,7 @@ export default {
       try {
         return CHANGE_FLOW_DESCRIPTION[type][option];
       } catch (e) {
-        console.error(e);
+        appLogger.error(e);
         return '';
       }
     },
@@ -1109,6 +1209,8 @@ export default {
           pipeline: {
             repoScmId: this.flowGitOpsForm.repoScmId,
             repoScmUrl: this.flowGitOpsForm.repoScmUrl,
+            repoId: this.flowGitOpsForm.repoId,
+            repoPath: this.flowGitOpsForm.repoPath,
             repoSpace: this.flowGitOpsForm.repoSpace,
             repoName: this.flowGitOpsForm.repoName,
             repoBranch: this.flowGitOpsForm.repoBranch,
@@ -1343,6 +1445,10 @@ export default {
   :deep(.ivu-btn[disabled]) {
     pointer-events: none;
   }
+}
+
+.flow-mobile-list {
+  display: none;
 }
 
 .flow-list {
@@ -1581,6 +1687,123 @@ export default {
 
 .footer-btn {
   margin-top: 10px;
+}
+
+@media (max-width: 767px) {
+  .flow-account {
+    .table-list {
+      padding: 12px 12px 0;
+    }
+
+    .option {
+      align-items: stretch;
+      flex-direction: column;
+      padding: 10px;
+      gap: 8px;
+
+      .left {
+        width: 100%;
+        flex-wrap: nowrap;
+
+        :deep(.ivu-input-wrapper) {
+          width: auto !important;
+          flex: 1;
+          min-width: 0;
+          margin-right: 0 !important;
+        }
+      }
+
+      .right {
+        width: 100%;
+        justify-content: flex-end;
+        margin-left: 0;
+      }
+    }
+
+    .flow-desktop-table {
+      display: none;
+    }
+
+    .flow-mobile-list {
+      position: relative;
+      display: grid;
+      gap: 10px;
+      min-height: 160px;
+    }
+
+    .flow-mobile-card {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      background: var(--bg-card);
+    }
+
+    .flow-mobile-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+
+      strong {
+        min-width: 0;
+        color: var(--text-primary);
+        font-size: 14px;
+        line-height: 22px;
+        overflow-wrap: anywhere;
+      }
+
+      .flow-status-tag {
+        flex: 0 0 auto;
+      }
+    }
+
+    .flow-mobile-card-meta {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px 12px;
+      margin-top: 10px;
+      color: var(--text-secondary);
+      font-size: 12px;
+
+      > * {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .flow-mobile-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 4px 10px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-light);
+      white-space: normal;
+    }
+
+    .flow-mobile-empty {
+      display: flex;
+      min-height: 160px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+    }
+
+    .footer {
+      padding: 8px 12px 12px;
+
+      :deep(.ivu-page-options-elevator) {
+        display: none;
+      }
+    }
+  }
 }
 
 .step-1 {

@@ -46,10 +46,7 @@ import com.clougence.clouddm.console.web.service.cicd.DmChangeFlowService;
 import com.clougence.clouddm.console.web.service.cicd.DmChangeService;
 import com.clougence.clouddm.console.web.service.cicd.DmImService;
 import com.clougence.clouddm.console.web.service.cicd.DmScmService;
-import com.clougence.clouddm.console.web.service.cicd.domain.DmBranchDef;
-import com.clougence.clouddm.console.web.service.cicd.domain.DmImDef;
-import com.clougence.clouddm.console.web.service.cicd.domain.DmRepoDef;
-import com.clougence.clouddm.console.web.service.cicd.domain.DmScmDef;
+import com.clougence.clouddm.console.web.service.cicd.domain.*;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
@@ -326,8 +323,8 @@ public class DmChangeFlowController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        long newConfigId = this.changeFlowService.createGitOpsFlow(puid, fo.getFlowId(), fo);
-        return ResWebDataUtils.buildSuccess(newConfigId);
+        GuideCreateChangeFlowVO result = this.changeFlowService.createGitOpsFlow(puid, fo.getFlowId(), fo);
+        return ResWebDataUtils.buildSuccess(result);
     }
 
     @RequestAuth(DM_CICD_FLOW_MANAGE)
@@ -359,7 +356,7 @@ public class DmChangeFlowController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
         if (fo.isUpdateHook()) {
-            this.changeFlowService.configGitOpsWebhook(puid, fo.getFlowId(), fo.isHookEnable());
+            this.changeFlowService.configGitOpsWebhook(puid, fo.getFlowId(), fo.isHookEnable(), fo.getHookSigningToken(), fo.isClearHookSigningToken());
         }
         if (fo.isUpdateTrigger()) {
             this.changeFlowService.configGitOpsTrigger(puid, fo.getFlowId(), fo.isTriggerEnable());
@@ -427,14 +424,19 @@ public class DmChangeFlowController {
 
         this.dmChangeService.verifyFlow(puid, fo.getFlowId());
         DmChangeFlowDO gitOpsFlowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(puid, fo.getFlowId());
-        DmBranchDef branch = this.dmScmService
-            .fetchBranchByScmAndRepo(gitOpsFlowDO.getOwnerUid(), gitOpsFlowDO.getRefScmId(), gitOpsFlowDO.getScmRepoName(), gitOpsFlowDO.getScmRepoBranch());
+        DmBranchDef branch = this.dmScmService.fetchBranchByScmAndRepo( //
+                gitOpsFlowDO.getOwnerUid(), //
+                gitOpsFlowDO.getRefScmId(), //
+                gitOpsFlowDO.getScmRepoIdentifier(), //
+                gitOpsFlowDO.getScmRepoSpace(), //
+                gitOpsFlowDO.getScmRepoName(), //
+                gitOpsFlowDO.getScmRepoBranch());
         if (branch == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_BRANCH_NOT_EXIST_ERROR.name()));
         }
 
         // create
-        return this.dmChangeService.triggerChangeSuggest(puid, gitOpsFlowDO.getId(), branch.getBranchCommitId());
+        return this.dmChangeService.triggerChangeSuggest(puid, gitOpsFlowDO.getId(), ChangeTriggerContext.manual(branch.getBranchCommitId()));
     }
 
     @RequestAuth(DM_CICD_FLOW_MANAGE)
@@ -445,8 +447,12 @@ public class DmChangeFlowController {
 
         this.dmChangeService.verifyFlow(puid, fo.getFlowId());
         DmChangeFlowDO gitOpsFlowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(puid, fo.getFlowId());
-        DmBranchDef branch = this.dmScmService
-            .fetchBranchByScmAndRepo(gitOpsFlowDO.getOwnerUid(), gitOpsFlowDO.getRefScmId(), gitOpsFlowDO.getScmRepoName(), gitOpsFlowDO.getScmRepoBranch());
+        DmBranchDef branch = this.dmScmService.fetchBranchByScmAndRepo(gitOpsFlowDO.getOwnerUid(),//
+                gitOpsFlowDO.getRefScmId(),//
+                gitOpsFlowDO.getScmRepoIdentifier(),//
+                gitOpsFlowDO.getScmRepoSpace(),//
+                gitOpsFlowDO.getScmRepoName(),//
+                gitOpsFlowDO.getScmRepoBranch());
         if (branch == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_BRANCH_NOT_EXIST_ERROR.name()));
         }

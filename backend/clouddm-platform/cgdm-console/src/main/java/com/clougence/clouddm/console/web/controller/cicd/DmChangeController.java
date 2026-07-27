@@ -282,11 +282,20 @@ public class DmChangeController {
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeExecTaskSkip", method = RequestMethod.POST)
-    public ResWebData<?> skipAutoExecTask(HttpServletRequest request, @Valid @RequestBody ChangeExecSkipTaskFO fo) {
+    public ResWebData<?> skipAutoExecTask(HttpServletRequest request, @Valid @RequestBody ChangeExecTaskFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         this.dmChangeService.skipExecTask(puid, uid, fo.getChangeId(), fo.getTaskId());
+        return ResWebDataUtils.buildSuccess();
+    }
+
+    @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
+    @RequestMapping(value = "/changeExecTaskContinue", method = RequestMethod.POST)
+    public ResWebData<?> continueAutoExecTask(HttpServletRequest request, @Valid @RequestBody ChangeExecTaskFO fo) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+
+        this.dmChangeService.continueExecTask(puid, fo.getChangeId(), fo.getTaskId());
         return ResWebDataUtils.buildSuccess();
     }
 

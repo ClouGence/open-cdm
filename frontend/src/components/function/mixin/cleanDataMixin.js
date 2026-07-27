@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import _ from '@/utils/lodash';
 import store from '@/store/index';
 import DataSourceGroup from '@/views/dataSourceGroup.json';
@@ -201,7 +202,7 @@ export default {
                   this.taskInfo.sinkColumns = { ...this.taskInfo.sinkColumns };
                 }
               } catch (e) {
-                console.log('e', e);
+                appLogger.debug('e', e);
               }
             })
             .catch(() => {

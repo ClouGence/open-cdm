@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { isMySQL } from '@/const/dataSource';
 import { mapGetters } from 'vuex';
 
@@ -48,7 +49,7 @@ export default {
   // },
   methods: {
     async handleChooseFileSaveLocation(e) {
-      console.log(e);
+      appLogger.debug(e);
     },
     async getSQLExecType() {
       const res = await this.$services.dmConstantListExportSqExecType({

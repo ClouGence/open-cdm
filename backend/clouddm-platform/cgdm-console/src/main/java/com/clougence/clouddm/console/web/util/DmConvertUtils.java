@@ -1768,11 +1768,15 @@ public class DmConvertUtils {
     public static DevopsScmRepoVO convertToDevopsScmRepoVO(DmRepoDef repo) {
         DevopsScmRepoVO vo = new DevopsScmRepoVO();
         vo.setScmId(repo.getScmId());
+        vo.setRepoId(repo.getRepoId());
+        vo.setRepoPath(repo.getRepoPath());
         vo.setRepoSpace(repo.getRepoSpace());
         vo.setRepoName(repo.getRepoName());
         vo.setRepoUrl(repo.getRepoUrl());
         vo.setRepoHome(repo.getRepoHome());
         vo.setRepoBranch(repo.getBranch());
+        vo.setArchived(repo.isArchived());
+        vo.setEmpty(repo.isEmpty());
         return vo;
     }
 
@@ -1883,6 +1887,7 @@ public class DmConvertUtils {
             vo.setWebHookHelpUrl(defByType.getHelpUrl());
         }
         vo.setWebHookEnable(gitOpsFlowDO.isEnable() && gitOpsFlowDO.isEnableWebhook());
+        vo.setWebHookSigningTokenConfigured(StringUtils.isNotBlank(gitOpsFlowDO.getScmBindWebhookSigningToken()));
 
         vo.setCallbackUrl(gitOpsFlowDO.getCallbackUrl());
         vo.setCallbackMethod(gitOpsFlowDO.getCallbackMethod());

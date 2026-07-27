@@ -17,6 +17,7 @@ package com.clougence.clouddm.team.provider.gitee.devops;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.*;
@@ -31,8 +32,10 @@ import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.function.ESupplier;
 import com.clougence.utils.io.FileUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -42,6 +45,15 @@ import okhttp3.Response;
 //
 @Slf4j
 public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
+
+    /**
+     * Maximum compressed repository archive size accepted from Gitee, in bytes, to bound temporary-disk usage.
+     */
+    private static final long  MAX_ARCHIVE_BYTES = 1024L * 1024 * 1024;
+    /**
+     * Maximum number of repository entries inspected before download, to reject unexpectedly large repositories.
+     */
+    private static final int   MAX_FILES         = 10_000;
 
     private final OkHttpClient httpClient;
 
@@ -63,6 +75,11 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
     @Override
     public List<ScmEventType> devopsSupportEvents() {
         return Arrays.asList(ScmEventType.Push, ScmEventType.PullRequest);
+    }
+
+    @Override
+    public String fetchServerVersion(String serviceUrl, String accessToken) {
+        return null;
     }
 
     private List<DownloadInfo> fetchRepo(String accessToken, String filter) {
@@ -89,18 +106,17 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
                 q = "q=" + URLEncoder.encode(filter, "UTF-8") + "&";
             }
 
-            String requestUrl = "https://gitee.com/api/v5/user/repos?" +//
-                                "access_token=" + accessToken + "&" +//
-                                "sort=full_name&" + q + "per_page=100";
-            Request request = new Request.Builder().url(requestUrl).build();
-            Response response = this.httpClient.newCall(request).execute();
-            if (!response.isSuccessful()) {
-                String errorMessage = response.code() + ":" + response.message();
-                throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_FETCH_REPOS_ERROR, errorMessage);
-            }
+            String requestUrl = "https://gitee.com/api/v5/user/repos?sort=full_name&" + q + "per_page=100";
+            Request request = authorizedRequest(requestUrl, accessToken);
+            try (Response response = this.httpClient.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    String errorMessage = response.code() + ":" + response.message();
+                    throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_FETCH_REPOS_ERROR, errorMessage);
+                }
 
-            String jsonStr = response.body().string();
-            return JsonUtils.toListUseType(jsonStr, GiteeApiRepos.class);
+                String jsonStr = response.body().string();
+                return JsonUtils.toListUseType(jsonStr, GiteeApiRepos.class);
+            }
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
@@ -108,49 +124,33 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         }
     }
 
-    private List<GiteeApiBranch> fetchOriginalBranch(String accessToken, String repoName, String filter, boolean exactMatch) {
-        // fetch repo
-        List<GiteeApiRepos> repoList = this.fetchOriginalRepos(accessToken, repoName)//
-            .stream()
-            .filter(repo -> repo.getName().equals(repoName))
-            .collect(Collectors.toList());
-
-        // check and find repo
-        GiteeApiRepos repoObject = null;
-        if (repoList.isEmpty()) {
-            return Collections.emptyList();
-        } else if (repoList.size() > 1) {
-            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_MULTIPLE_REPOS_ERROR);
-        } else {
-            repoObject = repoList.get(0);
-        }
-
+    private List<GiteeApiBranch> fetchOriginalBranch(String accessToken, ScmRepo repo, String filter, boolean exactMatch) {
         // fetch branch
         try {
-            String requestUrl = "https://gitee.com/api/v5/repos/" + repoObject.getFull_name() + "/branches?" +//
-                                "access_token=" + accessToken + "&" +//
-                                "sort=name&direction=asc&per_page=100";
-            Request request = new Request.Builder().url(requestUrl).build();
-            Response response = this.httpClient.newCall(request).execute();
-            if (!response.isSuccessful()) {
-                String errorMessage = response.code() + ":" + response.message();
-                throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_ERROR, errorMessage);
+            String fullName = StringUtils.isNotBlank(repo.getRepoId()) ? repo.getRepoId() : repo.getRepoSpace() + "/" + repo.getRepoName();
+            String requestUrl = "https://gitee.com/api/v5/repos/" + fullName + "/branches?sort=name&direction=asc&per_page=100";
+            Request request = authorizedRequest(requestUrl, accessToken);
+            try (Response response = this.httpClient.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    String errorMessage = response.code() + ":" + response.message();
+                    throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_ERROR, errorMessage);
+                }
+
+                String jsonStr = response.body().string();
+                List<GiteeApiBranch> apiBranches = JsonUtils.toListUseType(jsonStr, GiteeApiBranch.class);
+
+                return apiBranches.stream().filter(b -> {
+                    if (StringUtils.isBlank(filter)) {
+                        return true;
+                    }
+
+                    if (exactMatch) {
+                        return StringUtils.equals(b.getName(), filter);
+                    } else {
+                        return StringUtils.startsWithIgnoreCase(b.getName(), filter);
+                    }
+                }).collect(Collectors.toList());
             }
-
-            String jsonStr = response.body().string();
-            List<GiteeApiBranch> apiBranches = JsonUtils.toListUseType(jsonStr, GiteeApiBranch.class);
-
-            return apiBranches.stream().filter(b -> {
-                if (StringUtils.isBlank(filter)) {
-                    return true;
-                }
-
-                if (exactMatch) {
-                    return StringUtils.equals(b.getName(), filter);
-                } else {
-                    return StringUtils.startsWithIgnoreCase(b.getName(), filter);
-                }
-            }).collect(Collectors.toList());
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
@@ -164,6 +164,8 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
 
         return repos.stream().map(downloadInfo -> {
             ScmRepo repo = new ScmRepo();
+            repo.setRepoId(downloadInfo.getSpacePath() + "/" + downloadInfo.getRepoPath());
+            repo.setRepoPath(repo.getRepoId());
             repo.setRepoSpace(downloadInfo.getSpacePath());
             repo.setRepoName(downloadInfo.getRepoName());
             repo.setRepoUrl(downloadInfo.getRepoUrl());
@@ -174,8 +176,17 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
     }
 
     @Override
-    public List<ScmBranch> fetchBranchList(String serviceUrl, String accessToken, String repoName, String filter, boolean exactMatch) {
-        List<GiteeApiBranch> branches = this.fetchOriginalBranch(accessToken, repoName, filter, exactMatch);
+    public ScmRepo fetchRepo(String serviceUrl, String accessToken, ScmRepo selection) {
+        if (selection == null) {
+            return null;
+        }
+        List<ScmRepo> repos = fetchRepoList(serviceUrl, accessToken, selection.getRepoName());
+        return ScmRepoUtils.findUnique(repos, selection);
+    }
+
+    @Override
+    public List<ScmBranch> fetchBranchList(String serviceUrl, String accessToken, ScmRepo repo, String filter, boolean exactMatch) {
+        List<GiteeApiBranch> branches = this.fetchOriginalBranch(accessToken, repo, filter, exactMatch);
 
         return branches.stream().map(b -> {
             ScmBranch branch = new ScmBranch();
@@ -186,7 +197,122 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
     }
 
     @Override
-    public ScmEvent readEvent(String serviceUrl, String accessToken, String repoPath, String repoName, String password, Map<String, List<String>> headers, String jsonBody) {
+    public ScmPathValidation validateScriptPath(String serviceUrl, String accessToken, ScmRepo repo, String scriptPath) {
+        if (repo == null || StringUtils.isBlank(repo.getCommitId())) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "missing immutable commit SHA");
+        }
+
+        String normalizedPath = normalizeScriptPath(scriptPath);
+        HttpUrl treeUrl = buildRepositoryTreeUrl(repo);
+        Request request = authorizedRequest(treeUrl.toString(), accessToken);
+        try (Response response = this.httpClient.newCall(request).execute()) {
+            JsonNode repositoryTree = readRepositoryTree(response);
+            return inspectScriptPath(repositoryTree, normalizedPath);
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw ThirdPartyApiException.as().with(e, GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, e.getMessage());
+        }
+    }
+
+    private static String normalizeScriptPath(String scriptPath) {
+        try {
+            return ScmUtils.normalizeDirectoryPath(scriptPath);
+        } catch (IllegalArgumentException e) {
+            throw ThirdPartyApiException.as().with(e, GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "invalid script path");
+        }
+    }
+
+    private static HttpUrl buildRepositoryTreeUrl(ScmRepo repo) {
+        return Objects.requireNonNull(HttpUrl.parse("https://gitee.com/api/v5"))
+            .newBuilder()
+            .addPathSegment("repos")
+            .addPathSegment(repo.getRepoSpace())
+            .addPathSegment(repoName(repo))
+            .addPathSegment("git")
+            .addPathSegment("trees")
+            .addPathSegment(repo.getCommitId())
+            .addQueryParameter("recursive", "1")
+            .build();
+    }
+
+    private static JsonNode readRepositoryTree(Response response) throws IOException {
+        if (!response.isSuccessful()) {
+            String errorMessage = response.code() + ":" + response.message();
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, errorMessage);
+        }
+        return JsonUtils.defaultObjectMapper().readTree(response.body().string());
+    }
+
+    private static ScmPathValidation inspectScriptPath(JsonNode repositoryTree, String normalizedPath) {
+        JsonNode entries = repositoryTree.path("tree");
+        if (!entries.isArray()) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "unexpected repository tree response");
+        }
+
+        boolean pathFound = StringUtils.isBlank(normalizedPath);
+        ScmPathValidation validation = new ScmPathValidation();
+        validation.setChecked(true);
+        for (JsonNode entry : entries) {
+            String entryPath = entry.path("path").asText();
+            String entryType = entry.path("type").asText();
+
+            boolean targetDirectory = StringUtils.isNotBlank(normalizedPath) && StringUtils.equals(entryPath, normalizedPath);
+            if (targetDirectory) {
+                validateScriptDirectoryEntry(entryType);
+                pathFound = true;
+            }
+            if ("commit".equals(entryType) && normalizedPath.startsWith(entryPath + "/")) {
+                throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "script directory is inside a Git submodule");
+            }
+
+            boolean insideScriptPath = StringUtils.isBlank(normalizedPath) || entryPath.startsWith(normalizedPath + "/");
+            if (insideScriptPath && "blob".equals(entryType)) {
+                countScriptFile(validation, entryPath);
+            }
+        }
+
+        if (repositoryTree.path("truncated").asBoolean(false)) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "repository tree response was truncated");
+        }
+        if (!pathFound) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "script directory does not exist at commit");
+        }
+        return validation;
+    }
+
+    private static void validateScriptDirectoryEntry(String entryType) {
+        if ("commit".equals(entryType)) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "script directory is a Git submodule");
+        }
+        if (!"tree".equals(entryType)) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "script path is not a directory");
+        }
+    }
+
+    private static void countScriptFile(ScmPathValidation validation, String entryPath) {
+        validation.setFileCount(validation.getFileCount() + 1);
+        if (entryPath.toLowerCase(Locale.ROOT).endsWith(".sql")) {
+            validation.setSqlFileCount(validation.getSqlFileCount() + 1);
+        }
+        if (validation.getFileCount() > MAX_FILES) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "more than 10000 files in script directory");
+        }
+    }
+
+    private static String repoName(ScmRepo repo) {
+        if (StringUtils.isNotBlank(repo.getRepoId())) {
+            int slash = repo.getRepoId().lastIndexOf('/');
+            if (slash >= 0 && slash + 1 < repo.getRepoId().length()) {
+                return repo.getRepoId().substring(slash + 1);
+            }
+        }
+        return repo.getRepoName();
+    }
+
+    @Override
+    public ScmEvent readEvent(String serviceUrl, String accessToken, String repoId, String repoPath, String repoName, String password, String signingToken,
+                              Map<String, List<String>> headers, String jsonBody) {
         if (StringUtils.isEmpty(jsonBody)) {
             return null;
         }
@@ -227,8 +353,11 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
                     event.setUserName(hookInfo.getPusher().getUsername());
                     event.setUserEmail(hookInfo.getPusher().getEmail());
                     event.setTarRepoPath(hookInfo.getRepository().getNamespace());
+                    event.setTarRepoId(hookInfo.getRepository().getNamespace() + "/" + hookInfo.getRepository().getPath());
                     event.setTarRepoName(hookInfo.getRepository().getPath());
-                    event.setTarRepoBranch(hookInfo.getRef().substring("refs/heads/".length()));
+                    String prefix = eventType == ScmEventType.Tag ? "refs/tags/" : "refs/heads/";
+                    String branch = StringUtils.startsWith(hookInfo.getRef(), prefix) ? hookInfo.getRef().substring(prefix.length()) : hookInfo.getRef();
+                    event.setTarRepoBranch(branch);
 
                     event.setTarget(ScmEventTarget.Repository);
                     if (Boolean.TRUE.equals(hookInfo.getCreated())) {
@@ -284,6 +413,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
                     event.setUserEmail(hookInfo.getAuthor().getEmail());
                     GiteeWebHookEventRepository targetRepo = hookInfo.getTarget_repo().getRepository();
                     event.setTarRepoPath(targetRepo.getNamespace());
+                    event.setTarRepoId(targetRepo.getNamespace() + "/" + targetRepo.getPath());
                     event.setTarRepoName(targetRepo.getPath());
                     event.setTarRepoBranch(hookInfo.getTarget_branch());
 
@@ -380,49 +510,63 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
     @Override
     public void downloadToLocal(ScmProvider scm, ScmRepo repo, ScmSaveTo saveTo, ESupplier<Boolean, Exception> watchdog) throws Exception {
         String scmRepoName = repo.getRepoName();
-        String scmBranchName = repo.getBranchName();
-        Map<String, DownloadInfo> groupByRepo = new HashMap<>();
-        this.fetchRepo(scm.getAccessToken(), scmRepoName).forEach(d -> groupByRepo.put(d.getRepoName(), d));
-
-        // check
-        DownloadInfo info;
-        if (!groupByRepo.containsKey(scmRepoName)) {
-            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_NOT_FOUND_REPO_ERROR);
-        } else {
-            info = groupByRepo.get(scmRepoName);
+        String scmCommitId = repo.getCommitId();
+        if (StringUtils.isBlank(scmCommitId)) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "missing immutable commit SHA");
         }
+        List<DownloadInfo> candidates = this.fetchRepo(scm.getAccessToken(), scmRepoName)
+            .stream()
+            .filter(d -> StringUtils.isBlank(repo.getRepoId()) ? StringUtils.equals(d.getRepoName(), scmRepoName) : StringUtils
+                .equals(d.getSpacePath() + "/" + d.getRepoPath(), repo.getRepoId()))
+            .collect(Collectors.toList());
+
+        DownloadInfo info;
+        if (candidates.isEmpty()) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_NOT_FOUND_REPO_ERROR);
+        } else if (candidates.size() > 1) {
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_MULTIPLE_REPOS_ERROR);
+        }
+        info = candidates.get(0);
 
         // download to local
         File tempPath = saveTo.getTempPath();
-        tempPath.mkdirs();
         File tempFile = new File(tempPath, "download.zip");
-        if (!downloadToLocal(scm, tempFile, watchdog, info, scmBranchName)) {
-            return;
-        }
-
-        // unzip
         File saveToLocal = saveTo.getSaveToLocal();
-        saveToLocal.mkdirs();
-        log.info("watchdog: begin unZip " + tempFile.getAbsoluteFile() + " to " + saveToLocal.getAbsoluteFile());
-        new ZipUtils().unZip(tempFile, saveToLocal, saveTo.getScriptPath(), 1, watchdog);
-        tempFile.delete();
-        tempFile.getParentFile().delete();
+        try {
+            tempPath.mkdirs();
+            if (!downloadToLocal(scm, tempFile, watchdog, info, scmCommitId)) {
+                throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "download interrupted");
+            }
+
+            // unzip
+            saveToLocal.mkdirs();
+            log.info("watchdog: begin unZip " + tempFile.getAbsoluteFile() + " to " + saveToLocal.getAbsoluteFile());
+            new ZipUtils().unZip(tempFile, saveToLocal, saveTo.getScriptPath(), 1, watchdog);
+        } catch (Exception e) {
+            FileUtils.deleteQuietly(saveToLocal);
+            throw e;
+        } finally {
+            FileUtils.deleteQuietly(tempFile);
+            FileUtils.deleteQuietly(tempPath);
+        }
     }
 
-    private boolean downloadToLocal(ScmProvider scm, File saveTo, ESupplier<Boolean, Exception> watchdog, DownloadInfo info, String scmBranchName) throws Exception {
+    private boolean downloadToLocal(ScmProvider scm, File saveTo, ESupplier<Boolean, Exception> watchdog, DownloadInfo info, String scmCommitId) throws Exception {
         if (!watchdog.eGet()) {
             log.info("watchdog: interrupt the " + info.getRepoUrl() + " download.");
             return false;
         }
 
         String requestUrl = "https://gitee.com/api/v5/repos/" + info.getSpacePath() + "/" + info.getRepoPath() + "/zipball?" +//
-                            "access_token=" + scm.getAccessToken() + "&" +//
-                            "ref=" + URLEncoder.encode(scmBranchName, "UTF-8");
-        Request request = new Request.Builder().url(requestUrl).build();
+                            "ref=" + URLEncoder.encode(scmCommitId, "UTF-8");
+        Request request = authorizedRequest(requestUrl, scm.getAccessToken());
         try (Response response = this.httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 String errorMessage = response.code() + ":" + response.message();
                 throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, errorMessage);
+            }
+            if (response.body().contentLength() > MAX_ARCHIVE_BYTES) {
+                throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "compressed archive exceeds 1 GiB");
             }
 
             long time = System.currentTimeMillis();
@@ -433,6 +577,9 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
                     bytesReadTotal = bytesReadTotal + bytesRead;
+                    if (bytesReadTotal > MAX_ARCHIVE_BYTES) {
+                        throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, "compressed archive exceeds 1 GiB");
+                    }
 
                     if ((time + 2000) > System.currentTimeMillis()) {
                         continue;
@@ -457,5 +604,9 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         }
 
         return true;
+    }
+
+    private static Request authorizedRequest(String url, String accessToken) {
+        return new Request.Builder().url(url).header("Authorization", "token " + accessToken).build();
     }
 }

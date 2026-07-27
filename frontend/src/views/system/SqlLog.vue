@@ -183,6 +183,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import fecha from 'fecha';
 import { mapState } from 'vuex';
 import { h, resolveComponent } from 'vue';
@@ -409,7 +410,7 @@ export default {
           this.dsList = res.data || [];
         }
       } catch (error) {
-        console.error('获取数据源列表失败:', error);
+        appLogger.error('获取数据源列表失败:', error);
       }
     },
 
@@ -424,7 +425,7 @@ export default {
           this.operateUserList = res.data || [];
         }
       } catch (error) {
-        console.error('获取操作人列表失败:', error);
+        appLogger.error('获取操作人列表失败:', error);
       }
     },
 

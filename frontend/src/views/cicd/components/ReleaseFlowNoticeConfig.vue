@@ -24,6 +24,7 @@
             <FormItem :label="$t('im-fu-wu-ti-gong-fang')">
               <Select
                 ref="imProviderSelect"
+                v-if="isImDisabled || imProviderList.length"
                 v-model="flowImForm.imId"
                 :disabled="isImDisabled"
                 :placeholder="$t('qing-xuan-ze-yi-ge-im-ti-gong-zhe')"
@@ -49,6 +50,7 @@
                   {{ item.display }}
                 </Option>
               </Select>
+              <Button v-else type="text" @click="$emit('add-im')">{{ $t('qu-pei-zhi') }}</Button>
             </FormItem>
           </Form>
         </div>
@@ -78,6 +80,6 @@ export default {
     imProviderList: { type: Array, required: true },
     subscriptionItems: { type: Array, required: true }
   },
-  emits: ['im-def-select', 'im-provider-change', 'select-open-change']
+  emits: ['im-def-select', 'im-provider-change', 'select-open-change', 'add-im']
 };
 </script>

@@ -50,6 +50,7 @@ public class ChangeFlowGitOpsVO {
     private String         webHookPwd;
     private String         webHookHelpUrl;
     private boolean        webHookEnable;
+    private boolean        webHookSigningTokenConfigured;
 
     private String         callbackUrl;
     private String         callbackMethod;

@@ -65,6 +65,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { cloneDeep } from '@/utils/lodash';
 import { APPROVAL_BIZ_TYPE } from '@/const';
 import AuthModal from '../modal/AuthModal';
@@ -156,7 +157,7 @@ export default {
       const self = this;
       // Revert the tree structure as before the search.
       const tree = cloneDeep(this.rawTree);
-      console.log(e.target.value);
+      appLogger.debug(e.target.value);
       if (tree && tree.length > 0) {
         tree.forEach((n) => {
           self.searchEach(n, e.target.value);

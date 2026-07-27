@@ -14,15 +14,15 @@
     <div class="summary-body">
       <div class="summary-group">
         <h3>{{ $t('ji-ben-xin-xi') }}</h3>
-        <div v-if="isCreateMode" class="summary-row">
+        <div v-if="createMode" class="summary-row">
           <span>{{ $t('xiang-mu-ming-cheng') }}</span>
           <strong>{{ summaryValue(flowBasicForm.flowName) }}</strong>
         </div>
-        <div v-if="isCreateMode" class="summary-row">
+        <div v-if="createMode" class="summary-row">
           <span>{{ $t('miao-shu') }}</span>
           <strong>{{ summaryValue(flowBasicForm.flowDesc) }}</strong>
         </div>
-        <div v-if="isCreateMode" class="summary-row">
+        <div v-if="createMode" class="summary-row">
           <span>{{ $t('fu-ze-ren') }}</span>
           <strong>{{ summaryValue(selectedManagerName) }}</strong>
         </div>
@@ -70,7 +70,7 @@
         </div>
       </div>
 
-      <div v-if="isCreateMode" class="summary-group">
+      <div v-if="createMode" class="summary-group">
         <h3>{{ $t('tong-zhi-pei-zhi') }}</h3>
         <div class="summary-row">
           <span>{{ $t('tong-zhi-qu-dao') }}</span>
@@ -114,7 +114,7 @@
 export default {
   name: 'ReleaseFlowSummary',
   props: {
-    isCreateMode: { type: Boolean, required: true },
+    createMode: { type: Boolean, required: true },
     flowBasicForm: { type: Object, required: true },
     flowGitOpsForm: { type: Object, required: true },
     selectedManagerName: { type: String, default: '' },

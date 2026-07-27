@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo.cicd;
+package com.clougence.clouddm.platform.dal.mapper.cicd;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
 
-@Getter
-@Setter
-public class ChangeExecSkipTaskFO {
+import org.apache.ibatis.annotations.Param;
 
-    private long changeId;
-    private long taskId;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeTriggerReceiptDO;
+
+public interface DmChangeTriggerReceiptMapper extends BaseMapper<DmChangeTriggerReceiptDO> {
+
+    int reserve(@Param("receipt") DmChangeTriggerReceiptDO receipt);
+
+    List<Long> queryOrphanIds(@Param("batchSize") int batchSize);
+
+    int deleteOrphansByIds(@Param("ids") List<Long> ids);
 }

@@ -19,6 +19,10 @@ export default {
       type: String,
       default: 'sql'
     },
+    fontWeight: {
+      type: [Number, String],
+      default: 'bold'
+    },
     dsType: {
       type: String,
       default: ''
@@ -95,7 +99,7 @@ export default {
               value: this.text, // The editor 's value
               language,
               fontSize: 14,
-              fontWeight: 'bold',
+              fontWeight: this.fontWeight,
               scrollBeyondLastLine: false,
               readOnly: true,
               theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.

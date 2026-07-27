@@ -1,7 +1,8 @@
+import appLogger from '@/utils/logger';
 const copyMixin = {
   methods: {
     copyText(value, msg = this.$t('fu-zhi-cheng-gong')) {
-      console.log(value);
+      appLogger.debug(value);
       if (Array.isArray(value)) {
         value = value.join('');
       }

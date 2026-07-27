@@ -26,17 +26,19 @@ import jakarta.annotation.Resource;
 @Service
 public class ChangeFlowDalImpl implements ChangeFlowDal {
     @Resource
-    private DmChangeFlowMapper     flowMapper;
+    private DmChangeFlowMapper           flowMapper;
     @Resource
-    private DmChangeFlowItemMapper flowItemMapper;
+    private DmChangeFlowItemMapper       flowItemMapper;
     @Resource
-    private DmChangeMapper         changeMapper;
+    private DmChangeMapper               changeMapper;
     @Resource
-    private DmChangeItemMapper     changeItemMapper;
+    private DmChangeItemMapper           changeItemMapper;
     @Resource
-    private DmChangeVersionMapper  versionMapper;
+    private DmChangeVersionMapper        versionMapper;
     @Resource
-    private DmGitOpsScmMapper      scmMapper;
+    private DmChangeTriggerReceiptMapper triggerReceiptMapper;
+    @Resource
+    private DmGitOpsScmMapper            scmMapper;
 
     @Override
     public DmChangeFlowMapper flowMapper() {
@@ -61,6 +63,11 @@ public class ChangeFlowDalImpl implements ChangeFlowDal {
     @Override
     public DmChangeVersionMapper versionMapper() {
         return versionMapper;
+    }
+
+    @Override
+    public DmChangeTriggerReceiptMapper triggerReceiptMapper() {
+        return triggerReceiptMapper;
     }
 
     @Override

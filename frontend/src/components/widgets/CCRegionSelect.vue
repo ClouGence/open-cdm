@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { mapState } from 'vuex';
 import { CLUSTER_ENV } from '@/const';
 
@@ -45,7 +46,7 @@ export default {
       selfRegionListMap: (state) => state.selfRegionListMap
     }),
     regionList() {
-      console.log(this.aliyunRegionListMap, this.selfRegionListMap);
+      appLogger.debug(this.aliyunRegionListMap, this.selfRegionListMap);
       return this.env === CLUSTER_ENV.ALIBABA_CLOUD_HOSTED ? this.aliyunRegionListMap : this.selfRegionListMap;
     }
   },

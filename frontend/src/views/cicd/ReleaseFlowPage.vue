@@ -16,7 +16,7 @@
           <ReleaseFlowBasicInfo
             v-if="currentStepKey === 'basic'"
             ref="basicInfo"
-            :is-create-mode="isCreateMode"
+            :create-mode="createFlowMode"
             :flow-basic-form="flowBasicForm"
             :basic-rules="basicRules"
             :devops-users="devopsUsers"
@@ -70,6 +70,7 @@
             @im-def-select="handleImDefOne"
             @im-provider-change="handleImProviderSelected"
             @select-open-change="handleSelectDropdownOpen"
+            @add-im="goToAddIm"
           />
           <ReleaseFlowExecuteConfig
             v-if="currentStepKey === 'config'"
@@ -86,7 +87,7 @@
         </div>
 
         <ReleaseFlowSummary
-          :is-create-mode="isCreateMode"
+          :create-mode="createFlowMode"
           :flow-basic-form="flowBasicForm"
           :flow-git-ops-form="flowGitOpsForm"
           :selected-manager-name="selectedManagerName"
@@ -134,7 +135,7 @@ import {
   PUBLISH_MAP,
   SQL_REVIEW_MAP
 } from './constant';
-import { DEFAULT_DEVOPS_INFO, DEFAULT_FLOW_INFO, groupByRepoNamespace } from './utils';
+import { DEFAULT_DEVOPS_INFO, DEFAULT_FLOW_INFO, getRepoSelectionKey, getScmDisplayName, groupByRepoNamespace } from './utils';
 
 const getDefaultFlowInfo = () => ({
   ...DEFAULT_FLOW_INFO,
@@ -209,12 +210,12 @@ export default {
   },
   computed: {
     ...mapState(['userInfo', 'dmGlobalSetting']),
-    isCreateMode() {
+    createFlowMode() {
       return this.$route.path === '/cicd/create';
     },
     wizardSteps() {
       const steps = [{ key: 'basic', label: this.$t('ji-ben-xin-xi') }];
-      if (this.isCreateMode) {
+      if (this.createFlowMode) {
         steps.push({ key: 'config', label: this.$t('liu-cheng-pei-zhi-pei-zhi') });
       }
       return steps;
@@ -230,21 +231,63 @@ export default {
     },
     basicRules() {
       return {
-        flowName: [{ required: true, message: this.getInputRequiredMessage('xiang-mu-ming-cheng'), trigger: 'blur' }],
-        flowManagerUid: [{ required: true, message: this.getSelectRequiredMessage('fu-ze-ren'), trigger: 'change' }]
+        flowName: [
+          {
+            required: true,
+            message: this.getInputRequiredMessage('xiang-mu-ming-cheng'),
+            trigger: 'blur'
+          }
+        ],
+        flowManagerUid: [
+          {
+            required: true,
+            message: this.getSelectRequiredMessage('fu-ze-ren'),
+            trigger: 'change'
+          }
+        ]
       };
     },
     releaseRules() {
       return {
         repoScmId: [{ validator: this.validateRepoScm, trigger: 'change' }],
-        repoName: [{ required: true, message: this.$t('qing-xuan-ze-cang-ku'), trigger: 'change' }],
-        repoBranch: [{ required: true, message: this.getInputRequiredMessage('mu-biao-fen-zhi'), trigger: 'blur' }],
-        eventType: [{ required: true, message: this.getSelectRequiredMessage('chu-fa-fang-shi'), trigger: 'change' }],
-        databaseType: [{ required: true, message: this.getSelectRequiredMessage('shu-ju-ku-lei-xing'), trigger: 'change' }],
-        instanceId: [{ required: true, message: this.$t('qing-xuan-ze-shu-ju-ku-shi-li'), trigger: 'change' }],
+        repoSelectionKey: [{ required: true, message: this.$t('qing-xuan-ze-cang-ku'), trigger: 'change' }],
+        repoBranch: [
+          {
+            required: true,
+            message: this.getInputRequiredMessage('mu-biao-fen-zhi'),
+            trigger: 'blur'
+          }
+        ],
+        eventType: [
+          {
+            required: true,
+            message: this.getSelectRequiredMessage('chu-fa-fang-shi'),
+            trigger: 'change'
+          }
+        ],
+        databaseType: [
+          {
+            required: true,
+            message: this.getSelectRequiredMessage('shu-ju-ku-lei-xing'),
+            trigger: 'change'
+          }
+        ],
+        instanceId: [
+          {
+            required: true,
+            message: this.$t('qing-xuan-ze-shu-ju-ku-shi-li'),
+            trigger: 'change'
+          }
+        ],
         catalogName: [{ validator: this.validateCatalog, trigger: 'change' }],
         schemaName: [{ validator: this.validateSchema, trigger: 'change' }],
-        initScript: [{ required: true, message: this.getSelectRequiredMessage('chu-shi-hua-fang-shi'), trigger: 'change' }]
+        initScript: [
+          {
+            required: true,
+            message: this.getSelectRequiredMessage('chu-shi-hua-fang-shi'),
+            trigger: 'change'
+          }
+        ]
       };
     },
     initOptions() {
@@ -309,20 +352,23 @@ export default {
 
         sourceTypeMap.set(key, {
           value: sourceType,
-          label: item?.scmTypeI18n || this.formatSourceTypeLabel(sourceType),
-          iconType: this.fetchSourceTypeIcon(sourceType),
+          label: this.formatSourceTypeLabel(sourceType) || item?.scmTypeI18n,
           iconResource: item?.iconResource || ''
         });
       });
 
-      if (!sourceTypeMap.has('gitee')) {
-        sourceTypeMap.set('gitee', {
-          value: 'Gitee',
-          label: 'Gitee',
-          iconType: 'icon-v2-Gitee',
-          iconResource: ''
-        });
-      }
+      [
+        { value: 'Gitee', label: 'Gitee' },
+        { value: 'Gitlab', label: 'GitLab' }
+      ].forEach((sourceType) => {
+        const key = this.normalizeSourceType(sourceType.value);
+        if (!sourceTypeMap.has(key)) {
+          sourceTypeMap.set(key, {
+            ...sourceType,
+            iconResource: ''
+          });
+        }
+      });
 
       return [...sourceTypeMap.values()].sort((left, right) => {
         if (this.normalizeSourceType(left.value) === 'gitee') return -1;
@@ -414,18 +460,19 @@ export default {
     this.cleanupReleaseFlowDropdown();
   },
   methods: {
+    getRepoSelectionKey,
     groupByRepoNamespace,
     async initPage() {
       this.resetState();
       this.loading = true;
       try {
-        if (!this.isCreateMode) {
+        if (!this.createFlowMode) {
           this.flowId = this.$route.params.id;
           await this.fetchFlowDetail();
         }
 
-        await Promise.all([this.fetchDevopsScmList(), this.fetchInsList(), this.isCreateMode ? this.fetchDevopsUsers() : Promise.resolve()]);
-        if (this.isCreateMode) {
+        await Promise.all([this.fetchDevopsScmList(), this.fetchInsList(), this.createFlowMode ? this.fetchDevopsUsers() : Promise.resolve()]);
+        if (this.createFlowMode) {
           this.flowBasicForm.flowManagerUid = this.userInfo?.uid || '';
           await this.fetchImDefList();
         }
@@ -508,10 +555,7 @@ export default {
     },
     formatSourceTypeLabel(sourceType) {
       const label = String(sourceType || '').replace(/^icon-v2-/i, '');
-      return this.normalizeSourceType(label) === 'gitee' ? 'Gitee' : label || 'Gitee';
-    },
-    fetchSourceTypeIcon(sourceType) {
-      return this.normalizeSourceType(sourceType) === 'gitee' ? 'icon-v2-Gitee' : sourceType || 'icon-v2-jicheng';
+      return getScmDisplayName(label) || 'Gitee';
     },
     syncSourceTypeWithProvider() {
       const selectedProvider = this.devopsScmList.find((scm) => String(scm.scmId) === String(this.flowGitOpsForm.repoScmId));
@@ -538,6 +582,9 @@ export default {
       });
 
       this.flowGitOpsForm.repoName = '';
+      this.flowGitOpsForm.repoSelectionKey = '';
+      this.flowGitOpsForm.repoId = '';
+      this.flowGitOpsForm.repoPath = '';
       this.flowGitOpsForm.repoScmUrl = '';
       this.flowGitOpsForm.repoSpace = '';
       this.flowGitOpsForm.repoBranch = '';
@@ -551,21 +598,27 @@ export default {
     },
     async fetchDevopsScmRepos() {
       this.repoLoading = true;
-      const res = await this.$services.dmCicdDevopsRepos({
-        data: {
-          scmId: this.flowGitOpsForm.repoScmId
-        }
-      });
-      this.repoLoading = false;
+      try {
+        const res = await this.$services.dmCicdDevopsRepos({
+          data: {
+            scmId: this.flowGitOpsForm.repoScmId
+          }
+        });
 
-      if (res.success) {
-        this.devopsRepoList = res.data || [];
-        this.devopsRepoListByGroup = this.groupByRepoNamespace(this.devopsRepoList);
+        if (res.success) {
+          this.devopsRepoList = res.data || [];
+          this.devopsRepoListByGroup = this.groupByRepoNamespace(this.devopsRepoList);
+        }
+      } finally {
+        this.repoLoading = false;
       }
     },
     handleDevopsRepoSelected() {
-      this.devopsRepoSelected = this.devopsRepoList.find((repo) => repo.repoName === this.flowGitOpsForm.repoName) || null;
+      this.devopsRepoSelected = this.devopsRepoList.find((repo) => this.getRepoSelectionKey(repo) === this.flowGitOpsForm.repoSelectionKey) || null;
       if (this.devopsRepoSelected) {
+        this.flowGitOpsForm.repoName = this.devopsRepoSelected.repoName;
+        this.flowGitOpsForm.repoId = this.devopsRepoSelected.repoId;
+        this.flowGitOpsForm.repoPath = this.devopsRepoSelected.repoPath;
         this.flowGitOpsForm.repoScmUrl = this.devopsRepoSelected.repoUrl;
         this.flowGitOpsForm.repoBranch = this.devopsRepoSelected.repoBranch;
         this.flowGitOpsForm.repoSpace = this.devopsRepoSelected.repoSpace;
@@ -806,14 +859,14 @@ export default {
         return;
       }
 
-      if (this.isCreateMode && !this.isImDisabled && !this.flowImForm.imId) {
+      if (this.createFlowMode && !this.isImDisabled && !this.flowImForm.imId) {
         this.$Message.error(this.$t('qing-xuan-ze-yi-ge-im-ti-gong-zhe'));
         return;
       }
 
       this.submitting = true;
       try {
-        if (this.isCreateMode) {
+        if (this.createFlowMode) {
           await this.createFlow();
         } else {
           await this.createReleaseFlow();
@@ -958,7 +1011,7 @@ export default {
       }
 
       const checks = [];
-      if (this.isCreateMode) {
+      if (this.createFlowMode) {
         checks.push(this.$refs.basicInfo.validate());
       }
       checks.push(this.$refs.pipelineConfig.validate());
@@ -969,6 +1022,8 @@ export default {
       return {
         repoScmId: this.flowGitOpsForm.repoScmId,
         repoScmUrl: this.flowGitOpsForm.repoScmUrl,
+        repoId: this.flowGitOpsForm.repoId,
+        repoPath: this.flowGitOpsForm.repoPath,
         repoSpace: this.flowGitOpsForm.repoSpace,
         repoName: this.flowGitOpsForm.repoName,
         repoBranch: this.flowGitOpsForm.repoBranch,
@@ -1018,6 +1073,7 @@ export default {
 
       if (res.success) {
         this.$Message.success(this.$t('xiang-mu-chuang-jian-cheng-gong'));
+        (res.data?.warnings || []).forEach((warning) => this.$Message.warning(warning));
         this.createResult = res.data || {};
         this.flowId = res.data?.flowId || '';
         this.webhook = {
@@ -1043,6 +1099,7 @@ export default {
       });
 
       if (res.success) {
+        (res.data?.warnings || []).forEach((warning) => this.$Message.warning(warning));
         this.$Message.success(this.$t('fa-bu-liu-pei-zhi-cheng-gong'));
         this.$router.push(`/cicd/${this.flowId}`);
       } else {
@@ -1050,7 +1107,7 @@ export default {
       }
     },
     goBack() {
-      if (this.isCreateMode) {
+      if (this.createFlowMode) {
         this.$router.push('/cicd');
         return;
       }
@@ -1078,6 +1135,9 @@ export default {
     },
     goToDsSetting() {
       this.$router.push('/datasource');
+    },
+    goToAddIm() {
+      this.$router.push('/integrations/im');
     },
     handleCopyTemp(item) {
       handleCopy(item);
@@ -2685,6 +2745,71 @@ export default {
 
   .notice-form-row form {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .release-flow-shell {
+    padding: 10px 12px 16px;
+    overflow-x: hidden;
+  }
+
+  .release-flow-main,
+  .page-section,
+  .release-grid,
+  .release-panel,
+  .release-panel form {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .release-config-section .ivu-form-item {
+    display: block;
+  }
+
+  .release-config-section .ivu-form-item-label {
+    float: none;
+    width: 100% !important;
+    padding: 0 0 7px 14px;
+    line-height: 20px;
+  }
+
+  .release-config-section .ivu-form-item-content,
+  .release-panel .ivu-form-item-content {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding-right: 0;
+  }
+
+  .repo-control,
+  .schema-form-item .inline-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px;
+    width: 100%;
+    column-gap: 8px;
+  }
+
+  .repo-refresh-action {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: center;
+    transform: none;
+  }
+
+  .init-script-control {
+    padding-left: 0;
+  }
+
+  .init-radio-row {
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+
+  .init-radio-row .ivu-radio-wrapper {
+    white-space: normal;
   }
 }
 </style>

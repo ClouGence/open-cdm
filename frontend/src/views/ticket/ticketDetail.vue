@@ -451,6 +451,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { mapState } from 'vuex';
 import { TICKET_STATUS, TICKET_STATUS_COLOR, TICKET_PROCESS_STATUS } from '@/const';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
@@ -1011,7 +1012,7 @@ export default {
             item.icon = 'ios-close-circle';
             item.color = 'red';
           } else if (item.ticketProcessStatus === 'REJECT') {
-            console.log('reject');
+            appLogger.debug('reject');
             this.currentStep = -1;
             item.label = this.$t('yi-ju-jue');
             item.labelColor = 'red';
@@ -1091,7 +1092,7 @@ export default {
       }
     },
     async handleConfirmTicket() {
-      console.log(this.confirmInfo.confirmActionType);
+      appLogger.debug(this.confirmInfo.confirmActionType);
       const data = { ...this.confirmInfo };
       if (this.confirmInfo.confirmActionType === 'CONFIRM') {
         data.autoExecConfig.execTime = Date.parse(data.autoExecConfig.execTime);

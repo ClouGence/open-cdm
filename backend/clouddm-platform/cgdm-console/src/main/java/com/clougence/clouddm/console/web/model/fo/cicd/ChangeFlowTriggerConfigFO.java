@@ -28,6 +28,8 @@ public class ChangeFlowTriggerConfigFO {
 
     //
     private boolean hookEnable;
+    private String  hookSigningToken;
+    private boolean clearHookSigningToken;
 
     //
     private boolean triggerEnable;
