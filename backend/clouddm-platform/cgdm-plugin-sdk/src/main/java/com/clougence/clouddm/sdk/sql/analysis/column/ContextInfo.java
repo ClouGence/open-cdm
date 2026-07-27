@@ -29,7 +29,6 @@ import lombok.Getter;
 @Builder
 @Getter
 public class ContextInfo {
-    private String                puid;
     private String                cuid;
     private long                  dsId;
     private Map<UmiTypes, Object> levelsParam;

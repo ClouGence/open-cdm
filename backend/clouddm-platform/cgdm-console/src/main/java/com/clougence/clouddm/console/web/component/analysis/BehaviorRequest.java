@@ -13,23 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.sql.analysis.behavior;
+package com.clougence.clouddm.console.web.component.analysis;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 
-import lombok.Getter;
-import lombok.Setter;
-
-/**
- * One semantic relation consisting of one subject, one action, and zero or more target objects.
- */
-@Getter
-@Setter
-public class BehaviorRelation {
-
-    private BehaviorObject       subject;
-    private BehaviorAction       action;
-    private List<BehaviorObject> target = new ArrayList<>();
-    private boolean              skipPermission;
+public record BehaviorRequest(BehaviorAction action, BehaviorObject resource, boolean skipPermission) {
 }

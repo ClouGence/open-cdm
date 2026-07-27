@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
@@ -31,7 +32,7 @@ public class CreateTableBehaviorCallBackHandler extends AbstractBehaviorCallBack
     @Override
     public void backfill(DmExecSqlAuditDO audit, List<BehaviorRelation> behaviors) {
         for (String tablePath : affectedPaths(behaviors, TargetType.Table, BehaviorAction.CREATE)) {
-            deleteCache(audit, parentPath(tablePath), MetaInformationType.TableList);
+            deleteCache(audit, DmDsUtils.parentResourcePath(tablePath), MetaInformationType.TableList);
         }
     }
 }

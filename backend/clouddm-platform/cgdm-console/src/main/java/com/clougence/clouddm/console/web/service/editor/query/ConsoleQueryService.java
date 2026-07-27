@@ -298,7 +298,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private List<QueryRequest> prepareQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, boolean isExplain) {
         QueryAnalysisOptions options = QueryAnalysisOptions.builder()
             .currentUid(queryDTO.getCurrentUserId())
-            .primaryUid(queryDTO.getPrimaryUserId())
             .dataSourceId(ctx.getLevels().dsDO().getId())
             .levels(ctx.getLevels().levelsParam())
             .deepParser(false)
@@ -497,9 +496,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
             String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
             if (StringUtils.equalsIgnoreCase("true", enable)) {
-                boolean hasNonReadBehavior = BehaviorRelations.anyMatch(request.getRelations(), (action, object) -> {
-                    return BehaviorRelations.authKind(action, object.getTargetType()) != SecDataAuthKind.READ;
-                });
+                boolean hasNonReadBehavior = BehaviorRelations.flattenResource(request.getRelations())
+                    .stream()
+                    .anyMatch(behavior -> BehaviorRelations.authKind(behavior.action(), behavior.resource().getTargetType()) != SecDataAuthKind.READ);
                 if (hasNonReadBehavior) {
                     String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
                     consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));

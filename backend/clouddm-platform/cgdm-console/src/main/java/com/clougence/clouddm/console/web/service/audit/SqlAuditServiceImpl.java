@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.console.web.model.fo.PageData;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
+import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
@@ -61,7 +62,7 @@ public class SqlAuditServiceImpl implements SqlAuditService {
         auditDOs.stream().map(DmExecSqlAuditDO::getDsId).filter(Objects::nonNull).distinct().forEach(id -> dsCacheById.put(id, objectCacheDao.queryByDsId(id)));
 
         return auditDOs.stream().map(auditDO -> {
-            SqlAuditVO vo = SqlAuditVO.convertFromDO(auditDO);
+            SqlAuditVO vo = DmConvertUtils.convertToSqlAuditVO(auditDO);
             DsCacheEntry dsCache = dsCacheById.get(auditDO.getDsId());
             if (dsCache != null) {
                 vo.setDsResourceId(dsCache.getDsInstId());

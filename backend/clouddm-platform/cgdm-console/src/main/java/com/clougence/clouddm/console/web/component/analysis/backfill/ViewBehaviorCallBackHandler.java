@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
@@ -31,7 +32,7 @@ public class ViewBehaviorCallBackHandler extends AbstractBehaviorCallBackHandler
     @Override
     public void backfill(DmExecSqlAuditDO audit, List<BehaviorRelation> behaviors) {
         for (String viewPath : affectedPaths(behaviors, TargetType.View, BehaviorAction.CREATE, BehaviorAction.ALTER, BehaviorAction.DROP)) {
-            deleteCache(audit, parentPath(viewPath), MetaInformationType.ViewList);
+            deleteCache(audit, DmDsUtils.parentResourcePath(viewPath), MetaInformationType.ViewList);
             deleteCache(audit, viewPath, MetaInformationType.ViewDetail);
         }
     }

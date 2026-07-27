@@ -99,6 +99,72 @@ public class DmDsUtils {
         return new DsLevels(String.valueOf(dsDO.getDsEnvId()), dsDO, levels, dbLevels, curLevelsDef, curLevelsParam);
     }
 
+    public static String currentResourcePath(Map<UmiTypes, Object> levels) {
+        return levelsPath(levels, List.of(UmiTypes.Instance, UmiTypes.Catalog, UmiTypes.Schema));
+    }
+
+    public static String instanceResourcePath(Map<UmiTypes, Object> levels) {
+        return levelsPath(levels, List.of(UmiTypes.Instance));
+    }
+
+    public static String normalizeResourcePath(String path) {
+        return normalizeResourcePath(path, true);
+    }
+
+    public static String normalizeResourcePath(String path, boolean trailingSlash) {
+        if (StringUtils.isBlank(path) || "/".equals(path)) {
+            return "/";
+        }
+        String normalized = path.trim();
+        while (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+        while (normalized.endsWith("/")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+        if (normalized.isEmpty()) {
+            return "/";
+        }
+        return "/" + normalized + (trailingSlash ? "/" : "");
+    }
+
+    public static String buildResourcePath(Collection<?> nodes) {
+        return buildResourcePath(nodes, true);
+    }
+
+    public static String buildResourcePath(Collection<?> nodes, boolean trailingSlash) {
+        if (CollectionUtils.isEmpty(nodes)) {
+            return "/";
+        }
+        String path = nodes.stream().map(StringUtils::toString).filter(StringUtils::isNotBlank).collect(java.util.stream.Collectors.joining("/"));
+        return normalizeResourcePath(path, trailingSlash);
+    }
+
+    public static String parentResourcePath(String path) {
+        String normalized = normalizeResourcePath(path, false);
+        int index = normalized.lastIndexOf('/');
+        return index <= 0 ? "/" : normalizeResourcePath(normalized.substring(0, index));
+    }
+
+    private static String levelsPath(Map<UmiTypes, Object> levels, List<UmiTypes> types) {
+        if (levels == null || levels.isEmpty()) {
+            return "/";
+        }
+        List<String> nodes = new ArrayList<>();
+        for (UmiTypes type : types) {
+            Object value = levels.get(type);
+            if (value == null) {
+                continue;
+            }
+            for (String node : StringUtils.toString(value).split("/")) {
+                if (StringUtils.isNotBlank(node)) {
+                    nodes.add(node);
+                }
+            }
+        }
+        return buildResourcePath(nodes);
+    }
+
     public static SessionContextDTO createSessionCtx(DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
         Map<String, Object> params = new HashMap<>();
         params.put(SessionSpi.PARAMS_DEFAULT_DB, StringUtils.toString(levelsParam.get(UmiTypes.Catalog)));

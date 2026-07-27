@@ -31,6 +31,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
@@ -52,6 +53,7 @@ import com.clougence.clouddm.console.web.model.fo.ssh.SshProxyFeaturesFO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.audit.OperateUserVO;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditRequestVO;
+import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.model.vo.browse.cache.BrowseKeyVO;
 import com.clougence.clouddm.console.web.model.vo.browse.rdb.*;
@@ -88,6 +90,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmSshConfigDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 import com.clougence.clouddm.platform.dal.model.secrule.*;
@@ -142,13 +145,50 @@ import com.fasterxml.jackson.core.type.TypeReference;
  **/
 public class DmConvertUtils {
 
+    public static SqlAuditVO convertToSqlAuditVO(DmExecSqlAuditDO auditDO) {
+        SqlAuditVO vo = new SqlAuditVO();
+        vo.setId(auditDO.getId());
+        if (auditDO.getEndTime() != null) {
+            long cost = auditDO.getEndTime().getTime() - auditDO.getOperateTime().getTime();
+            vo.setCost(cost == 0 ? 1 : cost);
+        }
+
+        vo.setDataSourceType(auditDO.getDataSourceType());
+        vo.setUid(auditDO.getUid());
+        vo.setUserName(auditDO.getUserName());
+        vo.setOperateTime(auditDO.getOperateTime());
+        vo.setExecSql(auditDO.getExecSql());
+        vo.setRewrite(StringUtils.isNotBlank(auditDO.getOriginalSql()));
+        vo.setOriginalSql(auditDO.getOriginalSql());
+        vo.setClientIp(auditDO.getClientIp());
+        vo.setLogIp(auditDO.getLogIp());
+        vo.setRequester(auditDO.getRequester());
+
+        Map<String, SqlAuditRequestVO> requests = new LinkedHashMap<>();
+        for (BehaviorRequest behavior : BehaviorRelations.flattenResource(auditDO.getBehaviors())) {
+            SqlAuditRequestVO request = convertToSqlAuditRequestVO(behavior.action(), behavior.resource());
+            if (request != null) {
+                String key = request.getAction() + "|" + request.getResourceType() + "|" + request.getResourcePath();
+                requests.putIfAbsent(key, request);
+            }
+        }
+        vo.setRequests(new ArrayList<>(requests.values()));
+        vo.setAffectLine(auditDO.getAffectLine());
+        vo.setStatus(auditDO.getStatus());
+        vo.setDsId(auditDO.getDsId());
+        vo.setDsDesc(auditDO.getDsDesc());
+        vo.setDsResourceId(auditDO.getDsDesc());
+        vo.setMessage(auditDO.getMessage());
+        return vo;
+    }
+
     public static SqlAuditRequestVO convertToSqlAuditRequestVO(BehaviorAction action, BehaviorObject resource) {
         if (action == null || resource == null) {
             return null;
         }
         SqlAuditRequestVO request = new SqlAuditRequestVO();
         request.setResourceType(Objects.requireNonNullElse(resource.getTargetType(), TargetType.Unknown));
-        request.setResourcePath(BehaviorRelations.normalize(resource.getResourcePath()));
+        request.setResourcePath(DmDsUtils.normalizeResourcePath(resource.getResourcePath()));
         request.setAction(action);
         return request;
     }

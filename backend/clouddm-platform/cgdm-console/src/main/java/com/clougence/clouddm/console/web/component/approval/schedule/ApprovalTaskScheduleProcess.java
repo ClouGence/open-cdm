@@ -26,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisOptions;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
+import com.clougence.clouddm.console.web.component.analysis.*;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
@@ -41,6 +38,7 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
+import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
@@ -57,6 +55,7 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -145,7 +144,6 @@ public class ApprovalTaskScheduleProcess {
             //
             DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
             QueryAnalysisOptions options = QueryAnalysisOptions.builder()
-                .primaryUid(approvalDO.getPrimaryUid())
                 .currentUid(approvalDO.getOwnerUid())
                 .dataSourceId(dsDO.getId())
                 .levels(dsLevels.levelsParam())
@@ -177,9 +175,11 @@ public class ApprovalTaskScheduleProcess {
             return Collections.emptyList();
         }
         for (QueryRequest request : requests) {
-            BehaviorRelations.forEach(request.getRelations(), (action, resource) -> {
+            for (BehaviorRequest behaviorRequest : BehaviorRelations.flattenResource(request.getRelations())) {
+                BehaviorAction action = behaviorRequest.action();
+                BehaviorObject resource = behaviorRequest.resource();
                 TargetType resourceType = Objects.requireNonNullElse(resource.getTargetType(), TargetType.Unknown);
-                String resourcePath = BehaviorRelations.normalize(resource.getResourcePath());
+                String resourcePath = DmDsUtils.normalizeResourcePath(resource.getResourcePath());
                 String resourceKey = resourceType + "|" + resourcePath;
                 ApprovalBehavior behavior = grouped.computeIfAbsent(resourceKey, ignored -> {
                     ApprovalBehavior value = new ApprovalBehavior();
@@ -188,7 +188,7 @@ public class ApprovalTaskScheduleProcess {
                     return value;
                 });
                 behavior.getActions().add(action);
-            });
+            }
         }
         return new ArrayList<>(grouped.values());
     }

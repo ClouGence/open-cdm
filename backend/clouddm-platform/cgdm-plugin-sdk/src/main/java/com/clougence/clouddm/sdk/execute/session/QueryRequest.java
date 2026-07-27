@@ -44,7 +44,7 @@ public class QueryRequest implements Cloneable {
     private Requester                     requester;
     private Date                          requestTime;
 
-    // for desensitization
+    // for masking
     private boolean                       usingValueProcess;
     private Map<String, List<RealColumn>> columnList;
 

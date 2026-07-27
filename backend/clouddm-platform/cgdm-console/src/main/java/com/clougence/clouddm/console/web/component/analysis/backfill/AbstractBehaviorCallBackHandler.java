@@ -15,12 +15,12 @@
  */
 package com.clougence.clouddm.console.web.component.analysis.backfill;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
+import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
@@ -45,13 +45,13 @@ public abstract class AbstractBehaviorCallBackHandler implements BehaviorCallBac
 
         EnumSet<BehaviorAction> actionSet = EnumSet.noneOf(BehaviorAction.class);
         Collections.addAll(actionSet, actions);
-        List<String> paths = new ArrayList<>();
-        BehaviorRelations.forEach(behaviors, (action, resource) -> {
-            if (resource != null && resource.getTargetType() == targetType && actionSet.contains(action)) {
-                paths.add(normalizePath(resource.getResourcePath()));
-            }
-        });
-        return paths.stream().distinct().toList();
+        return BehaviorRelations.flattenResource(behaviors).stream().filter(behavior -> {
+            return behavior.resource() != null //
+                   && behavior.resource().getTargetType() == targetType //
+                   && actionSet.contains(behavior.action());
+        }).map(behavior -> {
+            return DmDsUtils.normalizeResourcePath(behavior.resource().getResourcePath(), false);
+        }).distinct().toList();
     }
 
     protected final void deleteCache(DmExecSqlAuditDO audit, String path, MetaInformationType type) {
@@ -62,24 +62,4 @@ public abstract class AbstractBehaviorCallBackHandler implements BehaviorCallBac
         this.dsDal.metaDataMapper().deleteByPathLike(audit.getDsId(), path, audit.getEndTime());
     }
 
-    //
-    //
-    //
-
-    protected final String normalizePath(String path) {
-        if (path == null || path.isBlank() || "/".equals(path)) {
-            return "/";
-        }
-        String normalized = path.startsWith("/") ? path : "/" + path;
-        while (normalized.length() > 1 && normalized.endsWith("/")) {
-            normalized = normalized.substring(0, normalized.length() - 1);
-        }
-        return normalized;
-    }
-
-    protected final String parentPath(String path) {
-        String normalized = normalizePath(path);
-        int index = normalized.lastIndexOf('/');
-        return index <= 0 ? "/" : normalized.substring(0, index + 1);
-    }
 }

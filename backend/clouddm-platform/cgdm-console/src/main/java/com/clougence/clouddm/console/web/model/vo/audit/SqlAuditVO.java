@@ -15,16 +15,12 @@
  */
 package com.clougence.clouddm.console.web.model.vo.audit;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
-import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.utils.StringUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -57,50 +53,4 @@ public class SqlAuditVO {
     private DataSourceType          dataSourceType;
     private String                  message;
 
-    public static SqlAuditVO convertFromDO(DmExecSqlAuditDO auditDO) {
-        SqlAuditVO vo = new SqlAuditVO();
-        vo.setId(auditDO.getId());
-        if (auditDO.getEndTime() != null) {
-            long cost = auditDO.getEndTime().getTime() - auditDO.getOperateTime().getTime();
-            if (cost == 0) {
-                cost = 1;
-            }
-            vo.setCost(cost);
-        }
-
-        vo.setDataSourceType(auditDO.getDataSourceType());
-        vo.setUid(auditDO.getUid());
-        vo.setUserName(auditDO.getUserName());
-        vo.setOperateTime(auditDO.getOperateTime());
-        vo.setExecSql(auditDO.getExecSql());
-        vo.setRewrite(StringUtils.isNotBlank(auditDO.getOriginalSql()));
-        vo.setOriginalSql(auditDO.getOriginalSql());
-
-        vo.setClientIp(auditDO.getClientIp());
-        vo.setLogIp(auditDO.getLogIp());
-
-        vo.setRequester(auditDO.getRequester());
-        vo.setRequests(convertRequests(auditDO.getBehaviors()));
-        vo.setAffectLine(auditDO.getAffectLine());
-        vo.setStatus(auditDO.getStatus());
-
-        vo.setDsId(auditDO.getDsId());
-        vo.setDsDesc(auditDO.getDsDesc());
-        vo.setDsResourceId(auditDO.getDsDesc());
-        vo.setMessage(auditDO.getMessage());
-
-        return vo;
-    }
-
-    private static List<SqlAuditRequestVO> convertRequests(List<BehaviorRelation> behaviors) {
-        Map<String, SqlAuditRequestVO> requests = new LinkedHashMap<>();
-        BehaviorRelations.forEach(behaviors, (action, resource) -> {
-            SqlAuditRequestVO request = DmConvertUtils.convertToSqlAuditRequestVO(action, resource);
-            if (request != null) {
-                String key = request.getAction() + "|" + request.getResourceType() + "|" + request.getResourcePath();
-                requests.putIfAbsent(key, request);
-            }
-        });
-        return new ArrayList<>(requests.values());
-    }
 }

@@ -28,7 +28,6 @@ import lombok.Getter;
 public final class QueryAnalysisOptions {
 
     private final Set<QueryAnalysisFeature> skippedFeatures;
-    private final String                    primaryUid;
     private final String                    currentUid;
     private final long                      dataSourceId;
     private final Map<UmiTypes, Object>     levels;
@@ -36,7 +35,6 @@ public final class QueryAnalysisOptions {
 
     private QueryAnalysisOptions(Builder builder){
         this.skippedFeatures = Set.copyOf(builder.skippedFeatures);
-        this.primaryUid = builder.primaryUid;
         this.currentUid = builder.currentUid;
         this.dataSourceId = builder.dataSourceId;
         this.levels = builder.levels;
@@ -58,18 +56,12 @@ public final class QueryAnalysisOptions {
     public static final class Builder {
 
         private final Set<QueryAnalysisFeature> skippedFeatures = EnumSet.noneOf(QueryAnalysisFeature.class);
-        private String                          primaryUid;
         private String                          currentUid;
         private long                            dataSourceId;
         private Map<UmiTypes, Object>           levels;
         private boolean                         deepParser;
 
         private Builder(){
-        }
-
-        public Builder primaryUid(String primaryUid) {
-            this.primaryUid = primaryUid;
-            return this;
         }
 
         public Builder currentUid(String currentUid) {

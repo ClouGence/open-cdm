@@ -35,12 +35,10 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
-import com.clougence.clouddm.console.web.util.DsResPath;
+import com.clougence.clouddm.console.web.util.DsResPathObj;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultLimit;
@@ -50,9 +48,7 @@ import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
@@ -78,11 +74,9 @@ import lombok.extern.slf4j.Slf4j;
 public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     @Resource
-    private DmDsConfigService   dmDsConfigService;
+    private DmDsConfigService   configService;
     @Resource
     private SystemDal           systemDal;
-    @Resource
-    private AuthDal             authDal;
     @Resource
     private DmAuthServiceForBiz authService;
     @Resource
@@ -93,8 +87,8 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
     @Override
     public List<SplitScript> analysisSplit(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs,//
                                            int baseCodeLine, int baseCodeColumn) {
-        SqlEngineSpi engine = this.dmDsConfigService.fetchSqlEngineSpi(dsConfig);
-        SqlParserParameters parameters = this.dmDsConfigService.fetchSqlParserParameters(dsConfig, Collections.emptyMap());
+        SqlEngineSpi engine = this.configService.fetchSqlEngineSpi(dsConfig);
+        SqlParserParameters parameters = this.configService.fetchSqlParserParameters(dsConfig, Collections.emptyMap());
 
         SplitAnalysisSpi analysisSpi = engine.splitAnalysisSpi(parameters);
         List<SplitScript> scripts = analysisSpi.splitScript(queryString, queryArgs, baseCodeLine, baseCodeColumn);
@@ -117,13 +111,21 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
         Map<UmiTypes, Object> levels = options.getLevels();
         Map<UmiTypes, Object> safeLevels = levels == null ? Collections.emptyMap() : levels;
-        SqlEngineSpi sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(dsConfig);
+        SqlEngineSpi sqlEngine = this.configService.fetchSqlEngineSpi(dsConfig);
         if (sqlEngine == null) {
             throw new IllegalStateException(dsConfig.getDataSourceType() + " has no SqlEngineSpi.");
         }
 
-        SqlParserParameters parameters = this.dmDsConfigService.fetchSqlParserParameters(dsConfig, safeLevels);
-        List<SplitScript> scripts = splitRequests(sqlEngine, parameters, queryString, queryArgs, baseCodeLine, baseCodeColumn);
+        SqlParserParameters parameters = this.configService.fetchSqlParserParameters(dsConfig, safeLevels);
+        SplitAnalysisSpi splitSpi = sqlEngine.splitAnalysisSpi(parameters);
+        if (splitSpi == null) {
+            throw new IllegalStateException(sqlEngine + " does not support SplitAnalysisSpi.");
+        }
+        List<SplitScript> scripts = splitSpi.splitScript(queryString, queryArgs, baseCodeLine, baseCodeColumn);
+        if (CollectionUtils.isEmpty(scripts)) {
+            throw new IllegalStateException("invoker SplitAnalysisSpi failed, result is empty.");
+        }
+
         List<QueryRequest> requests = new ArrayList<>(scripts.size());
         for (SplitScript script : scripts) {
             QueryRequest request = new QueryRequest();
@@ -139,25 +141,12 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         }
         analysisResources(sqlEngine, parameters, safeLevels, scripts, requests);
         if (options.isEnabled(QueryAnalysisFeature.PROVENANCE)) {
-            analysisColumns(sqlEngine, parameters, dsConfig, options, requests);
+            provenanceColumns(sqlEngine, parameters, dsConfig, options, requests);
         }
         if (options.isEnabled(QueryAnalysisFeature.MASKING)) {
-            analysisDesensitization(options, requests);
+            configMasking(options, requests);
         }
         return requests;
-    }
-
-    private List<SplitScript> splitRequests(SqlEngineSpi sqlEngine, SqlParserParameters parameters, String queryString,//
-                                            List<QueryArg> queryArgs, int baseCodeLine, int baseCodeColumn) {
-        SplitAnalysisSpi splitSpi = sqlEngine.splitAnalysisSpi(parameters);
-        if (splitSpi == null) {
-            throw new IllegalStateException(sqlEngine + " does not support SplitAnalysisSpi.");
-        }
-        List<SplitScript> scripts = splitSpi.splitScript(queryString, queryArgs, baseCodeLine, baseCodeColumn);
-        if (CollectionUtils.isEmpty(scripts)) {
-            throw new IllegalStateException("invoker SplitAnalysisSpi failed, result is empty.");
-        }
-        return scripts;
     }
 
     private void rewriteRequests(SqlEngineSpi sqlEngine, SqlParserParameters parameters, List<QueryRequest> requests) {
@@ -167,7 +156,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             return;
         }
 
-        Map<String, String> configMap = this.dmDsConfigService.fetchSettingsMap(Arrays.asList(//
+        Map<String, String> configMap = this.configService.fetchSettingsMap(Arrays.asList(//
                 RootUserConfig.Fields.defaultColumnDisplayChars, //
                 RootUserConfig.Fields.onlineMaxRecordCount,      //
                 RootUserConfig.Fields.onlineMaxResultSetMegaByte,//
@@ -206,21 +195,27 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         for (int i = 0; i < requests.size(); i++) {
             QueryRequest request = requests.get(i);
             SplitScript script = scripts.get(i);
-            List<StatementBehavior> behaviors = behaviorSpi.analysisBehavior(request.getQueryBody(),//
-                    levels, script.getBodyStartCodeLine(), script.getBodyStartCodeColumn());
-            request.setResourceActions(this.converter.convert(behaviors, currentResourcePath, instanceResourcePath));
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            List<StatementBehavior> behaviors = behaviorSpi.analysisBehavior(request.getQueryBody(), levels, codeLine, codeColumn);
+            List<BehaviorRelation> relations = Collections.emptyList();
+
+            if (behaviors != null) {
+                relations = behaviors.stream().filter(Objects::nonNull).map(StatementBehavior::getRelations).filter(Objects::nonNull).flatMap(Collection::stream).toList();
+            }
+            request.setRelations(relations);
         }
     }
 
-    private void analysisColumns(SqlEngineSpi sqlEngine, SqlParserParameters parameters, DataSourceConfig dsConfig, QueryAnalysisOptions options,//
-                                 List<QueryRequest> requests) {
+    private void provenanceColumns(SqlEngineSpi sqlEngine, SqlParserParameters parameters, DataSourceConfig dsConfig, QueryAnalysisOptions options,//
+                                   List<QueryRequest> requests) {
         SelectColumnAnalysisSpi selectColumnSpi = sqlEngine.selectColumnAnalysisSpi(parameters);
         if (selectColumnSpi == null) {
             return;
         }
 
         ContextInfo contextInfo = ContextInfo.builder()
-            .puid(options.getPrimaryUid())
             .cuid(options.getCurrentUid())
             .dsId(options.getDataSourceId())
             .levelsParam(options.getLevels())
@@ -240,49 +235,16 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         }
     }
 
-    private void analysisDesensitization(ContextInfo contextInfo, String queryString, SqlEngineSpi sqlEngine,//
-                                         SqlParserParameters parameters, List<QueryRequest> requests) {
-        requests.forEach(request -> request.setUsingValueProcess(true));
-        String curUserUid = contextInfo.getCuid();
-        String curOwnerUid = contextInfo.getPuid();
-        long dsId = contextInfo.getDsId();
-        if (StringUtils.isBlank(curUserUid) || StringUtils.isBlank(curOwnerUid) || dsId <= 0) {
-            requests.forEach(request -> request.setUsingValueProcess(false));
+    private void configMasking(QueryAnalysisOptions options, List<QueryRequest> requests) {
+        requests.forEach(r -> r.setUsingValueProcess(true));
+        String userUid = options.getCurrentUid();
+        long dsId = options.getDataSourceId();
+        if (AuthDal.ROOT_USER_UID.equals(userUid)) {
+            requests.forEach(r -> r.setUsingValueProcess(false));
             return;
         }
 
-        DmAuthUserDO user = this.authDal.userMapper().queryByUid(curUserUid);
-        Map<UmiTypes, Object> levels = contextInfo.getLevelsParam() == null ? Collections.emptyMap() : contextInfo.getLevelsParam();
-        DsResPath currentPath = () -> currentResourcePath(levels);
-        if (user.getAccountType() == AccountType.PRIMARY_ACCOUNT || this.authCheckService.checkResPathWithoutError(curOwnerUid,//
-                curUserUid, dsId, AuthKind.DataSource, currentPath, SecDataAuthLabel.DM_DAUTH_SENSITIVE)) {
-            requests.forEach(request -> request.setUsingValueProcess(false));
-            return;
-        }
-
-        List<QueryRequest> selectRequests = requests.stream().filter(request -> request.getQueryType() == SplitQueryType.SELECT).toList();
-        boolean hasColumnAnalysis = selectRequests.stream().allMatch(request -> request.getColumnList() != null);
-        if (!hasColumnAnalysis) {
-            List<ResourceAction> sqlResources = requests.stream()
-                .filter(request -> CollectionUtils.isNotEmpty(request.getResourceActions()))
-                .flatMap(request -> request.getResourceActions().stream())
-                .toList();
-            if (CollectionUtils.isNotEmpty(sqlResources)) {
-                List<ResourceAction> readRequests = sqlResources.stream()
-                    .filter(resourceAction -> !resourceAction.isSkipPermission())
-                    .filter(resourceAction -> resourceAction.getAuthKind() == SecDataAuthKind.READ)
-                    .toList();
-                if (CollectionUtils.isNotEmpty(readRequests)) {
-                    boolean viewOriginData = readRequests.stream().allMatch(resourceAction -> this.authCheckService.checkResPathWithoutError(curOwnerUid, curUserUid, dsId,//
-                            AuthKind.DataSource, resourceAction.toDsResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE));
-                    if (viewOriginData) {
-                        requests.forEach(request -> request.setUsingValueProcess(false));
-                        return;
-                    }
-                }
-            }
-        }
-
+        // has rule
         SecCheckerRules rules = this.rulesService.fetchCheckerRulesByDsId(dsId);
         if (!rules.isValid() || CollectionUtils.isEmpty(rules.getSenRuleList())) {
             return;
@@ -313,6 +275,5 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             }
             return;
         }
-
     }
 }

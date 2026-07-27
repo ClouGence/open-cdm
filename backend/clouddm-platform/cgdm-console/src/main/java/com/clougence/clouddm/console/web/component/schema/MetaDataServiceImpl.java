@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.schema;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -23,11 +24,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsMetaDataDO;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
-import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
 import jakarta.annotation.Resource;
@@ -92,26 +93,11 @@ public class MetaDataServiceImpl implements MetaDataService, UnifiedPostConstruc
     }
 
     private String getDetailPath(String catalog, String schema, String objName) {
-        StringBuilder path = new StringBuilder("/");
-        if (StringUtils.isNotEmpty(catalog)) {
-            path.append(catalog).append("/");
-        }
-        if (StringUtils.isNotEmpty(schema)) {
-            path.append(schema).append("/");
-        }
-        path.append(objName);
-        return path.toString();
+        return DmDsUtils.buildResourcePath(Arrays.asList(catalog, schema, objName), false);
     }
 
     private String getListPath(String catalog, String schema) {
-        StringBuilder path = new StringBuilder("/");
-        if (StringUtils.isNotEmpty(catalog)) {
-            path.append(catalog).append("/");
-        }
-        if (StringUtils.isNotEmpty(schema)) {
-            path.append(schema).append("/");
-        }
-        return path.toString();
+        return DmDsUtils.buildResourcePath(Arrays.asList(catalog, schema));
     }
 
     @Override
