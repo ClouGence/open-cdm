@@ -3244,12 +3244,12 @@ constant
 dataType
     : typeName=CHAR lengthOneDimension? BYTE                       #stringDataType
     | typeName=(CHAR | CHARACTER | NCHAR)
-      VARYING lengthOneDimension
+      VARYING lengthOneDimension?
       BINARY?
       stringCharsetAttribute?
       (COLLATE collationName | BINARY)?                             #stringDataType
     | typeName=(VARCHAR | NVARCHAR)
-      lengthOneDimension
+      lengthOneDimension?
       BINARY?
       stringCharsetAttribute?
       (COLLATE collationName | BINARY)?                             #stringDataType
