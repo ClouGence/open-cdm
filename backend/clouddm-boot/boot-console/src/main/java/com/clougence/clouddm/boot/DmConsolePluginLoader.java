@@ -29,7 +29,6 @@ import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.execute.SessionService;
-import com.clougence.clouddm.sdk.sql.analysis.column.QueryConstraintService;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +46,6 @@ public class DmConsolePluginLoader {
     @Resource
     private MetaService             metaService;
     @Resource
-    private QueryConstraintService  queryConstraintService;
-    @Resource
     private SessionService          sessionServices;
     @Resource
     private ConfigService           pluginConfigService;
@@ -59,7 +56,6 @@ public class DmConsolePluginLoader {
         PluginManager.putService(ConfigService.class, this.pluginConfigService);
         PluginManager.putService(CacheService.class, this.cacheService);
         PluginManager.putService(MetaService.class, this.metaService);
-        PluginManager.putService(QueryConstraintService.class, this.queryConstraintService);
         PluginManager.putService(ApprovalRefreshService.class, this.refreshService);
         PluginManager.putService(ConsoleConfigService.class, this.consoleConfigService);
 
