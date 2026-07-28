@@ -1,0 +1,54 @@
+insert into MPP_HASH values(1, 10, 'H1');
+insert into MPP_HASH values(2, 20, 'H2');
+insert into MPP_HASH values(3, 30, 'H3');
+insert into MPP_HASH values(4, 40, 'H4');
+insert into MPP_RANDOM values(1, 'R1');
+insert into MPP_RANDOM values(2, 'R2');
+insert into MPP_FULLY values(1, 'F1');
+insert into MPP_RANGE values(50, 'EP01_RANGE');
+insert into MPP_RANGE values(150, 'EP02_RANGE');
+insert into MPP_LIST values(1, 'EP01_LIST');
+insert into MPP_LIST values(2, 'EP02_LIST');
+insert into MPP_HASH_MULTI values(1, 10, 'HM1');
+insert into MPP_HASH_PART values(1, 'P1');
+insert into MPP_HASH_PART values(11, 'P2');
+commit;
+update MPP_HASH set ID=ID+100 where ID=1;
+update MPP_HASH set NOTE='UPDATED' where ID=2;
+delete from MPP_FULLY where ID=1;
+------------------------------------------------------------------------------------------
+[INSERT] insert into MPP_HASH values(1, 10, 'H1');
+----------
+[INSERT] insert into MPP_HASH values(2, 20, 'H2');
+----------
+[INSERT] insert into MPP_HASH values(3, 30, 'H3');
+----------
+[INSERT] insert into MPP_HASH values(4, 40, 'H4');
+----------
+[INSERT] insert into MPP_RANDOM values(1, 'R1');
+----------
+[INSERT] insert into MPP_RANDOM values(2, 'R2');
+----------
+[INSERT] insert into MPP_FULLY values(1, 'F1');
+----------
+[INSERT] insert into MPP_RANGE values(50, 'EP01_RANGE');
+----------
+[INSERT] insert into MPP_RANGE values(150, 'EP02_RANGE');
+----------
+[INSERT] insert into MPP_LIST values(1, 'EP01_LIST');
+----------
+[INSERT] insert into MPP_LIST values(2, 'EP02_LIST');
+----------
+[INSERT] insert into MPP_HASH_MULTI values(1, 10, 'HM1');
+----------
+[INSERT] insert into MPP_HASH_PART values(1, 'P1');
+----------
+[INSERT] insert into MPP_HASH_PART values(11, 'P2');
+----------
+[TRANSACTION] commit;
+----------
+[UPDATE] update MPP_HASH set ID=ID+100 where ID=1;
+----------
+[UPDATE] update MPP_HASH set NOTE='UPDATED' where ID=2;
+----------
+[DELETE] delete from MPP_FULLY where ID=1;

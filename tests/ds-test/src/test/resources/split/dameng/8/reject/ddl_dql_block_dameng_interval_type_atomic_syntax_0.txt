@@ -1,0 +1,30 @@
+create table app.bad_iv_s01(c interval year());
+create table app.bad_iv_s02(c interval month());
+create table app.bad_iv_s03(c interval day());
+create table app.bad_iv_s04(c interval hour());
+create table app.bad_iv_s05(c interval minute());
+create table app.bad_iv_s06(c interval second());
+create table app.bad_iv_s07(c interval second(9,));
+create table app.bad_iv_s08(c interval day to);
+select interval '' year() from dual;
+create function app.bad_iv_f(p interval day()) return int as begin return 1;end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_iv_s01(c interval year());
+----------
+[CREATE_TABLE] create table app.bad_iv_s02(c interval month());
+----------
+[CREATE_TABLE] create table app.bad_iv_s03(c interval day());
+----------
+[CREATE_TABLE] create table app.bad_iv_s04(c interval hour());
+----------
+[CREATE_TABLE] create table app.bad_iv_s05(c interval minute());
+----------
+[CREATE_TABLE] create table app.bad_iv_s06(c interval second());
+----------
+[CREATE_TABLE] create table app.bad_iv_s07(c interval second(9,));
+----------
+[CREATE_TABLE] create table app.bad_iv_s08(c interval day to);
+----------
+[SELECT] select interval '' year() from dual;
+----------
+[CREATE_PROG_OBJ] create function app.bad_iv_f(p interval day()) return int as begin return 1;end;/

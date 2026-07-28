@@ -1,0 +1,232 @@
+create user CODEX_DM8_DIRECTORY_USER_20260721 identified by "Dm8@Directory2026";
+create user CODEX_DM8_DIRECTORY_GRANTEE_20260721 identified by "Dm8@Directory2026";
+create role CODEX_DM8_DIRECTORY_ROLE_20260721;
+create directory CODEX_DM8_DIR_EXT_20260721 as '/tmp/codex_dm8_directory_20260721';
+create directory CODEX_DM8_DIR_BASIC_20260721 as '/tmp';
+create directory if not exists CODEX_DM8_DIR_IFNE_20260721 as '/tmp/ifne';
+create or replace directory CODEX_DM8_DIR_REPLACE_20260721 as '/tmp/replace_before';
+create or replace directory if not exists CODEX_DM8_DIR_BOTH_20260721 as '/tmp/both_before';
+create directory CODEX_DM8_DIR_REL_20260721 as 'codex_relative';
+create directory CODEX_DM8_DIR_DOT_20260721 as './codex_relative';
+create directory CODEX_DM8_DIR_PARENT_20260721 as '../codex_relative';
+create directory CODEX_DM8_DIR_SPACE_20260721 as '/tmp/codex dm8 directory';
+create directory CODEX_DM8_DIR_WIN_20260721 as 'C:\codex\dm8\directory';
+create directory CODEX_DM8_DIR_QUOTE_20260721 as '/tmp/codex''directory';
+create directory CODEX_DM8_DIR_ROOT_20260721 as '/';
+create directory CODEX_DM8_DIR_NESTED_20260721 as '/tmp/codex/dm8/directory/nested';
+create directory "Codex_Dm8_Dir_Mixed_20260721" as '/tmp/mixed';
+create directory "codex_dm8_dir_lower_20260721" as '/tmp/lower';
+create directory "CODEX DM8 DIR SPACE 20260721" as '/tmp/name_space';
+create directory "CODEX.DM8.DIR.20260721" as '/tmp/name_dot';
+select directory_name, directory_path from dba_directories
+where directory_name like 'CODEX_DM8_DIR_%' order by directory_name;
+select directory_name, directory_path from dba_directories
+where directory_name = 'Codex_Dm8_Dir_Mixed_20260721';
+select count(*) from all_directories where directory_name like 'CODEX%20260721';
+create directory if not exists CODEX_DM8_DIR_IFNE_20260721 as '/tmp/ifne_ignored';
+select directory_path from dba_directories where directory_name = 'CODEX_DM8_DIR_IFNE_20260721';
+create or replace directory CODEX_DM8_DIR_REPLACE_20260721 as '/tmp/replace_after';
+select directory_path from dba_directories where directory_name = 'CODEX_DM8_DIR_REPLACE_20260721';
+create or replace directory if not exists CODEX_DM8_DIR_BOTH_20260721 as '/tmp/both_after';
+select directory_path from dba_directories where directory_name = 'CODEX_DM8_DIR_BOTH_20260721';
+grant read on directory CODEX_DM8_DIR_EXT_20260721 to CODEX_DM8_DIRECTORY_USER_20260721;
+grant write on directory CODEX_DM8_DIR_EXT_20260721 to CODEX_DM8_DIRECTORY_USER_20260721;
+grant read, write on directory CODEX_DM8_DIR_EXT_20260721 to CODEX_DM8_DIRECTORY_ROLE_20260721;
+grant all privileges on directory CODEX_DM8_DIR_BASIC_20260721 to CODEX_DM8_DIRECTORY_GRANTEE_20260721;
+revoke all privileges on directory CODEX_DM8_DIR_BASIC_20260721 from CODEX_DM8_DIRECTORY_GRANTEE_20260721;
+grant read on directory CODEX_DM8_DIR_IFNE_20260721 to CODEX_DM8_DIRECTORY_GRANTEE_20260721 with grant option;
+revoke grant option for read on directory CODEX_DM8_DIR_IFNE_20260721 from CODEX_DM8_DIRECTORY_GRANTEE_20260721 cascade;
+revoke read, write on directory CODEX_DM8_DIR_EXT_20260721 from CODEX_DM8_DIRECTORY_ROLE_20260721;
+grant CODEX_DM8_DIRECTORY_ROLE_20260721 to CODEX_DM8_DIRECTORY_USER_20260721;
+revoke CODEX_DM8_DIRECTORY_ROLE_20260721 from CODEX_DM8_DIRECTORY_USER_20260721;
+create external table CODEX_DM8_DIRECTORY_EXT_20260721(
+  id int,
+  label varchar(20),
+  amount decimal(10,2)
+) from datafile default directory CODEX_DM8_DIR_EXT_20260721
+location ('data.csv') parms(fields delimited by '|', records delimited by 0x0a,
+character_code 'UTF-8');
+select id, label, amount from CODEX_DM8_DIRECTORY_EXT_20260721 order by id;
+select count(*), sum(amount) from CODEX_DM8_DIRECTORY_EXT_20260721;
+select label from CODEX_DM8_DIRECTORY_EXT_20260721 where amount > 15 order by amount;
+drop table CODEX_DM8_DIRECTORY_EXT_20260721;
+revoke read on directory CODEX_DM8_DIR_EXT_20260721 from CODEX_DM8_DIRECTORY_USER_20260721;
+revoke write on directory CODEX_DM8_DIR_EXT_20260721 from CODEX_DM8_DIRECTORY_USER_20260721;
+drop directory CODEX_DM8_DIR_BASIC_20260721;
+drop directory if exists CODEX_DM8_DIR_IFNE_20260721;
+drop directory CODEX_DM8_DIR_REPLACE_20260721;
+drop directory if exists CODEX_DM8_DIR_BOTH_20260721;
+drop directory CODEX_DM8_DIR_REL_20260721;
+drop directory CODEX_DM8_DIR_DOT_20260721;
+drop directory CODEX_DM8_DIR_PARENT_20260721;
+drop directory CODEX_DM8_DIR_SPACE_20260721;
+drop directory CODEX_DM8_DIR_WIN_20260721;
+drop directory CODEX_DM8_DIR_QUOTE_20260721;
+drop directory CODEX_DM8_DIR_ROOT_20260721;
+drop directory CODEX_DM8_DIR_NESTED_20260721;
+drop directory "Codex_Dm8_Dir_Mixed_20260721";
+drop directory "codex_dm8_dir_lower_20260721";
+drop directory "CODEX DM8 DIR SPACE 20260721";
+drop directory "CODEX.DM8.DIR.20260721";
+drop directory CODEX_DM8_DIR_EXT_20260721;
+create directory CODEX_DM8_DIR_CASCADE_20260721 as '/tmp/cascade';
+drop directory CODEX_DM8_DIR_CASCADE_20260721 cascade;
+create directory CODEX_DM8_DIR_RESTRICT_20260721 as '/tmp/restrict';
+drop directory CODEX_DM8_DIR_RESTRICT_20260721 restrict;
+drop directory if exists CODEX_DM8_DIR_MISSING_20260721 cascade;
+drop directory if exists CODEX_DM8_DIR_MISSING_20260721 restrict;
+drop user CODEX_DM8_DIRECTORY_USER_20260721 cascade;
+drop user CODEX_DM8_DIRECTORY_GRANTEE_20260721 cascade;
+drop role CODEX_DM8_DIRECTORY_ROLE_20260721;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user CODEX_DM8_DIRECTORY_USER_20260721 identified by "Dm8@Directory2026";
+----------
+[CREATE_USER] create user CODEX_DM8_DIRECTORY_GRANTEE_20260721 identified by "Dm8@Directory2026";
+----------
+[CREATE_ROLE] create role CODEX_DM8_DIRECTORY_ROLE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_EXT_20260721 as '/tmp/codex_dm8_directory_20260721';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_BASIC_20260721 as '/tmp';
+----------
+[SYSTEM_SETTING_WRITE] create directory if not exists CODEX_DM8_DIR_IFNE_20260721 as '/tmp/ifne';
+----------
+[SYSTEM_SETTING_WRITE] create or replace directory CODEX_DM8_DIR_REPLACE_20260721 as '/tmp/replace_before';
+----------
+[SYSTEM_SETTING_WRITE] create or replace directory if not exists CODEX_DM8_DIR_BOTH_20260721 as '/tmp/both_before';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_REL_20260721 as 'codex_relative';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_DOT_20260721 as './codex_relative';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_PARENT_20260721 as '../codex_relative';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_SPACE_20260721 as '/tmp/codex dm8 directory';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_WIN_20260721 as 'C:\codex\dm8\directory';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_QUOTE_20260721 as '/tmp/codex''directory';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_ROOT_20260721 as '/';
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_NESTED_20260721 as '/tmp/codex/dm8/directory/nested';
+----------
+[SYSTEM_SETTING_WRITE] create directory "Codex_Dm8_Dir_Mixed_20260721" as '/tmp/mixed';
+----------
+[SYSTEM_SETTING_WRITE] create directory "codex_dm8_dir_lower_20260721" as '/tmp/lower';
+----------
+[SYSTEM_SETTING_WRITE] create directory "CODEX DM8 DIR SPACE 20260721" as '/tmp/name_space';
+----------
+[SYSTEM_SETTING_WRITE] create directory "CODEX.DM8.DIR.20260721" as '/tmp/name_dot';
+----------
+[SELECT] select directory_name, directory_path from dba_directories
+where directory_name like 'CODEX_DM8_DIR_%' order by directory_name;
+----------
+[SELECT] select directory_name, directory_path from dba_directories
+where directory_name = 'Codex_Dm8_Dir_Mixed_20260721';
+----------
+[SELECT] select count(*) from all_directories where directory_name like 'CODEX%20260721';
+----------
+[SYSTEM_SETTING_WRITE] create directory if not exists CODEX_DM8_DIR_IFNE_20260721 as '/tmp/ifne_ignored';
+----------
+[SELECT] select directory_path from dba_directories where directory_name = 'CODEX_DM8_DIR_IFNE_20260721';
+----------
+[SYSTEM_SETTING_WRITE] create or replace directory CODEX_DM8_DIR_REPLACE_20260721 as '/tmp/replace_after';
+----------
+[SELECT] select directory_path from dba_directories where directory_name = 'CODEX_DM8_DIR_REPLACE_20260721';
+----------
+[SYSTEM_SETTING_WRITE] create or replace directory if not exists CODEX_DM8_DIR_BOTH_20260721 as '/tmp/both_after';
+----------
+[SELECT] select directory_path from dba_directories where directory_name = 'CODEX_DM8_DIR_BOTH_20260721';
+----------
+[GRANT] grant read on directory CODEX_DM8_DIR_EXT_20260721 to CODEX_DM8_DIRECTORY_USER_20260721;
+----------
+[GRANT] grant write on directory CODEX_DM8_DIR_EXT_20260721 to CODEX_DM8_DIRECTORY_USER_20260721;
+----------
+[GRANT] grant read, write on directory CODEX_DM8_DIR_EXT_20260721 to CODEX_DM8_DIRECTORY_ROLE_20260721;
+----------
+[GRANT] grant all privileges on directory CODEX_DM8_DIR_BASIC_20260721 to CODEX_DM8_DIRECTORY_GRANTEE_20260721;
+----------
+[REVOKE] revoke all privileges on directory CODEX_DM8_DIR_BASIC_20260721 from CODEX_DM8_DIRECTORY_GRANTEE_20260721;
+----------
+[GRANT] grant read on directory CODEX_DM8_DIR_IFNE_20260721 to CODEX_DM8_DIRECTORY_GRANTEE_20260721 with grant option;
+----------
+[REVOKE] revoke grant option for read on directory CODEX_DM8_DIR_IFNE_20260721 from CODEX_DM8_DIRECTORY_GRANTEE_20260721 cascade;
+----------
+[REVOKE] revoke read, write on directory CODEX_DM8_DIR_EXT_20260721 from CODEX_DM8_DIRECTORY_ROLE_20260721;
+----------
+[GRANT] grant CODEX_DM8_DIRECTORY_ROLE_20260721 to CODEX_DM8_DIRECTORY_USER_20260721;
+----------
+[REVOKE] revoke CODEX_DM8_DIRECTORY_ROLE_20260721 from CODEX_DM8_DIRECTORY_USER_20260721;
+----------
+[CREATE_TABLE] create external table CODEX_DM8_DIRECTORY_EXT_20260721(
+  id int,
+  label varchar(20),
+  amount decimal(10,2)
+) from datafile default directory CODEX_DM8_DIR_EXT_20260721
+location ('data.csv') parms(fields delimited by '|', records delimited by 0x0a,
+character_code 'UTF-8');
+----------
+[SELECT] select id, label, amount from CODEX_DM8_DIRECTORY_EXT_20260721 order by id;
+----------
+[SELECT] select count(*), sum(amount) from CODEX_DM8_DIRECTORY_EXT_20260721;
+----------
+[SELECT] select label from CODEX_DM8_DIRECTORY_EXT_20260721 where amount > 15 order by amount;
+----------
+[DROP_TABLE] drop table CODEX_DM8_DIRECTORY_EXT_20260721;
+----------
+[REVOKE] revoke read on directory CODEX_DM8_DIR_EXT_20260721 from CODEX_DM8_DIRECTORY_USER_20260721;
+----------
+[REVOKE] revoke write on directory CODEX_DM8_DIR_EXT_20260721 from CODEX_DM8_DIRECTORY_USER_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_BASIC_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory if exists CODEX_DM8_DIR_IFNE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_REPLACE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory if exists CODEX_DM8_DIR_BOTH_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_REL_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_DOT_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_PARENT_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_SPACE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_WIN_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_QUOTE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_ROOT_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_NESTED_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop directory "Codex_Dm8_Dir_Mixed_20260721";
+----------
+[SYSTEM_SETTING_WRITE] drop directory "codex_dm8_dir_lower_20260721";
+----------
+[SYSTEM_SETTING_WRITE] drop directory "CODEX DM8 DIR SPACE 20260721";
+----------
+[SYSTEM_SETTING_WRITE] drop directory "CODEX.DM8.DIR.20260721";
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_EXT_20260721;
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_CASCADE_20260721 as '/tmp/cascade';
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_CASCADE_20260721 cascade;
+----------
+[SYSTEM_SETTING_WRITE] create directory CODEX_DM8_DIR_RESTRICT_20260721 as '/tmp/restrict';
+----------
+[SYSTEM_SETTING_WRITE] drop directory CODEX_DM8_DIR_RESTRICT_20260721 restrict;
+----------
+[SYSTEM_SETTING_WRITE] drop directory if exists CODEX_DM8_DIR_MISSING_20260721 cascade;
+----------
+[SYSTEM_SETTING_WRITE] drop directory if exists CODEX_DM8_DIR_MISSING_20260721 restrict;
+----------
+[DROP_USER] drop user CODEX_DM8_DIRECTORY_USER_20260721 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_DIRECTORY_GRANTEE_20260721 cascade;
+----------
+[DROP_ROLE] drop role CODEX_DM8_DIRECTORY_ROLE_20260721;

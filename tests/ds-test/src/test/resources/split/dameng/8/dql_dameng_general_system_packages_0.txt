@@ -1,0 +1,195 @@
+select dbms_random.random_normal();
+select dbms_random.random();
+select dbms_random.random_string('U', 12);
+select dbms_random.random_string('l', 12);
+select dbms_random.random_string('A', 12);
+select dbms_random.random_string('x', 12);
+select dbms_random.random_string('P', 12);
+select dbms_random.random_string('?', 12);
+select dbms_random.string('U', 8);
+select dbms_random.value();
+select dbms_random.value(10);
+select dbms_random.value(10, 100);
+select dbms_random.value(100, 10);
+select dbms_transaction.local_transaction_id(false);
+select dbms_transaction.local_transaction_id(true);
+select dbms_utility.format_error_stack();
+select dbms_utility.get_hash_value('CODEX_DM8', 100, 1000);
+select dbms_utility.get_time();
+select dbms_utility.format_call_stack();
+select dbms_utility.format_error_backtrace();
+select utl_encode.base64_encode(cast('434F444558' as varbinary(64)));
+select utl_encode.base64_decode(utl_encode.base64_encode(cast('434F444558' as varbinary(64))));
+select utl_match.edit_distance('dameng', 'meng');
+select utl_match.edit_distance_similarity('china', 'chin');
+select utl_match.edit_distance('', 'DM8');
+select utl_match.edit_distance('DM8', 'DM8');
+select utl_match.edit_distance_similarity('DM8', 'DM8');
+select utl_match.edit_distance(cast(null as varchar), 'DM8');
+select utl_raw.xrange(utl_raw.cast_to_raw('A'), utl_raw.cast_to_raw('Z'));
+select utl_raw.bit_and('0102F3', 'F30201');
+select utl_raw.bit_complement('0102F3');
+select utl_raw.bit_or('0102F3', 'F30201');
+select utl_raw.bit_xor('0102F3', 'F30201');
+select utl_raw.compare(utl_raw.cast_to_raw('ABC'), utl_raw.cast_to_raw('ABCD'));
+select utl_raw.concat('A', '41', 'B', '42');
+select utl_raw.convert_raw('E4B8ADE69687', 'GBK', 'UTF8');
+select utl_raw.convert_raw('D6D0CEC4', 'UTF8', 'GBK');
+select utl_raw.copies('A', 6);
+select utl_raw.length(utl_raw.cast_to_raw('ABCD'));
+select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'), utl_raw.cast_to_raw('AAAC'), 1, 1);
+select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'), utl_raw.cast_to_raw('AAAC'), 1, 2, utl_raw.cast_to_raw(' '));
+select utl_raw.reverse_raw(utl_raw.cast_to_raw('123'));
+select utl_raw.substr(cast('414243444541424344454142434445' as varbinary(128)), 6, 2);
+select utl_raw.translate(utl_raw.cast_to_raw('aDe'), utl_raw.cast_to_raw('AD'), utl_raw.cast_to_raw('ad'));
+select utl_raw.transliterate(utl_raw.cast_to_raw('FaDe'), utl_raw.cast_to_raw('adef'), utl_raw.cast_to_raw('ADEF'), utl_raw.cast_to_raw(' '));
+select utl_raw.cast_to_raw(10);
+select utl_raw.cast_to_varchar2('40');
+select utl_raw.cast_to_int('00000064', 1);
+select utl_raw.cast_to_int('00000064', 2);
+select utl_raw.cast_from_int(10);
+select utl_raw.cast_from_int(94311, 2);
+select utl_raw.cast_from_number(10);
+select utl_raw.xrange();
+select utl_raw.compare('0102', '0103', 'FF');
+select utl_raw.concat('01', '02', '03', '04', '05', '06');
+select utl_raw.substr(cast('4142434445' as varbinary(64)), 3);
+select utl_raw.overlay_raw('41', '424344');
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456, 1), 1);
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456, 2), 2);
+select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456, 3), 3);
+select utl_raw.cast_to_binary_double(utl_raw.cast_from_binary_double(123.5, 1), 1);
+select utl_raw.cast_to_binary_float(utl_raw.cast_from_binary_float(12.5, 2), 2);
+select utl_raw.cast_to_number(utl_raw.cast_from_number(12345.678));
+select dbms_random.random_string('X', 0);
+select dbms_random.value(-100, -10);
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select dbms_random.random_normal();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.random();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.random_string('U', 12);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.random_string('l', 12);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.random_string('A', 12);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.random_string('x', 12);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.random_string('P', 12);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.random_string('?', 12);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.string('U', 8);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.value();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.value(10);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.value(10, 100);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.value(100, 10);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_transaction.local_transaction_id(false);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_transaction.local_transaction_id(true);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_utility.format_error_stack();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_utility.get_hash_value('CODEX_DM8', 100, 1000);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_utility.get_time();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_utility.format_call_stack();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_utility.format_error_backtrace();
+----------
+[SELECT|CALL_PROG_OBJ] select utl_encode.base64_encode(cast('434F444558' as varbinary(64)));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_encode.base64_decode(utl_encode.base64_encode(cast('434F444558' as varbinary(64))));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_match.edit_distance('dameng', 'meng');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_match.edit_distance_similarity('china', 'chin');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_match.edit_distance('', 'DM8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_match.edit_distance('DM8', 'DM8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_match.edit_distance_similarity('DM8', 'DM8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_match.edit_distance(cast(null as varchar), 'DM8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.xrange(utl_raw.cast_to_raw('A'), utl_raw.cast_to_raw('Z'));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.bit_and('0102F3', 'F30201');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.bit_complement('0102F3');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.bit_or('0102F3', 'F30201');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.bit_xor('0102F3', 'F30201');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.compare(utl_raw.cast_to_raw('ABC'), utl_raw.cast_to_raw('ABCD'));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.concat('A', '41', 'B', '42');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.convert_raw('E4B8ADE69687', 'GBK', 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.convert_raw('D6D0CEC4', 'UTF8', 'GBK');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.copies('A', 6);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.length(utl_raw.cast_to_raw('ABCD'));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'), utl_raw.cast_to_raw('AAAC'), 1, 1);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.overlay_raw(utl_raw.cast_to_raw('D'), utl_raw.cast_to_raw('AAAC'), 1, 2, utl_raw.cast_to_raw(' '));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.reverse_raw(utl_raw.cast_to_raw('123'));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.substr(cast('414243444541424344454142434445' as varbinary(128)), 6, 2);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.translate(utl_raw.cast_to_raw('aDe'), utl_raw.cast_to_raw('AD'), utl_raw.cast_to_raw('ad'));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.transliterate(utl_raw.cast_to_raw('FaDe'), utl_raw.cast_to_raw('adef'), utl_raw.cast_to_raw('ADEF'), utl_raw.cast_to_raw(' '));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_raw(10);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_varchar2('40');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_int('00000064', 1);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_int('00000064', 2);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_from_int(10);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_from_int(94311, 2);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_from_number(10);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.xrange();
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.compare('0102', '0103', 'FF');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.concat('01', '02', '03', '04', '05', '06');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.substr(cast('4142434445' as varbinary(64)), 3);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.overlay_raw('41', '424344');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456, 1), 1);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456, 2), 2);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_binary_integer(utl_raw.cast_from_binary_integer(123456, 3), 3);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_binary_double(utl_raw.cast_from_binary_double(123.5, 1), 1);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_binary_float(utl_raw.cast_from_binary_float(12.5, 2), 2);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_raw.cast_to_number(utl_raw.cast_from_number(12345.678));
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.random_string('X', 0);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_random.value(-100, -10);

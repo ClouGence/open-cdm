@@ -1,0 +1,215 @@
+select cast(0 as boolean),cast(1 as boolean),
+  cast(-1 as boolean),cast(2 as boolean),cast(null as boolean) from dual;
+select cast(false as int),cast(true as int),
+  cast(cast(0 as boolean) as int),cast(cast(9 as boolean) as varchar(5))
+  from dual;
+select cast('1900-01-01 00:00:00.000000' as boolean),
+  cast('0' as boolean),cast('1' as boolean),cast('-7' as boolean) from dual;
+select case when cast(null as boolean) is null then 1 else 0 end,
+  case when cast('' as boolean) is null then 1 else 0 end,
+  cast('TRUE' as boolean),cast('FALSE' as boolean) from dual;
+select case when cast(0 as boolean) then 'T' else 'F' end,
+  case when cast(2 as boolean) then 'T' else 'F' end from dual;
+declare
+  b0 bool:=false;b1 boolean:=true;bn boolean:=null;
+  i0 int;i1 int;ineg int;bnot bool;
+begin
+  b0:=0;b1:=-7;i0:=cast(b0 as int);i1:=cast(b1 as int);
+  bnot:=not b0;ineg:=cast(bnot as int);
+  if b1 and not b0 or bn is null then
+    dbms_output.put_line('BOOL='||i0||','||i1||','||ineg);
+  end if;
+end;
+/
+declare
+  type bool_record is record(a bool,b boolean);
+  type bool_array is array boolean[3];
+  type bool_index is table of bool index by int;
+  r bool_record;a bool_array;t bool_index;
+begin
+  r.a:=true;r.b:=false;a[1]:=true;a[2]:=false;a[3]:=null;
+  t(1):=r.a;t(2):=a[2];
+  dbms_output.put_line(cast(t(1) as int)||','||cast(t(2) as int));
+end;
+/
+create function app.bool_f(p bool default true) return bool as
+begin return p; end;
+/
+create function app.boolean_f(p boolean default false)
+  return boolean as
+begin return not p; end;
+/
+select app.bool_f(true),app.bool_f(false),app.bool_f(2),
+  app.boolean_f(true),app.boolean_f(false),app.boolean_f(0) from dual;
+select cast(app.bool_f() as int),cast(app.boolean_f() as int) from dual;
+create procedure app.bool_p(
+  p_in bool,p_out out boolean,p_io in out bool) as
+begin p_out:=not p_in;p_io:=p_io and p_in;end;
+/
+declare o boolean;i bool:=true;
+begin app.bool_p(false,o,i);
+  dbms_output.put_line(cast(o as int)||','||cast(i as int));
+end;
+/
+create package app.bool_pkg as
+  g_bool bool:=true;function flip(p boolean) return bool;
+end;
+/
+create package body app.bool_pkg as
+  function flip(p boolean) return bool as begin return not p;end;
+end;
+/
+select app.bool_pkg.flip(true),app.bool_pkg.flip(false) from dual;
+create type app.bool_obj as object(b bool);
+/
+declare o app.bool_obj:=app.bool_obj(true);
+begin dbms_output.put_line(cast(o.b as int));end;
+/
+create table app.bool_obj_t(v app.bool_obj);
+insert into app.bool_obj_t values(app.bool_obj(true));
+select cast(t.v.b as int) from app.bool_obj_t t;
+create function app.bool_det_f(p boolean)
+  return boolean deterministic as
+begin return p;end;
+/
+select app.bool_det_f(true),app.bool_det_f(false) from dual;
+create table app.bool_expr(id int);
+insert into app.bool_expr values(0),(1),(2),(-1);
+select id,app.bool_f(id),app.boolean_f(id)
+  from app.bool_expr where app.bool_f(id) order by id;
+create table app.bad_bool_column(c bool);
+create table app.bad_boolean_column(c boolean);
+create index app.bad_bool_idx on app.bool_expr(app.bool_det_f(id));
+create function app.bad_bool_arg_f(p bool(1)) return int as
+begin return 1;end;
+/
+select cast(1 as boolean(1)) from dual;
+drop package app.bool_pkg;
+drop procedure app.bool_p;
+drop function app.bool_f;
+drop function app.boolean_f;
+drop function app.bool_det_f;
+drop table app.bool_obj_t;
+drop type app.bool_obj;
+drop table app.bool_expr;
+------------------------------------------------------------------------------------------
+[SELECT] select cast(0 as boolean),cast(1 as boolean),
+  cast(-1 as boolean),cast(2 as boolean),cast(null as boolean) from dual;
+----------
+[SELECT] select cast(false as int),cast(true as int),
+  cast(cast(0 as boolean) as int),cast(cast(9 as boolean) as varchar(5))
+  from dual;
+----------
+[SELECT] select cast('1900-01-01 00:00:00.000000' as boolean),
+  cast('0' as boolean),cast('1' as boolean),cast('-7' as boolean) from dual;
+----------
+[SELECT] select case when cast(null as boolean) is null then 1 else 0 end,
+  case when cast('' as boolean) is null then 1 else 0 end,
+  cast('TRUE' as boolean),cast('FALSE' as boolean) from dual;
+----------
+[SELECT] select case when cast(0 as boolean) then 'T' else 'F' end,
+  case when cast(2 as boolean) then 'T' else 'F' end from dual;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  b0 bool:=false;b1 boolean:=true;bn boolean:=null;
+  i0 int;i1 int;ineg int;bnot bool;
+begin
+  b0:=0;b1:=-7;i0:=cast(b0 as int);i1:=cast(b1 as int);
+  bnot:=not b0;ineg:=cast(bnot as int);
+  if b1 and not b0 or bn is null then
+    dbms_output.put_line('BOOL='||i0||','||i1||','||ineg);
+  end if;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  type bool_record is record(a bool,b boolean);
+  type bool_array is array boolean[3];
+  type bool_index is table of bool index by int;
+  r bool_record;a bool_array;t bool_index;
+begin
+  r.a:=true;r.b:=false;a[1]:=true;a[2]:=false;a[3]:=null;
+  t(1):=r.a;t(2):=a[2];
+  dbms_output.put_line(cast(t(1) as int)||','||cast(t(2) as int));
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.bool_f(p bool default true) return bool as
+begin return p; end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.boolean_f(p boolean default false)
+  return boolean as
+begin return not p; end;
+----------
+[SELECT|CALL_PROG_OBJ] select app.bool_f(true),app.bool_f(false),app.bool_f(2),
+  app.boolean_f(true),app.boolean_f(false),app.boolean_f(0) from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select cast(app.bool_f() as int),cast(app.boolean_f() as int) from dual;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create procedure app.bool_p(
+  p_in bool,p_out out boolean,p_io in out bool) as
+begin p_out:=not p_in;p_io:=p_io and p_in;end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare o boolean;i bool:=true;
+begin app.bool_p(false,o,i);
+  dbms_output.put_line(cast(o as int)||','||cast(i as int));
+end;
+----------
+[CREATE_PROG_OBJ] create package app.bool_pkg as
+  g_bool bool:=true;function flip(p boolean) return bool;
+end;
+----------
+[CREATE_PROG_OBJ(PROGRAM_CONTROL)] create package body app.bool_pkg as
+  function flip(p boolean) return bool as begin return not p;end;
+end;
+----------
+[SELECT|CALL_PROG_OBJ] select app.bool_pkg.flip(true),app.bool_pkg.flip(false) from dual;
+----------
+[CREATE_TYPE] create type app.bool_obj as object(b bool);
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare o app.bool_obj:=app.bool_obj(true);
+begin dbms_output.put_line(cast(o.b as int));end;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bool_obj_t(v app.bool_obj);
+----------
+[INSERT|CALL_PROG_OBJ] insert into app.bool_obj_t values(app.bool_obj(true));
+----------
+[SELECT] select cast(t.v.b as int) from app.bool_obj_t t;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.bool_det_f(p boolean)
+  return boolean deterministic as
+begin return p;end;
+----------
+[SELECT|CALL_PROG_OBJ] select app.bool_det_f(true),app.bool_det_f(false) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bool_expr(id int);
+----------
+[INSERT] insert into app.bool_expr values(0),(1),(2),(-1);
+----------
+[SELECT|CALL_PROG_OBJ] select id,app.bool_f(id),app.boolean_f(id)
+  from app.bool_expr where app.bool_f(id) order by id;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_bool_column(c bool);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_boolean_column(c boolean);
+----------
+[ADD_INDEX|CALL_PROG_OBJ] create index app.bad_bool_idx on app.bool_expr(app.bool_det_f(id));
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.bad_bool_arg_f(p bool(1)) return int as
+begin return 1;end;
+----------
+[SELECT] select cast(1 as boolean(1)) from dual;
+----------
+[DROP_PROG_OBJ] drop package app.bool_pkg;
+----------
+[DROP_PROG_OBJ] drop procedure app.bool_p;
+----------
+[DROP_PROG_OBJ] drop function app.bool_f;
+----------
+[DROP_PROG_OBJ] drop function app.boolean_f;
+----------
+[DROP_PROG_OBJ] drop function app.bool_det_f;
+----------
+[DROP_TABLE] drop table app.bool_obj_t;
+----------
+[DROP_TYPE] drop type app.bool_obj;
+----------
+[DROP_TABLE] drop table app.bool_expr;

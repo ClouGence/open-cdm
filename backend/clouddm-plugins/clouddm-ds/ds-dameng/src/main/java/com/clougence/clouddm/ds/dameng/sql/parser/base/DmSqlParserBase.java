@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.dameng.sql.parser.base;
 
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -35,6 +36,48 @@ public abstract class DmSqlParserBase extends Parser {
 
     protected boolean isKeywordAhead(String keyword) {
         return _input.LT(1).getText().equalsIgnoreCase(keyword);
+    }
+
+    protected final boolean isSchemaDefinitionCreateAhead() {
+        int offset = 1;
+        if (_input.LA(offset) != DmSqlParser.CREATE) {
+            return false;
+        }
+        offset++;
+        if (_input.LA(offset) == DmSqlParser.OR && _input.LA(offset + 1) == DmSqlParser.REPLACE) {
+            offset += 2;
+        }
+        int type = _input.LA(offset);
+        if (type == DmSqlParser.PUBLIC) {
+            return _input.LA(offset + 1) == DmSqlParser.SYNONYM
+                || _input.LA(offset + 1) == DmSqlParser.LINK;
+        }
+        if (type == DmSqlParser.EXTERNAL) {
+            return _input.LA(offset + 1) == DmSqlParser.TABLE;
+        }
+        if (type == DmSqlParser.MATERIALIZED) {
+            return _input.LA(offset + 1) == DmSqlParser.VIEW;
+        }
+        if (type == DmSqlParser.CONTEXT || type == DmSqlParser.CLUSTER) {
+            return _input.LA(offset + 1) == DmSqlParser.INDEX;
+        }
+        return type == DmSqlParser.TABLE
+            || type == DmSqlParser.GLOBAL
+            || type == DmSqlParser.LOCAL
+            || type == DmSqlParser.TEMPORARY
+            || type == DmSqlParser.HUGE
+            || type == DmSqlParser.VIEW
+            || type == DmSqlParser.INDEX
+            || type == DmSqlParser.SEQUENCE
+            || type == DmSqlParser.PROCEDURE
+            || type == DmSqlParser.FUNCTION
+            || type == DmSqlParser.TRIGGER
+            || type == DmSqlParser.SYNONYM
+            || type == DmSqlParser.DOMAIN
+            || type == DmSqlParser.OPERATOR
+            || type == DmSqlParser.LINK
+            || type == DmSqlParser.PACKAGE
+            || type == DmSqlParser.CLASS;
     }
 
     protected boolean isCreateTableSelectTailAhead() {
@@ -62,6 +105,7 @@ public abstract class DmSqlParserBase extends Parser {
             case DmSqlParser.NATURAL:
             case DmSqlParser.APPLY:
             case DmSqlParser.PARTITION:
+            case DmSqlParser.SUBPARTITION:
             case DmSqlParser.MODEL:
             case DmSqlParser.PIVOT:
             case DmSqlParser.UNPIVOT:
@@ -126,6 +170,83 @@ public abstract class DmSqlParserBase extends Parser {
             index++;
         }
         return index == length;
+    }
+
+    protected boolean isUnsignedIntegerInRangeAhead(long minimum, long maximum) {
+        if (!isUnsignedIntegerNumberAhead()) {
+            return false;
+        }
+        return isUnsignedIntegerInRange(_input.LT(1).getText(), minimum, maximum);
+    }
+
+    protected boolean isUnsignedIntegerInRange(String text, long minimum, long maximum) {
+        try {
+            long value = new BigDecimal(text).longValueExact();
+            return value >= minimum && value <= maximum;
+        } catch (ArithmeticException | NumberFormatException e) {
+            return false;
+        }
+    }
+
+    protected boolean isValidArrayDeclaration(String dataType) {
+        int openBracket = dataType.indexOf('[');
+        if (openBracket < 0 || dataType.charAt(dataType.length() - 1) != ']') {
+            return false;
+        }
+        String bounds = dataType.substring(openBracket + 1, dataType.length() - 1);
+        if (bounds.isEmpty()) {
+            return true;
+        }
+
+        boolean hasNumber = false;
+        boolean hasComma = false;
+        boolean expectNumber = true;
+        for (int index = 0; index < bounds.length(); index++) {
+            char current = bounds.charAt(index);
+            if (Character.isDigit(current)) {
+                hasNumber = true;
+                expectNumber = false;
+            } else if (current == ',') {
+                hasComma = true;
+                if (hasNumber && expectNumber) {
+                    return false;
+                }
+                expectNumber = true;
+            } else {
+                return false;
+            }
+        }
+        return !hasNumber || !expectNumber || hasComma && !hasNumber;
+    }
+
+    protected boolean isValidArrayAllocation(String dataType) {
+        int openBracket = dataType.indexOf('[');
+        while (openBracket >= 0) {
+            int closeBracket = dataType.indexOf(']', openBracket + 1);
+            if (closeBracket < 0) {
+                return false;
+            }
+            if (closeBracket > openBracket + 1) {
+                return true;
+            }
+            openBracket = dataType.indexOf('[', closeBracket + 1);
+        }
+        return false;
+    }
+
+    protected boolean isStringLiteralAhead(String... supportedValues) {
+        String text = _input.LT(1).getText();
+        if (text == null || text.length() < 2
+            || text.charAt(0) != '\'' || text.charAt(text.length() - 1) != '\'') {
+            return false;
+        }
+        String value = text.substring(1, text.length() - 1).replace("''", "'");
+        for (String supportedValue : supportedValues) {
+            if (value.equalsIgnoreCase(supportedValue)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected void pushSiblingsOrderScope() {

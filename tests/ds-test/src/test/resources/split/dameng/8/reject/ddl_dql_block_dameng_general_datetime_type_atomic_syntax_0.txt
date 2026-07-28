@@ -1,0 +1,21 @@
+create table app.bad_dt_s01(c time());
+create table app.bad_dt_s02(c timestamp());
+create table app.bad_dt_s03(c datetime());
+create table app.bad_dt_s04(c time(-1));
+create table app.bad_dt_s05(c timestamp(-1));
+create table app.bad_dt_s06(c datetime(-1));
+create function app.bad_dt_f(p timestamp()) return int as begin return 1;end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_dt_s01(c time());
+----------
+[CREATE_TABLE] create table app.bad_dt_s02(c timestamp());
+----------
+[CREATE_TABLE] create table app.bad_dt_s03(c datetime());
+----------
+[CREATE_TABLE] create table app.bad_dt_s04(c time(-1));
+----------
+[CREATE_TABLE] create table app.bad_dt_s05(c timestamp(-1));
+----------
+[CREATE_TABLE] create table app.bad_dt_s06(c datetime(-1));
+----------
+[CREATE_PROG_OBJ] create function app.bad_dt_f(p timestamp()) return int as begin return 1;end;/

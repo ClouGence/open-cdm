@@ -1,0 +1,152 @@
+declare
+  major_version int;
+  minor_version int;
+begin
+  dbms_debug.probe_version(major_version, minor_version);
+  merge into CODEX_DM8_DEBUG_CTL t
+  using (select 'PROBE_VERSION' label, major_version || '.' || minor_version text_value from dual) s
+  on (t.label=s.label)
+  when matched then update set t.text_value=s.text_value
+  when not matched then insert(label, text_value) values(s.label, s.text_value);
+  commit;
+end;
+/
+call dbms_debug.debug_on();
+call dbms_debug.attach_session('CODEX_DEBUG_20260722');
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug.get_runtime_info(
+    dbms_debug.info_getBreakpoint + dbms_debug.info_getLineinfo,
+    run_info
+  );
+end;
+/
+declare
+  bp int;
+  rc int;
+begin
+  rc := dbms_debug.set_breakpoint(null, 1, bp);
+end;
+/
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug."CONTINUE"(
+    run_info,
+    0,
+    dbms_debug.info_getBreakpoint + dbms_debug.info_getLineinfo
+  );
+end;
+/
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug."CONTINUE"(
+    run_info,
+    dbms_debug.break_any_call,
+    dbms_debug.info_getBreakpoint + dbms_debug.info_getLineinfo
+      + dbms_debug.info_getStackDepth + dbms_debug.info_getOerInfo
+  );
+end;
+/
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  loop
+    rc := dbms_debug."CONTINUE"(run_info, 0, dbms_debug.info_getLineinfo);
+    exit when rc <> dbms_debug.success;
+  end loop;
+end;
+/
+declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug."CONTINUE"(run_info, 0, 0);
+end;
+/
+call dbms_debug.detach_session();
+call dbms_debug.debug_off();
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,MERGE,SELECT,TRANSACTION)] declare
+  major_version int;
+  minor_version int;
+begin
+  dbms_debug.probe_version(major_version, minor_version);
+  merge into CODEX_DM8_DEBUG_CTL t
+  using (select 'PROBE_VERSION' label, major_version || '.' || minor_version text_value from dual) s
+  on (t.label=s.label)
+  when matched then update set t.text_value=s.text_value
+  when not matched then insert(label, text_value) values(s.label, s.text_value);
+  commit;
+end;
+----------
+[CALL_PROG_OBJ] call dbms_debug.debug_on();
+----------
+[CALL_PROG_OBJ] call dbms_debug.attach_session('CODEX_DEBUG_20260722');
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug.get_runtime_info(
+    dbms_debug.info_getBreakpoint + dbms_debug.info_getLineinfo,
+    run_info
+  );
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  bp int;
+  rc int;
+begin
+  rc := dbms_debug.set_breakpoint(null, 1, bp);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug."CONTINUE"(
+    run_info,
+    0,
+    dbms_debug.info_getBreakpoint + dbms_debug.info_getLineinfo
+  );
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug."CONTINUE"(
+    run_info,
+    dbms_debug.break_any_call,
+    dbms_debug.info_getBreakpoint + dbms_debug.info_getLineinfo
+      + dbms_debug.info_getStackDepth + dbms_debug.info_getOerInfo
+  );
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  loop
+    rc := dbms_debug."CONTINUE"(run_info, 0, dbms_debug.info_getLineinfo);
+    exit when rc <> dbms_debug.success;
+  end loop;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  run_info dbms_debug.runtime_info;
+  rc int;
+begin
+  rc := dbms_debug."CONTINUE"(run_info, 0, 0);
+end;
+----------
+[CALL_PROG_OBJ] call dbms_debug.detach_session();
+----------
+[CALL_PROG_OBJ] call dbms_debug.debug_off();

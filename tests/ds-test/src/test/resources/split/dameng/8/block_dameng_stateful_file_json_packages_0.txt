@@ -1,0 +1,214 @@
+call dbms_lock.sleep(0);
+call dbms_lock.sleep(0.01);
+declare ret int; begin ret := dbms_lock.request(901009, 4, 0, false); ret := dbms_lock.convert2(901009, 6, 0); ret := dbms_lock.release(901009); end;
+/
+declare hdl varchar(128); ret int; begin dbms_lock.allocate_unique('CODEX_DM8_LOCK_010', hdl, 1); ret := dbms_lock.request(hdl, 4, 0, false); ret := dbms_lock.release(hdl); end;
+/
+declare hdl varchar(128); ret int; begin dbms_lock.allocate_unique('CODEX_DM8_LOCK_011', hdl); ret := dbms_lock.request(hdl, 2, 0, true); end;
+/
+declare ret int; begin ret := dbms_lock.request(901012); ret := dbms_lock.release(901012); end;
+/
+declare ret int; begin ret := dbms_lock.request(901013, 4, 0, false); ret := dbms_lock."CONVERT"(901013, 5, 0); ret := dbms_lock.release(901013); end;
+/
+declare ret int; begin ret := dbms_pipe.create_pipe('CODEX_DM8_PIPE_019'); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_019'); end;
+/
+begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('CODEX'); dbms_pipe.reset_buffer(); end;
+/
+begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(22 as int)); dbms_pipe.pack_message(cast(23 as bigint)); dbms_pipe.pack_message(cast(24.5 as double)); dbms_pipe.reset_buffer(); end;
+/
+begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(25.5 as number)); dbms_pipe.pack_message(cast('2026-07-22' as date)); dbms_pipe.reset_buffer(); end;
+/
+declare ret int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('PIPE_024'); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_024', 0, 8192); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_024'); end;
+/
+declare ret int; value varchar(128); begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('PIPE_026'); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_026', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_026', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_026'); end;
+/
+declare ret int; value int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(27 as int)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_027', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_027', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_027'); end;
+/
+declare ret int; value bigint; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(28 as bigint)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_028', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_028', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_028'); end;
+/
+declare ret int; value double; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(29.5 as double)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_029', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_029', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_029'); end;
+/
+declare ret int; value number; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(30.5 as number)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_030', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_030', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_030'); end;
+/
+declare ret int; value date; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast('2026-07-22' as date)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_031', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_031', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_031'); end;
+/
+declare ret int; item_type int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('PIPE_033'); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_033', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_033', 0); item_type := dbms_pipe.next_item_type(); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_033'); end;
+/
+declare ret int; begin ret := dbms_pipe.create_pipe('CODEX_DM8_PIPE_034', 16384, true); dbms_pipe.purge('CODEX_DM8_PIPE_034'); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_034'); end;
+/
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_046.txt', 'W'); utl_file.put_line(f, 'CODEX'); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_046.txt'); end;
+/
+declare f utl_file.file_type; opened boolean; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_047.txt', 'W', 32767); opened := utl_file.is_open(f); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_047.txt'); end;
+/
+declare f utl_file.file_type; pos int; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_048.txt', 'W'); utl_file.put(f, 'CODEX'); pos := utl_file.fgetpos(f); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_048.txt'); end;
+/
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_049.txt', 'W'); utl_file.put(f, 'A'); utl_file.new_line(f, 2); utl_file.put_line(f, 'B', true); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_049.txt'); end;
+/
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_050.txt', 'W'); utl_file.putf(f, '%s-%s-%s', 'A', 'B', 'C'); utl_file.fflush(f); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_050.txt'); end;
+/
+declare f utl_file.file_type; value varchar(128); begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_051.txt', 'W'); utl_file.put_line(f, 'READ_051'); utl_file.fclose(f); f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_051.txt', 'R'); utl_file.get_line(f, value); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_051.txt'); end;
+/
+declare f utl_file.file_type; value varchar(128); begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_052.txt', 'W'); utl_file.put_line(f, 'READ_052'); utl_file.fclose(f); f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_052.txt', 'R'); utl_file.get_line(f, value, 8); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_052.txt'); end;
+/
+declare f utl_file.file_type; exists_flag boolean; file_length number; block_size number; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_053.txt', 'W'); utl_file.put_line(f, 'ATTR'); utl_file.fclose(f); utl_file.fgetattr('CODEX_DM8_UTL_DIR', 'case_053.txt', exists_flag, file_length, block_size); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_053.txt'); end;
+/
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_054_a.txt', 'W'); utl_file.put_line(f, 'RENAME'); utl_file.fclose(f); utl_file.frename('CODEX_DM8_UTL_DIR', 'case_054_a.txt', 'CODEX_DM8_UTL_DIR', 'case_054_b.txt', true); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_054_b.txt'); end;
+/
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_055_a.txt', 'W'); utl_file.put_line(f, 'COPY'); utl_file.fclose(f); utl_file.fcopy('CODEX_DM8_UTL_DIR', 'case_055_a.txt', 'CODEX_DM8_UTL_DIR', 'case_055_b.txt'); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_055_a.txt'); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_055_b.txt'); end;
+/
+declare f utl_file.file_type; value varchar(128); begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_056.txt', 'W'); utl_file.put_line(f, 'SEEK_056'); utl_file.fclose(f); f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_056.txt', 'R'); utl_file.fseek(f, 0, null); utl_file.get_line(f, value); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_056.txt'); end;
+/
+declare f utl_file.file_type; begin f := utl_file.fopen_nchar('CODEX_DM8_UTL_DIR', 'case_057.txt', 'W'); utl_file.put_line_nchar(f, 'CODEX_NCHAR', true); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_057.txt'); end;
+/
+begin utl_file.fclose_all(); end;
+/
+declare dom jdom_t := jdom_t.parse('{"AGE":123}'); value number; begin value := dom.get_number('AGE'); end;
+/
+declare dom jdom_t := jdom_t.parse('{"A":1}'); ret boolean; value varchar(32767); begin ret := dom.put('B', 'CODEX'); value := dom.to_string(); end;
+/
+declare dom jdom_t := jdom_t.parse('[1,2]'); ret boolean; value varchar(32767); begin ret := dom.put(1, 'CODEX', false); value := dom.stringify(); end;
+/
+declare dom jdom_t := jdom_t.parse('{"A":1,"B":2,"C":3}'); cloned jdom_t; ret boolean; keys json_key_list; begin cloned := dom.clone(); ret := cloned.remove('B'); keys := dom.get_keys(); end;
+/
+declare dom jdom_t := jdom_t.create_arr(); item jdom_t; ret boolean; begin ret := dom.append(1); ret := dom.append_null(); item := dom."GET"(0); ret := dom.put_null(0, true); ret := dom.put(1, 20, true); end;
+/
+declare dom jdom_t := jdom_t.parse('[1,"ABC",[2],{"A":1}]'); size_value number; type_value varchar(128); begin size_value := dom.get_size(); type_value := dom.get_type(0); type_value := dom.get_type(1); type_value := dom.get_type(2); type_value := dom.get_type(3); end;
+/
+declare dom jdom_t := jdom_t.parse('{"A":13,"B":14}'); ret boolean; begin if dom.has_key('A') then ret := dom.rename_key('A', 'A1'); end if; end;
+/
+declare dom jdom_t := jdom_t.create_obj(); value varchar(32767); begin value := dom.stringify(); end;
+/
+declare dom jdom_t := jdom_t.parse('true'); value boolean; begin value := dom.to_boolean(); end;
+/
+declare dom jdom_t := jdom_t.parse('123.5'); value number; begin value := dom.to_number(); end;
+/
+declare dom jdom_t := jdom_t.parse('"2026-07-22"'); value date; begin value := dom.to_date(); end;
+/
+declare dom jdom_t := jdom_t.parse('"2026-07-22 03:04:05"'); value timestamp; begin value := dom.to_timestamp(); end;
+/
+declare dom jdom_t := jdom_t.parse('{}'); value boolean; begin value := dom.is_object(); value := dom.is_array(); value := dom.is_scalar(); end;
+/
+declare dom jdom_t := jdom_t.parse('"CODEX"'); value boolean; begin value := dom.is_string(); value := dom.is_number(); value := dom.is_boolean(); value := dom.is_null(); end;
+/
+declare dom jdom_t := jdom_t.parse('false'); value boolean; begin value := dom.is_true(); value := dom.is_false(); end;
+/
+declare arr json_array_t := json_array_t.parse('[1,2]'); value number; begin value := arr.get_number(0); arr.append(3); arr.put(1, 4, true); arr.remove(0); end;
+/
+declare arr json_array_t := json_array_t(); value varchar(32767); begin arr.append('CODEX'); arr.append_null(); value := arr.stringify(); end;
+/
+declare obj json_object_t := json_object_t.parse('{"A":1}'); value number; begin value := obj.get_number('A'); obj.put('B', 2); obj.put_null('C'); obj.rename_key('B', 'B2'); obj.remove('C'); end;
+/
+declare obj json_object_t := json_object_t(); value varchar(32767); begin obj.put('A', 'CODEX'); value := obj.get_string('A'); value := obj.get_type('A'); end;
+/
+declare elem json_element_t := json_element_t.parse('[1,2]'); value boolean; size_value number; begin value := elem.is_array(); size_value := elem.get_size(); end;
+/
+declare obj json_object_t := json_object_t.parse('{"A":{"B":1},"C":[2]}'); child_obj json_object_t; child_arr json_array_t; begin child_obj := obj.get_object('A'); child_arr := obj.get_array('C'); end;
+/
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] call dbms_lock.sleep(0);
+----------
+[CALL_PROG_OBJ] call dbms_lock.sleep(0.01);
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; begin ret := dbms_lock.request(901009, 4, 0, false); ret := dbms_lock.convert2(901009, 6, 0); ret := dbms_lock.release(901009); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare hdl varchar(128); ret int; begin dbms_lock.allocate_unique('CODEX_DM8_LOCK_010', hdl, 1); ret := dbms_lock.request(hdl, 4, 0, false); ret := dbms_lock.release(hdl); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare hdl varchar(128); ret int; begin dbms_lock.allocate_unique('CODEX_DM8_LOCK_011', hdl); ret := dbms_lock.request(hdl, 2, 0, true); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; begin ret := dbms_lock.request(901012); ret := dbms_lock.release(901012); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; begin ret := dbms_lock.request(901013, 4, 0, false); ret := dbms_lock."CONVERT"(901013, 5, 0); ret := dbms_lock.release(901013); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; begin ret := dbms_pipe.create_pipe('CODEX_DM8_PIPE_019'); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_019'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('CODEX'); dbms_pipe.reset_buffer(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(22 as int)); dbms_pipe.pack_message(cast(23 as bigint)); dbms_pipe.pack_message(cast(24.5 as double)); dbms_pipe.reset_buffer(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(25.5 as number)); dbms_pipe.pack_message(cast('2026-07-22' as date)); dbms_pipe.reset_buffer(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('PIPE_024'); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_024', 0, 8192); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_024'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; value varchar(128); begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('PIPE_026'); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_026', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_026', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_026'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; value int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(27 as int)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_027', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_027', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_027'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; value bigint; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(28 as bigint)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_028', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_028', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_028'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; value double; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(29.5 as double)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_029', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_029', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_029'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; value number; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(30.5 as number)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_030', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_030', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_030'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; value date; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast('2026-07-22' as date)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_031', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_031', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_031'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; item_type int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('PIPE_033'); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_033', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_033', 0); item_type := dbms_pipe.next_item_type(); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_033'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare ret int; begin ret := dbms_pipe.create_pipe('CODEX_DM8_PIPE_034', 16384, true); dbms_pipe.purge('CODEX_DM8_PIPE_034'); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_034'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_046.txt', 'W'); utl_file.put_line(f, 'CODEX'); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_046.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; opened boolean; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_047.txt', 'W', 32767); opened := utl_file.is_open(f); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_047.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; pos int; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_048.txt', 'W'); utl_file.put(f, 'CODEX'); pos := utl_file.fgetpos(f); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_048.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_049.txt', 'W'); utl_file.put(f, 'A'); utl_file.new_line(f, 2); utl_file.put_line(f, 'B', true); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_049.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_050.txt', 'W'); utl_file.putf(f, '%s-%s-%s', 'A', 'B', 'C'); utl_file.fflush(f); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_050.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; value varchar(128); begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_051.txt', 'W'); utl_file.put_line(f, 'READ_051'); utl_file.fclose(f); f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_051.txt', 'R'); utl_file.get_line(f, value); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_051.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; value varchar(128); begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_052.txt', 'W'); utl_file.put_line(f, 'READ_052'); utl_file.fclose(f); f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_052.txt', 'R'); utl_file.get_line(f, value, 8); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_052.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; exists_flag boolean; file_length number; block_size number; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_053.txt', 'W'); utl_file.put_line(f, 'ATTR'); utl_file.fclose(f); utl_file.fgetattr('CODEX_DM8_UTL_DIR', 'case_053.txt', exists_flag, file_length, block_size); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_053.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_054_a.txt', 'W'); utl_file.put_line(f, 'RENAME'); utl_file.fclose(f); utl_file.frename('CODEX_DM8_UTL_DIR', 'case_054_a.txt', 'CODEX_DM8_UTL_DIR', 'case_054_b.txt', true); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_054_b.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_055_a.txt', 'W'); utl_file.put_line(f, 'COPY'); utl_file.fclose(f); utl_file.fcopy('CODEX_DM8_UTL_DIR', 'case_055_a.txt', 'CODEX_DM8_UTL_DIR', 'case_055_b.txt'); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_055_a.txt'); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_055_b.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; value varchar(128); begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_056.txt', 'W'); utl_file.put_line(f, 'SEEK_056'); utl_file.fclose(f); f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_056.txt', 'R'); utl_file.fseek(f, 0, null); utl_file.get_line(f, value); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_056.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare f utl_file.file_type; begin f := utl_file.fopen_nchar('CODEX_DM8_UTL_DIR', 'case_057.txt', 'W'); utl_file.put_line_nchar(f, 'CODEX_NCHAR', true); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_057.txt'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin utl_file.fclose_all(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('{"AGE":123}'); value number; begin value := dom.get_number('AGE'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('{"A":1}'); ret boolean; value varchar(32767); begin ret := dom.put('B', 'CODEX'); value := dom.to_string(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('[1,2]'); ret boolean; value varchar(32767); begin ret := dom.put(1, 'CODEX', false); value := dom.stringify(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('{"A":1,"B":2,"C":3}'); cloned jdom_t; ret boolean; keys json_key_list; begin cloned := dom.clone(); ret := cloned.remove('B'); keys := dom.get_keys(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.create_arr(); item jdom_t; ret boolean; begin ret := dom.append(1); ret := dom.append_null(); item := dom."GET"(0); ret := dom.put_null(0, true); ret := dom.put(1, 20, true); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('[1,"ABC",[2],{"A":1}]'); size_value number; type_value varchar(128); begin size_value := dom.get_size(); type_value := dom.get_type(0); type_value := dom.get_type(1); type_value := dom.get_type(2); type_value := dom.get_type(3); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('{"A":13,"B":14}'); ret boolean; begin if dom.has_key('A') then ret := dom.rename_key('A', 'A1'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.create_obj(); value varchar(32767); begin value := dom.stringify(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('true'); value boolean; begin value := dom.to_boolean(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('123.5'); value number; begin value := dom.to_number(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('"2026-07-22"'); value date; begin value := dom.to_date(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('"2026-07-22 03:04:05"'); value timestamp; begin value := dom.to_timestamp(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('{}'); value boolean; begin value := dom.is_object(); value := dom.is_array(); value := dom.is_scalar(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('"CODEX"'); value boolean; begin value := dom.is_string(); value := dom.is_number(); value := dom.is_boolean(); value := dom.is_null(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare dom jdom_t := jdom_t.parse('false'); value boolean; begin value := dom.is_true(); value := dom.is_false(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare arr json_array_t := json_array_t.parse('[1,2]'); value number; begin value := arr.get_number(0); arr.append(3); arr.put(1, 4, true); arr.remove(0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare arr json_array_t := json_array_t(); value varchar(32767); begin arr.append('CODEX'); arr.append_null(); value := arr.stringify(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare obj json_object_t := json_object_t.parse('{"A":1}'); value number; begin value := obj.get_number('A'); obj.put('B', 2); obj.put_null('C'); obj.rename_key('B', 'B2'); obj.remove('C'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare obj json_object_t := json_object_t(); value varchar(32767); begin obj.put('A', 'CODEX'); value := obj.get_string('A'); value := obj.get_type('A'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare elem json_element_t := json_element_t.parse('[1,2]'); value boolean; size_value number; begin value := elem.is_array(); size_value := elem.get_size(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare obj json_object_t := json_object_t.parse('{"A":{"B":1},"C":[2]}'); child_obj json_object_t; child_arr json_array_t; begin child_obj := obj.get_object('A'); child_arr := obj.get_array('C'); end;

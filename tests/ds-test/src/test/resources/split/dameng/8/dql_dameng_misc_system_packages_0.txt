@@ -1,0 +1,135 @@
+select dbms_binary.binary_get_char(cast('41424344' as varbinary(16)), 0);
+select dbms_binary.binary_get_varchar(cast('41424344' as varbinary(16)), 0, 4);
+select dbms_binary.binary_get_tinyint(cast('7F00000000000000' as varbinary(16)), 0);
+select dbms_binary.binary_get_smallint(cast('007F000000000000' as varbinary(16)), 0);
+select dbms_binary.binary_get_int(cast('0000007F00000000' as varbinary(16)), 0);
+select dbms_binary.binary_get_bigint(cast('000000000000007F' as varbinary(16)), 0);
+select dbms_binary.binary_get_float(cast('3F80000000000000' as varbinary(16)), 0);
+select dbms_binary.binary_get_double(cast('3FF0000000000000' as varbinary(16)), 0);
+select dbms_binary.binary_get_char(cast('41424344' as varbinary(16)), null);
+select dbms_binary.binary_get_varchar(cast('41424344' as varbinary(16)), 1, 2);
+select utl_url.escape('http://www.dameng.com/a url with space.html', false, 'UTF8');
+select utl_url.escape('a+b=c' || chr(38) || 'd=e', true, 'UTF8');
+select utl_url.escape('a+b=c' || chr(38) || 'd=e', false, 'UTF8');
+select utl_url.escape('CODEX_DM8-._~', false, 'UTF8');
+select utl_url.unescape('http://www.dameng.com/a%20url%20with%20space.html', 'UTF8');
+select utl_url.unescape('a%2Bb%3Dc%26d%3De', 'UTF8');
+select utl_url.unescape(utl_url.escape('A B/C?D=E', true, 'UTF8'), 'UTF8');
+select utl_url.escape('ASCII VALUE', reserved => false, pgtype => 'GBK');
+select utl_url.unescape('ASCII%20VALUE', pgtype => 'GBK');
+select utl_url.escape(null, false, 'UTF8');
+select utl_inaddr.get_host_address('localhost');
+select utl_inaddr.get_host_name('127.0.0.1');
+select utl_inaddr.get_host_address();
+select utl_inaddr.get_host_name();
+select utl_inaddr.get_host_address(host => 'localhost');
+select utl_inaddr.get_host_name(ip => '127.0.0.1');
+select utl_i18n.string_to_raw('abcdef', 'UTF8');
+select utl_i18n.string_to_raw('abcdef', 'GBK');
+select utl_i18n.string_to_raw('CODEX DM8', 'ISO_8859_1');
+select utl_i18n.raw_to_char(cast('616263646566' as varbinary(32)), 'UTF8');
+select utl_i18n.raw_to_char(cast('616263' as varbinary(32)), 'GBK');
+select utl_i18n.raw_to_char(utl_i18n.string_to_raw('ASCII', 'UTF8'), 'UTF8');
+select utl_i18n.escape_reference('<A' || chr(38) || 'B>');
+select utl_i18n.escape_reference('"CODEX" and ''DM8''', 'UTF8');
+select utl_i18n.unescape_reference(chr(38) || 'lt;A' || chr(38) || 'amp;B' || chr(38) || 'gt;');
+select utl_i18n.unescape_reference(utl_i18n.escape_reference('<CODEX_DM8>'));
+select utl_i18n.string_to_raw('ASCII', dst_charset => 'UTF8');
+select utl_i18n.raw_to_char(cast('4153434949' as varbinary(32)), src_charset => 'UTF8');
+select count(*) from CODEX_DM8_ERR_LOG;
+select count(*) from CODEX_DM8_ERR_LOG where DM_ERR_TAG$ is not null;
+select DM_ERR_NUMBER$, DM_ERR_OPTYPE$, DM_ERR_TAG$ from CODEX_DM8_ERR_LOG order by DM_ERR_TAG$;
+select count(*) from ERR$_CODEX_DM8_ERR_DEFAULT;
+select count(*) from CODEX_DM8_ERR_SKIP_LOG;
+select count(*) from CODEX_DM8_MV_A;
+select row_count, total_amount from CODEX_DM8_MV_B;
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_char(cast('41424344' as varbinary(16)), 0);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_varchar(cast('41424344' as varbinary(16)), 0, 4);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_tinyint(cast('7F00000000000000' as varbinary(16)), 0);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_smallint(cast('007F000000000000' as varbinary(16)), 0);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_int(cast('0000007F00000000' as varbinary(16)), 0);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_bigint(cast('000000000000007F' as varbinary(16)), 0);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_float(cast('3F80000000000000' as varbinary(16)), 0);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_double(cast('3FF0000000000000' as varbinary(16)), 0);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_char(cast('41424344' as varbinary(16)), null);
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_binary.binary_get_varchar(cast('41424344' as varbinary(16)), 1, 2);
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.escape('http://www.dameng.com/a url with space.html', false, 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.escape('a+b=c' || chr(38) || 'd=e', true, 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.escape('a+b=c' || chr(38) || 'd=e', false, 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.escape('CODEX_DM8-._~', false, 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.unescape('http://www.dameng.com/a%20url%20with%20space.html', 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.unescape('a%2Bb%3Dc%26d%3De', 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.unescape(utl_url.escape('A B/C?D=E', true, 'UTF8'), 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.escape('ASCII VALUE', reserved => false, pgtype => 'GBK');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.unescape('ASCII%20VALUE', pgtype => 'GBK');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_url.escape(null, false, 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_inaddr.get_host_address('localhost');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_inaddr.get_host_name('127.0.0.1');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_inaddr.get_host_address();
+----------
+[SELECT|CALL_PROG_OBJ] select utl_inaddr.get_host_name();
+----------
+[SELECT|CALL_PROG_OBJ] select utl_inaddr.get_host_address(host => 'localhost');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_inaddr.get_host_name(ip => '127.0.0.1');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.string_to_raw('abcdef', 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.string_to_raw('abcdef', 'GBK');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.string_to_raw('CODEX DM8', 'ISO_8859_1');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.raw_to_char(cast('616263646566' as varbinary(32)), 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.raw_to_char(cast('616263' as varbinary(32)), 'GBK');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.raw_to_char(utl_i18n.string_to_raw('ASCII', 'UTF8'), 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.escape_reference('<A' || chr(38) || 'B>');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.escape_reference('"CODEX" and ''DM8''', 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.unescape_reference(chr(38) || 'lt;A' || chr(38) || 'amp;B' || chr(38) || 'gt;');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.unescape_reference(utl_i18n.escape_reference('<CODEX_DM8>'));
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.string_to_raw('ASCII', dst_charset => 'UTF8');
+----------
+[SELECT|CALL_PROG_OBJ] select utl_i18n.raw_to_char(cast('4153434949' as varbinary(32)), src_charset => 'UTF8');
+----------
+[SELECT] select count(*) from CODEX_DM8_ERR_LOG;
+----------
+[SELECT] select count(*) from CODEX_DM8_ERR_LOG where DM_ERR_TAG$ is not null;
+----------
+[SELECT] select DM_ERR_NUMBER$, DM_ERR_OPTYPE$, DM_ERR_TAG$ from CODEX_DM8_ERR_LOG order by DM_ERR_TAG$;
+----------
+[SELECT] select count(*) from ERR$_CODEX_DM8_ERR_DEFAULT;
+----------
+[SELECT] select count(*) from CODEX_DM8_ERR_SKIP_LOG;
+----------
+[SELECT] select count(*) from CODEX_DM8_MV_A;
+----------
+[SELECT] select row_count, total_amount from CODEX_DM8_MV_B;

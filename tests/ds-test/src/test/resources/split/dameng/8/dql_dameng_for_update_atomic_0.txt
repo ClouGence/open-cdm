@@ -1,0 +1,54 @@
+select id from app.lock_t order by id for read only;
+select id,name from app.lock_t for update of app.lock_t.id,app.lock_t.name wait 0;
+select id,name from app.lock_t for update 0 skip locked;
+select id,name from app.lock_t for update 2 skip locked;
+select id,name,payload from app.lock_t for update;
+select id,name from app.lock_v for update of app.lock_v.name;
+select g,count(*) from app.lock_t group by g for update;
+select max(id) from app.lock_t for update;
+select id,max(id) over(partition by g) from app.lock_t for update;
+with q as (select id from app.lock_t for update) select * from q;
+select id from app.lock_mv for update;
+select id from app.lock_huge for update;
+select id from app.lock_ext for update;
+select name from sys.v$database for update;
+select distinct g from app.lock_t for update;
+select id,name from app.lock_t start with id=1 connect by prior id=id+1 for update;
+select * from (select g,name,id from app.lock_t) pivot(sum(id) for name in('A' as a,'B' as b)) for update;
+select * from (select id,name as a,name as b from app.lock_t) unpivot(v for src in(a as 'A',b as 'B')) for update;
+------------------------------------------------------------------------------------------
+[SELECT] select id from app.lock_t order by id for read only;
+----------
+[SELECT|QUERY_LOCK] select id,name from app.lock_t for update of app.lock_t.id,app.lock_t.name wait 0;
+----------
+[SELECT|QUERY_LOCK] select id,name from app.lock_t for update 0 skip locked;
+----------
+[SELECT|QUERY_LOCK] select id,name from app.lock_t for update 2 skip locked;
+----------
+[SELECT|QUERY_LOCK] select id,name,payload from app.lock_t for update;
+----------
+[SELECT|QUERY_LOCK] select id,name from app.lock_v for update of app.lock_v.name;
+----------
+[SELECT|QUERY_LOCK] select g,count(*) from app.lock_t group by g for update;
+----------
+[SELECT|QUERY_LOCK] select max(id) from app.lock_t for update;
+----------
+[SELECT|QUERY_LOCK] select id,max(id) over(partition by g) from app.lock_t for update;
+----------
+[SELECT|QUERY_LOCK] with q as (select id from app.lock_t for update) select * from q;
+----------
+[SELECT|QUERY_LOCK] select id from app.lock_mv for update;
+----------
+[SELECT|QUERY_LOCK] select id from app.lock_huge for update;
+----------
+[SELECT|QUERY_LOCK] select id from app.lock_ext for update;
+----------
+[SELECT|QUERY_LOCK] select name from sys.v$database for update;
+----------
+[SELECT|QUERY_LOCK] select distinct g from app.lock_t for update;
+----------
+[SELECT|QUERY_LOCK] select id,name from app.lock_t start with id=1 connect by prior id=id+1 for update;
+----------
+[SELECT|QUERY_LOCK] select * from (select g,name,id from app.lock_t) pivot(sum(id) for name in('A' as a,'B' as b)) for update;
+----------
+[SELECT|QUERY_LOCK] select * from (select id,name as a,name as b from app.lock_t) unpivot(v for src in(a as 'A',b as 'B')) for update;

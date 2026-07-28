@@ -1,0 +1,504 @@
+-- FUNC-0771 EXTENT_SIZE_GET without parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.EXTENT_SIZE_GET; if value_number<=0 then raise_application_error(-20001,'extent size'); end if; end;
+/
+-- FUNC-0771 EXTENT_SIZE_GET with parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.EXTENT_SIZE_GET(); end;
+/
+-- FUNC-0772 EXTENT_SIZE_LOAD
+declare value_number int; begin DBMS_SPACE.EXTENT_SIZE_LOAD(value_number); if value_number<=0 then raise_application_error(-20002,'extent size load'); end if; end;
+/
+-- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET required arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0); end;
+/
+-- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET all arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0,1,1); end;
+/
+-- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(NUM=>1,FILE_ID=>0,TS_ID=>4,OFFSET=>1); end;
+/
+-- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD required arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,value_array); end;
+/
+-- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD all arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,value_array,1,1); end;
+/
+-- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(XPAGE_ADDR_ARR=>value_array,NUM=>1,TS_ID=>4,FILE_ID=>0,OFFSET=>1); end;
+/
+-- FUNC-0775 FILE_ALL_GET required argument
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(4); end;
+/
+-- FUNC-0775 FILE_ALL_GET all arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(4,1,1); end;
+/
+-- FUNC-0775 FILE_ALL_GET named arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(NUM=>1,TS_ID=>4,OFFSET=>1); end;
+/
+-- FUNC-0776 FILE_ALL_LOAD required arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin DBMS_SPACE.FILE_ALL_LOAD(4,value_array); end;
+/
+-- FUNC-0776 FILE_ALL_LOAD full named arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin DBMS_SPACE.FILE_ALL_LOAD(FILE_ALL_ARR=>value_array,NUM=>1,TS_ID=>4,OFFSET=>1); end;
+/
+-- FUNC-0777 FILE_GET positional
+declare value_array DBMS_SPACE.FILE_ARR_T; begin value_array:=DBMS_SPACE.FILE_GET(4,0); end;
+/
+-- FUNC-0777 FILE_GET named
+declare value_array DBMS_SPACE.FILE_ARR_T; begin value_array:=DBMS_SPACE.FILE_GET(FILE_ID=>0,TS_ID=>4); end;
+/
+-- FUNC-0778 FILE_LOAD positional
+declare value_array DBMS_SPACE.FILE_ARR_T; begin DBMS_SPACE.FILE_LOAD(4,0,value_array); end;
+/
+-- FUNC-0778 FILE_LOAD named
+declare value_array DBMS_SPACE.FILE_ARR_T; begin DBMS_SPACE.FILE_LOAD(FILE_ARR=>value_array,FILE_ID=>0,TS_ID=>4); end;
+/
+-- FUNC-0779 IPAGE_NO_ALL_GET required argument
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4); end;
+/
+-- FUNC-0779 IPAGE_NO_ALL_GET all arguments and alternate enums
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FREE','BACKWARD',1,1); end;
+/
+-- FUNC-0779 IPAGE_NO_ALL_GET named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,LINKTYPE=>'FULL',OFFSET=>1); end;
+/
+-- FUNC-0780 IPAGE_NO_ALL_LOAD required arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array); end;
+/
+-- FUNC-0780 IPAGE_NO_ALL_LOAD all arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FREE','BACKWARD',1,1); end;
+/
+-- FUNC-0780 IPAGE_NO_ALL_LOAD named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(PAGE_ADDR_ARR=>value_array,NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,LINKTYPE=>'FULL',OFFSET=>1); end;
+/
+-- FUNC-0781 PAGE_N_GET without parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.PAGE_N_GET; end;
+/
+-- FUNC-0781 PAGE_N_GET with parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.PAGE_N_GET(); end;
+/
+-- FUNC-0782 PAGE_N_LOAD
+declare value_number int; begin DBMS_SPACE.PAGE_N_LOAD(value_number); end;
+/
+-- FUNC-0783 SEG_ALL_GET required argument
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(4); end;
+/
+-- FUNC-0783 SEG_ALL_GET all arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(4,1,1); end;
+/
+-- FUNC-0783 SEG_ALL_GET named arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(NUM=>1,TS_ID=>4,OFFSET=>1); end;
+/
+-- FUNC-0784 SEG_ALL_LOAD required arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(4,value_array); end;
+/
+-- FUNC-0784 SEG_ALL_LOAD all arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(4,value_array,1,1); end;
+/
+-- FUNC-0784 SEG_ALL_LOAD named arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(SEG_ID_ARR=>value_array,NUM=>1,TS_ID=>4,OFFSET=>1); end;
+/
+-- FUNC-0785 SEG_EXTENT_LST_GET documented defaults on a segment with FULL extents
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID()); end;
+/
+-- FUNC-0785 SEG_EXTENT_LST_GET all arguments and alternate enums
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FRAG','BACKWARD',1,1); end;
+/
+-- FUNC-0785 SEG_EXTENT_LST_GET named arguments
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,SEGID=>CODEX_DM8_SPACE_SEGID(),LINKTYPE=>'FULL',OFFSET=>1); end;
+/
+-- FUNC-0786 SEG_EXTENT_LST_LOAD documented defaults
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array); end;
+/
+-- FUNC-0786 SEG_EXTENT_LST_LOAD all arguments
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FRAG','BACKWARD',1,1); end;
+/
+-- FUNC-0786 SEG_EXTENT_LST_LOAD named arguments
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(EXTENT_ARR=>value_array,NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,SEGID=>CODEX_DM8_SPACE_SEGID(),LINKTYPE=>'FULL',OFFSET=>1); end;
+/
+-- FUNC-0788 SEG_GET_BY_ID positional
+declare value_record DBMS_SPACE.SEG_T; begin value_record:=DBMS_SPACE.SEG_GET_BY_ID(4,CODEX_DM8_SPACE_SEGID()); end;
+/
+-- FUNC-0788 SEG_GET_BY_ID named
+declare value_record DBMS_SPACE.SEG_T; begin value_record:=DBMS_SPACE.SEG_GET_BY_ID(SEGID=>CODEX_DM8_SPACE_SEGID(),TS_ID=>4); end;
+/
+-- FUNC-0790 SEG_LOAD_BY_ID positional
+declare value_record DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_ID(4,CODEX_DM8_SPACE_SEGID(),value_record); end;
+/
+-- FUNC-0790 SEG_LOAD_BY_ID named
+declare value_record DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_ID(SEG_INFO=>value_record,SEGID=>CODEX_DM8_SPACE_SEGID(),TS_ID=>4); end;
+/
+-- FUNC-0791 TS_ALL_GET zero arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET; end;
+/
+-- FUNC-0791 TS_ALL_GET one optional argument
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET(1); end;
+/
+-- FUNC-0791 TS_ALL_GET all arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET(1,1); end;
+/
+-- FUNC-0791 TS_ALL_GET named arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET(NUM=>1,OFFSET=>1); end;
+/
+-- FUNC-0792 TS_ALL_LOAD required OUT argument
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin DBMS_SPACE.TS_ALL_LOAD(value_array); end;
+/
+-- FUNC-0792 TS_ALL_LOAD one optional argument
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin DBMS_SPACE.TS_ALL_LOAD(value_array,1); end;
+/
+-- FUNC-0792 TS_ALL_LOAD full named arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin DBMS_SPACE.TS_ALL_LOAD(NUM=>1,TS_ALL_ARR=>value_array,OFFSET=>1); end;
+/
+-- FUNC-0793 TS_GET positional
+declare value_array DBMS_SPACE.TS_ARR_T; begin value_array:=DBMS_SPACE.TS_GET(4); end;
+/
+-- FUNC-0793 TS_GET named
+declare value_array DBMS_SPACE.TS_ARR_T; begin value_array:=DBMS_SPACE.TS_GET(TS_ID=>4); end;
+/
+-- FUNC-0794 TS_LOAD positional
+declare value_array DBMS_SPACE.TS_ARR_T; begin DBMS_SPACE.TS_LOAD(4,value_array); end;
+/
+-- FUNC-0794 TS_LOAD named
+declare value_array DBMS_SPACE.TS_ARR_T; begin DBMS_SPACE.TS_LOAD(TS_ARR=>value_array,TS_ID=>4); end;
+/
+-- FUNC-0795 TS_N_GET without parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.TS_N_GET; end;
+/
+-- FUNC-0795 TS_N_GET with parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.TS_N_GET(); end;
+/
+-- FUNC-0796 TS_N_LOAD
+declare value_number int; begin DBMS_SPACE.TS_N_LOAD(value_number); end;
+/
+-- FUNC-1622 FREE_BLOCKS required arguments
+declare free_blocks number; begin DBMS_SPACE.FREE_BLOCKS('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',0,free_blocks); end;
+/
+-- FUNC-1622 FREE_BLOCKS all named arguments
+declare free_blocks number; begin DBMS_SPACE.FREE_BLOCKS(FREE_BLKS=>free_blocks,SEGMENT_TYPE=>'TABLE',SEGMENT_NAME=>'CODEX_DM8_SPACE_TABLE',SEGMENT_OWNER=>'SYSDBA',FREELIST_GROUP_ID=>0,SCAN_LIMIT=>NULL,PARTITION_NAME=>NULL); end;
+/
+-- FUNC-1623 SPACE_USAGE required arguments and OUT values
+declare u1 number; u2 number; f1 number; f2 number; f3 number; f4 number; f5 number; f6 number; f7 number; f8 number; f9 number; f10 number; begin DBMS_SPACE.SPACE_USAGE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',u1,u2,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10); end;
+/
+-- FUNC-1623 SPACE_USAGE optional partition name
+declare u1 number; u2 number; f1 number; f2 number; f3 number; f4 number; f5 number; f6 number; f7 number; f8 number; f9 number; f10 number; begin DBMS_SPACE.SPACE_USAGE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',u1,u2,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,NULL); end;
+/
+-- FUNC-1624 UNUSED_SPACE required arguments and OUT values
+declare a number; b number; c number; d number; e number; f number; g number; begin DBMS_SPACE.UNUSED_SPACE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',a,b,c,d,e,f,g); end;
+/
+-- FUNC-1624 UNUSED_SPACE optional partition name
+declare a number; b number; c number; d number; e number; f number; g number; begin DBMS_SPACE.UNUSED_SPACE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',a,b,c,d,e,f,g,NULL); end;
+/
+-- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0,1); end;
+/
+-- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,value_array,1); end;
+/
+-- FUNC-0775 FILE_ALL_GET OFFSET prefix
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(4,1); end;
+/
+-- FUNC-0776 FILE_ALL_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin DBMS_SPACE.FILE_ALL_LOAD(4,value_array,1); end;
+/
+-- FUNC-0779 IPAGE_NO_ALL_GET LINKTYPE prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FULL'); end;
+/
+-- FUNC-0779 IPAGE_NO_ALL_GET DIRECT prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FULL','FORWARD'); end;
+/
+-- FUNC-0779 IPAGE_NO_ALL_GET OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FULL','FORWARD',1); end;
+/
+-- FUNC-0780 IPAGE_NO_ALL_LOAD LINKTYPE prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FULL'); end;
+/
+-- FUNC-0780 IPAGE_NO_ALL_LOAD DIRECT prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FULL','FORWARD'); end;
+/
+-- FUNC-0780 IPAGE_NO_ALL_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FULL','FORWARD',1); end;
+/
+-- FUNC-0783 SEG_ALL_GET OFFSET prefix
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(4,1); end;
+/
+-- FUNC-0784 SEG_ALL_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(4,value_array,1); end;
+/
+-- FUNC-0785 SEG_EXTENT_LST_GET LINKTYPE prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FULL'); end;
+/
+-- FUNC-0785 SEG_EXTENT_LST_GET DIRECT prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FULL','FORWARD'); end;
+/
+-- FUNC-0785 SEG_EXTENT_LST_GET OFFSET prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FULL','FORWARD',1); end;
+/
+-- FUNC-0786 SEG_EXTENT_LST_LOAD LINKTYPE prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FULL'); end;
+/
+-- FUNC-0786 SEG_EXTENT_LST_LOAD DIRECT prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FULL','FORWARD'); end;
+/
+-- FUNC-0786 SEG_EXTENT_LST_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FULL','FORWARD',1); end;
+/
+-- FUNC-1622 FREE_BLOCKS SCAN_LIMIT prefix
+declare free_blocks number; begin DBMS_SPACE.FREE_BLOCKS('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',0,free_blocks,1); end;
+/
+-- FUNC-1623 SPACE_USAGE full named arguments
+declare a number; begin DBMS_SPACE.SPACE_USAGE(FULL_BYTES=>a,FULL_BLOCKS=>a,FS4_BYTES=>a,FS4_BLOCKS=>a,FS3_BYTES=>a,FS3_BLOCKS=>a,FS2_BYTES=>a,FS2_BLOCKS=>a,FS1_BYTES=>a,FS1_BLOCKS=>a,UNFORMATTED_BYTES=>a,UNFORMATTED_BLOCKS=>a,SEGMENT_TYPE=>'TABLE',SEGMENT_NAME=>'CODEX_DM8_SPACE_TABLE',SEGMENT_OWNER=>'SYSDBA',PARTITION_NAME=>NULL); end;
+/
+-- FUNC-1624 UNUSED_SPACE full named arguments
+declare a number; begin DBMS_SPACE.UNUSED_SPACE(LAST_USED_BLOCK=>a,LAST_USED_EXTENT_BLOCK_ID=>a,LAST_USED_EXTENT_FILE_ID=>a,UNUSED_BYTES=>a,UNUSED_BLOCKS=>a,TOTAL_BYTES=>a,TOTAL_BLOCKS=>a,SEGMENT_TYPE=>'TABLE',SEGMENT_NAME=>'CODEX_DM8_SPACE_TABLE',SEGMENT_OWNER=>'SYSDBA',PARTITION_NAME=>NULL); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0771 EXTENT_SIZE_GET without parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.EXTENT_SIZE_GET; if value_number<=0 then raise_application_error(-20001,'extent size'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0771 EXTENT_SIZE_GET with parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.EXTENT_SIZE_GET(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0772 EXTENT_SIZE_LOAD
+declare value_number int; begin DBMS_SPACE.EXTENT_SIZE_LOAD(value_number); if value_number<=0 then raise_application_error(-20002,'extent size load'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET required arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET all arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0,1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(NUM=>1,FILE_ID=>0,TS_ID=>4,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD required arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,value_array); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD all arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,value_array,1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(XPAGE_ADDR_ARR=>value_array,NUM=>1,TS_ID=>4,FILE_ID=>0,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0775 FILE_ALL_GET required argument
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0775 FILE_ALL_GET all arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(4,1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0775 FILE_ALL_GET named arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(NUM=>1,TS_ID=>4,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0776 FILE_ALL_LOAD required arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin DBMS_SPACE.FILE_ALL_LOAD(4,value_array); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0776 FILE_ALL_LOAD full named arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin DBMS_SPACE.FILE_ALL_LOAD(FILE_ALL_ARR=>value_array,NUM=>1,TS_ID=>4,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0777 FILE_GET positional
+declare value_array DBMS_SPACE.FILE_ARR_T; begin value_array:=DBMS_SPACE.FILE_GET(4,0); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0777 FILE_GET named
+declare value_array DBMS_SPACE.FILE_ARR_T; begin value_array:=DBMS_SPACE.FILE_GET(FILE_ID=>0,TS_ID=>4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0778 FILE_LOAD positional
+declare value_array DBMS_SPACE.FILE_ARR_T; begin DBMS_SPACE.FILE_LOAD(4,0,value_array); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0778 FILE_LOAD named
+declare value_array DBMS_SPACE.FILE_ARR_T; begin DBMS_SPACE.FILE_LOAD(FILE_ARR=>value_array,FILE_ID=>0,TS_ID=>4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0779 IPAGE_NO_ALL_GET required argument
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0779 IPAGE_NO_ALL_GET all arguments and alternate enums
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FREE','BACKWARD',1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0779 IPAGE_NO_ALL_GET named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,LINKTYPE=>'FULL',OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0780 IPAGE_NO_ALL_LOAD required arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0780 IPAGE_NO_ALL_LOAD all arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FREE','BACKWARD',1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0780 IPAGE_NO_ALL_LOAD named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(PAGE_ADDR_ARR=>value_array,NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,LINKTYPE=>'FULL',OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL)] -- FUNC-0781 PAGE_N_GET without parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.PAGE_N_GET; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0781 PAGE_N_GET with parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.PAGE_N_GET(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0782 PAGE_N_LOAD
+declare value_number int; begin DBMS_SPACE.PAGE_N_LOAD(value_number); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0783 SEG_ALL_GET required argument
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0783 SEG_ALL_GET all arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(4,1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0783 SEG_ALL_GET named arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(NUM=>1,TS_ID=>4,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0784 SEG_ALL_LOAD required arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(4,value_array); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0784 SEG_ALL_LOAD all arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(4,value_array,1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0784 SEG_ALL_LOAD named arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(SEG_ID_ARR=>value_array,NUM=>1,TS_ID=>4,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0785 SEG_EXTENT_LST_GET documented defaults on a segment with FULL extents
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID()); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0785 SEG_EXTENT_LST_GET all arguments and alternate enums
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FRAG','BACKWARD',1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0785 SEG_EXTENT_LST_GET named arguments
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,SEGID=>CODEX_DM8_SPACE_SEGID(),LINKTYPE=>'FULL',OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0786 SEG_EXTENT_LST_LOAD documented defaults
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0786 SEG_EXTENT_LST_LOAD all arguments
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FRAG','BACKWARD',1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0786 SEG_EXTENT_LST_LOAD named arguments
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(EXTENT_ARR=>value_array,NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,SEGID=>CODEX_DM8_SPACE_SEGID(),LINKTYPE=>'FULL',OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0788 SEG_GET_BY_ID positional
+declare value_record DBMS_SPACE.SEG_T; begin value_record:=DBMS_SPACE.SEG_GET_BY_ID(4,CODEX_DM8_SPACE_SEGID()); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0788 SEG_GET_BY_ID named
+declare value_record DBMS_SPACE.SEG_T; begin value_record:=DBMS_SPACE.SEG_GET_BY_ID(SEGID=>CODEX_DM8_SPACE_SEGID(),TS_ID=>4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0790 SEG_LOAD_BY_ID positional
+declare value_record DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_ID(4,CODEX_DM8_SPACE_SEGID(),value_record); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0790 SEG_LOAD_BY_ID named
+declare value_record DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_ID(SEG_INFO=>value_record,SEGID=>CODEX_DM8_SPACE_SEGID(),TS_ID=>4); end;
+----------
+[BLOCK(PROGRAM_CONTROL)] -- FUNC-0791 TS_ALL_GET zero arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0791 TS_ALL_GET one optional argument
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET(1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0791 TS_ALL_GET all arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET(1,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0791 TS_ALL_GET named arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET(NUM=>1,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0792 TS_ALL_LOAD required OUT argument
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin DBMS_SPACE.TS_ALL_LOAD(value_array); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0792 TS_ALL_LOAD one optional argument
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin DBMS_SPACE.TS_ALL_LOAD(value_array,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0792 TS_ALL_LOAD full named arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin DBMS_SPACE.TS_ALL_LOAD(NUM=>1,TS_ALL_ARR=>value_array,OFFSET=>1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0793 TS_GET positional
+declare value_array DBMS_SPACE.TS_ARR_T; begin value_array:=DBMS_SPACE.TS_GET(4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0793 TS_GET named
+declare value_array DBMS_SPACE.TS_ARR_T; begin value_array:=DBMS_SPACE.TS_GET(TS_ID=>4); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0794 TS_LOAD positional
+declare value_array DBMS_SPACE.TS_ARR_T; begin DBMS_SPACE.TS_LOAD(4,value_array); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0794 TS_LOAD named
+declare value_array DBMS_SPACE.TS_ARR_T; begin DBMS_SPACE.TS_LOAD(TS_ARR=>value_array,TS_ID=>4); end;
+----------
+[BLOCK(PROGRAM_CONTROL)] -- FUNC-0795 TS_N_GET without parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.TS_N_GET; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0795 TS_N_GET with parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.TS_N_GET(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0796 TS_N_LOAD
+declare value_number int; begin DBMS_SPACE.TS_N_LOAD(value_number); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1622 FREE_BLOCKS required arguments
+declare free_blocks number; begin DBMS_SPACE.FREE_BLOCKS('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',0,free_blocks); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1622 FREE_BLOCKS all named arguments
+declare free_blocks number; begin DBMS_SPACE.FREE_BLOCKS(FREE_BLKS=>free_blocks,SEGMENT_TYPE=>'TABLE',SEGMENT_NAME=>'CODEX_DM8_SPACE_TABLE',SEGMENT_OWNER=>'SYSDBA',FREELIST_GROUP_ID=>0,SCAN_LIMIT=>NULL,PARTITION_NAME=>NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1623 SPACE_USAGE required arguments and OUT values
+declare u1 number; u2 number; f1 number; f2 number; f3 number; f4 number; f5 number; f6 number; f7 number; f8 number; f9 number; f10 number; begin DBMS_SPACE.SPACE_USAGE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',u1,u2,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1623 SPACE_USAGE optional partition name
+declare u1 number; u2 number; f1 number; f2 number; f3 number; f4 number; f5 number; f6 number; f7 number; f8 number; f9 number; f10 number; begin DBMS_SPACE.SPACE_USAGE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',u1,u2,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1624 UNUSED_SPACE required arguments and OUT values
+declare a number; b number; c number; d number; e number; f number; g number; begin DBMS_SPACE.UNUSED_SPACE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',a,b,c,d,e,f,g); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1624 UNUSED_SPACE optional partition name
+declare a number; b number; c number; d number; e number; f number; g number; begin DBMS_SPACE.UNUSED_SPACE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',a,b,c,d,e,f,g,NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,value_array,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0775 FILE_ALL_GET OFFSET prefix
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(4,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0776 FILE_ALL_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin DBMS_SPACE.FILE_ALL_LOAD(4,value_array,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0779 IPAGE_NO_ALL_GET LINKTYPE prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FULL'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0779 IPAGE_NO_ALL_GET DIRECT prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FULL','FORWARD'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0779 IPAGE_NO_ALL_GET OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FULL','FORWARD',1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0780 IPAGE_NO_ALL_LOAD LINKTYPE prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FULL'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0780 IPAGE_NO_ALL_LOAD DIRECT prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FULL','FORWARD'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0780 IPAGE_NO_ALL_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FULL','FORWARD',1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0783 SEG_ALL_GET OFFSET prefix
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(4,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0784 SEG_ALL_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(4,value_array,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0785 SEG_EXTENT_LST_GET LINKTYPE prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FULL'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0785 SEG_EXTENT_LST_GET DIRECT prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FULL','FORWARD'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0785 SEG_EXTENT_LST_GET OFFSET prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FULL','FORWARD',1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0786 SEG_EXTENT_LST_LOAD LINKTYPE prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FULL'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0786 SEG_EXTENT_LST_LOAD DIRECT prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FULL','FORWARD'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0786 SEG_EXTENT_LST_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FULL','FORWARD',1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1622 FREE_BLOCKS SCAN_LIMIT prefix
+declare free_blocks number; begin DBMS_SPACE.FREE_BLOCKS('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',0,free_blocks,1); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1623 SPACE_USAGE full named arguments
+declare a number; begin DBMS_SPACE.SPACE_USAGE(FULL_BYTES=>a,FULL_BLOCKS=>a,FS4_BYTES=>a,FS4_BLOCKS=>a,FS3_BYTES=>a,FS3_BLOCKS=>a,FS2_BYTES=>a,FS2_BLOCKS=>a,FS1_BYTES=>a,FS1_BLOCKS=>a,UNFORMATTED_BYTES=>a,UNFORMATTED_BLOCKS=>a,SEGMENT_TYPE=>'TABLE',SEGMENT_NAME=>'CODEX_DM8_SPACE_TABLE',SEGMENT_OWNER=>'SYSDBA',PARTITION_NAME=>NULL); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1624 UNUSED_SPACE full named arguments
+declare a number; begin DBMS_SPACE.UNUSED_SPACE(LAST_USED_BLOCK=>a,LAST_USED_EXTENT_BLOCK_ID=>a,LAST_USED_EXTENT_FILE_ID=>a,UNUSED_BYTES=>a,UNUSED_BLOCKS=>a,TOTAL_BYTES=>a,TOTAL_BLOCKS=>a,SEGMENT_TYPE=>'TABLE',SEGMENT_NAME=>'CODEX_DM8_SPACE_TABLE',SEGMENT_OWNER=>'SYSDBA',PARTITION_NAME=>NULL); end;

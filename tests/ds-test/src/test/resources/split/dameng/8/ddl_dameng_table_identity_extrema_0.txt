@@ -1,0 +1,240 @@
+create table table_ident_min(id int identity(-2147483648,1), note int);
+insert into table_ident_min(note) values(1);
+select id from table_ident_min;
+drop table table_ident_min purge;
+create table table_ident_max(id int identity(2147483647,-1), note int);
+insert into table_ident_max(note) values(1);
+insert into table_ident_max(note) values(2);
+select id from table_ident_max order by note;
+select ident_seed('SYSDBA.TABLE_IDENT_MAX'), ident_incr('SYSDBA.TABLE_IDENT_MAX');
+drop table table_ident_max purge;
+create table table_ident_over(id int identity(2147483648,1));
+create table table_ident_under(id int identity(-2147483649,1));
+create table table_ident_zero(id int identity(1,0));
+create table table_ident_step_max(id int identity(0,2147483647));
+insert into table_ident_step_max default values;
+insert into table_ident_step_max default values;
+insert into table_ident_step_max default values;
+drop table table_ident_step_max purge;
+create table table_ident_step_min(id int identity(0,-2147483648));
+insert into table_ident_step_min default values;
+insert into table_ident_step_min default values;
+insert into table_ident_step_min default values;
+drop table table_ident_step_min purge;
+create table table_ident_big_max(id bigint identity(9223372036854775806,-1), note int);
+insert into table_ident_big_max(note) values(1);
+drop table table_ident_big_max purge;
+create table table_ident_big_edge(id bigint identity(9223372036854775807,-1));
+create table table_ident_big_min(id bigint identity(-9223372036854775808,1), note int);
+insert into table_ident_big_min(note) values(1);
+drop table table_ident_big_min purge;
+create table table_ident_decimal(id decimal(10) identity(9999999999,-1), note int);
+insert into table_ident_decimal(note) values(1);
+drop table table_ident_decimal purge;
+create table table_ident_numeric(id numeric(20) identity);
+drop table table_ident_numeric purge;
+create table table_ident_scaled(id decimal(10,2) identity);
+create table table_ident_tiny(id tinyint identity);
+create table table_ident_small(id smallint identity);
+create global temporary table table_ident_temp(id int identity) on commit preserve rows;
+create table table_ident_part(id int identity, note int) partition by range(note)(partition p1 values less than(maxvalue));
+insert into table_ident_part(note) values(1);
+drop table table_ident_part purge;
+create table table_ident_two(id1 int identity, id2 int identity);
+create table table_ident_default(id int identity default 1);
+create table table_auto_zero(id int auto_increment primary key, note int) auto_increment=0;
+insert into table_auto_zero(note) values(1);
+drop table table_auto_zero purge;
+create table table_auto_edge(id int auto_increment primary key, note int) auto_increment=2147483647;
+insert into table_auto_edge(note) values(1);
+insert into table_auto_edge(note) values(2);
+drop table table_auto_edge purge;
+create table table_auto_over(id int auto_increment primary key, note int) auto_increment=2147483648;
+insert into table_auto_over(note) values(1);
+drop table table_auto_over purge;
+create table table_auto_big(id bigint auto_increment primary key, note int) auto_increment=9223372036854775806;
+insert into table_auto_big(note) values(1);
+insert into table_auto_big(note) values(2);
+drop table table_auto_big purge;
+create table table_auto_alt(id int auto_increment primary key, note int) auto_increment=10;
+insert into table_auto_alt(note) values(1);
+alter table table_auto_alt auto_increment=5;
+insert into table_auto_alt(note) values(2);
+alter table table_auto_alt auto_increment=20;
+insert into table_auto_alt(note) values(3);
+drop table table_auto_alt purge;
+create table table_ident_state(id int identity, note int);
+create table table_ident_other(id int identity, note int);
+insert into table_ident_state(id,note) values(10,1);
+set identity_insert table_ident_state on;
+insert into table_ident_state(id,note) values(100,2);
+set identity_insert table_ident_state off;
+insert into table_ident_state(note) values(3);
+set identity_insert table_ident_state on with replace null;
+insert into table_ident_state(id,note) values(null,4);
+set identity_insert table_ident_other on;
+insert into table_ident_state(id,note) values(200,5);
+insert into table_ident_other(id,note) values(20,6);
+set identity_insert table_ident_other off;
+drop table table_ident_state purge;
+drop table table_ident_other purge;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_min(id int identity(-2147483648,1), note int);
+----------
+[INSERT] insert into table_ident_min(note) values(1);
+----------
+[SELECT] select id from table_ident_min;
+----------
+[DROP_TABLE] drop table table_ident_min purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_max(id int identity(2147483647,-1), note int);
+----------
+[INSERT] insert into table_ident_max(note) values(1);
+----------
+[INSERT] insert into table_ident_max(note) values(2);
+----------
+[SELECT] select id from table_ident_max order by note;
+----------
+[SELECT|CALL_PROG_OBJ] select ident_seed('SYSDBA.TABLE_IDENT_MAX'), ident_incr('SYSDBA.TABLE_IDENT_MAX');
+----------
+[DROP_TABLE] drop table table_ident_max purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_over(id int identity(2147483648,1));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_under(id int identity(-2147483649,1));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_zero(id int identity(1,0));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_step_max(id int identity(0,2147483647));
+----------
+[INSERT] insert into table_ident_step_max default values;
+----------
+[INSERT] insert into table_ident_step_max default values;
+----------
+[INSERT] insert into table_ident_step_max default values;
+----------
+[DROP_TABLE] drop table table_ident_step_max purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_step_min(id int identity(0,-2147483648));
+----------
+[INSERT] insert into table_ident_step_min default values;
+----------
+[INSERT] insert into table_ident_step_min default values;
+----------
+[INSERT] insert into table_ident_step_min default values;
+----------
+[DROP_TABLE] drop table table_ident_step_min purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_big_max(id bigint identity(9223372036854775806,-1), note int);
+----------
+[INSERT] insert into table_ident_big_max(note) values(1);
+----------
+[DROP_TABLE] drop table table_ident_big_max purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_big_edge(id bigint identity(9223372036854775807,-1));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_big_min(id bigint identity(-9223372036854775808,1), note int);
+----------
+[INSERT] insert into table_ident_big_min(note) values(1);
+----------
+[DROP_TABLE] drop table table_ident_big_min purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_decimal(id decimal(10) identity(9999999999,-1), note int);
+----------
+[INSERT] insert into table_ident_decimal(note) values(1);
+----------
+[DROP_TABLE] drop table table_ident_decimal purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_numeric(id numeric(20) identity);
+----------
+[DROP_TABLE] drop table table_ident_numeric purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_scaled(id decimal(10,2) identity);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_tiny(id tinyint identity);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_small(id smallint identity);
+----------
+[CREATE_TABLE|ADD_COLUMN] create global temporary table table_ident_temp(id int identity) on commit preserve rows;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_part(id int identity, note int) partition by range(note)(partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into table_ident_part(note) values(1);
+----------
+[DROP_TABLE] drop table table_ident_part purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_two(id1 int identity, id2 int identity);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_default(id int identity default 1);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_auto_zero(id int auto_increment primary key, note int) auto_increment=0;
+----------
+[INSERT] insert into table_auto_zero(note) values(1);
+----------
+[DROP_TABLE] drop table table_auto_zero purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_auto_edge(id int auto_increment primary key, note int) auto_increment=2147483647;
+----------
+[INSERT] insert into table_auto_edge(note) values(1);
+----------
+[INSERT] insert into table_auto_edge(note) values(2);
+----------
+[DROP_TABLE] drop table table_auto_edge purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_auto_over(id int auto_increment primary key, note int) auto_increment=2147483648;
+----------
+[INSERT] insert into table_auto_over(note) values(1);
+----------
+[DROP_TABLE] drop table table_auto_over purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_auto_big(id bigint auto_increment primary key, note int) auto_increment=9223372036854775806;
+----------
+[INSERT] insert into table_auto_big(note) values(1);
+----------
+[INSERT] insert into table_auto_big(note) values(2);
+----------
+[DROP_TABLE] drop table table_auto_big purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_auto_alt(id int auto_increment primary key, note int) auto_increment=10;
+----------
+[INSERT] insert into table_auto_alt(note) values(1);
+----------
+[ALTER_TABLE] alter table table_auto_alt auto_increment=5;
+----------
+[INSERT] insert into table_auto_alt(note) values(2);
+----------
+[ALTER_TABLE] alter table table_auto_alt auto_increment=20;
+----------
+[INSERT] insert into table_auto_alt(note) values(3);
+----------
+[DROP_TABLE] drop table table_auto_alt purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_state(id int identity, note int);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_ident_other(id int identity, note int);
+----------
+[INSERT] insert into table_ident_state(id,note) values(10,1);
+----------
+[SESSION_SETTING_WRITE] set identity_insert table_ident_state on;
+----------
+[INSERT] insert into table_ident_state(id,note) values(100,2);
+----------
+[SESSION_SETTING_WRITE] set identity_insert table_ident_state off;
+----------
+[INSERT] insert into table_ident_state(note) values(3);
+----------
+[SESSION_SETTING_WRITE] set identity_insert table_ident_state on with replace null;
+----------
+[INSERT] insert into table_ident_state(id,note) values(null,4);
+----------
+[SESSION_SETTING_WRITE] set identity_insert table_ident_other on;
+----------
+[INSERT] insert into table_ident_state(id,note) values(200,5);
+----------
+[INSERT] insert into table_ident_other(id,note) values(20,6);
+----------
+[SESSION_SETTING_WRITE] set identity_insert table_ident_other off;
+----------
+[DROP_TABLE] drop table table_ident_state purge;
+----------
+[DROP_TABLE] drop table table_ident_other purge;

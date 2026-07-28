@@ -1,0 +1,245 @@
+-- TOP_COLUMN
+select binary C1 from BT;
+-- TOP_LITERAL
+select binary '123abc' from dual;
+-- TOP_CONCAT
+select binary(C1||C2) from BT;
+-- TOP_NUMERIC_IGNORED
+select binary N from BT;
+-- TOP_DATE_IGNORED
+select binary D from BT;
+-- DERIVED_PROJECTION
+select * from(select binary C1 from BT);
+-- SCALAR_SUBQUERY
+select C1 from BT where C1=(select top 1 binary C1 from BT);
+-- FILTER_EQ
+select ID from BT where binary C2='a';
+-- FILTER_NE
+select ID from BT where binary C2<>'a';
+-- FILTER_LT
+select ID from BT where binary C2<'b';
+-- FILTER_LE
+select ID from BT where binary C2<='b';
+-- FILTER_GT
+select ID from BT where binary C2>'A';
+-- FILTER_GE
+select ID from BT where binary C2>='A';
+-- FILTER_LEFT_LITERAL
+select ID from BT where binary 'a'=C2;
+-- AND_SCOPE
+select ID from BT where C1='a' and binary C2='b' and C3='c';
+-- OR_SCOPE
+select ID from BT where binary C2='a' or C3='B';
+-- LIKE
+select ID from BT where binary C1 like 'A%';
+-- NOT_LIKE
+select ID from BT where binary C1 not like 'A%';
+-- ROW_LIKE
+select B.ID from BT B where binary B.ROW like '%A%';
+-- IN_LIST
+select ID from BT where binary C2 in('a','b');
+-- NOT_IN_LIST
+select ID from BT where binary C2 not in('a','b');
+-- IN_SUBQUERY
+select ID from BT where binary C2 in(select C1 from BT2);
+-- SCALAR_COMPARE
+select ID from BT where binary C2=(select C1 from BT2 where ID=1);
+-- JOIN_CONDITION
+select B.ID from BT B join BT2 D on binary B.C2=D.C1;
+-- HAVING_CONDITION
+select C2,count(*) from BT group by C2 having binary C2='a';
+-- ORDER_ITEM
+select C2 from BT order by binary C2;
+-- ORDER_MULTIPLE
+select C2,C3 from BT order by binary C2,C3;
+-- GROUP_ITEM
+select C2,count(*) from BT group by binary C2 order by binary C2;
+-- GROUP_MULTIPLE
+select C2,C3,count(*) from BT group by binary C2,C3;
+-- HIERARCHICAL_CONDITION
+select ID,C2 from BT start with ID=1 connect by binary prior C2=C3;
+-- ALL_SUBQUERY
+select ID from BT where binary C2=all(select C1 from BT2 where ID=1);
+-- SOME_SUBQUERY
+select ID from BT where binary C2=some(select C1 from BT2);
+-- ANY_SUBQUERY
+select ID from BT where binary C2=any(select C1 from BT2);
+-- AGGREGATE_ARGUMENT
+select max(binary C2) from BT;
+-- WITHIN_GROUP_ORDER
+select listagg(C2,',') within group(order by binary C2) from BT;
+-- ANALYTIC_ARGUMENT
+select lag(binary C2) over(order by ID) from BT;
+-- ANALYTIC_ORDER
+select row_number() over(order by binary C2) from BT;
+-- ANALYTIC_PARTITION
+select count(*) over(partition by binary C2) from BT;
+-- FUNCTION_ARGUMENT
+select length(binary C1) from BT;
+-- CONTAINS_ARGUMENT
+select ID from BT where contains(C1,binary 'A');
+-- NESTED_BINARY
+select binary binary C1 from BT;
+-- PARENTHESIZED_BINARY
+select(binary C1) from BT;
+-- CASE_EXPRESSION
+select case when binary C2='a' then 1 else 0 end from BT;
+-- CTE_COMBINATION
+with Q as(select C1,C2 from BT) select C1 from Q where binary C2='a';
+-- UNION_COMBINATION
+select binary C1 from BT union all select binary C1 from BT2;
+-- UPDATE_FILTER
+update BT set C3='X' where binary C2='a';
+-- DELETE_FILTER
+delete from BT where binary C2='a';
+-- MERGE_JOIN
+merge into BT2 D using BT S on(binary D.C1=S.C2) when matched then update set D.C2=S.C3;
+-- FUNCTION_BINARY_ONE
+select binary(C1) from BT;
+------------------------------------------------------------------------------------------
+[SELECT] -- TOP_COLUMN
+select binary C1 from BT;
+----------
+[SELECT] -- TOP_LITERAL
+select binary '123abc' from dual;
+----------
+[SELECT] -- TOP_CONCAT
+select binary(C1||C2) from BT;
+----------
+[SELECT] -- TOP_NUMERIC_IGNORED
+select binary N from BT;
+----------
+[SELECT] -- TOP_DATE_IGNORED
+select binary D from BT;
+----------
+[SELECT] -- DERIVED_PROJECTION
+select * from(select binary C1 from BT);
+----------
+[SELECT] -- SCALAR_SUBQUERY
+select C1 from BT where C1=(select top 1 binary C1 from BT);
+----------
+[SELECT] -- FILTER_EQ
+select ID from BT where binary C2='a';
+----------
+[SELECT] -- FILTER_NE
+select ID from BT where binary C2<>'a';
+----------
+[SELECT] -- FILTER_LT
+select ID from BT where binary C2<'b';
+----------
+[SELECT] -- FILTER_LE
+select ID from BT where binary C2<='b';
+----------
+[SELECT] -- FILTER_GT
+select ID from BT where binary C2>'A';
+----------
+[SELECT] -- FILTER_GE
+select ID from BT where binary C2>='A';
+----------
+[SELECT] -- FILTER_LEFT_LITERAL
+select ID from BT where binary 'a'=C2;
+----------
+[SELECT] -- AND_SCOPE
+select ID from BT where C1='a' and binary C2='b' and C3='c';
+----------
+[SELECT] -- OR_SCOPE
+select ID from BT where binary C2='a' or C3='B';
+----------
+[SELECT] -- LIKE
+select ID from BT where binary C1 like 'A%';
+----------
+[SELECT] -- NOT_LIKE
+select ID from BT where binary C1 not like 'A%';
+----------
+[SELECT] -- ROW_LIKE
+select B.ID from BT B where binary B.ROW like '%A%';
+----------
+[SELECT] -- IN_LIST
+select ID from BT where binary C2 in('a','b');
+----------
+[SELECT] -- NOT_IN_LIST
+select ID from BT where binary C2 not in('a','b');
+----------
+[SELECT] -- IN_SUBQUERY
+select ID from BT where binary C2 in(select C1 from BT2);
+----------
+[SELECT] -- SCALAR_COMPARE
+select ID from BT where binary C2=(select C1 from BT2 where ID=1);
+----------
+[SELECT] -- JOIN_CONDITION
+select B.ID from BT B join BT2 D on binary B.C2=D.C1;
+----------
+[SELECT] -- HAVING_CONDITION
+select C2,count(*) from BT group by C2 having binary C2='a';
+----------
+[SELECT] -- ORDER_ITEM
+select C2 from BT order by binary C2;
+----------
+[SELECT] -- ORDER_MULTIPLE
+select C2,C3 from BT order by binary C2,C3;
+----------
+[SELECT] -- GROUP_ITEM
+select C2,count(*) from BT group by binary C2 order by binary C2;
+----------
+[SELECT] -- GROUP_MULTIPLE
+select C2,C3,count(*) from BT group by binary C2,C3;
+----------
+[SELECT] -- HIERARCHICAL_CONDITION
+select ID,C2 from BT start with ID=1 connect by binary prior C2=C3;
+----------
+[SELECT] -- ALL_SUBQUERY
+select ID from BT where binary C2=all(select C1 from BT2 where ID=1);
+----------
+[SELECT] -- SOME_SUBQUERY
+select ID from BT where binary C2=some(select C1 from BT2);
+----------
+[SELECT] -- ANY_SUBQUERY
+select ID from BT where binary C2=any(select C1 from BT2);
+----------
+[SELECT] -- AGGREGATE_ARGUMENT
+select max(binary C2) from BT;
+----------
+[SELECT] -- WITHIN_GROUP_ORDER
+select listagg(C2,',') within group(order by binary C2) from BT;
+----------
+[SELECT] -- ANALYTIC_ARGUMENT
+select lag(binary C2) over(order by ID) from BT;
+----------
+[SELECT] -- ANALYTIC_ORDER
+select row_number() over(order by binary C2) from BT;
+----------
+[SELECT] -- ANALYTIC_PARTITION
+select count(*) over(partition by binary C2) from BT;
+----------
+[SELECT] -- FUNCTION_ARGUMENT
+select length(binary C1) from BT;
+----------
+[SELECT] -- CONTAINS_ARGUMENT
+select ID from BT where contains(C1,binary 'A');
+----------
+[SELECT] -- NESTED_BINARY
+select binary binary C1 from BT;
+----------
+[SELECT] -- PARENTHESIZED_BINARY
+select(binary C1) from BT;
+----------
+[SELECT] -- CASE_EXPRESSION
+select case when binary C2='a' then 1 else 0 end from BT;
+----------
+[SELECT] -- CTE_COMBINATION
+with Q as(select C1,C2 from BT) select C1 from Q where binary C2='a';
+----------
+[SELECT] -- UNION_COMBINATION
+select binary C1 from BT union all select binary C1 from BT2;
+----------
+[UPDATE] -- UPDATE_FILTER
+update BT set C3='X' where binary C2='a';
+----------
+[DELETE] -- DELETE_FILTER
+delete from BT where binary C2='a';
+----------
+[MERGE] -- MERGE_JOIN
+merge into BT2 D using BT S on(binary D.C1=S.C2) when matched then update set D.C2=S.C3;
+----------
+[SELECT] -- FUNCTION_BINARY_ONE
+select binary(C1) from BT;

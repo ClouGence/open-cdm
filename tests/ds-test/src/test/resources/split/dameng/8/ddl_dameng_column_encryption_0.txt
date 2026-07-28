@@ -1,0 +1,196 @@
+create table CODEX_ENC_T01(ID int, SECRET varchar(100) encrypt);
+create table CODEX_ENC_T02(ID int, SECRET varchar(100) encrypt with DES_ECB);
+create table CODEX_ENC_T03(ID int, SECRET varchar(100) encrypt with DES_ECB hash with MD5 salt);
+create table CODEX_ENC_T04(ID int, SECRET varchar(100) encrypt with DES_ECB hash with SHA1 no salt);
+create table CODEX_ENC_T05(ID int, SECRET varchar(100) encrypt auto);
+create table CODEX_ENC_T06(ID int, SECRET varchar(100) encrypt with AES256_CBC auto);
+create table CODEX_ENC_T07(ID int, SECRET varchar(100) encrypt with AES256_CBC auto hash with MD5 salt);
+create table CODEX_ENC_T08(ID int, SECRET varchar(100) encrypt manual);
+create table CODEX_ENC_T09(ID int, SECRET varchar(100) encrypt with DES_ECB manual);
+create table CODEX_ENC_T10(ID int, SECRET varchar(100) encrypt with DES_ECB manual hash with MD5 salt);
+create table CODEX_ENC_T11(ID int, SECRET varchar(100) encrypt manual hash with SHA1 no salt);
+create table CODEX_ENC_T12(ID int, SECRET varchar(100) encrypt manual user (CODEX_ENC_USER1, CODEX_ENC_USER2));
+create table CODEX_ENC_T13(ID int, SECRET varchar(100) encrypt with DES_ECB manual user (CODEX_ENC_USER1, CODEX_ENC_USER2) hash with MD5 salt);
+create table CODEX_ENC_T14(ID int, SECRET varchar(100));
+alter table CODEX_ENC_T14 add SECRET2 varchar(100) encrypt manual;
+alter table CODEX_ENC_T14 add SECRET3 varchar(100) encrypt with DES_ECB manual user (CODEX_ENC_USER1, CODEX_ENC_USER2) hash with SHA1 no salt;
+create table CODEX_ENC_K05(ID int, SECRET varchar(100) encrypt manual user ());
+create table CODEX_COLKEY_AUTO(ID int primary key, SECRET varchar(100) encrypt auto by StorageKey3_2026);
+create table CODEX_COLKEY_AUTO_HASH(ID int primary key, SECRET varchar(100) encrypt with AES256_CBC auto by StorageKey4_2026 hash with MD5 salt);
+create table CODEX_COLKEY_MANUAL(ID int primary key, SECRET varchar(100) encrypt manual by StorageKey5_2026);
+create table CODEX_COLKEY_MANUAL_VISIBLE(ID int primary key, SECRET varchar(100) encrypt with DES_ECB manual by StorageKey6_2026 user (SYSDBA) hash with SHA1 no salt);
+create table CODEX_COLKEY_ALTER(ID int primary key);
+alter table CODEX_COLKEY_ALTER add AUTO_SECRET varchar(100) encrypt auto by StorageKey7_2026;
+alter table CODEX_COLKEY_ALTER add MANUAL_SECRET varchar(100) encrypt manual by StorageKey8_2026 user (SYSDBA);
+drop table CODEX_COLKEY_AUTO purge;
+drop table CODEX_COLKEY_AUTO_HASH purge;
+drop table CODEX_COLKEY_MANUAL purge;
+drop table CODEX_COLKEY_MANUAL_VISIBLE purge;
+drop table CODEX_COLKEY_ALTER purge;
+create table CODEX_WRAP_AUTO_20260722(
+  ID int primary key,
+  SECRET varchar(100) encrypt with AES256_CBC auto by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8'
+);
+create table CODEX_WRAP_MANUAL_20260722(
+  ID int primary key,
+  SECRET varchar(100) encrypt with AES256_CBC manual by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8' user (SYSDBA) hash with MD5 salt
+);
+create table CODEX_WRAP_ALTER_20260722(ID int primary key);
+alter table CODEX_WRAP_ALTER_20260722 add SECRET varchar(100)
+  encrypt with AES256_CBC auto by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8'
+  hash with SHA1 no salt;
+drop table CODEX_WRAP_AUTO_20260722 purge;
+drop table CODEX_WRAP_MANUAL_20260722 purge;
+drop table CODEX_WRAP_ALTER_20260722 purge;
+create index CODEX_ENC_IDX_VISIBLE on CODEX_ENC_T12(SECRET);
+alter table CODEX_ENC_T12 modify SECRET varchar(120) encrypt manual user (CODEX_ENC_USER1, CODEX_ENC_USER2);
+create table CODEX_ENC_USER1.MANUAL_OWNER_DATA(ID int primary key, SECRET varchar(100) encrypt manual);
+create table CODEX_ENC_USER1.MANUAL_VISIBLE_DATA(ID int primary key, SECRET varchar(100) encrypt manual user (CODEX_ENC_USER1, CODEX_ENC_USER2) hash with MD5 salt);
+drop table if exists CODEX_ENC_T01;
+drop table if exists CODEX_ENC_T02;
+drop table if exists CODEX_ENC_T03;
+drop table if exists CODEX_ENC_T04;
+drop table if exists CODEX_ENC_T05;
+drop table if exists CODEX_ENC_T06;
+drop table if exists CODEX_ENC_T07;
+drop table if exists CODEX_ENC_T08;
+drop table if exists CODEX_ENC_T09;
+drop table if exists CODEX_ENC_T10;
+drop table if exists CODEX_ENC_T11;
+drop table if exists CODEX_ENC_T12;
+drop table if exists CODEX_ENC_T13;
+drop table if exists CODEX_ENC_T14;
+drop table if exists CODEX_ENC_K01;
+drop table if exists CODEX_ENC_K02;
+drop table if exists CODEX_ENC_K03;
+drop table if exists CODEX_ENC_K04;
+drop table if exists CODEX_ENC_K05;
+drop table if exists CODEX_ENC_P08;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T01(ID int, SECRET varchar(100) encrypt);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T02(ID int, SECRET varchar(100) encrypt with DES_ECB);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T03(ID int, SECRET varchar(100) encrypt with DES_ECB hash with MD5 salt);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T04(ID int, SECRET varchar(100) encrypt with DES_ECB hash with SHA1 no salt);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T05(ID int, SECRET varchar(100) encrypt auto);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T06(ID int, SECRET varchar(100) encrypt with AES256_CBC auto);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T07(ID int, SECRET varchar(100) encrypt with AES256_CBC auto hash with MD5 salt);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T08(ID int, SECRET varchar(100) encrypt manual);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T09(ID int, SECRET varchar(100) encrypt with DES_ECB manual);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T10(ID int, SECRET varchar(100) encrypt with DES_ECB manual hash with MD5 salt);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T11(ID int, SECRET varchar(100) encrypt manual hash with SHA1 no salt);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T12(ID int, SECRET varchar(100) encrypt manual user (CODEX_ENC_USER1, CODEX_ENC_USER2));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T13(ID int, SECRET varchar(100) encrypt with DES_ECB manual user (CODEX_ENC_USER1, CODEX_ENC_USER2) hash with MD5 salt);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_T14(ID int, SECRET varchar(100));
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table CODEX_ENC_T14 add SECRET2 varchar(100) encrypt manual;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table CODEX_ENC_T14 add SECRET3 varchar(100) encrypt with DES_ECB manual user (CODEX_ENC_USER1, CODEX_ENC_USER2) hash with SHA1 no salt;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table CODEX_ENC_K05(ID int, SECRET varchar(100) encrypt manual user ());
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_COLKEY_AUTO(ID int primary key, SECRET varchar(100) encrypt auto by StorageKey3_2026);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_COLKEY_AUTO_HASH(ID int primary key, SECRET varchar(100) encrypt with AES256_CBC auto by StorageKey4_2026 hash with MD5 salt);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_COLKEY_MANUAL(ID int primary key, SECRET varchar(100) encrypt manual by StorageKey5_2026);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_COLKEY_MANUAL_VISIBLE(ID int primary key, SECRET varchar(100) encrypt with DES_ECB manual by StorageKey6_2026 user (SYSDBA) hash with SHA1 no salt);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_COLKEY_ALTER(ID int primary key);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table CODEX_COLKEY_ALTER add AUTO_SECRET varchar(100) encrypt auto by StorageKey7_2026;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table CODEX_COLKEY_ALTER add MANUAL_SECRET varchar(100) encrypt manual by StorageKey8_2026 user (SYSDBA);
+----------
+[DROP_TABLE] drop table CODEX_COLKEY_AUTO purge;
+----------
+[DROP_TABLE] drop table CODEX_COLKEY_AUTO_HASH purge;
+----------
+[DROP_TABLE] drop table CODEX_COLKEY_MANUAL purge;
+----------
+[DROP_TABLE] drop table CODEX_COLKEY_MANUAL_VISIBLE purge;
+----------
+[DROP_TABLE] drop table CODEX_COLKEY_ALTER purge;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_WRAP_AUTO_20260722(
+  ID int primary key,
+  SECRET varchar(100) encrypt with AES256_CBC auto by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8'
+);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_WRAP_MANUAL_20260722(
+  ID int primary key,
+  SECRET varchar(100) encrypt with AES256_CBC manual by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8' user (SYSDBA) hash with MD5 salt
+);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_WRAP_ALTER_20260722(ID int primary key);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table CODEX_WRAP_ALTER_20260722 add SECRET varchar(100)
+  encrypt with AES256_CBC auto by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8'
+  hash with SHA1 no salt;
+----------
+[DROP_TABLE] drop table CODEX_WRAP_AUTO_20260722 purge;
+----------
+[DROP_TABLE] drop table CODEX_WRAP_MANUAL_20260722 purge;
+----------
+[DROP_TABLE] drop table CODEX_WRAP_ALTER_20260722 purge;
+----------
+[ADD_INDEX] create index CODEX_ENC_IDX_VISIBLE on CODEX_ENC_T12(SECRET);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table CODEX_ENC_T12 modify SECRET varchar(120) encrypt manual user (CODEX_ENC_USER1, CODEX_ENC_USER2);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_ENC_USER1.MANUAL_OWNER_DATA(ID int primary key, SECRET varchar(100) encrypt manual);
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_ENC_USER1.MANUAL_VISIBLE_DATA(ID int primary key, SECRET varchar(100) encrypt manual user (CODEX_ENC_USER1, CODEX_ENC_USER2) hash with MD5 salt);
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T01;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T02;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T03;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T04;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T05;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T06;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T07;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T08;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T09;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T10;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T11;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T12;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T13;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_T14;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_K01;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_K02;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_K03;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_K04;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_K05;
+----------
+[DROP_TABLE] drop table if exists CODEX_ENC_P08;

@@ -1,0 +1,15 @@
+create table app.bad_approx_01(c float());
+create table app.bad_approx_02(c double());
+create table app.bad_approx_03(c double precision());
+create table app.bad_approx_06(c real real);
+create function app.bad_approx_f(p float()) return int as begin return 1; end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_approx_01(c float());
+----------
+[CREATE_TABLE] create table app.bad_approx_02(c double());
+----------
+[CREATE_TABLE] create table app.bad_approx_03(c double precision());
+----------
+[CREATE_TABLE] create table app.bad_approx_06(c real real);
+----------
+[CREATE_PROG_OBJ] create function app.bad_approx_f(p float()) return int as begin return 1; end;/

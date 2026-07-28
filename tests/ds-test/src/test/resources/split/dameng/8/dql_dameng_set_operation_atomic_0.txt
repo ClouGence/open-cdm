@@ -1,0 +1,270 @@
+-- UNION default
+select a from app.set_left union select a from app.set_right;
+-- UNION all
+select a from app.set_left union all select a from app.set_right;
+-- UNION distinct
+select a from app.set_left union distinct select a from app.set_right;
+-- UNION unique
+select a from app.set_left union unique select a from app.set_right;
+-- INTERSECT default
+select a from app.set_left intersect select a from app.set_right;
+-- INTERSECT all
+select a from app.set_left intersect all select a from app.set_right;
+-- INTERSECT distinct
+select a from app.set_left intersect distinct select a from app.set_right;
+-- INTERSECT unique
+select a from app.set_left intersect unique select a from app.set_right;
+-- MINUS default
+select a from app.set_left minus select a from app.set_right;
+-- MINUS all
+select a from app.set_left minus all select a from app.set_right;
+-- MINUS distinct
+select a from app.set_left minus distinct select a from app.set_right;
+-- MINUS unique
+select a from app.set_left minus unique select a from app.set_right;
+-- EXCEPT default
+select a from app.set_left except select a from app.set_right;
+-- EXCEPT all
+select a from app.set_left except all select a from app.set_right;
+-- EXCEPT distinct
+select a from app.set_left except distinct select a from app.set_right;
+-- EXCEPT unique
+select a from app.set_left except unique select a from app.set_right;
+-- UNION CORRESPONDING
+select a,b from app.set_left union corresponding select a,b from app.set_right;
+-- UNION CORRESPONDING BY
+select a,b from app.set_left union all corresponding by(a) select a,b from app.set_right;
+-- INTERSECT CORRESPONDING
+select a,b from app.set_left intersect corresponding select a,b from app.set_right;
+-- INTERSECT CORRESPONDING BY
+select a,b from app.set_left intersect all corresponding by(a) select a,b from app.set_right;
+-- MINUS CORRESPONDING
+select a,b from app.set_left minus corresponding select a,b from app.set_right;
+-- MINUS CORRESPONDING BY
+select a,b from app.set_left minus all corresponding by(a) select a,b from app.set_right;
+-- EXCEPT CORRESPONDING
+select a,b from app.set_left except corresponding select a,b from app.set_right;
+-- EXCEPT CORRESPONDING BY
+select a,b from app.set_left except all corresponding by(a) select a,b from app.set_right;
+-- CORRESPONDING alias match
+select a left_a,b shared_b from app.set_left union all corresponding by(shared_b) select a right_a,b shared_b from app.set_right;
+-- CORRESPONDING two columns
+select a,b from app.set_left union corresponding by(a,b) select a,b from app.set_right;
+-- CORRESPONDING missing common restriction
+select a left_a from app.set_left union corresponding select a right_a from app.set_right;
+-- CORRESPONDING BY missing column restriction
+select a from app.set_left union corresponding by(missing_col) select a from app.set_right;
+-- three branch UNION
+select 1 from dual union select 2 from dual union select 3 from dual;
+-- mixed UNION and INTERSECT
+select 1 from dual union select 2 from dual intersect select 2 from dual;
+-- mixed MINUS and UNION ALL
+select 1 from dual minus select 2 from dual union all select 3 from dual;
+-- left parenthesized
+(select 1 from dual union all select 2 from dual) intersect select 2 from dual;
+-- right parenthesized
+select 1 from dual union all(select 2 from dual intersect select 2 from dual);
+-- both parenthesized
+(select 1 from dual union select 2 from dual) minus (select 2 from dual union select 3 from dual);
+-- nested three levels
+select 1 from dual union all(select 2 from dual minus(select 3 from dual union select 4 from dual));
+-- final ORDER BY ordinal
+select 2 a from dual union all select 1 from dual order by 1;
+-- final ORDER BY first alias
+select 2 a from dual union all select 1 b from dual order by a;
+-- final ORDER BY second alias restriction
+select 2 a from dual union all select 1 b from dual order by b;
+-- final LIMIT
+select a from app.set_left union all select a from app.set_right limit 2;
+-- final ROW_LIMIT
+select a from app.set_left union all select a from app.set_right fetch first 2 rows only;
+-- branch ORDER BY parenthesized
+(select a from app.set_left order by a limit 1) union all(select a from app.set_right order by a limit 1);
+-- UNION compatible numeric types
+select cast(a as int) value from app.set_left union select cast(a as bigint) from app.set_right;
+-- UNION compatible character types
+select cast(b as varchar(20)) value from app.set_left union select cast(b as char(20)) from app.set_right;
+-- UNION incompatible type restriction
+select a from app.set_left union select dt from app.set_right;
+-- UNION column count restriction
+select a,b from app.set_left union select a from app.set_right;
+-- INTERSECT type exact restriction
+select cast(a as int) from app.set_left intersect select cast(a as bigint) from app.set_right;
+-- MINUS column count restriction
+select a,b from app.set_left minus select a from app.set_right;
+-- UNION BLOB availability
+select blob_col from app.set_lob_left union select blob_col from app.set_lob_right;
+-- INTERSECT CLOB restriction
+select clob_col from app.set_lob_left intersect select clob_col from app.set_lob_right;
+-- EXCEPT IMAGE restriction
+select image_col from app.set_lob_left except select image_col from app.set_lob_right;
+-- set operation with CTE
+with q(a) as(select a from app.set_left) select a from q union all select a from app.set_right;
+-- set operation with analytic
+select a,row_number() over(order by a) rn from app.set_left union all select a,row_number() over(order by a) from app.set_right;
+-- set operation with GROUP
+select b,count(*) total from app.set_left group by b union all select b,count(*) from app.set_right group by b;
+-- set operation derived table
+select sum(a) from(select a from app.set_left union all select a from app.set_right) q;
+------------------------------------------------------------------------------------------
+[SELECT] -- UNION default
+select a from app.set_left union select a from app.set_right;
+----------
+[SELECT] -- UNION all
+select a from app.set_left union all select a from app.set_right;
+----------
+[SELECT] -- UNION distinct
+select a from app.set_left union distinct select a from app.set_right;
+----------
+[SELECT] -- UNION unique
+select a from app.set_left union unique select a from app.set_right;
+----------
+[SELECT] -- INTERSECT default
+select a from app.set_left intersect select a from app.set_right;
+----------
+[SELECT] -- INTERSECT all
+select a from app.set_left intersect all select a from app.set_right;
+----------
+[SELECT] -- INTERSECT distinct
+select a from app.set_left intersect distinct select a from app.set_right;
+----------
+[SELECT] -- INTERSECT unique
+select a from app.set_left intersect unique select a from app.set_right;
+----------
+[SELECT] -- MINUS default
+select a from app.set_left minus select a from app.set_right;
+----------
+[SELECT] -- MINUS all
+select a from app.set_left minus all select a from app.set_right;
+----------
+[SELECT] -- MINUS distinct
+select a from app.set_left minus distinct select a from app.set_right;
+----------
+[SELECT] -- MINUS unique
+select a from app.set_left minus unique select a from app.set_right;
+----------
+[SELECT] -- EXCEPT default
+select a from app.set_left except select a from app.set_right;
+----------
+[SELECT] -- EXCEPT all
+select a from app.set_left except all select a from app.set_right;
+----------
+[SELECT] -- EXCEPT distinct
+select a from app.set_left except distinct select a from app.set_right;
+----------
+[SELECT] -- EXCEPT unique
+select a from app.set_left except unique select a from app.set_right;
+----------
+[SELECT] -- UNION CORRESPONDING
+select a,b from app.set_left union corresponding select a,b from app.set_right;
+----------
+[SELECT] -- UNION CORRESPONDING BY
+select a,b from app.set_left union all corresponding by(a) select a,b from app.set_right;
+----------
+[SELECT] -- INTERSECT CORRESPONDING
+select a,b from app.set_left intersect corresponding select a,b from app.set_right;
+----------
+[SELECT] -- INTERSECT CORRESPONDING BY
+select a,b from app.set_left intersect all corresponding by(a) select a,b from app.set_right;
+----------
+[SELECT] -- MINUS CORRESPONDING
+select a,b from app.set_left minus corresponding select a,b from app.set_right;
+----------
+[SELECT] -- MINUS CORRESPONDING BY
+select a,b from app.set_left minus all corresponding by(a) select a,b from app.set_right;
+----------
+[SELECT] -- EXCEPT CORRESPONDING
+select a,b from app.set_left except corresponding select a,b from app.set_right;
+----------
+[SELECT] -- EXCEPT CORRESPONDING BY
+select a,b from app.set_left except all corresponding by(a) select a,b from app.set_right;
+----------
+[SELECT] -- CORRESPONDING alias match
+select a left_a,b shared_b from app.set_left union all corresponding by(shared_b) select a right_a,b shared_b from app.set_right;
+----------
+[SELECT] -- CORRESPONDING two columns
+select a,b from app.set_left union corresponding by(a,b) select a,b from app.set_right;
+----------
+[SELECT] -- CORRESPONDING missing common restriction
+select a left_a from app.set_left union corresponding select a right_a from app.set_right;
+----------
+[SELECT] -- CORRESPONDING BY missing column restriction
+select a from app.set_left union corresponding by(missing_col) select a from app.set_right;
+----------
+[SELECT] -- three branch UNION
+select 1 from dual union select 2 from dual union select 3 from dual;
+----------
+[SELECT] -- mixed UNION and INTERSECT
+select 1 from dual union select 2 from dual intersect select 2 from dual;
+----------
+[SELECT] -- mixed MINUS and UNION ALL
+select 1 from dual minus select 2 from dual union all select 3 from dual;
+----------
+[SELECT] -- left parenthesized
+(select 1 from dual union all select 2 from dual) intersect select 2 from dual;
+----------
+[SELECT] -- right parenthesized
+select 1 from dual union all(select 2 from dual intersect select 2 from dual);
+----------
+[SELECT] -- both parenthesized
+(select 1 from dual union select 2 from dual) minus (select 2 from dual union select 3 from dual);
+----------
+[SELECT] -- nested three levels
+select 1 from dual union all(select 2 from dual minus(select 3 from dual union select 4 from dual));
+----------
+[SELECT] -- final ORDER BY ordinal
+select 2 a from dual union all select 1 from dual order by 1;
+----------
+[SELECT] -- final ORDER BY first alias
+select 2 a from dual union all select 1 b from dual order by a;
+----------
+[SELECT] -- final ORDER BY second alias restriction
+select 2 a from dual union all select 1 b from dual order by b;
+----------
+[SELECT] -- final LIMIT
+select a from app.set_left union all select a from app.set_right limit 2;
+----------
+[SELECT] -- final ROW_LIMIT
+select a from app.set_left union all select a from app.set_right fetch first 2 rows only;
+----------
+[SELECT] -- branch ORDER BY parenthesized
+(select a from app.set_left order by a limit 1) union all(select a from app.set_right order by a limit 1);
+----------
+[SELECT] -- UNION compatible numeric types
+select cast(a as int) value from app.set_left union select cast(a as bigint) from app.set_right;
+----------
+[SELECT] -- UNION compatible character types
+select cast(b as varchar(20)) value from app.set_left union select cast(b as char(20)) from app.set_right;
+----------
+[SELECT] -- UNION incompatible type restriction
+select a from app.set_left union select dt from app.set_right;
+----------
+[SELECT] -- UNION column count restriction
+select a,b from app.set_left union select a from app.set_right;
+----------
+[SELECT] -- INTERSECT type exact restriction
+select cast(a as int) from app.set_left intersect select cast(a as bigint) from app.set_right;
+----------
+[SELECT] -- MINUS column count restriction
+select a,b from app.set_left minus select a from app.set_right;
+----------
+[SELECT] -- UNION BLOB availability
+select blob_col from app.set_lob_left union select blob_col from app.set_lob_right;
+----------
+[SELECT] -- INTERSECT CLOB restriction
+select clob_col from app.set_lob_left intersect select clob_col from app.set_lob_right;
+----------
+[SELECT] -- EXCEPT IMAGE restriction
+select image_col from app.set_lob_left except select image_col from app.set_lob_right;
+----------
+[SELECT] -- set operation with CTE
+with q(a) as(select a from app.set_left) select a from q union all select a from app.set_right;
+----------
+[SELECT] -- set operation with analytic
+select a,row_number() over(order by a) rn from app.set_left union all select a,row_number() over(order by a) from app.set_right;
+----------
+[SELECT] -- set operation with GROUP
+select b,count(*) total from app.set_left group by b union all select b,count(*) from app.set_right group by b;
+----------
+[SELECT] -- set operation derived table
+select sum(a) from(select a from app.set_left union all select a from app.set_right) q;

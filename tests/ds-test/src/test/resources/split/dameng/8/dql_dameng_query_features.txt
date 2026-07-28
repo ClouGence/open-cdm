@@ -1,0 +1,25 @@
+select status, count(*) as total
+from app.customer
+group by status
+having count(*) >= 1
+order by status;
+
+select id, name, row_number() over (order by id) as rn
+from app.customer;
+
+select id from app.customer where id = 1
+union all
+select id from app.customer where id = 2;
+------------------------------------------------------------------------------------------
+[SELECT] select status, count(*) as total
+from app.customer
+group by status
+having count(*) >= 1
+order by status;
+----------
+[SELECT] select id, name, row_number() over (order by id) as rn
+from app.customer;
+----------
+[SELECT] select id from app.customer where id = 1
+union all
+select id from app.customer where id = 2;

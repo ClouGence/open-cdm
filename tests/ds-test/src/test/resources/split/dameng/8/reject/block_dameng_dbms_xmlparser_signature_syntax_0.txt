@@ -1,0 +1,28 @@
+-- empty parser
+begin DBMS_XMLPARSER.FREEPARSER(,); end;
+/
+-- double comma
+begin DBMS_XMLPARSER.PARSEBUFFER(,,); end;
+/
+-- dangling named
+begin DBMS_XMLPARSER.PARSECLOB(P=>); end;
+/
+-- unclosed call
+begin DBMS_XMLPARSER.GETDOCUMENT(DBMS_XMLPARSER.NEWPARSER(; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- empty parser
+begin DBMS_XMLPARSER.FREEPARSER(,); end;
+/
+----------
+[BLOCK] -- double comma
+begin DBMS_XMLPARSER.PARSEBUFFER(,,); end;
+/
+----------
+[BLOCK] -- dangling named
+begin DBMS_XMLPARSER.PARSECLOB(P=>); end;
+/
+----------
+[BLOCK] -- unclosed call
+begin DBMS_XMLPARSER.GETDOCUMENT(DBMS_XMLPARSER.NEWPARSER(; end;
+/

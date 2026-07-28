@@ -1,0 +1,90 @@
+create huge table dsc_huge_basic(id int, payload varchar(64));
+create huge table if not exists dsc_huge_ifne(id int);
+create huge table dsc_huge_storage(id int) storage(section(1024), with delta);
+create huge table dsc_huge_s0(id int) striping 0;
+create huge table dsc_huge_s32(id int) striping 32;
+create huge table dsc_huge_s64(id int) striping 64;
+create huge table dsc_huge_s128(id int) striping 128;
+create huge table dsc_huge_s256(id int) striping 256;
+create huge table dsc_huge_high(id int) high;
+create huge table dsc_huge_normal(id int) normal;
+create huge table dsc_huge_external(id int) external;
+create huge table dsc_huge_s0_external(id int) striping 0 external;
+create huge table dsc_huge_s32_normal(id int) striping 32 normal;
+create huge table dsc_huge_s64_high(id int) striping 64 high;
+create huge table dsc_huge_s128_external(id int) striping 128 external;
+create huge table dsc_huge_s256_normal(id int) striping 256 normal;
+create huge table dsc_huge_ctas as select 1 as id from dual striping 32 external;
+insert into dsc_huge_basic values(1, 'from-dsc01');
+select id, payload, rowid from dsc_huge_basic;
+update dsc_huge_basic set payload='failover-dsc02' where id=1;
+commit;
+select ep_name, ep_seqno, ep_mode, ep_status from v$dsc_ep_info order by ep_seqno;
+comment on table dsc_huge_basic is 'dsc huge table';
+comment on column dsc_huge_basic.payload is 'dsc huge payload';
+create index dsc_huge_basic_i on dsc_huge_basic(id);
+create or replace directory dsc_ext_dir as '/tmp';
+create external table dsc_external(id int) from datafile default directory dsc_ext_dir location('dsc.csv');
+drop index dsc_huge_basic_i;
+drop table dsc_huge_basic purge;
+drop directory dsc_ext_dir;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_basic(id int, payload varchar(64));
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table if not exists dsc_huge_ifne(id int);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_storage(id int) storage(section(1024), with delta);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s0(id int) striping 0;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s32(id int) striping 32;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s64(id int) striping 64;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s128(id int) striping 128;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s256(id int) striping 256;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_high(id int) high;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_normal(id int) normal;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_external(id int) external;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s0_external(id int) striping 0 external;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s32_normal(id int) striping 32 normal;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s64_high(id int) striping 64 high;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s128_external(id int) striping 128 external;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dsc_huge_s256_normal(id int) striping 256 normal;
+----------
+[CREATE_TABLE|SELECT] create huge table dsc_huge_ctas as select 1 as id from dual striping 32 external;
+----------
+[INSERT] insert into dsc_huge_basic values(1, 'from-dsc01');
+----------
+[SELECT] select id, payload, rowid from dsc_huge_basic;
+----------
+[UPDATE] update dsc_huge_basic set payload='failover-dsc02' where id=1;
+----------
+[TRANSACTION] commit;
+----------
+[SELECT] select ep_name, ep_seqno, ep_mode, ep_status from v$dsc_ep_info order by ep_seqno;
+----------
+[COMMENT_TABLE] comment on table dsc_huge_basic is 'dsc huge table';
+----------
+[COMMENT_COLUMN] comment on column dsc_huge_basic.payload is 'dsc huge payload';
+----------
+[ADD_INDEX] create index dsc_huge_basic_i on dsc_huge_basic(id);
+----------
+[SYSTEM_SETTING_WRITE] create or replace directory dsc_ext_dir as '/tmp';
+----------
+[CREATE_TABLE] create external table dsc_external(id int) from datafile default directory dsc_ext_dir location('dsc.csv');
+----------
+[DROP_INDEX] drop index dsc_huge_basic_i;
+----------
+[DROP_TABLE] drop table dsc_huge_basic purge;
+----------
+[SYSTEM_SETTING_WRITE] drop directory dsc_ext_dir;

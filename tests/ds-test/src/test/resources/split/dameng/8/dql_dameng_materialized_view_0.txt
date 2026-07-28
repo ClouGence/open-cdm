@@ -1,0 +1,12 @@
+select * from mv_basic;
+select id, amount from mv_filtered where amount > 100;
+select customer_id, total_amount from mv_aggregate order by customer_id;
+select m.id, c.name from mv_basic m join mv_customers c on m.customer_id = c.id;
+------------------------------------------------------------------------------------------
+[SELECT] select * from mv_basic;
+----------
+[SELECT] select id, amount from mv_filtered where amount > 100;
+----------
+[SELECT] select customer_id, total_amount from mv_aggregate order by customer_id;
+----------
+[SELECT] select m.id, c.name from mv_basic m join mv_customers c on m.customer_id = c.id;

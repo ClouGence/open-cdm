@@ -1,0 +1,6 @@
+create table CODEX_DM8_CRYPTO_DATA(ID int primary key, C_TEXT varchar(400), C_BIN varbinary(400), C_CHAR varbinary(400), C_DATE varbinary(400), C_DATETIME varbinary(400), C_DEC varbinary(400), C_TIME varbinary(400));
+drop table CODEX_DM8_CRYPTO_DATA;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table CODEX_DM8_CRYPTO_DATA(ID int primary key, C_TEXT varchar(400), C_BIN varbinary(400), C_CHAR varbinary(400), C_DATE varbinary(400), C_DATETIME varbinary(400), C_DEC varbinary(400), C_TIME varbinary(400));
+----------
+[DROP_TABLE] drop table CODEX_DM8_CRYPTO_DATA;

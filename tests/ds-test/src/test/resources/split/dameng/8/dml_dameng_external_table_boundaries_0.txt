@@ -1,0 +1,24 @@
+select id, label from app.ext_all order by id;
+lock table app.ext_all in exclusive mode;
+insert into app.ext_all values(3, 'X', 1, 'X');
+update app.ext_all set label='X' where id=1;
+delete from app.ext_all where id=1;
+truncate table app.ext_all;
+select trxid from app.ext_all;
+create index ext_all_idx on app.ext_all(id);
+------------------------------------------------------------------------------------------
+[SELECT] select id, label from app.ext_all order by id;
+----------
+[SESSION_LOCK] lock table app.ext_all in exclusive mode;
+----------
+[INSERT] insert into app.ext_all values(3, 'X', 1, 'X');
+----------
+[UPDATE] update app.ext_all set label='X' where id=1;
+----------
+[DELETE] delete from app.ext_all where id=1;
+----------
+[TRUNCATE_TABLE] truncate table app.ext_all;
+----------
+[SELECT] select trxid from app.ext_all;
+----------
+[ADD_INDEX] create index ext_all_idx on app.ext_all(id);

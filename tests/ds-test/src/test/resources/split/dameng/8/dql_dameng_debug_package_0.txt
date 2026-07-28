@@ -1,0 +1,32 @@
+select dbms_debug.initialize('CODEX_DEBUG_STANDALONE') debug_session_id from dual;
+select dbms_debug.initialize('CODEX_DEBUG_STANDALONE') debug_session_id from dual;
+select dbms_debug.success success_code,
+       dbms_debug.break_next_line break_next_line,
+       dbms_debug.break_any_call break_any_call,
+       dbms_debug.info_getBreakpoint info_breakpoint,
+       dbms_debug.info_getLineinfo info_line,
+       dbms_debug.info_getStackDepth info_stack,
+       dbms_debug.info_getOerInfo info_oer
+from dual;
+select label, number_value, text_value
+from CODEX_DM8_DEBUG_CTL
+where label='PROBE_VERSION'
+order by label;
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select dbms_debug.initialize('CODEX_DEBUG_STANDALONE') debug_session_id from dual;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_debug.initialize('CODEX_DEBUG_STANDALONE') debug_session_id from dual;
+----------
+[SELECT] select dbms_debug.success success_code,
+       dbms_debug.break_next_line break_next_line,
+       dbms_debug.break_any_call break_any_call,
+       dbms_debug.info_getBreakpoint info_breakpoint,
+       dbms_debug.info_getLineinfo info_line,
+       dbms_debug.info_getStackDepth info_stack,
+       dbms_debug.info_getOerInfo info_oer
+from dual;
+----------
+[SELECT] select label, number_value, text_value
+from CODEX_DM8_DEBUG_CTL
+where label='PROBE_VERSION'
+order by label;

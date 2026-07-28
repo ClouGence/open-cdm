@@ -1,0 +1,96 @@
+select * from flash_target when timestamp sysdate - 3/86400;
+select * from flash_target as of timestamp sysdate - 3/86400;
+select id, name from flash_target as of timestamp sysdate - 3/86400;
+select id, amount from flash_target as of timestamp sysdate - 3/86400 where id = 1;
+select f.id, f.name from flash_target as of timestamp sysdate - 3/86400 f;
+select f.id, f.amount from flash_target when timestamp sysdate - 3/86400 as f where f.amount < 100;
+select count(*) from flash_target as of timestamp sysdate - 3/86400;
+select sum(amount), min(amount), max(amount) from flash_target as of timestamp sysdate - 3/86400;
+select id, name from flash_target as of timestamp sysdate - 3/86400 order by id;
+select id, name from flash_target as of timestamp sysdate - 3/86400 limit 2;
+select f.id, o.label from flash_target as of timestamp sysdate - 3/86400 f join flash_other o on f.id = o.id;
+select f.id, o.label from flash_target f join flash_other as of timestamp sysdate - 3/86400 o on f.id = o.id;
+select f.id, o.label from flash_target as of timestamp sysdate - 3/86400 f join flash_other as of timestamp sysdate - 3/86400 o on f.id = o.id;
+select * from (select id, name from flash_target as of timestamp sysdate - 3/86400) x;
+select id from flash_target as of timestamp sysdate - 3/86400 where exists(select 1 from flash_other where flash_other.id = flash_target.id);
+select id from flash_target as of timestamp sysdate - 3/86400 where id in(select id from flash_other);
+select * from flash_target versions between timestamp sysdate - 3/86400 and sysdate;
+select versions_startscn, versions_endscn, id, amount from flash_target versions between timestamp sysdate - 3/86400 and sysdate;
+select versions_starttime, versions_endtime, versions_operation, id from flash_target versions between timestamp sysdate - 3/86400 and sysdate;
+select id, name from flash_target versions between timestamp sysdate - 3/86400 and sysdate where id = 1;
+select id, count(*) from flash_target versions between timestamp sysdate - 3/86400 and sysdate group by id;
+select f.id, f.versions_operation from flash_target versions between timestamp sysdate - 3/86400 and sysdate f;
+select * from v$flashback_trx_info where commit_timestamp > sysdate - 1;
+select start_trxid, commit_trxid, commit_timestamp, login_user, commit_lsn from v$flashback_trx_info where commit_timestamp > sysdate - 1 order by commit_timestamp;
+with old_rows as (select id, name, amount from flash_target as of timestamp sysdate - 3/86400) select * from old_rows order by id;
+select id, name from flash_target as of timestamp sysdate - 3/86400 union all select id, name from flash_target as of timestamp sysdate - 3/86400;
+select (select max(amount) from flash_target as of timestamp sysdate - 3/86400) as old_max from dual;
+select f.id from flash_target as of timestamp sysdate - 3/86400 f where exists(select 1 from flash_target as of timestamp sysdate - 3/86400 o where o.id = f.id);
+select f.id, o.name from flash_target as of timestamp sysdate - 3/86400 f cross join flash_target as of timestamp sysdate - 3/86400 o where f.id = o.id;
+select id, name from flash_target as of timestamp cast(sysdate - 3/86400 as datetime);
+select versions_startscn, versions_endscn, versions_operation, id from flash_target versions between timestamp sysdate - 3/86400 and sysdate order by versions_startscn;
+select start_timestamp, commit_timestamp, operation, table_name, table_owner, undo_sql from v$flashback_trx_info where commit_timestamp > sysdate - 1;
+------------------------------------------------------------------------------------------
+[SELECT] select * from flash_target when timestamp sysdate - 3/86400;
+----------
+[SELECT] select * from flash_target as of timestamp sysdate - 3/86400;
+----------
+[SELECT] select id, name from flash_target as of timestamp sysdate - 3/86400;
+----------
+[SELECT] select id, amount from flash_target as of timestamp sysdate - 3/86400 where id = 1;
+----------
+[SELECT] select f.id, f.name from flash_target as of timestamp sysdate - 3/86400 f;
+----------
+[SELECT] select f.id, f.amount from flash_target when timestamp sysdate - 3/86400 as f where f.amount < 100;
+----------
+[SELECT] select count(*) from flash_target as of timestamp sysdate - 3/86400;
+----------
+[SELECT] select sum(amount), min(amount), max(amount) from flash_target as of timestamp sysdate - 3/86400;
+----------
+[SELECT] select id, name from flash_target as of timestamp sysdate - 3/86400 order by id;
+----------
+[SELECT] select id, name from flash_target as of timestamp sysdate - 3/86400 limit 2;
+----------
+[SELECT] select f.id, o.label from flash_target as of timestamp sysdate - 3/86400 f join flash_other o on f.id = o.id;
+----------
+[SELECT] select f.id, o.label from flash_target f join flash_other as of timestamp sysdate - 3/86400 o on f.id = o.id;
+----------
+[SELECT] select f.id, o.label from flash_target as of timestamp sysdate - 3/86400 f join flash_other as of timestamp sysdate - 3/86400 o on f.id = o.id;
+----------
+[SELECT] select * from (select id, name from flash_target as of timestamp sysdate - 3/86400) x;
+----------
+[SELECT] select id from flash_target as of timestamp sysdate - 3/86400 where exists(select 1 from flash_other where flash_other.id = flash_target.id);
+----------
+[SELECT] select id from flash_target as of timestamp sysdate - 3/86400 where id in(select id from flash_other);
+----------
+[SELECT] select * from flash_target versions between timestamp sysdate - 3/86400 and sysdate;
+----------
+[SELECT] select versions_startscn, versions_endscn, id, amount from flash_target versions between timestamp sysdate - 3/86400 and sysdate;
+----------
+[SELECT] select versions_starttime, versions_endtime, versions_operation, id from flash_target versions between timestamp sysdate - 3/86400 and sysdate;
+----------
+[SELECT] select id, name from flash_target versions between timestamp sysdate - 3/86400 and sysdate where id = 1;
+----------
+[SELECT] select id, count(*) from flash_target versions between timestamp sysdate - 3/86400 and sysdate group by id;
+----------
+[SELECT] select f.id, f.versions_operation from flash_target versions between timestamp sysdate - 3/86400 and sysdate f;
+----------
+[SELECT] select * from v$flashback_trx_info where commit_timestamp > sysdate - 1;
+----------
+[SELECT] select start_trxid, commit_trxid, commit_timestamp, login_user, commit_lsn from v$flashback_trx_info where commit_timestamp > sysdate - 1 order by commit_timestamp;
+----------
+[SELECT] with old_rows as (select id, name, amount from flash_target as of timestamp sysdate - 3/86400) select * from old_rows order by id;
+----------
+[SELECT] select id, name from flash_target as of timestamp sysdate - 3/86400 union all select id, name from flash_target as of timestamp sysdate - 3/86400;
+----------
+[SELECT] select (select max(amount) from flash_target as of timestamp sysdate - 3/86400) as old_max from dual;
+----------
+[SELECT] select f.id from flash_target as of timestamp sysdate - 3/86400 f where exists(select 1 from flash_target as of timestamp sysdate - 3/86400 o where o.id = f.id);
+----------
+[SELECT] select f.id, o.name from flash_target as of timestamp sysdate - 3/86400 f cross join flash_target as of timestamp sysdate - 3/86400 o where f.id = o.id;
+----------
+[SELECT] select id, name from flash_target as of timestamp cast(sysdate - 3/86400 as datetime);
+----------
+[SELECT] select versions_startscn, versions_endscn, versions_operation, id from flash_target versions between timestamp sysdate - 3/86400 and sysdate order by versions_startscn;
+----------
+[SELECT] select start_timestamp, commit_timestamp, operation, table_name, table_owner, undo_sql from v$flashback_trx_info where commit_timestamp > sysdate - 1;

@@ -1,0 +1,900 @@
+-- analytic function AVG base
+select id,avg(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function CORR base
+select id,corr(v,v2) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function COUNT base
+select id,count(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function COVAR_POP base
+select id,covar_pop(v,v2) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function COVAR_SAMP base
+select id,covar_samp(v,v2) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function CUME_DIST base
+select id,cume_dist() over(partition by g order by id) as analytic_value from app.analytic_t;
+-- analytic function DENSE_RANK base
+select id,dense_rank() over(partition by g order by id) as analytic_value from app.analytic_t;
+-- analytic function FIRST base
+select id,max(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function FIRST_VALUE base
+select id,first_value(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function LAG base
+select id,lag(v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- analytic function LAST base
+select id,min(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function LAST_VALUE base
+select id,last_value(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function LEAD base
+select id,lead(v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- analytic function LISTAGG base
+select id,listagg(txt,',') within group(order by id) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function NTH_VALUE base
+select id,nth_value(v,1) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- analytic function MAX base
+select id,max(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function MIN base
+select id,min(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function NTILE base
+select id,ntile(2) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- analytic function PERCENT_RANK base
+select id,percent_rank() over(partition by g order by id) as analytic_value from app.analytic_t;
+-- analytic function PERCENTILE_CONT base
+select id,percentile_cont(0.5) within group(order by v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function PERCENTILE_DISC base
+select id,percentile_disc(0.5) within group(order by v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function RANK base
+select id,rank() over(partition by g order by id) as analytic_value from app.analytic_t;
+-- analytic function RATIO_TO_REPORT base
+select id,ratio_to_report(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function ROW_NUMBER base
+select id,row_number() over(partition by g order by id) as analytic_value from app.analytic_t;
+-- analytic function STDDEV base
+select id,stddev(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function STDDEV_POP base
+select id,stddev_pop(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function STDDEV_SAMP base
+select id,stddev_samp(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function SUM base
+select id,sum(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function VAR_POP base
+select id,var_pop(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function VAR_SAMP base
+select id,var_samp(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function VARIANCE base
+select id,variance(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function WM_CONCAT base
+select id,wm_concat(txt) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function MEDIAN base
+select id,median(v) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function REGR_SLOPE base
+select id,regr_slope(v,v2) over(partition by g) as analytic_value from app.analytic_t;
+-- analytic function AVG frame capability
+select id,avg(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function CORR frame capability
+select id,corr(v,v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function COUNT frame capability
+select id,count(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function COVAR_POP frame capability
+select id,covar_pop(v,v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function COVAR_SAMP frame capability
+select id,covar_samp(v,v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function CUME_DIST frame capability
+select id,cume_dist() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function DENSE_RANK frame capability
+select id,dense_rank() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function FIRST frame capability
+select id,max(v) keep(dense_rank first order by v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function FIRST_VALUE frame capability
+select id,first_value(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function LAG frame capability
+select id,lag(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function LAST frame capability
+select id,min(v) keep(dense_rank last order by v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function LAST_VALUE frame capability
+select id,last_value(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function LEAD frame capability
+select id,lead(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function LISTAGG frame capability
+select id,listagg(txt,',') within group(order by id) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function NTH_VALUE frame capability
+select id,nth_value(v,1) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function MAX frame capability
+select id,max(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function MIN frame capability
+select id,min(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function NTILE frame capability
+select id,ntile(2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function PERCENT_RANK frame capability
+select id,percent_rank() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function PERCENTILE_CONT frame capability
+select id,percentile_cont(0.5) within group(order by v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function PERCENTILE_DISC frame capability
+select id,percentile_disc(0.5) within group(order by v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function RANK frame capability
+select id,rank() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function RATIO_TO_REPORT frame capability
+select id,ratio_to_report(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function ROW_NUMBER frame capability
+select id,row_number() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function STDDEV frame capability
+select id,stddev(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function STDDEV_POP frame capability
+select id,stddev_pop(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function STDDEV_SAMP frame capability
+select id,stddev_samp(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function SUM frame capability
+select id,sum(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function VAR_POP frame capability
+select id,var_pop(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function VAR_SAMP frame capability
+select id,var_samp(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function VARIANCE frame capability
+select id,variance(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function WM_CONCAT frame capability
+select id,wm_concat(txt) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function MEDIAN frame capability
+select id,median(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- analytic function REGR_SLOPE frame capability
+select id,regr_slope(v,v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+-- count star analytic
+select id,count(*) over(partition by g) as analytic_value from app.analytic_t;
+-- sum all analytic
+select id,sum(all v) over(partition by g) as analytic_value from app.analytic_t;
+-- avg distinct without order
+select id,avg(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+-- avg distinct with order
+select id,avg(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- max distinct without order
+select id,max(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+-- max distinct with order
+select id,max(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- min distinct without order
+select id,min(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+-- min distinct with order
+select id,min(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- count distinct without order
+select id,count(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+-- count distinct with order
+select id,count(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- sum distinct without order
+select id,sum(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+-- sum distinct with order
+select id,sum(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- stddev distinct without order
+select id,stddev(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+-- stddev distinct with order
+select id,stddev(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- variance distinct without order
+select id,variance(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+-- variance distinct with order
+select id,variance(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- avg keep dense_rank first
+select id,avg(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- avg keep dense_rank last
+select id,avg(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- max keep dense_rank first
+select id,max(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- max keep dense_rank last
+select id,max(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- min keep dense_rank first
+select id,min(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- min keep dense_rank last
+select id,min(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- count keep dense_rank first
+select id,count(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- count keep dense_rank last
+select id,count(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- sum keep dense_rank first
+select id,sum(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- sum keep dense_rank last
+select id,sum(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+-- first_value respect nulls outside
+select id,first_value(nv) respect nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+-- first_value respect nulls inside
+select id,first_value(nv respect nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- first_value ignore nulls outside
+select id,first_value(nv) ignore nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+-- first_value ignore nulls inside
+select id,first_value(nv ignore nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- last_value respect nulls outside
+select id,last_value(nv) respect nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+-- last_value respect nulls inside
+select id,last_value(nv respect nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- last_value ignore nulls outside
+select id,last_value(nv) ignore nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+-- last_value ignore nulls inside
+select id,last_value(nv ignore nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lag respect nulls outside
+select id,lag(nv) respect nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lag respect nulls inside
+select id,lag(nv respect nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lag ignore nulls outside
+select id,lag(nv) ignore nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lag ignore nulls inside
+select id,lag(nv ignore nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lead respect nulls outside
+select id,lead(nv) respect nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lead respect nulls inside
+select id,lead(nv respect nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lead ignore nulls outside
+select id,lead(nv) ignore nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lead ignore nulls inside
+select id,lead(nv ignore nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- nth_value from first respect nulls
+select id,nth_value(nv,2) from first respect nulls over(partition by g order by id rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+-- nth_value from first ignore nulls
+select id,nth_value(nv,2) from first ignore nulls over(partition by g order by id rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+-- nth_value from last respect nulls
+select id,nth_value(nv,2) from last respect nulls over(partition by g order by id rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+-- nth_value from last ignore nulls
+select id,nth_value(nv,2) from last ignore nulls over(partition by g order by id rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+-- lag one argument
+select id,lag(v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lag offset
+select id,lag(v,2) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lag offset default
+select id,lag(v,2,-1) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lag offset expression
+select id,lag(v,1+1,-1) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lead one argument
+select id,lead(v) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lead offset
+select id,lead(v,2) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lead offset default
+select id,lead(v,2,-1) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- lead offset expression
+select id,lead(v,1+1,-1) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- listagg argument only
+select id,listagg(txt) over(partition by g) as analytic_value from app.analytic_t;
+-- listagg separator
+select id,listagg(txt,'|') over(partition by g) as analytic_value from app.analytic_t;
+-- listagg within group
+select id,listagg(txt,'|') within group(order by v,id) over(partition by g) as analytic_value from app.analytic_t;
+-- listagg empty over
+select id,listagg(txt,',') within group(order by id) over() as analytic_value from app.analytic_t;
+-- wm_concat concatenated argument
+select id,wm_concat(txt||':'||v) over(partition by g) as analytic_value from app.analytic_t;
+-- wm_concat ordered
+select id,wm_concat(txt) over(partition by g order by id) as analytic_value from app.analytic_t;
+-- median empty over
+select id,median(v) over() as analytic_value from app.analytic_t;
+-- rows unbounded preceding shorthand
+select id,sum(v) over(partition by g order by v rows unbounded preceding) as analytic_value from app.analytic_t;
+-- rows current row shorthand
+select id,sum(v) over(partition by g order by v rows current row) as analytic_value from app.analytic_t;
+-- rows value preceding shorthand
+select id,sum(v) over(partition by g order by v rows 1 preceding) as analytic_value from app.analytic_t;
+-- rows full
+select id,sum(v) over(partition by g order by v rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+-- rows current only
+select id,sum(v) over(partition by g order by v rows between current row and current row) as analytic_value from app.analytic_t;
+-- rows preceding to current
+select id,sum(v) over(partition by g order by v rows between 2 preceding and current row) as analytic_value from app.analytic_t;
+-- rows preceding interval
+select id,sum(v) over(partition by g order by v rows between 2 preceding and 1 preceding) as analytic_value from app.analytic_t;
+-- rows preceding to following
+select id,sum(v) over(partition by g order by v rows between 1 preceding and 1 following) as analytic_value from app.analytic_t;
+-- rows current to following
+select id,sum(v) over(partition by g order by v rows between current row and 1 following) as analytic_value from app.analytic_t;
+-- rows following interval
+select id,sum(v) over(partition by g order by v rows between 1 following and 2 following) as analytic_value from app.analytic_t;
+-- range unbounded preceding shorthand
+select id,sum(v) over(partition by g order by v range unbounded preceding) as analytic_value from app.analytic_t;
+-- range current row shorthand
+select id,sum(v) over(partition by g order by v range current row) as analytic_value from app.analytic_t;
+-- range value preceding shorthand
+select id,sum(v) over(partition by g order by v range 5 preceding) as analytic_value from app.analytic_t;
+-- range full
+select id,sum(v) over(partition by g order by v range between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+-- range current only
+select id,sum(v) over(partition by g order by v range between current row and current row) as analytic_value from app.analytic_t;
+-- range preceding to current
+select id,sum(v) over(partition by g order by v range between 5 preceding and current row) as analytic_value from app.analytic_t;
+-- range preceding to following
+select id,sum(v) over(partition by g order by v range between 5 preceding and 5 following) as analytic_value from app.analytic_t;
+-- range current to following
+select id,sum(v) over(partition by g order by v range between current row and 5 following) as analytic_value from app.analytic_t;
+-- range following interval
+select id,sum(v) over(partition by g order by v range between 1 following and 5 following) as analytic_value from app.analytic_t;
+-- range date interval
+select id,sum(v) over(order by dt range between interval '1' day preceding and current row) as analytic_value from app.analytic_t;
+-- window without order restriction
+select id,sum(v) over(partition by g rows unbounded preceding) as analytic_value from app.analytic_t;
+-- rows negative restriction
+select id,sum(v) over(order by id rows -1 preceding) as analytic_value from app.analytic_t;
+-- rows decimal restriction
+select id,sum(v) over(order by id rows 1.5 preceding) as analytic_value from app.analytic_t;
+-- range negative restriction
+select id,sum(v) over(order by v range -1 preceding) as analytic_value from app.analytic_t;
+-- range multiple order restriction
+select id,sum(v) over(order by v,id range 1 preceding) as analytic_value from app.analytic_t;
+-- window current to preceding restriction
+select id,sum(v) over(order by id rows between current row and 1 preceding) as analytic_value from app.analytic_t;
+-- window following to current restriction
+select id,sum(v) over(order by id rows between 1 following and current row) as analytic_value from app.analytic_t;
+-- window following to preceding restriction
+select id,sum(v) over(order by id rows between 1 following and 1 preceding) as analytic_value from app.analytic_t;
+-- window unbounded following start restriction
+select id,sum(v) over(order by id rows between unbounded following and unbounded following) as analytic_value from app.analytic_t;
+-- window unbounded preceding end restriction
+select id,sum(v) over(order by id rows between unbounded preceding and unbounded preceding) as analytic_value from app.analytic_t;
+-- analytic in select
+select id,row_number() over(order by id) as rn from app.analytic_t;
+-- analytic in order by
+select id from app.analytic_t order by row_number() over(order by v,id);
+-- analytic in where restriction
+select id from app.analytic_t where row_number() over(order by id)=1;
+-- analytic in join restriction
+select a.id from app.analytic_t a join app.analytic_t b on row_number() over(order by a.id)=1;
+-- analytic in group restriction
+select count(*) from app.analytic_t group by row_number() over(order by id);
+-- analytic in having restriction
+select g,count(*) from app.analytic_t group by g having row_number() over(order by g)=1;
+-- analytic in update restriction
+update app.analytic_t set v=row_number() over(order by id) where id=1;
+-- analytic nested argument restriction
+select sum(row_number() over(order by id)) over() from app.analytic_t;
+-- analytic nested partition restriction
+select sum(v) over(partition by row_number() over(order by id)) from app.analytic_t;
+-- analytic nested order restriction
+select sum(v) over(order by row_number() over(order by id)) from app.analytic_t;
+-- named window direct current online syntax
+select id,sum(v) over w as analytic_value from app.analytic_t window w as(partition by g order by id rows unbounded preceding);
+-- named window inheritance current online syntax
+select id,sum(v) over(w order by id rows unbounded preceding) as analytic_value from app.analytic_t window w as(partition by g);
+-- multiple named windows current online syntax
+select id,sum(v) over w1,max(v) over w2 from app.analytic_t window w1 as(partition by g),w2 as(order by id);
+-- analytic in CTE
+with q as(select id,g,v,row_number() over(partition by g order by id) rn from app.analytic_t) select id from q where rn=1;
+-- analytic in derived table
+select id from(select id,row_number() over(order by id) rn from app.analytic_t) q where rn<=2;
+-- analytic with group by
+select g,sum(v) group_sum,sum(sum(v)) over(order by g) running_sum from app.analytic_t group by g;
+-- analytic with union
+select id,row_number() over(order by id) rn from app.analytic_t where g='A' union all select id,row_number() over(order by id) from app.analytic_t where g='B';
+-- analytic with top
+select top 2 id,row_number() over(order by v,id) rn from app.analytic_t order by rn;
+-- analytic with limit
+select id,row_number() over(order by v,id) rn from app.analytic_t order by rn limit 2;
+-- analytic with for read only
+select id,row_number() over(order by id) rn from app.analytic_t for read only;
+-- analytic with partition and constant order
+select id,sum(v) over(partition by 1 order by 1 rows unbounded preceding) analytic_value from app.analytic_t;
+------------------------------------------------------------------------------------------
+[SELECT] -- analytic function AVG base
+select id,avg(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function CORR base
+select id,corr(v,v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function COUNT base
+select id,count(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function COVAR_POP base
+select id,covar_pop(v,v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function COVAR_SAMP base
+select id,covar_samp(v,v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function CUME_DIST base
+select id,cume_dist() over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function DENSE_RANK base
+select id,dense_rank() over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function FIRST base
+select id,max(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function FIRST_VALUE base
+select id,first_value(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LAG base
+select id,lag(v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LAST base
+select id,min(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LAST_VALUE base
+select id,last_value(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LEAD base
+select id,lead(v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LISTAGG base
+select id,listagg(txt,',') within group(order by id) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function NTH_VALUE base
+select id,nth_value(v,1) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function MAX base
+select id,max(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function MIN base
+select id,min(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function NTILE base
+select id,ntile(2) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function PERCENT_RANK base
+select id,percent_rank() over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function PERCENTILE_CONT base
+select id,percentile_cont(0.5) within group(order by v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function PERCENTILE_DISC base
+select id,percentile_disc(0.5) within group(order by v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function RANK base
+select id,rank() over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function RATIO_TO_REPORT base
+select id,ratio_to_report(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function ROW_NUMBER base
+select id,row_number() over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function STDDEV base
+select id,stddev(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function STDDEV_POP base
+select id,stddev_pop(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function STDDEV_SAMP base
+select id,stddev_samp(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function SUM base
+select id,sum(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function VAR_POP base
+select id,var_pop(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function VAR_SAMP base
+select id,var_samp(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function VARIANCE base
+select id,variance(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT|CALL_PROG_OBJ] -- analytic function WM_CONCAT base
+select id,wm_concat(txt) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function MEDIAN base
+select id,median(v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function REGR_SLOPE base
+select id,regr_slope(v,v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function AVG frame capability
+select id,avg(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function CORR frame capability
+select id,corr(v,v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function COUNT frame capability
+select id,count(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function COVAR_POP frame capability
+select id,covar_pop(v,v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function COVAR_SAMP frame capability
+select id,covar_samp(v,v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function CUME_DIST frame capability
+select id,cume_dist() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function DENSE_RANK frame capability
+select id,dense_rank() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function FIRST frame capability
+select id,max(v) keep(dense_rank first order by v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function FIRST_VALUE frame capability
+select id,first_value(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LAG frame capability
+select id,lag(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LAST frame capability
+select id,min(v) keep(dense_rank last order by v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LAST_VALUE frame capability
+select id,last_value(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LEAD frame capability
+select id,lead(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function LISTAGG frame capability
+select id,listagg(txt,',') within group(order by id) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function NTH_VALUE frame capability
+select id,nth_value(v,1) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function MAX frame capability
+select id,max(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function MIN frame capability
+select id,min(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function NTILE frame capability
+select id,ntile(2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function PERCENT_RANK frame capability
+select id,percent_rank() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function PERCENTILE_CONT frame capability
+select id,percentile_cont(0.5) within group(order by v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function PERCENTILE_DISC frame capability
+select id,percentile_disc(0.5) within group(order by v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function RANK frame capability
+select id,rank() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function RATIO_TO_REPORT frame capability
+select id,ratio_to_report(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function ROW_NUMBER frame capability
+select id,row_number() over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function STDDEV frame capability
+select id,stddev(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function STDDEV_POP frame capability
+select id,stddev_pop(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function STDDEV_SAMP frame capability
+select id,stddev_samp(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function SUM frame capability
+select id,sum(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function VAR_POP frame capability
+select id,var_pop(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function VAR_SAMP frame capability
+select id,var_samp(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function VARIANCE frame capability
+select id,variance(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT|CALL_PROG_OBJ] -- analytic function WM_CONCAT frame capability
+select id,wm_concat(txt) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function MEDIAN frame capability
+select id,median(v) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic function REGR_SLOPE frame capability
+select id,regr_slope(v,v2) over(partition by g order by id rows between 1 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- count star analytic
+select id,count(*) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- sum all analytic
+select id,sum(all v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- avg distinct without order
+select id,avg(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- avg distinct with order
+select id,avg(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- max distinct without order
+select id,max(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- max distinct with order
+select id,max(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- min distinct without order
+select id,min(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- min distinct with order
+select id,min(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- count distinct without order
+select id,count(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- count distinct with order
+select id,count(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- sum distinct without order
+select id,sum(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- sum distinct with order
+select id,sum(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- stddev distinct without order
+select id,stddev(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- stddev distinct with order
+select id,stddev(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- variance distinct without order
+select id,variance(distinct v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- variance distinct with order
+select id,variance(distinct v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- avg keep dense_rank first
+select id,avg(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- avg keep dense_rank last
+select id,avg(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- max keep dense_rank first
+select id,max(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- max keep dense_rank last
+select id,max(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- min keep dense_rank first
+select id,min(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- min keep dense_rank last
+select id,min(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- count keep dense_rank first
+select id,count(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- count keep dense_rank last
+select id,count(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- sum keep dense_rank first
+select id,sum(v) keep(dense_rank first order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- sum keep dense_rank last
+select id,sum(v) keep(dense_rank last order by v2) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- first_value respect nulls outside
+select id,first_value(nv) respect nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- first_value respect nulls inside
+select id,first_value(nv respect nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- first_value ignore nulls outside
+select id,first_value(nv) ignore nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- first_value ignore nulls inside
+select id,first_value(nv ignore nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- last_value respect nulls outside
+select id,last_value(nv) respect nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- last_value respect nulls inside
+select id,last_value(nv respect nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- last_value ignore nulls outside
+select id,last_value(nv) ignore nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- last_value ignore nulls inside
+select id,last_value(nv ignore nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lag respect nulls outside
+select id,lag(nv) respect nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lag respect nulls inside
+select id,lag(nv respect nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lag ignore nulls outside
+select id,lag(nv) ignore nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lag ignore nulls inside
+select id,lag(nv ignore nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lead respect nulls outside
+select id,lead(nv) respect nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lead respect nulls inside
+select id,lead(nv respect nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lead ignore nulls outside
+select id,lead(nv) ignore nulls over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lead ignore nulls inside
+select id,lead(nv ignore nulls) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- nth_value from first respect nulls
+select id,nth_value(nv,2) from first respect nulls over(partition by g order by id rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- nth_value from first ignore nulls
+select id,nth_value(nv,2) from first ignore nulls over(partition by g order by id rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- nth_value from last respect nulls
+select id,nth_value(nv,2) from last respect nulls over(partition by g order by id rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- nth_value from last ignore nulls
+select id,nth_value(nv,2) from last ignore nulls over(partition by g order by id rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lag one argument
+select id,lag(v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lag offset
+select id,lag(v,2) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lag offset default
+select id,lag(v,2,-1) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lag offset expression
+select id,lag(v,1+1,-1) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lead one argument
+select id,lead(v) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lead offset
+select id,lead(v,2) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lead offset default
+select id,lead(v,2,-1) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- lead offset expression
+select id,lead(v,1+1,-1) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- listagg argument only
+select id,listagg(txt) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- listagg separator
+select id,listagg(txt,'|') over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- listagg within group
+select id,listagg(txt,'|') within group(order by v,id) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- listagg empty over
+select id,listagg(txt,',') within group(order by id) over() as analytic_value from app.analytic_t;
+----------
+[SELECT|CALL_PROG_OBJ] -- wm_concat concatenated argument
+select id,wm_concat(txt||':'||v) over(partition by g) as analytic_value from app.analytic_t;
+----------
+[SELECT|CALL_PROG_OBJ] -- wm_concat ordered
+select id,wm_concat(txt) over(partition by g order by id) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- median empty over
+select id,median(v) over() as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows unbounded preceding shorthand
+select id,sum(v) over(partition by g order by v rows unbounded preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows current row shorthand
+select id,sum(v) over(partition by g order by v rows current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows value preceding shorthand
+select id,sum(v) over(partition by g order by v rows 1 preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows full
+select id,sum(v) over(partition by g order by v rows between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows current only
+select id,sum(v) over(partition by g order by v rows between current row and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows preceding to current
+select id,sum(v) over(partition by g order by v rows between 2 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows preceding interval
+select id,sum(v) over(partition by g order by v rows between 2 preceding and 1 preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows preceding to following
+select id,sum(v) over(partition by g order by v rows between 1 preceding and 1 following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows current to following
+select id,sum(v) over(partition by g order by v rows between current row and 1 following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows following interval
+select id,sum(v) over(partition by g order by v rows between 1 following and 2 following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range unbounded preceding shorthand
+select id,sum(v) over(partition by g order by v range unbounded preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range current row shorthand
+select id,sum(v) over(partition by g order by v range current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range value preceding shorthand
+select id,sum(v) over(partition by g order by v range 5 preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range full
+select id,sum(v) over(partition by g order by v range between unbounded preceding and unbounded following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range current only
+select id,sum(v) over(partition by g order by v range between current row and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range preceding to current
+select id,sum(v) over(partition by g order by v range between 5 preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range preceding to following
+select id,sum(v) over(partition by g order by v range between 5 preceding and 5 following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range current to following
+select id,sum(v) over(partition by g order by v range between current row and 5 following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range following interval
+select id,sum(v) over(partition by g order by v range between 1 following and 5 following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range date interval
+select id,sum(v) over(order by dt range between interval '1' day preceding and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- window without order restriction
+select id,sum(v) over(partition by g rows unbounded preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows negative restriction
+select id,sum(v) over(order by id rows -1 preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- rows decimal restriction
+select id,sum(v) over(order by id rows 1.5 preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range negative restriction
+select id,sum(v) over(order by v range -1 preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- range multiple order restriction
+select id,sum(v) over(order by v,id range 1 preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- window current to preceding restriction
+select id,sum(v) over(order by id rows between current row and 1 preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- window following to current restriction
+select id,sum(v) over(order by id rows between 1 following and current row) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- window following to preceding restriction
+select id,sum(v) over(order by id rows between 1 following and 1 preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- window unbounded following start restriction
+select id,sum(v) over(order by id rows between unbounded following and unbounded following) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- window unbounded preceding end restriction
+select id,sum(v) over(order by id rows between unbounded preceding and unbounded preceding) as analytic_value from app.analytic_t;
+----------
+[SELECT] -- analytic in select
+select id,row_number() over(order by id) as rn from app.analytic_t;
+----------
+[SELECT] -- analytic in order by
+select id from app.analytic_t order by row_number() over(order by v,id);
+----------
+[SELECT] -- analytic in where restriction
+select id from app.analytic_t where row_number() over(order by id)=1;
+----------
+[SELECT] -- analytic in join restriction
+select a.id from app.analytic_t a join app.analytic_t b on row_number() over(order by a.id)=1;
+----------
+[SELECT] -- analytic in group restriction
+select count(*) from app.analytic_t group by row_number() over(order by id);
+----------
+[SELECT] -- analytic in having restriction
+select g,count(*) from app.analytic_t group by g having row_number() over(order by g)=1;
+----------
+[UPDATE] -- analytic in update restriction
+update app.analytic_t set v=row_number() over(order by id) where id=1;
+----------
+[SELECT] -- analytic nested argument restriction
+select sum(row_number() over(order by id)) over() from app.analytic_t;
+----------
+[SELECT] -- analytic nested partition restriction
+select sum(v) over(partition by row_number() over(order by id)) from app.analytic_t;
+----------
+[SELECT] -- analytic nested order restriction
+select sum(v) over(order by row_number() over(order by id)) from app.analytic_t;
+----------
+[SELECT] -- named window direct current online syntax
+select id,sum(v) over w as analytic_value from app.analytic_t window w as(partition by g order by id rows unbounded preceding);
+----------
+[SELECT] -- named window inheritance current online syntax
+select id,sum(v) over(w order by id rows unbounded preceding) as analytic_value from app.analytic_t window w as(partition by g);
+----------
+[SELECT] -- multiple named windows current online syntax
+select id,sum(v) over w1,max(v) over w2 from app.analytic_t window w1 as(partition by g),w2 as(order by id);
+----------
+[SELECT] -- analytic in CTE
+with q as(select id,g,v,row_number() over(partition by g order by id) rn from app.analytic_t) select id from q where rn=1;
+----------
+[SELECT] -- analytic in derived table
+select id from(select id,row_number() over(order by id) rn from app.analytic_t) q where rn<=2;
+----------
+[SELECT] -- analytic with group by
+select g,sum(v) group_sum,sum(sum(v)) over(order by g) running_sum from app.analytic_t group by g;
+----------
+[SELECT] -- analytic with union
+select id,row_number() over(order by id) rn from app.analytic_t where g='A' union all select id,row_number() over(order by id) from app.analytic_t where g='B';
+----------
+[SELECT] -- analytic with top
+select top 2 id,row_number() over(order by v,id) rn from app.analytic_t order by rn;
+----------
+[SELECT] -- analytic with limit
+select id,row_number() over(order by v,id) rn from app.analytic_t order by rn limit 2;
+----------
+[SELECT] -- analytic with for read only
+select id,row_number() over(order by id) rn from app.analytic_t for read only;
+----------
+[SELECT] -- analytic with partition and constant order
+select id,sum(v) over(partition by 1 order by 1 rows unbounded preceding) analytic_value from app.analytic_t;

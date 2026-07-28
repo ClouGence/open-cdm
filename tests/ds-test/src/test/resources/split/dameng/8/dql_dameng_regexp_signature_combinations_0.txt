@@ -1,0 +1,126 @@
+SELECT REGEXP_COUNT('AbCdAb','ab');
+SELECT REGEXP_COUNT('AbCdAb','ab',2);
+SELECT REGEXP_COUNT('AbCdAb','ab',1,'i');
+SELECT REGEXP_COUNT('AbCd','abcd',1,'c'),REGEXP_COUNT('AbCd','abcd',1,'i');
+SELECT REGEXP_COUNT('ab'||CHR(10)||'ac','^a.',1,'m');
+SELECT REGEXP_COUNT('a'||CHR(10)||'d','a.d',1,'n');
+SELECT REGEXP_COUNT('abcd','a b c d',1,'x');
+SELECT REGEXP_COUNT(NULL,'a'),REGEXP_COUNT('a',NULL),REGEXP_COUNT('a','a',NULL);
+SELECT REGEXP_LIKE('DM database V8','dm');
+SELECT REGEXP_LIKE('DM database V8','dm','c'),REGEXP_LIKE('DM database V8','dm','i');
+SELECT REGEXP_LIKE(NULL,'a'),REGEXP_LIKE('a',NULL);
+SELECT REGEXP_INSTR('abcabc','bc');
+SELECT REGEXP_INSTR('abcabc','bc',3);
+SELECT REGEXP_INSTR('abcabc','bc',1,2);
+SELECT REGEXP_INSTR('abcabc','bc',1,2,1);
+SELECT REGEXP_INSTR('AbCaBc','bc',1,2,0,'i');
+SELECT REGEXP_INSTR('123%4567890','(123)%(4(56)(78))',1,1,0,'i',2);
+SELECT REGEXP_INSTR('abc','(a)',1,1,0,'c',0),REGEXP_INSTR('abc','(a)',1,1,0,'c',9);
+SELECT REGEXP_INSTR(NULL,'a'),REGEXP_INSTR('a',NULL),REGEXP_INSTR('a','a',NULL);
+SELECT REGEXP_INSTR('a','a',1,NULL),REGEXP_INSTR('a','a',1,1,NULL);
+SELECT REGEXP_SUBSTR('abcabc','bc');
+SELECT REGEXP_SUBSTR('abcabc','bc',3);
+SELECT REGEXP_SUBSTR('abcabc','bc',1,2);
+SELECT REGEXP_SUBSTR('AbCaBc','bc',1,2,'i');
+SELECT REGEXP_SUBSTR('500 DM8 DATABASE, SHANG HAI, CN',', ([^,]+),',5,1,'i',1);
+SELECT REGEXP_SUBSTR('abc','(a)',1,1,'c',0),REGEXP_SUBSTR('abc','(a)',1,1,'c',9);
+SELECT REGEXP_SUBSTR(NULL,'a'),REGEXP_SUBSTR('a',NULL),REGEXP_SUBSTR('a','a',NULL);
+SELECT REGEXP_SUBSTR('a','a',1,NULL),REGEXP_SUBSTR('a','a',1,1,'c',NULL);
+SELECT REGEXP_REPLACE('abcabc','bc');
+SELECT REGEXP_REPLACE('abcabc','bc','XY');
+SELECT REGEXP_REPLACE('abcabc','bc','XY',3);
+SELECT REGEXP_REPLACE('abcabc','bc','XY',1,2);
+SELECT REGEXP_REPLACE('AbCaBc','bc','XY',1,0,'i');
+SELECT REGEXP_REPLACE('www1234xxxx3q','([[:alpha:]]+)','AAA\1');
+SELECT REGEXP_REPLACE(NULL,'a','x'),REGEXP_REPLACE('a',NULL,'x');
+SELECT REGEXP_REPLACE('a','a','x',NULL),REGEXP_REPLACE('a','a','x',1,NULL);
+SELECT REGEXP_LIKE('ab'||CHR(10)||'ac','^a.','m'),REGEXP_LIKE('a'||CHR(10)||'d','a.d','n'),REGEXP_LIKE('abcd','a b c d','x');
+SELECT REGEXP_INSTR('ab'||CHR(10)||'ac','^a.',1,2,0,'m'),REGEXP_INSTR('a'||CHR(10)||'d','a.d',1,1,0,'n'),REGEXP_INSTR('abcd','a b c d',1,1,0,'x');
+SELECT REGEXP_SUBSTR('ab'||CHR(10)||'ac','^a.',1,2,'m'),REGEXP_SUBSTR('a'||CHR(10)||'d','a.d',1,1,'n'),REGEXP_SUBSTR('abcd','a b c d',1,1,'x');
+SELECT REGEXP_REPLACE('ab'||CHR(10)||'ac','^a.','X',1,0,'m'),REGEXP_REPLACE('a'||CHR(10)||'d','a.d','X',1,0,'n'),REGEXP_REPLACE('abcd','a b c d','X',1,0,'x');
+SELECT REGEXP_SUBSTR(CAST('abcabc' AS CLOB),'bc',1,2,'c',0);
+SELECT REGEXP_REPLACE(CAST('abcabc' AS CLOB),'bc','XY',1,0,'c');
+------------------------------------------------------------------------------------------
+[SELECT] SELECT REGEXP_COUNT('AbCdAb','ab');
+----------
+[SELECT] SELECT REGEXP_COUNT('AbCdAb','ab',2);
+----------
+[SELECT] SELECT REGEXP_COUNT('AbCdAb','ab',1,'i');
+----------
+[SELECT] SELECT REGEXP_COUNT('AbCd','abcd',1,'c'),REGEXP_COUNT('AbCd','abcd',1,'i');
+----------
+[SELECT] SELECT REGEXP_COUNT('ab'||CHR(10)||'ac','^a.',1,'m');
+----------
+[SELECT] SELECT REGEXP_COUNT('a'||CHR(10)||'d','a.d',1,'n');
+----------
+[SELECT] SELECT REGEXP_COUNT('abcd','a b c d',1,'x');
+----------
+[SELECT] SELECT REGEXP_COUNT(NULL,'a'),REGEXP_COUNT('a',NULL),REGEXP_COUNT('a','a',NULL);
+----------
+[SELECT] SELECT REGEXP_LIKE('DM database V8','dm');
+----------
+[SELECT] SELECT REGEXP_LIKE('DM database V8','dm','c'),REGEXP_LIKE('DM database V8','dm','i');
+----------
+[SELECT] SELECT REGEXP_LIKE(NULL,'a'),REGEXP_LIKE('a',NULL);
+----------
+[SELECT] SELECT REGEXP_INSTR('abcabc','bc');
+----------
+[SELECT] SELECT REGEXP_INSTR('abcabc','bc',3);
+----------
+[SELECT] SELECT REGEXP_INSTR('abcabc','bc',1,2);
+----------
+[SELECT] SELECT REGEXP_INSTR('abcabc','bc',1,2,1);
+----------
+[SELECT] SELECT REGEXP_INSTR('AbCaBc','bc',1,2,0,'i');
+----------
+[SELECT] SELECT REGEXP_INSTR('123%4567890','(123)%(4(56)(78))',1,1,0,'i',2);
+----------
+[SELECT] SELECT REGEXP_INSTR('abc','(a)',1,1,0,'c',0),REGEXP_INSTR('abc','(a)',1,1,0,'c',9);
+----------
+[SELECT] SELECT REGEXP_INSTR(NULL,'a'),REGEXP_INSTR('a',NULL),REGEXP_INSTR('a','a',NULL);
+----------
+[SELECT] SELECT REGEXP_INSTR('a','a',1,NULL),REGEXP_INSTR('a','a',1,1,NULL);
+----------
+[SELECT] SELECT REGEXP_SUBSTR('abcabc','bc');
+----------
+[SELECT] SELECT REGEXP_SUBSTR('abcabc','bc',3);
+----------
+[SELECT] SELECT REGEXP_SUBSTR('abcabc','bc',1,2);
+----------
+[SELECT] SELECT REGEXP_SUBSTR('AbCaBc','bc',1,2,'i');
+----------
+[SELECT] SELECT REGEXP_SUBSTR('500 DM8 DATABASE, SHANG HAI, CN',', ([^,]+),',5,1,'i',1);
+----------
+[SELECT] SELECT REGEXP_SUBSTR('abc','(a)',1,1,'c',0),REGEXP_SUBSTR('abc','(a)',1,1,'c',9);
+----------
+[SELECT] SELECT REGEXP_SUBSTR(NULL,'a'),REGEXP_SUBSTR('a',NULL),REGEXP_SUBSTR('a','a',NULL);
+----------
+[SELECT] SELECT REGEXP_SUBSTR('a','a',1,NULL),REGEXP_SUBSTR('a','a',1,1,'c',NULL);
+----------
+[SELECT] SELECT REGEXP_REPLACE('abcabc','bc');
+----------
+[SELECT] SELECT REGEXP_REPLACE('abcabc','bc','XY');
+----------
+[SELECT] SELECT REGEXP_REPLACE('abcabc','bc','XY',3);
+----------
+[SELECT] SELECT REGEXP_REPLACE('abcabc','bc','XY',1,2);
+----------
+[SELECT] SELECT REGEXP_REPLACE('AbCaBc','bc','XY',1,0,'i');
+----------
+[SELECT] SELECT REGEXP_REPLACE('www1234xxxx3q','([[:alpha:]]+)','AAA\1');
+----------
+[SELECT] SELECT REGEXP_REPLACE(NULL,'a','x'),REGEXP_REPLACE('a',NULL,'x');
+----------
+[SELECT] SELECT REGEXP_REPLACE('a','a','x',NULL),REGEXP_REPLACE('a','a','x',1,NULL);
+----------
+[SELECT] SELECT REGEXP_LIKE('ab'||CHR(10)||'ac','^a.','m'),REGEXP_LIKE('a'||CHR(10)||'d','a.d','n'),REGEXP_LIKE('abcd','a b c d','x');
+----------
+[SELECT] SELECT REGEXP_INSTR('ab'||CHR(10)||'ac','^a.',1,2,0,'m'),REGEXP_INSTR('a'||CHR(10)||'d','a.d',1,1,0,'n'),REGEXP_INSTR('abcd','a b c d',1,1,0,'x');
+----------
+[SELECT] SELECT REGEXP_SUBSTR('ab'||CHR(10)||'ac','^a.',1,2,'m'),REGEXP_SUBSTR('a'||CHR(10)||'d','a.d',1,1,'n'),REGEXP_SUBSTR('abcd','a b c d',1,1,'x');
+----------
+[SELECT] SELECT REGEXP_REPLACE('ab'||CHR(10)||'ac','^a.','X',1,0,'m'),REGEXP_REPLACE('a'||CHR(10)||'d','a.d','X',1,0,'n'),REGEXP_REPLACE('abcd','a b c d','X',1,0,'x');
+----------
+[SELECT] SELECT REGEXP_SUBSTR(CAST('abcabc' AS CLOB),'bc',1,2,'c',0);
+----------
+[SELECT] SELECT REGEXP_REPLACE(CAST('abcabc' AS CLOB),'bc','XY',1,0,'c');

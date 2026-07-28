@@ -1,0 +1,88 @@
+declare
+  v_encrypted varchar2(2048);
+  v_decrypted varchar2(2048);
+begin
+  dbms_obfuscation_toolkit.desencrypt('DM123456', 'PASSWORD', v_encrypted);
+  dbms_obfuscation_toolkit.desdecrypt(v_encrypted, 'PASSWORD', v_decrypted);
+end;
+/
+declare
+  v_encrypted varchar2(2048);
+  v_decrypted varchar2(2048);
+begin
+  dbms_obfuscation_toolkit.des3encrypt('DM123456DM123456', 'PASSWORDPASSWORD', v_encrypted, 0, null);
+  dbms_obfuscation_toolkit.des3decrypt(v_encrypted, 'PASSWORDPASSWORD', v_decrypted, 0, null);
+end;
+/
+declare
+  v_checksum varchar2(2048);
+begin
+  dbms_obfuscation_toolkit.md5('DM123456', v_checksum);
+end;
+/
+declare
+  v_src clob := 'CODEX_CLOB_ENCRYPTION';
+  v_encrypted blob;
+  v_decrypted clob;
+  v_type pls_integer := dbms_crypto.encrypt_aes128 + dbms_crypto.chain_ecb + dbms_crypto.pad_pkcs5;
+  v_key varbinary(128) := '00112233445566778899AABBCCDDEEFF';
+begin
+  call dbms_crypto.encrypt(dst => v_encrypted, src => v_src, typ => v_type, key => v_key);
+  call dbms_crypto.decrypt(dst => v_decrypted, src => v_encrypted, typ => v_type, key => v_key);
+end;
+/
+declare
+  v_src blob := '434F4445585F424C4F425F454E4352595054494F4E';
+  v_encrypted blob;
+  v_decrypted blob;
+  v_type pls_integer := dbms_crypto.encrypt_aes128 + dbms_crypto.chain_ecb + dbms_crypto.pad_pkcs5;
+  v_key varbinary(128) := '00112233445566778899AABBCCDDEEFF';
+begin
+  call dbms_crypto.encrypt(dst => v_encrypted, src => v_src, typ => v_type, key => v_key);
+  call dbms_crypto.decrypt(dst => v_decrypted, src => v_encrypted, typ => v_type, key => v_key);
+end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_encrypted varchar2(2048);
+  v_decrypted varchar2(2048);
+begin
+  dbms_obfuscation_toolkit.desencrypt('DM123456', 'PASSWORD', v_encrypted);
+  dbms_obfuscation_toolkit.desdecrypt(v_encrypted, 'PASSWORD', v_decrypted);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_encrypted varchar2(2048);
+  v_decrypted varchar2(2048);
+begin
+  dbms_obfuscation_toolkit.des3encrypt('DM123456DM123456', 'PASSWORDPASSWORD', v_encrypted, 0, null);
+  dbms_obfuscation_toolkit.des3decrypt(v_encrypted, 'PASSWORDPASSWORD', v_decrypted, 0, null);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_checksum varchar2(2048);
+begin
+  dbms_obfuscation_toolkit.md5('DM123456', v_checksum);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_src clob := 'CODEX_CLOB_ENCRYPTION';
+  v_encrypted blob;
+  v_decrypted clob;
+  v_type pls_integer := dbms_crypto.encrypt_aes128 + dbms_crypto.chain_ecb + dbms_crypto.pad_pkcs5;
+  v_key varbinary(128) := '00112233445566778899AABBCCDDEEFF';
+begin
+  call dbms_crypto.encrypt(dst => v_encrypted, src => v_src, typ => v_type, key => v_key);
+  call dbms_crypto.decrypt(dst => v_decrypted, src => v_encrypted, typ => v_type, key => v_key);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  v_src blob := '434F4445585F424C4F425F454E4352595054494F4E';
+  v_encrypted blob;
+  v_decrypted blob;
+  v_type pls_integer := dbms_crypto.encrypt_aes128 + dbms_crypto.chain_ecb + dbms_crypto.pad_pkcs5;
+  v_key varbinary(128) := '00112233445566778899AABBCCDDEEFF';
+begin
+  call dbms_crypto.encrypt(dst => v_encrypted, src => v_src, typ => v_type, key => v_key);
+  call dbms_crypto.decrypt(dst => v_decrypted, src => v_encrypted, typ => v_type, key => v_key);
+end;

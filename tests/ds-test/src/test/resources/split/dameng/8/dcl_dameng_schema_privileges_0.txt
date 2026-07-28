@@ -1,0 +1,101 @@
+create user CODEX_DM8_SCHEMA_CREATOR_20260722 identified by "Dm8Schema2026";
+create user CODEX_DM8_SCHEMA_DROPPER_20260722 identified by "Dm8Schema2026";
+create user CODEX_DM8_SCHEMA_OTHER_20260722 identified by "Dm8Schema2026";
+grant create schema to CODEX_DM8_SCHEMA_CREATOR_20260722;
+grant dba to CODEX_DM8_SCHEMA_DROPPER_20260722;
+create schema CODEX_DM8_SCHEMA_DROP_TARGET_20260722 authorization SYSDBA;
+/
+create schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722 authorization SYSDBA;
+/
+create schema CODEX_DM8_SCHEMA_BY_CREATOR_20260722;
+/
+set schema CODEX_DM8_SCHEMA_BY_CREATOR_20260722;
+select sys_context('USERENV','CURRENT_SCHEMA') from dual;
+set schema CODEX_DM8_SCHEMA_CREATOR_20260722;
+drop schema CODEX_DM8_SCHEMA_BY_CREATOR_20260722 cascade;
+drop schema CODEX_DM8_SCHEMA_DROP_TARGET_20260722;
+set schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722;
+select sys_context('USERENV','CURRENT_SCHEMA') from dual;
+drop schema if exists CODEX_DM8_SCHEMA_BY_CREATOR_20260722 cascade;
+drop schema if exists CODEX_DM8_SCHEMA_OTHER_OWNER_20260722 cascade;
+drop schema if exists CODEX_DM8_SCHEMA_DENIED_20260722 cascade;
+drop schema if exists CODEX_DM8_SCHEMA_DROP_TARGET_20260722 cascade;
+drop schema if exists CODEX_DM8_SCHEMA_OTHER_TARGET_20260722 cascade;
+drop user CODEX_DM8_SCHEMA_CREATOR_20260722 cascade;
+drop user CODEX_DM8_SCHEMA_DROPPER_20260722 cascade;
+drop user CODEX_DM8_SCHEMA_OTHER_20260722 cascade;
+create schema CODEX_DM8_SCHEMA_OTHER_OWNER_20260722 authorization CODEX_DM8_SCHEMA_OTHER_20260722;
+/
+drop schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722;
+create schema CODEX_DM8_SCHEMA_DENIED_20260722;
+/
+drop schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722;
+grant create any schema to CODEX_DM8_SCHEMA_CREATOR_20260722;
+grant drop any schema to CODEX_DM8_SCHEMA_DROPPER_20260722;
+revoke create any schema from CODEX_DM8_SCHEMA_CREATOR_20260722;
+revoke drop any schema from CODEX_DM8_SCHEMA_DROPPER_20260722;
+grant DB_OBJECT_ADMIN to CODEX_DM8_SCHEMA_CREATOR_20260722;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user CODEX_DM8_SCHEMA_CREATOR_20260722 identified by "Dm8Schema2026";
+----------
+[CREATE_USER] create user CODEX_DM8_SCHEMA_DROPPER_20260722 identified by "Dm8Schema2026";
+----------
+[CREATE_USER] create user CODEX_DM8_SCHEMA_OTHER_20260722 identified by "Dm8Schema2026";
+----------
+[GRANT] grant create schema to CODEX_DM8_SCHEMA_CREATOR_20260722;
+----------
+[GRANT] grant dba to CODEX_DM8_SCHEMA_DROPPER_20260722;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_DROP_TARGET_20260722 authorization SYSDBA;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722 authorization SYSDBA;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_BY_CREATOR_20260722;
+----------
+[SWITCH_SCHEMA] set schema CODEX_DM8_SCHEMA_BY_CREATOR_20260722;
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV','CURRENT_SCHEMA') from dual;
+----------
+[SWITCH_SCHEMA] set schema CODEX_DM8_SCHEMA_CREATOR_20260722;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_SCHEMA_BY_CREATOR_20260722 cascade;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_SCHEMA_DROP_TARGET_20260722;
+----------
+[SWITCH_SCHEMA] set schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722;
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV','CURRENT_SCHEMA') from dual;
+----------
+[DROP_SCHEMA] drop schema if exists CODEX_DM8_SCHEMA_BY_CREATOR_20260722 cascade;
+----------
+[DROP_SCHEMA] drop schema if exists CODEX_DM8_SCHEMA_OTHER_OWNER_20260722 cascade;
+----------
+[DROP_SCHEMA] drop schema if exists CODEX_DM8_SCHEMA_DENIED_20260722 cascade;
+----------
+[DROP_SCHEMA] drop schema if exists CODEX_DM8_SCHEMA_DROP_TARGET_20260722 cascade;
+----------
+[DROP_SCHEMA] drop schema if exists CODEX_DM8_SCHEMA_OTHER_TARGET_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_SCHEMA_CREATOR_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_SCHEMA_DROPPER_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_SCHEMA_OTHER_20260722 cascade;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_OTHER_OWNER_20260722 authorization CODEX_DM8_SCHEMA_OTHER_20260722;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722;
+----------
+[CREATE_SCHEMA] create schema CODEX_DM8_SCHEMA_DENIED_20260722;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722;
+----------
+[GRANT] grant create any schema to CODEX_DM8_SCHEMA_CREATOR_20260722;
+----------
+[GRANT] grant drop any schema to CODEX_DM8_SCHEMA_DROPPER_20260722;
+----------
+[REVOKE] revoke create any schema from CODEX_DM8_SCHEMA_CREATOR_20260722;
+----------
+[REVOKE] revoke drop any schema from CODEX_DM8_SCHEMA_DROPPER_20260722;
+----------
+[GRANT] grant DB_OBJECT_ADMIN to CODEX_DM8_SCHEMA_CREATOR_20260722;

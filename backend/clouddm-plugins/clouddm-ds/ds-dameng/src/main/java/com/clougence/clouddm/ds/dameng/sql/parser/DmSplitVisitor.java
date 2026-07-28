@@ -194,12 +194,18 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.ALTER_TABLE;
         }
         if (ctx.INDEX() != null) {
+            if (ctx.alterIndexAction() != null && ctx.alterIndexAction().RENAME() != null) {
+                return SplitQueryType.RENAME_INDEX;
+            }
             return SplitQueryType.ALTER_INDEX;
         }
         if (ctx.VIEW() != null) {
             return SplitQueryType.ALTER_VIEW;
         }
         if (ctx.SEQUENCE() != null) {
+            if (ctx.alterSequenceAction() != null && ctx.alterSequenceAction().RENAME() != null) {
+                return SplitQueryType.RENAME_SEQUENCE;
+            }
             return SplitQueryType.ALTER_SEQUENCE;
         }
         if (ctx.USER() != null) {
@@ -215,19 +221,23 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.ALTER_TRIGGER;
         }
         if (ctx.PACKAGE() != null) {
-            return SplitQueryType.ADMIN_PROG_OBJ;
+            return SplitQueryType.ALTER_PROG_OBJ;
         }
         if (ctx.TABLESPACE() != null) {
+            if (ctx.tablespaceAlterAction() != null && ctx.tablespaceAlterAction().RENAME() != null
+                && ctx.tablespaceAlterAction().DATAFILE() == null) {
+                return SplitQueryType.RENAME_TABLESPACE;
+            }
             return SplitQueryType.ALTER_TABLESPACE;
         }
         if (ctx.PROFILE() != null) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         if (ctx.TYPE() != null) {
-            return SplitQueryType.ADMIN_TYPE;
+            return SplitQueryType.ALTER_TYPE;
         }
         if (ctx.CLASS() != null) {
-            return SplitQueryType.ADMIN_TYPE;
+            return SplitQueryType.ALTER_TYPE;
         }
         return SplitQueryType.UNKNOWN;
     }
@@ -249,7 +259,7 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (ctx.INDEX() != null) {
             return SplitQueryType.DROP_INDEX;
         }
-        if (ctx.SCHEMA() != null || ctx.DATABASE() != null) {
+        if (ctx.SCHEMA() != null) {
             return SplitQueryType.DROP_SCHEMA;
         }
         if (ctx.SEQUENCE() != null) {
@@ -308,7 +318,7 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.COMMENT_TABLE;
         }
         if (ctx.commentTarget().VIEW() != null) {
-            return SplitQueryType.ALTER_VIEW;
+            return SplitQueryType.COMMENT_VIEW;
         }
         return SplitQueryType.COMMENT_COLUMN;
     }
@@ -330,12 +340,12 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitLockTableStatement(DmSqlParser.LockTableStatementContext ctx) {
-        return SplitQueryType.TRANSACTION;
+        return SplitQueryType.SESSION_LOCK;
     }
 
     @Override
     public SplitQueryType visitAlterSessionParallelDmlStatement(DmSqlParser.AlterSessionParallelDmlStatementContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.SESSION_SETTING_WRITE;
     }
 
     @Override
@@ -350,11 +360,14 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSetIdentityInsertStatement(DmSqlParser.SetIdentityInsertStatementContext ctx) {
-        return SplitQueryType.TRANSACTION;
+        return SplitQueryType.SESSION_SETTING_WRITE;
     }
 
     @Override
     public SplitQueryType visitConfigWriteStatement(DmSqlParser.ConfigWriteStatementContext ctx) {
+        if (ctx.sessionConfigAssignment() != null) {
+            return SplitQueryType.SESSION_SETTING_WRITE;
+        }
         return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 

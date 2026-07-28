@@ -1,0 +1,3 @@
+drop table CODEX_REDEF_REDUNDANT cascade;
+------------------------------------------------------------------------------------------
+[DROP_TABLE] drop table CODEX_REDEF_REDUNDANT cascade;

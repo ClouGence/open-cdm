@@ -1,0 +1,162 @@
+-- FUNC-0664 DISABLE zero argument without parentheses
+begin DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0664 DISABLE zero argument with parentheses
+begin DBMS_OUTPUT.DISABLE(); end;
+/
+-- FUNC-0665 ENABLE default buffer size
+begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0665 ENABLE full positional documented minimum
+begin DBMS_OUTPUT.ENABLE(2000); DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0665 ENABLE named documented maximum
+begin DBMS_OUTPUT.ENABLE(BUFFER_SIZE=>1000000); DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0665 ENABLE Pack29 clamps below documented minimum
+begin DBMS_OUTPUT.ENABLE(0); DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0665 ENABLE Pack29 clamps above documented maximum
+begin DBMS_OUTPUT.ENABLE(1000001); DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0665 ENABLE NULL buffer size
+begin DBMS_OUTPUT.ENABLE(NULL); DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0671 PUT_LINE and FUNC-0666 GET_LINE positional lifecycle
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('LINE_POSITIONAL'); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or line_value<>'LINE_POSITIONAL' then raise_application_error(-20001,'line mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0671 PUT_LINE and FUNC-0666 GET_LINE named reordered
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE(STR=>'LINE_NAMED'); DBMS_OUTPUT.GET_LINE(STATUS=>status_value,LINE=>line_value); if status_value<>0 or line_value<>'LINE_NAMED' then raise_application_error(-20002,'named line mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0670 PUT fragments with FUNC-0669 NEW_LINE
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT('FRAGMENT_'); DBMS_OUTPUT.PUT(STR=>'JOIN'); DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or line_value<>'FRAGMENT_JOIN' then raise_application_error(-20003,'fragment mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0670 PUT NULL with explicit NEW_LINE
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT(NULL); DBMS_OUTPUT.NEW_LINE(); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20004,'null fragment status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0671 PUT_LINE NULL
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE(NULL); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20005,'null line status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0669 NEW_LINE creates an empty line
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20006,'empty line status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0666 GET_LINE empty buffer returns status one
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20007,'empty status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0668 GET_LINES DBMSOUTPUT_LINESARRAY positional
+declare lines_value SYS.DBMSOUTPUT_LINESARRAY; count_value int:=2; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('ARRAY_1'); DBMS_OUTPUT.PUT_LINE('ARRAY_2'); DBMS_OUTPUT.PUT_LINE('ARRAY_3'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>2 or lines_value(1)<>'ARRAY_1' or lines_value(2)<>'ARRAY_2' then raise_application_error(-20008,'array mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0667 GET_LINES CHARARR positional
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=2; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('CHARARR_1'); DBMS_OUTPUT.PUT_LINE('CHARARR_2'); DBMS_OUTPUT.PUT_LINE('CHARARR_3'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>2 or lines_value(1)<>'CHARARR_1' or lines_value(2)<>'CHARARR_2' then raise_application_error(-20009,'chararr mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0668 GET_LINES DBMSOUTPUT_LINESARRAY named reordered
+declare lines_value SYS.DBMSOUTPUT_LINESARRAY; count_value int:=1; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('ARRAY_NAMED'); DBMS_OUTPUT.GET_LINES(NUMLINES=>count_value,LINES=>lines_value); if count_value<>1 or lines_value(1)<>'ARRAY_NAMED' then raise_application_error(-20010,'named array mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- FUNC-0667 GET_LINES CHARARR named reordered
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=1; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('CHARARR_NAMED'); DBMS_OUTPUT.GET_LINES(NUMLINES=>count_value,LINES=>lines_value); if count_value<>1 or lines_value(1)<>'CHARARR_NAMED' then raise_application_error(-20011,'named chararr mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- GET_LINES zero requested rows
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=0; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('UNREAD'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>0 then raise_application_error(-20012,'zero count mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- GET_LINES request larger than available
+declare lines_value SYS.DBMSOUTPUT_LINESARRAY; count_value int:=5; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('ONLY_ONE'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>1 or lines_value(1)<>'ONLY_ONE' then raise_application_error(-20013,'available count mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- PUT_LINE documented maximum 32767 byte line
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE(1000000); DBMS_OUTPUT.PUT_LINE(rpad('X',32767,'X')); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or lengthb(line_value)<>32767 then raise_application_error(-20014,'maximum line mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- DISABLE clears pending buffered lines
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('TO_CLEAR'); DBMS_OUTPUT.DISABLE; DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20015,'disable clear mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- PUT empty string and NEW_LINE
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT(''); DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20016,'empty string status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- PUT fragments beyond line limit are truncated by Pack29
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE(1000000); DBMS_OUTPUT.PUT(rpad('X',32767,'X')); DBMS_OUTPUT.PUT('Y'); DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or lengthb(line_value)<>32768 then raise_application_error(-20017,'fragment extension mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- GET_LINES negative requested row count Pack29 result
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=-1; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('UNREAD'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>0 then raise_application_error(-20018,'negative count mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+/
+-- ENABLE negative buffer size uses documented lower clamp
+begin DBMS_OUTPUT.ENABLE(-1); DBMS_OUTPUT.DISABLE; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0664 DISABLE zero argument without parentheses
+begin DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0664 DISABLE zero argument with parentheses
+begin DBMS_OUTPUT.DISABLE(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0665 ENABLE default buffer size
+begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0665 ENABLE full positional documented minimum
+begin DBMS_OUTPUT.ENABLE(2000); DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0665 ENABLE named documented maximum
+begin DBMS_OUTPUT.ENABLE(BUFFER_SIZE=>1000000); DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0665 ENABLE Pack29 clamps below documented minimum
+begin DBMS_OUTPUT.ENABLE(0); DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0665 ENABLE Pack29 clamps above documented maximum
+begin DBMS_OUTPUT.ENABLE(1000001); DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0665 ENABLE NULL buffer size
+begin DBMS_OUTPUT.ENABLE(NULL); DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0671 PUT_LINE and FUNC-0666 GET_LINE positional lifecycle
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('LINE_POSITIONAL'); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or line_value<>'LINE_POSITIONAL' then raise_application_error(-20001,'line mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0671 PUT_LINE and FUNC-0666 GET_LINE named reordered
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE(STR=>'LINE_NAMED'); DBMS_OUTPUT.GET_LINE(STATUS=>status_value,LINE=>line_value); if status_value<>0 or line_value<>'LINE_NAMED' then raise_application_error(-20002,'named line mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0670 PUT fragments with FUNC-0669 NEW_LINE
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT('FRAGMENT_'); DBMS_OUTPUT.PUT(STR=>'JOIN'); DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or line_value<>'FRAGMENT_JOIN' then raise_application_error(-20003,'fragment mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0670 PUT NULL with explicit NEW_LINE
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT(NULL); DBMS_OUTPUT.NEW_LINE(); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20004,'null fragment status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0671 PUT_LINE NULL
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE(NULL); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20005,'null line status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0669 NEW_LINE creates an empty line
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20006,'empty line status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0666 GET_LINE empty buffer returns status one
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20007,'empty status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0668 GET_LINES DBMSOUTPUT_LINESARRAY positional
+declare lines_value SYS.DBMSOUTPUT_LINESARRAY; count_value int:=2; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('ARRAY_1'); DBMS_OUTPUT.PUT_LINE('ARRAY_2'); DBMS_OUTPUT.PUT_LINE('ARRAY_3'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>2 or lines_value(1)<>'ARRAY_1' or lines_value(2)<>'ARRAY_2' then raise_application_error(-20008,'array mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0667 GET_LINES CHARARR positional
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=2; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('CHARARR_1'); DBMS_OUTPUT.PUT_LINE('CHARARR_2'); DBMS_OUTPUT.PUT_LINE('CHARARR_3'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>2 or lines_value(1)<>'CHARARR_1' or lines_value(2)<>'CHARARR_2' then raise_application_error(-20009,'chararr mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0668 GET_LINES DBMSOUTPUT_LINESARRAY named reordered
+declare lines_value SYS.DBMSOUTPUT_LINESARRAY; count_value int:=1; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('ARRAY_NAMED'); DBMS_OUTPUT.GET_LINES(NUMLINES=>count_value,LINES=>lines_value); if count_value<>1 or lines_value(1)<>'ARRAY_NAMED' then raise_application_error(-20010,'named array mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-0667 GET_LINES CHARARR named reordered
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=1; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('CHARARR_NAMED'); DBMS_OUTPUT.GET_LINES(NUMLINES=>count_value,LINES=>lines_value); if count_value<>1 or lines_value(1)<>'CHARARR_NAMED' then raise_application_error(-20011,'named chararr mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_LINES zero requested rows
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=0; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('UNREAD'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>0 then raise_application_error(-20012,'zero count mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_LINES request larger than available
+declare lines_value SYS.DBMSOUTPUT_LINESARRAY; count_value int:=5; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('ONLY_ONE'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>1 or lines_value(1)<>'ONLY_ONE' then raise_application_error(-20013,'available count mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_LINE documented maximum 32767 byte line
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE(1000000); DBMS_OUTPUT.PUT_LINE(rpad('X',32767,'X')); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or lengthb(line_value)<>32767 then raise_application_error(-20014,'maximum line mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- DISABLE clears pending buffered lines
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('TO_CLEAR'); DBMS_OUTPUT.DISABLE; DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20015,'disable clear mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT empty string and NEW_LINE
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT(''); DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20016,'empty string status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT fragments beyond line limit are truncated by Pack29
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE(1000000); DBMS_OUTPUT.PUT(rpad('X',32767,'X')); DBMS_OUTPUT.PUT('Y'); DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or lengthb(line_value)<>32768 then raise_application_error(-20017,'fragment extension mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_LINES negative requested row count Pack29 result
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=-1; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('UNREAD'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>0 then raise_application_error(-20018,'negative count mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- ENABLE negative buffer size uses documented lower clamp
+begin DBMS_OUTPUT.ENABLE(-1); DBMS_OUTPUT.DISABLE; end;

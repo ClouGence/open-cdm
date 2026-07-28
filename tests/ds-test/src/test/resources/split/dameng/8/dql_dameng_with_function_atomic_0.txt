@@ -1,0 +1,318 @@
+-- single parameter AS
+with function f(c int) return int as begin return c*10; end;
+select f(5) value from dual;
+/
+-- zero parameter no parentheses
+with function f return int as begin return 7; end;
+select f() value from dual;
+/
+-- zero parameter empty parentheses
+with function f() return int as begin return 8; end;
+select f() value from dual;
+/
+-- IS definition
+with function f(c int) return int is begin return c+1; end;
+select f(1) value from dual;
+/
+-- explicit IN parameter
+with function f(c in int) return int as begin return c; end;
+select f(2) value from dual;
+/
+-- DEFAULT parameter omitted
+with function f(c int default 3) return int as begin return c; end;
+select f() value from dual;
+/
+-- ASSIGN default parameter omitted
+with function f(c int := 4) return int as begin return c; end;
+select f() value from dual;
+/
+-- equals default parameter omitted
+with function f(c int = 5) return int as begin return c; end;
+select f() value from dual;
+/
+-- named parameter call
+with function f(left_value int,right_value int) return int as begin return left_value-right_value; end;
+select f(right_value=>2,left_value=>7) value from dual;
+/
+-- varchar parameter and return
+with function f(c varchar(20)) return varchar as begin return upper(c); end;
+select f('dm8') value from dual;
+/
+-- date parameter
+with function f(c date) return int as begin return year(c); end;
+select f(date '2026-07-27') value from dual;
+/
+-- local declaration
+with function f(c int) return int as v int:=c+1; begin return v*2; end;
+select f(2) value from dual;
+/
+-- conditional body
+with function f(c int) return int as begin if c>0 then return c; else return -c; end if; end;
+select f(-3) value from dual;
+/
+-- deterministic option
+with function f(c int) return int deterministic as begin return c; end;
+select f(1) value from dual;
+/
+-- result cache option
+with function f(c int) return int result_cache as begin return c; end;
+select f(1) value from dual;
+/
+-- parallel enable option
+with function f(c int) return int parallel_enable as begin return c; end;
+select f(1) value from dual;
+/
+-- combined function options
+with function f(c int) return int deterministic result_cache parallel_enable as begin return c; end;
+select f(1) value from dual;
+/
+-- pipelined scalar semantic restriction
+with function f(c int) return int pipelined as begin return c; end;
+select f(1) value from dual;
+/
+-- two independent functions
+with function f1(c int) return int as begin return c+1; end;
+function f2(c int) return int as begin return c+2; end;
+select f1(1)+f2(1) value from dual;
+/
+-- later function calls earlier
+with function f1(c int) return int as begin return c+1; end;
+function f2(c int) return int as begin return f1(c)+1; end;
+select f2(1) value from dual;
+/
+-- earlier function calls later
+with function f1(c int) return int as begin return f2(c)+1; end;
+function f2(c int) return int as begin return c+1; end;
+select f1(1) value from dual;
+/
+-- recursive local function
+with function f(c int) return int as begin if c<=1 then return 1; end if; return c*f(c-1); end;
+select f(5) value from dual;
+/
+-- duplicate function name restriction
+with function f(c int) return int as begin return c; end;
+function f(c varchar) return varchar as begin return c; end;
+select f(1) value from dual;
+/
+-- local function priority over schema function
+with function f_priority(c int) return int as begin return c*10; end;
+select f_priority(2) value from dual;
+/
+-- function with CTE
+with function f(c int) return int as begin return c+1; end;
+q(c) as(select 1 from dual union all select 2 from dual)
+select sum(f(c)) value from q;
+/
+-- nested WITH FUNCTION
+with function outer_f(c int) return int as begin return c*10; end;
+select outer_f(1)+(select inner_f(2) from(
+with function inner_f(c int) return int as begin return c+1; end;
+select inner_f(2) from dual
+) q) value from dual;
+/
+-- nested scope shadow
+with function f(c int) return int as begin return c*10; end;
+select f(1),(select value from(
+with function f(c int) return int as begin return c+1; end;
+select f(1) value from dual
+) q) from dual;
+/
+-- function with UNION
+with function f(c int) return int as begin return c+1; end;
+select f(1) from dual union all select f(2) from dual;
+/
+-- function in derived table
+with function f(c int) return int as begin return c+1; end;
+select value from(select f(id) value from app.with_function_t) q;
+/
+-- function with group and order
+with function f(c int) return int as begin return c+1; end;
+select f(id),count(*) from app.with_function_t group by f(id) order by f(id);
+/
+-- WITH RECURSIVE function
+with recursive function f(c int) return int as begin return c+1; end;
+select f(1) value from dual;
+/
+-- OUT parameter query restriction
+with function f(c out int) return int as begin c:=1; return c; end;
+select f(1) value from dual;
+/
+-- IN OUT parameter query restriction
+with function f(c in out int) return int as begin c:=c+1; return c; end;
+select f(1) value from dual;
+/
+-- qualified local function name restriction
+with function app.f(c int) return int as begin return c; end;
+select app.f(1) value from dual;
+/
+-- WITH FUNCTION UPDATE
+with function f(c int) return int as begin return c+1; end;
+update app.with_function_t set v=f(v) where id=1;
+/
+-- WITH FUNCTION INSERT SELECT
+with function f(c int) return int as begin return c+1; end;
+insert into app.with_function_t(id,v) select 10,f(10) from dual;
+/
+-- WITH FUNCTION DELETE
+with function f(c int) return int as begin return c; end;
+delete from app.with_function_t where id=f(999);
+/
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- single parameter AS
+with function f(c int) return int as begin return c*10; end;
+select f(5) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- zero parameter no parentheses
+with function f return int as begin return 7; end;
+select f() value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- zero parameter empty parentheses
+with function f() return int as begin return 8; end;
+select f() value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- IS definition
+with function f(c int) return int is begin return c+1; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- explicit IN parameter
+with function f(c in int) return int as begin return c; end;
+select f(2) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- DEFAULT parameter omitted
+with function f(c int default 3) return int as begin return c; end;
+select f() value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- ASSIGN default parameter omitted
+with function f(c int := 4) return int as begin return c; end;
+select f() value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- equals default parameter omitted
+with function f(c int = 5) return int as begin return c; end;
+select f() value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- named parameter call
+with function f(left_value int,right_value int) return int as begin return left_value-right_value; end;
+select f(right_value=>2,left_value=>7) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- varchar parameter and return
+with function f(c varchar(20)) return varchar as begin return upper(c); end;
+select f('dm8') value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- date parameter
+with function f(c date) return int as begin return year(c); end;
+select f(date '2026-07-27') value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- local declaration
+with function f(c int) return int as v int:=c+1; begin return v*2; end;
+select f(2) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- conditional body
+with function f(c int) return int as begin if c>0 then return c; else return -c; end if; end;
+select f(-3) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- deterministic option
+with function f(c int) return int deterministic as begin return c; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- result cache option
+with function f(c int) return int result_cache as begin return c; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- parallel enable option
+with function f(c int) return int parallel_enable as begin return c; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- combined function options
+with function f(c int) return int deterministic result_cache parallel_enable as begin return c; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- pipelined scalar semantic restriction
+with function f(c int) return int pipelined as begin return c; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- two independent functions
+with function f1(c int) return int as begin return c+1; end;
+function f2(c int) return int as begin return c+2; end;
+select f1(1)+f2(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- later function calls earlier
+with function f1(c int) return int as begin return c+1; end;
+function f2(c int) return int as begin return f1(c)+1; end;
+select f2(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- earlier function calls later
+with function f1(c int) return int as begin return f2(c)+1; end;
+function f2(c int) return int as begin return c+1; end;
+select f1(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- recursive local function
+with function f(c int) return int as begin if c<=1 then return 1; end if; return c*f(c-1); end;
+select f(5) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- duplicate function name restriction
+with function f(c int) return int as begin return c; end;
+function f(c varchar) return varchar as begin return c; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- local function priority over schema function
+with function f_priority(c int) return int as begin return c*10; end;
+select f_priority(2) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- function with CTE
+with function f(c int) return int as begin return c+1; end;
+q(c) as(select 1 from dual union all select 2 from dual)
+select sum(f(c)) value from q;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- nested WITH FUNCTION
+with function outer_f(c int) return int as begin return c*10; end;
+select outer_f(1)+(select inner_f(2) from(
+with function inner_f(c int) return int as begin return c+1; end;
+select inner_f(2) from dual
+) q) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- nested scope shadow
+with function f(c int) return int as begin return c*10; end;
+select f(1),(select value from(
+with function f(c int) return int as begin return c+1; end;
+select f(1) value from dual
+) q) from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- function with UNION
+with function f(c int) return int as begin return c+1; end;
+select f(1) from dual union all select f(2) from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- function in derived table
+with function f(c int) return int as begin return c+1; end;
+select value from(select f(id) value from app.with_function_t) q;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- function with group and order
+with function f(c int) return int as begin return c+1; end;
+select f(id),count(*) from app.with_function_t group by f(id) order by f(id);
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- WITH RECURSIVE function
+with recursive function f(c int) return int as begin return c+1; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- OUT parameter query restriction
+with function f(c out int) return int as begin c:=1; return c; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- IN OUT parameter query restriction
+with function f(c in out int) return int as begin c:=c+1; return c; end;
+select f(1) value from dual;
+----------
+[SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- qualified local function name restriction
+with function app.f(c int) return int as begin return c; end;
+select app.f(1) value from dual;
+----------
+[UPDATE|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- WITH FUNCTION UPDATE
+with function f(c int) return int as begin return c+1; end;
+update app.with_function_t set v=f(v) where id=1;
+----------
+[INSERT|SELECT|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- WITH FUNCTION INSERT SELECT
+with function f(c int) return int as begin return c+1; end;
+insert into app.with_function_t(id,v) select 10,f(10) from dual;
+----------
+[DELETE|CALL_PROG_OBJ(PROGRAM_CONTROL)] -- WITH FUNCTION DELETE
+with function f(c int) return int as begin return c; end;
+delete from app.with_function_t where id=f(999);

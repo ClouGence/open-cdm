@@ -1,0 +1,44 @@
+-- ordinary SQL followed by a DIsql slash separator
+SELECT 1 FROM DUAL;
+/
+-- division slash is SQL syntax, not a separator
+SELECT 8 / 4 AS RESULT_VALUE FROM DUAL;
+/
+-- slash inside a string is SQL content
+SELECT '/' AS SLASH_VALUE FROM DUAL;
+/
+-- anonymous block contains internal semicolons
+BEGIN
+  PRINT 'SLASH_SEPARATOR';
+END;
+/
+-- program object ends at the client slash separator
+CREATE OR REPLACE PROCEDURE CODEX_SLASH_SEPARATOR_P AS
+BEGIN
+  NULL;
+END;
+/
+DROP PROCEDURE CODEX_SLASH_SEPARATOR_P;
+/
+------------------------------------------------------------------------------------------
+[SELECT] -- ordinary SQL followed by a DIsql slash separator
+SELECT 1 FROM DUAL;
+----------
+[SELECT] -- division slash is SQL syntax, not a separator
+SELECT 8 / 4 AS RESULT_VALUE FROM DUAL;
+----------
+[SELECT] -- slash inside a string is SQL content
+SELECT '/' AS SLASH_VALUE FROM DUAL;
+----------
+[BLOCK(PROGRAM_CONTROL)] -- anonymous block contains internal semicolons
+BEGIN
+  PRINT 'SLASH_SEPARATOR';
+END;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] -- program object ends at the client slash separator
+CREATE OR REPLACE PROCEDURE CODEX_SLASH_SEPARATOR_P AS
+BEGIN
+  NULL;
+END;
+----------
+[DROP_PROG_OBJ] DROP PROCEDURE CODEX_SLASH_SEPARATOR_P;

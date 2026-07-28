@@ -1,0 +1,183 @@
+sp_audit_stmt('TABLE', 'NULL', 'ALL');
+sp_noaudit_stmt('TABLE', 'NULL', 'ALL');
+sp_audit_stmt('USER', 'SYSDBA', 'SUCCESSFUL');
+sp_noaudit_stmt('USER', 'SYSDBA', 'SUCCESSFUL');
+sp_audit_stmt('ROLE', 'NULL', 'FAIL');
+sp_noaudit_stmt('ROLE', 'NULL', 'FAIL');
+sp_audit_stmt('TABLESPACE', 'NULL', 'ALL');
+sp_noaudit_stmt('TABLESPACE', 'NULL', 'ALL');
+sp_audit_stmt('SCHEMA', 'NULL', 'SUCCESSFUL');
+sp_noaudit_stmt('SCHEMA', 'NULL', 'SUCCESSFUL');
+sp_audit_stmt('VIEW', 'NULL', 'FAIL');
+sp_noaudit_stmt('VIEW', 'NULL', 'FAIL');
+sp_audit_stmt('INDEX', 'NULL', 'ALL');
+sp_noaudit_stmt('INDEX', 'NULL', 'ALL');
+sp_audit_stmt('PROCEDURE', 'NULL', 'SUCCESSFUL');
+sp_noaudit_stmt('PROCEDURE', 'NULL', 'SUCCESSFUL');
+sp_audit_stmt('TRIGGER', 'NULL', 'FAIL');
+sp_noaudit_stmt('TRIGGER', 'NULL', 'FAIL');
+sp_audit_stmt('SEQUENCE', 'NULL', 'ALL');
+sp_noaudit_stmt('SEQUENCE', 'NULL', 'ALL');
+sp_audit_stmt('CONTEXT', 'NULL', 'SUCCESSFUL');
+sp_noaudit_stmt('CONTEXT', 'NULL', 'SUCCESSFUL');
+sp_audit_stmt('SYNONYM', 'NULL', 'FAIL');
+sp_noaudit_stmt('SYNONYM', 'NULL', 'FAIL');
+sp_audit_stmt('GRANT', 'NULL', 'ALL');
+sp_noaudit_stmt('GRANT', 'NULL', 'ALL');
+sp_audit_stmt('REVOKE', 'NULL', 'SUCCESSFUL');
+sp_noaudit_stmt('REVOKE', 'NULL', 'SUCCESSFUL');
+sp_audit_stmt('INSERT TABLE', 'SYSDBA', 'FAIL');
+sp_noaudit_stmt('INSERT TABLE', 'SYSDBA', 'FAIL');
+sp_audit_stmt('UPDATE TABLE', 'SYSDBA', 'ALL');
+sp_noaudit_stmt('UPDATE TABLE', 'SYSDBA', 'ALL');
+sp_audit_stmt('DELETE TABLE', 'SYSDBA', 'SUCCESSFUL');
+sp_noaudit_stmt('DELETE TABLE', 'SYSDBA', 'SUCCESSFUL');
+sp_audit_stmt('SELECT TABLE', 'SYSDBA', 'FAIL');
+sp_noaudit_stmt('SELECT TABLE', 'SYSDBA', 'FAIL');
+sp_audit_stmt('COMMIT', 'NULL', 'ALL');
+sp_noaudit_stmt('COMMIT', 'NULL', 'ALL');
+sp_audit_stmt('ROLLBACK', 'NULL', 'SUCCESSFUL');
+sp_noaudit_stmt('ROLLBACK', 'NULL', 'SUCCESSFUL');
+sp_audit_object('INSERT', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'ALL');
+sp_noaudit_object('INSERT', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'ALL');
+sp_audit_object('UPDATE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'SUCCESSFUL');
+sp_noaudit_object('UPDATE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'SUCCESSFUL');
+sp_audit_object('DELETE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'FAIL');
+sp_noaudit_object('DELETE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'FAIL');
+sp_audit_object('SELECT', 'NULL', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'ALL');
+sp_noaudit_object('SELECT', 'NULL', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'ALL');
+sp_audit_object('LOCK TABLE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'SUCCESSFUL');
+sp_noaudit_object('LOCK TABLE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'SUCCESSFUL');
+sp_audit_object('ALL', 'NULL', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'FAIL');
+sp_noaudit_object('ALL', 'NULL', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'FAIL');
+sp_audit_object('UPDATE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'AMOUNT', 'ALL');
+sp_noaudit_object('UPDATE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'AMOUNT', 'ALL');
+sp_audit_sqlseq_start('CODEX_AUDIT_SQLSEQ_20260721');
+sp_audit_sqlseq_add('CODEX_AUDIT_SQLSEQ_20260721', 'SELECT NAME FROM CODEX_DM8_AUDIT_20260721.AUDIT_TARGET;');
+sp_audit_sqlseq_add('CODEX_AUDIT_SQLSEQ_20260721', 'SELECT AMOUNT FROM CODEX_DM8_AUDIT_20260721.AUDIT_TARGET;');
+sp_audit_sqlseq_end('CODEX_AUDIT_SQLSEQ_20260721');
+sp_audit_sqlseq_del('CODEX_AUDIT_SQLSEQ_20260721');
+sp_set_enable_audit(1);
+sp_set_enable_audit(0);
+------------------------------------------------------------------------------------------
+[ADMIN] sp_audit_stmt('TABLE', 'NULL', 'ALL');
+----------
+[ADMIN] sp_noaudit_stmt('TABLE', 'NULL', 'ALL');
+----------
+[ADMIN] sp_audit_stmt('USER', 'SYSDBA', 'SUCCESSFUL');
+----------
+[ADMIN] sp_noaudit_stmt('USER', 'SYSDBA', 'SUCCESSFUL');
+----------
+[ADMIN] sp_audit_stmt('ROLE', 'NULL', 'FAIL');
+----------
+[ADMIN] sp_noaudit_stmt('ROLE', 'NULL', 'FAIL');
+----------
+[ADMIN] sp_audit_stmt('TABLESPACE', 'NULL', 'ALL');
+----------
+[ADMIN] sp_noaudit_stmt('TABLESPACE', 'NULL', 'ALL');
+----------
+[ADMIN] sp_audit_stmt('SCHEMA', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_noaudit_stmt('SCHEMA', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_audit_stmt('VIEW', 'NULL', 'FAIL');
+----------
+[ADMIN] sp_noaudit_stmt('VIEW', 'NULL', 'FAIL');
+----------
+[ADMIN] sp_audit_stmt('INDEX', 'NULL', 'ALL');
+----------
+[ADMIN] sp_noaudit_stmt('INDEX', 'NULL', 'ALL');
+----------
+[ADMIN] sp_audit_stmt('PROCEDURE', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_noaudit_stmt('PROCEDURE', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_audit_stmt('TRIGGER', 'NULL', 'FAIL');
+----------
+[ADMIN] sp_noaudit_stmt('TRIGGER', 'NULL', 'FAIL');
+----------
+[ADMIN] sp_audit_stmt('SEQUENCE', 'NULL', 'ALL');
+----------
+[ADMIN] sp_noaudit_stmt('SEQUENCE', 'NULL', 'ALL');
+----------
+[ADMIN] sp_audit_stmt('CONTEXT', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_noaudit_stmt('CONTEXT', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_audit_stmt('SYNONYM', 'NULL', 'FAIL');
+----------
+[ADMIN] sp_noaudit_stmt('SYNONYM', 'NULL', 'FAIL');
+----------
+[ADMIN] sp_audit_stmt('GRANT', 'NULL', 'ALL');
+----------
+[ADMIN] sp_noaudit_stmt('GRANT', 'NULL', 'ALL');
+----------
+[ADMIN] sp_audit_stmt('REVOKE', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_noaudit_stmt('REVOKE', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_audit_stmt('INSERT TABLE', 'SYSDBA', 'FAIL');
+----------
+[ADMIN] sp_noaudit_stmt('INSERT TABLE', 'SYSDBA', 'FAIL');
+----------
+[ADMIN] sp_audit_stmt('UPDATE TABLE', 'SYSDBA', 'ALL');
+----------
+[ADMIN] sp_noaudit_stmt('UPDATE TABLE', 'SYSDBA', 'ALL');
+----------
+[ADMIN] sp_audit_stmt('DELETE TABLE', 'SYSDBA', 'SUCCESSFUL');
+----------
+[ADMIN] sp_noaudit_stmt('DELETE TABLE', 'SYSDBA', 'SUCCESSFUL');
+----------
+[ADMIN] sp_audit_stmt('SELECT TABLE', 'SYSDBA', 'FAIL');
+----------
+[ADMIN] sp_noaudit_stmt('SELECT TABLE', 'SYSDBA', 'FAIL');
+----------
+[ADMIN] sp_audit_stmt('COMMIT', 'NULL', 'ALL');
+----------
+[ADMIN] sp_noaudit_stmt('COMMIT', 'NULL', 'ALL');
+----------
+[ADMIN] sp_audit_stmt('ROLLBACK', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_noaudit_stmt('ROLLBACK', 'NULL', 'SUCCESSFUL');
+----------
+[ADMIN] sp_audit_object('INSERT', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'ALL');
+----------
+[ADMIN] sp_noaudit_object('INSERT', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'ALL');
+----------
+[ADMIN] sp_audit_object('UPDATE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'SUCCESSFUL');
+----------
+[ADMIN] sp_noaudit_object('UPDATE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'SUCCESSFUL');
+----------
+[ADMIN] sp_audit_object('DELETE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'FAIL');
+----------
+[ADMIN] sp_noaudit_object('DELETE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'FAIL');
+----------
+[ADMIN] sp_audit_object('SELECT', 'NULL', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'ALL');
+----------
+[ADMIN] sp_noaudit_object('SELECT', 'NULL', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'ALL');
+----------
+[ADMIN] sp_audit_object('LOCK TABLE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'SUCCESSFUL');
+----------
+[ADMIN] sp_noaudit_object('LOCK TABLE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'SUCCESSFUL');
+----------
+[ADMIN] sp_audit_object('ALL', 'NULL', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'FAIL');
+----------
+[ADMIN] sp_noaudit_object('ALL', 'NULL', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'FAIL');
+----------
+[ADMIN] sp_audit_object('UPDATE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'AMOUNT', 'ALL');
+----------
+[ADMIN] sp_noaudit_object('UPDATE', 'SYSDBA', 'CODEX_DM8_AUDIT_20260721', 'AUDIT_TARGET', 'AMOUNT', 'ALL');
+----------
+[ADMIN] sp_audit_sqlseq_start('CODEX_AUDIT_SQLSEQ_20260721');
+----------
+[ADMIN] sp_audit_sqlseq_add('CODEX_AUDIT_SQLSEQ_20260721', 'SELECT NAME FROM CODEX_DM8_AUDIT_20260721.AUDIT_TARGET;');
+----------
+[ADMIN] sp_audit_sqlseq_add('CODEX_AUDIT_SQLSEQ_20260721', 'SELECT AMOUNT FROM CODEX_DM8_AUDIT_20260721.AUDIT_TARGET;');
+----------
+[ADMIN] sp_audit_sqlseq_end('CODEX_AUDIT_SQLSEQ_20260721');
+----------
+[ADMIN] sp_audit_sqlseq_del('CODEX_AUDIT_SQLSEQ_20260721');
+----------
+[ADMIN] sp_set_enable_audit(1);
+----------
+[ADMIN] sp_set_enable_audit(0);

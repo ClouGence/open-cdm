@@ -1,0 +1,960 @@
+-- OPEN_CONNECTION_CONNECTION_POSITIONAL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- OPEN_CONNECTION_CONNECTION_NAMED_FULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection(
+    SECURE_HOST=>null,
+    SECURE_CONNECTION_BEFORE_SMTP=>false,
+    WALLET_PASSWORD=>null,
+    WALLET_PATH=>null,
+    TX_TIMEOUT=>5,
+    PORT=>18025,
+    HOST=>'host.docker.internal'
+  );
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- OPEN_CONNECTION_REPLY_POSITIONAL
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  reply_value := utl_smtp.open_connection('host.docker.internal',18025,connection_value,5,null,null,false,null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- OPEN_CONNECTION_REPLY_NAMED_DEFAULTS
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  reply_value := utl_smtp.open_connection(
+    C=>connection_value,
+    PORT=>18025,
+    HOST=>'host.docker.internal'
+  );
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- CLOSE_CONNECTION_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- HELO_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- HELO_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- HELO_FUNCTION_NAMED
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.helo(R_DOMAIN=>'dm8.local',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- EHLO_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.ehlo(connection_value,'dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- EHLO_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  replies_value utl_smtp.replies;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  replies_value := utl_smtp.ehlo(connection_value,'dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- EHLO_FUNCTION_NAMED
+declare
+  connection_value utl_smtp.connection;
+  replies_value utl_smtp.replies;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  replies_value := utl_smtp.ehlo(R_DOMAIN=>'dm8.local',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- COMMAND_PROCEDURE_DEFAULT_ARG
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.command(connection_value,'AUTH LOGIN');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- COMMAND_PROCEDURE_FULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.command(connection_value,'AUTH','LOGIN');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- COMMAND_FUNCTION_DEFAULT_ARG
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.command(connection_value,'NOOP');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- COMMAND_FUNCTION_NAMED_FULL
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.command(ARG=>'dm8.local',CMD=>'HELO',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- MAIL_PROCEDURE_DEFAULT_PARAMETERS
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- MAIL_PROCEDURE_FULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local','SIZE=4');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- MAIL_FUNCTION_DEFAULT_PARAMETERS
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  reply_value := utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- MAIL_FUNCTION_NAMED_FULL
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  reply_value := utl_smtp.mail(M_PARAMETERS=>'SIZE=4',SENDER=>'sender@dm8.local',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- RCPT_PROCEDURE_DEFAULT_PARAMETERS
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- RCPT_PROCEDURE_FULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local','NOTIFY=SUCCESS');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- RCPT_FUNCTION_DEFAULT_PARAMETERS
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  reply_value := utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- RCPT_FUNCTION_NAMED_FULL
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  reply_value := utl_smtp.rcpt(R_PARAMETERS=>'NOTIFY=SUCCESS',RECIPIENTS=>'receiver@dm8.local',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- OPEN_DATA_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'OPEN_DATA_PROC');
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- OPEN_DATA_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  reply_value := utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'OPEN_DATA_FUNC');
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- WRITE_DATA_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'DM8_SMTP_TEXT');
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- WRITE_RAW_DATA_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_raw_data(connection_value,cast('444D385F534D54505F524157' as varbinary(64)));
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- CLOSE_DATA_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'CLOSE_DATA_PROC');
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- CLOSE_DATA_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'CLOSE_DATA_FUNC');
+  reply_value := utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- QUIT_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.quit(connection_value);
+end;
+/
+-- QUIT_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  reply_value := utl_smtp.quit(connection_value);
+end;
+/
+-- OPEN_CONNECTION_ZERO_TIMEOUT
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,0);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- HELO_PROCEDURE_NULL_DOMAIN
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- HELO_FUNCTION_NULL_DOMAIN
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.helo(connection_value,null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- EHLO_PROCEDURE_NULL_DOMAIN
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.ehlo(connection_value,null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- EHLO_FUNCTION_NULL_DOMAIN
+declare
+  connection_value utl_smtp.connection;
+  replies_value utl_smtp.replies;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  replies_value := utl_smtp.ehlo(connection_value,null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- COMMAND_PROCEDURE_EXPLICIT_NULL_ARG
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.command(connection_value,'AUTH LOGIN',null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- COMMAND_FUNCTION_EXPLICIT_NULL_ARG
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.command(connection_value,'NOOP',null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- MAIL_PROCEDURE_NULL_SENDER
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,null,null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- MAIL_FUNCTION_NULL_SENDER
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  reply_value := utl_smtp.mail(connection_value,null,null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- RCPT_PROCEDURE_NULL_RECIPIENT
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,null,null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- RCPT_FUNCTION_NULL_RECIPIENT
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  reply_value := utl_smtp.rcpt(connection_value,null,null);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- WRITE_DATA_NULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,null);
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+-- WRITE_RAW_DATA_NULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_raw_data(connection_value,null);
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- OPEN_CONNECTION_CONNECTION_POSITIONAL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- OPEN_CONNECTION_CONNECTION_NAMED_FULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection(
+    SECURE_HOST=>null,
+    SECURE_CONNECTION_BEFORE_SMTP=>false,
+    WALLET_PASSWORD=>null,
+    WALLET_PATH=>null,
+    TX_TIMEOUT=>5,
+    PORT=>18025,
+    HOST=>'host.docker.internal'
+  );
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- OPEN_CONNECTION_REPLY_POSITIONAL
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  reply_value := utl_smtp.open_connection('host.docker.internal',18025,connection_value,5,null,null,false,null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- OPEN_CONNECTION_REPLY_NAMED_DEFAULTS
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  reply_value := utl_smtp.open_connection(
+    C=>connection_value,
+    PORT=>18025,
+    HOST=>'host.docker.internal'
+  );
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- CLOSE_CONNECTION_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- HELO_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- HELO_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- HELO_FUNCTION_NAMED
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.helo(R_DOMAIN=>'dm8.local',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- EHLO_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.ehlo(connection_value,'dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- EHLO_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  replies_value utl_smtp.replies;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  replies_value := utl_smtp.ehlo(connection_value,'dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- EHLO_FUNCTION_NAMED
+declare
+  connection_value utl_smtp.connection;
+  replies_value utl_smtp.replies;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  replies_value := utl_smtp.ehlo(R_DOMAIN=>'dm8.local',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- COMMAND_PROCEDURE_DEFAULT_ARG
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.command(connection_value,'AUTH LOGIN');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- COMMAND_PROCEDURE_FULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.command(connection_value,'AUTH','LOGIN');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- COMMAND_FUNCTION_DEFAULT_ARG
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.command(connection_value,'NOOP');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- COMMAND_FUNCTION_NAMED_FULL
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.command(ARG=>'dm8.local',CMD=>'HELO',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- MAIL_PROCEDURE_DEFAULT_PARAMETERS
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- MAIL_PROCEDURE_FULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local','SIZE=4');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- MAIL_FUNCTION_DEFAULT_PARAMETERS
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  reply_value := utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- MAIL_FUNCTION_NAMED_FULL
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  reply_value := utl_smtp.mail(M_PARAMETERS=>'SIZE=4',SENDER=>'sender@dm8.local',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- RCPT_PROCEDURE_DEFAULT_PARAMETERS
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- RCPT_PROCEDURE_FULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local','NOTIFY=SUCCESS');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- RCPT_FUNCTION_DEFAULT_PARAMETERS
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  reply_value := utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- RCPT_FUNCTION_NAMED_FULL
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  reply_value := utl_smtp.rcpt(R_PARAMETERS=>'NOTIFY=SUCCESS',RECIPIENTS=>'receiver@dm8.local',C=>connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- OPEN_DATA_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'OPEN_DATA_PROC');
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- OPEN_DATA_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  reply_value := utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'OPEN_DATA_FUNC');
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_DATA_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'DM8_SMTP_TEXT');
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_RAW_DATA_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_raw_data(connection_value,cast('444D385F534D54505F524157' as varbinary(64)));
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- CLOSE_DATA_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'CLOSE_DATA_PROC');
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- CLOSE_DATA_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,'CLOSE_DATA_FUNC');
+  reply_value := utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- QUIT_PROCEDURE
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.quit(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- QUIT_FUNCTION
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  reply_value := utl_smtp.quit(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- OPEN_CONNECTION_ZERO_TIMEOUT
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,0);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- HELO_PROCEDURE_NULL_DOMAIN
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- HELO_FUNCTION_NULL_DOMAIN
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.helo(connection_value,null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- EHLO_PROCEDURE_NULL_DOMAIN
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.ehlo(connection_value,null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- EHLO_FUNCTION_NULL_DOMAIN
+declare
+  connection_value utl_smtp.connection;
+  replies_value utl_smtp.replies;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  replies_value := utl_smtp.ehlo(connection_value,null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- COMMAND_PROCEDURE_EXPLICIT_NULL_ARG
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.command(connection_value,'AUTH LOGIN',null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- COMMAND_FUNCTION_EXPLICIT_NULL_ARG
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  reply_value := utl_smtp.command(connection_value,'NOOP',null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- MAIL_PROCEDURE_NULL_SENDER
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,null,null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- MAIL_FUNCTION_NULL_SENDER
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  reply_value := utl_smtp.mail(connection_value,null,null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- RCPT_PROCEDURE_NULL_RECIPIENT
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,null,null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- RCPT_FUNCTION_NULL_RECIPIENT
+declare
+  connection_value utl_smtp.connection;
+  reply_value utl_smtp.reply;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  reply_value := utl_smtp.rcpt(connection_value,null,null);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_DATA_NULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_data(connection_value,null);
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- WRITE_RAW_DATA_NULL
+declare
+  connection_value utl_smtp.connection;
+begin
+  connection_value := utl_smtp.open_connection('host.docker.internal',18025,5);
+  utl_smtp.helo(connection_value,'dm8.local');
+  utl_smtp.mail(connection_value,'sender@dm8.local');
+  utl_smtp.rcpt(connection_value,'receiver@dm8.local');
+  utl_smtp.open_data(connection_value);
+  utl_smtp.write_raw_data(connection_value,null);
+  utl_smtp.close_data(connection_value);
+  utl_smtp.close_connection(connection_value);
+end;

@@ -18,6 +18,8 @@ package com.clougence.clouddm.ds.dameng.sql.analysis.security;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParserBaseVisitor;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
@@ -198,6 +200,46 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitDmlErrorLoggingClause(DmSqlParser.DmlErrorLoggingClauseContext ctx) {
+        if (ctx.qualifiedName() == null) {
+            return visitChildren(ctx);
+        }
+        NameParts name = schemaScoped(NameParts.from(ctx.qualifiedName()));
+        RdbInsertDomain domain = new RdbInsertDomain();
+        domain.setCatalog(name.catalog());
+        domain.setSchema(name.schema());
+        domain.setTable(name.name());
+        add(domain, enclosingAction(ctx));
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitAlterTableAction(DmSqlParser.AlterTableActionContext ctx) {
+        if (ctx.EXCHANGE() != null && ctx.qualifiedName() != null) {
+            tableDomain(NameParts.from(ctx.qualifiedName()), RuleQueryType.ALTER_TABLE);
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitQualifiedName(DmSqlParser.QualifiedNameContext ctx) {
+        RuleQueryType action = enclosingAction(ctx);
+        List<String> parts = dottedNameParts(ctx.dottedName());
+        if (parts.size() >= 2) {
+            String suffix = parts.get(parts.size() - 1);
+            if ("NEXTVAL".equalsIgnoreCase(suffix) || "CURRVAL".equalsIgnoreCase(suffix)) {
+                RdbSequenceDomain domain = new RdbSequenceDomain();
+                setObjectName(domain, NameParts.fromParts(parts.subList(0, parts.size() - 1)));
+                add(domain, action);
+            }
+        }
+        if (ctx.linkName() != null) {
+            objectDomain(NameParts.fromText(ctx.linkName().getText()), action);
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
     public Void visitFlashbackStatement(DmSqlParser.FlashbackStatementContext ctx) {
         for (DmSqlParser.QualifiedNameContext nameContext : ctx.qualifiedName()) {
             tableDomain(NameParts.from(nameContext), RuleQueryType.ADMIN_TABLE);
@@ -257,8 +299,9 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitIndexCreate(DmSqlParser.IndexCreateContext ctx) {
         List<DmSqlParser.QualifiedNameContext> names = ctx.qualifiedName();
         RdbIndexDomain domain = new RdbIndexDomain();
+        NameParts index = null;
         if (!names.isEmpty()) {
-            NameParts index = schemaScoped(NameParts.from(names.get(0)));
+            index = schemaScoped(NameParts.from(names.get(0)));
             domain.setCatalog(index.catalog());
             domain.setSchema(index.schema());
             domain.setName(index.name());
@@ -268,8 +311,24 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             domain.setTableCatalog(table.catalog());
             domain.setTableSchema(table.schema());
             domain.setTableName(table.name());
+            if (index != null && index.schema() == null) {
+                domain.setCatalog(table.catalog());
+                domain.setSchema(table.schema());
+            }
         }
         add(domain, RuleQueryType.ADD_INDEX);
+        if (ctx.bitmapJoinClause() != null) {
+            for (NameParts table : collectTables(ctx.bitmapJoinClause().fromClause())) {
+                tableDomain(table, RuleQueryType.SELECT);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitExternalTableDirectoryOption(DmSqlParser.ExternalTableDirectoryOptionContext ctx) {
+        String directory = NameParts.clean(ctx.identifier().getText());
+        objectDomain(new NameParts(null, null, directory), RuleQueryType.SELECT);
         return null;
     }
 
@@ -343,7 +402,15 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         domain.setName(name.name());
         add(domain, RuleQueryType.CREATE_TRIGGER);
         if (ctx.triggerCreateTail().tableTriggerCreateTail() != null) {
-            tableDomain(NameParts.from(firstQualifiedName(ctx.triggerCreateTail().tableTriggerCreateTail().qualifiedName())), RuleQueryType.ALTER_TABLE);
+            DmSqlParser.TableTriggerCreateTailContext tail = ctx.triggerCreateTail().tableTriggerCreateTail();
+            NameParts target = NameParts.from(firstQualifiedName(tail.qualifiedName()));
+            if (tail.tableTriggerTiming().INSTEAD() != null) {
+                RdbViewDomain view = new RdbViewDomain();
+                setViewName(view, target);
+                add(view, RuleQueryType.ALTER_VIEW);
+            } else {
+                tableDomain(target, RuleQueryType.ALTER_TABLE);
+            }
         }
         return visitChildren(ctx);
     }
@@ -353,6 +420,9 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         RdbSynonymDomain domain = new RdbSynonymDomain();
         setObjectName(domain, NameParts.from(ctx.qualifiedName(0)));
         add(domain, RuleQueryType.CREATE_SYNONYM);
+        if (ctx.PUBLIC() != null) {
+            domain.setSchema("PUBLIC");
+        }
         return null;
     }
 
@@ -435,7 +505,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
         } else if (ctx.TABLESPACE() != null) {
             objectDomain(name, RuleQueryType.ALTER_TABLESPACE);
         } else if (ctx.PROFILE() != null) {
-            configDomain(ctx.identifier() == null ? null : NameParts.clean(ctx.identifier().getText()));
+            configDomain(ctx.profileName() == null ? null : NameParts.clean(ctx.profileName().getText()));
         } else if (ctx.TYPE() != null) {
             objectDomain(name, RuleQueryType.ADMIN_TYPE);
         } else if (ctx.CLASS() != null) {
@@ -460,7 +530,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             add(domain, RuleQueryType.DROP_VIEW);
         } else if (ctx.INDEX() != null) {
             indexDomain(contextIndexName(ctx.contextIndexName, name), contextTableName(ctx.contextTableName), RuleQueryType.DROP_INDEX);
-        } else if (ctx.SCHEMA() != null || ctx.DATABASE() != null) {
+        } else if (ctx.SCHEMA() != null) {
             RdbSchemaDomain domain = new RdbSchemaDomain();
             if (name != null) {
                 domain.setCatalog(name.catalog());
@@ -499,6 +569,9 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             RdbSynonymDomain domain = new RdbSynonymDomain();
             setObjectName(domain, name);
             add(domain, RuleQueryType.DROP_SYNONYM);
+            if (ctx.PUBLIC() != null) {
+                domain.setSchema("PUBLIC");
+            }
         } else if (ctx.PACKAGE() != null) {
             objectDomain(name, RuleQueryType.DROP_PROG_OBJ);
         } else if (ctx.TABLESPACE() != null) {
@@ -564,14 +637,27 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitCallStatement(DmSqlParser.CallStatementContext ctx) {
         callDomain(NameParts.from(ctx.qualifiedName()));
+        if (ctx.qualifiedName().linkName() != null) {
+            objectDomain(NameParts.fromText(ctx.qualifiedName().linkName().getText()), RuleQueryType.CALL_PROG_OBJ);
+        }
         return null;
     }
 
     @Override
     public Void visitProcedureCallStatement(DmSqlParser.ProcedureCallStatementContext ctx) {
         if (ctx.qualifiedName() != null) {
-            callDomain(NameParts.from(ctx.qualifiedName()));
+            String routine = ctx.qualifiedName().getText();
+            if (!"THIS".equalsIgnoreCase(routine) && !"SUPER".equalsIgnoreCase(routine)) {
+                callDomain(NameParts.from(ctx.qualifiedName()));
+                if (ctx.qualifiedName().linkName() != null) {
+                    objectDomain(NameParts.fromText(ctx.qualifiedName().linkName().getText()), RuleQueryType.CALL_PROG_OBJ);
+                }
+            }
         } else {
+            String routine = ctx.bareRoutineName().getText();
+            if ("THIS".equalsIgnoreCase(routine) || "SUPER".equalsIgnoreCase(routine)) {
+                return null;
+            }
             callDomain(NameParts.from(ctx.bareRoutineName()));
         }
         return null;
@@ -593,7 +679,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterSessionParallelDmlStatement(DmSqlParser.AlterSessionParallelDmlStatementContext ctx) {
-        configDomain("PARALLEL_POLICY");
+        configDomain("PARALLEL_POLICY", RuleQueryType.SESSION_SETTING_WRITE);
         return null;
     }
 
@@ -609,7 +695,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitSetTimeZoneStatement(DmSqlParser.SetTimeZoneStatementContext ctx) {
-        configDomain("TIME_ZONE");
+        configDomain("TIME_ZONE", RuleQueryType.SESSION_SETTING_WRITE);
         return null;
     }
 
@@ -622,6 +708,24 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitAdminStatement(DmSqlParser.AdminStatementContext ctx) {
         objectDomain(new NameParts(null, null, "DATABASE"), RuleQueryType.ADMIN);
+        if (ctx.backupStatementTail() != null) {
+            DmSqlParser.BackupStatementTailContext backup = ctx.backupStatementTail();
+            if (backup.TABLE() != null) {
+                tableDomain(NameParts.from(backup.qualifiedName()), RuleQueryType.ADMIN);
+            } else if (backup.TABLESPACE() != null) {
+                objectDomain(NameParts.from(backup.qualifiedName()), RuleQueryType.ADMIN);
+            }
+        } else if (ctx.restoreStatementTail() != null && ctx.restoreStatementTail().TABLE() != null
+            && ctx.restoreStatementTail().qualifiedName() != null) {
+            tableDomain(NameParts.from(ctx.restoreStatementTail().qualifiedName()), RuleQueryType.ADMIN);
+        } else if (ctx.restoreStatementTail() != null
+            && ctx.restoreStatementTail().restoreTablespaceTail() != null) {
+            objectDomain(NameParts.from(ctx.restoreStatementTail().restoreTablespaceTail().qualifiedName()),
+                RuleQueryType.ADMIN);
+        } else if (ctx.recoverStatementTail() != null
+            && ctx.recoverStatementTail().TABLESPACE() != null) {
+            objectDomain(NameParts.from(ctx.recoverStatementTail().qualifiedName()), RuleQueryType.ADMIN);
+        }
         return null;
     }
 
@@ -658,10 +762,12 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitConfigWriteStatement(DmSqlParser.ConfigWriteStatementContext ctx) {
-        if (!ctx.configAssignment().isEmpty()) {
-            for (DmSqlParser.ConfigAssignmentContext assignmentContext : ctx.configAssignment()) {
-                configDomain(configKeyText(assignmentContext.configKey()));
-            }
+        if (ctx.configAssignment() != null) {
+            configDomain(configKeyText(ctx.configAssignment().configKey()));
+            return null;
+        }
+        if (ctx.sessionConfigAssignment() != null) {
+            configDomain(configKeyText(ctx.sessionConfigAssignment().configKey()), RuleQueryType.SESSION_SETTING_WRITE);
             return null;
         }
         configDomain(configProcedureKey(ctx));
@@ -889,7 +995,8 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     }
 
     private boolean aliasMatches(String alias, DmSqlParser.TableAliasContext ctx) {
-        return ctx != null && alias != null && alias.equalsIgnoreCase(NameParts.clean(ctx.identifier().getText()));
+        return ctx != null && alias != null
+            && alias.equalsIgnoreCase(NameParts.clean(ctx.aliasIdentifier().identifier().getText()));
     }
 
     private NameParts columnTableName(DmSqlParser.QualifiedNameContext ctx) {
@@ -915,6 +1022,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     private RdbTableDomain tableDomain(NameParts name, RuleQueryType type) {
         RdbTableDomain domain = new RdbTableDomain();
+        name = schemaScoped(name);
         if (name != null) {
             domain.setCatalog(name.catalog());
             domain.setSchema(name.schema());
@@ -948,6 +1056,10 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     private RdbConfigDomain configDomain(String configKey) {
         return add(new RdbConfigDomain(configKey), RuleQueryType.SYSTEM_SETTING_WRITE);
+    }
+
+    private RdbConfigDomain configDomain(String configKey, RuleQueryType type) {
+        return add(new RdbConfigDomain(configKey), type);
     }
 
     private boolean isTableStatProcedure(String procedure) {
@@ -998,7 +1110,9 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             index = 2;
         } else if ("SF_SET_SYSTEM_PARA_VALUE".equalsIgnoreCase(procedure)) {
             index = args.size() >= 5 ? 1 : 0;
-        } else if (procedure.startsWith("SP_SET_PARA_") || "SP_SET_PARA_VALUE".equalsIgnoreCase(procedure) || "SP_SET_INI_PARA_VALUE".equalsIgnoreCase(procedure)) {
+        } else if (procedure.regionMatches(true, 0, "SP_SET_PARA_", 0, "SP_SET_PARA_".length())
+            || "SP_SET_PARA_VALUE".equalsIgnoreCase(procedure)
+            || "SP_SET_INI_PARA_VALUE".equalsIgnoreCase(procedure)) {
             index = args.size() >= 4 ? 2 : 1;
         }
         if (index >= args.size()) {
@@ -1022,6 +1136,43 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             return NameParts.clean(ctx.schemaAuthorizationClause().schemaOwner.getText());
         }
         return null;
+    }
+
+    private RuleQueryType enclosingAction(ParseTree tree) {
+        ParseTree current = tree;
+        while (current != null) {
+            if (current instanceof DmSqlParser.InsertStatementContext
+                || current instanceof DmSqlParser.MultiInsertIntoContext) {
+                return RuleQueryType.INSERT;
+            }
+            if (current instanceof DmSqlParser.UpdateStatementContext) {
+                return RuleQueryType.UPDATE;
+            }
+            if (current instanceof DmSqlParser.DeleteStatementContext) {
+                return RuleQueryType.DELETE;
+            }
+            if (current instanceof DmSqlParser.MergeStatementContext) {
+                return RuleQueryType.MERGE;
+            }
+            if (current instanceof DmSqlParser.CallStatementContext
+                || current instanceof DmSqlParser.ProcedureCallStatementContext) {
+                return RuleQueryType.CALL_PROG_OBJ;
+            }
+            if (current instanceof DmSqlParser.SelectStatementContext) {
+                return RuleQueryType.SELECT;
+            }
+            current = current.getParent();
+        }
+        return RuleQueryType.UNKNOWN;
+    }
+
+    private List<String> dottedNameParts(DmSqlParser.DottedNameContext ctx) {
+        List<String> parts = new ArrayList<>();
+        parts.add(NameParts.clean(ctx.identifier().getText()));
+        for (DmSqlParser.DottedNamePartContext part : ctx.dottedNamePart()) {
+            parts.add(NameParts.clean(part.getText()));
+        }
+        return parts;
     }
 
     private NameParts schemaScoped(NameParts name) {
@@ -1057,7 +1208,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             return NameParts.from(ctx.classBodyCreate().qualifiedName());
         }
         if (ctx.javaClassCreate() != null) {
-            return NameParts.from(ctx.javaClassCreate().qualifiedName());
+            return objectTargetName(null, ctx.javaClassCreate().identifier());
         }
         if (ctx.classCreate() != null) {
             return NameParts.from(ctx.classCreate().qualifiedName());
@@ -1072,7 +1223,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     }
 
     private NameParts replaceableObjectCreateName(DmSqlParser.ReplaceableObjectCreateContext ctx) {
-        if (ctx.CONTEXT() != null) {
+        if (ctx.CONTEXT() != null || ctx.DIRECTORY() != null) {
             return objectTargetName(null, ctx.identifier());
         }
         if (ctx.typeCreate() != null) {
@@ -1085,7 +1236,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             return NameParts.from(ctx.classBodyCreate().qualifiedName());
         }
         if (ctx.javaClassCreate() != null) {
-            return NameParts.from(ctx.javaClassCreate().qualifiedName());
+            return objectTargetName(null, ctx.javaClassCreate().identifier());
         }
         if (ctx.classCreate() != null) {
             return NameParts.from(ctx.classCreate().qualifiedName());
@@ -1210,6 +1361,14 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             String schema = parts.size() > 1 ? parts.get(parts.size() - 2) : null;
             String catalog = parts.size() > 2 ? parts.get(parts.size() - 3) : null;
             return new NameParts(catalog, schema, name);
+        }
+
+        private static NameParts fromText(String text) {
+            List<String> parts = new ArrayList<>();
+            for (String part : text.split("\\.")) {
+                parts.add(clean(part));
+            }
+            return fromParts(parts);
         }
 
         private static String clean(String text) {

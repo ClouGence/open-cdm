@@ -1,0 +1,12 @@
+sp_set_role('CODEX_DM8_ROLE_SELECT_20260723', 0);
+sp_set_role('CODEX_DM8_ROLE_SELECT_20260723', 1);
+sp_set_role('CODEX_DM8_ROLE_STATE_LEAF_20260723', 0);
+sp_set_role('CODEX_DM8_ROLE_STATE_LEAF_20260723', 1);
+------------------------------------------------------------------------------------------
+[ADMIN] sp_set_role('CODEX_DM8_ROLE_SELECT_20260723', 0);
+----------
+[ADMIN] sp_set_role('CODEX_DM8_ROLE_SELECT_20260723', 1);
+----------
+[ADMIN] sp_set_role('CODEX_DM8_ROLE_STATE_LEAF_20260723', 0);
+----------
+[ADMIN] sp_set_role('CODEX_DM8_ROLE_STATE_LEAF_20260723', 1);

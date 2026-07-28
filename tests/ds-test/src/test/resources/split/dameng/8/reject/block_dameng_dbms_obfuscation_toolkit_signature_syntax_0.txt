@@ -1,0 +1,28 @@
+-- empty argument slot
+begin DBMS_OBFUSCATION_TOOLKIT.MD5(,); end;
+/
+-- double comma
+begin DBMS_OBFUSCATION_TOOLKIT.DES3ENCRYPT(input,,output); end;
+/
+-- dangling named
+begin DBMS_OBFUSCATION_TOOLKIT.DESGETKEY(SEED=>); end;
+/
+-- unclosed call
+begin DBMS_OBFUSCATION_TOOLKIT.DESDECRYPT(input,key; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- empty argument slot
+begin DBMS_OBFUSCATION_TOOLKIT.MD5(,); end;
+/
+----------
+[BLOCK] -- double comma
+begin DBMS_OBFUSCATION_TOOLKIT.DES3ENCRYPT(input,,output); end;
+/
+----------
+[BLOCK] -- dangling named
+begin DBMS_OBFUSCATION_TOOLKIT.DESGETKEY(SEED=>); end;
+/
+----------
+[BLOCK] -- unclosed call
+begin DBMS_OBFUSCATION_TOOLKIT.DESDECRYPT(input,key; end;
+/

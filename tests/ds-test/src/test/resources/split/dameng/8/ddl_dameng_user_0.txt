@@ -1,0 +1,174 @@
+create user CODEX_DM8_USER_BASIC identified by "Dm8User#2026";
+create user if not exists CODEX_DM8_USER_BASIC identified by "Ignored#2026";
+create user "User Mixed" identified by "Dm8Mixed#2026";
+create user UXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX identified by "Dm8Long#2026";
+create user CODEX_DM8_USER_MD5 identified by "Dm8Md5#2026" hash with MD5 salt;
+create user CODEX_DM8_USER_SHA1 identified by "Dm8Sha1#2026" hash with SHA1 no salt;
+create user CODEX_DM8_USER_SHA224 identified by "Dm8Sha224#2026" hash with SHA224;
+create user CODEX_DM8_USER_SHA256 identified by "Dm8Sha256#2026" hash with ENGINE1.SHA256 salt;
+create user CODEX_DM8_USER_SHA384 identified by "Dm8Sha384#2026" hash with SHA384 no salt;
+create user CODEX_DM8_USER_SHA512 identified by "Dm8Sha512#2026" hash with SHA512 salt;
+create user CODEX_DM8_USER_POLICY0 identified by weak password_policy 0;
+create user CODEX_DM8_USER_POLICY15 identified by "Dm8Policy2026" password_policy 15;
+create user CODEX_DM8_USER_POLICY31 identified by "Dm8Policy#2026" password_policy 31;
+create user CODEX_DM8_USER_LOCK identified by "Dm8Lock#2026" account lock;
+create user CODEX_DM8_USER_UNLOCK identified by "Dm8Unlock#2026" account unlock;
+create user CODEX_DM8_USER_KEY identified by "Dm8User#2026" encrypt by "Dm8Key#2026";
+create user CODEX_DM8_USER_DISK_MIN identified by "Dm8User#2026" diskspace limit 1;
+create user CODEX_DM8_USER_DISK_MAX identified by "Dm8User#2026" diskspace limit 1048576;
+create user CODEX_DM8_USER_DISK_UNL identified by "Dm8User#2026" diskspace unlimited;
+create user CODEX_DM8_USER_RO identified by "Dm8User#2026" read only;
+create user CODEX_DM8_USER_RW identified by "Dm8User#2026" not read only;
+create user CODEX_DM8_USER_RES_MIN identified by "Dm8User#2026" limit GLOBAL_SESSION_PER_USER 1, SESSION_PER_USER 1, CONNECT_IDLE_TIME 1, CONNECT_TIME 1, CPU_PER_CALL 1, CPU_PER_SESSION 1, MEM_SPACE 1, READ_PER_CALL 1, READ_PER_SESSION 1, FAILED_LOGIN_ATTEMPTS 1, PASSWORD_LIFE_TIME 1, PASSWORD_REUSE_TIME 1, PASSWORD_REUSE_MAX 1, PASSWORD_LOCK_TIME 1, PASSWORD_GRACE_TIME 1, INACTIVE_ACCOUNT_TIME 15;
+create user CODEX_DM8_USER_RES_MAX identified by "Dm8User#2026" limit GLOBAL_SESSION_PER_USER 32768 SESSION_PER_USER 32768 CONNECT_IDLE_TIME 1440 CONNECT_TIME 1440 CPU_PER_CALL 86400 CPU_PER_SESSION 31536000 MEM_SPACE 2147483647 READ_PER_CALL 2147483646 READ_PER_SESSION 2147483646 FAILED_LOGIN_ATTEMPTS 100 PASSWORD_LIFE_TIME 365 PASSWORD_REUSE_TIME 365 PASSWORD_REUSE_MAX 32768 PASSWORD_LOCK_TIME 1440 PASSWORD_GRACE_TIME 30 INACTIVE_ACCOUNT_TIME 24855;
+create user CODEX_DM8_USER_RES_DEFAULT identified by "Dm8User#2026" limit SESSION_PER_USER default, CONNECT_TIME default, FAILED_LOGIN_ATTEMPTS default;
+create user CODEX_DM8_USER_RES_UNL identified by "Dm8User#2026" limit SESSION_PER_USER unlimited CONNECT_TIME unlimited FAILED_LOGIN_ATTEMPTS unlimited;
+create user CODEX_DM8_USER_EXPIRE identified by "Dm8User#2026" password expire;
+create user CODEX_DM8_USER_IP identified by "Dm8User#2026" allow_ip "127.0.0.1", "192.168.0.*" not_allow_ip "192.168.0.13";
+create user CODEX_DM8_USER_CIDR identified by "Dm8User#2026" allow_ip "10.0.0.0/8";
+create user CODEX_DM8_USER_TIME identified by "Dm8User#2026" allow_datetime MON "00:00:00" to SUN "23:59:59" not_allow_datetime SAT "12:00:00" to SAT "12:00:01";
+create user CODEX_DM8_USER_EXACT identified by "Dm8User#2026" allow_datetime "2026-01-01" "00:00:00" to "2027-12-31" "23:59:59";
+create user CODEX_DM8_USER_TS identified by "Dm8User#2026" default tablespace CODEX_USER_TS default index tablespace CODEX_USER_TS;
+create user CODEX_DM8_USER_QUOTA identified by "Dm8User#2026" quota 1M on CODEX_USER_TS quota unlimited on CODEX_USER_TS2;
+create user CODEX_DM8_USER_QUOTA0 identified by "Dm8User#2026" quota 0;
+create user CODEX_DM8_USER_PROFILE identified by "Dm8User#2026" profile CODEX_PROFILE;
+create user CODEX_DM8_USER_NOPROFILE identified by "Dm8User#2026" drop profile;
+create user CODEX_DM8_USER_EXT identified externally;
+create user CODEX_DM8_USER_DN identified externally as 'CN=dm8,OU=db,O=example';
+create user CODEX_DM8_USER_RADIUS identified externally radius;
+alter user CODEX_DM8_USER_BASIC identified by "Dm8Next#2026" retain current password;
+alter user CODEX_DM8_USER_BASIC replace "Dm8User#2026";
+alter user CODEX_DM8_USER_BASIC discard old password;
+alter user CODEX_DM8_USER_BASIC account lock encrypt by "Dm8Key2#2026" diskspace unlimited not read only password expire;
+alter user CODEX_DM8_USER_BASIC limit SESSION_PER_USER 10, CONNECT_IDLE_TIME unlimited;
+alter user CODEX_DM8_USER_BASIC allow_ip add "172.16.0.*";
+alter user CODEX_DM8_USER_BASIC allow_ip drop "172.16.0.*";
+alter user CODEX_DM8_USER_BASIC not_allow_ip add "172.16.1.1";
+alter user CODEX_DM8_USER_BASIC not_allow_ip drop "172.16.1.1";
+alter user CODEX_DM8_USER_BASIC allow_ip null not_allow_ip null;
+alter user CODEX_DM8_USER_BASIC default tablespace MAIN default index tablespace MAIN quota 0 on CODEX_USER_TS;
+alter user CODEX_DM8_USER_BASIC on schema CODEX_DM8_USER_BASIC;
+alter user CODEX_DM8_USER_BASIC profile CODEX_PROFILE;
+alter user CODEX_DM8_USER_BASIC drop profile;
+alter user CODEX_DM8_USER_BASIC grant connect through CODEX_DM8_USER_PROXY;
+alter user CODEX_DM8_USER_BASIC revoke connect through CODEX_DM8_USER_PROXY;
+drop user CODEX_DM8_USER_BASIC;
+drop user if exists CODEX_DM8_USER_MISSING;
+drop user CODEX_DM8_USER_RESTRICT restrict;
+drop user CODEX_DM8_USER_CASCADE cascade;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user CODEX_DM8_USER_BASIC identified by "Dm8User#2026";
+----------
+[CREATE_USER] create user if not exists CODEX_DM8_USER_BASIC identified by "Ignored#2026";
+----------
+[CREATE_USER] create user "User Mixed" identified by "Dm8Mixed#2026";
+----------
+[CREATE_USER] create user UXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX identified by "Dm8Long#2026";
+----------
+[CREATE_USER] create user CODEX_DM8_USER_MD5 identified by "Dm8Md5#2026" hash with MD5 salt;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_SHA1 identified by "Dm8Sha1#2026" hash with SHA1 no salt;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_SHA224 identified by "Dm8Sha224#2026" hash with SHA224;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_SHA256 identified by "Dm8Sha256#2026" hash with ENGINE1.SHA256 salt;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_SHA384 identified by "Dm8Sha384#2026" hash with SHA384 no salt;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_SHA512 identified by "Dm8Sha512#2026" hash with SHA512 salt;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_POLICY0 identified by weak password_policy 0;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_POLICY15 identified by "Dm8Policy2026" password_policy 15;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_POLICY31 identified by "Dm8Policy#2026" password_policy 31;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_LOCK identified by "Dm8Lock#2026" account lock;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_UNLOCK identified by "Dm8Unlock#2026" account unlock;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_KEY identified by "Dm8User#2026" encrypt by "Dm8Key#2026";
+----------
+[CREATE_USER] create user CODEX_DM8_USER_DISK_MIN identified by "Dm8User#2026" diskspace limit 1;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_DISK_MAX identified by "Dm8User#2026" diskspace limit 1048576;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_DISK_UNL identified by "Dm8User#2026" diskspace unlimited;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_RO identified by "Dm8User#2026" read only;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_RW identified by "Dm8User#2026" not read only;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_RES_MIN identified by "Dm8User#2026" limit GLOBAL_SESSION_PER_USER 1, SESSION_PER_USER 1, CONNECT_IDLE_TIME 1, CONNECT_TIME 1, CPU_PER_CALL 1, CPU_PER_SESSION 1, MEM_SPACE 1, READ_PER_CALL 1, READ_PER_SESSION 1, FAILED_LOGIN_ATTEMPTS 1, PASSWORD_LIFE_TIME 1, PASSWORD_REUSE_TIME 1, PASSWORD_REUSE_MAX 1, PASSWORD_LOCK_TIME 1, PASSWORD_GRACE_TIME 1, INACTIVE_ACCOUNT_TIME 15;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_RES_MAX identified by "Dm8User#2026" limit GLOBAL_SESSION_PER_USER 32768 SESSION_PER_USER 32768 CONNECT_IDLE_TIME 1440 CONNECT_TIME 1440 CPU_PER_CALL 86400 CPU_PER_SESSION 31536000 MEM_SPACE 2147483647 READ_PER_CALL 2147483646 READ_PER_SESSION 2147483646 FAILED_LOGIN_ATTEMPTS 100 PASSWORD_LIFE_TIME 365 PASSWORD_REUSE_TIME 365 PASSWORD_REUSE_MAX 32768 PASSWORD_LOCK_TIME 1440 PASSWORD_GRACE_TIME 30 INACTIVE_ACCOUNT_TIME 24855;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_RES_DEFAULT identified by "Dm8User#2026" limit SESSION_PER_USER default, CONNECT_TIME default, FAILED_LOGIN_ATTEMPTS default;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_RES_UNL identified by "Dm8User#2026" limit SESSION_PER_USER unlimited CONNECT_TIME unlimited FAILED_LOGIN_ATTEMPTS unlimited;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_EXPIRE identified by "Dm8User#2026" password expire;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_IP identified by "Dm8User#2026" allow_ip "127.0.0.1", "192.168.0.*" not_allow_ip "192.168.0.13";
+----------
+[CREATE_USER] create user CODEX_DM8_USER_CIDR identified by "Dm8User#2026" allow_ip "10.0.0.0/8";
+----------
+[CREATE_USER] create user CODEX_DM8_USER_TIME identified by "Dm8User#2026" allow_datetime MON "00:00:00" to SUN "23:59:59" not_allow_datetime SAT "12:00:00" to SAT "12:00:01";
+----------
+[CREATE_USER] create user CODEX_DM8_USER_EXACT identified by "Dm8User#2026" allow_datetime "2026-01-01" "00:00:00" to "2027-12-31" "23:59:59";
+----------
+[CREATE_USER] create user CODEX_DM8_USER_TS identified by "Dm8User#2026" default tablespace CODEX_USER_TS default index tablespace CODEX_USER_TS;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_QUOTA identified by "Dm8User#2026" quota 1M on CODEX_USER_TS quota unlimited on CODEX_USER_TS2;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_QUOTA0 identified by "Dm8User#2026" quota 0;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_PROFILE identified by "Dm8User#2026" profile CODEX_PROFILE;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_NOPROFILE identified by "Dm8User#2026" drop profile;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_EXT identified externally;
+----------
+[CREATE_USER] create user CODEX_DM8_USER_DN identified externally as 'CN=dm8,OU=db,O=example';
+----------
+[CREATE_USER] create user CODEX_DM8_USER_RADIUS identified externally radius;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC identified by "Dm8Next#2026" retain current password;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC replace "Dm8User#2026";
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC discard old password;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC account lock encrypt by "Dm8Key2#2026" diskspace unlimited not read only password expire;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC limit SESSION_PER_USER 10, CONNECT_IDLE_TIME unlimited;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC allow_ip add "172.16.0.*";
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC allow_ip drop "172.16.0.*";
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC not_allow_ip add "172.16.1.1";
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC not_allow_ip drop "172.16.1.1";
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC allow_ip null not_allow_ip null;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC default tablespace MAIN default index tablespace MAIN quota 0 on CODEX_USER_TS;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC on schema CODEX_DM8_USER_BASIC;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC profile CODEX_PROFILE;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC drop profile;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC grant connect through CODEX_DM8_USER_PROXY;
+----------
+[ALTER_USER] alter user CODEX_DM8_USER_BASIC revoke connect through CODEX_DM8_USER_PROXY;
+----------
+[DROP_USER] drop user CODEX_DM8_USER_BASIC;
+----------
+[DROP_USER] drop user if exists CODEX_DM8_USER_MISSING;
+----------
+[DROP_USER] drop user CODEX_DM8_USER_RESTRICT restrict;
+----------
+[DROP_USER] drop user CODEX_DM8_USER_CASCADE cascade;

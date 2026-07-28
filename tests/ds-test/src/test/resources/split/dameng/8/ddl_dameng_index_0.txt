@@ -1,0 +1,575 @@
+create schema CODEX_DM8_INDEX_20260721 authorization SYSDBA;
+/
+set schema CODEX_DM8_INDEX_20260721;
+create table IDX_CLUSTER_TABLE(ID int, CLUSTER_KEY int, PAYLOAD varchar(40));
+insert into IDX_CLUSTER_TABLE values(1,10,'A');
+insert into IDX_CLUSTER_TABLE values(2,20,'B');
+create cluster index IDX_CLUSTER on IDX_CLUSTER_TABLE(CLUSTER_KEY);
+select INDEX_NAME,INDEX_TYPE from USER_INDEXES where INDEX_NAME='IDX_CLUSTER';
+create table IDX_BASE(
+  ID int primary key,
+  NAME varchar(80),
+  CODE varchar(30),
+  STATUS int,
+  AMOUNT decimal(12,2),
+  CREATED_AT timestamp,
+  RAW_VALUE raw(20),
+  SORT_KEY int,
+  C_STORAGE int,
+  C_PARTIAL int,
+  C_PARALLEL int,
+  C_NOPARALLEL int,
+  C_ONLINE int,
+  C_UNUSED int,
+  C_NOSORT int
+);
+insert into IDX_BASE values(1,'Alpha','A',1,10.50,current_timestamp,hextoraw('01'),1,1,1,1,1,1,1,1);
+insert into IDX_BASE values(2,'Beta','B',2,20.50,current_timestamp,hextoraw('02'),2,2,2,2,2,2,2,2);
+insert into IDX_BASE values(3,'Gamma','C',1,30.50,current_timestamp,hextoraw('03'),3,3,3,3,3,3,3,3);
+commit;
+create index IDX_BASIC on IDX_BASE(NAME);
+create index if not exists IDX_BASIC on IDX_BASE(NAME);
+create or replace index IDX_BASIC on IDX_BASE(NAME desc);
+create unique index IDX_UNIQUE on IDX_BASE(CODE);
+create bitmap index IDX_BITMAP on IDX_BASE(STATUS);
+create index IDX_FUNCTION_UPPER on IDX_BASE(upper(NAME));
+create index IDX_FUNCTION_MATH on IDX_BASE(AMOUNT * STATUS);
+create index IDX_COMPOSITE on IDX_BASE(STATUS asc,CREATED_AT desc);
+create index IDX_ASC on IDX_BASE(SORT_KEY asc);
+create index IDX_REVERSE_RAW on IDX_BASE(RAW_VALUE) reverse;
+create index IDX_REVERSE_TIME on IDX_BASE(CREATED_AT) reverse;
+create index IDX_UNUSABLE on IDX_BASE(C_UNUSED) unusable;
+create index IDX_ONLINE on IDX_BASE(C_ONLINE) online;
+create index IDX_PARALLEL on IDX_BASE(C_PARALLEL) parallel;
+create index IDX_NOPARALLEL on IDX_BASE(C_NOPARALLEL) noparallel;
+create index IDX_STORAGE on IDX_BASE(C_STORAGE)
+storage(initial 1,next 1,minextents 1,fillfactor 80);
+create not partial index IDX_NOT_PARTIAL on IDX_BASE(C_PARTIAL);
+create index IDX_NOSORT on IDX_BASE(C_NOSORT) nosort;
+select INDEX_NAME,INDEX_TYPE,UNIQUENESS,VISIBILITY
+from USER_INDEXES where INDEX_NAME like 'IDX_%' order by INDEX_NAME;
+select NAME,VALID from SYSOBJECTS where NAME in ('IDX_BASIC','IDX_UNUSABLE') order by NAME;
+select ID,NAME from IDX_BASE index IDX_BASIC where NAME='Alpha';
+select ID,CODE from IDX_BASE index IDX_UNIQUE where CODE='B';
+select ID,STATUS from IDX_BASE index IDX_BITMAP where STATUS=1 order by ID;
+select ID,NAME from IDX_BASE where upper(NAME)='ALPHA';
+select ID,AMOUNT from IDX_BASE where AMOUNT * STATUS > 20 order by ID;
+explain select ID from IDX_BASE index IDX_BASIC where NAME='Alpha';
+alter index IDX_BASIC invisible;
+select INDEX_NAME,VISIBILITY from USER_INDEXES where INDEX_NAME='IDX_BASIC';
+alter index IDX_BASIC visible;
+alter index IDX_BASIC monitoring usage;
+select INDEX_NAME,MONITORING from V$OBJECT_USAGE where INDEX_NAME='IDX_BASIC';
+alter index IDX_BASIC nomonitoring usage;
+alter index IDX_UNUSABLE rebuild;
+select NAME,VALID from SYSOBJECTS where NAME='IDX_UNUSABLE';
+alter index IDX_UNUSABLE unusable;
+alter index IDX_UNUSABLE rebuild share;
+alter index IDX_UNUSABLE unusable;
+alter index IDX_UNUSABLE rebuild exclusive;
+alter index IDX_STORAGE rebuild nosort;
+alter index IDX_ONLINE rebuild online;
+alter index IDX_BASIC rename to IDX_BASIC_RENAMED;
+select INDEX_NAME from USER_INDEXES where INDEX_NAME='IDX_BASIC_RENAMED';
+alter index IDX_BASIC_RENAMED rename to CODEX_DM8_INDEX_20260721.IDX_BASIC;
+drop index if exists IDX_MISSING;
+create table IDX_PART(
+  ID int,
+  STATUS int,
+  CODE varchar(30),
+  AMOUNT decimal(12,2),
+  CREATED_AT timestamp
+)
+partition by range(ID)(
+  partition P_LOW values less than(100),
+  partition P_HIGH values less than(maxvalue)
+);
+insert into IDX_PART values(1,1,'A',10,current_timestamp);
+insert into IDX_PART values(101,2,'B',20,current_timestamp);
+commit;
+create index IDX_PART_DEFAULT on IDX_PART(ID,STATUS);
+create index IDX_PART_GLOBAL on IDX_PART(STATUS) global;
+create unique index IDX_PART_UNIQUE_LOCAL on IDX_PART(ID,CODE);
+create unique index IDX_PART_UNIQUE_GLOBAL on IDX_PART(CODE) global;
+create index IDX_PART_ASYNC on IDX_PART(CREATED_AT) unusable;
+select INDEX_NAME,INDEX_TYPE,UNIQUENESS from USER_INDEXES
+where INDEX_NAME like 'IDX_PART_%' order by INDEX_NAME;
+select ID,CODE from IDX_PART partition(P_LOW) where STATUS=1;
+select ID,CODE from IDX_PART partition(P_HIGH) where STATUS=2;
+alter index IDX_PART_ASYNC rebuild share asynchronous 2;
+select NAME,VALID from SYSOBJECTS where NAME='IDX_PART_ASYNC';
+create table IDX_DIM_REGION(ID int primary key,LABEL varchar(40));
+create table IDX_DIM_PRODUCT(ID int primary key,CATEGORY varchar(40));
+create table IDX_FACT(
+  ID int primary key,
+  REGION_ID int,
+  PRODUCT_ID int,
+  TOTAL decimal(12,2)
+);
+insert into IDX_DIM_REGION values(1,'North');
+insert into IDX_DIM_PRODUCT values(1,'Hardware');
+insert into IDX_FACT values(1,1,1,100);
+commit;
+create bitmap index IDX_BITMAP_JOIN_REGION
+on IDX_FACT(IDX_DIM_REGION.LABEL)
+from IDX_DIM_REGION,IDX_FACT
+where IDX_DIM_REGION.ID=IDX_FACT.REGION_ID;
+select IDX_FACT.TOTAL from IDX_DIM_REGION,IDX_FACT
+where IDX_DIM_REGION.ID=IDX_FACT.REGION_ID and IDX_DIM_REGION.LABEL='North';
+drop index IDX_BITMAP_JOIN_REGION;
+create or replace bitmap index IDX_BITMAP_JOIN_MULTI
+on IDX_FACT(IDX_DIM_REGION.LABEL,IDX_DIM_PRODUCT.CATEGORY)
+from IDX_DIM_REGION,IDX_DIM_PRODUCT,IDX_FACT
+where IDX_DIM_REGION.ID=IDX_FACT.REGION_ID
+and IDX_DIM_PRODUCT.ID=IDX_FACT.PRODUCT_ID;
+select IDX_FACT.TOTAL from IDX_DIM_REGION,IDX_DIM_PRODUCT,IDX_FACT
+where IDX_DIM_REGION.ID=IDX_FACT.REGION_ID
+and IDX_DIM_PRODUCT.ID=IDX_FACT.PRODUCT_ID
+and IDX_DIM_REGION.LABEL='North' and IDX_DIM_PRODUCT.CATEGORY='Hardware';
+select INDEX_NAME,INDEX_TYPE from USER_INDEXES where INDEX_NAME='IDX_BITMAP_JOIN_MULTI';
+drop index IDX_BITMAP_JOIN_MULTI;
+create type IDX_ARR_VARRAY is varray(10) of number;
+/
+create type IDX_ARR_NESTED is table of varchar(20);
+/
+create type IDX_ARR_DYNAMIC is array integer[];
+/
+create type IDX_ARR_STATIC is array integer[5];
+/
+create class IDX_HOLDER_VARRAY as V IDX_ARR_VARRAY; end;
+/
+create class IDX_HOLDER_NESTED as V IDX_ARR_NESTED; end;
+/
+create class IDX_HOLDER_DYNAMIC as V IDX_ARR_DYNAMIC; end;
+/
+create class IDX_HOLDER_STATIC as V IDX_ARR_STATIC; end;
+/
+create table IDX_ARRAY_TABLE(
+  ID int,
+  V1 IDX_HOLDER_VARRAY,
+  V2 IDX_HOLDER_NESTED,
+  V3 IDX_HOLDER_DYNAMIC,
+  V4 IDX_HOLDER_STATIC
+);
+insert into IDX_ARRAY_TABLE(ID,V1)
+values(1,IDX_HOLDER_VARRAY(IDX_ARR_VARRAY(1,2,3)));
+insert into IDX_ARRAY_TABLE(ID,V2)
+values(2,IDX_HOLDER_NESTED(IDX_ARR_NESTED('A','B')));
+insert into IDX_ARRAY_TABLE(ID,V3)
+values(3,IDX_HOLDER_DYNAMIC(new integer[3]));
+insert into IDX_ARRAY_TABLE(ID) values(4);
+commit;
+create array index IDX_ARRAY_V1 on IDX_ARRAY_TABLE(V1);
+create array index IDX_ARRAY_V2 on IDX_ARRAY_TABLE(V2);
+create array index IDX_ARRAY_V3 on IDX_ARRAY_TABLE(V3);
+create array index IDX_ARRAY_V4 on IDX_ARRAY_TABLE(V4);
+select ID from IDX_ARRAY_TABLE where contains(V1,1,2,3);
+select ID from IDX_ARRAY_TABLE where contains(V2,'A','B');
+alter index IDX_ARRAY_V1 unusable;
+alter index IDX_ARRAY_V1 rebuild;
+alter index IDX_ARRAY_V2 invisible;
+alter index IDX_ARRAY_V2 visible;
+select INDEX_NAME,INDEX_TYPE,VISIBILITY from USER_INDEXES
+where INDEX_NAME like 'IDX_ARRAY_%' order by INDEX_NAME;
+drop index IDX_ARRAY_V1;
+drop index IDX_ARRAY_V2;
+drop index IDX_ARRAY_V3;
+drop index IDX_ARRAY_V4;
+create user CODEX_DM8_INDEX_USER_20260721 identified by "Dm8@Index2026";
+create role CODEX_DM8_INDEX_ROLE_20260721;
+grant create index to CODEX_DM8_INDEX_ROLE_20260721;
+grant CODEX_DM8_INDEX_ROLE_20260721 to CODEX_DM8_INDEX_USER_20260721;
+revoke CODEX_DM8_INDEX_ROLE_20260721 from CODEX_DM8_INDEX_USER_20260721;
+revoke create index from CODEX_DM8_INDEX_ROLE_20260721;
+drop role CODEX_DM8_INDEX_ROLE_20260721;
+drop user CODEX_DM8_INDEX_USER_20260721 cascade;
+drop index IDX_PART_ASYNC;
+drop index IDX_PART_UNIQUE_GLOBAL;
+drop index IDX_PART_UNIQUE_LOCAL;
+drop index IDX_PART_GLOBAL;
+drop index IDX_PART_DEFAULT;
+drop index IDX_NOSORT;
+drop index IDX_NOT_PARTIAL;
+drop index IDX_STORAGE;
+drop index IDX_NOPARALLEL;
+drop index IDX_PARALLEL;
+drop index IDX_ONLINE;
+drop index IDX_UNUSABLE;
+drop index IDX_REVERSE_TIME;
+drop index IDX_REVERSE_RAW;
+drop index IDX_ASC;
+drop index IDX_COMPOSITE;
+drop index IDX_FUNCTION_MATH;
+drop index IDX_FUNCTION_UPPER;
+drop index IDX_BITMAP;
+drop index IDX_UNIQUE;
+drop index IDX_BASIC;
+drop index IDX_CLUSTER;
+drop index if exists IDX_CLUSTER;
+create table IDX_DROP_OPTIONS(C1 int,C2 int);
+create index IDX_DROP_RESTRICT on IDX_DROP_OPTIONS(C1);
+drop index IDX_DROP_RESTRICT restrict;
+create index IDX_DROP_CASCADE on IDX_DROP_OPTIONS(C2);
+drop index IDX_DROP_CASCADE cascade;
+select count(*) from USER_INDEXES where INDEX_NAME like 'IDX_%';
+set schema SYSDBA;
+drop schema CODEX_DM8_INDEX_20260721 cascade;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create schema CODEX_DM8_INDEX_20260721 authorization SYSDBA;
+----------
+[SWITCH_SCHEMA] set schema CODEX_DM8_INDEX_20260721;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table IDX_CLUSTER_TABLE(ID int, CLUSTER_KEY int, PAYLOAD varchar(40));
+----------
+[INSERT] insert into IDX_CLUSTER_TABLE values(1,10,'A');
+----------
+[INSERT] insert into IDX_CLUSTER_TABLE values(2,20,'B');
+----------
+[ADD_INDEX] create cluster index IDX_CLUSTER on IDX_CLUSTER_TABLE(CLUSTER_KEY);
+----------
+[SELECT] select INDEX_NAME,INDEX_TYPE from USER_INDEXES where INDEX_NAME='IDX_CLUSTER';
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table IDX_BASE(
+  ID int primary key,
+  NAME varchar(80),
+  CODE varchar(30),
+  STATUS int,
+  AMOUNT decimal(12,2),
+  CREATED_AT timestamp,
+  RAW_VALUE raw(20),
+  SORT_KEY int,
+  C_STORAGE int,
+  C_PARTIAL int,
+  C_PARALLEL int,
+  C_NOPARALLEL int,
+  C_ONLINE int,
+  C_UNUSED int,
+  C_NOSORT int
+);
+----------
+[INSERT] insert into IDX_BASE values(1,'Alpha','A',1,10.50,current_timestamp,hextoraw('01'),1,1,1,1,1,1,1,1);
+----------
+[INSERT] insert into IDX_BASE values(2,'Beta','B',2,20.50,current_timestamp,hextoraw('02'),2,2,2,2,2,2,2,2);
+----------
+[INSERT] insert into IDX_BASE values(3,'Gamma','C',1,30.50,current_timestamp,hextoraw('03'),3,3,3,3,3,3,3,3);
+----------
+[TRANSACTION] commit;
+----------
+[ADD_INDEX] create index IDX_BASIC on IDX_BASE(NAME);
+----------
+[ADD_INDEX] create index if not exists IDX_BASIC on IDX_BASE(NAME);
+----------
+[ADD_INDEX] create or replace index IDX_BASIC on IDX_BASE(NAME desc);
+----------
+[ADD_INDEX] create unique index IDX_UNIQUE on IDX_BASE(CODE);
+----------
+[ADD_INDEX] create bitmap index IDX_BITMAP on IDX_BASE(STATUS);
+----------
+[ADD_INDEX] create index IDX_FUNCTION_UPPER on IDX_BASE(upper(NAME));
+----------
+[ADD_INDEX] create index IDX_FUNCTION_MATH on IDX_BASE(AMOUNT * STATUS);
+----------
+[ADD_INDEX] create index IDX_COMPOSITE on IDX_BASE(STATUS asc,CREATED_AT desc);
+----------
+[ADD_INDEX] create index IDX_ASC on IDX_BASE(SORT_KEY asc);
+----------
+[ADD_INDEX] create index IDX_REVERSE_RAW on IDX_BASE(RAW_VALUE) reverse;
+----------
+[ADD_INDEX] create index IDX_REVERSE_TIME on IDX_BASE(CREATED_AT) reverse;
+----------
+[ADD_INDEX] create index IDX_UNUSABLE on IDX_BASE(C_UNUSED) unusable;
+----------
+[ADD_INDEX] create index IDX_ONLINE on IDX_BASE(C_ONLINE) online;
+----------
+[ADD_INDEX] create index IDX_PARALLEL on IDX_BASE(C_PARALLEL) parallel;
+----------
+[ADD_INDEX] create index IDX_NOPARALLEL on IDX_BASE(C_NOPARALLEL) noparallel;
+----------
+[ADD_INDEX] create index IDX_STORAGE on IDX_BASE(C_STORAGE)
+storage(initial 1,next 1,minextents 1,fillfactor 80);
+----------
+[ADD_INDEX] create not partial index IDX_NOT_PARTIAL on IDX_BASE(C_PARTIAL);
+----------
+[ADD_INDEX] create index IDX_NOSORT on IDX_BASE(C_NOSORT) nosort;
+----------
+[SELECT] select INDEX_NAME,INDEX_TYPE,UNIQUENESS,VISIBILITY
+from USER_INDEXES where INDEX_NAME like 'IDX_%' order by INDEX_NAME;
+----------
+[SELECT] select NAME,VALID from SYSOBJECTS where NAME in ('IDX_BASIC','IDX_UNUSABLE') order by NAME;
+----------
+[SELECT] select ID,NAME from IDX_BASE index IDX_BASIC where NAME='Alpha';
+----------
+[SELECT] select ID,CODE from IDX_BASE index IDX_UNIQUE where CODE='B';
+----------
+[SELECT] select ID,STATUS from IDX_BASE index IDX_BITMAP where STATUS=1 order by ID;
+----------
+[SELECT] select ID,NAME from IDX_BASE where upper(NAME)='ALPHA';
+----------
+[SELECT] select ID,AMOUNT from IDX_BASE where AMOUNT * STATUS > 20 order by ID;
+----------
+[PERFORMANCE|SELECT] explain select ID from IDX_BASE index IDX_BASIC where NAME='Alpha';
+----------
+[ALTER_INDEX] alter index IDX_BASIC invisible;
+----------
+[SELECT] select INDEX_NAME,VISIBILITY from USER_INDEXES where INDEX_NAME='IDX_BASIC';
+----------
+[ALTER_INDEX] alter index IDX_BASIC visible;
+----------
+[ALTER_INDEX] alter index IDX_BASIC monitoring usage;
+----------
+[SELECT] select INDEX_NAME,MONITORING from V$OBJECT_USAGE where INDEX_NAME='IDX_BASIC';
+----------
+[ALTER_INDEX] alter index IDX_BASIC nomonitoring usage;
+----------
+[ALTER_INDEX] alter index IDX_UNUSABLE rebuild;
+----------
+[SELECT] select NAME,VALID from SYSOBJECTS where NAME='IDX_UNUSABLE';
+----------
+[ALTER_INDEX] alter index IDX_UNUSABLE unusable;
+----------
+[ALTER_INDEX] alter index IDX_UNUSABLE rebuild share;
+----------
+[ALTER_INDEX] alter index IDX_UNUSABLE unusable;
+----------
+[ALTER_INDEX] alter index IDX_UNUSABLE rebuild exclusive;
+----------
+[ALTER_INDEX] alter index IDX_STORAGE rebuild nosort;
+----------
+[ALTER_INDEX] alter index IDX_ONLINE rebuild online;
+----------
+[RENAME_INDEX] alter index IDX_BASIC rename to IDX_BASIC_RENAMED;
+----------
+[SELECT] select INDEX_NAME from USER_INDEXES where INDEX_NAME='IDX_BASIC_RENAMED';
+----------
+[RENAME_INDEX] alter index IDX_BASIC_RENAMED rename to CODEX_DM8_INDEX_20260721.IDX_BASIC;
+----------
+[DROP_INDEX] drop index if exists IDX_MISSING;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table IDX_PART(
+  ID int,
+  STATUS int,
+  CODE varchar(30),
+  AMOUNT decimal(12,2),
+  CREATED_AT timestamp
+)
+partition by range(ID)(
+  partition P_LOW values less than(100),
+  partition P_HIGH values less than(maxvalue)
+);
+----------
+[INSERT] insert into IDX_PART values(1,1,'A',10,current_timestamp);
+----------
+[INSERT] insert into IDX_PART values(101,2,'B',20,current_timestamp);
+----------
+[TRANSACTION] commit;
+----------
+[ADD_INDEX] create index IDX_PART_DEFAULT on IDX_PART(ID,STATUS);
+----------
+[ADD_INDEX] create index IDX_PART_GLOBAL on IDX_PART(STATUS) global;
+----------
+[ADD_INDEX] create unique index IDX_PART_UNIQUE_LOCAL on IDX_PART(ID,CODE);
+----------
+[ADD_INDEX] create unique index IDX_PART_UNIQUE_GLOBAL on IDX_PART(CODE) global;
+----------
+[ADD_INDEX] create index IDX_PART_ASYNC on IDX_PART(CREATED_AT) unusable;
+----------
+[SELECT] select INDEX_NAME,INDEX_TYPE,UNIQUENESS from USER_INDEXES
+where INDEX_NAME like 'IDX_PART_%' order by INDEX_NAME;
+----------
+[SELECT] select ID,CODE from IDX_PART partition(P_LOW) where STATUS=1;
+----------
+[SELECT] select ID,CODE from IDX_PART partition(P_HIGH) where STATUS=2;
+----------
+[ALTER_INDEX] alter index IDX_PART_ASYNC rebuild share asynchronous 2;
+----------
+[SELECT] select NAME,VALID from SYSOBJECTS where NAME='IDX_PART_ASYNC';
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table IDX_DIM_REGION(ID int primary key,LABEL varchar(40));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table IDX_DIM_PRODUCT(ID int primary key,CATEGORY varchar(40));
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table IDX_FACT(
+  ID int primary key,
+  REGION_ID int,
+  PRODUCT_ID int,
+  TOTAL decimal(12,2)
+);
+----------
+[INSERT] insert into IDX_DIM_REGION values(1,'North');
+----------
+[INSERT] insert into IDX_DIM_PRODUCT values(1,'Hardware');
+----------
+[INSERT] insert into IDX_FACT values(1,1,1,100);
+----------
+[TRANSACTION] commit;
+----------
+[ADD_INDEX] create bitmap index IDX_BITMAP_JOIN_REGION
+on IDX_FACT(IDX_DIM_REGION.LABEL)
+from IDX_DIM_REGION,IDX_FACT
+where IDX_DIM_REGION.ID=IDX_FACT.REGION_ID;
+----------
+[SELECT] select IDX_FACT.TOTAL from IDX_DIM_REGION,IDX_FACT
+where IDX_DIM_REGION.ID=IDX_FACT.REGION_ID and IDX_DIM_REGION.LABEL='North';
+----------
+[DROP_INDEX] drop index IDX_BITMAP_JOIN_REGION;
+----------
+[ADD_INDEX] create or replace bitmap index IDX_BITMAP_JOIN_MULTI
+on IDX_FACT(IDX_DIM_REGION.LABEL,IDX_DIM_PRODUCT.CATEGORY)
+from IDX_DIM_REGION,IDX_DIM_PRODUCT,IDX_FACT
+where IDX_DIM_REGION.ID=IDX_FACT.REGION_ID
+and IDX_DIM_PRODUCT.ID=IDX_FACT.PRODUCT_ID;
+----------
+[SELECT] select IDX_FACT.TOTAL from IDX_DIM_REGION,IDX_DIM_PRODUCT,IDX_FACT
+where IDX_DIM_REGION.ID=IDX_FACT.REGION_ID
+and IDX_DIM_PRODUCT.ID=IDX_FACT.PRODUCT_ID
+and IDX_DIM_REGION.LABEL='North' and IDX_DIM_PRODUCT.CATEGORY='Hardware';
+----------
+[SELECT] select INDEX_NAME,INDEX_TYPE from USER_INDEXES where INDEX_NAME='IDX_BITMAP_JOIN_MULTI';
+----------
+[DROP_INDEX] drop index IDX_BITMAP_JOIN_MULTI;
+----------
+[CREATE_TYPE] create type IDX_ARR_VARRAY is varray(10) of number;
+----------
+[CREATE_TYPE] create type IDX_ARR_NESTED is table of varchar(20);
+----------
+[CREATE_TYPE] create type IDX_ARR_DYNAMIC is array integer[];
+----------
+[CREATE_TYPE] create type IDX_ARR_STATIC is array integer[5];
+----------
+[CREATE_TYPE] create class IDX_HOLDER_VARRAY as V IDX_ARR_VARRAY; end;
+----------
+[CREATE_TYPE] create class IDX_HOLDER_NESTED as V IDX_ARR_NESTED; end;
+----------
+[CREATE_TYPE] create class IDX_HOLDER_DYNAMIC as V IDX_ARR_DYNAMIC; end;
+----------
+[CREATE_TYPE] create class IDX_HOLDER_STATIC as V IDX_ARR_STATIC; end;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table IDX_ARRAY_TABLE(
+  ID int,
+  V1 IDX_HOLDER_VARRAY,
+  V2 IDX_HOLDER_NESTED,
+  V3 IDX_HOLDER_DYNAMIC,
+  V4 IDX_HOLDER_STATIC
+);
+----------
+[INSERT|CALL_PROG_OBJ] insert into IDX_ARRAY_TABLE(ID,V1)
+values(1,IDX_HOLDER_VARRAY(IDX_ARR_VARRAY(1,2,3)));
+----------
+[INSERT|CALL_PROG_OBJ] insert into IDX_ARRAY_TABLE(ID,V2)
+values(2,IDX_HOLDER_NESTED(IDX_ARR_NESTED('A','B')));
+----------
+[INSERT|CALL_PROG_OBJ] insert into IDX_ARRAY_TABLE(ID,V3)
+values(3,IDX_HOLDER_DYNAMIC(new integer[3]));
+----------
+[INSERT] insert into IDX_ARRAY_TABLE(ID) values(4);
+----------
+[TRANSACTION] commit;
+----------
+[ADD_INDEX] create array index IDX_ARRAY_V1 on IDX_ARRAY_TABLE(V1);
+----------
+[ADD_INDEX] create array index IDX_ARRAY_V2 on IDX_ARRAY_TABLE(V2);
+----------
+[ADD_INDEX] create array index IDX_ARRAY_V3 on IDX_ARRAY_TABLE(V3);
+----------
+[ADD_INDEX] create array index IDX_ARRAY_V4 on IDX_ARRAY_TABLE(V4);
+----------
+[SELECT] select ID from IDX_ARRAY_TABLE where contains(V1,1,2,3);
+----------
+[SELECT] select ID from IDX_ARRAY_TABLE where contains(V2,'A','B');
+----------
+[ALTER_INDEX] alter index IDX_ARRAY_V1 unusable;
+----------
+[ALTER_INDEX] alter index IDX_ARRAY_V1 rebuild;
+----------
+[ALTER_INDEX] alter index IDX_ARRAY_V2 invisible;
+----------
+[ALTER_INDEX] alter index IDX_ARRAY_V2 visible;
+----------
+[SELECT] select INDEX_NAME,INDEX_TYPE,VISIBILITY from USER_INDEXES
+where INDEX_NAME like 'IDX_ARRAY_%' order by INDEX_NAME;
+----------
+[DROP_INDEX] drop index IDX_ARRAY_V1;
+----------
+[DROP_INDEX] drop index IDX_ARRAY_V2;
+----------
+[DROP_INDEX] drop index IDX_ARRAY_V3;
+----------
+[DROP_INDEX] drop index IDX_ARRAY_V4;
+----------
+[CREATE_USER] create user CODEX_DM8_INDEX_USER_20260721 identified by "Dm8@Index2026";
+----------
+[CREATE_ROLE] create role CODEX_DM8_INDEX_ROLE_20260721;
+----------
+[GRANT] grant create index to CODEX_DM8_INDEX_ROLE_20260721;
+----------
+[GRANT] grant CODEX_DM8_INDEX_ROLE_20260721 to CODEX_DM8_INDEX_USER_20260721;
+----------
+[REVOKE] revoke CODEX_DM8_INDEX_ROLE_20260721 from CODEX_DM8_INDEX_USER_20260721;
+----------
+[REVOKE] revoke create index from CODEX_DM8_INDEX_ROLE_20260721;
+----------
+[DROP_ROLE] drop role CODEX_DM8_INDEX_ROLE_20260721;
+----------
+[DROP_USER] drop user CODEX_DM8_INDEX_USER_20260721 cascade;
+----------
+[DROP_INDEX] drop index IDX_PART_ASYNC;
+----------
+[DROP_INDEX] drop index IDX_PART_UNIQUE_GLOBAL;
+----------
+[DROP_INDEX] drop index IDX_PART_UNIQUE_LOCAL;
+----------
+[DROP_INDEX] drop index IDX_PART_GLOBAL;
+----------
+[DROP_INDEX] drop index IDX_PART_DEFAULT;
+----------
+[DROP_INDEX] drop index IDX_NOSORT;
+----------
+[DROP_INDEX] drop index IDX_NOT_PARTIAL;
+----------
+[DROP_INDEX] drop index IDX_STORAGE;
+----------
+[DROP_INDEX] drop index IDX_NOPARALLEL;
+----------
+[DROP_INDEX] drop index IDX_PARALLEL;
+----------
+[DROP_INDEX] drop index IDX_ONLINE;
+----------
+[DROP_INDEX] drop index IDX_UNUSABLE;
+----------
+[DROP_INDEX] drop index IDX_REVERSE_TIME;
+----------
+[DROP_INDEX] drop index IDX_REVERSE_RAW;
+----------
+[DROP_INDEX] drop index IDX_ASC;
+----------
+[DROP_INDEX] drop index IDX_COMPOSITE;
+----------
+[DROP_INDEX] drop index IDX_FUNCTION_MATH;
+----------
+[DROP_INDEX] drop index IDX_FUNCTION_UPPER;
+----------
+[DROP_INDEX] drop index IDX_BITMAP;
+----------
+[DROP_INDEX] drop index IDX_UNIQUE;
+----------
+[DROP_INDEX] drop index IDX_BASIC;
+----------
+[DROP_INDEX] drop index IDX_CLUSTER;
+----------
+[DROP_INDEX] drop index if exists IDX_CLUSTER;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table IDX_DROP_OPTIONS(C1 int,C2 int);
+----------
+[ADD_INDEX] create index IDX_DROP_RESTRICT on IDX_DROP_OPTIONS(C1);
+----------
+[DROP_INDEX] drop index IDX_DROP_RESTRICT restrict;
+----------
+[ADD_INDEX] create index IDX_DROP_CASCADE on IDX_DROP_OPTIONS(C2);
+----------
+[DROP_INDEX] drop index IDX_DROP_CASCADE cascade;
+----------
+[SELECT] select count(*) from USER_INDEXES where INDEX_NAME like 'IDX_%';
+----------
+[SWITCH_SCHEMA] set schema SYSDBA;
+----------
+[DROP_SCHEMA] drop schema CODEX_DM8_INDEX_20260721 cascade;

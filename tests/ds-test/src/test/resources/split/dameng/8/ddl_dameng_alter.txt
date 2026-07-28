@@ -1,0 +1,9 @@
+alter table app.customer add email varchar(200);
+alter table app.customer modify email varchar(255);
+alter table app.customer drop column email;
+------------------------------------------------------------------------------------------
+[ALTER_TABLE|ADD_COLUMN] alter table app.customer add email varchar(200);
+----------
+[ALTER_TABLE|ALTER_COLUMN] alter table app.customer modify email varchar(255);
+----------
+[ALTER_TABLE|DROP_COLUMN] alter table app.customer drop column email;

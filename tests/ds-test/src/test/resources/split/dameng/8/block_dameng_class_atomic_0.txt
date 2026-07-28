@@ -1,0 +1,466 @@
+-- CLASS_AS
+create class CODEX_DM8_CLASS.C_AS as V int;end;
+/
+-- CLASS_IS
+create class CODEX_DM8_CLASS.C_IS is V int;end;
+/
+-- CLASS_OR_REPLACE
+create or replace class CODEX_DM8_CLASS.C_REPLACE as V int;end;
+/
+-- CLASS_IF_NOT_EXISTS
+create class if not exists CODEX_DM8_CLASS.C_IFNE as V int;end;
+/
+-- CLASS_NAME_128
+create class CODEX_DM8_CLASS.CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as V int;end;
+/
+-- CLASS_NAME_129_SERVER_BOUNDARY
+create class CODEX_DM8_CLASS.CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as V int;end;
+/
+-- CLASS_QUOTED_NAME
+create class CODEX_DM8_CLASS."Mixed Class" as V int;end;
+/
+-- CLASS_WITH_ENCRYPTION
+create class CODEX_DM8_CLASS.C_ENCRYPT with encryption as V int;end;
+/
+-- CLASS_FINAL
+create class CODEX_DM8_CLASS.C_FINAL final as V int;end;
+/
+-- CLASS_NOT_FINAL
+create class CODEX_DM8_CLASS.C_NOT_FINAL not final as V int;end;
+/
+-- CLASS_INSTANTIABLE
+create class CODEX_DM8_CLASS.C_INST instantiable as V int;end;
+/
+-- CLASS_NOT_INSTANTIABLE
+create class CODEX_DM8_CLASS.C_ABSTRACT not final not instantiable as not instantiable member function F return int;end;
+/
+-- CLASS_PERSISTABLE_ONLINE_VERSION
+create class CODEX_DM8_CLASS.C_PERSIST persistable as V int;end;
+/
+-- CLASS_NOT_PERSISTABLE_ONLINE_VERSION
+create class CODEX_DM8_CLASS.C_NOT_PERSIST not persistable as V int;end;
+/
+-- CLASS_AUTHID_DEFINER
+create class CODEX_DM8_CLASS.C_DEFINER authid definer as V int;end;
+/
+-- CLASS_AUTHID_CURRENT_USER
+create class CODEX_DM8_CLASS.C_INVOKER authid current_user as V int;end;
+/
+-- CLASS_ORDERED_MODIFIERS
+create class CODEX_DM8_CLASS.C_MOD with encryption not final instantiable authid current_user as V int;end;
+/
+-- CLASS_UNDER
+create class CODEX_DM8_CLASS.C_CHILD under CODEX_DM8_CLASS.C_NOT_FINAL as X int;end;
+/
+-- CLASS_END_NAME
+create class CODEX_DM8_CLASS.C_END as V int;end C_END;
+/
+-- CLASS_END_WRONG_NAME_PACK_EXTENSION
+create class CODEX_DM8_CLASS.C_END_WRONG as V int;end WRONG;
+/
+-- CLASS_VARIABLE_MULTI_DEFAULT
+create class CODEX_DM8_CLASS.C_VARIABLE as FIRST_VALUE,SECOND_VALUE int default 3;end;
+/
+-- CLASS_INTERNAL_RECORD
+create class CODEX_DM8_CLASS.C_RECORD as type R is record(A int,B varchar(10));V R;end;
+/
+-- CLASS_INTERNAL_ARRAY
+create class CODEX_DM8_CLASS.C_ARRAY as type A is array int[2];V A;end;
+/
+-- CLASS_INTERNAL_INDEX_TABLE
+create class CODEX_DM8_CLASS.C_INDEX as type I is table of int index by int;V I;end;
+/
+-- CLASS_CURSOR_MEMBER_PACK_EXTENSION
+create class CODEX_DM8_CLASS.C_CURSOR as cursor C for select V from SOURCE_TABLE;end;
+/
+-- CLASS_EXCEPTION_MEMBER_PACK_EXTENSION
+create class CODEX_DM8_CLASS.C_EXCEPTION as E exception;end;
+/
+-- CLASS_STATIC_FUNCTION
+create class CODEX_DM8_CLASS.C_STATIC as static function F(A int) return int;end;
+/
+-- CLASS_MEMBER_FUNCTION
+create class CODEX_DM8_CLASS.C_MEMBER as member function F return int;end;
+/
+-- CLASS_DEFAULT_MEMBER_FUNCTION
+create class CODEX_DM8_CLASS.C_DEFAULT_MEMBER as function F return int;end;
+/
+-- CLASS_MEMBER_PROCEDURE
+create class CODEX_DM8_CLASS.C_PROCEDURE as member procedure P(A int);end;
+/
+-- CLASS_MAP_FUNCTION
+create class CODEX_DM8_CLASS.C_MAP as map member function F return int;end;
+/
+-- CLASS_DETERMINISTIC_FUNCTION
+create class CODEX_DM8_CLASS.C_DETERMINISTIC as member function F return int deterministic;end;
+/
+-- CLASS_PIPELINED_FUNCTION
+create class CODEX_DM8_CLASS.C_PIPELINED as static function F return CODEX_DM8_CLASS.C_NOT_FINAL pipelined;end;
+/
+-- CLASS_CONSTRUCTOR
+create class CODEX_DM8_CLASS.C_CONSTRUCTOR as V int;function C_CONSTRUCTOR(A int) return C_CONSTRUCTOR;end;
+/
+-- CLASS_BODY_AS
+create class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 1;end;end;
+/
+-- CLASS_BODY_IS
+create class body CODEX_DM8_CLASS.C_MEMBER is member function F return int is begin return 1;end;end;
+/
+-- CLASS_BODY_OR_REPLACE
+create or replace class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 2;end;end;
+/
+-- CLASS_BODY_WITH_ENCRYPTION
+create class body CODEX_DM8_CLASS.C_ENCRYPT with encryption as end;
+/
+-- CLASS_BODY_EMPTY_PACK_EXTENSION
+create class body CODEX_DM8_CLASS.C_VARIABLE as end;
+/
+-- CLASS_BODY_END_NAME
+create class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 1;end;end C_MEMBER;
+/
+-- CLASS_BODY_END_WRONG_NAME_PACK_EXTENSION
+create class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 1;end;end WRONG;
+/
+-- CLASS_BODY_INITIALIZER
+create class body CODEX_DM8_CLASS.C_VARIABLE as begin FIRST_VALUE=7;end;
+/
+-- CLASS_BODY_WITHOUT_SPEC_SERVER_BOUNDARY
+create class body CODEX_DM8_CLASS.C_NO_SPEC as static function F return int as begin return 1;end;end;
+/
+-- CLASS_BODY_MISMATCH_SERVER_BOUNDARY
+create class body CODEX_DM8_CLASS.C_STATIC as static function F(B int) return int as begin return B;end;end;
+/
+-- ALTER_CLASS_COMPILE
+alter class CODEX_DM8_CLASS.C_MEMBER compile;
+-- ALTER_CLASS_COMPILE_DEBUG
+alter class CODEX_DM8_CLASS.C_MEMBER compile debug;
+-- DROP_CLASS
+drop class CODEX_DM8_CLASS.C_AS restrict;
+-- DROP_CLASS_CASCADE
+drop class CODEX_DM8_CLASS.C_NOT_FINAL cascade;
+-- DROP_CLASS_IF_EXISTS
+drop class if exists CODEX_DM8_CLASS.C_NO_SUCH;
+-- DROP_CLASS_BODY
+drop class body CODEX_DM8_CLASS.C_MEMBER restrict;
+-- DROP_CLASS_BODY_IF_EXISTS
+drop class body if exists CODEX_DM8_CLASS.C_NO_SUCH cascade;
+-- JAVA_BASIC
+create java class J_BASIC {int V;}
+/
+-- JAVA_PUBLIC
+create java public class J_PUBLIC {int V;}
+/
+-- JAVA_ABSTRACT
+create java abstract class J_ABSTRACT {public abstract int F();}
+/
+-- JAVA_FINAL
+create java final class J_FINAL {int V;}
+/
+-- JAVA_MODIFIER_ORDER_PACK_EXTENSION
+create java final public class J_ORDER {int V;}
+/
+-- JAVA_DUPLICATE_PUBLIC_PACK_EXTENSION
+create java public public class J_DUP_PUBLIC {int V;}
+/
+-- JAVA_DUPLICATE_FINAL_PACK_EXTENSION
+create java final final class J_DUP_FINAL {int V;}
+/
+-- JAVA_ABSTRACT_FINAL_INVALID_OBJECT
+create java abstract final class J_ABSTRACT_FINAL {public abstract int F();}
+/
+-- JAVA_FIELD_PUBLIC
+create java class J_FIELD_PUBLIC {public int V;}
+/
+-- JAVA_FIELD_PRIVATE
+create java class J_FIELD_PRIVATE {private int V;}
+/
+-- JAVA_FIELD_STATIC
+create java class J_FIELD_STATIC {public static int V;}
+/
+-- JAVA_FIELD_FINAL_INVALID_OBJECT
+create java class J_FIELD_FINAL {public static final int V=25;}
+/
+-- JAVA_METHOD_MEMBER
+create java class J_METHOD {public int F(int A){return A;}}
+/
+-- JAVA_METHOD_STATIC
+create java class J_STATIC {public static int F(int A){return A;}}
+/
+-- JAVA_METHOD_PRIVATE
+create java class J_PRIVATE {private int F(){return 1;}}
+/
+-- JAVA_METHOD_FINAL
+create java class J_METHOD_FINAL {public final int F(){return 1;}}
+/
+-- JAVA_METHOD_ABSTRACT_STATIC_PACK_EXTENSION
+create java abstract class J_ABS_STATIC {public abstract static int F();}
+/
+-- JAVA_METHOD_OVERRIDE_STATIC_INVALID_OBJECT
+create java class J_OVR_STATIC {public override static int F(){return 1;}}
+/
+-- JAVA_CONSTRUCTOR_ZERO
+create java class J_CTOR0 {int V;J_CTOR0(){this.V=1;}}
+/
+-- JAVA_CONSTRUCTOR_ARGS
+create java class J_CTOR1 {int V;J_CTOR1(int A){this.V=A;}}
+/
+-- JAVA_EXTENDS
+create java class J_CHILD extends J_BASIC {int X;}
+/
+-- JAVA_METHOD_SELECT_RESOURCE
+create java class J_SELECT {public int F(){int V;select max(ID) into V from SOURCE_TABLE;return V;}}
+/
+-- ALTER_JAVA_CLASS_LOCAL_FORM
+alter class CODEX_DM8_CLASS.J_BASIC compile;
+-- ALTER_JAVA_CLASS_ONLINE_VERSION
+alter java class CODEX_DM8_CLASS.J_BASIC compile;
+-- DROP_JAVA_CLASS
+drop class CODEX_DM8_CLASS.J_BASIC;
+-- DROP_JAVA_CLASS_BODY_PACK_EXTENSION
+drop class body CODEX_DM8_CLASS.J_BASIC;
+-- GRANT_CREATE_PACKAGE_FOR_CLASS
+grant create package to CODEX_DM8_CLASS_USER;
+-- GRANT_EXECUTE_CLASS
+grant execute on package CODEX_DM8_CLASS.C_DEFINER to CODEX_DM8_CLASS_USER;
+-- REVOKE_EXECUTE_CLASS
+revoke execute on package CODEX_DM8_CLASS.C_DEFINER from CODEX_DM8_CLASS_USER;
+------------------------------------------------------------------------------------------
+[CREATE_TYPE] -- CLASS_AS
+create class CODEX_DM8_CLASS.C_AS as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_IS
+create class CODEX_DM8_CLASS.C_IS is V int;end;
+----------
+[CREATE_TYPE] -- CLASS_OR_REPLACE
+create or replace class CODEX_DM8_CLASS.C_REPLACE as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_IF_NOT_EXISTS
+create class if not exists CODEX_DM8_CLASS.C_IFNE as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_NAME_128
+create class CODEX_DM8_CLASS.CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_NAME_129_SERVER_BOUNDARY
+create class CODEX_DM8_CLASS.CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_QUOTED_NAME
+create class CODEX_DM8_CLASS."Mixed Class" as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_WITH_ENCRYPTION
+create class CODEX_DM8_CLASS.C_ENCRYPT with encryption as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_FINAL
+create class CODEX_DM8_CLASS.C_FINAL final as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_NOT_FINAL
+create class CODEX_DM8_CLASS.C_NOT_FINAL not final as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_INSTANTIABLE
+create class CODEX_DM8_CLASS.C_INST instantiable as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_NOT_INSTANTIABLE
+create class CODEX_DM8_CLASS.C_ABSTRACT not final not instantiable as not instantiable member function F return int;end;
+----------
+[CREATE_TYPE] -- CLASS_PERSISTABLE_ONLINE_VERSION
+create class CODEX_DM8_CLASS.C_PERSIST persistable as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_NOT_PERSISTABLE_ONLINE_VERSION
+create class CODEX_DM8_CLASS.C_NOT_PERSIST not persistable as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_AUTHID_DEFINER
+create class CODEX_DM8_CLASS.C_DEFINER authid definer as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_AUTHID_CURRENT_USER
+create class CODEX_DM8_CLASS.C_INVOKER authid current_user as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_ORDERED_MODIFIERS
+create class CODEX_DM8_CLASS.C_MOD with encryption not final instantiable authid current_user as V int;end;
+----------
+[CREATE_TYPE] -- CLASS_UNDER
+create class CODEX_DM8_CLASS.C_CHILD under CODEX_DM8_CLASS.C_NOT_FINAL as X int;end;
+----------
+[CREATE_TYPE] -- CLASS_END_NAME
+create class CODEX_DM8_CLASS.C_END as V int;end C_END;
+----------
+[CREATE_TYPE] -- CLASS_END_WRONG_NAME_PACK_EXTENSION
+create class CODEX_DM8_CLASS.C_END_WRONG as V int;end WRONG;
+----------
+[CREATE_TYPE] -- CLASS_VARIABLE_MULTI_DEFAULT
+create class CODEX_DM8_CLASS.C_VARIABLE as FIRST_VALUE,SECOND_VALUE int default 3;end;
+----------
+[CREATE_TYPE] -- CLASS_INTERNAL_RECORD
+create class CODEX_DM8_CLASS.C_RECORD as type R is record(A int,B varchar(10));V R;end;
+----------
+[CREATE_TYPE] -- CLASS_INTERNAL_ARRAY
+create class CODEX_DM8_CLASS.C_ARRAY as type A is array int[2];V A;end;
+----------
+[CREATE_TYPE] -- CLASS_INTERNAL_INDEX_TABLE
+create class CODEX_DM8_CLASS.C_INDEX as type I is table of int index by int;V I;end;
+----------
+[CREATE_TYPE|SELECT] -- CLASS_CURSOR_MEMBER_PACK_EXTENSION
+create class CODEX_DM8_CLASS.C_CURSOR as cursor C for select V from SOURCE_TABLE;end;
+----------
+[CREATE_TYPE] -- CLASS_EXCEPTION_MEMBER_PACK_EXTENSION
+create class CODEX_DM8_CLASS.C_EXCEPTION as E exception;end;
+----------
+[CREATE_TYPE] -- CLASS_STATIC_FUNCTION
+create class CODEX_DM8_CLASS.C_STATIC as static function F(A int) return int;end;
+----------
+[CREATE_TYPE] -- CLASS_MEMBER_FUNCTION
+create class CODEX_DM8_CLASS.C_MEMBER as member function F return int;end;
+----------
+[CREATE_TYPE] -- CLASS_DEFAULT_MEMBER_FUNCTION
+create class CODEX_DM8_CLASS.C_DEFAULT_MEMBER as function F return int;end;
+----------
+[CREATE_TYPE] -- CLASS_MEMBER_PROCEDURE
+create class CODEX_DM8_CLASS.C_PROCEDURE as member procedure P(A int);end;
+----------
+[CREATE_TYPE] -- CLASS_MAP_FUNCTION
+create class CODEX_DM8_CLASS.C_MAP as map member function F return int;end;
+----------
+[CREATE_TYPE] -- CLASS_DETERMINISTIC_FUNCTION
+create class CODEX_DM8_CLASS.C_DETERMINISTIC as member function F return int deterministic;end;
+----------
+[CREATE_TYPE] -- CLASS_PIPELINED_FUNCTION
+create class CODEX_DM8_CLASS.C_PIPELINED as static function F return CODEX_DM8_CLASS.C_NOT_FINAL pipelined;end;
+----------
+[CREATE_TYPE] -- CLASS_CONSTRUCTOR
+create class CODEX_DM8_CLASS.C_CONSTRUCTOR as V int;function C_CONSTRUCTOR(A int) return C_CONSTRUCTOR;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- CLASS_BODY_AS
+create class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 1;end;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- CLASS_BODY_IS
+create class body CODEX_DM8_CLASS.C_MEMBER is member function F return int is begin return 1;end;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- CLASS_BODY_OR_REPLACE
+create or replace class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 2;end;end;
+----------
+[CREATE_TYPE] -- CLASS_BODY_WITH_ENCRYPTION
+create class body CODEX_DM8_CLASS.C_ENCRYPT with encryption as end;
+----------
+[CREATE_TYPE] -- CLASS_BODY_EMPTY_PACK_EXTENSION
+create class body CODEX_DM8_CLASS.C_VARIABLE as end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- CLASS_BODY_END_NAME
+create class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 1;end;end C_MEMBER;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- CLASS_BODY_END_WRONG_NAME_PACK_EXTENSION
+create class body CODEX_DM8_CLASS.C_MEMBER as member function F return int as begin return 1;end;end WRONG;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- CLASS_BODY_INITIALIZER
+create class body CODEX_DM8_CLASS.C_VARIABLE as begin FIRST_VALUE=7;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- CLASS_BODY_WITHOUT_SPEC_SERVER_BOUNDARY
+create class body CODEX_DM8_CLASS.C_NO_SPEC as static function F return int as begin return 1;end;end;
+----------
+[CREATE_TYPE(PROGRAM_CONTROL)] -- CLASS_BODY_MISMATCH_SERVER_BOUNDARY
+create class body CODEX_DM8_CLASS.C_STATIC as static function F(B int) return int as begin return B;end;end;
+----------
+[ALTER_TYPE] -- ALTER_CLASS_COMPILE
+alter class CODEX_DM8_CLASS.C_MEMBER compile;
+----------
+[ALTER_TYPE] -- ALTER_CLASS_COMPILE_DEBUG
+alter class CODEX_DM8_CLASS.C_MEMBER compile debug;
+----------
+[DROP_TYPE] -- DROP_CLASS
+drop class CODEX_DM8_CLASS.C_AS restrict;
+----------
+[DROP_TYPE] -- DROP_CLASS_CASCADE
+drop class CODEX_DM8_CLASS.C_NOT_FINAL cascade;
+----------
+[DROP_TYPE] -- DROP_CLASS_IF_EXISTS
+drop class if exists CODEX_DM8_CLASS.C_NO_SUCH;
+----------
+[DROP_TYPE] -- DROP_CLASS_BODY
+drop class body CODEX_DM8_CLASS.C_MEMBER restrict;
+----------
+[DROP_TYPE] -- DROP_CLASS_BODY_IF_EXISTS
+drop class body if exists CODEX_DM8_CLASS.C_NO_SUCH cascade;
+----------
+[CREATE_TYPE] -- JAVA_BASIC
+create java class J_BASIC {int V;}
+----------
+[CREATE_TYPE] -- JAVA_PUBLIC
+create java public class J_PUBLIC {int V;}
+----------
+[CREATE_TYPE] -- JAVA_ABSTRACT
+create java abstract class J_ABSTRACT {public abstract int F();}
+----------
+[CREATE_TYPE] -- JAVA_FINAL
+create java final class J_FINAL {int V;}
+----------
+[CREATE_TYPE] -- JAVA_MODIFIER_ORDER_PACK_EXTENSION
+create java final public class J_ORDER {int V;}
+----------
+[CREATE_TYPE] -- JAVA_DUPLICATE_PUBLIC_PACK_EXTENSION
+create java public public class J_DUP_PUBLIC {int V;}
+----------
+[CREATE_TYPE] -- JAVA_DUPLICATE_FINAL_PACK_EXTENSION
+create java final final class J_DUP_FINAL {int V;}
+----------
+[CREATE_TYPE] -- JAVA_ABSTRACT_FINAL_INVALID_OBJECT
+create java abstract final class J_ABSTRACT_FINAL {public abstract int F();}
+----------
+[CREATE_TYPE] -- JAVA_FIELD_PUBLIC
+create java class J_FIELD_PUBLIC {public int V;}
+----------
+[CREATE_TYPE] -- JAVA_FIELD_PRIVATE
+create java class J_FIELD_PRIVATE {private int V;}
+----------
+[CREATE_TYPE] -- JAVA_FIELD_STATIC
+create java class J_FIELD_STATIC {public static int V;}
+----------
+[CREATE_TYPE] -- JAVA_FIELD_FINAL_INVALID_OBJECT
+create java class J_FIELD_FINAL {public static final int V=25;}
+----------
+[CREATE_TYPE] -- JAVA_METHOD_MEMBER
+create java class J_METHOD {public int F(int A){return A;}}
+----------
+[CREATE_TYPE] -- JAVA_METHOD_STATIC
+create java class J_STATIC {public static int F(int A){return A;}}
+----------
+[CREATE_TYPE] -- JAVA_METHOD_PRIVATE
+create java class J_PRIVATE {private int F(){return 1;}}
+----------
+[CREATE_TYPE] -- JAVA_METHOD_FINAL
+create java class J_METHOD_FINAL {public final int F(){return 1;}}
+----------
+[CREATE_TYPE] -- JAVA_METHOD_ABSTRACT_STATIC_PACK_EXTENSION
+create java abstract class J_ABS_STATIC {public abstract static int F();}
+----------
+[CREATE_TYPE] -- JAVA_METHOD_OVERRIDE_STATIC_INVALID_OBJECT
+create java class J_OVR_STATIC {public override static int F(){return 1;}}
+----------
+[CREATE_TYPE] -- JAVA_CONSTRUCTOR_ZERO
+create java class J_CTOR0 {int V;J_CTOR0(){this.V=1;}}
+----------
+[CREATE_TYPE] -- JAVA_CONSTRUCTOR_ARGS
+create java class J_CTOR1 {int V;J_CTOR1(int A){this.V=A;}}
+----------
+[CREATE_TYPE] -- JAVA_EXTENDS
+create java class J_CHILD extends J_BASIC {int X;}
+----------
+[CREATE_TYPE|SELECT] -- JAVA_METHOD_SELECT_RESOURCE
+create java class J_SELECT {public int F(){int V;select max(ID) into V from SOURCE_TABLE;return V;}}
+----------
+[ALTER_TYPE] -- ALTER_JAVA_CLASS_LOCAL_FORM
+alter class CODEX_DM8_CLASS.J_BASIC compile;
+----------
+[ALTER_TYPE] -- ALTER_JAVA_CLASS_ONLINE_VERSION
+alter java class CODEX_DM8_CLASS.J_BASIC compile;
+----------
+[DROP_TYPE] -- DROP_JAVA_CLASS
+drop class CODEX_DM8_CLASS.J_BASIC;
+----------
+[DROP_TYPE] -- DROP_JAVA_CLASS_BODY_PACK_EXTENSION
+drop class body CODEX_DM8_CLASS.J_BASIC;
+----------
+[GRANT] -- GRANT_CREATE_PACKAGE_FOR_CLASS
+grant create package to CODEX_DM8_CLASS_USER;
+----------
+[GRANT] -- GRANT_EXECUTE_CLASS
+grant execute on package CODEX_DM8_CLASS.C_DEFINER to CODEX_DM8_CLASS_USER;
+----------
+[REVOKE] -- REVOKE_EXECUTE_CLASS
+revoke execute on package CODEX_DM8_CLASS.C_DEFINER from CODEX_DM8_CLASS_USER;

@@ -1,0 +1,57 @@
+create tablespace CODEX_TS_BAD_CACHE datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_CACHE.dbf' size 64 cache=CODEX_UNKNOWN_CACHE;
+create tablespace TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_NAME129.dbf' size 64;
+create tablespace CODEX_TS_BAD_SIZE63 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_SIZE63.dbf' size 63;
+create tablespace CODEX_TS_BAD_MAX63 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_MAX63.dbf' size 64 autoextend on maxsize 63;
+create tablespace CODEX_TS_BAD_PWD33 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD33.dbf' size 64 encrypt with DES_CFB by Dm8Password20260723Abcdefghijk012;
+create tablespace CODEX_TS_BAD_PADDING datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PADDING.dbf' size 64 encrypt with AES256_CBC;
+create tablespace CODEX_TS_BAD_PWD7 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD7.dbf' size 64 encrypt with DES_CFB by Dm8Pa26;
+create tablespace CODEX_TS_BAD_PWD_LOWER datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD_LOWER.dbf' size 64 encrypt with DES_CFB by dm8pass26;
+create tablespace CODEX_TS_BAD_PWD_NODIGIT datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD_NODIGIT.dbf' size 64 encrypt with DES_CFB by DmPassword;
+create tablespace CODEX_TS_BAD_NEXT2049 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_NEXT2049.dbf' size 64 autoextend on next 2049;
+create tablespace CODEX_TS_ASM_BAD_STRIPING datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_BAD_STRIPING.dbf' size 64 striping 1;
+alter tablespace SYSTEM offline;
+alter tablespace SYSTEM datafile '/opt/dmdbms/data/DAMENG/SYSTEM.DBF' autoextend off;
+drop tablespace SYSTEM;
+create tablespace CODEX_TS_BAD_PATH257 datafile '/opt/dmdbms/data/DAMENG/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.dbf' size 64;
+alter tablespace CODEX_TS_ONLY_FILE_20260723 drop datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ONLY_FILE_20260723.dbf';
+alter tablespace CODEX_TS_NONMAX_FILE_20260723 drop datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_NONMAX_FILE_A_20260723.dbf';
+drop tablespace CODEX_TS_USED_20260723;
+alter tablespace CODEX_TS_RENAME_ONLINE_20260723 rename datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_ONLINE_A_20260723.dbf' to '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_ONLINE_B_20260723.dbf';
+------------------------------------------------------------------------------------------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_CACHE datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_CACHE.dbf' size 64 cache=CODEX_UNKNOWN_CACHE;
+----------
+[CREATE_TABLESPACE] create tablespace TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_NAME129.dbf' size 64;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_SIZE63 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_SIZE63.dbf' size 63;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_MAX63 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_MAX63.dbf' size 64 autoextend on maxsize 63;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_PWD33 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD33.dbf' size 64 encrypt with DES_CFB by Dm8Password20260723Abcdefghijk012;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_PADDING datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PADDING.dbf' size 64 encrypt with AES256_CBC;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_PWD7 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD7.dbf' size 64 encrypt with DES_CFB by Dm8Pa26;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_PWD_LOWER datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD_LOWER.dbf' size 64 encrypt with DES_CFB by dm8pass26;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_PWD_NODIGIT datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_PWD_NODIGIT.dbf' size 64 encrypt with DES_CFB by DmPassword;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_NEXT2049 datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_BAD_NEXT2049.dbf' size 64 autoextend on next 2049;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_ASM_BAD_STRIPING datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ASM_BAD_STRIPING.dbf' size 64 striping 1;
+----------
+[ALTER_TABLESPACE] alter tablespace SYSTEM offline;
+----------
+[ALTER_TABLESPACE] alter tablespace SYSTEM datafile '/opt/dmdbms/data/DAMENG/SYSTEM.DBF' autoextend off;
+----------
+[DROP_TABLESPACE] drop tablespace SYSTEM;
+----------
+[CREATE_TABLESPACE] create tablespace CODEX_TS_BAD_PATH257 datafile '/opt/dmdbms/data/DAMENG/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.dbf' size 64;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_ONLY_FILE_20260723 drop datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_ONLY_FILE_20260723.dbf';
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_NONMAX_FILE_20260723 drop datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_NONMAX_FILE_A_20260723.dbf';
+----------
+[DROP_TABLESPACE] drop tablespace CODEX_TS_USED_20260723;
+----------
+[ALTER_TABLESPACE] alter tablespace CODEX_TS_RENAME_ONLINE_20260723 rename datafile '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_ONLINE_A_20260723.dbf' to '/opt/dmdbms/data/DAMENG/CODEX_TS_RENAME_ONLINE_B_20260723.dbf';

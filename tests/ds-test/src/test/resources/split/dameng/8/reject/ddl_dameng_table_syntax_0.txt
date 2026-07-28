@@ -1,0 +1,65 @@
+create table;
+create table t_empty ();
+create table t_empty_ctas () as select 1 from dual;
+create external table t_external_empty () from datafile 'empty.csv';
+create table t_range_empty (id int) partition by range ();
+create table t_hash_empty (id int) partition by hash ();
+create table t_list_empty (id int) partition by list ();
+create table t_subrange_empty (id int, c int) partition by range(id) subpartition by range() (partition p1 values less than(10));
+create table t_subhash_empty (id int, c int) partition by range(id) subpartition by hash() (partition p1 values less than(10));
+create table t_sublist_empty (id int, c int) partition by range(id) subpartition by list() (partition p1 values less than(10));
+alter table t_part modify partition for() add values (1);
+alter table t_part drop partition for();
+alter table t_part split partition p1 at() into(partition p1a, partition p1b);
+alter table t_part split partition p1 values() into(partition p1a, partition p1b);
+alter table t_part truncate partition for();
+comment on table t_comment is null;
+comment on column t_comment.id is null;
+comment on table t_comment is;
+drop table;
+drop table t_drop cascade restrict;
+drop table t_drop restrict cascade;
+
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table;
+----------
+[CREATE_TABLE] create table t_empty ();
+----------
+[CREATE_TABLE|SELECT] create table t_empty_ctas () as select 1 from dual;
+----------
+[CREATE_TABLE] create external table t_external_empty () from datafile 'empty.csv';
+----------
+[CREATE_TABLE] create table t_range_empty (id int) partition by range ();
+----------
+[CREATE_TABLE] create table t_hash_empty (id int) partition by hash ();
+----------
+[CREATE_TABLE] create table t_list_empty (id int) partition by list ();
+----------
+[CREATE_TABLE] create table t_subrange_empty (id int, c int) partition by range(id) subpartition by range() (partition p1 values less than(10));
+----------
+[CREATE_TABLE] create table t_subhash_empty (id int, c int) partition by range(id) subpartition by hash() (partition p1 values less than(10));
+----------
+[CREATE_TABLE] create table t_sublist_empty (id int, c int) partition by range(id) subpartition by list() (partition p1 values less than(10));
+----------
+[ALTER_TABLE] alter table t_part modify partition for() add values (1);
+----------
+[ALTER_TABLE] alter table t_part drop partition for();
+----------
+[ALTER_TABLE] alter table t_part split partition p1 at() into(partition p1a, partition p1b);
+----------
+[ALTER_TABLE] alter table t_part split partition p1 values() into(partition p1a, partition p1b);
+----------
+[ALTER_TABLE] alter table t_part truncate partition for();
+----------
+[COMMENT_TABLE] comment on table t_comment is null;
+----------
+[COMMENT_COLUMN] comment on column t_comment.id is null;
+----------
+[COMMENT_TABLE] comment on table t_comment is;
+----------
+[DROP_TABLE] drop table;
+----------
+[DROP_TABLE] drop table t_drop cascade restrict;
+----------
+[DROP_TABLE] drop table t_drop restrict cascade;
+

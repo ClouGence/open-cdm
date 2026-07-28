@@ -1,0 +1,18 @@
+insert into MV_DML values(9, 9);
+update MV_DML set AMOUNT=9 where ID=1;
+delete from MV_DML where ID=1;
+merge into MV_DML M using MV_BASE B on(M.ID=B.ID) when matched then update set M.AMOUNT=B.AMOUNT;
+truncate table MV_DML;
+drop table MTAB$_MV_DML;
+------------------------------------------------------------------------------------------
+[INSERT] insert into MV_DML values(9, 9);
+----------
+[UPDATE] update MV_DML set AMOUNT=9 where ID=1;
+----------
+[DELETE] delete from MV_DML where ID=1;
+----------
+[MERGE] merge into MV_DML M using MV_BASE B on(M.ID=B.ID) when matched then update set M.AMOUNT=B.AMOUNT;
+----------
+[TRUNCATE_TABLE] truncate table MV_DML;
+----------
+[DROP_TABLE] drop table MTAB$_MV_DML;

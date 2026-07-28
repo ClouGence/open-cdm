@@ -1,0 +1,30 @@
+begin dbms_session.clear_context('CODEX_FUNC_CTX_133'); end;
+begin dbms_session.clear_context('CODEX_FUNC_CTX_133', null); end;
+begin dbms_session.clear_context(attribute => 'A', namespace => 'CODEX_FUNC_CTX_133', client_id => null); end;
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(value => 52, name => ':x', c => cursor_no); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(char_size => 10, value => 'ABC', name => ':x', c => cursor_no); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+declare cursor_no int; execute_value int; value varchar(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+declare cursor_no int; execute_value int; value varchar(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+declare cursor_no int; execute_value int; value varbinary(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+declare cursor_no int; execute_value int; value varbinary(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', 'ABC', null); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_session.clear_context('CODEX_FUNC_CTX_133'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_session.clear_context('CODEX_FUNC_CTX_133', null); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_session.clear_context(attribute => 'A', namespace => 'CODEX_FUNC_CTX_133', client_id => null); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(value => 52, name => ':x', c => cursor_no); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(char_size => 10, value => 'ABC', name => ':x', c => cursor_no); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; value varchar(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; value varchar(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; value varbinary(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; value varbinary(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', 'ABC', null); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;

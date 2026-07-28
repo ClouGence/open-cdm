@@ -1,0 +1,360 @@
+-- FUNC-1027 FREEPARSER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.FREEPARSER(P=>p); end;
+/
+-- FUNC-1028 GETBASEDIR
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin v:=DBMS_XMLPARSER.GETBASEDIR(P=>p); end;
+/
+-- FUNC-1029 GETDOCTYPE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin doctype:=DBMS_XMLPARSER.GETDOCTYPE(P=>p); end;
+/
+-- FUNC-1030 GETDOCUMENTR
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin doc:=DBMS_XMLPARSER.GETDOCUMENTR(P=>p); end;
+/
+-- FUNC-1031 PARSE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin doc:=DBMS_XMLPARSER.PARSE(URL=>'/tmp/a.xml'); end;
+/
+-- FUNC-1032 PARSE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.PARSE(P=>p,URL=>'/tmp/a.xml'); end;
+/
+-- FUNC-1033 PARSEBUFFER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.PARSEBUFFER(P=>p,DOC=>'<root/>'); DBMS_XMLPARSER.FREEPARSER(p); end;
+/
+-- FUNC-1034 PARSECLOB
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.PARSECLOB(P=>p,DOC=>c); DBMS_XMLPARSER.FREEPARSER(p); end;
+/
+-- FUNC-1035 PARSEDTD
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.PARSEDTD(P=>p,URL=>'/tmp/a.dtd',ROOT=>'ROOT'); end;
+/
+-- FUNC-1036 PARSEDTDBUFFER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.PARSEDTDBUFFER(P=>p,DTD=>'<!ELEMENT ROOT EMPTY>',ROOT=>'ROOT'); end;
+/
+-- FUNC-1037 PARSEDTDCLOB
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin c:='<!ELEMENT ROOT EMPTY>'; DBMS_XMLPARSER.PARSEDTDCLOB(P=>p,DTD=>c,ROOT=>'ROOT'); end;
+/
+-- FUNC-1038 RESETPARAMS
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin v:=DBMS_XMLPARSER.RESETPARAMS(); end;
+/
+-- FUNC-1039 SETBASEDIR
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.SETBASEDIR(P=>p,DIR=>'/tmp'); end;
+/
+-- FUNC-1040 SETDOCTYPE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.SETDOCTYPE(P=>p,DTD=>doctype); end;
+/
+-- FUNC-1041 SETVALIDATIONMNODE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.SETVALIDATIONMNODE(P=>p,YES=>TRUE); end;
+/
+-- FUNC-1042 SETVALIDATIONMNODE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin b:=DBMS_XMLPARSER.SETVALIDATIONMNODE(P=>p); end;
+/
+-- FUNC-1790 NEWPARSER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.FREEPARSER(p); end;
+/
+-- FUNC-1791 GETDOCUMENT
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.PARSEBUFFER(p,'<root/>'); doc:=DBMS_XMLPARSER.GETDOCUMENT(P=>p); DBMS_XMLPARSER.FREEPARSER(p); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1027 FREEPARSER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.FREEPARSER(P=>p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1028 GETBASEDIR
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin v:=DBMS_XMLPARSER.GETBASEDIR(P=>p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1029 GETDOCTYPE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin doctype:=DBMS_XMLPARSER.GETDOCTYPE(P=>p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1030 GETDOCUMENTR
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin doc:=DBMS_XMLPARSER.GETDOCUMENTR(P=>p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1031 PARSE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin doc:=DBMS_XMLPARSER.PARSE(URL=>'/tmp/a.xml'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1032 PARSE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.PARSE(P=>p,URL=>'/tmp/a.xml'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1033 PARSEBUFFER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.PARSEBUFFER(P=>p,DOC=>'<root/>'); DBMS_XMLPARSER.FREEPARSER(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1034 PARSECLOB
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.PARSECLOB(P=>p,DOC=>c); DBMS_XMLPARSER.FREEPARSER(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1035 PARSEDTD
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.PARSEDTD(P=>p,URL=>'/tmp/a.dtd',ROOT=>'ROOT'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1036 PARSEDTDBUFFER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.PARSEDTDBUFFER(P=>p,DTD=>'<!ELEMENT ROOT EMPTY>',ROOT=>'ROOT'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1037 PARSEDTDCLOB
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin c:='<!ELEMENT ROOT EMPTY>'; DBMS_XMLPARSER.PARSEDTDCLOB(P=>p,DTD=>c,ROOT=>'ROOT'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1038 RESETPARAMS
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin v:=DBMS_XMLPARSER.RESETPARAMS(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1039 SETBASEDIR
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.SETBASEDIR(P=>p,DIR=>'/tmp'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1040 SETDOCTYPE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.SETDOCTYPE(P=>p,DTD=>doctype); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1041 SETVALIDATIONMNODE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin DBMS_XMLPARSER.SETVALIDATIONMNODE(P=>p,YES=>TRUE); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1042 SETVALIDATIONMNODE
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin b:=DBMS_XMLPARSER.SETVALIDATIONMNODE(P=>p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1790 NEWPARSER
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.FREEPARSER(p); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FUNC-1791 GETDOCUMENT
+declare
+  p DBMS_XMLPARSER.PARSER;
+  doc DBMS_XMLDOM.DOMDOCUMENT;
+  doctype DBMS_XMLDOM.DOMDOCUMENTTYPE;
+  c clob:='<?xml version="1.0"?><root><item>clob</item></root>';
+  v varchar2(256);
+  b boolean;
+begin p:=DBMS_XMLPARSER.NEWPARSER(); DBMS_XMLPARSER.PARSEBUFFER(p,'<root/>'); doc:=DBMS_XMLPARSER.GETDOCUMENT(P=>p); DBMS_XMLPARSER.FREEPARSER(p); end;

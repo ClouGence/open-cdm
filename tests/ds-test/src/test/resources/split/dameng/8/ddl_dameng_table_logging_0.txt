@@ -1,0 +1,96 @@
+create table table_log_state(id int primary key, note varchar(20));
+alter table table_log_state with advanced log;
+alter table table_log_state with advanced log;
+insert into table_log_state values(1,'a');
+select op_type, count(*) from "TABLE_LOG_STATE$ALOG" group by op_type;
+update table_log_state set note='b' where id=1;
+delete from table_log_state where id=1;
+alter table table_log_state add blocked_col int;
+alter table table_log_state truncate advanced log;
+select count(*) from "TABLE_LOG_STATE$ALOG";
+alter table table_log_state rename to table_log_renamed;
+select count(*) from "TABLE_LOG_RENAMED$ALOG";
+alter table table_log_renamed without advanced log;
+alter table table_log_renamed without advanced log;
+alter table table_log_renamed truncate advanced log;
+drop table table_log_renamed purge;
+create table table_log_create(id int) with advanced log;
+select count(*) from "TABLE_LOG_CREATE$ALOG";
+drop table table_log_create purge;
+create global temporary table table_log_temp(id int) on commit preserve rows with advanced log;
+create table table_log_part(id int) partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) with advanced log;
+alter table table_log_part split partition p1 at(5) into(partition p0, partition p1);
+alter table table_log_part merge partitions p1,pmax into partition pmax;
+drop table table_log_part purge;
+create table table_log_interval(id int) partition by range(id) interval(10)(partition p0 values less than(10)) with advanced log;
+create table table_logic_state(id int) add logic log;
+alter table table_logic_state drop logic log;
+alter table table_logic_state add logic log;
+alter table table_logic_state add logic log;
+alter table table_logic_state drop logic log;
+alter table table_logic_state drop logic log;
+drop table table_logic_state purge;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table table_log_state(id int primary key, note varchar(20));
+----------
+[ALTER_TABLE] alter table table_log_state with advanced log;
+----------
+[ALTER_TABLE] alter table table_log_state with advanced log;
+----------
+[INSERT] insert into table_log_state values(1,'a');
+----------
+[SELECT] select op_type, count(*) from "TABLE_LOG_STATE$ALOG" group by op_type;
+----------
+[UPDATE] update table_log_state set note='b' where id=1;
+----------
+[DELETE] delete from table_log_state where id=1;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table table_log_state add blocked_col int;
+----------
+[ALTER_TABLE] alter table table_log_state truncate advanced log;
+----------
+[SELECT] select count(*) from "TABLE_LOG_STATE$ALOG";
+----------
+[ALTER_TABLE|RENAME_TABLE] alter table table_log_state rename to table_log_renamed;
+----------
+[SELECT] select count(*) from "TABLE_LOG_RENAMED$ALOG";
+----------
+[ALTER_TABLE] alter table table_log_renamed without advanced log;
+----------
+[ALTER_TABLE] alter table table_log_renamed without advanced log;
+----------
+[ALTER_TABLE] alter table table_log_renamed truncate advanced log;
+----------
+[DROP_TABLE] drop table table_log_renamed purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_log_create(id int) with advanced log;
+----------
+[SELECT] select count(*) from "TABLE_LOG_CREATE$ALOG";
+----------
+[DROP_TABLE] drop table table_log_create purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create global temporary table table_log_temp(id int) on commit preserve rows with advanced log;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_log_part(id int) partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) with advanced log;
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table table_log_part split partition p1 at(5) into(partition p0, partition p1);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table table_log_part merge partitions p1,pmax into partition pmax;
+----------
+[DROP_TABLE] drop table table_log_part purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_log_interval(id int) partition by range(id) interval(10)(partition p0 values less than(10)) with advanced log;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_logic_state(id int) add logic log;
+----------
+[ALTER_TABLE] alter table table_logic_state drop logic log;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table table_logic_state add logic log;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table table_logic_state add logic log;
+----------
+[ALTER_TABLE] alter table table_logic_state drop logic log;
+----------
+[ALTER_TABLE] alter table table_logic_state drop logic log;
+----------
+[DROP_TABLE] drop table table_logic_state purge;

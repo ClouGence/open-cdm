@@ -1,0 +1,69 @@
+create schema app authorization SYSDBA;
+/
+
+create table app.customer (
+  id int identity(1, 1) primary key,
+  name varchar(100) not null,
+  status char(1) default 'A',
+  amount decimal(18, 2),
+  created_at timestamp default current_timestamp,
+  constraint uk_customer_name unique(name),
+  constraint ck_customer_status check(status in ('A', 'I'))
+);
+
+comment on table app.customer is 'customer master';
+comment on column app.customer.name is 'customer name';
+
+create table app.orders (
+  id bigint identity,
+  customer_id int not null,
+  order_no varchar2(64) not null,
+  order_total number(18, 2) default 0,
+  payload clob,
+  constraint pk_orders primary key(id),
+  constraint fk_orders_customer foreign key(customer_id) references app.customer(id)
+);
+
+create index idx_orders_customer on app.orders(customer_id);
+
+create view app.active_customer_view as
+select id, name from app.customer where status = 'A';
+
+create sequence app.seq_orders start with 1 increment by 1 cache 20;
+
+create synonym app.syn_customer for app.customer;
+------------------------------------------------------------------------------------------
+[CREATE_SCHEMA] create schema app authorization SYSDBA;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.customer (
+  id int identity(1, 1) primary key,
+  name varchar(100) not null,
+  status char(1) default 'A',
+  amount decimal(18, 2),
+  created_at timestamp default current_timestamp,
+  constraint uk_customer_name unique(name),
+  constraint ck_customer_status check(status in ('A', 'I'))
+);
+----------
+[COMMENT_TABLE] comment on table app.customer is 'customer master';
+----------
+[COMMENT_COLUMN] comment on column app.customer.name is 'customer name';
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.orders (
+  id bigint identity,
+  customer_id int not null,
+  order_no varchar2(64) not null,
+  order_total number(18, 2) default 0,
+  payload clob,
+  constraint pk_orders primary key(id),
+  constraint fk_orders_customer foreign key(customer_id) references app.customer(id)
+);
+----------
+[ADD_INDEX] create index idx_orders_customer on app.orders(customer_id);
+----------
+[CREATE_VIEW(SELECT)] create view app.active_customer_view as
+select id, name from app.customer where status = 'A';
+----------
+[CREATE_SEQUENCE] create sequence app.seq_orders start with 1 increment by 1 cache 20;
+----------
+[CREATE_SYNONYM] create synonym app.syn_customer for app.customer;

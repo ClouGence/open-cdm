@@ -1,0 +1,42 @@
+alter table table_vis_data alter column secret add user();
+alter table table_vis_data alter column secret add user(table_vis_u1,);
+alter table table_vis_data alter column secret drop user();
+alter table table_vis_data alter column secret drop user(table_vis_u1,);
+alter table table_vis_data alter column add user(table_vis_u1);
+alter table table_vis_data alter column secret add user table_vis_u1;
+alter table table_cons_parent drop constraint table_cons_parent_uq drop index cascade;
+alter table table_cons_parent drop constraint table_cons_parent_uq restrict drop index;
+alter table table_cons_parent drop constraint table_cons_parent_uq keep index drop index;
+alter table table_cons_parent drop constraint table_cons_parent_uq cascade cascade;
+alter table table_cons_state add constraint table_cons_state_uq unique(id) not check;
+alter table table_cons_state enable constraint table_cons_state_uq check;
+alter table table_cons_state modify constraint table_cons_state_uq enable validate novalidate;
+alter table table_cons_state modify constraint table_cons_state_uq disable novalidate validate;
+------------------------------------------------------------------------------------------
+[ALTER_TABLE] alter table table_vis_data alter column secret add user();
+----------
+[ALTER_TABLE] alter table table_vis_data alter column secret add user(table_vis_u1,);
+----------
+[ALTER_TABLE] alter table table_vis_data alter column secret drop user();
+----------
+[ALTER_TABLE] alter table table_vis_data alter column secret drop user(table_vis_u1,);
+----------
+[ALTER_TABLE] alter table table_vis_data alter column add user(table_vis_u1);
+----------
+[ALTER_TABLE] alter table table_vis_data alter column secret add user table_vis_u1;
+----------
+[ALTER_TABLE] alter table table_cons_parent drop constraint table_cons_parent_uq drop index cascade;
+----------
+[ALTER_TABLE] alter table table_cons_parent drop constraint table_cons_parent_uq restrict drop index;
+----------
+[ALTER_TABLE] alter table table_cons_parent drop constraint table_cons_parent_uq keep index drop index;
+----------
+[ALTER_TABLE] alter table table_cons_parent drop constraint table_cons_parent_uq cascade cascade;
+----------
+[ALTER_TABLE] alter table table_cons_state add constraint table_cons_state_uq unique(id) not check;
+----------
+[ALTER_TABLE] alter table table_cons_state enable constraint table_cons_state_uq check;
+----------
+[ALTER_TABLE] alter table table_cons_state modify constraint table_cons_state_uq enable validate novalidate;
+----------
+[ALTER_TABLE] alter table table_cons_state modify constraint table_cons_state_uq disable novalidate validate;

@@ -1,0 +1,18 @@
+create user CODEX_ENC_USER1 identified by CodexEnc1_2026 encrypt by StorageKey1_2026;
+create user CODEX_ENC_USER2 identified by CodexEnc2_2026 encrypt by StorageKey2_2026;
+grant dba to CODEX_ENC_USER1;
+grant dba to CODEX_ENC_USER2;
+drop user CODEX_ENC_USER1 cascade;
+drop user CODEX_ENC_USER2 cascade;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user CODEX_ENC_USER1 identified by CodexEnc1_2026 encrypt by StorageKey1_2026;
+----------
+[CREATE_USER] create user CODEX_ENC_USER2 identified by CodexEnc2_2026 encrypt by StorageKey2_2026;
+----------
+[GRANT] grant dba to CODEX_ENC_USER1;
+----------
+[GRANT] grant dba to CODEX_ENC_USER2;
+----------
+[DROP_USER] drop user CODEX_ENC_USER1 cascade;
+----------
+[DROP_USER] drop user CODEX_ENC_USER2 cascade;

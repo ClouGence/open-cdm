@@ -1,0 +1,153 @@
+create huge table huge_part_range(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) partition by range(id)(partition p10 values less than(10), partition p20 values less than(20));
+alter table huge_part_range add partition pmax values less than(maxvalue);
+alter table huge_part_range split partition pmax at(30) into(partition p30, partition pmax2);
+alter table huge_part_range merge partitions p30, pmax2 into partition pmax_merged;
+alter table huge_part_range drop partition p20;
+create huge table huge_part_exchange(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16));
+alter table huge_part_range exchange partition p10 with table huge_part_exchange;
+create index huge_part_local_idx on huge_part_range(id);
+create huge table huge_part_list(id int, category int) storage(stat none, with delta, section(1024), filesize(16)) partition by list(category)(partition p12 values(1,2), partition p34 values(3,4));
+alter table huge_part_list add partition p56 values(5,6);
+alter table huge_part_list drop partition p56;
+alter table huge_part_list split partition p34 values(3) into(partition p3, partition p4);
+alter table huge_part_list merge partitions p3, p4 into partition p34_merged;
+alter table huge_part_list truncate partition p12;
+alter table huge_part_list lock partitions;
+alter table huge_part_list lock root;
+create huge table huge_part_sub(id int, category int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) partition by range(id) subpartition by range(category)(partition p10 values less than(10)(subpartition sp10 values less than(10), subpartition sp20 values less than(20)));
+alter table huge_part_sub modify partition p10 add subpartition sp30 values less than(30);
+alter table huge_part_sub set subpartition template(subpartition t10 values less than(10), subpartition tmax values less than(maxvalue));
+alter table huge_part_sub add partition p20 values less than(20);
+create huge table huge_part_sub_exchange(id int, category int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16));
+alter table huge_part_sub exchange subpartition p10_sp10 with table huge_part_sub_exchange;
+alter table huge_part_sub truncate subpartition p10_sp30;
+create huge table huge_part_hash(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) partition by hash(id)(partition h1, partition h2);
+alter table huge_part_hash add partition h3;
+create huge table huge_part_hash_exchange(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16));
+alter table huge_part_list modify partition p12 add values(5,6);
+alter table huge_part_list rename partition p12 to p12_renamed;
+alter table huge_part_sub rename subpartition p10_sp30 to p10_sp30_new;
+alter table huge_part_list enable row movement;
+alter table huge_part_sub drop subpartition p10_sp20;
+alter table huge_part_list move partition p34_merged tablespace main;
+create index huge_part_global_idx on huge_part_range(id) global;
+create table huge_part_normal(id int, note varchar(40));
+alter table huge_part_range exchange partition p10 with table huge_part_normal;
+create huge table huge_part_mismatch(id int, note varchar(40)) storage(stat none, with delta, section(2048), filesize(16));
+alter table huge_part_range exchange partition p10 with table huge_part_mismatch;
+alter table huge_part_hash exchange partition h1 with table huge_part_hash_exchange;
+alter table huge_part_hash drop partition h1;
+create huge table huge_part_only(id int) partition by range(id)(partition ponly values less than(maxvalue));
+alter table huge_part_only drop partition ponly;
+drop table huge_part_range cascade;
+drop table huge_part_exchange cascade;
+drop table huge_part_list cascade;
+drop table huge_part_sub cascade;
+drop table huge_part_sub_exchange cascade;
+drop table huge_part_hash cascade;
+drop table huge_part_hash_exchange cascade;
+drop table huge_part_normal cascade;
+drop table huge_part_mismatch cascade;
+drop table huge_part_only cascade;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_part_range(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) partition by range(id)(partition p10 values less than(10), partition p20 values less than(20));
+----------
+[ALTER_TABLE|ADD_PARTITION] alter table huge_part_range add partition pmax values less than(maxvalue);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_range split partition pmax at(30) into(partition p30, partition pmax2);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_range merge partitions p30, pmax2 into partition pmax_merged;
+----------
+[ALTER_TABLE|DROP_PARTITION] alter table huge_part_range drop partition p20;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_part_exchange(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16));
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_range exchange partition p10 with table huge_part_exchange;
+----------
+[ADD_INDEX] create index huge_part_local_idx on huge_part_range(id);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_part_list(id int, category int) storage(stat none, with delta, section(1024), filesize(16)) partition by list(category)(partition p12 values(1,2), partition p34 values(3,4));
+----------
+[ALTER_TABLE|ADD_PARTITION] alter table huge_part_list add partition p56 values(5,6);
+----------
+[ALTER_TABLE|DROP_PARTITION] alter table huge_part_list drop partition p56;
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_list split partition p34 values(3) into(partition p3, partition p4);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_list merge partitions p3, p4 into partition p34_merged;
+----------
+[ALTER_TABLE|TRUNCATE_PARTITION] alter table huge_part_list truncate partition p12;
+----------
+[ALTER_TABLE] alter table huge_part_list lock partitions;
+----------
+[ALTER_TABLE] alter table huge_part_list lock root;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_part_sub(id int, category int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) partition by range(id) subpartition by range(category)(partition p10 values less than(10)(subpartition sp10 values less than(10), subpartition sp20 values less than(20)));
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_sub modify partition p10 add subpartition sp30 values less than(30);
+----------
+[ALTER_TABLE] alter table huge_part_sub set subpartition template(subpartition t10 values less than(10), subpartition tmax values less than(maxvalue));
+----------
+[ALTER_TABLE|ADD_PARTITION] alter table huge_part_sub add partition p20 values less than(20);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_part_sub_exchange(id int, category int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16));
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_sub exchange subpartition p10_sp10 with table huge_part_sub_exchange;
+----------
+[ALTER_TABLE|TRUNCATE_PARTITION] alter table huge_part_sub truncate subpartition p10_sp30;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_part_hash(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16)) partition by hash(id)(partition h1, partition h2);
+----------
+[ALTER_TABLE|ADD_PARTITION] alter table huge_part_hash add partition h3;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_part_hash_exchange(id int, note varchar(40)) storage(stat none, with delta, section(1024), filesize(16));
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_list modify partition p12 add values(5,6);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_list rename partition p12 to p12_renamed;
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_sub rename subpartition p10_sp30 to p10_sp30_new;
+----------
+[ALTER_TABLE] alter table huge_part_list enable row movement;
+----------
+[ALTER_TABLE|DROP_PARTITION] alter table huge_part_sub drop subpartition p10_sp20;
+----------
+[ALTER_TABLE] alter table huge_part_list move partition p34_merged tablespace main;
+----------
+[ADD_INDEX] create index huge_part_global_idx on huge_part_range(id) global;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table huge_part_normal(id int, note varchar(40));
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_range exchange partition p10 with table huge_part_normal;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_part_mismatch(id int, note varchar(40)) storage(stat none, with delta, section(2048), filesize(16));
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_range exchange partition p10 with table huge_part_mismatch;
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table huge_part_hash exchange partition h1 with table huge_part_hash_exchange;
+----------
+[ALTER_TABLE|DROP_PARTITION] alter table huge_part_hash drop partition h1;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table huge_part_only(id int) partition by range(id)(partition ponly values less than(maxvalue));
+----------
+[ALTER_TABLE|DROP_PARTITION] alter table huge_part_only drop partition ponly;
+----------
+[DROP_TABLE] drop table huge_part_range cascade;
+----------
+[DROP_TABLE] drop table huge_part_exchange cascade;
+----------
+[DROP_TABLE] drop table huge_part_list cascade;
+----------
+[DROP_TABLE] drop table huge_part_sub cascade;
+----------
+[DROP_TABLE] drop table huge_part_sub_exchange cascade;
+----------
+[DROP_TABLE] drop table huge_part_hash cascade;
+----------
+[DROP_TABLE] drop table huge_part_hash_exchange cascade;
+----------
+[DROP_TABLE] drop table huge_part_normal cascade;
+----------
+[DROP_TABLE] drop table huge_part_mismatch cascade;
+----------
+[DROP_TABLE] drop table huge_part_only cascade;

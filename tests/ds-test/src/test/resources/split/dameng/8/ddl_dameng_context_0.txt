@@ -1,0 +1,173 @@
+create or replace package app_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end app_context_pkg;
+/
+create or replace package body app_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end app_context_pkg;
+/
+create or replace package replacement_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end replacement_context_pkg;
+/
+create or replace package body replacement_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end replacement_context_pkg;
+/
+create context CODEX_CTX_MAIN_20260721
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+select name, info5, info6
+from sysobjects
+where subtype$ = 'CONTEXT' and name = 'CODEX_CTX_MAIN_20260721';
+call app_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'TENANT', 'ALPHA');
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT', 1);
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT', 4000);
+select namespace, attribute, value
+from v$context
+where namespace = 'CODEX_CTX_MAIN_20260721';
+call app_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'ROLE_NAME', 'WRITER');
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT'),
+  sys_context('CODEX_CTX_MAIN_20260721', 'ROLE_NAME');
+create or replace context CODEX_CTX_MAIN_20260721
+using CODEX_DM8_CONTEXT_20260721.replacement_context_pkg;
+call replacement_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'TENANT', 'BETA');
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+create context if not exists CODEX_CTX_MAIN_20260721
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+call replacement_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'TENANT', 'GAMMA');
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+create context "Codex_Ctx_Quoted_20260721"
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+select name from sysobjects
+where subtype$ = 'CONTEXT' and name = 'Codex_Ctx_Quoted_20260721';
+select sys_context('Codex_Ctx_Quoted_20260721', 'Mixed_Key');
+drop context SYS."Codex_Ctx_Quoted_20260721";
+create context CODEX_CTX_AUX_20260721 using app_context_pkg;
+call app_context_pkg.set_value('CODEX_CTX_AUX_20260721', 'AUX_KEY', 'AUX_VALUE');
+select sys_context('CODEX_CTX_AUX_20260721', 'AUX_KEY', 256);
+drop context SYS.CODEX_CTX_AUX_20260721;
+drop context SYS.CODEX_CTX_MAIN_20260721;
+select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+drop context if exists SYS.CODEX_CTX_MAIN_20260721;
+select sys_context('USERENV', 'CURRENT_SCHEMA');
+select sys_context('USERENV', 'CURRENT_USER');
+select sys_context('USERENV', 'SID');
+select sys_context('USERENV', 'DB_NAME', 4000);
+create or replace context if not exists CODEX_CTX_BOTH_20260721
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+select name, info5, info6 from sysobjects
+where subtype$ = 'CONTEXT' and name = 'CODEX_CTX_BOTH_20260721';
+drop context SYS.CODEX_CTX_BOTH_20260721;
+drop package replacement_context_pkg;
+drop package app_context_pkg;
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ] create or replace package app_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end app_context_pkg;
+----------
+[CREATE_PROG_OBJ(CALL_PROG_OBJ)] create or replace package body app_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end app_context_pkg;
+----------
+[CREATE_PROG_OBJ] create or replace package replacement_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end replacement_context_pkg;
+----------
+[CREATE_PROG_OBJ(CALL_PROG_OBJ)] create or replace package body replacement_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end replacement_context_pkg;
+----------
+[SYSTEM_SETTING_WRITE] create context CODEX_CTX_MAIN_20260721
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+----------
+[SELECT] select name, info5, info6
+from sysobjects
+where subtype$ = 'CONTEXT' and name = 'CODEX_CTX_MAIN_20260721';
+----------
+[CALL_PROG_OBJ] call app_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'TENANT', 'ALPHA');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT', 1);
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT', 4000);
+----------
+[SELECT] select namespace, attribute, value
+from v$context
+where namespace = 'CODEX_CTX_MAIN_20260721';
+----------
+[CALL_PROG_OBJ] call app_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'ROLE_NAME', 'WRITER');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT'),
+  sys_context('CODEX_CTX_MAIN_20260721', 'ROLE_NAME');
+----------
+[SYSTEM_SETTING_WRITE] create or replace context CODEX_CTX_MAIN_20260721
+using CODEX_DM8_CONTEXT_20260721.replacement_context_pkg;
+----------
+[CALL_PROG_OBJ] call replacement_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'TENANT', 'BETA');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+----------
+[SYSTEM_SETTING_WRITE] create context if not exists CODEX_CTX_MAIN_20260721
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+----------
+[CALL_PROG_OBJ] call replacement_context_pkg.set_value('CODEX_CTX_MAIN_20260721', 'TENANT', 'GAMMA');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+----------
+[SYSTEM_SETTING_WRITE] create context "Codex_Ctx_Quoted_20260721"
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+----------
+[SELECT] select name from sysobjects
+where subtype$ = 'CONTEXT' and name = 'Codex_Ctx_Quoted_20260721';
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('Codex_Ctx_Quoted_20260721', 'Mixed_Key');
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS."Codex_Ctx_Quoted_20260721";
+----------
+[SYSTEM_SETTING_WRITE] create context CODEX_CTX_AUX_20260721 using app_context_pkg;
+----------
+[CALL_PROG_OBJ] call app_context_pkg.set_value('CODEX_CTX_AUX_20260721', 'AUX_KEY', 'AUX_VALUE');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_AUX_20260721', 'AUX_KEY', 256);
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.CODEX_CTX_AUX_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.CODEX_CTX_MAIN_20260721;
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('CODEX_CTX_MAIN_20260721', 'TENANT');
+----------
+[SYSTEM_SETTING_WRITE] drop context if exists SYS.CODEX_CTX_MAIN_20260721;
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'CURRENT_SCHEMA');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'CURRENT_USER');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'SID');
+----------
+[SELECT|CALL_PROG_OBJ] select sys_context('USERENV', 'DB_NAME', 4000);
+----------
+[SYSTEM_SETTING_WRITE] create or replace context if not exists CODEX_CTX_BOTH_20260721
+using CODEX_DM8_CONTEXT_20260721.app_context_pkg;
+----------
+[SELECT] select name, info5, info6 from sysobjects
+where subtype$ = 'CONTEXT' and name = 'CODEX_CTX_BOTH_20260721';
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.CODEX_CTX_BOTH_20260721;
+----------
+[DROP_PROG_OBJ] drop package replacement_context_pkg;
+----------
+[DROP_PROG_OBJ] drop package app_context_pkg;

@@ -1,0 +1,156 @@
+commit;
+commit work;
+commit immediate;
+commit wait;
+commit nowait;
+commit work immediate;
+commit immediate wait;
+commit immediate nowait;
+commit work immediate wait;
+commit work immediate nowait;
+commit batch wait;
+commit batch nowait;
+commit work batch wait;
+commit work batch nowait;
+rollback;
+rollback work;
+savepoint codex_sp_01;
+rollback to savepoint codex_sp_01;
+rollback work to savepoint codex_sp_02;
+rollback to codex_sp_03;
+release savepoint codex_sp_04;
+start transaction;
+start transaction read only;
+start transaction read write;
+start transaction isolation level read committed;
+start transaction isolation level read uncommitted;
+start transaction isolation level serializable;
+start transaction read only, isolation level read committed;
+set transaction isolation level read committed;
+set transaction isolation level read uncommitted;
+set transaction isolation level serializable;
+set transaction read only;
+set transaction read write;
+set transaction read only, isolation level read committed;
+lock table codex_txn_t in intent share mode;
+lock table codex_txn_t in intent share mode nowait;
+lock table codex_txn_t in row share mode;
+lock table codex_txn_t in row share mode nowait;
+lock table codex_txn_t in share update mode;
+lock table codex_txn_t in share update mode nowait;
+lock table codex_txn_t in intent exclusive mode;
+lock table codex_txn_t in intent exclusive mode nowait;
+lock table codex_txn_t in row exclusive mode;
+lock table codex_txn_t in row exclusive mode nowait;
+lock table codex_txn_t in share mode;
+lock table codex_txn_t in share mode nowait;
+lock table codex_txn_t in exclusive mode;
+lock table codex_txn_t in exclusive mode nowait;
+lock table codex_txn_t in share intent exclusive mode;
+lock table codex_txn_t in share intent exclusive mode nowait;
+lock table codex_txn_t in share row exclusive mode;
+lock table codex_txn_t in share row exclusive mode nowait;
+------------------------------------------------------------------------------------------
+[TRANSACTION] commit;
+----------
+[TRANSACTION] commit work;
+----------
+[TRANSACTION] commit immediate;
+----------
+[TRANSACTION] commit wait;
+----------
+[TRANSACTION] commit nowait;
+----------
+[TRANSACTION] commit work immediate;
+----------
+[TRANSACTION] commit immediate wait;
+----------
+[TRANSACTION] commit immediate nowait;
+----------
+[TRANSACTION] commit work immediate wait;
+----------
+[TRANSACTION] commit work immediate nowait;
+----------
+[TRANSACTION] commit batch wait;
+----------
+[TRANSACTION] commit batch nowait;
+----------
+[TRANSACTION] commit work batch wait;
+----------
+[TRANSACTION] commit work batch nowait;
+----------
+[TRANSACTION] rollback;
+----------
+[TRANSACTION] rollback work;
+----------
+[TRANSACTION] savepoint codex_sp_01;
+----------
+[TRANSACTION] rollback to savepoint codex_sp_01;
+----------
+[TRANSACTION] rollback work to savepoint codex_sp_02;
+----------
+[TRANSACTION] rollback to codex_sp_03;
+----------
+[TRANSACTION] release savepoint codex_sp_04;
+----------
+[TRANSACTION] start transaction;
+----------
+[TRANSACTION] start transaction read only;
+----------
+[TRANSACTION] start transaction read write;
+----------
+[TRANSACTION] start transaction isolation level read committed;
+----------
+[TRANSACTION] start transaction isolation level read uncommitted;
+----------
+[TRANSACTION] start transaction isolation level serializable;
+----------
+[TRANSACTION] start transaction read only, isolation level read committed;
+----------
+[TRANSACTION] set transaction isolation level read committed;
+----------
+[TRANSACTION] set transaction isolation level read uncommitted;
+----------
+[TRANSACTION] set transaction isolation level serializable;
+----------
+[TRANSACTION] set transaction read only;
+----------
+[TRANSACTION] set transaction read write;
+----------
+[TRANSACTION] set transaction read only, isolation level read committed;
+----------
+[SESSION_LOCK] lock table codex_txn_t in intent share mode;
+----------
+[SESSION_LOCK] lock table codex_txn_t in intent share mode nowait;
+----------
+[SESSION_LOCK] lock table codex_txn_t in row share mode;
+----------
+[SESSION_LOCK] lock table codex_txn_t in row share mode nowait;
+----------
+[SESSION_LOCK] lock table codex_txn_t in share update mode;
+----------
+[SESSION_LOCK] lock table codex_txn_t in share update mode nowait;
+----------
+[SESSION_LOCK] lock table codex_txn_t in intent exclusive mode;
+----------
+[SESSION_LOCK] lock table codex_txn_t in intent exclusive mode nowait;
+----------
+[SESSION_LOCK] lock table codex_txn_t in row exclusive mode;
+----------
+[SESSION_LOCK] lock table codex_txn_t in row exclusive mode nowait;
+----------
+[SESSION_LOCK] lock table codex_txn_t in share mode;
+----------
+[SESSION_LOCK] lock table codex_txn_t in share mode nowait;
+----------
+[SESSION_LOCK] lock table codex_txn_t in exclusive mode;
+----------
+[SESSION_LOCK] lock table codex_txn_t in exclusive mode nowait;
+----------
+[SESSION_LOCK] lock table codex_txn_t in share intent exclusive mode;
+----------
+[SESSION_LOCK] lock table codex_txn_t in share intent exclusive mode nowait;
+----------
+[SESSION_LOCK] lock table codex_txn_t in share row exclusive mode;
+----------
+[SESSION_LOCK] lock table codex_txn_t in share row exclusive mode nowait;

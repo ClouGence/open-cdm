@@ -1,0 +1,24 @@
+create huge table dpc_huge_bad_pg_missing(id int) using partition group by(id);
+create huge table dpc_huge_bad_by_missing(id int) using partition group dpc_huge_pg_range;
+create huge table dpc_huge_bad_empty_key(id int) using partition group dpc_huge_pg_range by();
+create huge table dpc_huge_bad_key_paren(id int) using partition group dpc_huge_pg_range by id;
+create huge table dpc_huge_bad_subpart(id int) using partition group dpc_huge_pg_range by(id) subpartition by();
+create huge table dpc_huge_bad_repeat(id int) using partition group dpc_huge_pg_range by(id) using partition group dpc_huge_pg_hash by(id);
+create huge table dpc_huge_bad_order(id int) storage(with delta) using partition group dpc_huge_pg_range by(id);
+create huge table dpc_huge_bad_ctas as select 1 as id from dual using partition group dpc_huge_pg_range by(id);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create huge table dpc_huge_bad_pg_missing(id int) using partition group by(id);
+----------
+[CREATE_TABLE] create huge table dpc_huge_bad_by_missing(id int) using partition group dpc_huge_pg_range;
+----------
+[CREATE_TABLE] create huge table dpc_huge_bad_empty_key(id int) using partition group dpc_huge_pg_range by();
+----------
+[CREATE_TABLE] create huge table dpc_huge_bad_key_paren(id int) using partition group dpc_huge_pg_range by id;
+----------
+[CREATE_TABLE] create huge table dpc_huge_bad_subpart(id int) using partition group dpc_huge_pg_range by(id) subpartition by();
+----------
+[CREATE_TABLE] create huge table dpc_huge_bad_repeat(id int) using partition group dpc_huge_pg_range by(id) using partition group dpc_huge_pg_hash by(id);
+----------
+[CREATE_TABLE] create huge table dpc_huge_bad_order(id int) storage(with delta) using partition group dpc_huge_pg_range by(id);
+----------
+[CREATE_TABLE|SELECT] create huge table dpc_huge_bad_ctas as select 1 as id from dual using partition group dpc_huge_pg_range by(id);

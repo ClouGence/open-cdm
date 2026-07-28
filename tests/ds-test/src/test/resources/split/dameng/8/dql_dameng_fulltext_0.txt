@@ -1,0 +1,105 @@
+select id, title from ft_docs where contains(content, 'database');
+select id from ft_docs where contains(content, 'database' and 'language');
+select id from ft_docs where contains(content, 'database' or 'parser');
+select id from ft_docs where contains(content, 'database' and not 'parser');
+select id from ft_docs where not contains(content, 'security');
+select id from ft_docs where contains(content, 'database language');
+select id from ft_docs where contains(content, 'DATABASE');
+select id from ft_docs where contains(content, 'database', 0);
+select id from ft_docs where contains(content, 'database', 1);
+select id from ft_docs where contains(content, 'database', 100000);
+select d.id from ft_docs d where contains(d.content, 'database');
+select d.id, d.title from ft_docs as d where contains(d.content, 'database') and d.id > 0;
+select id from ft_docs where contains(content, 'database', 1) and contains(content, 'language', 2);
+select id from ft_docs where contains(content, 'database', 1) or contains(content, 'security', 2);
+select count(*) from ft_docs where contains(content, 'database');
+select id, count(*) from ft_docs where contains(content, 'database') group by id;
+select id from ft_docs where contains(content, 'database') order by id;
+select id from ft_docs where contains(content, 'database') limit 2;
+select * from (select id, title from ft_docs where contains(content, 'database')) x;
+with matched as (select id, title from ft_docs where contains(content, 'database')) select * from matched;
+select id from ft_docs where exists(select 1 from ft_other where ft_other.id = ft_docs.id and contains(ft_other.body, 'reference'));
+select d.id, o.body from ft_docs d join ft_other o on d.id = o.id where contains(d.content, 'database') and contains(o.body, 'reference');
+select id from ft_docs where contains(content, 'database') union all select id from ft_docs where contains(content, 'parser');
+select id from ft_docs where contains(content, 'database') intersect select id from ft_docs where id > 0;
+select id from ft_docs where contains(content, 'database') minus select id from ft_docs where contains(content, 'security');
+select id, row_number() over(order by id) as rn from ft_docs where contains(content, 'database');
+select id from ft_docs where contains(content_default, 'database');
+select id from ft_docs where contains(content_cn, 'database');
+select id from ft_docs where contains(content_vgram, 'full text');
+select id from ft_docs where contains(content_fp, 'security');
+select id from ft_docs where contains(content_sync, 'automatic');
+select id from ft_other where contains(body, 'reference');
+select id from ft_docs where contains(content, 'database' and 'language' or 'parser');
+select id from ft_docs where contains(content, 'database' or 'parser' and 'language');
+select id from ft_docs where contains(content, 'database' and not 'security' or 'parser');
+------------------------------------------------------------------------------------------
+[SELECT] select id, title from ft_docs where contains(content, 'database');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database' and 'language');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database' or 'parser');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database' and not 'parser');
+----------
+[SELECT] select id from ft_docs where not contains(content, 'security');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database language');
+----------
+[SELECT] select id from ft_docs where contains(content, 'DATABASE');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database', 0);
+----------
+[SELECT] select id from ft_docs where contains(content, 'database', 1);
+----------
+[SELECT] select id from ft_docs where contains(content, 'database', 100000);
+----------
+[SELECT] select d.id from ft_docs d where contains(d.content, 'database');
+----------
+[SELECT] select d.id, d.title from ft_docs as d where contains(d.content, 'database') and d.id > 0;
+----------
+[SELECT] select id from ft_docs where contains(content, 'database', 1) and contains(content, 'language', 2);
+----------
+[SELECT] select id from ft_docs where contains(content, 'database', 1) or contains(content, 'security', 2);
+----------
+[SELECT] select count(*) from ft_docs where contains(content, 'database');
+----------
+[SELECT] select id, count(*) from ft_docs where contains(content, 'database') group by id;
+----------
+[SELECT] select id from ft_docs where contains(content, 'database') order by id;
+----------
+[SELECT] select id from ft_docs where contains(content, 'database') limit 2;
+----------
+[SELECT] select * from (select id, title from ft_docs where contains(content, 'database')) x;
+----------
+[SELECT] with matched as (select id, title from ft_docs where contains(content, 'database')) select * from matched;
+----------
+[SELECT] select id from ft_docs where exists(select 1 from ft_other where ft_other.id = ft_docs.id and contains(ft_other.body, 'reference'));
+----------
+[SELECT] select d.id, o.body from ft_docs d join ft_other o on d.id = o.id where contains(d.content, 'database') and contains(o.body, 'reference');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database') union all select id from ft_docs where contains(content, 'parser');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database') intersect select id from ft_docs where id > 0;
+----------
+[SELECT] select id from ft_docs where contains(content, 'database') minus select id from ft_docs where contains(content, 'security');
+----------
+[SELECT] select id, row_number() over(order by id) as rn from ft_docs where contains(content, 'database');
+----------
+[SELECT] select id from ft_docs where contains(content_default, 'database');
+----------
+[SELECT] select id from ft_docs where contains(content_cn, 'database');
+----------
+[SELECT] select id from ft_docs where contains(content_vgram, 'full text');
+----------
+[SELECT] select id from ft_docs where contains(content_fp, 'security');
+----------
+[SELECT] select id from ft_docs where contains(content_sync, 'automatic');
+----------
+[SELECT] select id from ft_other where contains(body, 'reference');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database' and 'language' or 'parser');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database' or 'parser' and 'language');
+----------
+[SELECT] select id from ft_docs where contains(content, 'database' and not 'security' or 'parser');

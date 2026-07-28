@@ -1,0 +1,9 @@
+select object_name, object_type, status
+from dba_objects
+where object_name='DBMS_XMLPARSER'
+order by object_type;
+------------------------------------------------------------------------------------------
+[SELECT] select object_name, object_type, status
+from dba_objects
+where object_name='DBMS_XMLPARSER'
+order by object_type;

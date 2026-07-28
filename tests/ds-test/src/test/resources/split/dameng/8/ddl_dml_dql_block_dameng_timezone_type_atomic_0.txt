@@ -1,0 +1,223 @@
+set time zone '+08:00';
+select sessiontimezone,dbtimezone,tz_offset(sessiontimezone),tz_offset(dbtimezone) from dual;
+select current_time(0),current_time(6),curtime(6),current_timestamp(0),current_timestamp(9),localtime(6),localtimestamp(9) from dual;
+create table app.tz_t(
+  id int primary key,t0 time(0) with time zone,t6 time(6) with time zone not null,
+  ts0 timestamp(0) with time zone,ts9 timestamp(9) with time zone,
+  l0 timestamp(0) with local time zone,l9 timestamp(9) with local time zone,
+  t_def time with time zone default current_time,
+  ts_def timestamp with time zone default current_timestamp,
+  l_def timestamp with local time zone default current_timestamp,
+  constraint ck_tz check(t6 is not null),constraint uk_tz unique(ts9));
+comment on column app.tz_t.t6 is 'time zone extrema';
+comment on column app.tz_t.ts9 is 'timestamp zone extrema';
+comment on column app.tz_t.l9 is 'session normalized timestamp';
+create index app.idx_tz on app.tz_t(t6,ts9);
+alter table app.tz_t add ts_alt timestamp(9) with time zone default current_timestamp(9);
+insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(1,
+  time '00:00:00.000000 -12:59',time '00:00:00.000000 -12:59',timestamp '-4712-01-01 00:00:00.000000000 -12:59',
+  timestamp '-4712-01-01 00:00:00.000000000 -12:59',timestamp '-4712-01-01 00:00:00.000000000 -12:59',timestamp '-4712-01-01 00:00:00.000000000 -12:59');
+insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(2,
+  time '23:59:59.999999 +14:00',time '23:59:59.999999 +14:00',timestamp '9999-12-31 23:59:59.999999999 +14:00',
+  timestamp '9999-12-31 23:59:59.999999999 +14:00',timestamp '9999-12-31 23:59:59.999999999 +14:00',timestamp '9999-12-31 23:59:59.999999999 +14:00');
+insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(3,
+  time '10:00:00.123456 +08:00',time '10:00:00.123456 +08:00',timestamp '2026-07-23 10:00:00.123456789 +08:00',
+  timestamp '2026-07-23 10:00:00.123456789 +08:00',timestamp '2026-07-23 10:00:00.123456789 +08:00',timestamp '2026-07-23 10:00:00.123456789 +08:00');
+insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(4,
+  time '02:00:00.123456 +00:00',time '02:00:00.123456 +00:00',timestamp '2026-07-23 02:00:00.123457789 +00:00',
+  timestamp '2026-07-23 02:00:00.123457789 +00:00',timestamp '2026-07-23 02:00:00.123457789 +00:00',timestamp '2026-07-23 02:00:00.123457789 +00:00');
+insert into app.tz_t(id,t6) values(5,time '12:34:56 +08:00');
+update app.tz_t set t6=time '11:11:11.111111 +08:00' where id=3;
+select * from app.tz_t order by id;
+select data_type,data_length,data_precision,data_scale from user_tab_columns where table_name='TZ_T' order by column_id;
+select case when time '10:00:00 +08:00'=time '02:00:00 +00:00' then 1 else 0 end,
+  case when timestamp '2026-07-23 10:00:00 +08:00'=timestamp '2026-07-23 02:00:00 +00:00' then 1 else 0 end from dual;
+select extract(hour from ts9),to_char(ts9,'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM') from app.tz_t order by id;
+select min(t6),max(t6),min(ts9),max(ts9),min(l9),max(l9) from app.tz_t;
+select id from app.tz_t index idx_tz where t6>=time '00:00:00 +00:00' order by ts9;
+create view app.tz_v as select id,t6,ts9,l9 from app.tz_t where id>=3;
+select * from app.tz_v order by id;
+update app.tz_v set t6=time '10:10:10 +08:00' where id=3;
+create function app.tz_time_f(p time(6) with time zone) return time(6) with time zone as
+begin return p;end;
+/
+create function app.tz_ts_f(p timestamp(9) with time zone) return timestamp(9) with time zone as
+begin return p;end;
+/
+create function app.tz_local_f(p timestamp(9) with local time zone) return timestamp(9) with local time zone as
+begin return p;end;
+/
+select app.tz_time_f(time '23:59:59.999999 +14:00'),
+  app.tz_ts_f(timestamp '9999-12-31 23:59:59.999999999 +14:00'),
+  app.tz_local_f(timestamp '2026-07-23 10:00:00.123456789 +08:00') from dual;
+set time zone '-05:00';
+select sessiontimezone,id,ts9,l9 from app.tz_t where id in(3,4) order by id;
+set time zone local;
+create table app.tz_p_time(id time(6) with time zone,v int)
+  partition by range(id)(partition p0 values less than(time '12:00:00 +00:00'),
+  partition p1 values less than(maxvalue));
+insert into app.tz_p_time values(time '12:00:00 +00:00',1);
+create table app.tz_p_ts(id timestamp(9) with time zone,v int)
+  partition by range(id)(partition p0 values less than(timestamp '2026-01-01 00:00:00 +00:00'),
+  partition p1 values less than(maxvalue));
+insert into app.tz_p_ts values(timestamp '2026-01-01 00:00:00 +00:00',1);
+create table app.bad_tz(c time(7) with time zone);
+create table app.bad_tz(c timestamp(10) with time zone);
+create table app.bad_tz(c timestamp(10) with local time zone);
+create table app.bad_tz(c timestamp with local time zone,v int) partition by range(c)(partition p values less than(maxvalue));
+select time '00:00:00 -13:00' from dual;
+select time '00:00:00 +14:01' from dual;
+select timestamp '2026-01-01 00:00:00 -13:00' from dual;
+select timestamp '2026-01-01 00:00:00 +14:01' from dual;
+select time '24:00:00 +08:00' from dual;
+select timestamp '2026-01-01 00:00:00.1234567890 +08:00' from dual;
+set time zone '+14:01';
+set time zone '-13:00';
+insert into app.tz_t(id,t6) values(101,null);
+insert into app.tz_t(id,t6,ts9) values(102,time '00:00:00 +00:00',
+    timestamp '2026-07-23 02:00:00.123456789 +00:00');
+drop view app.tz_v;
+drop function app.tz_time_f;
+drop function app.tz_ts_f;
+drop function app.tz_local_f;
+drop table app.tz_p_time;
+drop table app.tz_p_ts;
+drop table app.tz_t;
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] set time zone '+08:00';
+----------
+[SELECT] select sessiontimezone,dbtimezone,tz_offset(sessiontimezone),tz_offset(dbtimezone) from dual;
+----------
+[SELECT] select current_time(0),current_time(6),curtime(6),current_timestamp(0),current_timestamp(9),localtime(6),localtimestamp(9) from dual;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table app.tz_t(
+  id int primary key,t0 time(0) with time zone,t6 time(6) with time zone not null,
+  ts0 timestamp(0) with time zone,ts9 timestamp(9) with time zone,
+  l0 timestamp(0) with local time zone,l9 timestamp(9) with local time zone,
+  t_def time with time zone default current_time,
+  ts_def timestamp with time zone default current_timestamp,
+  l_def timestamp with local time zone default current_timestamp,
+  constraint ck_tz check(t6 is not null),constraint uk_tz unique(ts9));
+----------
+[COMMENT_COLUMN] comment on column app.tz_t.t6 is 'time zone extrema';
+----------
+[COMMENT_COLUMN] comment on column app.tz_t.ts9 is 'timestamp zone extrema';
+----------
+[COMMENT_COLUMN] comment on column app.tz_t.l9 is 'session normalized timestamp';
+----------
+[ADD_INDEX] create index app.idx_tz on app.tz_t(t6,ts9);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table app.tz_t add ts_alt timestamp(9) with time zone default current_timestamp(9);
+----------
+[INSERT] insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(1,
+  time '00:00:00.000000 -12:59',time '00:00:00.000000 -12:59',timestamp '-4712-01-01 00:00:00.000000000 -12:59',
+  timestamp '-4712-01-01 00:00:00.000000000 -12:59',timestamp '-4712-01-01 00:00:00.000000000 -12:59',timestamp '-4712-01-01 00:00:00.000000000 -12:59');
+----------
+[INSERT] insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(2,
+  time '23:59:59.999999 +14:00',time '23:59:59.999999 +14:00',timestamp '9999-12-31 23:59:59.999999999 +14:00',
+  timestamp '9999-12-31 23:59:59.999999999 +14:00',timestamp '9999-12-31 23:59:59.999999999 +14:00',timestamp '9999-12-31 23:59:59.999999999 +14:00');
+----------
+[INSERT] insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(3,
+  time '10:00:00.123456 +08:00',time '10:00:00.123456 +08:00',timestamp '2026-07-23 10:00:00.123456789 +08:00',
+  timestamp '2026-07-23 10:00:00.123456789 +08:00',timestamp '2026-07-23 10:00:00.123456789 +08:00',timestamp '2026-07-23 10:00:00.123456789 +08:00');
+----------
+[INSERT] insert into app.tz_t(id,t0,t6,ts0,ts9,l0,l9) values(4,
+  time '02:00:00.123456 +00:00',time '02:00:00.123456 +00:00',timestamp '2026-07-23 02:00:00.123457789 +00:00',
+  timestamp '2026-07-23 02:00:00.123457789 +00:00',timestamp '2026-07-23 02:00:00.123457789 +00:00',timestamp '2026-07-23 02:00:00.123457789 +00:00');
+----------
+[INSERT] insert into app.tz_t(id,t6) values(5,time '12:34:56 +08:00');
+----------
+[UPDATE] update app.tz_t set t6=time '11:11:11.111111 +08:00' where id=3;
+----------
+[SELECT] select * from app.tz_t order by id;
+----------
+[SELECT] select data_type,data_length,data_precision,data_scale from user_tab_columns where table_name='TZ_T' order by column_id;
+----------
+[SELECT] select case when time '10:00:00 +08:00'=time '02:00:00 +00:00' then 1 else 0 end,
+  case when timestamp '2026-07-23 10:00:00 +08:00'=timestamp '2026-07-23 02:00:00 +00:00' then 1 else 0 end from dual;
+----------
+[SELECT] select extract(hour from ts9),to_char(ts9,'YYYY-MM-DD HH24:MI:SS.FF9 TZH:TZM') from app.tz_t order by id;
+----------
+[SELECT] select min(t6),max(t6),min(ts9),max(ts9),min(l9),max(l9) from app.tz_t;
+----------
+[SELECT] select id from app.tz_t index idx_tz where t6>=time '00:00:00 +00:00' order by ts9;
+----------
+[CREATE_VIEW(SELECT)] create view app.tz_v as select id,t6,ts9,l9 from app.tz_t where id>=3;
+----------
+[SELECT] select * from app.tz_v order by id;
+----------
+[UPDATE] update app.tz_v set t6=time '10:10:10 +08:00' where id=3;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.tz_time_f(p time(6) with time zone) return time(6) with time zone as
+begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.tz_ts_f(p timestamp(9) with time zone) return timestamp(9) with time zone as
+begin return p;end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function app.tz_local_f(p timestamp(9) with local time zone) return timestamp(9) with local time zone as
+begin return p;end;
+----------
+[SELECT|CALL_PROG_OBJ] select app.tz_time_f(time '23:59:59.999999 +14:00'),
+  app.tz_ts_f(timestamp '9999-12-31 23:59:59.999999999 +14:00'),
+  app.tz_local_f(timestamp '2026-07-23 10:00:00.123456789 +08:00') from dual;
+----------
+[SYSTEM_SETTING_WRITE] set time zone '-05:00';
+----------
+[SELECT] select sessiontimezone,id,ts9,l9 from app.tz_t where id in(3,4) order by id;
+----------
+[SYSTEM_SETTING_WRITE] set time zone local;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.tz_p_time(id time(6) with time zone,v int)
+  partition by range(id)(partition p0 values less than(time '12:00:00 +00:00'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.tz_p_time values(time '12:00:00 +00:00',1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.tz_p_ts(id timestamp(9) with time zone,v int)
+  partition by range(id)(partition p0 values less than(timestamp '2026-01-01 00:00:00 +00:00'),
+  partition p1 values less than(maxvalue));
+----------
+[INSERT] insert into app.tz_p_ts values(timestamp '2026-01-01 00:00:00 +00:00',1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_tz(c time(7) with time zone);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_tz(c timestamp(10) with time zone);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_tz(c timestamp(10) with local time zone);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table app.bad_tz(c timestamp with local time zone,v int) partition by range(c)(partition p values less than(maxvalue));
+----------
+[SELECT] select time '00:00:00 -13:00' from dual;
+----------
+[SELECT] select time '00:00:00 +14:01' from dual;
+----------
+[SELECT] select timestamp '2026-01-01 00:00:00 -13:00' from dual;
+----------
+[SELECT] select timestamp '2026-01-01 00:00:00 +14:01' from dual;
+----------
+[SELECT] select time '24:00:00 +08:00' from dual;
+----------
+[SELECT] select timestamp '2026-01-01 00:00:00.1234567890 +08:00' from dual;
+----------
+[SYSTEM_SETTING_WRITE] set time zone '+14:01';
+----------
+[SYSTEM_SETTING_WRITE] set time zone '-13:00';
+----------
+[INSERT] insert into app.tz_t(id,t6) values(101,null);
+----------
+[INSERT] insert into app.tz_t(id,t6,ts9) values(102,time '00:00:00 +00:00',
+    timestamp '2026-07-23 02:00:00.123456789 +00:00');
+----------
+[DROP_VIEW] drop view app.tz_v;
+----------
+[DROP_PROG_OBJ] drop function app.tz_time_f;
+----------
+[DROP_PROG_OBJ] drop function app.tz_ts_f;
+----------
+[DROP_PROG_OBJ] drop function app.tz_local_f;
+----------
+[DROP_TABLE] drop table app.tz_p_time;
+----------
+[DROP_TABLE] drop table app.tz_p_ts;
+----------
+[DROP_TABLE] drop table app.tz_t;

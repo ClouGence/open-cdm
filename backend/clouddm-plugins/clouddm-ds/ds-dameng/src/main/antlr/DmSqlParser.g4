@@ -62,14 +62,14 @@ statement
     | commentStatement
     | grantStatement
     | revokeStatement
+    | lockTableStatement
+    | transactionStatement
     | callStatement
     | procedureCallStatement
-    | lockTableStatement
     | alterSessionParallelDmlStatement
     | setSchemaStatement
     | setTimeZoneStatement
     | setIdentityInsertStatement
-    | transactionStatement
     | explainStatement
     | sqlBlockStatement
     | cStyleBlockStatement
@@ -164,7 +164,7 @@ selectIntoClause
 selectItem
     : STAR
     | qualifiedName DOT STAR
-    | expression (AS? identifier)?
+    | expression (AS? aliasIdentifier)?
     ;
 
 fromClause
@@ -179,9 +179,10 @@ tablePrimary
     : jsonTableExpression tableAlias? derivedColumnList?
     | xmlTableExpression tableAlias? derivedColumnList?
     | jsonCollectionTableExpression tableAlias? derivedColumnList?
-    | tableCollectionExpression tableAlias? derivedColumnList?
-    | arrayTableExpression tableAlias? derivedColumnList?
-    | qualifiedName tableIndexClause? tableColumnProjection? partitionExtensionClause* sampleClause? tablePivotClause* (flashbackQueryClause | flashbackVersionQueryClause)? tableAlias? derivedColumnList?
+    | tableCollectionExpression tableAlias?
+    | arrayTableExpression tableAlias?
+    | {_input.LA(1) != ARRAY}?
+      qualifiedName tableIndexClause? tableColumnProjection? partitionExtensionClause* sampleClause? tablePivotClause* (flashbackQueryClause | flashbackVersionQueryClause)? tableAlias? derivedColumnList?
     | LPAREN selectStatement RPAREN tablePivotClause* (flashbackQueryClause | flashbackVersionQueryClause)? tableAlias? derivedColumnList?
     | LPAREN tableSource (COMMA tableSource)* RPAREN tableAlias?
     ;
@@ -258,7 +259,7 @@ tableCollectionExpression
     ;
 
 arrayTableExpression
-    : ARRAY expression
+    : ARRAY (newArrayExpression | {_input.LA(1) != NEW}? expression)
     ;
 
 tableIndexClause
@@ -355,8 +356,12 @@ unpivotAlias
     ;
 
 tableAlias
-    : AS identifier
-    | {isBareTableAliasAhead()}? identifier
+    : AS {_input.LA(1) != OF}? aliasIdentifier
+    | {isBareTableAliasAhead()}? aliasIdentifier
+    ;
+
+aliasIdentifier
+    : {_input.LA(1) != BINARY}? identifier
     ;
 
 derivedColumnList
@@ -601,8 +606,8 @@ setCorrespondingClause
     ;
 
 hierarchicalClause
-    : startWithClause connectByClause {allowSiblingsOrder();}
-    | connectByClause startWithClause? {allowSiblingsOrder();}
+    : startWithClause connectByClause+ {allowSiblingsOrder();}
+    | connectByClause+ startWithClause? {allowSiblingsOrder();}
     ;
 
 startWithClause
@@ -798,27 +803,134 @@ createTarget
     ;
 
 tableCreate
-    : (GLOBAL | LOCAL)? TEMPORARY? TABLE ifNotExists? targetTable=qualifiedName tableCreateBody
-    | HUGE TABLE ifNotExists? targetTable=qualifiedName tableCreateBody
-    | (GLOBAL | LOCAL)? TEMPORARY? TABLE ifNotExists? targetTable=qualifiedName LIKE likeSourceTable=qualifiedName tableCreateClause*
+    : ((GLOBAL | LOCAL)? TEMPORARY)? TABLE ifNotExists? targetTable=qualifiedName tableCreateBody
+    | HUGE TABLE ifNotExists? targetTable=qualifiedName hugeTableCreateBody
+    | ((GLOBAL | LOCAL)? TEMPORARY)? TABLE ifNotExists? targetTable=qualifiedName LIKE likeSourceTable=qualifiedName tableCreateClauseSequence
     | EXTERNAL TABLE ifNotExists? targetTable=qualifiedName externalTableCreateBody
     ;
 
 tableCreateBody
-    : LPAREN ctasTableElementList? RPAREN tableCtasPrefixClause* AS selectStatement tableCtasTailClause*
+    : LPAREN ctasTableElementList RPAREN tableCtasPrefixClause* AS selectStatement tableCtasTailClause*
     | tableCtasPrefixClause+ AS selectStatement tableCtasTailClause*
     | objectTableCreateBody
-    | LPAREN tableElementList? RPAREN tableCreateClause*
+    | LPAREN tableElementList RPAREN tableCreateClauseSequence
     | AS selectStatement tableCtasTailClause*
     ;
 
-objectTableCreateBody
-    : OF qualifiedName (LPAREN ctasTableElementList? RPAREN)? tableCreateClause*
+hugeTableCreateBody
+    : LPAREN hugeTableElementList RPAREN hugeTableCreateClauseSequence
+    | AS selectStatement tableDistributedClause? tablespaceAsmClause?
     ;
 
-tableCreateClause
+hugeTableElementList
+    : hugeTableElement (COMMA hugeTableElement)*
+    ;
+
+hugeTableElement
+    : hugeColumnDefinition
+    | hugeTableConstraint
+    ;
+
+hugeColumnDefinition
+    : identifier dataType hugeColumnAttribute*
+    ;
+
+hugeColumnAttribute
+    : DEFAULT (ON NULL_LITERAL)? expression
+    | CONSTRAINT identifier hugeColumnConstraintAction constraintState?
+    | hugeColumnConstraintAction constraintState?
+    | hugeColumnStorageClause
+    | columnEncryptClause
+    | COMMENT STRING
+    ;
+
+hugeColumnConstraintAction
+    : NOT? NULL_LITERAL
+    | uniqueSpec usingIndexTablespaceClause?
+    ;
+
+hugeColumnStorageClause
+    : STORAGE LPAREN STAT NONE RPAREN
+    ;
+
+hugeTableConstraint
+    : CONSTRAINT identifier hugeTableConstraintAction constraintState? validateOption?
+    | hugeTableConstraintAction constraintState? validateOption?
+    ;
+
+hugeTableConstraintAction
+    : uniqueSpec columnNameList usingIndexTablespaceClause?
+    | CHECK LPAREN expression RPAREN
+    ;
+
+hugeTableCreateClauseSequence
+    : (tablePartitionClause | partitionGroupTableClause)?
+      tablespaceClause?
+      hugeTableStorageClause?
+      hugeCompressClause?
+      hugeLogClause?
+      tableDistributedClause?
+      tablespaceAsmClause?
+    | hugeTableStorageClause
+      tablePartitionClause
+      tablespaceClause?
+      hugeCompressClause?
+      hugeLogClause?
+      tableDistributedClause?
+      tablespaceAsmClause?
+    ;
+
+hugeTableStorageClause
+    : STORAGE LPAREN hugeTableStorageItem (COMMA hugeTableStorageItem)* RPAREN
+    ;
+
+hugeTableStorageItem
+    : SECTION LPAREN {isUnsignedIntegerInRangeAhead(1024, 1048576)}? unsignedIntegerNumber RPAREN
+    | INITIAL unsignedIntegerNumber
+    | FILESIZE LPAREN {isUnsignedIntegerInRangeAhead(16, 1048576)}? unsignedIntegerNumber RPAREN
+    | STAT hugeStatMode? hugeStatColumnClause?
+    | (WITH | WITHOUT) DELTA
+    | ON identifier
+    ;
+
+hugeCompressClause
+    : COMPRESS hugeCompressionSpec?
+      (hugeCompressionColumnList | EXCEPT columnNameList)?
+    ;
+
+hugeCompressionColumnList
+    : LPAREN hugeCompressionColumn (COMMA hugeCompressionColumn)* RPAREN
+    ;
+
+hugeCompressionColumn
+    : identifier hugeCompressionSpec?
+    ;
+
+hugeCompressionSpec
+    : LEVEL {isUnsignedIntegerInRangeAhead(0, 10)}? unsignedIntegerNumber
+      (FOR hugeCompressionType)?
+    | FOR hugeCompressionType
+    ;
+
+hugeCompressionType
+    : {isStringLiteralAhead("QUERY", "QUERY LOW", "QUERY HIGH")}? STRING
+    ;
+
+hugeLogClause
+    : LOG (NONE | LAST | ALL)
+    ;
+
+objectTableCreateBody
+    : OF qualifiedName (LPAREN ctasTableElementList? RPAREN)? tableCreateClauseSequence
+    ;
+
+tableCreateClauseSequence
+    : tableCreateNonDistributedClause* tableDistributedClause?
+    ;
+
+tableCreateNonDistributedClause
     : tablePartitionClause
-    | tableDistributedClause
+    | partitionTableLockClause
     | temporaryTableCommitClause
     | tablespaceClause
     | diskspaceClause
@@ -830,6 +942,7 @@ tableCreateClause
     | advancedLogClause
     | addLogicLogClause
     | tableAutoIncrementClause
+    | partitionGroupTableClause
     | tableOption
     ;
 
@@ -841,7 +954,6 @@ tableCtasPrefixClause
     | storageClause
     | compressClause
     | parallelClause
-    | advancedLogClause
     | addLogicLogClause
     ;
 
@@ -917,7 +1029,14 @@ dataType
     | nationalCharacterDataType
     | timeZoneDataType
     | cursorDataType
-    | qualifiedName dataTypeArgs? dataTypeArrayBound*
+    | jsonDataType dataTypeArrayBound*
+    | {!isKeywordAhead("json") && !isKeywordAhead("jsonb")}?
+      qualifiedName dataTypeArgs? dataTypeArrayBound*
+    ;
+
+jsonDataType
+    : JSON
+    | {isKeywordAhead("jsonb")}? identifier
     ;
 
 vectorDataType
@@ -1081,7 +1200,10 @@ deferrableConstraintClause
     ;
 
 columnEncryptClause
-    : ENCRYPT columnEncryptAlgorithmClause? columnEncryptUsageClause?
+    : ENCRYPT (
+        columnEncryptAlgorithmClause (columnEncryptUsageClause? hashOption?)
+        | columnEncryptUsageClause hashOption?
+    )?
     ;
 
 columnEncryptAlgorithmClause
@@ -1090,7 +1212,7 @@ columnEncryptAlgorithmClause
 
 columnEncryptUsageClause
     : AUTO columnEncryptKeyClause?
-    | MANUAL hashOption? columnEncryptUserClause?
+    | MANUAL columnEncryptKeyClause? columnEncryptUserClause?
     ;
 
 columnEncryptKeyClause
@@ -1099,23 +1221,20 @@ columnEncryptKeyClause
 
 columnEncryptPlainKey
     : DOUBLE_QUOTED_ID
-    | identifier
+    | ID
     | NUMBER
     ;
 
 columnEncryptWrappedKey
     : STRING
-    | DOUBLE_QUOTED_ID
-    | identifier
-    | NUMBER
     ;
 
 columnEncryptUserClause
-    : USER LPAREN identifierList RPAREN
+    : USER LPAREN identifierList? RPAREN
     ;
 
 externalTableCreateBody
-    : LPAREN externalTableElementList? RPAREN externalTableFromClause
+    : LPAREN externalTableElementList RPAREN externalTableFromClause
     ;
 
 externalTableElementList
@@ -1131,20 +1250,11 @@ externalColumnAttribute
     ;
 
 externalTableFromClause
-    : FROM (DATAFILE externalTableDatafileOption | externalTableDirectoryOption) externalTableParmsClause?
-    ;
-
-externalTableDatafileOption
-    : externalTableDirectoryOption
-    | externalTableFileList
+    : FROM (DATAFILE externalTableDirectoryOption externalTableParmsClause? | externalTableDirectoryOption)
     ;
 
 externalTableDirectoryOption
     : DEFAULT DIRECTORY identifier LOCATION LPAREN STRING RPAREN
-    ;
-
-externalTableFileList
-    : STRING (COMMA STRING)*
     ;
 
 externalTableParmsClause
@@ -1152,15 +1262,18 @@ externalTableParmsClause
     ;
 
 externalTableParm
-    : (FIELDS | RECORDS) DELIMITED BY externalTableParmValue
-    | identifier (EQ? externalTableParmValue)?
+    : (FIELDS | RECORDS) DELIMITED BY externalTableDelimiter
+    | ERRORS unsignedIntegerNumber
+    | {isKeywordAhead("badfile")}? identifier STRING
+    | LOG STRING
+    | {isKeywordAhead("null_str")}? identifier STRING
+    | SKIP_KEYWORD unsignedIntegerNumber
+    | {isKeywordAhead("character_code")}? identifier STRING
     ;
 
-externalTableParmValue
+externalTableDelimiter
     : STRING
     | HEX_LITERAL
-    | NUMBER
-    | identifier
     ;
 
 tableConstraint
@@ -1180,11 +1293,22 @@ validateOption
     ;
 
 tableOption
-    : identifier (EQ? literalValue)?
+    : {!isKeywordAhead("TABLESPACE") && !isKeywordAhead("DISKSPACE")
+        && !isKeywordAhead("DISTRIBUTED") && !isKeywordAhead("ADVANCED")
+        && !isKeywordAhead("LOCK") && !isKeywordAhead("PARTITIONS")}? identifier (EQ? literalValue)?
+    ;
+
+partitionTableLockClause
+    : LOCK partitionLockMode
+    ;
+
+partitionGroupTableClause
+    : USING PARTITION GROUP qualifiedName BY columnNameList
+      (SUBPARTITION BY columnNameList)?
     ;
 
 diskspaceClause
-    : DISKSPACE (LIMIT expression | UNLIMITED)
+    : DISKSPACE (LIMIT unsignedIntegerNumber | UNLIMITED)
     ;
 
 segmentCreationClause
@@ -1196,15 +1320,15 @@ tablePartitionClause
     ;
 
 rangeTablePartitionClause
-    : RANGE LPAREN expressionList? RPAREN partitionIntervalClause? tableSubpartitionClauses? rangePartitionDefinitionList?
+    : RANGE LPAREN expressionList RPAREN partitionIntervalClause? tableSubpartitionClauses? rangePartitionDefinitionList?
     ;
 
 hashTablePartitionClause
-    : HASH LPAREN expressionList? RPAREN tableSubpartitionClauses? (partitionQuantity | hashPartitionDefinitionList)?
+    : HASH LPAREN expressionList RPAREN tableSubpartitionClauses? (partitionQuantity | hashPartitionDefinitionList)?
     ;
 
 listTablePartitionClause
-    : LIST LPAREN expressionList? RPAREN tableSubpartitionClauses? listPartitionDefinitionList?
+    : LIST LPAREN expressionList RPAREN tableSubpartitionClauses? listPartitionDefinitionList?
     ;
 
 partitionIntervalClause
@@ -1236,15 +1360,15 @@ tableSubpartitionClause
     ;
 
 rangeSubpartitionClause
-    : SUBPARTITION BY RANGE LPAREN expressionList? RPAREN rangeSubpartitionTemplate?
+    : SUBPARTITION BY RANGE LPAREN expressionList RPAREN rangeSubpartitionTemplate?
     ;
 
 hashSubpartitionClause
-    : SUBPARTITION BY HASH LPAREN expressionList? RPAREN hashSubpartitionTemplate?
+    : SUBPARTITION BY HASH LPAREN expressionList RPAREN hashSubpartitionTemplate?
     ;
 
 listSubpartitionClause
-    : SUBPARTITION BY LIST LPAREN expressionList? RPAREN listSubpartitionTemplate?
+    : SUBPARTITION BY LIST LPAREN expressionList RPAREN listSubpartitionTemplate?
     ;
 
 subpartitionQuantity
@@ -1378,7 +1502,7 @@ partitionValue
     ;
 
 tableDistributedClause
-    : DISTRIBUTED ((RANDOMLY | FULLY) | BY distributedMethod? LPAREN expressionList? RPAREN distributedDefinitionList?)?
+    : DISTRIBUTED ((RANDOMLY | FULLY) | BY distributedMethod? LPAREN expressionList RPAREN distributedDefinitionList?)
     ;
 
 distributedMethod
@@ -1401,7 +1525,7 @@ storageClause
     ;
 
 storageItem
-    : ON identifier
+    : ON (qualifiedName | LPAREN qualifiedName (COMMA qualifiedName)* RPAREN)
     | HASHPARTMAP LPAREN expression RPAREN
     | (WITH | WITHOUT) identifier
     | DISABLE USING LONG ROW
@@ -1429,12 +1553,12 @@ addLogicLogClause
     ;
 
 tableAutoIncrementClause
-    : AUTO_INCREMENT (EQ? expression)?
+    : AUTO_INCREMENT (EQ? unsignedIntegerNumber)?
     ;
 
 viewCreate
-    : FORCE? VIEW ifNotExists? qualifiedName columnNameList? AS selectStatement viewCreateClause*
-    | MATERIALIZED VIEW ifNotExists? qualifiedName columnNameList? materializedViewClause* AS selectStatement
+    : FORCE? VIEW ifNotExists? qualifiedName columnNameList? AS selectStatement viewCreateClause?
+    | MATERIALIZED VIEW qualifiedName columnNameList? materializedViewCreateStorage? materializedViewRefreshClause? materializedViewQueryRewriteOption? AS selectStatement
     ;
 
 viewCreateClause
@@ -1442,23 +1566,25 @@ viewCreateClause
     | WITH READ ONLY
     ;
 
-materializedViewClause
-    : BUILD (IMMEDIATE | DEFERRED)
-    | materializedViewPrebuiltClause
-    | REFRESH materializedRefreshOption*
-    | materializedViewQueryRewriteOption
-    | NEVER REFRESH
-    | tablespaceClause
-    | tablePartitionClause
+materializedViewCreateStorage
+    : materializedViewPrebuiltClause
+    | BUILD (IMMEDIATE | DEFERRED) tablePartitionClause? tablespaceClause? storageClause?
+    | tablePartitionClause tablespaceClause? storageClause?
+    | tablespaceClause storageClause?
     | storageClause
     ;
 
 materializedViewPrebuiltClause
-    : (FOR prebuiltTable=qualifiedName)? ON PREBUILT TABLE ((WITH | WITHOUT) REDUCED PRECISION)?
+    : FOR prebuiltTable=qualifiedName ON PREBUILT TABLE ((WITH | WITHOUT) REDUCED PRECISION)?
     ;
 
 materializedViewQueryRewriteOption
     : (ENABLE | DISABLE) QUERY REWRITE
+    ;
+
+materializedViewRefreshClause
+    : REFRESH materializedRefreshOption+
+    | NEVER REFRESH
     ;
 
 materializedRefreshOption
@@ -1475,6 +1601,7 @@ materializedViewRefreshAction
     : FAST
     | COMPLETE materializedViewFullRefreshMethod?
     | FORCE materializedViewFullRefreshMethod?
+    | materializedViewFullRefreshMethod
     ;
 
 materializedViewFullRefreshMethod
@@ -1482,14 +1609,7 @@ materializedViewFullRefreshMethod
     ;
 
 materializedViewLogCreate
-    : MATERIALIZED VIEW LOG ON qualifiedName materializedViewLogClause*
-    ;
-
-materializedViewLogClause
-    : tablespaceClause
-    | storageClause
-    | materializedViewLogWithClause
-    | materializedViewLogPurgeClause
+    : MATERIALIZED VIEW LOG ON qualifiedName tablespaceClause? storageClause? materializedViewLogWithClause? materializedViewLogPurgeClause?
     ;
 
 materializedViewLogWithClause
@@ -1508,8 +1628,8 @@ materializedViewLogPurgeClause
     ;
 
 indexCreate
-    : (CLUSTER | NOT PARTIAL)? (UNIQUE | BITMAP)? INDEX ifNotExists? qualifiedName ON qualifiedName indexColumnList bitmapJoinClause? indexCreateClause*
-    | ARRAY INDEX ifNotExists? qualifiedName ON qualifiedName indexColumnList indexCreateClause*
+    : (OR REPLACE)? (CLUSTER | NOT PARTIAL)? (UNIQUE | BITMAP | SPATIAL)? INDEX ifNotExists? qualifiedName ON qualifiedName indexColumnList bitmapJoinClause? indexCreateClause*
+    | ARRAY INDEX ifNotExists? qualifiedName ON qualifiedName indexColumnList
     | CONTEXT INDEX ifNotExists? qualifiedName ON qualifiedName indexColumnList contextIndexClause*
     ;
 
@@ -1522,12 +1642,12 @@ indexColumnDefinition
     ;
 
 bitmapJoinClause
-    : fromClause whereClause?
+    : fromClause whereClause
     ;
 
 indexCreateClause
-    : GLOBAL
-    | LOCAL
+    : LOCAL
+    | GLOBAL
     | tablePartitionClause
     | tablespaceClause
     | storageClause
@@ -1555,8 +1675,8 @@ parallelClause
     ;
 
 schemaCreate
-    : (SCHEMA | DATABASE) schemaAuthorizationOnly schemaDefinitionItem*
-    | (SCHEMA | DATABASE) ifNotExists? schemaName=qualifiedName schemaAuthorizationClause? schemaDefinitionItem*
+    : SCHEMA schemaAuthorizationOnly (schemaDefinitionItem SEMI?)*
+    | SCHEMA {!isKeywordAhead("AUTHORIZATION")}? schemaName=qualifiedName schemaAuthorizationClause? (schemaDefinitionItem SEMI?)*
     ;
 
 schemaAuthorizationOnly
@@ -1568,7 +1688,7 @@ schemaAuthorizationClause
     ;
 
 schemaDefinitionItem
-    : createStatement
+    : {isSchemaDefinitionCreateAhead()}? createStatement
     | alterStatement
     | grantStatement
     | commentStatement
@@ -1579,46 +1699,42 @@ sequenceCreate
     ;
 
 sequenceOption
-    : START WITH? expression
-    | INCREMENT BY? expression
+    : START WITH expression
+    | INCREMENT BY expression
     | MAXVALUE expression
     | NOMAXVALUE
-    | NO MAXVALUE
     | MINVALUE expression
     | NOMINVALUE
-    | NO MINVALUE
     | CYCLE
     | NOCYCLE
-    | NO CYCLE
     | CACHE expression
     | NOCACHE
-    | NO CACHE
     | ORDER
     | NOORDER
-    | NO ORDER
     | GLOBAL
     | LOCAL
     ;
 
 userCreate
-    : USER ifNotExists? identifier userClause*
+    : USER ifNotExists? identifier IDENTIFIED userAuthMode userPropertyClause*
     ;
 
 roleCreate
     : ROLE ifNotExists? identifier
     ;
 
-userClause
-    : IDENTIFIED userAuthMode
-    | PASSWORD_POLICY userParameterValue
+userPropertyClause
+    : PASSWORD_POLICY userParameterValue
     | ACCOUNT (LOCK | UNLOCK)
     | ENCRYPT BY userPassword
+    | DISKSPACE (LIMIT quotaValue | UNLIMITED)
     | NOT? READ ONLY
     | DROP PROFILE
     | PROFILE identifier
     | resourceLimitClause
     | PASSWORD EXPIRE
     | userAccessClause
+    | DEFAULT TABLESPACE GROUP identifier
     | DEFAULT TABLESPACE identifier
     | DEFAULT INDEX TABLESPACE identifier
     | quotaClause+
@@ -1675,9 +1791,7 @@ userResourceName
 userParameterValue
     : DEFAULT
     | UNLIMITED
-    | STRING
-    | NUMBER
-    | identifier
+    | unsignedIntegerNumber
     ;
 
 quotaClause
@@ -1746,7 +1860,11 @@ procedureCreate
 functionCreate
     : FUNCTION ifNotExists? qualifiedName aggregateFunctionCreateTail
     | FUNCTION ifNotExists? qualifiedName externalFunctionCreateTail
-    | FUNCTION ifNotExists? qualifiedName routineEncryptionClause? standaloneFunctionRoutineSignature routineDefinition
+    | FUNCTION ifNotExists? qualifiedName routineEncryptionClause? functionCalculateClause? standaloneFunctionRoutineSignature routineDefinition
+    ;
+
+functionCalculateClause
+    : FOR CALCULATE
     ;
 
 aggregateFunctionCreateTail
@@ -1754,13 +1872,16 @@ aggregateFunctionCreateTail
     ;
 
 aggregateFunctionParameterList
-    : LPAREN aggregateFunctionParameter (COMMA aggregateFunctionParameter)* RPAREN
+    : LPAREN (aggregateFunctionParameter (COMMA aggregateFunctionParameter)*)? RPAREN
     ;
 
 aggregateFunctionParameter
-    : identifier aggregateFunctionParameterMode? dataType
-    | aggregateFunctionParameterMode dataType
-    | dataType
+    : aggregateFunctionParameterName aggregateFunctionParameterMode? dataType routineParameterDefault?
+    ;
+
+aggregateFunctionParameterName
+    : identifier
+    | INPUT
     ;
 
 aggregateFunctionParameterMode
@@ -1780,13 +1901,16 @@ externalFunctionCreateTail
     ;
 
 externalFunctionParameterList
-    : LPAREN externalFunctionParameter (COMMA externalFunctionParameter)* RPAREN
+    : LPAREN (externalFunctionParameter (COMMA externalFunctionParameter)*)? RPAREN
     ;
 
 externalFunctionParameter
-    : identifier externalFunctionParameterMode? dataType
-    | externalFunctionParameterMode dataType
-    | dataType
+    : externalFunctionParameterName externalFunctionParameterMode? dataType
+    ;
+
+externalFunctionParameterName
+    : identifier
+    | INPUT
     ;
 
 externalFunctionParameterMode
@@ -1797,8 +1921,13 @@ externalFunctionParameterMode
     ;
 
 externalFunctionBody
-    : EXTERNAL STRING (AND? externalFunctionReference)? USING externalFunctionLanguage
+    : EXTERNAL STRING (externalFunctionDirectReference | AND STRING)? USING externalFunctionLanguage
     | AS LANGUAGE externalFunctionLanguage LIBRARY qualifiedName NAME externalFunctionReference
+    ;
+
+externalFunctionDirectReference
+    : qualifiedName externalJavaSignature?
+    | DOUBLE_QUOTED_ID
     ;
 
 externalFunctionReference
@@ -1835,7 +1964,7 @@ standaloneRoutineFunctionOption
     ;
 
 routineParameterList
-    : LPAREN routineParameter? (COMMA routineParameter)* RPAREN
+    : LPAREN (routineParameter (COMMA routineParameter)*)? RPAREN
     ;
 
 routineParameter
@@ -1869,7 +1998,7 @@ routineAuthidClause
     ;
 
 routineDefinition
-    : (AS | IS) blockDeclaration* sqlBlockStatement qualifiedName?
+    : (AS | IS) blockDeclaration* sqlBlockStatement
     ;
 
 triggerCreateTail
@@ -1879,7 +2008,7 @@ triggerCreateTail
     ;
 
 tableTriggerCreateTail
-    : (WITH ENCRYPTION)? tableTriggerTiming tableTriggerEventList ON qualifiedName triggerReferencingClause?
+    : (WITH ENCRYPTION)? tableTriggerTiming tableTriggerEventList LOCAL? ON qualifiedName triggerReferencingClause?
       triggerForEachClause? triggerOrderClause? triggerWhenClause? sqlBlockStatement qualifiedName?
     ;
 
@@ -1960,7 +2089,8 @@ eventTriggerEvent
 
 eventTriggerTarget
     : DATABASE
-    | SCHEMA identifier?
+    | SCHEMA
+    | identifier DOT SCHEMA
     ;
 
 triggerExecuteAtClause
@@ -1968,8 +2098,8 @@ triggerExecuteAtClause
     ;
 
 triggerExecuteAtTarget
-    : qualifiedName NUMBER?
-    | NUMBER
+    : qualifiedName unsignedIntegerNumber?
+    | unsignedIntegerNumber
     ;
 
 timerTriggerCreateTail
@@ -2009,7 +2139,7 @@ timerDuringDate
     ;
 
 synonymCreate
-    : PUBLIC? SYNONYM ifNotExists? qualifiedName FOR qualifiedName
+    : PUBLIC? SYNONYM ifNotExists? synonymName=qualifiedName FOR synonymTarget=qualifiedName
     ;
 
 objectCreate
@@ -2023,14 +2153,34 @@ objectCreate
     | DOMAIN ifNotExists? qualifiedName domainCreateTail
     | operatorCreate
     | PROFILE ifNotExists? identifier profileCreateTail?
+    | partitionGroupCreate
+    ;
+
+partitionGroupCreate
+    : PARTITION GROUP qualifiedName partitionGroupPartitionClause storageClause?
+    ;
+
+partitionGroupPartitionClause
+    : PARTITION BY (
+        RANGE LPAREN dataType (COMMA dataType)* RPAREN
+          partitionGroupIntervalClause? tableSubpartitionClauses? rangePartitionDefinitionList
+        | HASH LPAREN dataType (COMMA dataType)* RPAREN
+          tableSubpartitionClauses?
+          (PARTITIONS expression (storeInClause | storageClause)? | hashPartitionDefinitionList)
+        | LIST LPAREN dataType RPAREN tableSubpartitionClauses? listPartitionDefinitionList
+    )
+    ;
+
+partitionGroupIntervalClause
+    : INTERVAL (LPAREN expression RPAREN | expression)
     ;
 
 replaceableObjectCreate
     : PUBLIC? LINK ifNotExists? qualifiedName linkCreateTail
     | PACKAGE BODY qualifiedName packageBodyCreateTail
     | PACKAGE ifNotExists? qualifiedName packageSpecCreateTail
-    | DIRECTORY ifNotExists? qualifiedName AS STRING
-    | CONTEXT ifNotExists? identifier USING qualifiedName contextCreateClause?
+    | DIRECTORY ifNotExists? identifier AS STRING
+    | CONTEXT ifNotExists? identifier USING qualifiedName
     | LIBRARY ifNotExists? qualifiedName AS STRING
     | typeBodyCreate
     | typeCreate
@@ -2039,22 +2189,12 @@ replaceableObjectCreate
     | classCreate
     ;
 
-contextCreateClause
-    : INITIALIZED (EXTERNALLY | GLOBALLY)
-    | ACCESSED GLOBALLY
-    ;
-
 typeCreate
-    : TYPE qualifiedName typeCreateTail?
+    : TYPE qualifiedName typeCreateTail
     ;
 
 typeCreateTail
-    : typeCreateModifier* typeDefinition
-    ;
-
-typeCreateModifier
-    : WITH ENCRYPTION
-    | AUTHID (DEFINER | CURRENT_USER)
+    : (WITH ENCRYPTION)? (AUTHID (DEFINER | CURRENT_USER))? typeDefinition
     ;
 
 typeDefinition
@@ -2064,8 +2204,8 @@ typeDefinition
     ;
 
 objectTypeDefinition
-    : (AS | IS) OBJECT LPAREN typeObjectMemberList? RPAREN
-    | UNDER qualifiedName LPAREN typeObjectMemberList? RPAREN
+    : (AS | IS) OBJECT LPAREN typeObjectMemberList RPAREN
+    | UNDER qualifiedName LPAREN typeObjectMemberList RPAREN
     ;
 
 dmsqlTypeDefinition
@@ -2075,13 +2215,19 @@ dmsqlTypeDefinition
     ;
 
 recordTypeDefinition
-    : (AS | IS) RECORD LPAREN recordTypeMemberList? RPAREN
+    : (AS | IS) RECORD LPAREN recordTypeMemberList RPAREN
     ;
 
 collectionTypeDefinition
-    : (AS | IS) VARRAY LPAREN expression RPAREN OF declarationDataType collectionNullClause?
+    : (AS | IS) VARRAY LPAREN varrayCapacity RPAREN
+      OF declarationDataType collectionNullClause?
     | (AS | IS) TABLE OF declarationDataType collectionNullClause? (INDEX BY declarationDataType)?
-    | (AS | IS) ARRAY declarationDataType
+    | (AS | IS) ARRAY arrayType=declarationDataType {isValidArrayDeclaration($arrayType.text)}?
+    ;
+
+varrayCapacity
+    : capacity=NUMBER {isUnsignedIntegerInRange($capacity.text, 0, 2147483647L)}?
+    | expression
     ;
 
 refCursorTypeDefinition
@@ -2089,7 +2235,7 @@ refCursorTypeDefinition
     ;
 
 collectionNullClause
-    : NOT? NULL_LITERAL
+    : NOT NULL_LITERAL
     ;
 
 typeObjectMemberList
@@ -2110,24 +2256,25 @@ recordTypeMember
     ;
 
 typeMethodSpec
-    : typeMethodPrefix* FUNCTION identifier routineParameterList? typeMethodReturnClause routineFunctionOption*
-    | typeMethodPrefix* PROCEDURE identifier routineParameterList?
+    : CONSTRUCTOR FUNCTION identifier routineParameterList? constructorReturnClause routineFunctionOption*
+    | typeMethodInheritancePrefix* (MAP | ORDER)? (STATIC | MEMBER)? FUNCTION identifier
+      routineParameterList? typeMethodReturnClause routineFunctionOption*
+    | typeMethodInheritancePrefix* (STATIC | MEMBER)? PROCEDURE identifier routineParameterList?
     ;
 
-typeMethodPrefix
+typeMethodInheritancePrefix
     : NOT? OVERRIDING
     | NOT? FINAL
     | NOT? INSTANTIABLE
-    | MEMBER
-    | STATIC
-    | CONSTRUCTOR
-    | MAP
-    | ORDER
-    | OVERRIDING
     ;
 
 typeMethodReturnClause
     : RETURN declarationDataType (AS identifier)?
+    ;
+
+constructorReturnClause
+    : RETURN {getCurrentToken().getText().equalsIgnoreCase("self")}? identifier
+      AS {getCurrentToken().getText().equalsIgnoreCase("result")}? identifier
     ;
 
 typeCreateOption
@@ -2137,11 +2284,11 @@ typeCreateOption
     ;
 
 typeBodyCreate
-    : TYPE BODY qualifiedName typeBodyCreateTail?
+    : TYPE BODY qualifiedName typeBodyCreateTail
     ;
 
 typeBodyCreateTail
-    : (WITH ENCRYPTION)? (AS | IS) typeBodyItem* END qualifiedName?
+    : (WITH ENCRYPTION)? (AS | IS) typeBodyItem+ END
     ;
 
 typeBodyItem
@@ -2153,16 +2300,24 @@ typeMethodBody
     ;
 
 typeMethodHeader
-    : typeMethodPrefix* FUNCTION identifier routineParameterList? typeMethodReturnClause routineFunctionOption*
-    | typeMethodPrefix* PROCEDURE identifier routineParameterList?
+    : CONSTRUCTOR FUNCTION identifier routineParameterList? constructorReturnClause routineFunctionOption*
+    | typeMethodInheritancePrefix* (MAP | ORDER)? (STATIC | MEMBER)? FUNCTION identifier
+      routineParameterList? typeMethodReturnClause routineFunctionOption*
+    | typeMethodInheritancePrefix* (STATIC | MEMBER)? PROCEDURE identifier routineParameterList?
     ;
 
 classCreate
-    : CLASS ifNotExists? qualifiedName classCreateTail?
+    : CLASS ifNotExists? qualifiedName classCreateTail
     ;
 
 javaClassCreate
-    : JAVA_LANGUAGE PUBLIC? ABSTRACT? FINAL? CLASS qualifiedName javaClassExtendsClause? LBRACE javaClassMember* RBRACE
+    : JAVA_LANGUAGE javaClassModifier* CLASS identifier javaClassExtendsClause? LBRACE javaClassMember+ RBRACE
+    ;
+
+javaClassModifier
+    : PUBLIC
+    | ABSTRACT
+    | FINAL
     ;
 
 javaClassExtendsClause
@@ -2170,7 +2325,7 @@ javaClassExtendsClause
     ;
 
 javaClassMember
-    : javaVisibility? javaMemberModifier* javaClassMemberCore SEMI*
+    : javaVisibility? javaMemberModifier* javaClassMemberCore
     ;
 
 javaVisibility
@@ -2186,9 +2341,9 @@ javaMemberModifier
     ;
 
 javaClassMemberCore
-    : dataType identifier javaClassParameterList javaClassBlock
-    | identifier javaClassParameterList javaClassBlock
-    | dataType identifierList routineParameterDefault?
+    : dataType identifier javaClassParameterList (javaClassBlock SEMI* | SEMI+)
+    | identifier javaClassParameterList javaClassBlock SEMI*
+    | dataType identifierList routineParameterDefault? SEMI+
     ;
 
 javaClassParameterList
@@ -2200,28 +2355,17 @@ javaClassParameter
     ;
 
 javaClassBlock
-    : LBRACE javaClassBlockToken* RBRACE
-    ;
-
-javaClassBlockToken
-    : javaClassBlock
-    | ~(LBRACE | RBRACE | EOF)
+    : cStyleBlockStatement
     ;
 
 classCreateTail
-    : classCreateModifier* (AS | IS) classMember* END qualifiedName?
-    ;
-
-classCreateModifier
-    : WITH ENCRYPTION
-    | UNDER qualifiedName
-    | typeCreateOption
-    | NOT? PERSISTABLE
-    | AUTHID (DEFINER | CURRENT_USER)
+    : (WITH ENCRYPTION)? (UNDER qualifiedName)? (NOT? FINAL)? (NOT? INSTANTIABLE)?
+      (NOT? PERSISTABLE)? (AUTHID (DEFINER | CURRENT_USER))?
+      (AS | IS) classMember+ END qualifiedName?
     ;
 
 classBodyCreate
-    : CLASS BODY qualifiedName classBodyCreateTail?
+    : CLASS BODY qualifiedName classBodyCreateTail
     ;
 
 classBodyCreateTail
@@ -2234,16 +2378,20 @@ classBodyItem
     ;
 
 classBodyInitializer
-    : initializerDeclarationSection? BEGIN blockItem* exceptionSection? END qualifiedName?
+    : initializerDeclarationSection? BEGIN blockItem* exceptionSection?
     ;
 
 classMember
     : blockTypeDeclaration SEMI+
     | packageSubtypeDeclaration SEMI+
-    | packageVariableDeclaration SEMI+
+    | classVariableDeclaration SEMI+
     | packageCursorDeclaration SEMI+
     | packageExceptionDeclaration SEMI+
     | typeMethodSpec SEMI+
+    ;
+
+classVariableDeclaration
+    : identifierList declarationDataType collectionNullClause? routineParameterDefault?
     ;
 
 linkCreateTail
@@ -2252,7 +2400,6 @@ linkCreateTail
 
 linkConnectType
     : STRING
-    | identifier
     ;
 
 linkOptionClause
@@ -2264,11 +2411,11 @@ linkOptionItem
     ;
 
 packageSpecCreateTail
-    : (WITH ENCRYPTION)? (AUTHID (DEFINER | CURRENT_USER))? (AS | IS) packageSpecItem* END qualifiedName?
+    : (WITH ENCRYPTION)? (AUTHID (DEFINER | CURRENT_USER))? (AS | IS) packageSpecItem+ END qualifiedName?
     ;
 
 packageBodyCreateTail
-    : (WITH ENCRYPTION)? (AS | IS) packageBodyItem* packageBodyInitializer? END qualifiedName?
+    : (WITH ENCRYPTION)? (AS | IS) (packageBodyItem+ packageBodyInitializer? | packageBodyInitializer) END qualifiedName?
     ;
 
 packageSpecItem
@@ -2386,8 +2533,22 @@ operatorArgument
     ;
 
 operatorArgumentType
-    : dataType
+    : operatorDataType
     | NULL_LITERAL
+    ;
+
+operatorDataType
+    : DOUBLE PRECISION
+    | characterTypeName VARYING
+    | NCHAR
+    | NATIONAL CHAR
+    | NATIONAL CHARACTER
+    | characterTypeName LARGE OBJECT
+    | BINARY LARGE OBJECT
+    | TIME ((WITH | WITHOUT) TIME ZONE)?
+    | TIMESTAMP (((WITH LOCAL?) | WITHOUT) TIME ZONE)?
+    | DATETIME (WITH TIME ZONE)?
+    | qualifiedName
     ;
 
 domainDefaultClause
@@ -2403,7 +2564,8 @@ profileCreateTail
     ;
 
 tablespaceCreateTail
-    : tablespaceDatafileClause tablespaceCreateOption*
+    : tablespaceDatafileClause cacheClause? tablespaceEncryptClause? tablespaceGeneratedCopyClause?
+      tablespaceAsmClause? tablespaceHugePathClause? storageClause?
     ;
 
 tablespaceDatafileClause
@@ -2425,24 +2587,18 @@ tablespaceSizeValue
     ;
 
 tablespaceAutoextendClause
-    : AUTOEXTEND (ON tablespaceAutoextendOption* | OFF)
+    : AUTOEXTEND (ON (NEXT tablespaceSizeValue)? (MAXSIZE (tablespaceSizeValue | UNLIMITED))? | OFF)
     ;
 
-tablespaceAutoextendOption
-    : NEXT tablespaceSizeValue
-    | MAXSIZE (tablespaceSizeValue | UNLIMITED)
+tablespaceGeneratedCopyClause
+    : COPY expression MICRO?
     ;
 
-tablespaceCreateOption
-    : cacheClause
-    | tablespaceEncryptClause
-    | STRIPING NUMBER
+tablespaceAsmClause
+    : STRIPING NUMBER (HIGH | NORMAL | EXTERNAL)?
     | HIGH
     | NORMAL
     | EXTERNAL
-    | tablespaceHugePathClause
-    | storageClause
-    | COPY expression? MICRO?
     ;
 
 cacheClause
@@ -2450,7 +2606,7 @@ cacheClause
     ;
 
 tablespaceEncryptClause
-    : ENCRYPT WITH identifier (BY WRAPPED? tablespacePassword)?
+    : ENCRYPT WITH identifier (BY (WRAPPED tablespacePassword | {_input.LA(1) != WRAPPED}? tablespacePassword))?
     ;
 
 tablespacePassword
@@ -2470,13 +2626,23 @@ adminStatement
     | BACKUP backupStatementTail
     | RESTORE restoreStatementTail
     | RECOVER recoverStatementTail
+    | SHOW showBackupsetTail
     | CHECK checkStatementTail
     | CHECKPOINT LPAREN expression RPAREN
     | DUMP dumpStatementTail
     | REMOVE removeStatementTail
     | REPAIR repairStatementTail
+    | LOAD loadBackupsetsTail
     | CONFIGURE configureStatementTail?
     | MERGE DATABASE mergeDatabaseTail
+    | dataWatcherAdminProcedure LPAREN routineArgumentList? RPAREN
+    ;
+
+dataWatcherAdminProcedure
+    : SP_SET_OGUID
+    | SP_APPLY_KEEP_PKG
+    | SP_CLEAR_ARCH_SEND_INFO
+    | SP_CLEAR_RAPPLY_STAT
     ;
 
 alterDatabaseAction
@@ -2513,12 +2679,29 @@ backupStatementTail
     ;
 
 backupArchiveLogTail
-    : archiveLogKeyword (ALL? DATABASE backupFilePath? | FROM LSN expression)? backupAdminOption*
+    : archiveLogKeyword backupArchiveRange? backupArchiveFilter? (DELETE INPUT)?
+        (DATABASE backupFilePath)? backupAdminOption*
+    ;
+
+backupArchiveRange
+    : ALL
+    | FROM LSN expression
+    | UNTIL LSN expression
+    | LSN BETWEEN expression AND expression
+    | FROM TIME backupFilePath
+    | UNTIL TIME backupFilePath
+    | TIME BETWEEN backupFilePath AND backupFilePath
+    ;
+
+backupArchiveFilter
+    : NOT BACKED UP (expression TIMES | SINCE TIME backupFilePath)?
     ;
 
 backupType
-    : FULL
-    | INCREMENT
+    : FULL (DDL_CLONE | SHADOW)?
+    | DDL_CLONE
+    | SHADOW
+    | INCREMENT CUMULATIVE?
     ;
 
 backupAdminOption
@@ -2526,6 +2709,7 @@ backupAdminOption
     | FORMAT backupFilePath
     | (TO | BACKUPNAME) backupName
     | WITH BACKUPDIR backupFilePath (COMMA backupFilePath)*
+    | BASE ON BACKUPSET backupFilePath
     | FROM LSN expression
     | DEVICE TYPE backupMediaType (PARMS backupFilePath)?
     | BACKUPINFO backupFilePath
@@ -2544,7 +2728,7 @@ backupAdminOption
 backupLimit
     : READ SPEED expression (WRITE SPEED expression)?
     | WRITE SPEED expression
-    | expression
+    | NUMBER
     ;
 
 backupEncryptionOption
@@ -2554,10 +2738,58 @@ backupEncryptionOption
 
 restoreStatementTail
     : DATABASE restoreDatabaseTarget restoreFromClause restoreOption*
+    | DATABASE backupFilePath restoreTablespaceTail
+    | TABLE ({!isKeywordAhead("STRUCT") && !isKeywordAhead("KEEP") && !isKeywordAhead("WITHOUT")
+        && !isKeywordAhead("FROM")}? qualifiedName)? restoreTableModifier* restoreFromClause restoreTableOption*
+    | archiveLogKeyword restoreArchiveTail
+    ;
+
+restoreTablespaceTail
+    : TABLESPACE qualifiedName (WITH CHECK)? restoreDatafileClause? restoreFromClause restoreOption*
+    ;
+
+restoreDatafileClause
+    : DATAFILE restoreDatafileItem (COMMA restoreDatafileItem)*
+    ;
+
+restoreDatafileItem
+    : expression
+    ;
+
+restoreTableModifier
+    : STRUCT
+    | KEEP TRXID
+    | WITHOUT (INDEX | CONSTRAINT)
+    ;
+
+restoreTableOption
+    : DEVICE TYPE backupMediaType (PARMS backupFilePath)?
+    | IDENTIFIED BY backupPassword (ENCRYPT WITH backupName)?
+    | TRACE (FILE backupFilePath | LEVEL expression)?
+    ;
+
+restoreArchiveTail
+    : (WITH CHECK)? restoreFromClause restoreArchiveOption* backupArchiveRange?
+        TO (ARCHIVEDIR | DATABASE) backupFilePath (OVERWRITE expression)?
+    ;
+
+restoreArchiveOption
+    : DEVICE TYPE backupMediaType (PARMS backupFilePath)?
+    | IDENTIFIED BY backupPassword (ENCRYPT WITH backupName)?
+    | TASK THREAD expression
+    | NOT PARALLEL
     ;
 
 restoreDatabaseTarget
     : backupFilePath restoreDatabaseTargetOption*
+    | TO backupFilePath restoreDirectoryTargetOption*
+    ;
+
+restoreDirectoryTargetOption
+    : TO SHADOW
+    | WITH CHECK
+    | OVERWRITE
+    | WITHOUT MIRROR
     ;
 
 restoreDatabaseTargetOption
@@ -2589,7 +2821,17 @@ restoreOption
     ;
 
 recoverStatementTail
-    : DATABASE backupFilePath (FOR STANDBY)? (recoverArchiveClause | restoreFromClause recoverBackupOption*)
+    : DATABASE backupFilePath UPDATE DB_MAGIC
+    | DATABASE backupFilePath TABLESPACE qualifiedName recoverTablespaceOption*
+    | DATABASE backupFilePath (FOR STANDBY)? (recoverArchiveClause | restoreFromClause recoverBackupOption*)
+    | DATABASE backupFilePath
+    ;
+
+recoverTablespaceOption
+    : WITH ARCHIVEDIR backupFilePath (COMMA backupFilePath)*
+    | USE DB_MAGIC expression
+    | UNTIL TIME backupFilePath
+    | UNTIL LSN expression
     ;
 
 recoverArchiveClause
@@ -2609,6 +2851,38 @@ recoverBackupOption
     | UNTIL END_LSN
     ;
 
+showBackupsetTail
+    : BACKUPSET backupFilePath showDeviceClause? RECURSIVE? showDatabaseBackupDirectoryClause?
+        showBackupsetInfoClause? showBackupsetOutputClause?
+    | BACKUPSETS showDeviceClause? showDatabaseBackupDirectoryClause? showBackupsetInfoClause?
+        (USE DB_MAGIC expression)? showBackupsetOutputClause?
+    ;
+
+showDeviceClause
+    : DEVICE TYPE backupMediaType (PARMS backupFilePath)?
+    ;
+
+showDatabaseBackupDirectoryClause
+    : DATABASE backupFilePath (WITH BACKUPDIR backupFilePath (COMMA backupFilePath)*)?
+    | WITH BACKUPDIR backupFilePath (COMMA backupFilePath)*
+    ;
+
+showBackupsetInfoClause
+    : INFO showBackupsetInfoType (COMMA showBackupsetInfoType)*
+    ;
+
+showBackupsetInfoType
+    : DB
+    | META
+    | FILE
+    | TABLESPACE
+    | TABLE
+    ;
+
+showBackupsetOutputClause
+    : TO backupFilePath (FORMAT (TXT | XML))?
+    ;
+
 checkStatementTail
     : BACKUPSET backupFilePath checkBackupsetOption*
     ;
@@ -2616,16 +2890,16 @@ checkStatementTail
 checkBackupsetOption
     : DEVICE TYPE backupMediaType (PARMS backupFilePath)?
     | DATABASE backupFilePath
-    | WITH BACKUPDIR backupFilePath (COMMA backupFilePath)*
     ;
 
 dumpStatementTail
-    : BACKUPSET backupFilePath (DEVICE TYPE backupMediaType (PARMS backupFilePath)?)? (DATABASE backupFilePath)? MAPPED FILE backupFilePath
+    : BACKUPSET backupFilePath (DEVICE TYPE backupMediaType (PARMS backupFilePath)?)?
+        ((DATABASE | TO) backupFilePath)? MAPPED FILE backupFilePath
     ;
 
 removeStatementTail
     : BACKUPSET backupFilePath removeBackupsetOption*
-    | BACKUPSETS removeBackupsetsOption*
+    | backupsetType? BACKUPSETS removeBackupsetsOption*
     ;
 
 removeBackupsetOption
@@ -2638,7 +2912,6 @@ removeBackupsetsOption
     : DEVICE TYPE backupMediaType (PARMS backupFilePath)?
     | DATABASE backupFilePath
     | WITH BACKUPDIR backupFilePath (COMMA backupFilePath)*
-    | backupsetType
     | UNTIL TIME backupFilePath
     | BEFORE expression
     | CASCADE
@@ -2655,9 +2928,15 @@ repairStatementTail
     : archiveLogKeyword DATABASE backupFilePath
     ;
 
+loadBackupsetsTail
+    : BACKUPSETS FROM DEVICE TYPE backupMediaType (PARMS backupFilePath)?
+        (WITH BACKUPDIR backupFilePath (COMMA backupFilePath)*)?
+        TO BACKUPDIR backupFilePath
+    ;
+
 configureStatementTail
     : CLEAR
-    | DEFAULT configureDefaultClause
+    | DEFAULT configureDefaultClause?
     ;
 
 configureDefaultClause
@@ -2670,7 +2949,7 @@ configureDefaultClause
 
 configureTraceDefault
     : FILE backupFilePath (TRACE LEVEL expression)?
-    | TRACE LEVEL expression
+    | LEVEL expression
     | CLEAR
     ;
 
@@ -2771,34 +3050,43 @@ alterStatement
     ;
 
 alterTarget
-    : TABLE qualifiedName alterTableAction?
-    | INDEX qualifiedName alterIndexAction?
+    : TABLE qualifiedName alterTableAction
+    | INDEX qualifiedName alterIndexAction
     | CONTEXT INDEX contextIndexName=qualifiedName ON contextTableName=qualifiedName alterContextIndexAction
-    | VIEW qualifiedName alterViewAction?
+    | VIEW qualifiedName alterViewAction
     | MATERIALIZED VIEW qualifiedName alterMaterializedViewAction?
     | SEQUENCE qualifiedName alterSequenceAction
     | USER identifier alterUserAction?
-    | PROCEDURE qualifiedName alterRoutineAction?
-    | FUNCTION qualifiedName alterRoutineAction?
+    | PROCEDURE qualifiedName alterRoutineAction
+    | FUNCTION qualifiedName alterRoutineAction
     | TRIGGER qualifiedName alterTriggerAction
     | PACKAGE qualifiedName alterObjectCompileAction
-    | TABLESPACE qualifiedName tablespaceAlterAction?
-    | PROFILE identifier profileAlterAction?
+    | TABLESPACE qualifiedName tablespaceAlterAction
+    | PROFILE profileName profileAlterAction
     | TYPE qualifiedName alterObjectCompileAction
     | JAVA_LANGUAGE CLASS qualifiedName alterObjectCompileAction
     | CLASS qualifiedName alterObjectCompileAction
     ;
 
 alterIndexAction
-    : REBUILD ONLINE?
+    : REBUILD NOSORT? ONLINE? alterIndexRebuildMode?
     | RENAME TO qualifiedName
+    | INVISIBLE
+    | VISIBLE
     | UNUSABLE
     | (MONITORING | NOMONITORING) USAGE
     ;
 
+alterIndexRebuildMode
+    : SHARE (ASYNCHRONOUS NUMBER?)?
+    | EXCLUSIVE
+    | PARALLEL NUMBER?
+    | NOPARALLEL
+    ;
+
 alterContextIndexAction
-    : REBUILD
-    | INCREMENT
+    : REBUILD ONLINE? (LEXER expression)?
+    | (INCREMENT | OPTIMIZE) ONLINE?
     ;
 
 alterViewAction
@@ -2821,7 +3109,7 @@ materializedViewAlterRefresh
     ;
 
 alterRoutineAction
-    : COMPILE DEBUG?
+    : COMPILE CASCADE? DEBUG?
     ;
 
 alterTriggerAction
@@ -2836,7 +3124,7 @@ alterSequenceAction
     ;
 
 sequenceAlterOption
-    : INCREMENT BY? expression
+    : INCREMENT BY expression
     | MAXVALUE expression
     | NOMAXVALUE
     | NO MAXVALUE
@@ -2853,6 +3141,8 @@ sequenceAlterOption
     | NOORDER
     | NO ORDER
     | CURRENT VALUE expression
+    | GLOBAL
+    | LOCAL
     ;
 
 alterUserAction
@@ -2865,11 +3155,16 @@ alterUserClause
     | REPLACE userPassword
     | DISCARD OLD PASSWORD
     | ON SCHEMA identifier
-    | userClause
+    | userPropertyClause
     ;
 
 profileAlterAction
     : resourceLimitClause
+    ;
+
+profileName
+    : identifier
+    | DEFAULT
     ;
 
 tablespaceAlterAction
@@ -2888,19 +3183,19 @@ tablespaceAlterAction
     ;
 
 alterTableAction
-    : MODIFY LPAREN columnDefinitionList RPAREN
+    : MODIFY LPAREN modifyColumnDefinitionList RPAREN
     | MODIFY partitionModifyAction
     | MODIFY CONSTRAINT identifier TO constraintBody validateOption? dropBehavior?
     | MODIFY CONSTRAINT identifier ENABLE validateOption?
     | MODIFY CONSTRAINT identifier DISABLE validateOption? dropBehavior?
     | MODIFY diskspaceClause
-    | MODIFY columnDefinition
+    | MODIFY {!isKeywordAhead("DISKSPACE")}? modifyColumnDefinition
     | MODIFY PATH expression
     | ADD COLUMN? ifNotExists? LPAREN tableElementList RPAREN
     | ADD partitionAddAction
     | ADD COLUMN? identifier (IDENTITY identityArgs? | AUTO_INCREMENT)
     | ADD COLUMN? identifier compressClause
-    | ADD COLUMN? ifNotExists? columnDefinition
+    | ADD COLUMN? ifNotExists? columnDefinition hugeCompressClause?
     | ADD tableConstraint
     | SPLIT PARTITION identifier splitPartitionClause partitionAlterGlobalIndexClause?
     | MERGE PARTITIONS identifier COMMA identifier INTO PARTITION identifier partitionAlterDefinitionItem* partitionAlterGlobalIndexClause?
@@ -2909,13 +3204,15 @@ alterTableAction
     | ALTER COLUMN? identifier SET STAT NONE
     | ALTER COLUMN? columnNameList SET STAT NONE?
     | ALTER COLUMN? identifier alterColumnAction
-    | DROP CONSTRAINT identifier dropConstraintOption*
+    | DROP CONSTRAINT identifier
+      (RESTRICT | CASCADE ((DROP | KEEP) INDEX)? | (DROP | KEEP) INDEX)?
     | DROP PRIMARY KEY dropBehavior?
     | DROP IDENTITY
     | DROP AUTO_INCREMENT
     | DROP LOGIC LOG
     | DROP partitionDropAction partitionAlterGlobalIndexClause?
-    | DROP COLUMN? ifExists? dropColumnTarget dropBehavior?
+    | DROP COLUMN ifExists? dropColumnTarget dropBehavior?
+    | DROP {!isKeywordAhead("LOGIC")}? ifExists? dropColumnTarget dropBehavior?
     | ENABLE CONSTRAINT identifier validateOption?
     | DISABLE CONSTRAINT identifier validateOption? dropBehavior?
     | rowMovementClause
@@ -2923,14 +3220,17 @@ alterTableAction
     | DISABLE ALL TRIGGERS
     | REBUILD COLUMNS
     | RENAME TO qualifiedName
+    | RENAME (PARTITION | SUBPARTITION) identifier TO identifier
     | RENAME CONSTRAINT identifier TO identifier
     | RENAME COLUMN identifier TO identifier
+    | LOCK partitionLockMode
     | (WITH | WITHOUT) COUNTER
     | DEFAULT DIRECTORY identifier
     | LOCATION LPAREN STRING RPAREN
     | ENABLE USING LONG ROW
     | DISABLE USING LONG ROW
     | ADD LOGIC LOG
+    | WITH ADVANCED LOG
     | WITHOUT ADVANCED LOG
     | TRUNCATE ADVANCED LOG
     | TRUNCATE (PARTITION | SUBPARTITION) alterPartitionTruncateTarget truncateStorageOption?
@@ -2954,7 +3254,7 @@ partitionModifyAction
 
 partitionSelector
     : identifier
-    | FOR LPAREN expressionList? RPAREN
+    | FOR LPAREN expressionList RPAREN
     ;
 
 partitionAddAction
@@ -2967,12 +3267,12 @@ partitionDropAction
 
 partitionDropSelector
     : ifExists? identifier
-    | FOR LPAREN expressionList? RPAREN
+    | FOR LPAREN expressionList RPAREN
     ;
 
 splitPartitionClause
-    : AT_KEYWORD LPAREN expressionList? RPAREN INTO LPAREN splitPartitionItem COMMA splitPartitionItem RPAREN
-    | VALUES LPAREN expressionList? RPAREN INTO LPAREN splitPartitionItem COMMA splitPartitionItem RPAREN
+    : AT_KEYWORD LPAREN expressionList RPAREN INTO LPAREN splitPartitionItem COMMA splitPartitionItem RPAREN
+    | VALUES LPAREN expressionList RPAREN INTO LPAREN splitPartitionItem COMMA splitPartitionItem RPAREN
     | INTO LPAREN splitPartitionItem (COMMA splitPartitionItem)+ RPAREN
     ;
 
@@ -2996,6 +3296,11 @@ partitionAlterGlobalIndexClause
     : (UPDATE | IGNORE) GLOBAL INDEXES
     ;
 
+partitionLockMode
+    : PARTITIONS
+    | {isKeywordAhead("root")}? identifier
+    ;
+
 alterColumnAction
     : SET DEFAULT (ON NULL_LITERAL)? expression
     | DROP DEFAULT
@@ -3004,11 +3309,6 @@ alterColumnAction
     | SET NOT? VISIBLE
     | ADD USER LPAREN identifierList RPAREN
     | DROP USER LPAREN identifierList RPAREN
-    ;
-
-dropConstraintOption
-    : dropBehavior
-    | (DROP | KEEP) INDEX
     ;
 
 dropColumnTarget
@@ -3028,7 +3328,7 @@ partitionTruncateTarget
 
 alterPartitionTruncateTarget
     : partitionTruncateTarget
-    | FOR LPAREN expressionList? RPAREN
+    | FOR LPAREN expressionList RPAREN
     ;
 
 truncateStorageOption
@@ -3049,37 +3349,47 @@ columnDefinitionList
     : columnDefinition (COMMA columnDefinition)*
     ;
 
+modifyColumnDefinitionList
+    : modifyColumnDefinition (COMMA modifyColumnDefinition)*
+    ;
+
+modifyColumnDefinition
+    : columnDefinition
+    | identifier columnAttribute+ columnTailClause*
+    ;
+
 dropStatement
     : DROP dropTarget
     ;
 
 dropTarget
-    : TABLE ifExists? qualifiedName dropOption*
-    | VIEW ifExists? qualifiedName dropOption*
-    | MATERIALIZED VIEW LOG ON qualifiedName dropOption*
-    | MATERIALIZED VIEW ifExists? qualifiedName dropOption*
-    | CONTEXT INDEX ifExists? contextIndexName=qualifiedName ON contextTableName=qualifiedName dropOption*
-    | INDEX ifExists? qualifiedName dropOption*
-    | SCHEMA ifExists? qualifiedName dropOption*
-    | DATABASE ifExists? qualifiedName dropOption*
-    | SEQUENCE ifExists? qualifiedName dropOption*
-    | USER ifExists? identifier dropOption*
-    | ROLE ifExists? identifier dropOption*
-    | PROCEDURE ifExists? qualifiedName dropOption*
-    | FUNCTION ifExists? qualifiedName dropOption*
+    : TABLE ifExists? qualifiedName (RESTRICT | CASCADE | PURGE)?
+    | VIEW ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | MATERIALIZED VIEW LOG ON qualifiedName
+    | MATERIALIZED VIEW ifExists? qualifiedName CASCADE?
+    | CONTEXT INDEX ifExists? contextIndexName=qualifiedName ON contextTableName=qualifiedName
+    | INDEX ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | SCHEMA ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | SEQUENCE ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | USER ifExists? identifier (RESTRICT | CASCADE)?
+    | ROLE ifExists? identifier (RESTRICT | CASCADE)?
+    | PROCEDURE ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | FUNCTION ifExists? qualifiedName (RESTRICT | CASCADE)?
     | TRIGGER ifExists? qualifiedName dropOption*
-    | PUBLIC? SYNONYM ifExists? qualifiedName dropOption*
-    | PACKAGE BODY? ifExists? qualifiedName dropOption*
-    | TABLESPACE ifExists? qualifiedName dropOption*
-    | PUBLIC? LINK ifExists? qualifiedName dropOption*
-    | DIRECTORY ifExists? qualifiedName dropOption*
-    | CONTEXT ifExists? identifier dropOption*
-    | DOMAIN ifExists? qualifiedName dropOption*
-    | OPERATOR ifExists? operatorQualifiedName LPAREN operatorArgumentType COMMA operatorArgumentType RPAREN dropOption*
-    | PROFILE ifExists? identifier dropOption*
+    | PUBLIC? SYNONYM ifExists? synonymName=qualifiedName dropOption*
+    | PACKAGE BODY ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | PACKAGE {_input.LA(1) != BODY}? ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | TABLESPACE ifExists? qualifiedName
+    | PUBLIC? LINK ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | DIRECTORY ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | CONTEXT ifExists? qualifiedName
+    | DOMAIN ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | OPERATOR ifExists? operatorQualifiedName LPAREN operatorArgumentType COMMA operatorArgumentType RPAREN
+    | PROFILE ifExists? identifier (RESTRICT | CASCADE)?
     | LIBRARY ifExists? qualifiedName dropOption*
-    | TYPE BODY? ifExists? qualifiedName dropOption*
-    | CLASS BODY? ifExists? qualifiedName dropOption*
+    | TYPE BODY? ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | CLASS BODY? ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | PARTITION GROUP ifExists? qualifiedName FORCE?
     ;
 
 dropOption
@@ -3089,7 +3399,7 @@ dropOption
     ;
 
 truncateStatement
-    : TRUNCATE TABLE? qualifiedName truncatePartitionClause? truncateStorageOption? CASCADE? partitionAlterGlobalIndexClause?
+    : TRUNCATE TABLE qualifiedName truncatePartitionClause? truncateStorageOption? CASCADE? partitionAlterGlobalIndexClause?
     ;
 
 truncatePartitionClause
@@ -3097,7 +3407,7 @@ truncatePartitionClause
     ;
 
 commentStatement
-    : COMMENT ON commentTarget IS (STRING | NULL_LITERAL)
+    : COMMENT ON commentTarget IS STRING
     ;
 
 commentTarget
@@ -3164,6 +3474,7 @@ privilegeAction
     | CREATE
     | ALTER
     | DROP
+    | COMMENT
     | GRANT
     | READ
     | WRITE
@@ -3183,7 +3494,12 @@ privilegeObject
     ;
 
 privilegeObjectType
-    : TABLE
+    : SCHEMA
+    | DATABASE
+    | USER
+    | ROLE
+    | TABLESPACE
+    | TABLE
     | VIEW
     | MATERIALIZED VIEW
     | INDEX
@@ -3195,9 +3511,13 @@ privilegeObjectType
     | CLASS
     | TYPE
     | TRIGGER
+    | PUBLIC SYNONYM
     | SYNONYM
     | DOMAIN
     | DIRECTORY
+    | CONTEXT
+    | PROFILE
+    | LINK
     | LIBRARY
     ;
 
@@ -3212,7 +3532,8 @@ grantee
 
 callStatement
     : CALL qualifiedName (LPAREN routineArgumentList? RPAREN)?
-    | (EXEC | EXECUTE) qualifiedName routineArgumentList?
+    | EXEC qualifiedName routineArgumentList?
+    | EXECUTE {_input.LA(1) != IMMEDIATE}? qualifiedName routineArgumentList?
     ;
 
 lockTableStatement
@@ -3222,6 +3543,7 @@ lockTableStatement
 lockMode
     : INTENT (SHARE | EXCLUSIVE)
     | ROW (SHARE | EXCLUSIVE)
+    | SHARE INTENT EXCLUSIVE
     | SHARE ROW EXCLUSIVE
     | SHARE UPDATE
     | SHARE
@@ -3229,7 +3551,7 @@ lockMode
     ;
 
 alterSessionParallelDmlStatement
-    : ALTER SESSION (ENABLE | DISABLE) PARALLEL DML
+    : ALTER SESSION (ENABLE | DISABLE) PARALLEL (DML | DDL | QUERY)
     ;
 
 setSchemaStatement
@@ -3251,13 +3573,31 @@ setIdentityInsertStatement
     ;
 
 configWriteStatement
-    : ALTER SYSTEM SET configAssignment (COMMA configAssignment)* systemConfigDeferredClause? systemConfigScope?
-    | ALTER SESSION SET configAssignment (COMMA configAssignment)* sessionConfigScope?
-    | configWriteProcedure LPAREN expressionList? RPAREN
+    : ALTER SYSTEM SET configAssignment systemConfigDeferredClause? systemConfigScope?
+    | ALTER SESSION SET sessionConfigAssignment sessionConfigScope?
+    | CALL? configWriteProcedure LPAREN expressionList? RPAREN
     ;
 
 configAssignment
     : configKey EQ expression
+    ;
+
+sessionConfigAssignment
+    : {isKeywordAhead("CASE_SENSITIVE")}? configKey EQ DEFAULT
+    | {isKeywordAhead("NLS_SORT")}? configKey EQ BINARY
+    | {_input.LA(1) == STRING}? configKey EQ expression
+    | {
+        isKeywordAhead("ALTER_TABLE_OPT")
+        || isKeywordAhead("CASE_SENSITIVE")
+        || isKeywordAhead("NLS_DATE_FORMAT")
+        || isKeywordAhead("NLS_DATE_LANGUAGE")
+        || isKeywordAhead("NLS_SORT")
+        || isKeywordAhead("NLS_TIMESTAMP_FORMAT")
+        || isKeywordAhead("NLS_TIMESTAMP_TZ_FORMAT")
+        || isKeywordAhead("NLS_TIME_FORMAT")
+        || isKeywordAhead("NLS_TIME_TZ_FORMAT")
+        || isKeywordAhead("QUERY_REWRITE_INTEGRITY")
+      }? configKey EQ expression
     ;
 
 configKey
@@ -3308,6 +3648,8 @@ auditAdminProcedure
     | SP_AUDIT_SET_ENC
     | SP_DROP_AUDIT_FILE
     | SP_SWITCH_AUDIT_FILE
+    | SP_CREATE_AUDIT_RULE
+    | SP_DROP_AUDIT_RULE
     ;
 
 securityAdminStatement
@@ -3328,13 +3670,19 @@ procedureCallStatement
 
 transactionStatement
     : START TRANSACTION transactionModeList?
-    | COMMIT WORK?
+    | COMMIT WORK? commitWriteOption?
     | ROLLBACK WORK? TO SAVEPOINT? identifier
     | ROLLBACK WORK?
     | SAVEPOINT identifier
     | RELEASE SAVEPOINT identifier
-    | SET (TRANSACTION | TRX) transactionModeList
-    | SET AUTOCOMMIT (ON | OFF)
+    | SET TRANSACTION transactionModeList
+    ;
+
+commitWriteOption
+    : IMMEDIATE (WAIT | NOWAIT)?
+    | BATCH (WAIT | NOWAIT)
+    | WAIT
+    | NOWAIT
     ;
 
 transactionModeList
@@ -3364,11 +3712,14 @@ explainForTargetStatement
     | insertStatement
     | updateStatement
     | deleteStatement
+    | mergeStatement
     ;
 
 explainDirectTargetStatement
     : explainForTargetStatement
-    | mergeStatement
+    | createStatement
+    | dropStatement
+    | callStatement
     ;
 
 sqlBlockStatement
@@ -3604,7 +3955,7 @@ loopStatement
     ;
 
 repeatStatement
-    : REPEAT blockItem* UNTIL controlHeader END REPEAT?
+    : REPEAT blockItem* UNTIL controlHeader
     ;
 
 caseControlStatement
@@ -3651,10 +4002,12 @@ triggerPseudoRecordTarget
 assignmentTargetSuffix
     : BRACKET_QUOTED_ID
     | LPAREN expressionList? RPAREN
+    | DOT identifier
     ;
 
 executeImmediateStatement
-    : EXECUTE IMMEDIATE expression dynamicIntoClause? dynamicUsingClause? dynamicReturningClause?
+    : EXECUTE IMMEDIATE {_input.LA(1) != SEMI && _input.LA(1) != SLASH && _input.LA(1) != EOF}? expression
+      dynamicIntoClause? dynamicUsingClause? dynamicReturningClause?
     ;
 
 dynamicIntoClause
@@ -3878,7 +4231,38 @@ operatorName
     ;
 
 symbolicOperatorName
-    : operatorNamePart operatorNamePart+
+    : operatorNameStart operatorNamePart* operatorNameEnd
+    ;
+
+operatorNameStart
+    : PLUS
+    | MINUS
+    | STAR
+    | SLASH
+    | LT
+    | GT
+    | EQ
+    | BIT_NOT
+    | AT
+    | PERCENT
+    | BIT_XOR
+    | BIT_AND
+    | BIT_OR
+    | BACKTICK
+    ;
+
+operatorNameEnd
+    : STAR
+    | SLASH
+    | LT
+    | GT
+    | EQ
+    | NOT_OP
+    | PERCENT
+    | BIT_XOR
+    | BIT_AND
+    | BIT_OR
+    | BACKTICK
     ;
 
 operatorNamePart
@@ -3956,7 +4340,8 @@ multiplicative
     ;
 
 unary
-    : (PLUS | MINUS | NOT | NOT_OP | BIT_NOT | PRIOR | CONNECT_BY_ROOT | BINARY)? postfixExpression
+    : (PRIOR | CONNECT_BY_ROOT | BINARY) unary
+    | (PLUS | MINUS | NOT | NOT_OP | BIT_NOT)? postfixExpression
     ;
 
 postfixExpression
@@ -3969,8 +4354,14 @@ postfixOperator
     | cursorAttributeSuffix
     | atTimeZoneClause
     | LPAREN PLUS RPAREN
-    | DOT methodName=identifier (LPAREN functionArguments[$methodName.text]? RPAREN)?
+    | DOT methodName=methodIdentifier (LPAREN functionArguments[$methodName.text]? RPAREN)?
     | BRACKET_QUOTED_ID
+    ;
+
+methodIdentifier
+    : identifier
+    | PRIOR
+    | CONNECT_BY_ROOT
     ;
 
 cursorAttributeSuffix
@@ -3997,13 +4388,14 @@ atTimeZoneClause
 primaryExpression
     : literalValue
     | bindValue
+    | ROWNUM
     | newArrayExpression
     | cursorExpression
     | multisetSubqueryExpression
     | specialFunctionCall
     | functionCall
     | CURRENT_USER
-    | qualifiedName
+    | {_input.LA(1) != BINARY}? qualifiedName
     | CASE expression? caseWhen+ caseElse? END
     | LPAREN selectStatement RPAREN
     | LPAREN expression RPAREN intervalQualifier
@@ -4023,7 +4415,8 @@ caseElse
     ;
 
 functionCall
-    : name=functionName LPAREN functionArguments[$name.text]? RPAREN
+    : {_input.LA(1) != XMLPARSE && _input.LA(1) != BINARY}?
+      name=functionName LPAREN functionArguments[$name.text]? RPAREN
       ({isKeepFunction($name.text)}? keepClause)?
       ({isWithinGroupFunction($name.text)}? withinGroupClause)?
       fromFirstLastClause?
@@ -4045,7 +4438,8 @@ keywordFunctionName
     ;
 
 newArrayExpression
-    : NEW dataType (LPAREN expressionList? RPAREN)? arrayInitializer?
+    : NEW dataType LPAREN expressionList? RPAREN
+    | NEW arrayType=dataType {isValidArrayAllocation($arrayType.text)}? arrayInitializer?
     ;
 
 cursorExpression
@@ -4311,7 +4705,7 @@ routineArgument
     ;
 
 namedArgument
-    : identifier NAMED_ARGUMENT_ARROW expression
+    : dottedNamePart NAMED_ARGUMENT_ARROW expression
     ;
 
 keepClause
@@ -4412,7 +4806,7 @@ bindValue
     ;
 
 qualifiedName
-    : dottedName (AT identifier)?
+    : dottedName (AT linkName)?
     ;
 
 dottedName
@@ -4420,7 +4814,11 @@ dottedName
     ;
 
 bareRoutineName
-    : regularIdentifier (DOT dottedNamePart)* (AT identifier)?
+    : regularIdentifier (DOT dottedNamePart)* (AT linkName)?
+    ;
+
+linkName
+    : identifier (DOT dottedNamePart)?
     ;
 
 regularIdentifier
@@ -4542,6 +4940,7 @@ dottedNameKeyword
     | RIGHTARG
     | RIGHT
     | ROLLBACK
+    | ROWNUM
     | ROWS
     | EACH
     | STATEMENT
@@ -4606,6 +5005,7 @@ nonReservedKeyword
     : USER
     | AGGREGATE
     | ROLE
+    | CALCULATE
     | COMMENT
     | EXEC
     | SQL_CALC_FOUND_ROWS
@@ -4613,6 +5013,7 @@ nonReservedKeyword
     | CASCADED
     | VALUE
     | DDL
+    | LIMIT
     | AUDIT
     | NOAUDIT
     | LOGIN
@@ -4720,7 +5121,6 @@ nonReservedKeyword
     | DIRECTORY
     | LIBRARY
     | CONTEXT
-    | CONTAINS
     | DOMAIN
     | PROFILE
     | LINK
@@ -4849,12 +5249,12 @@ nonReservedKeyword
     | INDEXES
     | AT_KEYWORD
     | SECTION
+    | FILESIZE
     | DELTA
     | SYNCHRONOUS
     | ASYNCHRONOUS
     | NONE
     | ROWID
-    | ROWNUM
     | WITHOUT
     | KEYS
     | NOSORT
@@ -4945,11 +5345,8 @@ nonReservedKeyword
     | OUT
     | APPLY
     | CONNECT
-    | NOCYCLE
-    | PRIOR
     | ABSOLUTE
     | RELATIVE
-    | CONNECT_BY_ROOT
     | CONNECT_BY_ISLEAF
     | CONNECT_BY_ISCYCLE
     | SYS_CONNECT_BY_PATH
@@ -5026,7 +5423,15 @@ nonReservedKeyword
     | BACKUPSETS
     | BACKUPNAME
     | BACKUPINFO
+    | INFO
+    | META
+    | TXT
+    | DB
     | BACKUPDIR
+    | BACKED
+    | UP
+    | SINCE
+    | BASE
     | ARCHIVEDIR
     | ARCHIVELOG
     | NOARCHIVELOG
@@ -5059,6 +5464,12 @@ nonReservedKeyword
     | REUSE_DMINI
     | DMINI
     | SHADOW
+    | DDL_CLONE
+    | CUMULATIVE
+    | STRUCT
+    | TRXID
+    | TIMES
+    | INPUT
     | SPACE
     | OVERWRITE
     | EXTEND
@@ -5078,6 +5489,10 @@ nonReservedKeyword
     | SF_SET_SYSTEM_PARA_VALUE
     | SP_SET_INI_PARA_VALUE
     | SP_SET_SESSION_READONLY
+    | SP_SET_OGUID
+    | SP_APPLY_KEEP_PKG
+    | SP_CLEAR_ARCH_SEND_INFO
+    | SP_CLEAR_RAPPLY_STAT
     | SP_TAB_INDEX_STAT_INIT
     | SP_DB_STAT_INIT
     | SP_INDEX_STAT_INIT
@@ -5107,6 +5522,8 @@ nonReservedKeyword
     | SP_AUDIT_SET_ENC
     | SP_DROP_AUDIT_FILE
     | SP_SWITCH_AUDIT_FILE
+    | SP_CREATE_AUDIT_RULE
+    | SP_DROP_AUDIT_RULE
     | SP_SET_ROLE
     | SP_INIT_SVI_SYS
     | SP_SWITCH_SVI

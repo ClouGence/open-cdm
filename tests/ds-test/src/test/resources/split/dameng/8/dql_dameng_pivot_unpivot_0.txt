@@ -1,0 +1,24 @@
+select * from (select salesman,product_name,amount from sales_order) pivot (sum(amount) for product_name in('APPLE' as apple,'ORANGE' as orange));
+select * from (select salesman,product_name,amount from sales_order) pivot (sum(amount) as total,count(amount) as cnt for product_name in('APPLE' as apple,'ORANGE' as orange));
+select * from (select salesman,product_name,amount from sales_order) pivot (sum(amount) for (salesman,product_name) in(('ALICE','APPLE') as alice_apple,('BOB','ORANGE') as bob_orange));
+select * from (select salesman,product_name,amount from sales_order) pivot xml (sum(amount) for product_name in(any));
+select * from (select salesman,product_name,amount from sales_order) pivot xml (sum(amount) for product_name in(select product_name from sales_order));
+select * from sales_wide unpivot (amount for product_name in(apple as 'APPLE',orange as 'ORANGE'));
+select * from sales_wide unpivot include nulls (amount for product_name in(apple as 'APPLE',orange as 'ORANGE'));
+select * from sales_wide unpivot ((total,cnt) for product_name in((apple,apple_count) as 'APPLE',(orange,orange_count) as 'ORANGE'));
+------------------------------------------------------------------------------------------
+[SELECT] select * from (select salesman,product_name,amount from sales_order) pivot (sum(amount) for product_name in('APPLE' as apple,'ORANGE' as orange));
+----------
+[SELECT] select * from (select salesman,product_name,amount from sales_order) pivot (sum(amount) as total,count(amount) as cnt for product_name in('APPLE' as apple,'ORANGE' as orange));
+----------
+[SELECT] select * from (select salesman,product_name,amount from sales_order) pivot (sum(amount) for (salesman,product_name) in(('ALICE','APPLE') as alice_apple,('BOB','ORANGE') as bob_orange));
+----------
+[SELECT] select * from (select salesman,product_name,amount from sales_order) pivot xml (sum(amount) for product_name in(any));
+----------
+[SELECT] select * from (select salesman,product_name,amount from sales_order) pivot xml (sum(amount) for product_name in(select product_name from sales_order));
+----------
+[SELECT] select * from sales_wide unpivot (amount for product_name in(apple as 'APPLE',orange as 'ORANGE'));
+----------
+[SELECT] select * from sales_wide unpivot include nulls (amount for product_name in(apple as 'APPLE',orange as 'ORANGE'));
+----------
+[SELECT] select * from sales_wide unpivot ((total,cnt) for product_name in((apple,apple_count) as 'APPLE',(orange,orange_count) as 'ORANGE'));

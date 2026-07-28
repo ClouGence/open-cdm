@@ -1,0 +1,333 @@
+create user CODEX_DM8_PROFILE_ASSOC_USER_20260721 identified by "Dm8@Profile2026";
+create user CODEX_DM8_PROFILE_CASCADE_USER_20260721 identified by "Dm8@Profile2026";
+create user CODEX_DM8_PROFILE_PRIV_USER_20260721 identified by "Dm8@Profile2026";
+create role CODEX_DM8_PROFILE_PRIV_ROLE_20260721;
+create profile CODEX_DM8_PF_BASIC_20260721;
+create profile if not exists CODEX_DM8_PF_IFNE_20260721;
+create profile "Codex_Dm8_Profile_Mixed_20260721" limit session_per_user 2;
+create profile CODEX_DM8_PF_GLOBAL_SESSION_20260721 limit global_session_per_user 2;
+create profile CODEX_DM8_PF_SESSION_20260721 limit session_per_user 3;
+create profile CODEX_DM8_PF_IDLE_20260721 limit connect_idle_time 10;
+create profile CODEX_DM8_PF_CONNECT_20260721 limit connect_time 20;
+create profile CODEX_DM8_PF_CPU_CALL_20260721 limit cpu_per_call 100;
+create profile CODEX_DM8_PF_CPU_SESSION_20260721 limit cpu_per_session 1000;
+create profile CODEX_DM8_PF_MEM_20260721 limit mem_space 64;
+create profile CODEX_DM8_PF_READ_CALL_20260721 limit read_per_call 100;
+create profile CODEX_DM8_PF_READ_SESSION_20260721 limit read_per_session 1000;
+create profile CODEX_DM8_PF_FAILED_20260721 limit failed_login_attempts 5;
+create profile CODEX_DM8_PF_LIFE_20260721 limit password_life_time 90;
+create profile CODEX_DM8_PF_REUSE_TIME_20260721 limit password_reuse_time 30;
+create profile CODEX_DM8_PF_REUSE_MAX_20260721 limit password_reuse_max 5;
+create profile CODEX_DM8_PF_LOCK_20260721 limit password_lock_time 10;
+create profile CODEX_DM8_PF_GRACE_20260721 limit password_grace_time 7;
+create profile CODEX_DM8_PF_INACTIVE_20260721 limit inactive_account_time 15;
+create profile CODEX_DM8_PF_COMBINED_20260721 limit
+session_per_user 4 connect_idle_time 15 connect_time 60 mem_space 128;
+create profile CODEX_DM8_PF_COMMA_20260721 limit
+failed_login_attempts 4, password_lock_time 5, password_life_time 120;
+create profile CODEX_DM8_PF_DEFAULTS_20260721 limit
+session_per_user default, connect_time default, password_life_time default;
+create profile CODEX_DM8_PF_UNLIMITED_20260721 limit
+session_per_user unlimited connect_time unlimited mem_space unlimited;
+create profile if not exists CODEX_DM8_PF_IFNE_20260721 limit session_per_user 99;
+select profile, resource_name, limit from dba_profiles
+where profile like 'CODEX_DM8_PF_%' order by profile, resource_name;
+select count(distinct profile), count(*) from dba_profiles
+where profile like 'CODEX_DM8_PF_%';
+alter profile CODEX_DM8_PF_GLOBAL_SESSION_20260721 limit global_session_per_user 3;
+alter profile CODEX_DM8_PF_SESSION_20260721 limit session_per_user 4;
+alter profile CODEX_DM8_PF_IDLE_20260721 limit connect_idle_time 20;
+alter profile CODEX_DM8_PF_CONNECT_20260721 limit connect_time 30;
+alter profile CODEX_DM8_PF_CPU_CALL_20260721 limit cpu_per_call 200;
+alter profile CODEX_DM8_PF_CPU_SESSION_20260721 limit cpu_per_session 2000;
+alter profile CODEX_DM8_PF_MEM_20260721 limit mem_space 256;
+alter profile CODEX_DM8_PF_READ_CALL_20260721 limit read_per_call 200;
+alter profile CODEX_DM8_PF_READ_SESSION_20260721 limit read_per_session 2000;
+alter profile CODEX_DM8_PF_FAILED_20260721 limit failed_login_attempts 6;
+alter profile CODEX_DM8_PF_LIFE_20260721 limit password_life_time 180;
+alter profile CODEX_DM8_PF_REUSE_TIME_20260721 limit password_reuse_time 60;
+alter profile CODEX_DM8_PF_REUSE_MAX_20260721 limit password_reuse_max 10;
+alter profile CODEX_DM8_PF_LOCK_20260721 limit password_lock_time 20;
+alter profile CODEX_DM8_PF_GRACE_20260721 limit password_grace_time 14;
+alter profile CODEX_DM8_PF_INACTIVE_20260721 limit inactive_account_time 30;
+alter profile CODEX_DM8_PF_COMBINED_20260721 limit
+session_per_user default connect_idle_time unlimited connect_time 120 mem_space 512;
+select profile, resource_name, limit from dba_profiles
+where profile in ('CODEX_DM8_PF_GLOBAL_SESSION_20260721',
+'CODEX_DM8_PF_INACTIVE_20260721', 'CODEX_DM8_PF_COMBINED_20260721')
+order by profile, resource_name;
+create profile CODEX_DM8_PF_ASSOC_20260721 limit session_per_user 5;
+alter user CODEX_DM8_PROFILE_ASSOC_USER_20260721 profile CODEX_DM8_PF_ASSOC_20260721;
+select username, profile from dba_users
+where username = 'CODEX_DM8_PROFILE_ASSOC_USER_20260721';
+alter user CODEX_DM8_PROFILE_ASSOC_USER_20260721 drop profile;
+select username, profile from dba_users
+where username = 'CODEX_DM8_PROFILE_ASSOC_USER_20260721';
+create profile CODEX_DM8_PF_CASCADE_20260721 limit session_per_user 6;
+alter user CODEX_DM8_PROFILE_CASCADE_USER_20260721 profile CODEX_DM8_PF_CASCADE_20260721;
+drop profile CODEX_DM8_PF_CASCADE_20260721 cascade;
+select username, profile from dba_users
+where username = 'CODEX_DM8_PROFILE_CASCADE_USER_20260721';
+grant create profile to CODEX_DM8_PROFILE_PRIV_USER_20260721;
+grant alter profile to CODEX_DM8_PROFILE_PRIV_USER_20260721;
+grant drop profile to CODEX_DM8_PROFILE_PRIV_USER_20260721;
+grant create profile, alter profile, drop profile to CODEX_DM8_PROFILE_PRIV_ROLE_20260721;
+revoke create profile from CODEX_DM8_PROFILE_PRIV_USER_20260721;
+revoke alter profile from CODEX_DM8_PROFILE_PRIV_USER_20260721;
+revoke drop profile from CODEX_DM8_PROFILE_PRIV_USER_20260721;
+revoke create profile, alter profile, drop profile from CODEX_DM8_PROFILE_PRIV_ROLE_20260721;
+create profile CODEX_DM8_PF_RESTRICT_20260721 limit session_per_user 7;
+drop profile CODEX_DM8_PF_RESTRICT_20260721 restrict;
+drop profile if exists CODEX_DM8_PF_MISSING_20260721;
+drop profile CODEX_DM8_PF_BASIC_20260721;
+drop profile if exists CODEX_DM8_PF_IFNE_20260721 cascade;
+drop profile "Codex_Dm8_Profile_Mixed_20260721" restrict;
+drop profile CODEX_DM8_PF_GLOBAL_SESSION_20260721;
+drop profile CODEX_DM8_PF_SESSION_20260721;
+drop profile CODEX_DM8_PF_IDLE_20260721;
+drop profile CODEX_DM8_PF_CONNECT_20260721;
+drop profile CODEX_DM8_PF_CPU_CALL_20260721;
+drop profile CODEX_DM8_PF_CPU_SESSION_20260721;
+drop profile CODEX_DM8_PF_MEM_20260721;
+drop profile CODEX_DM8_PF_READ_CALL_20260721;
+drop profile CODEX_DM8_PF_READ_SESSION_20260721;
+drop profile CODEX_DM8_PF_FAILED_20260721;
+drop profile CODEX_DM8_PF_LIFE_20260721;
+drop profile CODEX_DM8_PF_REUSE_TIME_20260721;
+drop profile CODEX_DM8_PF_REUSE_MAX_20260721;
+drop profile CODEX_DM8_PF_LOCK_20260721;
+drop profile CODEX_DM8_PF_GRACE_20260721;
+drop profile CODEX_DM8_PF_INACTIVE_20260721;
+drop profile CODEX_DM8_PF_COMBINED_20260721;
+drop profile CODEX_DM8_PF_COMMA_20260721;
+drop profile CODEX_DM8_PF_DEFAULTS_20260721;
+drop profile CODEX_DM8_PF_UNLIMITED_20260721;
+drop profile CODEX_DM8_PF_ASSOC_20260721;
+drop user CODEX_DM8_PROFILE_ASSOC_USER_20260721 cascade;
+drop user CODEX_DM8_PROFILE_CASCADE_USER_20260721 cascade;
+drop user CODEX_DM8_PROFILE_PRIV_USER_20260721 cascade;
+drop role CODEX_DM8_PROFILE_PRIV_ROLE_20260721;
+create profile CODEX_DM8_PF_DUPLICATE_20260721 limit
+session_per_user 2 session_per_user 3;
+select profile, resource_name, limit from dba_profiles
+where profile = 'CODEX_DM8_PF_DUPLICATE_20260721';
+drop profile CODEX_DM8_PF_DUPLICATE_20260721;
+alter profile DEFAULT limit session_per_user default;
+alter profile DEFAULT limit session_per_user unlimited;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user CODEX_DM8_PROFILE_ASSOC_USER_20260721 identified by "Dm8@Profile2026";
+----------
+[CREATE_USER] create user CODEX_DM8_PROFILE_CASCADE_USER_20260721 identified by "Dm8@Profile2026";
+----------
+[CREATE_USER] create user CODEX_DM8_PROFILE_PRIV_USER_20260721 identified by "Dm8@Profile2026";
+----------
+[CREATE_ROLE] create role CODEX_DM8_PROFILE_PRIV_ROLE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_BASIC_20260721;
+----------
+[SYSTEM_SETTING_WRITE] create profile if not exists CODEX_DM8_PF_IFNE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] create profile "Codex_Dm8_Profile_Mixed_20260721" limit session_per_user 2;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_GLOBAL_SESSION_20260721 limit global_session_per_user 2;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_SESSION_20260721 limit session_per_user 3;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_IDLE_20260721 limit connect_idle_time 10;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_CONNECT_20260721 limit connect_time 20;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_CPU_CALL_20260721 limit cpu_per_call 100;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_CPU_SESSION_20260721 limit cpu_per_session 1000;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_MEM_20260721 limit mem_space 64;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_READ_CALL_20260721 limit read_per_call 100;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_READ_SESSION_20260721 limit read_per_session 1000;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_FAILED_20260721 limit failed_login_attempts 5;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_LIFE_20260721 limit password_life_time 90;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_REUSE_TIME_20260721 limit password_reuse_time 30;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_REUSE_MAX_20260721 limit password_reuse_max 5;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_LOCK_20260721 limit password_lock_time 10;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_GRACE_20260721 limit password_grace_time 7;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_INACTIVE_20260721 limit inactive_account_time 15;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_COMBINED_20260721 limit
+session_per_user 4 connect_idle_time 15 connect_time 60 mem_space 128;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_COMMA_20260721 limit
+failed_login_attempts 4, password_lock_time 5, password_life_time 120;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_DEFAULTS_20260721 limit
+session_per_user default, connect_time default, password_life_time default;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_UNLIMITED_20260721 limit
+session_per_user unlimited connect_time unlimited mem_space unlimited;
+----------
+[SYSTEM_SETTING_WRITE] create profile if not exists CODEX_DM8_PF_IFNE_20260721 limit session_per_user 99;
+----------
+[SELECT] select profile, resource_name, limit from dba_profiles
+where profile like 'CODEX_DM8_PF_%' order by profile, resource_name;
+----------
+[SELECT] select count(distinct profile), count(*) from dba_profiles
+where profile like 'CODEX_DM8_PF_%';
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_GLOBAL_SESSION_20260721 limit global_session_per_user 3;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_SESSION_20260721 limit session_per_user 4;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_IDLE_20260721 limit connect_idle_time 20;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_CONNECT_20260721 limit connect_time 30;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_CPU_CALL_20260721 limit cpu_per_call 200;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_CPU_SESSION_20260721 limit cpu_per_session 2000;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_MEM_20260721 limit mem_space 256;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_READ_CALL_20260721 limit read_per_call 200;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_READ_SESSION_20260721 limit read_per_session 2000;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_FAILED_20260721 limit failed_login_attempts 6;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_LIFE_20260721 limit password_life_time 180;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_REUSE_TIME_20260721 limit password_reuse_time 60;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_REUSE_MAX_20260721 limit password_reuse_max 10;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_LOCK_20260721 limit password_lock_time 20;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_GRACE_20260721 limit password_grace_time 14;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_INACTIVE_20260721 limit inactive_account_time 30;
+----------
+[SYSTEM_SETTING_WRITE] alter profile CODEX_DM8_PF_COMBINED_20260721 limit
+session_per_user default connect_idle_time unlimited connect_time 120 mem_space 512;
+----------
+[SELECT] select profile, resource_name, limit from dba_profiles
+where profile in ('CODEX_DM8_PF_GLOBAL_SESSION_20260721',
+'CODEX_DM8_PF_INACTIVE_20260721', 'CODEX_DM8_PF_COMBINED_20260721')
+order by profile, resource_name;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_ASSOC_20260721 limit session_per_user 5;
+----------
+[ALTER_USER] alter user CODEX_DM8_PROFILE_ASSOC_USER_20260721 profile CODEX_DM8_PF_ASSOC_20260721;
+----------
+[SELECT] select username, profile from dba_users
+where username = 'CODEX_DM8_PROFILE_ASSOC_USER_20260721';
+----------
+[ALTER_USER] alter user CODEX_DM8_PROFILE_ASSOC_USER_20260721 drop profile;
+----------
+[SELECT] select username, profile from dba_users
+where username = 'CODEX_DM8_PROFILE_ASSOC_USER_20260721';
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_CASCADE_20260721 limit session_per_user 6;
+----------
+[ALTER_USER] alter user CODEX_DM8_PROFILE_CASCADE_USER_20260721 profile CODEX_DM8_PF_CASCADE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_CASCADE_20260721 cascade;
+----------
+[SELECT] select username, profile from dba_users
+where username = 'CODEX_DM8_PROFILE_CASCADE_USER_20260721';
+----------
+[GRANT] grant create profile to CODEX_DM8_PROFILE_PRIV_USER_20260721;
+----------
+[GRANT] grant alter profile to CODEX_DM8_PROFILE_PRIV_USER_20260721;
+----------
+[GRANT] grant drop profile to CODEX_DM8_PROFILE_PRIV_USER_20260721;
+----------
+[GRANT] grant create profile, alter profile, drop profile to CODEX_DM8_PROFILE_PRIV_ROLE_20260721;
+----------
+[REVOKE] revoke create profile from CODEX_DM8_PROFILE_PRIV_USER_20260721;
+----------
+[REVOKE] revoke alter profile from CODEX_DM8_PROFILE_PRIV_USER_20260721;
+----------
+[REVOKE] revoke drop profile from CODEX_DM8_PROFILE_PRIV_USER_20260721;
+----------
+[REVOKE] revoke create profile, alter profile, drop profile from CODEX_DM8_PROFILE_PRIV_ROLE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_RESTRICT_20260721 limit session_per_user 7;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_RESTRICT_20260721 restrict;
+----------
+[SYSTEM_SETTING_WRITE] drop profile if exists CODEX_DM8_PF_MISSING_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_BASIC_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile if exists CODEX_DM8_PF_IFNE_20260721 cascade;
+----------
+[SYSTEM_SETTING_WRITE] drop profile "Codex_Dm8_Profile_Mixed_20260721" restrict;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_GLOBAL_SESSION_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_SESSION_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_IDLE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_CONNECT_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_CPU_CALL_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_CPU_SESSION_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_MEM_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_READ_CALL_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_READ_SESSION_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_FAILED_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_LIFE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_REUSE_TIME_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_REUSE_MAX_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_LOCK_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_GRACE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_INACTIVE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_COMBINED_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_COMMA_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_DEFAULTS_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_UNLIMITED_20260721;
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_ASSOC_20260721;
+----------
+[DROP_USER] drop user CODEX_DM8_PROFILE_ASSOC_USER_20260721 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_PROFILE_CASCADE_USER_20260721 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_PROFILE_PRIV_USER_20260721 cascade;
+----------
+[DROP_ROLE] drop role CODEX_DM8_PROFILE_PRIV_ROLE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] create profile CODEX_DM8_PF_DUPLICATE_20260721 limit
+session_per_user 2 session_per_user 3;
+----------
+[SELECT] select profile, resource_name, limit from dba_profiles
+where profile = 'CODEX_DM8_PF_DUPLICATE_20260721';
+----------
+[SYSTEM_SETTING_WRITE] drop profile CODEX_DM8_PF_DUPLICATE_20260721;
+----------
+[SYSTEM_SETTING_WRITE] alter profile DEFAULT limit session_per_user default;
+----------
+[SYSTEM_SETTING_WRITE] alter profile DEFAULT limit session_per_user unlimited;

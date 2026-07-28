@@ -1,0 +1,30 @@
+-- MULTICOLUMN_IN
+select ID from BT where binary(C2,C3) in(('a','A'),('B','b'));
+-- MULTICOLUMN_COMPARE
+select ID from BT where binary(C2,C3)=('a','A');
+-- BARE_BINARY
+select binary from BT;
+-- COLUMN_ALIAS_BINARY
+select C1 as binary from BT;
+-- TABLE_ALIAS_BINARY
+select * from BT binary;
+-- FUNCTION_BINARY_ZERO
+select binary() from BT;
+------------------------------------------------------------------------------------------
+[SELECT] -- MULTICOLUMN_IN
+select ID from BT where binary(C2,C3) in(('a','A'),('B','b'));
+----------
+[SELECT] -- MULTICOLUMN_COMPARE
+select ID from BT where binary(C2,C3)=('a','A');
+----------
+[SELECT] -- BARE_BINARY
+select binary from BT;
+----------
+[SELECT] -- COLUMN_ALIAS_BINARY
+select C1 as binary from BT;
+----------
+[SELECT] -- TABLE_ALIAS_BINARY
+select * from BT binary;
+----------
+[SELECT] -- FUNCTION_BINARY_ZERO
+select binary() from BT;

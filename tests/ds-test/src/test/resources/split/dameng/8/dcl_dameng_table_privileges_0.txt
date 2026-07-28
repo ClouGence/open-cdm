@@ -1,0 +1,153 @@
+create user table_priv_owner identified by "Dm8TablePrivilege2026";
+create user table_priv_create identified by "Dm8TablePrivilege2026";
+create user table_priv_comment identified by "Dm8TablePrivilege2026";
+create user table_priv_any identified by "Dm8TablePrivilege2026";
+create user table_priv_none identified by "Dm8TablePrivilege2026";
+create user table_priv_object identified by "Dm8TablePrivilege2026";
+create user table_priv_dba identified by "Dm8TablePrivilege2026";
+grant create table to table_priv_owner;
+grant create table to table_priv_create;
+grant comment any table to table_priv_comment;
+grant create any table to table_priv_any;
+grant alter any table to table_priv_any;
+grant drop any table to table_priv_any;
+grant dba to table_priv_dba;
+create table table_priv_owner.owner_lifecycle(id int, note varchar(20));
+create table table_priv_owner.alter_target(id int);
+create table table_priv_owner.comment_target(id int, note varchar(20));
+create table table_priv_owner.drop_target(id int);
+create table table_priv_owner.none_target(id int);
+alter table table_priv_owner.owner_lifecycle add owner_added int;
+comment on table table_priv_owner.owner_lifecycle is 'owner table comment';
+comment on column table_priv_owner.owner_lifecycle.note is 'owner column comment';
+drop table table_priv_owner.owner_lifecycle purge;
+create table table_priv_create.own_target(id int);
+drop table table_priv_create.own_target purge;
+comment on table table_priv_owner.comment_target is 'comment any table';
+comment on column table_priv_owner.comment_target.note is 'comment any column';
+grant alter on table table_priv_owner.alter_target to table_priv_object;
+alter table table_priv_owner.alter_target add object_added int;
+revoke alter on table table_priv_owner.alter_target from table_priv_object;
+alter table table_priv_owner.alter_target add object_denied int;
+create table table_priv_owner.dba_any_target(id int);
+alter table table_priv_owner.alter_target add dba_added int;
+comment on table table_priv_owner.comment_target is 'dba table comment';
+comment on column table_priv_owner.comment_target.note is 'dba column comment';
+drop table table_priv_owner.drop_target purge;
+create table table_priv_none.own_denied(id int);
+create table table_priv_owner.any_denied(id int);
+alter table table_priv_owner.none_target add denied_col int;
+comment on table table_priv_owner.none_target is 'denied';
+drop table table_priv_owner.none_target purge;
+create table table_priv_owner.any_target(id int);
+alter table table_priv_owner.alter_target add any_added int;
+drop table table_priv_owner.none_target purge;
+drop user table_priv_owner cascade;
+drop user table_priv_create cascade;
+drop user table_priv_comment cascade;
+drop user table_priv_any cascade;
+drop user table_priv_none cascade;
+drop user table_priv_object cascade;
+drop user table_priv_dba cascade;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user table_priv_owner identified by "Dm8TablePrivilege2026";
+----------
+[CREATE_USER] create user table_priv_create identified by "Dm8TablePrivilege2026";
+----------
+[CREATE_USER] create user table_priv_comment identified by "Dm8TablePrivilege2026";
+----------
+[CREATE_USER] create user table_priv_any identified by "Dm8TablePrivilege2026";
+----------
+[CREATE_USER] create user table_priv_none identified by "Dm8TablePrivilege2026";
+----------
+[CREATE_USER] create user table_priv_object identified by "Dm8TablePrivilege2026";
+----------
+[CREATE_USER] create user table_priv_dba identified by "Dm8TablePrivilege2026";
+----------
+[GRANT] grant create table to table_priv_owner;
+----------
+[GRANT] grant create table to table_priv_create;
+----------
+[GRANT] grant comment any table to table_priv_comment;
+----------
+[GRANT] grant create any table to table_priv_any;
+----------
+[GRANT] grant alter any table to table_priv_any;
+----------
+[GRANT] grant drop any table to table_priv_any;
+----------
+[GRANT] grant dba to table_priv_dba;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_owner.owner_lifecycle(id int, note varchar(20));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_owner.alter_target(id int);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_owner.comment_target(id int, note varchar(20));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_owner.drop_target(id int);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_owner.none_target(id int);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table table_priv_owner.owner_lifecycle add owner_added int;
+----------
+[COMMENT_TABLE] comment on table table_priv_owner.owner_lifecycle is 'owner table comment';
+----------
+[COMMENT_COLUMN] comment on column table_priv_owner.owner_lifecycle.note is 'owner column comment';
+----------
+[DROP_TABLE] drop table table_priv_owner.owner_lifecycle purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_create.own_target(id int);
+----------
+[DROP_TABLE] drop table table_priv_create.own_target purge;
+----------
+[COMMENT_TABLE] comment on table table_priv_owner.comment_target is 'comment any table';
+----------
+[COMMENT_COLUMN] comment on column table_priv_owner.comment_target.note is 'comment any column';
+----------
+[GRANT] grant alter on table table_priv_owner.alter_target to table_priv_object;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table table_priv_owner.alter_target add object_added int;
+----------
+[REVOKE] revoke alter on table table_priv_owner.alter_target from table_priv_object;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table table_priv_owner.alter_target add object_denied int;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_owner.dba_any_target(id int);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table table_priv_owner.alter_target add dba_added int;
+----------
+[COMMENT_TABLE] comment on table table_priv_owner.comment_target is 'dba table comment';
+----------
+[COMMENT_COLUMN] comment on column table_priv_owner.comment_target.note is 'dba column comment';
+----------
+[DROP_TABLE] drop table table_priv_owner.drop_target purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_none.own_denied(id int);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_owner.any_denied(id int);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table table_priv_owner.none_target add denied_col int;
+----------
+[COMMENT_TABLE] comment on table table_priv_owner.none_target is 'denied';
+----------
+[DROP_TABLE] drop table table_priv_owner.none_target purge;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table table_priv_owner.any_target(id int);
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table table_priv_owner.alter_target add any_added int;
+----------
+[DROP_TABLE] drop table table_priv_owner.none_target purge;
+----------
+[DROP_USER] drop user table_priv_owner cascade;
+----------
+[DROP_USER] drop user table_priv_create cascade;
+----------
+[DROP_USER] drop user table_priv_comment cascade;
+----------
+[DROP_USER] drop user table_priv_any cascade;
+----------
+[DROP_USER] drop user table_priv_none cascade;
+----------
+[DROP_USER] drop user table_priv_object cascade;
+----------
+[DROP_USER] drop user table_priv_dba cascade;

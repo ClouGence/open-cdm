@@ -1,0 +1,15 @@
+create table app.bad_bin_s01(c binary());
+create table app.bad_bin_s02(c varbinary());
+create table app.bad_bin_s03(c raw());
+create table app.bad_bin_s07(c raw raw);
+create function app.bad_bin_f(p binary()) return int as begin return 1; end;/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create table app.bad_bin_s01(c binary());
+----------
+[CREATE_TABLE] create table app.bad_bin_s02(c varbinary());
+----------
+[CREATE_TABLE] create table app.bad_bin_s03(c raw());
+----------
+[CREATE_TABLE] create table app.bad_bin_s07(c raw raw);
+----------
+[CREATE_PROG_OBJ] create function app.bad_bin_f(p binary()) return int as begin return 1; end;/

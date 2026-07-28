@@ -1,0 +1,21 @@
+drop synonym app.syn_customer;
+drop sequence app.seq_orders;
+drop view app.active_customer_view;
+drop table app.order_snapshot;
+drop table app.orders;
+drop table app.customer;
+drop schema app;
+------------------------------------------------------------------------------------------
+[DROP_SYNONYM] drop synonym app.syn_customer;
+----------
+[DROP_SEQUENCE] drop sequence app.seq_orders;
+----------
+[DROP_VIEW] drop view app.active_customer_view;
+----------
+[DROP_TABLE] drop table app.order_snapshot;
+----------
+[DROP_TABLE] drop table app.orders;
+----------
+[DROP_TABLE] drop table app.customer;
+----------
+[DROP_SCHEMA] drop schema app;

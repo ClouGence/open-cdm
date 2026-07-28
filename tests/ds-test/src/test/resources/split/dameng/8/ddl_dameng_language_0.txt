@@ -1,0 +1,24 @@
+create table dm8_ddl_part_range(id int, created_at date) partition by range(created_at) (partition p2020 values less than (date '2021-01-01'), partition pmax values less than (maxvalue));
+create table dm8_ddl_part_list(id int, status varchar(8)) partition by list(status) (partition p_a values ('A'), partition p_b values ('B'), partition p_other values (default));
+create table dm8_ddl_part_hash(id int, name varchar(32)) partition by hash(id) partitions 4;
+create table dm8_ddl_part_range2(id int, category int) partition by range(id, category) (partition p1 values less than (100, maxvalue), partition pmax values less than (maxvalue, maxvalue));
+create materialized view mv_dm8_ddl_base as select id, name from dm8_ddl_base;
+create synonym syn_dm8_ddl_base for dm8_ddl_base;
+create or replace synonym syn_dm8_ddl_base for dm8_ddl_base;
+drop synonym syn_dm8_ddl_base;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_ddl_part_range(id int, created_at date) partition by range(created_at) (partition p2020 values less than (date '2021-01-01'), partition pmax values less than (maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_ddl_part_list(id int, status varchar(8)) partition by list(status) (partition p_a values ('A'), partition p_b values ('B'), partition p_other values (default));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_ddl_part_hash(id int, name varchar(32)) partition by hash(id) partitions 4;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table dm8_ddl_part_range2(id int, category int) partition by range(id, category) (partition p1 values less than (100, maxvalue), partition pmax values less than (maxvalue, maxvalue));
+----------
+[CREATE_VIEW(SELECT)] create materialized view mv_dm8_ddl_base as select id, name from dm8_ddl_base;
+----------
+[CREATE_SYNONYM] create synonym syn_dm8_ddl_base for dm8_ddl_base;
+----------
+[CREATE_SYNONYM] create or replace synonym syn_dm8_ddl_base for dm8_ddl_base;
+----------
+[DROP_SYNONYM] drop synonym syn_dm8_ddl_base;

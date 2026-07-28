@@ -1,0 +1,83 @@
+create directory DIR_ATTR_EMPTY as '';
+select directory_name, directory_path from dba_directories where directory_name = 'DIR_ATTR_EMPTY';
+create directory DIR_ATTR_PATH_256 as '/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+select lengthb(directory_path) from dba_directories where directory_name = 'DIR_ATTR_PATH_256';
+create directory DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as '/tmp';
+select owner, lengthb(directory_name), directory_path from dba_directories
+where directory_name = 'DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+create directory DIR_ATTR_NONEXISTENT as '/tmp/codex_dm8_directory_path_need_not_exist_20260722';
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_NONEXISTENT';
+create directory if not exists DIR_ATTR_IFNE as '/tmp/ifne_before';
+create directory if not exists DIR_ATTR_IFNE as '/tmp/ifne_ignored';
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_IFNE';
+create directory DIR_ATTR_REPLACE as '/tmp/replace_before';
+create or replace directory DIR_ATTR_REPLACE as '/tmp/replace_after';
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_REPLACE';
+create directory DIR_ATTR_BOTH as '/tmp/both_before';
+create or replace directory if not exists DIR_ATTR_BOTH as '/tmp/both_after';
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_BOTH';
+create directory DIR_ATTR_QUOTE as '/tmp/codex''directory';
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_QUOTE';
+drop directory DIR_ATTR_EMPTY;
+drop directory DIR_ATTR_PATH_256;
+drop directory DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+drop directory DIR_ATTR_NONEXISTENT;
+drop directory DIR_ATTR_IFNE;
+drop directory DIR_ATTR_REPLACE;
+drop directory DIR_ATTR_BOTH;
+drop directory DIR_ATTR_QUOTE;
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] create directory DIR_ATTR_EMPTY as '';
+----------
+[SELECT] select directory_name, directory_path from dba_directories where directory_name = 'DIR_ATTR_EMPTY';
+----------
+[SYSTEM_SETTING_WRITE] create directory DIR_ATTR_PATH_256 as '/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+----------
+[SELECT] select lengthb(directory_path) from dba_directories where directory_name = 'DIR_ATTR_PATH_256';
+----------
+[SYSTEM_SETTING_WRITE] create directory DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as '/tmp';
+----------
+[SELECT] select owner, lengthb(directory_name), directory_path from dba_directories
+where directory_name = 'DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+----------
+[SYSTEM_SETTING_WRITE] create directory DIR_ATTR_NONEXISTENT as '/tmp/codex_dm8_directory_path_need_not_exist_20260722';
+----------
+[SELECT] select directory_path from dba_directories where directory_name = 'DIR_ATTR_NONEXISTENT';
+----------
+[SYSTEM_SETTING_WRITE] create directory if not exists DIR_ATTR_IFNE as '/tmp/ifne_before';
+----------
+[SYSTEM_SETTING_WRITE] create directory if not exists DIR_ATTR_IFNE as '/tmp/ifne_ignored';
+----------
+[SELECT] select directory_path from dba_directories where directory_name = 'DIR_ATTR_IFNE';
+----------
+[SYSTEM_SETTING_WRITE] create directory DIR_ATTR_REPLACE as '/tmp/replace_before';
+----------
+[SYSTEM_SETTING_WRITE] create or replace directory DIR_ATTR_REPLACE as '/tmp/replace_after';
+----------
+[SELECT] select directory_path from dba_directories where directory_name = 'DIR_ATTR_REPLACE';
+----------
+[SYSTEM_SETTING_WRITE] create directory DIR_ATTR_BOTH as '/tmp/both_before';
+----------
+[SYSTEM_SETTING_WRITE] create or replace directory if not exists DIR_ATTR_BOTH as '/tmp/both_after';
+----------
+[SELECT] select directory_path from dba_directories where directory_name = 'DIR_ATTR_BOTH';
+----------
+[SYSTEM_SETTING_WRITE] create directory DIR_ATTR_QUOTE as '/tmp/codex''directory';
+----------
+[SELECT] select directory_path from dba_directories where directory_name = 'DIR_ATTR_QUOTE';
+----------
+[SYSTEM_SETTING_WRITE] drop directory DIR_ATTR_EMPTY;
+----------
+[SYSTEM_SETTING_WRITE] drop directory DIR_ATTR_PATH_256;
+----------
+[SYSTEM_SETTING_WRITE] drop directory DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+----------
+[SYSTEM_SETTING_WRITE] drop directory DIR_ATTR_NONEXISTENT;
+----------
+[SYSTEM_SETTING_WRITE] drop directory DIR_ATTR_IFNE;
+----------
+[SYSTEM_SETTING_WRITE] drop directory DIR_ATTR_REPLACE;
+----------
+[SYSTEM_SETTING_WRITE] drop directory DIR_ATTR_BOTH;
+----------
+[SYSTEM_SETTING_WRITE] drop directory DIR_ATTR_QUOTE;

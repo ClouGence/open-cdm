@@ -1,0 +1,30 @@
+select tablespace_name from dba_tablespaces where tablespace_name='CODEX_TS_IFNE_20260723';
+select count(*) from dba_data_files where tablespace_name='CODEX_TS_MULTI_20260723';
+select dbms_metadata.get_ddl('TABLESPACE', 'CODEX_TS_ENC_PLAIN_20260723') from dual;
+select tablespace_name, status, contents from dba_tablespaces where tablespace_name='CODEX_TS_DICT_20260723';
+select tablespace_name, file_name, bytes, autoextensible, maxbytes, increment_by from dba_data_files where tablespace_name='CODEX_TS_DICT_20260723';
+select id, name, status$ from v$tablespace where name='CODEX_TS_DICT_20260723';
+select path, status$, total_size, auto_extend, next_size, max_size from v$datafile where group_id=(select id from v$tablespace where name='CODEX_TS_DICT_20260723');
+select dbms_metadata.get_ddl('TABLESPACE', 'CODEX_TS_DICT_20260723') from dual;
+select count(*) from CODEX_TS_COMMIT_T_20260723;
+select path, mirror_path from v$datafile where group_id=(select id from v$tablespace where name='CODEX_TS_MIRROR_20260723');
+------------------------------------------------------------------------------------------
+[SELECT] select tablespace_name from dba_tablespaces where tablespace_name='CODEX_TS_IFNE_20260723';
+----------
+[SELECT] select count(*) from dba_data_files where tablespace_name='CODEX_TS_MULTI_20260723';
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('TABLESPACE', 'CODEX_TS_ENC_PLAIN_20260723') from dual;
+----------
+[SELECT] select tablespace_name, status, contents from dba_tablespaces where tablespace_name='CODEX_TS_DICT_20260723';
+----------
+[SELECT] select tablespace_name, file_name, bytes, autoextensible, maxbytes, increment_by from dba_data_files where tablespace_name='CODEX_TS_DICT_20260723';
+----------
+[SELECT] select id, name, status$ from v$tablespace where name='CODEX_TS_DICT_20260723';
+----------
+[SELECT] select path, status$, total_size, auto_extend, next_size, max_size from v$datafile where group_id=(select id from v$tablespace where name='CODEX_TS_DICT_20260723');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_metadata.get_ddl('TABLESPACE', 'CODEX_TS_DICT_20260723') from dual;
+----------
+[SELECT] select count(*) from CODEX_TS_COMMIT_T_20260723;
+----------
+[SELECT] select path, mirror_path from v$datafile where group_id=(select id from v$tablespace where name='CODEX_TS_MIRROR_20260723');

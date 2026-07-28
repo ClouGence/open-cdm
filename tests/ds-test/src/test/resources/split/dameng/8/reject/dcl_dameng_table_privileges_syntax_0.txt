@@ -1,0 +1,24 @@
+grant create any to table_priv_any;
+grant alter any to table_priv_any;
+grant drop any to table_priv_any;
+grant comment any table table_priv_comment;
+grant alter on to table_priv_object;
+grant alter table_priv_owner.alter_target to table_priv_object;
+revoke alter on table_priv_owner.alter_target table_priv_object;
+comment on table table_priv_owner.none_target 'denied';
+------------------------------------------------------------------------------------------
+[GRANT] grant create any to table_priv_any;
+----------
+[GRANT] grant alter any to table_priv_any;
+----------
+[GRANT] grant drop any to table_priv_any;
+----------
+[GRANT] grant comment any table table_priv_comment;
+----------
+[GRANT] grant alter on to table_priv_object;
+----------
+[GRANT] grant alter table_priv_owner.alter_target to table_priv_object;
+----------
+[REVOKE] revoke alter on table_priv_owner.alter_target table_priv_object;
+----------
+[COMMENT_TABLE] comment on table table_priv_owner.none_target 'denied';

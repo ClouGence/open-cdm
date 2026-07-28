@@ -1,0 +1,558 @@
+create table event_log(
+  seq int identity,
+  trigger_name varchar(40),
+  operation varchar(20),
+  object_type varchar(40),
+  object_name varchar(128),
+  schema_name varchar(128)
+);
+create or replace trigger evt_after_create
+after create on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_AFTER_CREATE', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+/
+create table event_table(id int, name varchar(20));
+create view event_view as select id, name from event_table;
+create sequence event_sequence start with 1 increment by 1;
+select operation, object_type, object_name from event_log where trigger_name = 'EVT_AFTER_CREATE' order by seq;
+create or replace trigger evt_after_alter
+after alter on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_AFTER_ALTER', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+/
+alter table event_table add amount int;
+alter sequence event_sequence increment by 2;
+select operation, object_type, object_name from event_log where trigger_name = 'EVT_AFTER_ALTER' order by seq;
+create or replace trigger evt_after_drop
+after drop on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_AFTER_DROP', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+/
+create table event_drop_target(id int);
+drop table event_drop_target;
+select operation, object_type, object_name from event_log where trigger_name = 'EVT_AFTER_DROP' order by seq;
+create or replace trigger evt_before_ddl
+before ddl on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+when (:eventinfo.objecttype <> 'TRIGGER')
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_BEFORE_DDL', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+/
+create table event_ddl_target(id int);
+comment on table event_ddl_target is 'event trigger target';
+truncate table event_ddl_target;
+alter table event_ddl_target add name varchar(20);
+drop table event_ddl_target;
+select operation, object_type, object_name from event_log where trigger_name = 'EVT_BEFORE_DDL' order by seq;
+create table event_sql_text(
+  fragment_count int,
+  sql_text varchar,
+  object_name varchar(128),
+  object_type varchar(128),
+  object_owner varchar(128)
+);
+create or replace trigger evt_sql_text
+before create on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+declare
+  v_count int;
+  v_text varchar;
+  v_parts dm_name_list_t;
+begin
+  v_count = dm_sql_txt(v_parts);
+  for i in 1..v_count loop
+    v_text = v_text || v_parts(i);
+  end loop;
+  insert into event_sql_text values(v_count, v_text, dm_dict_obj_name,
+    dm_dict_obj_type, dm_dict_obj_owner);
+end;
+/
+create table event_text_target(id int);
+select fragment_count, object_name, object_type, object_owner from event_sql_text where object_name = 'EVENT_TEXT_TARGET';
+create or replace trigger evt_privilege
+after grant or revoke on database
+begin
+  insert into event_log(trigger_name, operation)
+  values('EVT_PRIVILEGE', 'PRIVILEGE');
+end;
+/
+create role event_trigger_role;
+grant select any table to event_trigger_role;
+revoke select any table from event_trigger_role;
+select operation from event_log where trigger_name = 'EVT_PRIVILEGE' order by seq;
+create or replace trigger evt_login
+after login on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_LOGIN', 'LOGIN');
+end;
+/
+create or replace trigger timer_once
+after timer on database
+for once at datetime '2099-01-01 00:00:00'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_ONCE', 'TIMER');
+end;
+/
+alter trigger timer_once disable;
+create or replace trigger timer_daily
+after timer on database
+for each 1 day at time '23:59:59'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_DAILY', 'TIMER');
+end;
+/
+alter trigger timer_daily disable;
+create or replace trigger timer_weekly
+after timer on database
+for each 1 week 1, 3, 5 at time '23:59:58'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_WEEKLY', 'TIMER');
+end;
+/
+alter trigger timer_weekly disable;
+create or replace trigger timer_monthly
+after timer on database
+for each 1 month day 1 at time '23:59:57'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_MONTHLY', 'TIMER');
+end;
+/
+alter trigger timer_monthly disable;
+create or replace trigger timer_interval
+after timer on database
+for each 1 day from time '00:00:00' to time '23:59:59' for each 10 minute
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_INTERVAL', 'TIMER');
+end;
+/
+alter trigger timer_interval disable;
+drop trigger timer_interval;
+drop trigger timer_monthly;
+drop trigger timer_weekly;
+drop trigger timer_daily;
+drop trigger timer_once;
+drop trigger evt_privilege;
+drop role event_trigger_role;
+drop trigger evt_sql_text;
+drop table event_text_target;
+drop table event_sql_text;
+drop trigger evt_before_ddl;
+drop trigger evt_after_drop;
+drop trigger evt_after_alter;
+drop trigger evt_after_create;
+drop view event_view;
+drop sequence event_sequence;
+drop table event_table;
+create or replace trigger evt_logout
+before logout on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation, object_name)
+  values('EVT_LOGOUT', 'LOGOUT', :eventinfo.loginname);
+end;
+/
+create or replace trigger evt_sererr
+after sererr on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation, object_type, object_name)
+  values('EVT_SERERR', 'SERERR', cast(:eventinfo.errcode as varchar(40)),
+    substr(:eventinfo.errmsg, 1, 128));
+end;
+/
+create or replace trigger evt_backup_database
+after backup database on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation)
+  values('EVT_BACKUP_DATABASE', 'BACKUP DATABASE');
+end;
+/
+create or replace trigger evt_restore_database
+after restore database on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation)
+  values('EVT_RESTORE_DATABASE', 'RESTORE DATABASE');
+end;
+/
+create or replace trigger evt_startup
+after startup on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_STARTUP', 'STARTUP');
+end;
+/
+create or replace trigger evt_shutdown
+before shutdown on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_SHUTDOWN', 'SHUTDOWN');
+end;
+/
+create or replace trigger evt_audit
+after audit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_AUDIT', 'AUDIT');
+end;
+/
+create or replace trigger evt_noaudit
+after noaudit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_NOAUDIT', 'NOAUDIT');
+end;
+/
+create or replace trigger evt_checkpoint
+after checkpoint on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_CHECKPOINT', 'CHECKPOINT');
+end;
+/
+create or replace trigger evt_before_audit
+before audit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_BEFORE_AUDIT', 'AUDIT');
+end;
+/
+create or replace trigger evt_before_noaudit
+before noaudit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_BEFORE_NOAUDIT', 'NOAUDIT');
+end;
+/
+create or replace trigger evt_backup_eventinfo
+after backup database on database
+begin
+  insert into CODEX_DM8_EVENTINFO_20260722.event_log
+    (event_name, db_name, op_user, op_time)
+  values('BACKUP EVENTINFO', :eventinfo.databasename,
+    :eventinfo.opuser, :eventinfo.optime);
+end;
+/
+create or replace trigger evt_restore_eventinfo
+after restore database on database
+begin
+  insert into CODEX_DM8_EVENTINFO_20260722.event_log
+    (event_name, db_name, op_user, op_time)
+  values('RESTORE EVENTINFO', :eventinfo.databasename,
+    :eventinfo.opuser, :eventinfo.optime);
+end;
+/
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table event_log(
+  seq int identity,
+  trigger_name varchar(40),
+  operation varchar(20),
+  object_type varchar(40),
+  object_name varchar(128),
+  schema_name varchar(128)
+);
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_after_create
+after create on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_AFTER_CREATE', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table event_table(id int, name varchar(20));
+----------
+[CREATE_VIEW(SELECT)] create view event_view as select id, name from event_table;
+----------
+[CREATE_SEQUENCE] create sequence event_sequence start with 1 increment by 1;
+----------
+[SELECT] select operation, object_type, object_name from event_log where trigger_name = 'EVT_AFTER_CREATE' order by seq;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_after_alter
+after alter on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_AFTER_ALTER', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table event_table add amount int;
+----------
+[ALTER_SEQUENCE] alter sequence event_sequence increment by 2;
+----------
+[SELECT] select operation, object_type, object_name from event_log where trigger_name = 'EVT_AFTER_ALTER' order by seq;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_after_drop
+after drop on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_AFTER_DROP', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table event_drop_target(id int);
+----------
+[DROP_TABLE] drop table event_drop_target;
+----------
+[SELECT] select operation, object_type, object_name from event_log where trigger_name = 'EVT_AFTER_DROP' order by seq;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_before_ddl
+before ddl on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+when (:eventinfo.objecttype <> 'TRIGGER')
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_BEFORE_DDL', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table event_ddl_target(id int);
+----------
+[COMMENT_TABLE] comment on table event_ddl_target is 'event trigger target';
+----------
+[TRUNCATE_TABLE] truncate table event_ddl_target;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table event_ddl_target add name varchar(20);
+----------
+[DROP_TABLE] drop table event_ddl_target;
+----------
+[SELECT] select operation, object_type, object_name from event_log where trigger_name = 'EVT_BEFORE_DDL' order by seq;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table event_sql_text(
+  fragment_count int,
+  sql_text varchar,
+  object_name varchar(128),
+  object_type varchar(128),
+  object_owner varchar(128)
+);
+----------
+[CREATE_TRIGGER(BLOCK,PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT)] create or replace trigger evt_sql_text
+before create on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+declare
+  v_count int;
+  v_text varchar;
+  v_parts dm_name_list_t;
+begin
+  v_count = dm_sql_txt(v_parts);
+  for i in 1..v_count loop
+    v_text = v_text || v_parts(i);
+  end loop;
+  insert into event_sql_text values(v_count, v_text, dm_dict_obj_name,
+    dm_dict_obj_type, dm_dict_obj_owner);
+end;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table event_text_target(id int);
+----------
+[SELECT] select fragment_count, object_name, object_type, object_owner from event_sql_text where object_name = 'EVENT_TEXT_TARGET';
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_privilege
+after grant or revoke on database
+begin
+  insert into event_log(trigger_name, operation)
+  values('EVT_PRIVILEGE', 'PRIVILEGE');
+end;
+----------
+[CREATE_ROLE] create role event_trigger_role;
+----------
+[GRANT] grant select any table to event_trigger_role;
+----------
+[REVOKE] revoke select any table from event_trigger_role;
+----------
+[SELECT] select operation from event_log where trigger_name = 'EVT_PRIVILEGE' order by seq;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_login
+after login on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_LOGIN', 'LOGIN');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger timer_once
+after timer on database
+for once at datetime '2099-01-01 00:00:00'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_ONCE', 'TIMER');
+end;
+----------
+[ALTER_TRIGGER] alter trigger timer_once disable;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger timer_daily
+after timer on database
+for each 1 day at time '23:59:59'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_DAILY', 'TIMER');
+end;
+----------
+[ALTER_TRIGGER] alter trigger timer_daily disable;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger timer_weekly
+after timer on database
+for each 1 week 1, 3, 5 at time '23:59:58'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_WEEKLY', 'TIMER');
+end;
+----------
+[ALTER_TRIGGER] alter trigger timer_weekly disable;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger timer_monthly
+after timer on database
+for each 1 month day 1 at time '23:59:57'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_MONTHLY', 'TIMER');
+end;
+----------
+[ALTER_TRIGGER] alter trigger timer_monthly disable;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger timer_interval
+after timer on database
+for each 1 day from time '00:00:00' to time '23:59:59' for each 10 minute
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_INTERVAL', 'TIMER');
+end;
+----------
+[ALTER_TRIGGER] alter trigger timer_interval disable;
+----------
+[DROP_TRIGGER] drop trigger timer_interval;
+----------
+[DROP_TRIGGER] drop trigger timer_monthly;
+----------
+[DROP_TRIGGER] drop trigger timer_weekly;
+----------
+[DROP_TRIGGER] drop trigger timer_daily;
+----------
+[DROP_TRIGGER] drop trigger timer_once;
+----------
+[DROP_TRIGGER] drop trigger evt_privilege;
+----------
+[DROP_ROLE] drop role event_trigger_role;
+----------
+[DROP_TRIGGER] drop trigger evt_sql_text;
+----------
+[DROP_TABLE] drop table event_text_target;
+----------
+[DROP_TABLE] drop table event_sql_text;
+----------
+[DROP_TRIGGER] drop trigger evt_before_ddl;
+----------
+[DROP_TRIGGER] drop trigger evt_after_drop;
+----------
+[DROP_TRIGGER] drop trigger evt_after_alter;
+----------
+[DROP_TRIGGER] drop trigger evt_after_create;
+----------
+[DROP_VIEW] drop view event_view;
+----------
+[DROP_SEQUENCE] drop sequence event_sequence;
+----------
+[DROP_TABLE] drop table event_table;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_logout
+before logout on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation, object_name)
+  values('EVT_LOGOUT', 'LOGOUT', :eventinfo.loginname);
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_sererr
+after sererr on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation, object_type, object_name)
+  values('EVT_SERERR', 'SERERR', cast(:eventinfo.errcode as varchar(40)),
+    substr(:eventinfo.errmsg, 1, 128));
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_backup_database
+after backup database on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation)
+  values('EVT_BACKUP_DATABASE', 'BACKUP DATABASE');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_restore_database
+after restore database on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation)
+  values('EVT_RESTORE_DATABASE', 'RESTORE DATABASE');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_startup
+after startup on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_STARTUP', 'STARTUP');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_shutdown
+before shutdown on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_SHUTDOWN', 'SHUTDOWN');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_audit
+after audit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_AUDIT', 'AUDIT');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_noaudit
+after noaudit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_NOAUDIT', 'NOAUDIT');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_checkpoint
+after checkpoint on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_CHECKPOINT', 'CHECKPOINT');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_before_audit
+before audit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_BEFORE_AUDIT', 'AUDIT');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_before_noaudit
+before noaudit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_BEFORE_NOAUDIT', 'NOAUDIT');
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_backup_eventinfo
+after backup database on database
+begin
+  insert into CODEX_DM8_EVENTINFO_20260722.event_log
+    (event_name, db_name, op_user, op_time)
+  values('BACKUP EVENTINFO', :eventinfo.databasename,
+    :eventinfo.opuser, :eventinfo.optime);
+end;
+----------
+[CREATE_TRIGGER(BLOCK,INSERT)] create or replace trigger evt_restore_eventinfo
+after restore database on database
+begin
+  insert into CODEX_DM8_EVENTINFO_20260722.event_log
+    (event_name, db_name, op_user, op_time)
+  values('RESTORE EVENTINFO', :eventinfo.databasename,
+    :eventinfo.opuser, :eventinfo.optime);
+end;

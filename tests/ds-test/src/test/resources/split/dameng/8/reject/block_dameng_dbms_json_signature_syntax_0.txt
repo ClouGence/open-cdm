@@ -1,0 +1,140 @@
+-- empty member argument
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND(,); end;
+/
+-- double comma
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K',,1); end;
+/
+-- dangling named argument
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(POS=>0,VAL=>); end;
+/
+-- unclosed constructor
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T('[1,2]'; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- empty member argument
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_arr.APPEND(,); end;
+/
+----------
+[BLOCK] -- double comma
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_bool:=j_obj.PUT('K',,1); end;
+/
+----------
+[BLOCK] -- dangling named argument
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin arr.PUT(POS=>0,VAL=>); end;
+/
+----------
+[BLOCK] -- unclosed constructor
+declare
+  j_obj JDOM_T; j_arr JDOM_T; j_scalar JDOM_T;
+  j_date JDOM_T; j_timestamp JDOM_T; j_number JDOM_T;
+  j_boolean JDOM_T; j_string JDOM_T; out_j JDOM_T;
+  elem JSON_ELEMENT_T; elem_scalar JSON_ELEMENT_T; elem_obj JSON_ELEMENT_T;
+  elem_date JSON_ELEMENT_T; elem_timestamp JSON_ELEMENT_T;
+  elem_number JSON_ELEMENT_T; elem_boolean JSON_ELEMENT_T;
+  out_elem JSON_ELEMENT_T;
+  scalar JSON_SCALAR_T; out_scalar JSON_SCALAR_T;
+  arr JSON_ARRAY_T; out_arr JSON_ARRAY_T;
+  obj JSON_OBJECT_T; out_obj JSON_OBJECT_T;
+  keys JSON_KEY_LIST;
+  out_bool BOOLEAN; out_number NUMBER; out_text VARCHAR2(32767);
+  out_date DATE; out_timestamp TIMESTAMP;
+  c CLOB; out_clob CLOB; b BLOB; out_blob BLOB; begin out_arr:=JSON_ARRAY_T('[1,2]'; end;
+/

@@ -1,0 +1,40 @@
+-- missing FUNCTION keyword
+with f(c int) return int as begin return c; end; select 1 from dual; /
+-- function missing RETURN clause
+with function f(c int) as begin return c; end; select f(1) from dual; /
+-- function missing definition
+with function f(c int) return int; select f(1) from dual; /
+-- function missing separator semicolon
+with function f(c int) return int as begin return c; end select f(1) from dual; /
+-- comma between functions
+with function f1 return int as begin return 1; end;, function f2 return int as begin return 2; end; select 1 from dual; /
+-- FUNCTION after CTE
+with q as(select 1 c from dual), function f(c int) return int as begin return c; end; select f(c) from q; /
+-- aggregate local function
+with function f(c int) return int aggregate using app.impl; select f(1) from dual; /
+-- external local function
+with function f(c int) return int external 'f' using c; select f(1) from dual; /
+------------------------------------------------------------------------------------------
+[SELECT] -- missing FUNCTION keyword
+with f(c int) return int as begin return c; end; select 1 from dual; /
+----------
+[SELECT] -- function missing RETURN clause
+with function f(c int) as begin return c; end; select f(1) from dual; /
+----------
+[SELECT] -- function missing definition
+with function f(c int) return int; select f(1) from dual; /
+----------
+[SELECT] -- function missing separator semicolon
+with function f(c int) return int as begin return c; end select f(1) from dual; /
+----------
+[SELECT] -- comma between functions
+with function f1 return int as begin return 1; end;, function f2 return int as begin return 2; end; select 1 from dual; /
+----------
+[SELECT] -- FUNCTION after CTE
+with q as(select 1 c from dual), function f(c int) return int as begin return c; end; select f(c) from q; /
+----------
+[SELECT] -- aggregate local function
+with function f(c int) return int aggregate using app.impl; select f(1) from dual; /
+----------
+[SELECT] -- external local function
+with function f(c int) return int external 'f' using c; select f(1) from dual; /

@@ -1,0 +1,213 @@
+create domain dom_attr_null int default null;
+create domain dom_attr_expr int default (1 + 2) check(value between 0 and 10);
+create domain dom_attr_multi int check(value > 0) check(value < 10);
+create domain dom_attr_named int default 5
+constraint ck_dom_attr_low check(value >= 1)
+constraint ck_dom_attr_high check(value <= 9);
+create domain DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA varchar(8) default 'MAXNAME';
+create table domain_attr_use(
+  id int primary key,
+  null_value dom_attr_null,
+  expr_value dom_attr_expr,
+  multi_value dom_attr_multi,
+  named_value dom_attr_named,
+  max_name_value DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+);
+insert into domain_attr_use(id, multi_value) values(1, 5);
+select id, null_value, expr_value, multi_value, named_value, max_name_value
+from domain_attr_use where id = 1;
+update domain_attr_use set multi_value = 9, named_value = 1 where id = 1;
+create table domain_attr_override(
+  id int primary key,
+  inherited_value dom_attr_expr,
+  overridden_value dom_attr_expr default 8
+);
+insert into domain_attr_override(id) values(1);
+select inherited_value, overridden_value from domain_attr_override where id = 1;
+select count(*) from sysobjects where subtype$ = 'DOMAIN'
+and name in ('DOM_ATTR_NULL', 'DOM_ATTR_EXPR', 'DOM_ATTR_MULTI', 'DOM_ATTR_NAMED');
+drop table domain_attr_override;
+drop table domain_attr_use;
+drop domain dom_attr_named restrict;
+drop domain dom_attr_multi restrict;
+drop domain dom_attr_expr restrict;
+drop domain dom_attr_null restrict;
+drop domain DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA restrict;
+drop domain if exists dom_attr_missing;
+create domain dom_type_tinyint tinyint;
+create domain dom_type_smallint smallint;
+create domain dom_type_real real;
+create domain dom_type_double double precision;
+create domain dom_type_float float(24);
+create domain dom_type_bit bit;
+create domain dom_type_binary binary(8);
+create domain dom_type_varbinary varbinary(8);
+create domain dom_type_nchar nchar(8);
+create domain dom_type_nvarchar nvarchar(8);
+create domain dom_type_time time(3);
+create domain dom_type_time_tz time(3) with time zone;
+create domain dom_type_timestamp_tz timestamp(3) with time zone;
+create domain dom_type_interval interval day(2) to second(3);
+create domain dom_type_blob blob;
+create domain dom_type_clob clob;
+drop domain dom_type_clob;
+drop domain dom_type_blob;
+drop domain dom_type_interval;
+drop domain dom_type_timestamp_tz;
+drop domain dom_type_time_tz;
+drop domain dom_type_time;
+drop domain dom_type_nvarchar;
+drop domain dom_type_nchar;
+drop domain dom_type_varbinary;
+drop domain dom_type_binary;
+drop domain dom_type_bit;
+drop domain dom_type_float;
+drop domain dom_type_double;
+drop domain dom_type_real;
+drop domain dom_type_smallint;
+drop domain dom_type_tinyint;
+create domain dom_type_image image;
+create domain dom_type_json json;
+create domain dom_type_xmltype xmltype;
+create domain dom_type_rowid rowid;
+drop domain dom_type_rowid;
+drop domain dom_type_xmltype;
+drop domain dom_type_json;
+drop domain dom_type_image;
+------------------------------------------------------------------------------------------
+[CREATE_TYPE] create domain dom_attr_null int default null;
+----------
+[CREATE_TYPE] create domain dom_attr_expr int default (1 + 2) check(value between 0 and 10);
+----------
+[CREATE_TYPE] create domain dom_attr_multi int check(value > 0) check(value < 10);
+----------
+[CREATE_TYPE] create domain dom_attr_named int default 5
+constraint ck_dom_attr_low check(value >= 1)
+constraint ck_dom_attr_high check(value <= 9);
+----------
+[CREATE_TYPE] create domain DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA varchar(8) default 'MAXNAME';
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table domain_attr_use(
+  id int primary key,
+  null_value dom_attr_null,
+  expr_value dom_attr_expr,
+  multi_value dom_attr_multi,
+  named_value dom_attr_named,
+  max_name_value DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+);
+----------
+[INSERT] insert into domain_attr_use(id, multi_value) values(1, 5);
+----------
+[SELECT] select id, null_value, expr_value, multi_value, named_value, max_name_value
+from domain_attr_use where id = 1;
+----------
+[UPDATE] update domain_attr_use set multi_value = 9, named_value = 1 where id = 1;
+----------
+[CREATE_TABLE|ADD_COLUMN|ADD_CONSTRAINT] create table domain_attr_override(
+  id int primary key,
+  inherited_value dom_attr_expr,
+  overridden_value dom_attr_expr default 8
+);
+----------
+[INSERT] insert into domain_attr_override(id) values(1);
+----------
+[SELECT] select inherited_value, overridden_value from domain_attr_override where id = 1;
+----------
+[SELECT] select count(*) from sysobjects where subtype$ = 'DOMAIN'
+and name in ('DOM_ATTR_NULL', 'DOM_ATTR_EXPR', 'DOM_ATTR_MULTI', 'DOM_ATTR_NAMED');
+----------
+[DROP_TABLE] drop table domain_attr_override;
+----------
+[DROP_TABLE] drop table domain_attr_use;
+----------
+[DROP_TYPE] drop domain dom_attr_named restrict;
+----------
+[DROP_TYPE] drop domain dom_attr_multi restrict;
+----------
+[DROP_TYPE] drop domain dom_attr_expr restrict;
+----------
+[DROP_TYPE] drop domain dom_attr_null restrict;
+----------
+[DROP_TYPE] drop domain DOM_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA restrict;
+----------
+[DROP_TYPE] drop domain if exists dom_attr_missing;
+----------
+[CREATE_TYPE] create domain dom_type_tinyint tinyint;
+----------
+[CREATE_TYPE] create domain dom_type_smallint smallint;
+----------
+[CREATE_TYPE] create domain dom_type_real real;
+----------
+[CREATE_TYPE] create domain dom_type_double double precision;
+----------
+[CREATE_TYPE] create domain dom_type_float float(24);
+----------
+[CREATE_TYPE] create domain dom_type_bit bit;
+----------
+[CREATE_TYPE] create domain dom_type_binary binary(8);
+----------
+[CREATE_TYPE] create domain dom_type_varbinary varbinary(8);
+----------
+[CREATE_TYPE] create domain dom_type_nchar nchar(8);
+----------
+[CREATE_TYPE] create domain dom_type_nvarchar nvarchar(8);
+----------
+[CREATE_TYPE] create domain dom_type_time time(3);
+----------
+[CREATE_TYPE] create domain dom_type_time_tz time(3) with time zone;
+----------
+[CREATE_TYPE] create domain dom_type_timestamp_tz timestamp(3) with time zone;
+----------
+[CREATE_TYPE] create domain dom_type_interval interval day(2) to second(3);
+----------
+[CREATE_TYPE] create domain dom_type_blob blob;
+----------
+[CREATE_TYPE] create domain dom_type_clob clob;
+----------
+[DROP_TYPE] drop domain dom_type_clob;
+----------
+[DROP_TYPE] drop domain dom_type_blob;
+----------
+[DROP_TYPE] drop domain dom_type_interval;
+----------
+[DROP_TYPE] drop domain dom_type_timestamp_tz;
+----------
+[DROP_TYPE] drop domain dom_type_time_tz;
+----------
+[DROP_TYPE] drop domain dom_type_time;
+----------
+[DROP_TYPE] drop domain dom_type_nvarchar;
+----------
+[DROP_TYPE] drop domain dom_type_nchar;
+----------
+[DROP_TYPE] drop domain dom_type_varbinary;
+----------
+[DROP_TYPE] drop domain dom_type_binary;
+----------
+[DROP_TYPE] drop domain dom_type_bit;
+----------
+[DROP_TYPE] drop domain dom_type_float;
+----------
+[DROP_TYPE] drop domain dom_type_double;
+----------
+[DROP_TYPE] drop domain dom_type_real;
+----------
+[DROP_TYPE] drop domain dom_type_smallint;
+----------
+[DROP_TYPE] drop domain dom_type_tinyint;
+----------
+[CREATE_TYPE] create domain dom_type_image image;
+----------
+[CREATE_TYPE] create domain dom_type_json json;
+----------
+[CREATE_TYPE] create domain dom_type_xmltype xmltype;
+----------
+[CREATE_TYPE] create domain dom_type_rowid rowid;
+----------
+[DROP_TYPE] drop domain dom_type_rowid;
+----------
+[DROP_TYPE] drop domain dom_type_xmltype;
+----------
+[DROP_TYPE] drop domain dom_type_json;
+----------
+[DROP_TYPE] drop domain dom_type_image;

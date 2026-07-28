@@ -1,0 +1,316 @@
+create table part_range_basic(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition p2 values less than(20), partition pmax values less than(maxvalue));
+create table part_range_equ(id int, name varchar(30))
+partition by range(id)(partition p1 values equ or less than(10), partition p2 values equ or less than(20));
+create table part_range_date(id int, created_at date)
+partition by range(created_at)(partition p2020 values less than(date '2021-01-01'), partition p2021 values less than(date '2022-01-01'), partition pmax values less than(maxvalue));
+create table part_range_multi(id int, category int, name varchar(30))
+partition by range(id, category)(partition p1 values less than(10, 10), partition p2 values less than(20, 20), partition pmax values less than(maxvalue, maxvalue));
+create table part_interval_number(id int, name varchar(30))
+partition by range(id) interval(10)(partition p1 values equ or less than(10), partition p2 values equ or less than(20));
+create table part_interval_date(id int, created_at date)
+partition by range(created_at) interval(numtoyminterval(1, 'MONTH'))(partition p1 values less than(date '2024-01-01'));
+create table part_list_basic(id int, category varchar(10), name varchar(30))
+partition by list(category)(partition p_ab values('A', 'B'), partition p_cd values('C', 'D'), partition p_other values(default));
+create table part_hash_named(id int, name varchar(30))
+partition by hash(id)(partition p1, partition p2, partition p3, partition p4);
+create table part_hash_count(id int, name varchar(30)) partition by hash(id) partitions 4;
+create table part_range_hash(id int, category int, name varchar(30))
+partition by range(id)
+subpartition by hash(category) subpartition template subpartitions 2
+(partition p1 values less than(10), partition p2 values less than(20), partition pmax values less than(maxvalue));
+create table part_list_range(id int, category varchar(10), created_at date)
+partition by list(category)
+subpartition by range(created_at) subpartition template(
+  subpartition sp2020 values less than(date '2021-01-01'),
+  subpartition spmax values less than(maxvalue)
+)(partition p_a values('A'), partition p_b values('B'), partition p_other values(default));
+create table part_range_list(id int, category varchar(10), name varchar(30))
+partition by range(id)
+subpartition by list(category) subpartition template(
+  subpartition sp_a values('A'),
+  subpartition sp_b values('B'),
+  subpartition sp_other values(default)
+)(partition p1 values less than(10), partition pmax values less than(maxvalue));
+create table part_list_hash(id int, category varchar(10), name varchar(30))
+partition by list(category)
+subpartition by hash(id) subpartition template(subpartition sp1, subpartition sp2)
+(partition p_a values('A'), partition p_b values('B'), partition p_other values(default));
+create table part_lock_partitions(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) lock partitions;
+create table part_lock_root(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) lock root;
+create table part_row_movement(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) enable row movement;
+insert into part_range_basic values(1, 'ONE');
+insert into part_range_basic partition(p2) values(11, 'ELEVEN');
+insert into part_range_basic partition for(25) values(25, 'TWENTY_FIVE');
+insert into part_list_basic values(1, 'A', 'ALPHA');
+insert into part_hash_named values(1, 'HASH_ONE');
+insert into part_range_hash values(1, 1, 'RANGE_HASH');
+insert into part_list_range values(1, 'A', date '2020-01-01');
+insert into part_range_list values(1, 'A', 'RANGE_LIST');
+select * from part_range_basic partition(p1);
+select * from part_range_basic partition for(11);
+select * from part_range_hash subpartition for(1, 1);
+select * from part_list_range subpartition(p_a_sp2020);
+select * from part_range_list subpartition for(1, 'A');
+select count(*) from part_hash_named partition(p1);
+create table part_range_lifecycle(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition p2 values less than(20));
+alter table part_range_lifecycle add partition p3 values less than(30);
+alter table part_range_lifecycle add partition pmax values less than(maxvalue);
+alter table part_range_lifecycle truncate partition p1;
+alter table part_range_lifecycle split partition p2 at(15) into(partition p2a, partition p2b);
+alter table part_range_lifecycle merge partitions p2a, p2b into partition p2;
+alter table part_range_lifecycle rename partition p3 to p30;
+alter table part_range_lifecycle enable row movement;
+alter table part_range_lifecycle disable row movement;
+alter table part_range_lifecycle lock partitions;
+alter table part_range_lifecycle lock root;
+create table part_exchange(id int, name varchar(30));
+alter table part_range_lifecycle exchange partition p1 with table part_exchange;
+alter table part_range_lifecycle drop partition p30;
+alter table part_range_lifecycle drop partition for(1000);
+create table part_list_lifecycle(id int, category int)
+partition by list(category)(partition p12 values(1, 2), partition p34 values(3, 4), partition pother values(default));
+alter table part_list_lifecycle modify partition p12 add values(5, 6);
+alter table part_list_lifecycle modify partition p12 drop values(2);
+alter table part_list_lifecycle split partition p34 values(3) into(partition p3, partition p4);
+alter table part_list_lifecycle merge partitions p3, p4 into partition p34;
+alter table part_list_lifecycle truncate partition p12;
+alter table part_list_lifecycle drop partition if exists p34;
+create table part_sub_lifecycle(id int, category int)
+partition by range(id)
+subpartition by range(category)(
+  partition p1 values less than(10)(
+    subpartition sp1 values less than(10),
+    subpartition sp2 values less than(20)
+  ),
+  partition pmax values less than(maxvalue)(
+    subpartition sp1 values less than(10),
+    subpartition spmax values less than(maxvalue)
+  )
+);
+alter table part_sub_lifecycle modify partition p1 add subpartition sp_extra values less than(30);
+alter table part_sub_lifecycle truncate subpartition p1_sp1;
+alter table part_sub_lifecycle drop subpartition p1_sp_extra;
+truncate table part_range_basic partition(p1);
+truncate table part_range_basic partition(p2);
+drop table part_range_basic;
+drop table part_range_equ;
+drop table part_range_date;
+drop table part_range_multi;
+drop table part_interval_number;
+drop table part_interval_date;
+drop table part_list_basic;
+drop table part_hash_named;
+drop table part_hash_count;
+drop table part_range_hash;
+drop table part_list_range;
+drop table part_range_list;
+drop table part_list_hash;
+drop table part_lock_partitions;
+drop table part_lock_root;
+drop table part_row_movement;
+drop table part_range_lifecycle;
+drop table part_exchange;
+drop table part_list_lifecycle;
+drop table part_sub_lifecycle;
+------------------------------------------------------------------------------------------
+[CREATE_TABLE|ADD_COLUMN] create table part_range_basic(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition p2 values less than(20), partition pmax values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_range_equ(id int, name varchar(30))
+partition by range(id)(partition p1 values equ or less than(10), partition p2 values equ or less than(20));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_range_date(id int, created_at date)
+partition by range(created_at)(partition p2020 values less than(date '2021-01-01'), partition p2021 values less than(date '2022-01-01'), partition pmax values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_range_multi(id int, category int, name varchar(30))
+partition by range(id, category)(partition p1 values less than(10, 10), partition p2 values less than(20, 20), partition pmax values less than(maxvalue, maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_interval_number(id int, name varchar(30))
+partition by range(id) interval(10)(partition p1 values equ or less than(10), partition p2 values equ or less than(20));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_interval_date(id int, created_at date)
+partition by range(created_at) interval(numtoyminterval(1, 'MONTH'))(partition p1 values less than(date '2024-01-01'));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_list_basic(id int, category varchar(10), name varchar(30))
+partition by list(category)(partition p_ab values('A', 'B'), partition p_cd values('C', 'D'), partition p_other values(default));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_hash_named(id int, name varchar(30))
+partition by hash(id)(partition p1, partition p2, partition p3, partition p4);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_hash_count(id int, name varchar(30)) partition by hash(id) partitions 4;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_range_hash(id int, category int, name varchar(30))
+partition by range(id)
+subpartition by hash(category) subpartition template subpartitions 2
+(partition p1 values less than(10), partition p2 values less than(20), partition pmax values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_list_range(id int, category varchar(10), created_at date)
+partition by list(category)
+subpartition by range(created_at) subpartition template(
+  subpartition sp2020 values less than(date '2021-01-01'),
+  subpartition spmax values less than(maxvalue)
+)(partition p_a values('A'), partition p_b values('B'), partition p_other values(default));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_range_list(id int, category varchar(10), name varchar(30))
+partition by range(id)
+subpartition by list(category) subpartition template(
+  subpartition sp_a values('A'),
+  subpartition sp_b values('B'),
+  subpartition sp_other values(default)
+)(partition p1 values less than(10), partition pmax values less than(maxvalue));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_list_hash(id int, category varchar(10), name varchar(30))
+partition by list(category)
+subpartition by hash(id) subpartition template(subpartition sp1, subpartition sp2)
+(partition p_a values('A'), partition p_b values('B'), partition p_other values(default));
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_lock_partitions(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) lock partitions;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_lock_root(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) lock root;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_row_movement(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue)) enable row movement;
+----------
+[INSERT] insert into part_range_basic values(1, 'ONE');
+----------
+[INSERT] insert into part_range_basic partition(p2) values(11, 'ELEVEN');
+----------
+[INSERT] insert into part_range_basic partition for(25) values(25, 'TWENTY_FIVE');
+----------
+[INSERT] insert into part_list_basic values(1, 'A', 'ALPHA');
+----------
+[INSERT] insert into part_hash_named values(1, 'HASH_ONE');
+----------
+[INSERT] insert into part_range_hash values(1, 1, 'RANGE_HASH');
+----------
+[INSERT] insert into part_list_range values(1, 'A', date '2020-01-01');
+----------
+[INSERT] insert into part_range_list values(1, 'A', 'RANGE_LIST');
+----------
+[SELECT] select * from part_range_basic partition(p1);
+----------
+[SELECT] select * from part_range_basic partition for(11);
+----------
+[SELECT] select * from part_range_hash subpartition for(1, 1);
+----------
+[SELECT] select * from part_list_range subpartition(p_a_sp2020);
+----------
+[SELECT] select * from part_range_list subpartition for(1, 'A');
+----------
+[SELECT] select count(*) from part_hash_named partition(p1);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_range_lifecycle(id int, name varchar(30))
+partition by range(id)(partition p1 values less than(10), partition p2 values less than(20));
+----------
+[ALTER_TABLE|ADD_PARTITION] alter table part_range_lifecycle add partition p3 values less than(30);
+----------
+[ALTER_TABLE|ADD_PARTITION] alter table part_range_lifecycle add partition pmax values less than(maxvalue);
+----------
+[ALTER_TABLE|TRUNCATE_PARTITION] alter table part_range_lifecycle truncate partition p1;
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_range_lifecycle split partition p2 at(15) into(partition p2a, partition p2b);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_range_lifecycle merge partitions p2a, p2b into partition p2;
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_range_lifecycle rename partition p3 to p30;
+----------
+[ALTER_TABLE] alter table part_range_lifecycle enable row movement;
+----------
+[ALTER_TABLE] alter table part_range_lifecycle disable row movement;
+----------
+[ALTER_TABLE] alter table part_range_lifecycle lock partitions;
+----------
+[ALTER_TABLE] alter table part_range_lifecycle lock root;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_exchange(id int, name varchar(30));
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_range_lifecycle exchange partition p1 with table part_exchange;
+----------
+[ALTER_TABLE|DROP_PARTITION] alter table part_range_lifecycle drop partition p30;
+----------
+[ALTER_TABLE|DROP_PARTITION] alter table part_range_lifecycle drop partition for(1000);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_list_lifecycle(id int, category int)
+partition by list(category)(partition p12 values(1, 2), partition p34 values(3, 4), partition pother values(default));
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_list_lifecycle modify partition p12 add values(5, 6);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_list_lifecycle modify partition p12 drop values(2);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_list_lifecycle split partition p34 values(3) into(partition p3, partition p4);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_list_lifecycle merge partitions p3, p4 into partition p34;
+----------
+[ALTER_TABLE|TRUNCATE_PARTITION] alter table part_list_lifecycle truncate partition p12;
+----------
+[ALTER_TABLE|DROP_PARTITION] alter table part_list_lifecycle drop partition if exists p34;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table part_sub_lifecycle(id int, category int)
+partition by range(id)
+subpartition by range(category)(
+  partition p1 values less than(10)(
+    subpartition sp1 values less than(10),
+    subpartition sp2 values less than(20)
+  ),
+  partition pmax values less than(maxvalue)(
+    subpartition sp1 values less than(10),
+    subpartition spmax values less than(maxvalue)
+  )
+);
+----------
+[ALTER_TABLE|ALTER_PARTITION] alter table part_sub_lifecycle modify partition p1 add subpartition sp_extra values less than(30);
+----------
+[ALTER_TABLE|TRUNCATE_PARTITION] alter table part_sub_lifecycle truncate subpartition p1_sp1;
+----------
+[ALTER_TABLE|DROP_PARTITION] alter table part_sub_lifecycle drop subpartition p1_sp_extra;
+----------
+[TRUNCATE_TABLE] truncate table part_range_basic partition(p1);
+----------
+[TRUNCATE_TABLE] truncate table part_range_basic partition(p2);
+----------
+[DROP_TABLE] drop table part_range_basic;
+----------
+[DROP_TABLE] drop table part_range_equ;
+----------
+[DROP_TABLE] drop table part_range_date;
+----------
+[DROP_TABLE] drop table part_range_multi;
+----------
+[DROP_TABLE] drop table part_interval_number;
+----------
+[DROP_TABLE] drop table part_interval_date;
+----------
+[DROP_TABLE] drop table part_list_basic;
+----------
+[DROP_TABLE] drop table part_hash_named;
+----------
+[DROP_TABLE] drop table part_hash_count;
+----------
+[DROP_TABLE] drop table part_range_hash;
+----------
+[DROP_TABLE] drop table part_list_range;
+----------
+[DROP_TABLE] drop table part_range_list;
+----------
+[DROP_TABLE] drop table part_list_hash;
+----------
+[DROP_TABLE] drop table part_lock_partitions;
+----------
+[DROP_TABLE] drop table part_lock_root;
+----------
+[DROP_TABLE] drop table part_row_movement;
+----------
+[DROP_TABLE] drop table part_range_lifecycle;
+----------
+[DROP_TABLE] drop table part_exchange;
+----------
+[DROP_TABLE] drop table part_list_lifecycle;
+----------
+[DROP_TABLE] drop table part_sub_lifecycle;

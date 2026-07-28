@@ -1,0 +1,284 @@
+create user CODEX_DM8_DOMAIN_USER_20260721 identified by "Dm8@Domain2026";
+create role CODEX_DM8_DOMAIN_ROLE_20260721;
+create domain dom_int int;
+create domain dom_int_as as int;
+create domain dom_int_default int default 10;
+create domain dom_positive int check(value > 0);
+create domain dom_nonnegative int constraint ck_dom_nonnegative check(value >= 0);
+create domain dom_default_check int default 1 check(value between 1 and 100);
+create domain dom_named_default_check as int default 2
+constraint ck_dom_named_range check(value between 1 and 10);
+create domain dom_code varchar(20) default 'UNKNOWN';
+create domain dom_short_text varchar(40) check(length(value) <= 40);
+create domain dom_amount decimal(12,2) default 0 check(value >= 0);
+create domain dom_ratio numeric(8,4) check(value between 0 and 1);
+create domain dom_flag char(1) default 'Y' check(value in ('Y', 'N'));
+create domain dom_created_date date default current_date;
+create domain dom_created_at timestamp default current_timestamp;
+create domain dom_big_id bigint check(value > 0);
+create domain "Dom_Quoted_20260721" varchar(16) default 'quoted';
+create domain CODEX_DM8_DOMAIN_20260721.dom_qualified int default 5;
+create domain if not exists dom_int int;
+create domain if not exists CODEX_DM8_DOMAIN_20260721.dom_ifne varchar(8);
+create table domain_defaults(
+  id dom_big_id,
+  score dom_int_default,
+  code dom_code,
+  flag dom_flag,
+  created_on dom_created_date
+);
+insert into domain_defaults(id) values(1);
+select id, score, code, flag, created_on from domain_defaults;
+create table domain_override(
+  id dom_big_id,
+  score dom_int_default default 99,
+  code dom_code default 'OVERRIDE'
+);
+insert into domain_override(id) values(2);
+select id, score, code from domain_override;
+create table domain_constraints(
+  id dom_big_id,
+  positive_value dom_positive,
+  amount dom_amount,
+  ratio dom_ratio
+);
+insert into domain_constraints values(3, 7, 12.50, 0.7500);
+update domain_constraints set positive_value = 8, amount = amount + 1 where id = 3;
+select id, positive_value, amount, ratio from domain_constraints;
+create table domain_quoted(id int, quoted_value "Dom_Quoted_20260721");
+insert into domain_quoted(id) values(4);
+select id, quoted_value from domain_quoted;
+create table domain_qualified_use(
+  id int,
+  value_one CODEX_DM8_DOMAIN_20260721.dom_qualified,
+  value_two CODEX_DM8_DOMAIN_20260721.dom_ifne
+);
+insert into domain_qualified_use(id, value_two) values(5, 'DM8');
+select id, value_one, value_two from domain_qualified_use;
+select name, schid, subtype$ from sysobjects
+where subtype$ = 'DOMAIN' and name like 'DOM_%' order by name;
+grant usage on domain CODEX_DM8_DOMAIN_20260721.dom_int
+to CODEX_DM8_DOMAIN_USER_20260721;
+grant usage on domain CODEX_DM8_DOMAIN_20260721.dom_code
+to CODEX_DM8_DOMAIN_ROLE_20260721;
+grant usage on domain CODEX_DM8_DOMAIN_20260721.dom_flag to public;
+revoke usage on domain CODEX_DM8_DOMAIN_20260721.dom_int
+from CODEX_DM8_DOMAIN_USER_20260721;
+revoke usage on domain CODEX_DM8_DOMAIN_20260721.dom_code
+from CODEX_DM8_DOMAIN_ROLE_20260721;
+revoke usage on domain CODEX_DM8_DOMAIN_20260721.dom_flag from public;
+create domain dom_drop_restrict int;
+drop domain dom_drop_restrict restrict;
+create domain dom_drop_cascade int default 7 check(value > 0);
+create table domain_cascade_use(id int, value_one dom_drop_cascade);
+insert into domain_cascade_use(id) values(6);
+drop domain dom_drop_cascade cascade;
+select id, value_one from domain_cascade_use;
+drop table domain_cascade_use;
+drop domain if exists dom_not_present;
+drop table domain_qualified_use;
+drop table domain_quoted;
+drop table domain_constraints;
+drop table domain_override;
+drop table domain_defaults;
+drop domain if exists CODEX_DM8_DOMAIN_20260721.dom_ifne;
+drop domain if exists CODEX_DM8_DOMAIN_20260721.dom_qualified;
+drop domain if exists "Dom_Quoted_20260721";
+drop domain if exists dom_big_id;
+drop domain if exists dom_created_at;
+drop domain if exists dom_created_date;
+drop domain if exists dom_flag;
+drop domain if exists dom_ratio;
+drop domain if exists dom_amount;
+drop domain if exists dom_short_text;
+drop domain if exists dom_code;
+drop domain if exists dom_named_default_check;
+drop domain if exists dom_default_check;
+drop domain if exists dom_nonnegative;
+drop domain if exists dom_positive;
+drop domain if exists dom_int_default;
+drop domain if exists dom_int_as;
+drop domain if exists dom_int;
+drop role CODEX_DM8_DOMAIN_ROLE_20260721;
+drop user CODEX_DM8_DOMAIN_USER_20260721 cascade;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user CODEX_DM8_DOMAIN_USER_20260721 identified by "Dm8@Domain2026";
+----------
+[CREATE_ROLE] create role CODEX_DM8_DOMAIN_ROLE_20260721;
+----------
+[CREATE_TYPE] create domain dom_int int;
+----------
+[CREATE_TYPE] create domain dom_int_as as int;
+----------
+[CREATE_TYPE] create domain dom_int_default int default 10;
+----------
+[CREATE_TYPE] create domain dom_positive int check(value > 0);
+----------
+[CREATE_TYPE] create domain dom_nonnegative int constraint ck_dom_nonnegative check(value >= 0);
+----------
+[CREATE_TYPE] create domain dom_default_check int default 1 check(value between 1 and 100);
+----------
+[CREATE_TYPE] create domain dom_named_default_check as int default 2
+constraint ck_dom_named_range check(value between 1 and 10);
+----------
+[CREATE_TYPE] create domain dom_code varchar(20) default 'UNKNOWN';
+----------
+[CREATE_TYPE] create domain dom_short_text varchar(40) check(length(value) <= 40);
+----------
+[CREATE_TYPE] create domain dom_amount decimal(12,2) default 0 check(value >= 0);
+----------
+[CREATE_TYPE] create domain dom_ratio numeric(8,4) check(value between 0 and 1);
+----------
+[CREATE_TYPE] create domain dom_flag char(1) default 'Y' check(value in ('Y', 'N'));
+----------
+[CREATE_TYPE] create domain dom_created_date date default current_date;
+----------
+[CREATE_TYPE] create domain dom_created_at timestamp default current_timestamp;
+----------
+[CREATE_TYPE] create domain dom_big_id bigint check(value > 0);
+----------
+[CREATE_TYPE] create domain "Dom_Quoted_20260721" varchar(16) default 'quoted';
+----------
+[CREATE_TYPE] create domain CODEX_DM8_DOMAIN_20260721.dom_qualified int default 5;
+----------
+[CREATE_TYPE] create domain if not exists dom_int int;
+----------
+[CREATE_TYPE] create domain if not exists CODEX_DM8_DOMAIN_20260721.dom_ifne varchar(8);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table domain_defaults(
+  id dom_big_id,
+  score dom_int_default,
+  code dom_code,
+  flag dom_flag,
+  created_on dom_created_date
+);
+----------
+[INSERT] insert into domain_defaults(id) values(1);
+----------
+[SELECT] select id, score, code, flag, created_on from domain_defaults;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table domain_override(
+  id dom_big_id,
+  score dom_int_default default 99,
+  code dom_code default 'OVERRIDE'
+);
+----------
+[INSERT] insert into domain_override(id) values(2);
+----------
+[SELECT] select id, score, code from domain_override;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table domain_constraints(
+  id dom_big_id,
+  positive_value dom_positive,
+  amount dom_amount,
+  ratio dom_ratio
+);
+----------
+[INSERT] insert into domain_constraints values(3, 7, 12.50, 0.7500);
+----------
+[UPDATE] update domain_constraints set positive_value = 8, amount = amount + 1 where id = 3;
+----------
+[SELECT] select id, positive_value, amount, ratio from domain_constraints;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table domain_quoted(id int, quoted_value "Dom_Quoted_20260721");
+----------
+[INSERT] insert into domain_quoted(id) values(4);
+----------
+[SELECT] select id, quoted_value from domain_quoted;
+----------
+[CREATE_TABLE|ADD_COLUMN] create table domain_qualified_use(
+  id int,
+  value_one CODEX_DM8_DOMAIN_20260721.dom_qualified,
+  value_two CODEX_DM8_DOMAIN_20260721.dom_ifne
+);
+----------
+[INSERT] insert into domain_qualified_use(id, value_two) values(5, 'DM8');
+----------
+[SELECT] select id, value_one, value_two from domain_qualified_use;
+----------
+[SELECT] select name, schid, subtype$ from sysobjects
+where subtype$ = 'DOMAIN' and name like 'DOM_%' order by name;
+----------
+[GRANT] grant usage on domain CODEX_DM8_DOMAIN_20260721.dom_int
+to CODEX_DM8_DOMAIN_USER_20260721;
+----------
+[GRANT] grant usage on domain CODEX_DM8_DOMAIN_20260721.dom_code
+to CODEX_DM8_DOMAIN_ROLE_20260721;
+----------
+[GRANT] grant usage on domain CODEX_DM8_DOMAIN_20260721.dom_flag to public;
+----------
+[REVOKE] revoke usage on domain CODEX_DM8_DOMAIN_20260721.dom_int
+from CODEX_DM8_DOMAIN_USER_20260721;
+----------
+[REVOKE] revoke usage on domain CODEX_DM8_DOMAIN_20260721.dom_code
+from CODEX_DM8_DOMAIN_ROLE_20260721;
+----------
+[REVOKE] revoke usage on domain CODEX_DM8_DOMAIN_20260721.dom_flag from public;
+----------
+[CREATE_TYPE] create domain dom_drop_restrict int;
+----------
+[DROP_TYPE] drop domain dom_drop_restrict restrict;
+----------
+[CREATE_TYPE] create domain dom_drop_cascade int default 7 check(value > 0);
+----------
+[CREATE_TABLE|ADD_COLUMN] create table domain_cascade_use(id int, value_one dom_drop_cascade);
+----------
+[INSERT] insert into domain_cascade_use(id) values(6);
+----------
+[DROP_TYPE] drop domain dom_drop_cascade cascade;
+----------
+[SELECT] select id, value_one from domain_cascade_use;
+----------
+[DROP_TABLE] drop table domain_cascade_use;
+----------
+[DROP_TYPE] drop domain if exists dom_not_present;
+----------
+[DROP_TABLE] drop table domain_qualified_use;
+----------
+[DROP_TABLE] drop table domain_quoted;
+----------
+[DROP_TABLE] drop table domain_constraints;
+----------
+[DROP_TABLE] drop table domain_override;
+----------
+[DROP_TABLE] drop table domain_defaults;
+----------
+[DROP_TYPE] drop domain if exists CODEX_DM8_DOMAIN_20260721.dom_ifne;
+----------
+[DROP_TYPE] drop domain if exists CODEX_DM8_DOMAIN_20260721.dom_qualified;
+----------
+[DROP_TYPE] drop domain if exists "Dom_Quoted_20260721";
+----------
+[DROP_TYPE] drop domain if exists dom_big_id;
+----------
+[DROP_TYPE] drop domain if exists dom_created_at;
+----------
+[DROP_TYPE] drop domain if exists dom_created_date;
+----------
+[DROP_TYPE] drop domain if exists dom_flag;
+----------
+[DROP_TYPE] drop domain if exists dom_ratio;
+----------
+[DROP_TYPE] drop domain if exists dom_amount;
+----------
+[DROP_TYPE] drop domain if exists dom_short_text;
+----------
+[DROP_TYPE] drop domain if exists dom_code;
+----------
+[DROP_TYPE] drop domain if exists dom_named_default_check;
+----------
+[DROP_TYPE] drop domain if exists dom_default_check;
+----------
+[DROP_TYPE] drop domain if exists dom_nonnegative;
+----------
+[DROP_TYPE] drop domain if exists dom_positive;
+----------
+[DROP_TYPE] drop domain if exists dom_int_default;
+----------
+[DROP_TYPE] drop domain if exists dom_int_as;
+----------
+[DROP_TYPE] drop domain if exists dom_int;
+----------
+[DROP_ROLE] drop role CODEX_DM8_DOMAIN_ROLE_20260721;
+----------
+[DROP_USER] drop user CODEX_DM8_DOMAIN_USER_20260721 cascade;

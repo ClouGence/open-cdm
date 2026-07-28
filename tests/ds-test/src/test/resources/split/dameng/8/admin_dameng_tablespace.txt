@@ -1,0 +1,6 @@
+create tablespace ts_dm_test datafile 'ts_dm_test.dbf' size 128;
+drop tablespace ts_dm_test;
+------------------------------------------------------------------------------------------
+[CREATE_TABLESPACE] create tablespace ts_dm_test datafile 'ts_dm_test.dbf' size 128;
+----------
+[DROP_TABLESPACE] drop tablespace ts_dm_test;

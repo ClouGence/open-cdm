@@ -1,0 +1,83 @@
+create user CODEX_DM8_CTX_CREATOR_20260722 identified by "Dm8Ctx2026";
+create user CODEX_DM8_CTX_DROPPER_20260722 identified by "Dm8Ctx2026";
+create user CODEX_DM8_CTX_OTHER_20260722 identified by "Dm8Ctx2026";
+grant dba to CODEX_DM8_CTX_CREATOR_20260722;
+grant dba to CODEX_DM8_CTX_DROPPER_20260722;
+create context CODEX_CTX_PRIV_20260722 using CODEX_DM8_CTX_CREATOR_20260722.no_such_package;
+select name, schid, info5, info6 from sysobjects where name='CODEX_CTX_PRIV_20260722';
+create context CODEX_CTX_NOAUTH_20260722 using CODEX_DM8_CTX_OTHER_20260722.no_such_package;
+drop context SYS.CODEX_CTX_PRIV_20260722;
+drop context SYS.CODEX_CTX_PRIV_20260722;
+create context CODEX_CTX_OBJECT_ADMIN_20260722
+using CODEX_DM8_CTX_DROPPER_20260722.no_such_package;
+drop context SYS.CODEX_CTX_OBJECT_ADMIN_20260722;
+grant grant any context to CODEX_DM8_CTX_CREATOR_20260722;
+grant create any context, drop any context to CODEX_DM8_CTX_OTHER_20260722;
+grant create any context, drop any context to public;
+grant create any context, drop any context to CODEX_DM8_CTX_OTHER_20260722 with admin option;
+revoke grant any context from CODEX_DM8_CTX_CREATOR_20260722;
+grant create any context to CODEX_DM8_CTX_OTHER_20260722;
+grant drop any context to CODEX_DM8_CTX_OTHER_20260722;
+revoke create any context from CODEX_DM8_CTX_OTHER_20260722;
+revoke drop any context from CODEX_DM8_CTX_OTHER_20260722;
+grant db_object_admin to CODEX_DM8_CTX_OTHER_20260722;
+drop context if exists SYS.CODEX_CTX_PRIV_20260722;
+drop context if exists SYS.CODEX_CTX_OBJECT_ADMIN_20260722;
+drop user CODEX_DM8_CTX_CREATOR_20260722 cascade;
+drop user CODEX_DM8_CTX_DROPPER_20260722 cascade;
+drop user CODEX_DM8_CTX_OTHER_20260722 cascade;
+------------------------------------------------------------------------------------------
+[CREATE_USER] create user CODEX_DM8_CTX_CREATOR_20260722 identified by "Dm8Ctx2026";
+----------
+[CREATE_USER] create user CODEX_DM8_CTX_DROPPER_20260722 identified by "Dm8Ctx2026";
+----------
+[CREATE_USER] create user CODEX_DM8_CTX_OTHER_20260722 identified by "Dm8Ctx2026";
+----------
+[GRANT] grant dba to CODEX_DM8_CTX_CREATOR_20260722;
+----------
+[GRANT] grant dba to CODEX_DM8_CTX_DROPPER_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create context CODEX_CTX_PRIV_20260722 using CODEX_DM8_CTX_CREATOR_20260722.no_such_package;
+----------
+[SELECT] select name, schid, info5, info6 from sysobjects where name='CODEX_CTX_PRIV_20260722';
+----------
+[SYSTEM_SETTING_WRITE] create context CODEX_CTX_NOAUTH_20260722 using CODEX_DM8_CTX_OTHER_20260722.no_such_package;
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.CODEX_CTX_PRIV_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.CODEX_CTX_PRIV_20260722;
+----------
+[SYSTEM_SETTING_WRITE] create context CODEX_CTX_OBJECT_ADMIN_20260722
+using CODEX_DM8_CTX_DROPPER_20260722.no_such_package;
+----------
+[SYSTEM_SETTING_WRITE] drop context SYS.CODEX_CTX_OBJECT_ADMIN_20260722;
+----------
+[GRANT] grant grant any context to CODEX_DM8_CTX_CREATOR_20260722;
+----------
+[GRANT] grant create any context, drop any context to CODEX_DM8_CTX_OTHER_20260722;
+----------
+[GRANT] grant create any context, drop any context to public;
+----------
+[GRANT] grant create any context, drop any context to CODEX_DM8_CTX_OTHER_20260722 with admin option;
+----------
+[REVOKE] revoke grant any context from CODEX_DM8_CTX_CREATOR_20260722;
+----------
+[GRANT] grant create any context to CODEX_DM8_CTX_OTHER_20260722;
+----------
+[GRANT] grant drop any context to CODEX_DM8_CTX_OTHER_20260722;
+----------
+[REVOKE] revoke create any context from CODEX_DM8_CTX_OTHER_20260722;
+----------
+[REVOKE] revoke drop any context from CODEX_DM8_CTX_OTHER_20260722;
+----------
+[GRANT] grant db_object_admin to CODEX_DM8_CTX_OTHER_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop context if exists SYS.CODEX_CTX_PRIV_20260722;
+----------
+[SYSTEM_SETTING_WRITE] drop context if exists SYS.CODEX_CTX_OBJECT_ADMIN_20260722;
+----------
+[DROP_USER] drop user CODEX_DM8_CTX_CREATOR_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_CTX_DROPPER_20260722 cascade;
+----------
+[DROP_USER] drop user CODEX_DM8_CTX_OTHER_20260722 cascade;

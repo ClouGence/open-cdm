@@ -1,0 +1,6 @@
+insert into MV_BASE values(4, 30, 40.00, 'D');
+rollback;
+------------------------------------------------------------------------------------------
+[INSERT] insert into MV_BASE values(4, 30, 40.00, 'D');
+----------
+[TRANSACTION] rollback;

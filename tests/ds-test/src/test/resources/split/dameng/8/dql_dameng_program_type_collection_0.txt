@@ -1,0 +1,3 @@
+SELECT ID, V FROM INDEX_COLUMN_COMPAT;
+------------------------------------------------------------------------------------------
+[SELECT] SELECT ID, V FROM INDEX_COLUMN_COMPAT;

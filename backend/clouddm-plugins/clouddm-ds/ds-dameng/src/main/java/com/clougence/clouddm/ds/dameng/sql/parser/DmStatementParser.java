@@ -71,13 +71,8 @@ public class DmStatementParser implements AntlrStatementParser {
                 // ignore whitespace
             } else if (end.getType() == DmSqlParser.SEMI) {
                 endToken = end;
-                Token slash = followingSlashTerminator(tokens, i + 1);
-                if (slash != null) {
-                    endToken = slash;
-                }
                 break;
             } else if (end.getType() == DmSqlParser.SLASH) {
-                endToken = end;
                 break;
             } else if (end.getType() == DmSqlParser.LINE_COMMENT || end.getType() == DmSqlParser.C_LINE_COMMENT || end.getType() == DmSqlParser.BLOCK_COMMENT) {
                 endToken = end;
@@ -86,19 +81,5 @@ public class DmStatementParser implements AntlrStatementParser {
             }
         }
         return tokens.getText(startToken, endToken);
-    }
-
-    private Token followingSlashTerminator(TokenStream tokens, int startIndex) {
-        for (int i = startIndex; i < tokens.size(); i++) {
-            Token token = tokens.get(i);
-            if (token.getType() == DmSqlParser.WS) {
-                continue;
-            }
-            if (token.getType() == DmSqlParser.SLASH) {
-                return token;
-            }
-            return null;
-        }
-        return null;
     }
 }

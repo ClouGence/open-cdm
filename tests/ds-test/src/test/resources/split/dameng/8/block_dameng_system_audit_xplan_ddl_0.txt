@@ -1,0 +1,182 @@
+begin
+  dbms_system.ksdwrt(2, 'CODEX_DM8_DBMS_SYSTEM_KSDWRT');
+end;
+/
+begin
+  dbms_xplan.display_planhist('select C2 from CODEX_DM8_XPLAN_T where C1=1;');
+end;
+/
+declare
+  plan_hash int;
+begin
+  select min(plan_hash_value) into plan_hash
+  from sysplanhist
+  where upper(sql_str) like '%CODEX_DM8_XPLAN_T%';
+  dbms_xplan.display_planhist(plan_hash);
+end;
+/
+begin
+  dbms_xplan.clear_planhist(null, sysdate + 1);
+end;
+/
+begin
+  dbms_ddl.create_wrapped(
+    'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAPPED_F1 RETURN INT AS BEGIN RETURN 81; END;'
+  );
+end;
+/
+declare
+  source_lines dbms_sql.varchar2a;
+  wrapped_lines dbms_sql.varchar2a;
+begin
+  source_lines(1) := 'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAP_ARRAY_A RETURN INT AS ';
+  source_lines(2) := 'BEGIN RETURN 82; END;';
+  wrapped_lines := dbms_ddl.wrap(source_lines, 1, source_lines.count);
+  print length(wrapped_lines(1));
+end;
+/
+declare
+  source_lines dbms_sql.varchar2s;
+  wrapped_lines dbms_sql.varchar2s;
+begin
+  source_lines(1) := 'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAP_ARRAY_S RETURN INT AS ';
+  source_lines(2) := 'BEGIN RETURN 83; END;';
+  wrapped_lines := dbms_ddl.wrap(source_lines, 1, source_lines.count);
+  print length(wrapped_lines(1));
+end;
+/
+declare
+  source_lines dbms_sql.varchar2a;
+begin
+  source_lines(1) := 'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAPPED_F2 RETURN INT AS ';
+  source_lines(2) := 'BEGIN RETURN 84; END;';
+  dbms_ddl.create_wrapped(source_lines, 1, source_lines.count);
+end;
+/
+begin
+  dbms_audit.start_aud();
+end;
+/
+begin
+  dbms_audit.end_aud();
+end;
+/
+declare
+  audit_file varchar(32767);
+begin
+  select min(filepath) into audit_file from v$audit_file;
+  dbms_audit.add_audfile(audit_file);
+end;
+/
+declare
+  audit_file varchar(32767);
+begin
+  select min(filepath) into audit_file from v$dbmsaudit_file;
+  dbms_audit.remove_audfile(audit_file);
+end;
+/
+begin
+  dbms_audit.start_aud(
+    startTime=>sysdate - 1,
+    endTime=>sysdate + 1,
+    userName=>'SYSDBA',
+    ip=>'',
+    succFlag=>1
+  );
+end;
+/
+begin
+  dbms_audit.end_aud();
+end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] begin
+  dbms_system.ksdwrt(2, 'CODEX_DM8_DBMS_SYSTEM_KSDWRT');
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin
+  dbms_xplan.display_planhist('select C2 from CODEX_DM8_XPLAN_T where C1=1;');
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare
+  plan_hash int;
+begin
+  select min(plan_hash_value) into plan_hash
+  from sysplanhist
+  where upper(sql_str) like '%CODEX_DM8_XPLAN_T%';
+  dbms_xplan.display_planhist(plan_hash);
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin
+  dbms_xplan.clear_planhist(null, sysdate + 1);
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin
+  dbms_ddl.create_wrapped(
+    'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAPPED_F1 RETURN INT AS BEGIN RETURN 81; END;'
+  );
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  source_lines dbms_sql.varchar2a;
+  wrapped_lines dbms_sql.varchar2a;
+begin
+  source_lines(1) := 'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAP_ARRAY_A RETURN INT AS ';
+  source_lines(2) := 'BEGIN RETURN 82; END;';
+  wrapped_lines := dbms_ddl.wrap(source_lines, 1, source_lines.count);
+  print length(wrapped_lines(1));
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  source_lines dbms_sql.varchar2s;
+  wrapped_lines dbms_sql.varchar2s;
+begin
+  source_lines(1) := 'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAP_ARRAY_S RETURN INT AS ';
+  source_lines(2) := 'BEGIN RETURN 83; END;';
+  wrapped_lines := dbms_ddl.wrap(source_lines, 1, source_lines.count);
+  print length(wrapped_lines(1));
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare
+  source_lines dbms_sql.varchar2a;
+begin
+  source_lines(1) := 'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAPPED_F2 RETURN INT AS ';
+  source_lines(2) := 'BEGIN RETURN 84; END;';
+  dbms_ddl.create_wrapped(source_lines, 1, source_lines.count);
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin
+  dbms_audit.start_aud();
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin
+  dbms_audit.end_aud();
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare
+  audit_file varchar(32767);
+begin
+  select min(filepath) into audit_file from v$audit_file;
+  dbms_audit.add_audfile(audit_file);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare
+  audit_file varchar(32767);
+begin
+  select min(filepath) into audit_file from v$dbmsaudit_file;
+  dbms_audit.remove_audfile(audit_file);
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin
+  dbms_audit.start_aud(
+    startTime=>sysdate - 1,
+    endTime=>sysdate + 1,
+    userName=>'SYSDBA',
+    ip=>'',
+    succFlag=>1
+  );
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin
+  dbms_audit.end_aud();
+end;

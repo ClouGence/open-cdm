@@ -1,0 +1,168 @@
+begin dbms_stats.gather_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+/
+begin dbms_stats.gather_table_stats(ownname=>'SYSDBA', tabname=>'CODEX_DM8_PERF_STATS', estimate_percent=>100, method_opt=>'FOR ALL COLUMNS SIZE 8', cascade=>true); end;
+/
+begin dbms_stats.table_stats_show('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+/
+begin dbms_stats.column_stats_show('SYSDBA', 'CODEX_DM8_PERF_STATS', 'CATEGORY'); end;
+/
+begin dbms_stats.gather_index_stats('SYSDBA', 'CODEX_DM8_PERF_STATS_IDX', estimate_percent=>100); end;
+/
+begin dbms_stats.index_stats_show('SYSDBA', 'CODEX_DM8_PERF_STATS_IDX'); end;
+/
+begin dbms_stats.set_table_prefs('SYSDBA', 'CODEX_DM8_PERF_STATS', 'STALE_PERCENT', '25'); end;
+/
+begin dbms_stats.set_table_prefs('SYSDBA', 'CODEX_DM8_PERF_STATS', 'ESTIMATE_PERCENT', '100'); end;
+/
+begin dbms_stats.create_stat_table('SYSDBA', 'CODEX_PERF_STAT'); end;
+/
+begin dbms_stats.export_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', stattab=>'CODEX_PERF_STAT', statid=>'BASELINE', statown=>'SYSDBA'); end;
+/
+begin dbms_stats.delete_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+/
+begin dbms_stats.import_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', stattab=>'CODEX_PERF_STAT', statid=>'BASELINE', statown=>'SYSDBA'); end;
+/
+begin dbms_stats.set_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', numrows=>200, numblks=>8, avgrlen=>40); end;
+/
+begin dbms_stats.lock_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+/
+begin dbms_stats.unlock_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+/
+begin dbms_stats.gather_table_stats('SYSDBA', 'CODEX_DM8_PERF_PART', partname=>'P_LOW', estimate_percent=>100, granularity=>'PARTITION', cascade=>true); end;
+/
+begin dbms_stats.gather_table_stats('SYSDBA', 'CODEX_DM8_PERF_PART', partname=>'P_HIGH', estimate_percent=>100, granularity=>'PARTITION', cascade=>true); end;
+/
+begin dbms_stats.copy_table_stats('SYSDBA', 'CODEX_DM8_PERF_PART', 'P_LOW', 'P_HIGH'); end;
+/
+begin dbms_stats.lock_partition_stats('SYSDBA', 'CODEX_DM8_PERF_PART', 'P_LOW'); end;
+/
+begin dbms_stats.unlock_partition_stats('SYSDBA', 'CODEX_DM8_PERF_PART', 'P_LOW'); end;
+/
+begin dbms_stats.delete_index_stats('SYSDBA', 'CODEX_DM8_PERF_STATS_IDX'); end;
+/
+begin dbms_stats.gather_index_stats('SYSDBA', 'CODEX_DM8_PERF_STATS_IDX'); end;
+/
+begin dbms_stats.delete_column_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', 'AMOUNT'); end;
+/
+begin dbms_stats.gather_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', method_opt=>'FOR COLUMNS AMOUNT SIZE 4'); end;
+/
+declare objects sys.objecttab; begin dbms_stats.gather_schema_stats('SYSDBA', estimate_percent=>10, options=>'GATHER', objlist=>objects); end;
+/
+begin dbms_stats.flush_database_monitoring_info(); end;
+/
+begin dbms_stats.create_stat_table('SYSDBA', 'CODEX_PERF_TEMP_STAT', global_temporary=>true); end;
+/
+begin dbms_stats.drop_stat_table('SYSDBA', 'CODEX_PERF_TEMP_STAT'); end;
+/
+begin dbms_stats.drop_stat_table('SYSDBA', 'CODEX_PERF_STAT'); end;
+/
+begin dbms_workload_repository.awr_set_interval(10); end;
+/
+begin dbms_workload_repository.modify_snapshot_settings(retention=>1440, awr_interval=>10, topnsql=>30); end;
+/
+declare snap_id int; begin snap_id := dbms_workload_repository.create_snapshot('TYPICAL'); insert into CODEX_DM8_PERF_CTL values('AWR_START', snap_id, null); commit; end;
+/
+declare snap_id int; begin snap_id := dbms_workload_repository.create_snapshot('ALL'); insert into CODEX_DM8_PERF_CTL values('AWR_END', snap_id, null); commit; end;
+/
+begin dbms_workload_repository.awr_clear_tmp_table(); end;
+/
+declare snap_id int; begin snap_id := dbms_workload_repository.create_snapshot(); dbms_workload_repository.drop_snapshot_range(snap_id, snap_id); end;
+/
+declare task_name varchar(128); begin task_name := dbms_sqltune.create_tuning_task(sql_text=>'select id, amount from CODEX_DM8_PERF_STATS where category=''C3'' and amount>100', user_name=>'SYSDBA', scope=>'COMPREHENSIVE', time_limit=>30, task_name=>'CODEX_TUNE_MAIN', description=>'Codex DM8 parser validation'); insert into CODEX_DM8_PERF_CTL values('TUNE_MAIN', null, task_name); commit; end;
+/
+declare execution_name varchar(128); begin execution_name := dbms_sqltune.execute_tuning_task(task_name=>'CODEX_TUNE_MAIN', execution_name=>'CODEX_EXEC_MAIN'); update CODEX_DM8_PERF_CTL set text_value=execution_name where label='TUNE_MAIN'; commit; end;
+/
+declare task_name varchar(128); begin task_name := dbms_sqltune.create_tuning_task(sql_text=>'select count(*) from CODEX_DM8_PERF_STATS where amount between 10 and 50', time_limit=>30, task_name=>'CODEX_TUNE_PROC'); dbms_sqltune.execute_tuning_task(task_name=>'CODEX_TUNE_PROC', execution_name=>'CODEX_EXEC_PROC'); end;
+/
+begin dbms_sqltune.drop_tuning_task('CODEX_TUNE_PROC'); end;
+/
+begin dbms_sqltune.drop_tuning_task('CODEX_TUNE_MAIN'); end;
+/
+begin dbms_workload_repository.drop_snapshot_range((select min(number_value) from CODEX_DM8_PERF_CTL where label like 'AWR_%'), (select max(number_value) from CODEX_DM8_PERF_CTL where label like 'AWR_%')); end;
+/
+begin dbms_workload_repository.awr_clear_history(); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.gather_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.gather_table_stats(ownname=>'SYSDBA', tabname=>'CODEX_DM8_PERF_STATS', estimate_percent=>100, method_opt=>'FOR ALL COLUMNS SIZE 8', cascade=>true); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.table_stats_show('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.column_stats_show('SYSDBA', 'CODEX_DM8_PERF_STATS', 'CATEGORY'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.gather_index_stats('SYSDBA', 'CODEX_DM8_PERF_STATS_IDX', estimate_percent=>100); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.index_stats_show('SYSDBA', 'CODEX_DM8_PERF_STATS_IDX'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.set_table_prefs('SYSDBA', 'CODEX_DM8_PERF_STATS', 'STALE_PERCENT', '25'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.set_table_prefs('SYSDBA', 'CODEX_DM8_PERF_STATS', 'ESTIMATE_PERCENT', '100'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.create_stat_table('SYSDBA', 'CODEX_PERF_STAT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.export_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', stattab=>'CODEX_PERF_STAT', statid=>'BASELINE', statown=>'SYSDBA'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.delete_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.import_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', stattab=>'CODEX_PERF_STAT', statid=>'BASELINE', statown=>'SYSDBA'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.set_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', numrows=>200, numblks=>8, avgrlen=>40); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.lock_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.unlock_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.gather_table_stats('SYSDBA', 'CODEX_DM8_PERF_PART', partname=>'P_LOW', estimate_percent=>100, granularity=>'PARTITION', cascade=>true); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.gather_table_stats('SYSDBA', 'CODEX_DM8_PERF_PART', partname=>'P_HIGH', estimate_percent=>100, granularity=>'PARTITION', cascade=>true); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.copy_table_stats('SYSDBA', 'CODEX_DM8_PERF_PART', 'P_LOW', 'P_HIGH'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.lock_partition_stats('SYSDBA', 'CODEX_DM8_PERF_PART', 'P_LOW'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.unlock_partition_stats('SYSDBA', 'CODEX_DM8_PERF_PART', 'P_LOW'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.delete_index_stats('SYSDBA', 'CODEX_DM8_PERF_STATS_IDX'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.gather_index_stats('SYSDBA', 'CODEX_DM8_PERF_STATS_IDX'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.delete_column_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', 'AMOUNT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.gather_table_stats('SYSDBA', 'CODEX_DM8_PERF_STATS', method_opt=>'FOR COLUMNS AMOUNT SIZE 4'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare objects sys.objecttab; begin dbms_stats.gather_schema_stats('SYSDBA', estimate_percent=>10, options=>'GATHER', objlist=>objects); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.flush_database_monitoring_info(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.create_stat_table('SYSDBA', 'CODEX_PERF_TEMP_STAT', global_temporary=>true); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.drop_stat_table('SYSDBA', 'CODEX_PERF_TEMP_STAT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_stats.drop_stat_table('SYSDBA', 'CODEX_PERF_STAT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_workload_repository.awr_set_interval(10); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_workload_repository.modify_snapshot_settings(retention=>1440, awr_interval=>10, topnsql=>30); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare snap_id int; begin snap_id := dbms_workload_repository.create_snapshot('TYPICAL'); insert into CODEX_DM8_PERF_CTL values('AWR_START', snap_id, null); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare snap_id int; begin snap_id := dbms_workload_repository.create_snapshot('ALL'); insert into CODEX_DM8_PERF_CTL values('AWR_END', snap_id, null); commit; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_workload_repository.awr_clear_tmp_table(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare snap_id int; begin snap_id := dbms_workload_repository.create_snapshot(); dbms_workload_repository.drop_snapshot_range(snap_id, snap_id); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] declare task_name varchar(128); begin task_name := dbms_sqltune.create_tuning_task(sql_text=>'select id, amount from CODEX_DM8_PERF_STATS where category=''C3'' and amount>100', user_name=>'SYSDBA', scope=>'COMPREHENSIVE', time_limit=>30, task_name=>'CODEX_TUNE_MAIN', description=>'Codex DM8 parser validation'); insert into CODEX_DM8_PERF_CTL values('TUNE_MAIN', null, task_name); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,UPDATE,TRANSACTION)] declare execution_name varchar(128); begin execution_name := dbms_sqltune.execute_tuning_task(task_name=>'CODEX_TUNE_MAIN', execution_name=>'CODEX_EXEC_MAIN'); update CODEX_DM8_PERF_CTL set text_value=execution_name where label='TUNE_MAIN'; commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare task_name varchar(128); begin task_name := dbms_sqltune.create_tuning_task(sql_text=>'select count(*) from CODEX_DM8_PERF_STATS where amount between 10 and 50', time_limit=>30, task_name=>'CODEX_TUNE_PROC'); dbms_sqltune.execute_tuning_task(task_name=>'CODEX_TUNE_PROC', execution_name=>'CODEX_EXEC_PROC'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_sqltune.drop_tuning_task('CODEX_TUNE_PROC'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_sqltune.drop_tuning_task('CODEX_TUNE_MAIN'); end;
+----------
+[BLOCK(CALL_PROG_OBJ,SELECT)] begin dbms_workload_repository.drop_snapshot_range((select min(number_value) from CODEX_DM8_PERF_CTL where label like 'AWR_%'), (select max(number_value) from CODEX_DM8_PERF_CTL where label like 'AWR_%')); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_workload_repository.awr_clear_history(); end;

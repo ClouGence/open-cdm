@@ -1,0 +1,195 @@
+-- RESIZE_LOGFILE
+alter database resize logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to 300;
+-- ADD_LOGFILE_ONE
+alter database add logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' size 256;
+-- ADD_LOGFILE_MULTIPLE
+alter database add logfile '/opt/dmdbms/data/DAMENG/CODEX04.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX05.log' size 256;
+-- DROP_LOGFILE_CURRENT_OFFICIAL
+alter database drop logfile '/opt/dmdbms/data/DAMENG/CODEX03.log';
+-- ADD_NODE_LOGFILE_TWO
+alter database add node logfile '/opt/dmdbms/data/DAMENG/CODEX_NODE01.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX_NODE02.log' size 256;
+-- ADD_NODE_LOGFILE_MULTIPLE
+alter database add node logfile '/opt/dmdbms/data/DAMENG/CODEX_NODE01.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX_NODE02.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX_NODE03.log' size 256;
+-- RENAME_LOGFILE_ONE
+alter database rename logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to '/opt/dmdbms/data/DAMENG/CODEX03_NEW.log';
+-- RENAME_LOGFILE_MULTIPLE
+alter database rename logfile '/opt/dmdbms/data/DAMENG/CODEX04.log', '/opt/dmdbms/data/DAMENG/CODEX05.log' to '/opt/dmdbms/data/DAMENG/CODEX04_NEW.log', '/opt/dmdbms/data/DAMENG/CODEX05_NEW.log';
+-- OPEN
+alter database open;
+-- OPEN_FORCE
+alter database open force;
+-- MOUNT
+alter database mount;
+-- SUSPEND
+alter database suspend;
+-- NORMAL
+alter database normal;
+-- NORMAL_FORCE
+alter database normal force;
+-- PRIMARY
+alter database primary;
+-- PRIMARY_FORCE
+alter database primary force;
+-- STANDBY
+alter database standby;
+-- STANDBY_FORCE
+alter database standby force;
+-- ARCHIVELOG
+alter database archivelog;
+-- NOARCHIVELOG
+alter database noarchivelog;
+-- ARCHIVELOG_CURRENT
+alter database archivelog current;
+-- ADD_ARCHIVELOG_LOCAL
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH';
+-- ADD_ARCHIVELOG_LOCAL_FILE_SIZE
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, FILE_SIZE = 128';
+-- ADD_ARCHIVELOG_LOCAL_SPACE_LIMIT
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, SPACE_LIMIT = 1024';
+-- ADD_ARCHIVELOG_LOCAL_FLUSH_HANG
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, ARCH_FLUSH_BUF_SIZE = 0, HANG_FLAG = 1';
+-- MODIFY_ARCHIVELOG_LOCAL
+alter database modify archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, FILE_SIZE = 256, SPACE_LIMIT = 2048';
+-- DELETE_ARCHIVELOG_LOCAL
+alter database delete archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH';
+-- ADD_ARCHIVELOG_REALTIME
+alter database add archivelog 'TYPE = REALTIME, DEST = CODEX_RT';
+-- ADD_ARCHIVELOG_REALTIME_WAIT_APPLY
+alter database add archivelog 'TYPE = REALTIME, DEST = CODEX_RT, WAIT_APPLY = 1';
+-- ADD_ARCHIVELOG_ASYNC
+alter database add archivelog 'TYPE = ASYNC, DEST = CODEX_ASYNC, ARCH_TIMER_NAME = CODEX_TIMER';
+-- ADD_ARCHIVELOG_ASYNC_DELAY
+alter database add archivelog 'TYPE = ASYNC, DEST = CODEX_ASYNC, ARCH_TIMER_NAME = CODEX_TIMER, ARCH_SEND_DELAY = 10';
+-- ADD_ARCHIVELOG_SYNC
+alter database add archivelog 'TYPE = SYNC, DEST = CODEX_SYNC';
+-- ADD_ARCHIVELOG_SYNC_RECOVER_TIME
+alter database add archivelog 'TYPE = SYNC, DEST = CODEX_SYNC, ARCH_RECOVER_TIME = 1';
+-- ADD_ARCHIVELOG_REMOTE
+alter database add archivelog 'TYPE = REMOTE, DEST = CODEX_REMOTE';
+-- ADD_ARCHIVELOG_REMOTE_INCOMING
+alter database add archivelog 'TYPE = REMOTE, DEST = CODEX_REMOTE, INCOMING_PATH = /opt/dmdbms/data/CODEX_INCOMING';
+-- ADD_ARCHIVELOG_TIMELY
+alter database add archivelog 'TYPE = TIMELY, DEST = CODEX_TIMELY';
+-- ADD_ARCHIVELOG_TIMELY_WAIT_APPLY
+alter database add archivelog 'TYPE = TIMELY, DEST = CODEX_TIMELY, WAIT_APPLY = 0';
+-- GRANT_ALTER_DATABASE
+grant alter database to CODEX_DB_PRIV;
+-- REVOKE_ALTER_DATABASE
+revoke alter database from CODEX_DB_PRIV;
+------------------------------------------------------------------------------------------
+[ADMIN] -- RESIZE_LOGFILE
+alter database resize logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to 300;
+----------
+[ADMIN] -- ADD_LOGFILE_ONE
+alter database add logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' size 256;
+----------
+[ADMIN] -- ADD_LOGFILE_MULTIPLE
+alter database add logfile '/opt/dmdbms/data/DAMENG/CODEX04.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX05.log' size 256;
+----------
+[ADMIN] -- DROP_LOGFILE_CURRENT_OFFICIAL
+alter database drop logfile '/opt/dmdbms/data/DAMENG/CODEX03.log';
+----------
+[ADMIN] -- ADD_NODE_LOGFILE_TWO
+alter database add node logfile '/opt/dmdbms/data/DAMENG/CODEX_NODE01.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX_NODE02.log' size 256;
+----------
+[ADMIN] -- ADD_NODE_LOGFILE_MULTIPLE
+alter database add node logfile '/opt/dmdbms/data/DAMENG/CODEX_NODE01.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX_NODE02.log' size 256, '/opt/dmdbms/data/DAMENG/CODEX_NODE03.log' size 256;
+----------
+[ADMIN] -- RENAME_LOGFILE_ONE
+alter database rename logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to '/opt/dmdbms/data/DAMENG/CODEX03_NEW.log';
+----------
+[ADMIN] -- RENAME_LOGFILE_MULTIPLE
+alter database rename logfile '/opt/dmdbms/data/DAMENG/CODEX04.log', '/opt/dmdbms/data/DAMENG/CODEX05.log' to '/opt/dmdbms/data/DAMENG/CODEX04_NEW.log', '/opt/dmdbms/data/DAMENG/CODEX05_NEW.log';
+----------
+[ADMIN] -- OPEN
+alter database open;
+----------
+[ADMIN] -- OPEN_FORCE
+alter database open force;
+----------
+[ADMIN] -- MOUNT
+alter database mount;
+----------
+[ADMIN] -- SUSPEND
+alter database suspend;
+----------
+[ADMIN] -- NORMAL
+alter database normal;
+----------
+[ADMIN] -- NORMAL_FORCE
+alter database normal force;
+----------
+[ADMIN] -- PRIMARY
+alter database primary;
+----------
+[ADMIN] -- PRIMARY_FORCE
+alter database primary force;
+----------
+[ADMIN] -- STANDBY
+alter database standby;
+----------
+[ADMIN] -- STANDBY_FORCE
+alter database standby force;
+----------
+[ADMIN] -- ARCHIVELOG
+alter database archivelog;
+----------
+[ADMIN] -- NOARCHIVELOG
+alter database noarchivelog;
+----------
+[ADMIN] -- ARCHIVELOG_CURRENT
+alter database archivelog current;
+----------
+[ADMIN] -- ADD_ARCHIVELOG_LOCAL
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_LOCAL_FILE_SIZE
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, FILE_SIZE = 128';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_LOCAL_SPACE_LIMIT
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, SPACE_LIMIT = 1024';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_LOCAL_FLUSH_HANG
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, ARCH_FLUSH_BUF_SIZE = 0, HANG_FLAG = 1';
+----------
+[ADMIN] -- MODIFY_ARCHIVELOG_LOCAL
+alter database modify archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, FILE_SIZE = 256, SPACE_LIMIT = 2048';
+----------
+[ADMIN] -- DELETE_ARCHIVELOG_LOCAL
+alter database delete archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_REALTIME
+alter database add archivelog 'TYPE = REALTIME, DEST = CODEX_RT';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_REALTIME_WAIT_APPLY
+alter database add archivelog 'TYPE = REALTIME, DEST = CODEX_RT, WAIT_APPLY = 1';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_ASYNC
+alter database add archivelog 'TYPE = ASYNC, DEST = CODEX_ASYNC, ARCH_TIMER_NAME = CODEX_TIMER';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_ASYNC_DELAY
+alter database add archivelog 'TYPE = ASYNC, DEST = CODEX_ASYNC, ARCH_TIMER_NAME = CODEX_TIMER, ARCH_SEND_DELAY = 10';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_SYNC
+alter database add archivelog 'TYPE = SYNC, DEST = CODEX_SYNC';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_SYNC_RECOVER_TIME
+alter database add archivelog 'TYPE = SYNC, DEST = CODEX_SYNC, ARCH_RECOVER_TIME = 1';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_REMOTE
+alter database add archivelog 'TYPE = REMOTE, DEST = CODEX_REMOTE';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_REMOTE_INCOMING
+alter database add archivelog 'TYPE = REMOTE, DEST = CODEX_REMOTE, INCOMING_PATH = /opt/dmdbms/data/CODEX_INCOMING';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_TIMELY
+alter database add archivelog 'TYPE = TIMELY, DEST = CODEX_TIMELY';
+----------
+[ADMIN] -- ADD_ARCHIVELOG_TIMELY_WAIT_APPLY
+alter database add archivelog 'TYPE = TIMELY, DEST = CODEX_TIMELY, WAIT_APPLY = 0';
+----------
+[GRANT] -- GRANT_ALTER_DATABASE
+grant alter database to CODEX_DB_PRIV;
+----------
+[REVOKE] -- REVOKE_ALTER_DATABASE
+revoke alter database from CODEX_DB_PRIV;

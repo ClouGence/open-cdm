@@ -1,0 +1,28 @@
+-- empty argument slot
+begin DBMS_PIPE.PACK_MESSAGE(,); end;
+/
+-- double comma
+begin ret:=DBMS_PIPE.SEND_MESSAGE('P',,8192); end;
+/
+-- dangling named
+begin DBMS_PIPE.PURGE(PIPENAME=>); end;
+/
+-- unclosed call
+begin DBMS_PIPE.UNPACK_MESSAGE(value; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- empty argument slot
+begin DBMS_PIPE.PACK_MESSAGE(,); end;
+/
+----------
+[BLOCK] -- double comma
+begin ret:=DBMS_PIPE.SEND_MESSAGE('P',,8192); end;
+/
+----------
+[BLOCK] -- dangling named
+begin DBMS_PIPE.PURGE(PIPENAME=>); end;
+/
+----------
+[BLOCK] -- unclosed call
+begin DBMS_PIPE.UNPACK_MESSAGE(value; end;
+/

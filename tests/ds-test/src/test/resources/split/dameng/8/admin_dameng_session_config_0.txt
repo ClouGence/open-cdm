@@ -1,0 +1,188 @@
+set time zone '+9:00';
+set time zone local;
+set time zone '-12:59';
+set time zone '+14:00';
+set time zone interval '+8' hour;
+alter session set nls_date_language=english;
+alter session set nls_date_language=american;
+alter session set nls_date_language='SIMPLIFIED CHINESE';
+alter session set nls_date_format='YYYY-MM-DD';
+alter session set nls_timestamp_format='YYYYMMDD HH:MI:SS';
+alter session set nls_timestamp_tz_format='YYYYMMDD HH:MI:SS FF TZH:TZM';
+alter session set nls_time_format='HH:MI:SS';
+alter session set nls_time_tz_format='HH:MI:SS FF TZH:TZM';
+alter session set nls_sort=binary;
+alter session set nls_sort=schinese_pinyin_m;
+alter session set nls_sort=schinese_stroke_m;
+alter session set nls_sort=schinese_radical_m;
+alter session set nls_sort=thai_ci_as;
+alter session set nls_sort=korean_m;
+alter session set case_sensitive=true;
+alter session set case_sensitive=false;
+alter session set case_sensitive=default;
+alter session enable parallel dml;
+alter session disable parallel dml;
+alter session set 'HAGR_HASH_SIZE'=2000000;
+alter session set 'HAGR_HASH_SIZE'=2100000 purge;
+alter session set 'JOIN_HASH_SIZE'=2000;
+alter session set 'SORT_BUF_SIZE'=11;
+alter session set 'PARALLEL_POLICY'=1;
+alter system set 'SORT_BUF_SIZE'=11 memory;
+alter system set 'SORT_BUF_SIZE'=10 memory;
+alter system set 'JOIN_HASH_SIZE'=500001 deferred memory;
+alter system set 'JOIN_HASH_SIZE'=500000 deferred memory;
+sp_set_para_value(0,'SORT_BUF_SIZE',12);
+sp_set_para_value(0,'SORT_BUF_SIZE',10);
+sp_set_para_double_value(0,'CKPT_FLUSH_RATE',6.0);
+sp_set_para_double_value(0,'CKPT_FLUSH_RATE',5.0);
+sp_set_para_string_value(0,'COMMIT_WRITE','IMMEDIATE,WAIT');
+sf_set_session_para_value('JOIN_HASH_SIZE',2000);
+sp_reset_session_para_value('JOIN_HASH_SIZE');
+sf_set_system_para_value('SORT_BUF_SIZE',13,0,0);
+sf_set_system_para_value('SORT_BUF_SIZE',10,0,0);
+sp_set_session_readonly(1);
+sp_set_session_readonly(0);
+alter system set 'SORT_BUF_SIZE'=23 both;
+alter system set 'SORT_BUF_SIZE'=10 both;
+alter system set 'SORT_BUF_SIZE'=24 spfile;
+alter system set 'SORT_BUF_SIZE'=10 spfile;
+sp_set_para_value(1,'SORT_BUF_SIZE',26);
+sp_set_para_value(1,'SORT_BUF_SIZE',10);
+sp_set_para_value(2,'SORT_BUF_SIZE',27);
+sp_set_para_value(2,'SORT_BUF_SIZE',10);
+sp_set_param_in_session(
+  sessid(),
+  (select sess_seq from v$sessions where sess_id=sessid()),
+  'SORT_BUF_SIZE',
+  28
+);
+sp_set_param_in_session(
+  sessid(),
+  (select sess_seq from v$sessions where sess_id=sessid()),
+  'SORT_BUF_SIZE',
+  10
+);
+alter system set 'BDTA_SIZE'=301 spfile;
+alter system set 'BDTA_SIZE'=300 spfile;
+------------------------------------------------------------------------------------------
+[SYSTEM_SETTING_WRITE] set time zone '+9:00';
+----------
+[SYSTEM_SETTING_WRITE] set time zone local;
+----------
+[SYSTEM_SETTING_WRITE] set time zone '-12:59';
+----------
+[SYSTEM_SETTING_WRITE] set time zone '+14:00';
+----------
+[SYSTEM_SETTING_WRITE] set time zone interval '+8' hour;
+----------
+[SESSION_SETTING_WRITE] alter session set nls_date_language=english;
+----------
+[SESSION_SETTING_WRITE] alter session set nls_date_language=american;
+----------
+[SESSION_SETTING_WRITE] alter session set nls_date_language='SIMPLIFIED CHINESE';
+----------
+[SESSION_SETTING_WRITE] alter session set nls_date_format='YYYY-MM-DD';
+----------
+[SESSION_SETTING_WRITE] alter session set nls_timestamp_format='YYYYMMDD HH:MI:SS';
+----------
+[SESSION_SETTING_WRITE] alter session set nls_timestamp_tz_format='YYYYMMDD HH:MI:SS FF TZH:TZM';
+----------
+[SESSION_SETTING_WRITE] alter session set nls_time_format='HH:MI:SS';
+----------
+[SESSION_SETTING_WRITE] alter session set nls_time_tz_format='HH:MI:SS FF TZH:TZM';
+----------
+[SESSION_SETTING_WRITE] alter session set nls_sort=binary;
+----------
+[SESSION_SETTING_WRITE] alter session set nls_sort=schinese_pinyin_m;
+----------
+[SESSION_SETTING_WRITE] alter session set nls_sort=schinese_stroke_m;
+----------
+[SESSION_SETTING_WRITE] alter session set nls_sort=schinese_radical_m;
+----------
+[SESSION_SETTING_WRITE] alter session set nls_sort=thai_ci_as;
+----------
+[SESSION_SETTING_WRITE] alter session set nls_sort=korean_m;
+----------
+[SESSION_SETTING_WRITE] alter session set case_sensitive=true;
+----------
+[SESSION_SETTING_WRITE] alter session set case_sensitive=false;
+----------
+[SESSION_SETTING_WRITE] alter session set case_sensitive=default;
+----------
+[SESSION_SETTING_WRITE] alter session enable parallel dml;
+----------
+[SESSION_SETTING_WRITE] alter session disable parallel dml;
+----------
+[SESSION_SETTING_WRITE] alter session set 'HAGR_HASH_SIZE'=2000000;
+----------
+[SESSION_SETTING_WRITE] alter session set 'HAGR_HASH_SIZE'=2100000 purge;
+----------
+[SESSION_SETTING_WRITE] alter session set 'JOIN_HASH_SIZE'=2000;
+----------
+[SESSION_SETTING_WRITE] alter session set 'SORT_BUF_SIZE'=11;
+----------
+[SESSION_SETTING_WRITE] alter session set 'PARALLEL_POLICY'=1;
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'SORT_BUF_SIZE'=11 memory;
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'SORT_BUF_SIZE'=10 memory;
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'JOIN_HASH_SIZE'=500001 deferred memory;
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'JOIN_HASH_SIZE'=500000 deferred memory;
+----------
+[SYSTEM_SETTING_WRITE] sp_set_para_value(0,'SORT_BUF_SIZE',12);
+----------
+[SYSTEM_SETTING_WRITE] sp_set_para_value(0,'SORT_BUF_SIZE',10);
+----------
+[SYSTEM_SETTING_WRITE] sp_set_para_double_value(0,'CKPT_FLUSH_RATE',6.0);
+----------
+[SYSTEM_SETTING_WRITE] sp_set_para_double_value(0,'CKPT_FLUSH_RATE',5.0);
+----------
+[SYSTEM_SETTING_WRITE] sp_set_para_string_value(0,'COMMIT_WRITE','IMMEDIATE,WAIT');
+----------
+[SYSTEM_SETTING_WRITE] sf_set_session_para_value('JOIN_HASH_SIZE',2000);
+----------
+[SYSTEM_SETTING_WRITE] sp_reset_session_para_value('JOIN_HASH_SIZE');
+----------
+[SYSTEM_SETTING_WRITE] sf_set_system_para_value('SORT_BUF_SIZE',13,0,0);
+----------
+[SYSTEM_SETTING_WRITE] sf_set_system_para_value('SORT_BUF_SIZE',10,0,0);
+----------
+[SYSTEM_SETTING_WRITE] sp_set_session_readonly(1);
+----------
+[SYSTEM_SETTING_WRITE] sp_set_session_readonly(0);
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'SORT_BUF_SIZE'=23 both;
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'SORT_BUF_SIZE'=10 both;
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'SORT_BUF_SIZE'=24 spfile;
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'SORT_BUF_SIZE'=10 spfile;
+----------
+[SYSTEM_SETTING_WRITE] sp_set_para_value(1,'SORT_BUF_SIZE',26);
+----------
+[SYSTEM_SETTING_WRITE] sp_set_para_value(1,'SORT_BUF_SIZE',10);
+----------
+[SYSTEM_SETTING_WRITE] sp_set_para_value(2,'SORT_BUF_SIZE',27);
+----------
+[SYSTEM_SETTING_WRITE] sp_set_para_value(2,'SORT_BUF_SIZE',10);
+----------
+[SYSTEM_SETTING_WRITE|CALL_PROG_OBJ|SELECT] sp_set_param_in_session(
+  sessid(),
+  (select sess_seq from v$sessions where sess_id=sessid()),
+  'SORT_BUF_SIZE',
+  28
+);
+----------
+[SYSTEM_SETTING_WRITE|CALL_PROG_OBJ|SELECT] sp_set_param_in_session(
+  sessid(),
+  (select sess_seq from v$sessions where sess_id=sessid()),
+  'SORT_BUF_SIZE',
+  10
+);
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'BDTA_SIZE'=301 spfile;
+----------
+[SYSTEM_SETTING_WRITE] alter system set 'BDTA_SIZE'=300 spfile;

@@ -1,0 +1,247 @@
+insert into dml_target_a default values;
+insert dml_target_a(id, category, name, amount) values(10, 1, 'TEN', 10);
+insert into dml_target_a a(id, category, name, amount) values(11, 1, 'ELEVEN', 11);
+insert into dml_target_a as a(id, category, name, amount) values(12, 1, 'TWELVE', 12);
+insert into dml_target_a index idx_dml_target_a_id(id, category, name, amount) values(13, 1, 'THIRTEEN', 13);
+insert into dml_partition_target partition(p_low)(id, category, name) values(14, 1, 'FOURTEEN');
+insert into dml_partition_target partition for(15)(id, category, name) values(15, 1, 'FIFTEEN');
+insert into dml_target_a(id, category, name, amount) table dml_source;
+insert into dml_target_b(id, category, name, amount) (select id + 20, category, name, amount from dml_source);
+insert into dml_target_c(id, category, name, amount) values(31, 3, 'THIRTY_ONE', 31), (32, 3, 'THIRTY_TWO', 32), (33, 3, 'THIRTY_THREE', 33);
+insert all
+  into dml_target_a(id, category, name, amount) values(id + 100, category, name, amount)
+  into dml_target_b(id, category, name, amount) values(id + 100, category, name, amount)
+select id, category, name, amount from dml_source;
+insert all
+  into dml_target_a(id, name) values(id + 200, name)
+  into dml_target_b(id, name) values(id + 200, upper(name))
+  into dml_target_c(id, name) values(id + 200, lower(name))
+select id, name from dml_source;
+insert all
+  into dml_target_a(id, category, name, amount)
+  into dml_target_b(id, category, name, amount)
+select id + 300, category, name, amount from dml_source;
+insert all
+  into dml_target_a(id, category, name, amount) values(id + 400, category, name, amount * 2)
+  into dml_target_b(id, category, name, amount) values(id + 400, category, name, amount + 1)
+select id, category, name, amount from dml_source where category = 1;
+insert all
+  into dml_target_a(id, name) values(id + 500, name)
+  into dml_target_b(id, name, status) values(id + 500, name, 'Y')
+select id, name from dml_source;
+insert first
+  when category = 1 then into dml_target_a(id, category, name, amount) values(id + 600, category, name, amount)
+  when category = 2 then into dml_target_b(id, category, name, amount) values(id + 600, category, name, amount)
+  else into dml_target_c(id, category, name, amount) values(id + 600, category, name, amount)
+select id, category, name, amount from dml_source;
+insert all
+  when amount <= 20 then into dml_target_a(id, name, amount) values(id + 700, name, amount)
+  when amount >= 20 then into dml_target_b(id, name, amount) values(id + 700, name, amount)
+select id, name, amount from dml_source;
+insert
+  when category = 1 then into dml_target_a(id, category, name) values(id + 800, category, name)
+  when category = 2 then into dml_target_b(id, category, name) values(id + 800, category, name)
+  else into dml_target_c(id, category, name) values(id + 800, category, name)
+select id, category, name from dml_source;
+insert first
+  when amount < 0 then into dml_target_a(id, name) values(id + 900, name)
+  else into dml_target_b(id, name) values(id + 900, name)
+select id, name, amount from dml_source;
+insert all
+  when category in(1, 2) then
+    into dml_target_a(id, category, name) values(id + 1000, category, name)
+    into dml_target_b(id, category, name) values(id + 1000, category, name)
+  else into dml_target_c(id, category, name) values(id + 1000, category, name)
+select id, category, name from dml_source;
+with s as(select id, name from dml_source where id = 1)
+update dml_target_a set name = (select name from s) where id = 10;
+update dml_target_a set(category, name) = (select category, name from dml_source where id = 2) where id = 11;
+update dml_target_a a set a.amount = (select s.amount from dml_source s where s.id = 3) where a.id = 12;
+update dml_target_a a set a.name = s.name from dml_source s where a.id = s.id + 9;
+update dml_target_a a, dml_source s set a.amount = s.amount where a.id = s.id + 9;
+update (select id, name, amount from dml_target_a where id = 10) t set t.name = 'SUBQUERY_TARGET';
+update dml_partition_target partition(p_low) set name = upper(name) where id = 14;
+update dml_partition_target partition for(15) set name = lower(name) where id = 15;
+update dml_target_a index idx_dml_target_a_id set amount = amount + 1 where id = 13;
+update dml_target_a set status = case category when 1 then 'A' when 2 then 'B' else 'C' end where id is not null;
+update dml_target_a set amount = default where id = 10;
+update dml_target_a set name = coalesce(name, 'UNKNOWN'), amount = nvl(amount, 0) where id is null;
+update dml_target_a set amount = amount + 5 where id in(select id + 9 from dml_source);
+update dml_target_a set status = 'Y' where exists(select 1 from dml_source s where s.id + 9 = dml_target_a.id);
+with s as(select id + 9 id from dml_source)
+update dml_target_a set status = 'C' where id in(select id from s);
+delete from dml_target_a where id is null;
+delete dml_target_a where id = -1;
+delete from dml_target_a a where a.id = -2;
+delete from dml_partition_target partition(p_low) where id = -3;
+delete from dml_partition_target partition for(15) where id = -4;
+delete from (select id, name from dml_target_a where id < 0) t where t.id = -5;
+with s as(select -6 id from dual)
+delete from dml_target_a where id in(select id from s);
+delete from dml_target_a where exists(select 1 from dml_source where dml_source.id = -7);
+delete from dml_target_a where id = any(select id from dml_source where id < 0);
+delete from dml_target_a where id not in(select id + 9 from dml_source) and id < 0;
+declare v_id int; begin insert into dml_target_c(id, name) values(2001, 'RETURN_INSERT') returning id into v_id; end;
+/
+declare v_id int; v_name varchar(40); begin insert into dml_target_c(id, name) values(2002, 'RETURNING_INSERT') return id, name into v_id, v_name; end;
+/
+declare v_id int; begin update dml_target_c set name = 'RETURN_UPDATE' where id = 2001 returning id into v_id; end;
+/
+declare v_id int; v_name varchar(40); begin update dml_target_c set name = 'RETURNING_UPDATE' where id = 2002 return id, name into v_id, v_name; end;
+/
+declare v_id int; begin delete from dml_target_c where id = 2001 return id into v_id; end;
+/
+declare v_id int; v_name varchar(40); begin delete from dml_target_c where id = 2002 returning id, name into v_id, v_name; end;
+/
+declare type int_array is table of int index by int; ids int_array; begin insert into dml_target_c(id, name) values(2010, 'A'), (2011, 'B') returning id bulk collect into ids; end;
+/
+declare type int_array is table of int index by int; ids int_array; begin update dml_target_c set status = 'R' where id in(2010, 2011) returning id bulk collect into ids; end;
+/
+declare type int_array is table of int index by int; ids int_array; begin delete from dml_target_c where id in(2010, 2011) returning id bulk collect into ids; end;
+/
+------------------------------------------------------------------------------------------
+[INSERT] insert into dml_target_a default values;
+----------
+[INSERT] insert dml_target_a(id, category, name, amount) values(10, 1, 'TEN', 10);
+----------
+[INSERT] insert into dml_target_a a(id, category, name, amount) values(11, 1, 'ELEVEN', 11);
+----------
+[INSERT] insert into dml_target_a as a(id, category, name, amount) values(12, 1, 'TWELVE', 12);
+----------
+[INSERT] insert into dml_target_a index idx_dml_target_a_id(id, category, name, amount) values(13, 1, 'THIRTEEN', 13);
+----------
+[INSERT] insert into dml_partition_target partition(p_low)(id, category, name) values(14, 1, 'FOURTEEN');
+----------
+[INSERT] insert into dml_partition_target partition for(15)(id, category, name) values(15, 1, 'FIFTEEN');
+----------
+[INSERT] insert into dml_target_a(id, category, name, amount) table dml_source;
+----------
+[INSERT|SELECT] insert into dml_target_b(id, category, name, amount) (select id + 20, category, name, amount from dml_source);
+----------
+[INSERT] insert into dml_target_c(id, category, name, amount) values(31, 3, 'THIRTY_ONE', 31), (32, 3, 'THIRTY_TWO', 32), (33, 3, 'THIRTY_THREE', 33);
+----------
+[INSERT|SELECT] insert all
+  into dml_target_a(id, category, name, amount) values(id + 100, category, name, amount)
+  into dml_target_b(id, category, name, amount) values(id + 100, category, name, amount)
+select id, category, name, amount from dml_source;
+----------
+[INSERT|SELECT] insert all
+  into dml_target_a(id, name) values(id + 200, name)
+  into dml_target_b(id, name) values(id + 200, upper(name))
+  into dml_target_c(id, name) values(id + 200, lower(name))
+select id, name from dml_source;
+----------
+[INSERT|SELECT] insert all
+  into dml_target_a(id, category, name, amount)
+  into dml_target_b(id, category, name, amount)
+select id + 300, category, name, amount from dml_source;
+----------
+[INSERT|SELECT] insert all
+  into dml_target_a(id, category, name, amount) values(id + 400, category, name, amount * 2)
+  into dml_target_b(id, category, name, amount) values(id + 400, category, name, amount + 1)
+select id, category, name, amount from dml_source where category = 1;
+----------
+[INSERT|SELECT] insert all
+  into dml_target_a(id, name) values(id + 500, name)
+  into dml_target_b(id, name, status) values(id + 500, name, 'Y')
+select id, name from dml_source;
+----------
+[INSERT|SELECT] insert first
+  when category = 1 then into dml_target_a(id, category, name, amount) values(id + 600, category, name, amount)
+  when category = 2 then into dml_target_b(id, category, name, amount) values(id + 600, category, name, amount)
+  else into dml_target_c(id, category, name, amount) values(id + 600, category, name, amount)
+select id, category, name, amount from dml_source;
+----------
+[INSERT|SELECT] insert all
+  when amount <= 20 then into dml_target_a(id, name, amount) values(id + 700, name, amount)
+  when amount >= 20 then into dml_target_b(id, name, amount) values(id + 700, name, amount)
+select id, name, amount from dml_source;
+----------
+[INSERT|SELECT] insert
+  when category = 1 then into dml_target_a(id, category, name) values(id + 800, category, name)
+  when category = 2 then into dml_target_b(id, category, name) values(id + 800, category, name)
+  else into dml_target_c(id, category, name) values(id + 800, category, name)
+select id, category, name from dml_source;
+----------
+[INSERT|SELECT] insert first
+  when amount < 0 then into dml_target_a(id, name) values(id + 900, name)
+  else into dml_target_b(id, name) values(id + 900, name)
+select id, name, amount from dml_source;
+----------
+[INSERT|SELECT] insert all
+  when category in(1, 2) then
+    into dml_target_a(id, category, name) values(id + 1000, category, name)
+    into dml_target_b(id, category, name) values(id + 1000, category, name)
+  else into dml_target_c(id, category, name) values(id + 1000, category, name)
+select id, category, name from dml_source;
+----------
+[UPDATE|SELECT] with s as(select id, name from dml_source where id = 1)
+update dml_target_a set name = (select name from s) where id = 10;
+----------
+[UPDATE|SELECT] update dml_target_a set(category, name) = (select category, name from dml_source where id = 2) where id = 11;
+----------
+[UPDATE|SELECT] update dml_target_a a set a.amount = (select s.amount from dml_source s where s.id = 3) where a.id = 12;
+----------
+[UPDATE] update dml_target_a a set a.name = s.name from dml_source s where a.id = s.id + 9;
+----------
+[UPDATE] update dml_target_a a, dml_source s set a.amount = s.amount where a.id = s.id + 9;
+----------
+[UPDATE|SELECT] update (select id, name, amount from dml_target_a where id = 10) t set t.name = 'SUBQUERY_TARGET';
+----------
+[UPDATE] update dml_partition_target partition(p_low) set name = upper(name) where id = 14;
+----------
+[UPDATE] update dml_partition_target partition for(15) set name = lower(name) where id = 15;
+----------
+[UPDATE] update dml_target_a index idx_dml_target_a_id set amount = amount + 1 where id = 13;
+----------
+[UPDATE] update dml_target_a set status = case category when 1 then 'A' when 2 then 'B' else 'C' end where id is not null;
+----------
+[UPDATE] update dml_target_a set amount = default where id = 10;
+----------
+[UPDATE] update dml_target_a set name = coalesce(name, 'UNKNOWN'), amount = nvl(amount, 0) where id is null;
+----------
+[UPDATE|SELECT] update dml_target_a set amount = amount + 5 where id in(select id + 9 from dml_source);
+----------
+[UPDATE|SELECT] update dml_target_a set status = 'Y' where exists(select 1 from dml_source s where s.id + 9 = dml_target_a.id);
+----------
+[UPDATE|SELECT] with s as(select id + 9 id from dml_source)
+update dml_target_a set status = 'C' where id in(select id from s);
+----------
+[DELETE] delete from dml_target_a where id is null;
+----------
+[DELETE] delete dml_target_a where id = -1;
+----------
+[DELETE] delete from dml_target_a a where a.id = -2;
+----------
+[DELETE] delete from dml_partition_target partition(p_low) where id = -3;
+----------
+[DELETE] delete from dml_partition_target partition for(15) where id = -4;
+----------
+[DELETE|SELECT] delete from (select id, name from dml_target_a where id < 0) t where t.id = -5;
+----------
+[DELETE|SELECT] with s as(select -6 id from dual)
+delete from dml_target_a where id in(select id from s);
+----------
+[DELETE|SELECT] delete from dml_target_a where exists(select 1 from dml_source where dml_source.id = -7);
+----------
+[DELETE|SELECT] delete from dml_target_a where id = any(select id from dml_source where id < 0);
+----------
+[DELETE|SELECT] delete from dml_target_a where id not in(select id + 9 from dml_source) and id < 0;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT)] declare v_id int; begin insert into dml_target_c(id, name) values(2001, 'RETURN_INSERT') returning id into v_id; end;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT)] declare v_id int; v_name varchar(40); begin insert into dml_target_c(id, name) values(2002, 'RETURNING_INSERT') return id, name into v_id, v_name; end;
+----------
+[BLOCK(PROGRAM_CONTROL,UPDATE)] declare v_id int; begin update dml_target_c set name = 'RETURN_UPDATE' where id = 2001 returning id into v_id; end;
+----------
+[BLOCK(PROGRAM_CONTROL,UPDATE)] declare v_id int; v_name varchar(40); begin update dml_target_c set name = 'RETURNING_UPDATE' where id = 2002 return id, name into v_id, v_name; end;
+----------
+[BLOCK(PROGRAM_CONTROL,DELETE)] declare v_id int; begin delete from dml_target_c where id = 2001 return id into v_id; end;
+----------
+[BLOCK(PROGRAM_CONTROL,DELETE)] declare v_id int; v_name varchar(40); begin delete from dml_target_c where id = 2002 returning id, name into v_id, v_name; end;
+----------
+[BLOCK(PROGRAM_CONTROL,INSERT)] declare type int_array is table of int index by int; ids int_array; begin insert into dml_target_c(id, name) values(2010, 'A'), (2011, 'B') returning id bulk collect into ids; end;
+----------
+[BLOCK(PROGRAM_CONTROL,UPDATE)] declare type int_array is table of int index by int; ids int_array; begin update dml_target_c set status = 'R' where id in(2010, 2011) returning id bulk collect into ids; end;
+----------
+[BLOCK(PROGRAM_CONTROL,DELETE)] declare type int_array is table of int index by int; ids int_array; begin delete from dml_target_c where id in(2010, 2011) returning id bulk collect into ids; end;

@@ -1,0 +1,180 @@
+-- FOPEN_FCLOSE_POSITIONAL_DEFAULT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c001.txt','w'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c001.txt'); end;
+-- FOPEN_NAMED_MAX_LINESIZE
+declare f utl_file.file_type; begin f:=utl_file.fopen(open_mode=>'w',filename=>'c002.txt',location=>'CODEX_UTL_FILE_DIR',max_linesize=>32767); utl_file.fclose(file=>f); utl_file.fremove('CODEX_UTL_FILE_DIR','c002.txt'); end;
+-- IS_OPEN_TRUE_FALSE
+declare f utl_file.file_type; b boolean; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c003.txt','w',1); b:=utl_file.is_open(f); if not b then raise_application_error(-20001,'expected open'); end if; utl_file.fclose(f); b:=utl_file.is_open(f); if b then raise_application_error(-20002,'expected closed'); end if; utl_file.fremove('CODEX_UTL_FILE_DIR','c003.txt'); end;
+-- FCLOSE_ALL_ZERO_ARGUMENT
+declare f1 utl_file.file_type; f2 utl_file.file_type; begin f1:=utl_file.fopen('CODEX_UTL_FILE_DIR','c004a.txt','w'); f2:=utl_file.fopen('CODEX_UTL_FILE_DIR','c004b.txt','w'); utl_file.fclose_all(); utl_file.fremove('CODEX_UTL_FILE_DIR','c004a.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c004b.txt'); end;
+-- PUT_TEXT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c005.txt','w',32767); utl_file.put(f,'DM8_FILE_PUT'); utl_file.new_line(f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c005.txt'); end;
+-- PUT_LINE_DEFAULT_AUTOFLUSH
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c006.txt','w'); utl_file.put_line(f,'DM8_FILE_LINE'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c006.txt'); end;
+-- PUT_LINE_NAMED_AUTOFLUSH_TRUE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c007.txt','w'); utl_file.put_line(autoflush=>true,buffer=>'DM8_FILE_FLUSH',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c007.txt'); end;
+-- NEW_LINE_DEFAULT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c008.txt','w'); utl_file.new_line(f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c008.txt'); end;
+-- NEW_LINE_EXPLICIT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c009.txt','w'); utl_file.new_line(lines=>2,file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c009.txt'); end;
+-- FFLUSH_AFTER_NEWLINE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c010.txt','w'); utl_file.put_line(f,'DM8_FLUSH'); utl_file.fflush(f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c010.txt'); end;
+-- FGETPOS_ZERO_AND_AFTER_WRITE
+declare f utl_file.file_type; n int; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c011.txt','w'); n:=utl_file.fgetpos(f); utl_file.put_line(f,'ABC'); n:=utl_file.fgetpos(f); if n<=0 then raise_application_error(-20003,'expected positive position'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c011.txt'); end;
+-- FREMOVE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c012.txt','w'); utl_file.fclose(f); utl_file.fremove(location=>'CODEX_UTL_FILE_DIR',filename=>'c012.txt'); end;
+-- FRENAME_DEFAULT_OVERWRITE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c013a.txt','w'); utl_file.fclose(f); utl_file.frename('CODEX_UTL_FILE_DIR','c013a.txt','CODEX_UTL_FILE_DIR','c013b.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c013b.txt'); end;
+-- FRENAME_NAMED_OVERWRITE_TRUE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c014a.txt','w'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c014b.txt','w'); utl_file.fclose(f); utl_file.frename(overwrite=>true,dest_filename=>'c014b.txt',dest_location=>'CODEX_UTL_FILE_DIR',src_filename=>'c014a.txt',src_location=>'CODEX_UTL_FILE_DIR'); utl_file.fremove('CODEX_UTL_FILE_DIR','c014b.txt'); end;
+-- GET_LINE_DEFAULT
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c015.txt','w'); utl_file.put_line(f,'DM8_GET_LINE'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c015.txt','r'); utl_file.get_line(f,t); if t<>'DM8_GET_LINE' then raise_application_error(-20004,'line mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c015.txt'); end;
+-- GET_LINE_NAMED_LEN
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c016.txt','w'); utl_file.put_line(f,'ABCDEFG'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c016.txt','r'); utl_file.get_line(len=>3,buffer=>t,file=>f); if t<>'ABC' then raise_application_error(-20005,'line length mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c016.txt'); end;
+-- FSEEK_ABSOLUTE_RELATIVE
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c017.txt','w'); utl_file.put_line(f,'ABCDE'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c017.txt','r'); utl_file.fseek(f,2); utl_file.fseek(f,0,1); utl_file.get_line(f,t); if t<>'DE' then raise_application_error(-20006,'seek mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c017.txt'); end;
+-- FGETATTR_EXISTING
+declare f utl_file.file_type; e boolean; n number; b number; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c018.txt','w'); utl_file.put_line(f,'ATTR'); utl_file.fclose(f); utl_file.fgetattr('CODEX_UTL_FILE_DIR','c018.txt',e,n,b); if not e or n<=0 or b<=0 then raise_application_error(-20007,'attribute mismatch'); end if; utl_file.fremove('CODEX_UTL_FILE_DIR','c018.txt'); end;
+-- FGETATTR_MISSING_NAMED
+declare e boolean; n number; b number; begin utl_file.fgetattr(blocksize=>b,file_length=>n,fexists=>e,filename=>'missing.txt',location=>'CODEX_UTL_FILE_DIR'); if e or n is not null or b is not null then raise_application_error(-20008,'missing attribute mismatch'); end if; end;
+-- FCOPY_DEFAULT_LINES
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c020src.txt','w'); utl_file.put_line(f,'L1'); utl_file.put_line(f,'L2'); utl_file.fclose(f); utl_file.fcopy('CODEX_UTL_FILE_DIR','c020src.txt','CODEX_UTL_FILE_DIR','c020dst.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c020src.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c020dst.txt'); end;
+-- FCOPY_NAMED_LINE_RANGE
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c021src.txt','w'); utl_file.put_line(f,'L1'); utl_file.put_line(f,'L2'); utl_file.put_line(f,'L3'); utl_file.fclose(f); utl_file.fcopy(end_line=>2,start_line=>2,dest_filename=>'c021dst.txt',dest_location=>'CODEX_UTL_FILE_DIR',src_filename=>'c021src.txt',src_location=>'CODEX_UTL_FILE_DIR'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c021dst.txt','r'); utl_file.get_line(f,t); utl_file.fclose(f); if t<>'L2' then raise_application_error(-20009,'copy mismatch'); end if; utl_file.fremove('CODEX_UTL_FILE_DIR','c021src.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c021dst.txt'); end;
+-- PUTF_NO_OPTIONAL_ARGUMENTS
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c022.txt','w'); utl_file.putf(f,'PLAIN\n'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c022.txt'); end;
+-- PUTF_ALL_ARGUMENTS_NAMED
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c023.txt','w'); utl_file.putf(arg5=>'5',arg4=>'4',arg3=>'3',arg2=>'2',arg1=>'1',format=>'%s%s%s%s%s\n',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c023.txt'); end;
+-- FOPEN_NCHAR_DEFAULT
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c024.txt','w'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c024.txt'); end;
+-- FOPEN_NCHAR_NAMED_MAX_LINESIZE
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar(max_linesize=>32767,open_mode=>'w',filename=>'c025.txt',location=>'CODEX_UTL_FILE_DIR'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c025.txt'); end;
+-- PUT_NCHAR_AND_GET_LINE_NCHAR_DEFAULT
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c026.txt','w'); utl_file.put_nchar(f,'达梦UTF8'); utl_file.new_line(f); utl_file.fclose(f); f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c026.txt','r'); utl_file.get_line_nchar(f,t); if t<>'达梦UTF8' then raise_application_error(-20010,'nchar mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c026.txt'); end;
+-- GET_LINE_NCHAR_NAMED_LEN
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c027.txt','w'); utl_file.put_line_nchar(f,'ABCDEFG'); utl_file.fclose(f); f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c027.txt','r'); utl_file.get_line_nchar(len=>3,buffer=>t,file=>f); if t<>'ABC' then raise_application_error(-20011,'nchar length mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c027.txt'); end;
+-- PUT_LINE_NCHAR_DEFAULT_AUTOFLUSH
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c028.txt','w'); utl_file.put_line_nchar(f,'DM8_NCHAR_LINE'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c028.txt'); end;
+-- PUT_LINE_NCHAR_NAMED_AUTOFLUSH_TRUE
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c029.txt','w'); utl_file.put_line_nchar(autoflush=>true,buffer=>'达梦刷写',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c029.txt'); end;
+-- PUTF_NCHAR_NO_OPTIONAL_ARGUMENTS
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c030.txt','w'); utl_file.putf_nchar(f,'纯文本\n'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c030.txt'); end;
+-- PUTF_NCHAR_ALL_ARGUMENTS_NAMED
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c031.txt','w'); utl_file.putf_nchar(arg5=>'5',arg4=>'4',arg3=>'3',arg2=>'2',arg1=>'1',format=>'%s%s%s%s%s\n',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c031.txt'); end;
+-- PUT_RAW_DEFAULT_AUTOFLUSH
+declare f utl_file.file_type; b blob; begin b:=hextoraw('444D38524157'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c032.bin','wb',32767); utl_file.put_raw(f,b); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c032.bin'); end;
+-- PUT_RAW_NAMED_AUTOFLUSH_TRUE
+declare f utl_file.file_type; b blob; begin b:=hextoraw('00FF01'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c033.bin','wb',32767); utl_file.put_raw(autoflush=>true,buffer=>b,file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c033.bin'); end;
+-- GET_RAW_FUNCTION_DEFAULT_LEN
+declare f utl_file.file_type; b blob; n int; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c034.bin','wb',32767); b:=hextoraw('444D38524157'); utl_file.put_raw(f,b,true); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c034.bin','rb',32767); n:=utl_file.get_raw(f,b); if n<>6 then raise_application_error(-20012,'raw length mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c034.bin'); end;
+-- GET_RAW_FUNCTION_NAMED_LEN
+declare f utl_file.file_type; b blob; n int; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c035.bin','wb',32767); b:=hextoraw('0102030405'); utl_file.put_raw(f,b,true); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c035.bin','rb',32767); n:=utl_file.get_raw(len=>3,buffer=>b,file=>f); if n<>3 then raise_application_error(-20013,'raw partial mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c035.bin'); end;
+-- PUT_RAW_ON_TEXT_HANDLE_PACK29
+declare f utl_file.file_type; b blob; begin b:=hextoraw('01'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c036.txt','w'); utl_file.put_raw(f,b,true); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c036.txt'); end;
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FOPEN_FCLOSE_POSITIONAL_DEFAULT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c001.txt','w'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c001.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FOPEN_NAMED_MAX_LINESIZE
+declare f utl_file.file_type; begin f:=utl_file.fopen(open_mode=>'w',filename=>'c002.txt',location=>'CODEX_UTL_FILE_DIR',max_linesize=>32767); utl_file.fclose(file=>f); utl_file.fremove('CODEX_UTL_FILE_DIR','c002.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- IS_OPEN_TRUE_FALSE
+declare f utl_file.file_type; b boolean; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c003.txt','w',1); b:=utl_file.is_open(f); if not b then raise_application_error(-20001,'expected open'); end if; utl_file.fclose(f); b:=utl_file.is_open(f); if b then raise_application_error(-20002,'expected closed'); end if; utl_file.fremove('CODEX_UTL_FILE_DIR','c003.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FCLOSE_ALL_ZERO_ARGUMENT
+declare f1 utl_file.file_type; f2 utl_file.file_type; begin f1:=utl_file.fopen('CODEX_UTL_FILE_DIR','c004a.txt','w'); f2:=utl_file.fopen('CODEX_UTL_FILE_DIR','c004b.txt','w'); utl_file.fclose_all(); utl_file.fremove('CODEX_UTL_FILE_DIR','c004a.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c004b.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_TEXT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c005.txt','w',32767); utl_file.put(f,'DM8_FILE_PUT'); utl_file.new_line(f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c005.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_LINE_DEFAULT_AUTOFLUSH
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c006.txt','w'); utl_file.put_line(f,'DM8_FILE_LINE'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c006.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_LINE_NAMED_AUTOFLUSH_TRUE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c007.txt','w'); utl_file.put_line(autoflush=>true,buffer=>'DM8_FILE_FLUSH',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c007.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- NEW_LINE_DEFAULT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c008.txt','w'); utl_file.new_line(f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c008.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- NEW_LINE_EXPLICIT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c009.txt','w'); utl_file.new_line(lines=>2,file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c009.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FFLUSH_AFTER_NEWLINE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c010.txt','w'); utl_file.put_line(f,'DM8_FLUSH'); utl_file.fflush(f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c010.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FGETPOS_ZERO_AND_AFTER_WRITE
+declare f utl_file.file_type; n int; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c011.txt','w'); n:=utl_file.fgetpos(f); utl_file.put_line(f,'ABC'); n:=utl_file.fgetpos(f); if n<=0 then raise_application_error(-20003,'expected positive position'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c011.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FREMOVE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c012.txt','w'); utl_file.fclose(f); utl_file.fremove(location=>'CODEX_UTL_FILE_DIR',filename=>'c012.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FRENAME_DEFAULT_OVERWRITE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c013a.txt','w'); utl_file.fclose(f); utl_file.frename('CODEX_UTL_FILE_DIR','c013a.txt','CODEX_UTL_FILE_DIR','c013b.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c013b.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FRENAME_NAMED_OVERWRITE_TRUE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c014a.txt','w'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c014b.txt','w'); utl_file.fclose(f); utl_file.frename(overwrite=>true,dest_filename=>'c014b.txt',dest_location=>'CODEX_UTL_FILE_DIR',src_filename=>'c014a.txt',src_location=>'CODEX_UTL_FILE_DIR'); utl_file.fremove('CODEX_UTL_FILE_DIR','c014b.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_LINE_DEFAULT
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c015.txt','w'); utl_file.put_line(f,'DM8_GET_LINE'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c015.txt','r'); utl_file.get_line(f,t); if t<>'DM8_GET_LINE' then raise_application_error(-20004,'line mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c015.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_LINE_NAMED_LEN
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c016.txt','w'); utl_file.put_line(f,'ABCDEFG'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c016.txt','r'); utl_file.get_line(len=>3,buffer=>t,file=>f); if t<>'ABC' then raise_application_error(-20005,'line length mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c016.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FSEEK_ABSOLUTE_RELATIVE
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c017.txt','w'); utl_file.put_line(f,'ABCDE'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c017.txt','r'); utl_file.fseek(f,2); utl_file.fseek(f,0,1); utl_file.get_line(f,t); if t<>'DE' then raise_application_error(-20006,'seek mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c017.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FGETATTR_EXISTING
+declare f utl_file.file_type; e boolean; n number; b number; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c018.txt','w'); utl_file.put_line(f,'ATTR'); utl_file.fclose(f); utl_file.fgetattr('CODEX_UTL_FILE_DIR','c018.txt',e,n,b); if not e or n<=0 or b<=0 then raise_application_error(-20007,'attribute mismatch'); end if; utl_file.fremove('CODEX_UTL_FILE_DIR','c018.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FGETATTR_MISSING_NAMED
+declare e boolean; n number; b number; begin utl_file.fgetattr(blocksize=>b,file_length=>n,fexists=>e,filename=>'missing.txt',location=>'CODEX_UTL_FILE_DIR'); if e or n is not null or b is not null then raise_application_error(-20008,'missing attribute mismatch'); end if; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FCOPY_DEFAULT_LINES
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c020src.txt','w'); utl_file.put_line(f,'L1'); utl_file.put_line(f,'L2'); utl_file.fclose(f); utl_file.fcopy('CODEX_UTL_FILE_DIR','c020src.txt','CODEX_UTL_FILE_DIR','c020dst.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c020src.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c020dst.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FCOPY_NAMED_LINE_RANGE
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c021src.txt','w'); utl_file.put_line(f,'L1'); utl_file.put_line(f,'L2'); utl_file.put_line(f,'L3'); utl_file.fclose(f); utl_file.fcopy(end_line=>2,start_line=>2,dest_filename=>'c021dst.txt',dest_location=>'CODEX_UTL_FILE_DIR',src_filename=>'c021src.txt',src_location=>'CODEX_UTL_FILE_DIR'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c021dst.txt','r'); utl_file.get_line(f,t); utl_file.fclose(f); if t<>'L2' then raise_application_error(-20009,'copy mismatch'); end if; utl_file.fremove('CODEX_UTL_FILE_DIR','c021src.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c021dst.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUTF_NO_OPTIONAL_ARGUMENTS
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c022.txt','w'); utl_file.putf(f,'PLAIN\n'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c022.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUTF_ALL_ARGUMENTS_NAMED
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c023.txt','w'); utl_file.putf(arg5=>'5',arg4=>'4',arg3=>'3',arg2=>'2',arg1=>'1',format=>'%s%s%s%s%s\n',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c023.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FOPEN_NCHAR_DEFAULT
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c024.txt','w'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c024.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- FOPEN_NCHAR_NAMED_MAX_LINESIZE
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar(max_linesize=>32767,open_mode=>'w',filename=>'c025.txt',location=>'CODEX_UTL_FILE_DIR'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c025.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_NCHAR_AND_GET_LINE_NCHAR_DEFAULT
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c026.txt','w'); utl_file.put_nchar(f,'达梦UTF8'); utl_file.new_line(f); utl_file.fclose(f); f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c026.txt','r'); utl_file.get_line_nchar(f,t); if t<>'达梦UTF8' then raise_application_error(-20010,'nchar mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c026.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_LINE_NCHAR_NAMED_LEN
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c027.txt','w'); utl_file.put_line_nchar(f,'ABCDEFG'); utl_file.fclose(f); f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c027.txt','r'); utl_file.get_line_nchar(len=>3,buffer=>t,file=>f); if t<>'ABC' then raise_application_error(-20011,'nchar length mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c027.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_LINE_NCHAR_DEFAULT_AUTOFLUSH
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c028.txt','w'); utl_file.put_line_nchar(f,'DM8_NCHAR_LINE'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c028.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_LINE_NCHAR_NAMED_AUTOFLUSH_TRUE
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c029.txt','w'); utl_file.put_line_nchar(autoflush=>true,buffer=>'达梦刷写',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c029.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUTF_NCHAR_NO_OPTIONAL_ARGUMENTS
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c030.txt','w'); utl_file.putf_nchar(f,'纯文本\n'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c030.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUTF_NCHAR_ALL_ARGUMENTS_NAMED
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c031.txt','w'); utl_file.putf_nchar(arg5=>'5',arg4=>'4',arg3=>'3',arg2=>'2',arg1=>'1',format=>'%s%s%s%s%s\n',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c031.txt'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_RAW_DEFAULT_AUTOFLUSH
+declare f utl_file.file_type; b blob; begin b:=hextoraw('444D38524157'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c032.bin','wb',32767); utl_file.put_raw(f,b); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c032.bin'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_RAW_NAMED_AUTOFLUSH_TRUE
+declare f utl_file.file_type; b blob; begin b:=hextoraw('00FF01'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c033.bin','wb',32767); utl_file.put_raw(autoflush=>true,buffer=>b,file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c033.bin'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_RAW_FUNCTION_DEFAULT_LEN
+declare f utl_file.file_type; b blob; n int; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c034.bin','wb',32767); b:=hextoraw('444D38524157'); utl_file.put_raw(f,b,true); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c034.bin','rb',32767); n:=utl_file.get_raw(f,b); if n<>6 then raise_application_error(-20012,'raw length mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c034.bin'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- GET_RAW_FUNCTION_NAMED_LEN
+declare f utl_file.file_type; b blob; n int; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c035.bin','wb',32767); b:=hextoraw('0102030405'); utl_file.put_raw(f,b,true); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c035.bin','rb',32767); n:=utl_file.get_raw(len=>3,buffer=>b,file=>f); if n<>3 then raise_application_error(-20013,'raw partial mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c035.bin'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] -- PUT_RAW_ON_TEXT_HANDLE_PACK29
+declare f utl_file.file_type; b blob; begin b:=hextoraw('01'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c036.txt','w'); utl_file.put_raw(f,b,true); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c036.txt'); end;

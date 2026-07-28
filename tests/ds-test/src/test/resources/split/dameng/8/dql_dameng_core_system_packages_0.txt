@@ -1,0 +1,48 @@
+select dbms_lob.getlength(c) from CODEX_DM8_CORE_PKG where id=1;
+select dbms_lob.substr(c, 4, 1) from CODEX_DM8_CORE_PKG where id=1;
+select dbms_lob.instr(c, 'TEXT', 1, 1) from CODEX_DM8_CORE_PKG where id=1;
+select dbms_lob.compare(c, c) from CODEX_DM8_CORE_PKG where id=1;
+select dbms_lob.get_storage_limit(c) from CODEX_DM8_CORE_PKG where id=1;
+select dbms_lob.getlength(b) from CODEX_DM8_CORE_PKG where id=1;
+select dbms_lob.substr(b, 4, 1) from CODEX_DM8_CORE_PKG where id=1;
+select dbms_lob.compare(b, b) from CODEX_DM8_CORE_PKG where id=1;
+select dbms_lob.getchunksize(c) from CODEX_DM8_CORE_PKG where id=1;
+select dbms_session.unique_session_id();
+select dbms_session.is_session_alive(dbms_session.unique_session_id());
+select dbms_space.ts_n_get();
+select dbms_space.extent_size_get();
+select dbms_space.page_n_get();
+select dbms_xmlgen.getxml('select id,n from CODEX_DM8_CORE_PKG order by id');
+select dbms_xmlgen.getxmltype('select id,n from CODEX_DM8_CORE_PKG order by id');
+------------------------------------------------------------------------------------------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.getlength(c) from CODEX_DM8_CORE_PKG where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.substr(c, 4, 1) from CODEX_DM8_CORE_PKG where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.instr(c, 'TEXT', 1, 1) from CODEX_DM8_CORE_PKG where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.compare(c, c) from CODEX_DM8_CORE_PKG where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.get_storage_limit(c) from CODEX_DM8_CORE_PKG where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.getlength(b) from CODEX_DM8_CORE_PKG where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.substr(b, 4, 1) from CODEX_DM8_CORE_PKG where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.compare(b, b) from CODEX_DM8_CORE_PKG where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_lob.getchunksize(c) from CODEX_DM8_CORE_PKG where id=1;
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_session.unique_session_id();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_session.is_session_alive(dbms_session.unique_session_id());
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_space.ts_n_get();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_space.extent_size_get();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_space.page_n_get();
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_xmlgen.getxml('select id,n from CODEX_DM8_CORE_PKG order by id');
+----------
+[SELECT|CALL_PROG_OBJ] select dbms_xmlgen.getxmltype('select id,n from CODEX_DM8_CORE_PKG order by id');

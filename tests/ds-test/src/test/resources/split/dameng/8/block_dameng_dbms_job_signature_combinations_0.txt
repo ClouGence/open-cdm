@@ -1,0 +1,254 @@
+-- FUNC-0334 SUBMIT minimum required arguments
+declare
+  job_no int;
+begin
+  DBMS_JOB.SUBMIT(
+    job_no,
+    'insert into CODEX_DBMS_JOB_LOG(marker) values(''MAIN_RUN''); commit;'
+  );
+  insert into CODEX_DBMS_JOB_CTL values('MAIN', job_no);
+  commit;
+end;
+/
+-- FUNC-0327 BROKEN minimum positional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.BROKEN(job_no, true); commit; end;
+/
+-- FUNC-0327 BROKEN full named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.BROKEN(NEXT_DATE=>sysdate + 1, BROKEN=>false, JOB=>job_no); commit; end;
+/
+-- FUNC-0331 NEXT_DATE positional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.NEXT_DATE(job_no, sysdate + 1); commit; end;
+/
+-- FUNC-0331 NEXT_DATE named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.NEXT_DATE(NEXT_DATE=>sysdate + 2, JOB=>job_no); commit; end;
+/
+-- FUNC-0329 INTERVAL positional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."INTERVAL"(job_no, 'sysdate + 1'); commit; end;
+/
+-- FUNC-0329 INTERVAL named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."INTERVAL"("INTERVAL"=>'sysdate + 2', JOB=>job_no); commit; end;
+/
+-- FUNC-0335 WHAT positional IN OUT
+declare job_no int; text_value varchar(1800); begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; text_value:='insert into CODEX_DBMS_JOB_LOG(marker) values(''WHAT_RUN''); commit;'; DBMS_JOB.WHAT(job_no, text_value); commit; end;
+/
+-- FUNC-0335 WHAT named reordered IN OUT
+declare job_no int; text_value varchar(1800); begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; text_value:='insert into CODEX_DBMS_JOB_LOG(marker) values(''WHAT_NAMED''); commit;'; DBMS_JOB.WHAT(WHAT=>text_value, JOB=>job_no); commit; end;
+/
+-- FUNC-0328 CHANGE four required arguments
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."CHANGE"(job_no, 'insert into CODEX_DBMS_JOB_LOG(marker) values(''CHANGE4''); commit;', sysdate + 1, 'sysdate + 1'); commit; end;
+/
+-- FUNC-0328 CHANGE instance optional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."CHANGE"(job_no, 'insert into CODEX_DBMS_JOB_LOG(marker) values(''CHANGE5''); commit;', sysdate + 1, 'sysdate + 1', 0); commit; end;
+/
+-- FUNC-0328 CHANGE full named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."CHANGE"(FORCE=>true, INSTANCE=>0, "INTERVAL"=>'sysdate + 1', NEXT_DATE=>sysdate + 1, WHAT=>'insert into CODEX_DBMS_JOB_LOG(marker) values(''CHANGE6''); commit;', JOB=>job_no); commit; end;
+/
+-- FUNC-0333 RUN minimum positional synchronous
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.RUN(job_no); end;
+/
+-- FUNC-0333 RUN full named asynchronous
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.RUN(FORCE=>true, JOB=>job_no); end;
+/
+-- FUNC-0332 REMOVE named
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.REMOVE(JOB=>job_no); delete from CODEX_DBMS_JOB_CTL where label='MAIN'; commit; end;
+/
+-- FUNC-0330 ISUBMIT minimum required arguments
+begin
+  DBMS_JOB.ISUBMIT(
+    930001,
+    'insert into CODEX_DBMS_JOB_LOG(marker) values(''ISUBMIT3''); commit;',
+    sysdate + 1
+  );
+  commit;
+end;
+/
+-- FUNC-0333 RUN ISUBMIT job
+begin DBMS_JOB.RUN(930001); end;
+/
+-- FUNC-0332 REMOVE ISUBMIT job
+begin DBMS_JOB.REMOVE(930001); commit; end;
+/
+-- FUNC-0330 ISUBMIT full named reordered
+begin
+  DBMS_JOB.ISUBMIT(
+    NO_PARSE=>true,
+    "INTERVAL"=>NULL,
+    NEXT_DATE=>sysdate + 1,
+    WHAT=>'insert into CODEX_DBMS_JOB_LOG(marker) values(''ISUBMIT5''); commit;',
+    JOB=>930002
+  );
+  commit;
+end;
+/
+-- FUNC-0332 REMOVE second ISUBMIT job
+begin DBMS_JOB.REMOVE(930002); commit; end;
+/
+-- FUNC-0334 SUBMIT through NEXT_DATE optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1); DBMS_JOB.REMOVE(job_no); commit; end;
+/
+-- FUNC-0334 SUBMIT through INTERVAL optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1, 'sysdate + 1'); DBMS_JOB.REMOVE(job_no); commit; end;
+/
+-- FUNC-0334 SUBMIT through NO_PARSE optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1, NULL, true); DBMS_JOB.REMOVE(job_no); commit; end;
+/
+-- FUNC-0334 SUBMIT through INSTANCE optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1, NULL, false, 0); DBMS_JOB.REMOVE(job_no); commit; end;
+/
+-- FUNC-0334 SUBMIT full named reordered
+declare job_no int; begin DBMS_JOB.SUBMIT(FORCE=>true, INSTANCE=>0, NO_PARSE=>false, "INTERVAL"=>NULL, NEXT_DATE=>sysdate + 1, WHAT=>'begin null; end;', JOB=>job_no); DBMS_JOB.REMOVE(job_no); commit; end;
+/
+-- FUNC-1617 JOB_CONFIG_COMMIT positional Pack29 public signature
+begin
+  SP_CREATE_JOB('CODEX_DBMS_JOB_CONFIG_A', 0, 0, NULL, 0, 0, NULL, 0, 'CODEX');
+  SP_JOB_CONFIG_START('CODEX_DBMS_JOB_CONFIG_A');
+  DBMS_JOB.JOB_CONFIG_COMMIT('CODEX_DBMS_JOB_CONFIG_A');
+  SP_DROP_JOB('CODEX_DBMS_JOB_CONFIG_A');
+end;
+/
+-- FUNC-1617 JOB_CONFIG_COMMIT named argument
+begin
+  SP_CREATE_JOB('CODEX_DBMS_JOB_CONFIG_B', 0, 0, NULL, 0, 0, NULL, 0, 'CODEX');
+  SP_JOB_CONFIG_START('CODEX_DBMS_JOB_CONFIG_B');
+  DBMS_JOB.JOB_CONFIG_COMMIT(JOBNAME=>'CODEX_DBMS_JOB_CONFIG_B');
+  SP_DROP_JOB('CODEX_DBMS_JOB_CONFIG_B');
+end;
+/
+-- FUNC-0334 SUBMIT Pack29 accepts instance 16 beyond documented 0 to 15
+declare
+  job_no int;
+begin
+  DBMS_JOB.SUBMIT(
+    job_no, 'begin null; end;', sysdate + 1, NULL, false, 16, false
+  );
+  DBMS_JOB.REMOVE(job_no);
+  commit;
+end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,INSERT,TRANSACTION)] -- FUNC-0334 SUBMIT minimum required arguments
+declare
+  job_no int;
+begin
+  DBMS_JOB.SUBMIT(
+    job_no,
+    'insert into CODEX_DBMS_JOB_LOG(marker) values(''MAIN_RUN''); commit;'
+  );
+  insert into CODEX_DBMS_JOB_CTL values('MAIN', job_no);
+  commit;
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0327 BROKEN minimum positional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.BROKEN(job_no, true); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0327 BROKEN full named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.BROKEN(NEXT_DATE=>sysdate + 1, BROKEN=>false, JOB=>job_no); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0331 NEXT_DATE positional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.NEXT_DATE(job_no, sysdate + 1); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0331 NEXT_DATE named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.NEXT_DATE(NEXT_DATE=>sysdate + 2, JOB=>job_no); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0329 INTERVAL positional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."INTERVAL"(job_no, 'sysdate + 1'); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0329 INTERVAL named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."INTERVAL"("INTERVAL"=>'sysdate + 2', JOB=>job_no); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0335 WHAT positional IN OUT
+declare job_no int; text_value varchar(1800); begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; text_value:='insert into CODEX_DBMS_JOB_LOG(marker) values(''WHAT_RUN''); commit;'; DBMS_JOB.WHAT(job_no, text_value); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0335 WHAT named reordered IN OUT
+declare job_no int; text_value varchar(1800); begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; text_value:='insert into CODEX_DBMS_JOB_LOG(marker) values(''WHAT_NAMED''); commit;'; DBMS_JOB.WHAT(WHAT=>text_value, JOB=>job_no); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0328 CHANGE four required arguments
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."CHANGE"(job_no, 'insert into CODEX_DBMS_JOB_LOG(marker) values(''CHANGE4''); commit;', sysdate + 1, 'sysdate + 1'); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0328 CHANGE instance optional
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."CHANGE"(job_no, 'insert into CODEX_DBMS_JOB_LOG(marker) values(''CHANGE5''); commit;', sysdate + 1, 'sysdate + 1', 0); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0328 CHANGE full named reordered
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB."CHANGE"(FORCE=>true, INSTANCE=>0, "INTERVAL"=>'sysdate + 1', NEXT_DATE=>sysdate + 1, WHAT=>'insert into CODEX_DBMS_JOB_LOG(marker) values(''CHANGE6''); commit;', JOB=>job_no); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- FUNC-0333 RUN minimum positional synchronous
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.RUN(job_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- FUNC-0333 RUN full named asynchronous
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.RUN(FORCE=>true, JOB=>job_no); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ,DELETE,TRANSACTION)] -- FUNC-0332 REMOVE named
+declare job_no int; begin select job_id into job_no from CODEX_DBMS_JOB_CTL where label='MAIN'; DBMS_JOB.REMOVE(JOB=>job_no); delete from CODEX_DBMS_JOB_CTL where label='MAIN'; commit; end;
+----------
+[BLOCK(CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0330 ISUBMIT minimum required arguments
+begin
+  DBMS_JOB.ISUBMIT(
+    930001,
+    'insert into CODEX_DBMS_JOB_LOG(marker) values(''ISUBMIT3''); commit;',
+    sysdate + 1
+  );
+  commit;
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-0333 RUN ISUBMIT job
+begin DBMS_JOB.RUN(930001); end;
+----------
+[BLOCK(CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0332 REMOVE ISUBMIT job
+begin DBMS_JOB.REMOVE(930001); commit; end;
+----------
+[BLOCK(CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0330 ISUBMIT full named reordered
+begin
+  DBMS_JOB.ISUBMIT(
+    NO_PARSE=>true,
+    "INTERVAL"=>NULL,
+    NEXT_DATE=>sysdate + 1,
+    WHAT=>'insert into CODEX_DBMS_JOB_LOG(marker) values(''ISUBMIT5''); commit;',
+    JOB=>930002
+  );
+  commit;
+end;
+----------
+[BLOCK(CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0332 REMOVE second ISUBMIT job
+begin DBMS_JOB.REMOVE(930002); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0334 SUBMIT through NEXT_DATE optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1); DBMS_JOB.REMOVE(job_no); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0334 SUBMIT through INTERVAL optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1, 'sysdate + 1'); DBMS_JOB.REMOVE(job_no); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0334 SUBMIT through NO_PARSE optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1, NULL, true); DBMS_JOB.REMOVE(job_no); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0334 SUBMIT through INSTANCE optional
+declare job_no int; begin DBMS_JOB.SUBMIT(job_no, 'begin null; end;', sysdate + 1, NULL, false, 0); DBMS_JOB.REMOVE(job_no); commit; end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0334 SUBMIT full named reordered
+declare job_no int; begin DBMS_JOB.SUBMIT(FORCE=>true, INSTANCE=>0, NO_PARSE=>false, "INTERVAL"=>NULL, NEXT_DATE=>sysdate + 1, WHAT=>'begin null; end;', JOB=>job_no); DBMS_JOB.REMOVE(job_no); commit; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1617 JOB_CONFIG_COMMIT positional Pack29 public signature
+begin
+  SP_CREATE_JOB('CODEX_DBMS_JOB_CONFIG_A', 0, 0, NULL, 0, 0, NULL, 0, 'CODEX');
+  SP_JOB_CONFIG_START('CODEX_DBMS_JOB_CONFIG_A');
+  DBMS_JOB.JOB_CONFIG_COMMIT('CODEX_DBMS_JOB_CONFIG_A');
+  SP_DROP_JOB('CODEX_DBMS_JOB_CONFIG_A');
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- FUNC-1617 JOB_CONFIG_COMMIT named argument
+begin
+  SP_CREATE_JOB('CODEX_DBMS_JOB_CONFIG_B', 0, 0, NULL, 0, 0, NULL, 0, 'CODEX');
+  SP_JOB_CONFIG_START('CODEX_DBMS_JOB_CONFIG_B');
+  DBMS_JOB.JOB_CONFIG_COMMIT(JOBNAME=>'CODEX_DBMS_JOB_CONFIG_B');
+  SP_DROP_JOB('CODEX_DBMS_JOB_CONFIG_B');
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ,TRANSACTION)] -- FUNC-0334 SUBMIT Pack29 accepts instance 16 beyond documented 0 to 15
+declare
+  job_no int;
+begin
+  DBMS_JOB.SUBMIT(
+    job_no, 'begin null; end;', sysdate + 1, NULL, false, 16, false
+  );
+  DBMS_JOB.REMOVE(job_no);
+  commit;
+end;

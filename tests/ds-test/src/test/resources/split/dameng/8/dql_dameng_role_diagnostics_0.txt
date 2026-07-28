@@ -1,0 +1,21 @@
+select role, password_required, authentication_type from dba_roles where role in ('CODEX_DM8_ROLE_BASIC_20260723', 'Role_Mixed_20260723', 'RXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') order by role;
+select grantee, granted_role, admin_option, default_role from dba_role_privs where granted_role like 'CODEX_DM8_ROLE_%_20260723' order by grantee, granted_role;
+select privilege from dba_sys_privs where grantee='CODEX_DM8_ROLE_SYSTEM_20260723' order by privilege;
+select grantee, privilege, owner, table_name from dba_tab_privs where grantee in ('CODEX_DM8_ROLE_SELECT_20260723','CODEX_DM8_ROLE_DML_20260723') order by grantee, privilege;
+select role from session_roles where role in ('DBA','PUBLIC','RESOURCE') order by role;
+select count(*) from dba_role_privs where granted_role='CODEX_DM8_ROLE_DROP_ASSIGNED_20260723';
+select count(*) from dba_roles where role like 'CODEX_DM8_ROLE_%_20260723' or role='Role_Mixed_20260723' or length(role)=128 and role like 'RXXX%';
+------------------------------------------------------------------------------------------
+[SELECT] select role, password_required, authentication_type from dba_roles where role in ('CODEX_DM8_ROLE_BASIC_20260723', 'Role_Mixed_20260723', 'RXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') order by role;
+----------
+[SELECT] select grantee, granted_role, admin_option, default_role from dba_role_privs where granted_role like 'CODEX_DM8_ROLE_%_20260723' order by grantee, granted_role;
+----------
+[SELECT] select privilege from dba_sys_privs where grantee='CODEX_DM8_ROLE_SYSTEM_20260723' order by privilege;
+----------
+[SELECT] select grantee, privilege, owner, table_name from dba_tab_privs where grantee in ('CODEX_DM8_ROLE_SELECT_20260723','CODEX_DM8_ROLE_DML_20260723') order by grantee, privilege;
+----------
+[SELECT] select role from session_roles where role in ('DBA','PUBLIC','RESOURCE') order by role;
+----------
+[SELECT] select count(*) from dba_role_privs where granted_role='CODEX_DM8_ROLE_DROP_ASSIGNED_20260723';
+----------
+[SELECT] select count(*) from dba_roles where role like 'CODEX_DM8_ROLE_%_20260723' or role='Role_Mixed_20260723' or length(role)=128 and role like 'RXXX%';

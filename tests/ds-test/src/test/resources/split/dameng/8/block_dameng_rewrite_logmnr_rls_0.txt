@@ -1,0 +1,80 @@
+begin dbms_advanced_rewrite.declare_rewrite_equivalence('CODEX_REWRITE_RULE', 'SELECT COUNT(*) FROM CODEX_REWRITE_SOURCE', 'SELECT COUNT(*) FROM CODEX_REWRITE_TARGET', false, 'TEXT_MATCH'); end;
+/
+begin dbms_advanced_rewrite.validate_rewrite_equivalence('CODEX_REWRITE_RULE'); end;
+/
+begin dbms_advanced_rewrite.alter_rewrite_equivalence('CODEX_REWRITE_RULE', 'DISABLED'); end;
+/
+begin dbms_advanced_rewrite.alter_rewrite_equivalence(name=>'CODEX_REWRITE_RULE', rewrite_mode=>'TEXT_MATCH'); end;
+/
+begin dbms_advanced_rewrite.drop_rewrite_equivalence('CODEX_REWRITE_RULE'); end;
+/
+declare first_file int := 1; begin for r in (select name from v$archived_log order by first_change#) loop if first_file=1 then dbms_logmnr.add_logfile(r.name, dbms_logmnr."NEW"); first_file:=0; else dbms_logmnr.add_logfile(r.name, dbms_logmnr.ADDFILE); end if; end loop; end;
+/
+begin dbms_logmnr.start_logmnr(options=>dbms_logmnr.COMMITTED_DATA_ONLY + dbms_logmnr.DICT_FROM_ONLINE_CATALOG + dbms_logmnr.NO_SQL_DELIMITER + dbms_logmnr.NO_ROWID_IN_STMT); end;
+/
+begin dbms_logmnr.end_logmnr(); end;
+/
+declare log_file varchar(32767); begin select name into log_file from (select name from v$archived_log order by first_change# desc) where rownum=1; dbms_logmnr.add_logfile(log_file, dbms_logmnr."NEW"); dbms_logmnr.remove_logfile(log_file); end;
+/
+declare log_file varchar(32767); begin select name into log_file from (select name from v$archived_log order by first_change# desc) where rownum=1; dbms_logmnr.add_logfile(log_file, dbms_logmnr."NEW"); dbms_logmnr.start_logmnr(startscn=>0, endscn=>0, starttime=>to_date('1988-01-01','YYYY-MM-DD'), endtime=>to_date('2110-12-31','YYYY-MM-DD'), dictfilename=>'', options=>0); end;
+/
+begin dbms_logmnr.end_logmnr(); end;
+/
+begin dbms_rls.add_policy(object_schema=>'CODEX_DM8_RLS', object_name=>'CODEX_RLS_T', policy_name=>'CODEX_POLICY', function_schema=>'CODEX_DM8_RLS', policy_function=>'CODEX_RLS_POLICY', statement_types=>'SELECT,INSERT,UPDATE,DELETE', update_check=>1, enable=>1); end;
+/
+begin dbms_rls.refresh_policy('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_POLICY'); end;
+/
+begin dbms_rls.enable_policy('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_POLICY', 0); end;
+/
+begin dbms_rls.enable_policy(object_schema=>'CODEX_DM8_RLS', object_name=>'CODEX_RLS_T', policy_name=>'CODEX_POLICY', enable=>true); end;
+/
+begin dbms_rls.drop_policy('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_POLICY'); end;
+/
+begin dbms_rls.create_policy_group('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_GROUP'); end;
+/
+begin dbms_rls.delete_policy_group('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_GROUP'); end;
+/
+begin dbms_rls.add_policy_context('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_NAMESPACE', 'TENANT'); end;
+/
+begin dbms_rls.drop_policy_context('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_NAMESPACE', 'TENANT'); end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_advanced_rewrite.declare_rewrite_equivalence('CODEX_REWRITE_RULE', 'SELECT COUNT(*) FROM CODEX_REWRITE_SOURCE', 'SELECT COUNT(*) FROM CODEX_REWRITE_TARGET', false, 'TEXT_MATCH'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_advanced_rewrite.validate_rewrite_equivalence('CODEX_REWRITE_RULE'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_advanced_rewrite.alter_rewrite_equivalence('CODEX_REWRITE_RULE', 'DISABLED'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_advanced_rewrite.alter_rewrite_equivalence(name=>'CODEX_REWRITE_RULE', rewrite_mode=>'TEXT_MATCH'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_advanced_rewrite.drop_rewrite_equivalence('CODEX_REWRITE_RULE'); end;
+----------
+[BLOCK(PROGRAM_CONTROL,CALL_PROG_OBJ)] declare first_file int := 1; begin for r in (select name from v$archived_log order by first_change#) loop if first_file=1 then dbms_logmnr.add_logfile(r.name, dbms_logmnr."NEW"); first_file:=0; else dbms_logmnr.add_logfile(r.name, dbms_logmnr.ADDFILE); end if; end loop; end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_logmnr.start_logmnr(options=>dbms_logmnr.COMMITTED_DATA_ONLY + dbms_logmnr.DICT_FROM_ONLINE_CATALOG + dbms_logmnr.NO_SQL_DELIMITER + dbms_logmnr.NO_ROWID_IN_STMT); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_logmnr.end_logmnr(); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare log_file varchar(32767); begin select name into log_file from (select name from v$archived_log order by first_change# desc) where rownum=1; dbms_logmnr.add_logfile(log_file, dbms_logmnr."NEW"); dbms_logmnr.remove_logfile(log_file); end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] declare log_file varchar(32767); begin select name into log_file from (select name from v$archived_log order by first_change# desc) where rownum=1; dbms_logmnr.add_logfile(log_file, dbms_logmnr."NEW"); dbms_logmnr.start_logmnr(startscn=>0, endscn=>0, starttime=>to_date('1988-01-01','YYYY-MM-DD'), endtime=>to_date('2110-12-31','YYYY-MM-DD'), dictfilename=>'', options=>0); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_logmnr.end_logmnr(); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_rls.add_policy(object_schema=>'CODEX_DM8_RLS', object_name=>'CODEX_RLS_T', policy_name=>'CODEX_POLICY', function_schema=>'CODEX_DM8_RLS', policy_function=>'CODEX_RLS_POLICY', statement_types=>'SELECT,INSERT,UPDATE,DELETE', update_check=>1, enable=>1); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_rls.refresh_policy('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_POLICY'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_rls.enable_policy('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_POLICY', 0); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_rls.enable_policy(object_schema=>'CODEX_DM8_RLS', object_name=>'CODEX_RLS_T', policy_name=>'CODEX_POLICY', enable=>true); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_rls.drop_policy('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_POLICY'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_rls.create_policy_group('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_GROUP'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_rls.delete_policy_group('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_GROUP'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_rls.add_policy_context('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_NAMESPACE', 'TENANT'); end;
+----------
+[BLOCK(CALL_PROG_OBJ)] begin dbms_rls.drop_policy_context('CODEX_DM8_RLS', 'CODEX_RLS_T', 'CODEX_NAMESPACE', 'TENANT'); end;

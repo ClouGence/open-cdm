@@ -1,0 +1,126 @@
+create tablespace dpc_huge_ts1 datafile 'DPC_HUGE_TS1.DBF' size 128 with huge path '/data/DAMENG/DPC_HUGE_TS1' storage(on raft_1);
+create tablespace dpc_huge_ts2 datafile 'DPC_HUGE_TS2.DBF' size 128 with huge path '/data/DAMENG/DPC_HUGE_TS2' storage(on raft_2);
+create partition group dpc_huge_pg_range partition by range(int)(partition p1 values less than(100) storage(on dpc_huge_ts1), partition p2 values less than(maxvalue) storage(on dpc_huge_ts2));
+create partition group dpc_huge_pg_hash partition by hash(int) partitions 4 storage(on dpc_huge_ts1, dpc_huge_ts2);
+create partition group dpc_huge_pg_list partition by list(int)(partition p1 values(1,3) storage(on dpc_huge_ts1), partition p2 values(2,4) storage(on dpc_huge_ts2));
+select partgroupdef('SYSDBA', 'DPC_HUGE_PG_RANGE');
+select partgroupdef('SYSDBA', 'DPC_HUGE_PG_HASH');
+select partgroupdef('SYSDBA', 'DPC_HUGE_PG_LIST');
+create huge table dpc_huge_range(id int, payload varchar(64)) using partition group dpc_huge_pg_range by(id);
+create huge table dpc_huge_hash(id int, payload varchar(64)) using partition group dpc_huge_pg_hash by(id);
+create huge table dpc_huge_list(id int, payload varchar(64)) using partition group dpc_huge_pg_list by(id);
+insert into dpc_huge_range values(50, 'RAFT_1');
+insert into dpc_huge_range values(150, 'RAFT_2');
+insert into dpc_huge_hash values(1, 'H1');
+insert into dpc_huge_hash values(2, 'H2');
+insert into dpc_huge_hash values(3, 'H3');
+insert into dpc_huge_hash values(4, 'H4');
+insert into dpc_huge_list values(1, 'L1');
+insert into dpc_huge_list values(2, 'L2');
+commit;
+select id, payload, sf_get_ep_seqno(rowid) as ep_seqno from dpc_huge_range order by id;
+select sf_get_ep_seqno(rowid) as ep_seqno, count(*) as row_count from dpc_huge_hash group by sf_get_ep_seqno(rowid) order by ep_seqno;
+select id, payload, sf_get_ep_seqno(rowid) as ep_seqno from dpc_huge_list order by id;
+select r.id, r.payload as range_payload, l.payload as list_payload from dpc_huge_range r join dpc_huge_list l on l.id=1 where r.id=150;
+select tabledef('SYSDBA', 'DPC_HUGE_RANGE');
+create sequence dpc_huge_seq start with 1 increment by 1;
+alter table dpc_huge_range add seq_value int default dpc_huge_seq.nextval;
+alter table dpc_huge_range add const_value int default 7;
+select id, payload, const_value from dpc_huge_range order by id;
+create huge table dpc_huge_bad_type(id bigint) using partition group dpc_huge_pg_range by(id);
+create or replace directory dpc_huge_ext_dir as '/tmp';
+create external table dpc_huge_external(id int) from datafile default directory dpc_huge_ext_dir location('dpc.csv');
+drop table dpc_huge_list purge;
+drop table dpc_huge_hash purge;
+drop table dpc_huge_range purge;
+drop sequence dpc_huge_seq;
+drop partition group dpc_huge_pg_list;
+drop partition group dpc_huge_pg_hash;
+drop partition group dpc_huge_pg_range;
+drop directory dpc_huge_ext_dir;
+drop tablespace dpc_huge_ts2;
+drop tablespace dpc_huge_ts1;
+------------------------------------------------------------------------------------------
+[CREATE_TABLESPACE] create tablespace dpc_huge_ts1 datafile 'DPC_HUGE_TS1.DBF' size 128 with huge path '/data/DAMENG/DPC_HUGE_TS1' storage(on raft_1);
+----------
+[CREATE_TABLESPACE] create tablespace dpc_huge_ts2 datafile 'DPC_HUGE_TS2.DBF' size 128 with huge path '/data/DAMENG/DPC_HUGE_TS2' storage(on raft_2);
+----------
+[UNKNOWN] create partition group dpc_huge_pg_range partition by range(int)(partition p1 values less than(100) storage(on dpc_huge_ts1), partition p2 values less than(maxvalue) storage(on dpc_huge_ts2));
+----------
+[UNKNOWN] create partition group dpc_huge_pg_hash partition by hash(int) partitions 4 storage(on dpc_huge_ts1, dpc_huge_ts2);
+----------
+[UNKNOWN] create partition group dpc_huge_pg_list partition by list(int)(partition p1 values(1,3) storage(on dpc_huge_ts1), partition p2 values(2,4) storage(on dpc_huge_ts2));
+----------
+[SELECT|CALL_PROG_OBJ] select partgroupdef('SYSDBA', 'DPC_HUGE_PG_RANGE');
+----------
+[SELECT|CALL_PROG_OBJ] select partgroupdef('SYSDBA', 'DPC_HUGE_PG_HASH');
+----------
+[SELECT|CALL_PROG_OBJ] select partgroupdef('SYSDBA', 'DPC_HUGE_PG_LIST');
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dpc_huge_range(id int, payload varchar(64)) using partition group dpc_huge_pg_range by(id);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dpc_huge_hash(id int, payload varchar(64)) using partition group dpc_huge_pg_hash by(id);
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dpc_huge_list(id int, payload varchar(64)) using partition group dpc_huge_pg_list by(id);
+----------
+[INSERT] insert into dpc_huge_range values(50, 'RAFT_1');
+----------
+[INSERT] insert into dpc_huge_range values(150, 'RAFT_2');
+----------
+[INSERT] insert into dpc_huge_hash values(1, 'H1');
+----------
+[INSERT] insert into dpc_huge_hash values(2, 'H2');
+----------
+[INSERT] insert into dpc_huge_hash values(3, 'H3');
+----------
+[INSERT] insert into dpc_huge_hash values(4, 'H4');
+----------
+[INSERT] insert into dpc_huge_list values(1, 'L1');
+----------
+[INSERT] insert into dpc_huge_list values(2, 'L2');
+----------
+[TRANSACTION] commit;
+----------
+[SELECT|CALL_PROG_OBJ] select id, payload, sf_get_ep_seqno(rowid) as ep_seqno from dpc_huge_range order by id;
+----------
+[SELECT|CALL_PROG_OBJ] select sf_get_ep_seqno(rowid) as ep_seqno, count(*) as row_count from dpc_huge_hash group by sf_get_ep_seqno(rowid) order by ep_seqno;
+----------
+[SELECT|CALL_PROG_OBJ] select id, payload, sf_get_ep_seqno(rowid) as ep_seqno from dpc_huge_list order by id;
+----------
+[SELECT] select r.id, r.payload as range_payload, l.payload as list_payload from dpc_huge_range r join dpc_huge_list l on l.id=1 where r.id=150;
+----------
+[SELECT|CALL_PROG_OBJ] select tabledef('SYSDBA', 'DPC_HUGE_RANGE');
+----------
+[CREATE_SEQUENCE] create sequence dpc_huge_seq start with 1 increment by 1;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table dpc_huge_range add seq_value int default dpc_huge_seq.nextval;
+----------
+[ALTER_TABLE|ADD_COLUMN] alter table dpc_huge_range add const_value int default 7;
+----------
+[SELECT] select id, payload, const_value from dpc_huge_range order by id;
+----------
+[CREATE_TABLE|ADD_COLUMN] create huge table dpc_huge_bad_type(id bigint) using partition group dpc_huge_pg_range by(id);
+----------
+[SYSTEM_SETTING_WRITE] create or replace directory dpc_huge_ext_dir as '/tmp';
+----------
+[CREATE_TABLE] create external table dpc_huge_external(id int) from datafile default directory dpc_huge_ext_dir location('dpc.csv');
+----------
+[DROP_TABLE] drop table dpc_huge_list purge;
+----------
+[DROP_TABLE] drop table dpc_huge_hash purge;
+----------
+[DROP_TABLE] drop table dpc_huge_range purge;
+----------
+[DROP_SEQUENCE] drop sequence dpc_huge_seq;
+----------
+[UNKNOWN] drop partition group dpc_huge_pg_list;
+----------
+[UNKNOWN] drop partition group dpc_huge_pg_hash;
+----------
+[UNKNOWN] drop partition group dpc_huge_pg_range;
+----------
+[SYSTEM_SETTING_WRITE] drop directory dpc_huge_ext_dir;
+----------
+[DROP_TABLESPACE] drop tablespace dpc_huge_ts2;
+----------
+[DROP_TABLESPACE] drop tablespace dpc_huge_ts1;

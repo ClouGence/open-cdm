@@ -1,0 +1,20 @@
+-- ROWNUM_TABLE_ALIAS
+select * from T ROWNUM;
+-- ROWNUM_COLUMN_ALIAS
+select ID as ROWNUM from T;
+-- ROWNUM_FUNCTION_ZERO
+select rownum() from T;
+-- ROWNUM_FUNCTION_ONE
+select rownum(1) from T;
+------------------------------------------------------------------------------------------
+[SELECT] -- ROWNUM_TABLE_ALIAS
+select * from T ROWNUM;
+----------
+[SELECT] -- ROWNUM_COLUMN_ALIAS
+select ID as ROWNUM from T;
+----------
+[SELECT] -- ROWNUM_FUNCTION_ZERO
+select rownum() from T;
+----------
+[SELECT] -- ROWNUM_FUNCTION_ONE
+select rownum(1) from T;

@@ -1,0 +1,30 @@
+create huge table mpp_huge_bad_hash(id int) distributed by hash;
+create huge table mpp_huge_bad_random(id int) distributed randomly(id);
+create huge table mpp_huge_bad_fully(id int) distributed fully(id);
+create huge table mpp_huge_bad_range(id int) distributed by range(id) values less than(10) on ep01;
+create huge table mpp_huge_bad_list(id int) distributed by list()(values(1) on ep01);
+create huge table mpp_huge_bad_method(id int) distributed by unknown(id);
+create huge table mpp_huge_bad_repeat(id int) distributed randomly distributed fully;
+create huge table mpp_huge_bad_order(id int) distributed by hash(id) storage(stat none);
+create huge table mpp_huge_bad_ep_missing(id int) distributed by range(id)(values less than(10) on);
+create huge table mpp_huge_bad_list_item(id int) distributed by list(id)(values() on ep01);
+------------------------------------------------------------------------------------------
+[CREATE_TABLE] create huge table mpp_huge_bad_hash(id int) distributed by hash;
+----------
+[CREATE_TABLE] create huge table mpp_huge_bad_random(id int) distributed randomly(id);
+----------
+[CREATE_TABLE] create huge table mpp_huge_bad_fully(id int) distributed fully(id);
+----------
+[CREATE_TABLE] create huge table mpp_huge_bad_range(id int) distributed by range(id) values less than(10) on ep01;
+----------
+[CREATE_TABLE] create huge table mpp_huge_bad_list(id int) distributed by list()(values(1) on ep01);
+----------
+[CREATE_TABLE] create huge table mpp_huge_bad_method(id int) distributed by unknown(id);
+----------
+[CREATE_TABLE] create huge table mpp_huge_bad_repeat(id int) distributed randomly distributed fully;
+----------
+[CREATE_TABLE] create huge table mpp_huge_bad_order(id int) distributed by hash(id) storage(stat none);
+----------
+[CREATE_TABLE] create huge table mpp_huge_bad_ep_missing(id int) distributed by range(id)(values less than(10) on);
+----------
+[CREATE_TABLE] create huge table mpp_huge_bad_list_item(id int) distributed by list(id)(values() on ep01);

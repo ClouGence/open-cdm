@@ -1,0 +1,189 @@
+create function op_left_int(c in int) return int as
+begin
+  return c * 2;
+end;
+/
+create function op_left_bigint(c in bigint) return bigint as
+begin
+  return c * 3;
+end;
+/
+create function op_right_varchar(c in varchar) return int as
+begin
+  return length(c);
+end;
+/
+create function op_right_int(c in int) return int as
+begin
+  return -c;
+end;
+/
+create function op_binary_int(c1 in int, c2 in int) return int as
+begin
+  return (c1 + c2) * 2;
+end;
+/
+create function op_binary_bigint(c1 in bigint, c2 in bigint) return bigint as
+begin
+  return (c1 + c2) * 3;
+end;
+/
+create function op_binary_varchar(c1 in varchar, c2 in varchar) return varchar as
+begin
+  return c1 || ':' || c2;
+end;
+/
+create operator <% (function op_left_int, leftarg int);
+create operator |% (function op_left_bigint, leftarg bigint);
+create operator /> (function op_right_varchar, rightarg varchar);
+create operator ^> (function op_right_int, rightarg int);
+create operator @^ (function op_binary_int, leftarg int, rightarg int);
+create operator @^ (function op_binary_bigint, leftarg bigint, rightarg bigint);
+create operator @^ (function op_binary_varchar, leftarg varchar, rightarg varchar);
+create operator CODEX_DM8_CUSTOM_OPERATOR_20260721."@&"
+  (function op_binary_int, rightarg int, leftarg int);
+select (2<%);
+select (cast(3 as bigint)|%);
+select />'abc';
+select ^>5;
+select 2@^3;
+select cast(2 as bigint)@^cast(3 as bigint);
+select 'alpha'@^'beta';
+select (2 operator(<%));
+select operator(/>) 'abcd';
+select 2 operator(@^) 4;
+select 2 operator(CODEX_DM8_CUSTOM_OPERATOR_20260721.@^) 5;
+select 2 operator(CODEX_DM8_CUSTOM_OPERATOR_20260721."@&") 6;
+select 1 + 2 @^ 3 * 4;
+select operatordef('CODEX_DM8_CUSTOM_OPERATOR_20260721', '<%');
+select operatordef('CODEX_DM8_CUSTOM_OPERATOR_20260721', '@^');
+select count(*) from sysopargs;
+drop operator if exists CODEX_DM8_CUSTOM_OPERATOR_20260721."@&"(int,int);
+drop operator if exists @^(varchar,varchar);
+drop operator if exists @^(bigint,bigint);
+drop operator if exists @^(int,int);
+drop operator if exists ^>(null,int);
+drop operator if exists />(null,varchar);
+drop operator if exists |%(bigint,null);
+drop operator if exists <%(int,null);
+drop function op_binary_varchar;
+drop function op_binary_bigint;
+drop function op_binary_int;
+drop function op_right_int;
+drop function op_right_varchar;
+drop function op_left_bigint;
+drop function op_left_int;
+------------------------------------------------------------------------------------------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function op_left_int(c in int) return int as
+begin
+  return c * 2;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function op_left_bigint(c in bigint) return bigint as
+begin
+  return c * 3;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function op_right_varchar(c in varchar) return int as
+begin
+  return length(c);
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function op_right_int(c in int) return int as
+begin
+  return -c;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function op_binary_int(c1 in int, c2 in int) return int as
+begin
+  return (c1 + c2) * 2;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function op_binary_bigint(c1 in bigint, c2 in bigint) return bigint as
+begin
+  return (c1 + c2) * 3;
+end;
+----------
+[CREATE_PROG_OBJ(BLOCK,PROGRAM_CONTROL)] create function op_binary_varchar(c1 in varchar, c2 in varchar) return varchar as
+begin
+  return c1 || ':' || c2;
+end;
+----------
+[CREATE_PROG_OBJ] create operator <% (function op_left_int, leftarg int);
+----------
+[CREATE_PROG_OBJ] create operator |% (function op_left_bigint, leftarg bigint);
+----------
+[CREATE_PROG_OBJ] create operator /> (function op_right_varchar, rightarg varchar);
+----------
+[CREATE_PROG_OBJ] create operator ^> (function op_right_int, rightarg int);
+----------
+[CREATE_PROG_OBJ] create operator @^ (function op_binary_int, leftarg int, rightarg int);
+----------
+[CREATE_PROG_OBJ] create operator @^ (function op_binary_bigint, leftarg bigint, rightarg bigint);
+----------
+[CREATE_PROG_OBJ] create operator @^ (function op_binary_varchar, leftarg varchar, rightarg varchar);
+----------
+[CREATE_PROG_OBJ] create operator CODEX_DM8_CUSTOM_OPERATOR_20260721."@&"
+  (function op_binary_int, rightarg int, leftarg int);
+----------
+[SELECT] select (2<%);
+----------
+[SELECT] select (cast(3 as bigint)|%);
+----------
+[SELECT] select />'abc';
+----------
+[SELECT] select ^>5;
+----------
+[SELECT] select 2@^3;
+----------
+[SELECT] select cast(2 as bigint)@^cast(3 as bigint);
+----------
+[SELECT] select 'alpha'@^'beta';
+----------
+[SELECT] select (2 operator(<%));
+----------
+[SELECT] select operator(/>) 'abcd';
+----------
+[SELECT] select 2 operator(@^) 4;
+----------
+[SELECT] select 2 operator(CODEX_DM8_CUSTOM_OPERATOR_20260721.@^) 5;
+----------
+[SELECT] select 2 operator(CODEX_DM8_CUSTOM_OPERATOR_20260721."@&") 6;
+----------
+[SELECT] select 1 + 2 @^ 3 * 4;
+----------
+[SELECT|CALL_PROG_OBJ] select operatordef('CODEX_DM8_CUSTOM_OPERATOR_20260721', '<%');
+----------
+[SELECT|CALL_PROG_OBJ] select operatordef('CODEX_DM8_CUSTOM_OPERATOR_20260721', '@^');
+----------
+[SELECT] select count(*) from sysopargs;
+----------
+[DROP_PROG_OBJ] drop operator if exists CODEX_DM8_CUSTOM_OPERATOR_20260721."@&"(int,int);
+----------
+[DROP_PROG_OBJ] drop operator if exists @^(varchar,varchar);
+----------
+[DROP_PROG_OBJ] drop operator if exists @^(bigint,bigint);
+----------
+[DROP_PROG_OBJ] drop operator if exists @^(int,int);
+----------
+[DROP_PROG_OBJ] drop operator if exists ^>(null,int);
+----------
+[DROP_PROG_OBJ] drop operator if exists />(null,varchar);
+----------
+[DROP_PROG_OBJ] drop operator if exists |%(bigint,null);
+----------
+[DROP_PROG_OBJ] drop operator if exists <%(int,null);
+----------
+[DROP_PROG_OBJ] drop function op_binary_varchar;
+----------
+[DROP_PROG_OBJ] drop function op_binary_bigint;
+----------
+[DROP_PROG_OBJ] drop function op_binary_int;
+----------
+[DROP_PROG_OBJ] drop function op_right_int;
+----------
+[DROP_PROG_OBJ] drop function op_right_varchar;
+----------
+[DROP_PROG_OBJ] drop function op_left_bigint;
+----------
+[DROP_PROG_OBJ] drop function op_left_int;

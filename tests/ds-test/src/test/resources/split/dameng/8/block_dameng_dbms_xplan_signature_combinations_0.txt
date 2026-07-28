@@ -1,0 +1,86 @@
+-- DISPLAY_SQL_TEXT_POSITIONAL
+begin
+  dbms_xplan.display_planhist('select C2 from CODEX_DM8_XPLAN_T where C1=1;');
+end;
+/
+-- DISPLAY_SQL_TEXT_NAMED
+begin
+  dbms_xplan.display_planhist(SQL_TEXT=>'select C2 from CODEX_DM8_XPLAN_T where C1=1;');
+end;
+/
+-- DISPLAY_HASH_POSITIONAL
+declare
+  plan_hash int;
+begin
+  select min(plan_hash_value) into plan_hash from sysplanhist
+  where upper(sql_str) like '%CODEX_DM8_XPLAN_T%';
+  dbms_xplan.display_planhist(plan_hash);
+end;
+/
+-- DISPLAY_HASH_NAMED
+declare
+  plan_hash int;
+begin
+  select min(plan_hash_value) into plan_hash from sysplanhist
+  where upper(sql_str) like '%CODEX_DM8_XPLAN_T%';
+  dbms_xplan.display_planhist(HASH_VALUE=>plan_hash);
+end;
+/
+-- CLEAR_ALL_NULL
+call dbms_xplan.clear_planhist(null,null);
+-- CLEAR_OPEN_START
+call dbms_xplan.clear_planhist(null,sysdate+1);
+-- CLEAR_OPEN_END
+call dbms_xplan.clear_planhist(sysdate-1,null);
+-- CLEAR_SAME_TIME
+call dbms_xplan.clear_planhist(sysdate,sysdate);
+-- CLEAR_VALID_RANGE
+call dbms_xplan.clear_planhist(sysdate-1,sysdate+1);
+-- CLEAR_INSTANCE_NAMED
+call dbms_xplan.clear_planhist(STARTTIME=>null,ENDTIME=>sysdate+1);
+------------------------------------------------------------------------------------------
+[BLOCK(CALL_PROG_OBJ)] -- DISPLAY_SQL_TEXT_POSITIONAL
+begin
+  dbms_xplan.display_planhist('select C2 from CODEX_DM8_XPLAN_T where C1=1;');
+end;
+----------
+[BLOCK(CALL_PROG_OBJ)] -- DISPLAY_SQL_TEXT_NAMED
+begin
+  dbms_xplan.display_planhist(SQL_TEXT=>'select C2 from CODEX_DM8_XPLAN_T where C1=1;');
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- DISPLAY_HASH_POSITIONAL
+declare
+  plan_hash int;
+begin
+  select min(plan_hash_value) into plan_hash from sysplanhist
+  where upper(sql_str) like '%CODEX_DM8_XPLAN_T%';
+  dbms_xplan.display_planhist(plan_hash);
+end;
+----------
+[BLOCK(PROGRAM_CONTROL,SELECT,CALL_PROG_OBJ)] -- DISPLAY_HASH_NAMED
+declare
+  plan_hash int;
+begin
+  select min(plan_hash_value) into plan_hash from sysplanhist
+  where upper(sql_str) like '%CODEX_DM8_XPLAN_T%';
+  dbms_xplan.display_planhist(HASH_VALUE=>plan_hash);
+end;
+----------
+[CALL_PROG_OBJ] -- CLEAR_ALL_NULL
+call dbms_xplan.clear_planhist(null,null);
+----------
+[CALL_PROG_OBJ] -- CLEAR_OPEN_START
+call dbms_xplan.clear_planhist(null,sysdate+1);
+----------
+[CALL_PROG_OBJ] -- CLEAR_OPEN_END
+call dbms_xplan.clear_planhist(sysdate-1,null);
+----------
+[CALL_PROG_OBJ] -- CLEAR_SAME_TIME
+call dbms_xplan.clear_planhist(sysdate,sysdate);
+----------
+[CALL_PROG_OBJ] -- CLEAR_VALID_RANGE
+call dbms_xplan.clear_planhist(sysdate-1,sysdate+1);
+----------
+[CALL_PROG_OBJ] -- CLEAR_INSTANCE_NAMED
+call dbms_xplan.clear_planhist(STARTTIME=>null,ENDTIME=>sysdate+1);

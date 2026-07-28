@@ -1,0 +1,132 @@
+sp_create_dpc_bp_group('CODEX_CC_BG','cluster control evidence');
+sp_drop_dpc_bp_group('CODEX_CC_MISSING_BG');
+sp_create_dpc_sp_group('CODEX_CC_SPG','cluster control evidence');
+sp_drop_dpc_sp_group('CODEX_CC_MISSING_SPG');
+sp_create_dpc_raft('BP','CODEX_CC_MISSING_RAFT');
+sp_drop_dpc_bp_raft('CODEX_CC_MISSING_RAFT');
+sp_drop_dpc_raft('CODEX_CC_MISSING_RAFT');
+sp_create_dpc_instance('CODEX_CC_MISSING_RAFT','CODEX_CC_I9','BP',6091,5291,'127.0.0.1','NORMAL',0,'syntax evidence');
+sp_create_dpc_instance('CODEX_CC_MISSING_RAFT','CODEX_CC_I10','BP',6092,5292,'127.0.0.1','','NORMAL',0,'syntax evidence');
+sp_drop_dpc_instance('CODEX_CC_MISSING_INST');
+sp_modify_dpc_instance('CODEX_CC_MISSING_INST','','',6093,5293);
+sp_bp_group_add_raft('CODEX_CC_MISSING_BG','CODEX_CC_MISSING_RAFT');
+sp_bp_group_del_raft('CODEX_CC_MISSING_BG','CODEX_CC_MISSING_RAFT');
+sp_sp_group_add_raft('CODEX_CC_MISSING_SPG','CODEX_CC_MISSING_RAFT');
+sp_sp_group_del_raft('CODEX_CC_MISSING_SPG','CODEX_CC_MISSING_RAFT');
+sp_set_dpc_net_conf('CODEX_CC_INVALID_PARA','1');
+sp_disable_dpc_raft('CODEX_CC_MISSING_RAFT');
+sp_enable_dpc_raft('CODEX_CC_MISSING_RAFT');
+sp_ts_group_create('CODEX_CC_TSG','cluster control evidence');
+sp_ts_group_drop('CODEX_CC_TSG');
+sp_ts_group_add_ts('CODEX_CC_MISSING_TSG','CODEX_CC_MISSING_TS');
+sp_ts_group_remove_ts('CODEX_CC_MISSING_TSG','CODEX_CC_MISSING_TS');
+sp_rename_dpc_instance('CODEX_CC_MISSING_INST','CODEX_CC_NEW_INST');
+sp_alter_dpc_instance('CODEX_CC_MISSING_INST','NORMAL',4,1);
+sp_dpc_move_ts_offline('CODEX_CC_MISSING_TS','CODEX_CC_MISSING_RAFT');
+sp_set_dpc_inst_aux('CODEX_CC_MISSING_SP',0);
+sp_add_raft_learner('CODEX_CC_LEARNER','127.0.0.1',6094,8);
+sp_delete_raft_learner('CODEX_CC_LEARNER');
+sp_alter_raft_node('CODEX_CC_NODE1/CODEX_CC_NODE2/CODEX_CC_NODE3');
+sp_add_raft_node('CODEX_CC_NODE1/CODEX_CC_NODE2');
+sp_delete_raft_node('CODEX_CC_NODE1/CODEX_CC_NODE2');
+sp_replace_raft_node('CODEX_CC_OLD','CODEX_CC_NEW');
+sp_dpc_dump_inst('/CODEX_CC_MISSING_DIR/dpc_instance.txt');
+sp_set_sp_upgrade('CODEX_CC_MISSING_SP');
+sp_reset_sp_upgrade('CODEX_CC_MISSING_SP');
+sp_dpc_rebanlance_session(0);
+sp_raft_suspend_thread();
+sp_raft_switchover();
+sp_raft_resume_thread('CODEX_CC_MISSING_INST');
+sp_ts_drop_invalid();
+sp_clear_tab_rowcnt_cache(null,null);
+sp_get_all_ts_by_tsgroup('CODEX_CC_MISSING_TSG');
+sp_set_raft_async_interval('CODEX_CC_MISSING_INST',30);
+sp_get_raft_async_interval('CODEX_CC_MISSING_INST');
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] sp_create_dpc_bp_group('CODEX_CC_BG','cluster control evidence');
+----------
+[CALL_PROG_OBJ] sp_drop_dpc_bp_group('CODEX_CC_MISSING_BG');
+----------
+[CALL_PROG_OBJ] sp_create_dpc_sp_group('CODEX_CC_SPG','cluster control evidence');
+----------
+[CALL_PROG_OBJ] sp_drop_dpc_sp_group('CODEX_CC_MISSING_SPG');
+----------
+[CALL_PROG_OBJ] sp_create_dpc_raft('BP','CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_drop_dpc_bp_raft('CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_drop_dpc_raft('CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_create_dpc_instance('CODEX_CC_MISSING_RAFT','CODEX_CC_I9','BP',6091,5291,'127.0.0.1','NORMAL',0,'syntax evidence');
+----------
+[CALL_PROG_OBJ] sp_create_dpc_instance('CODEX_CC_MISSING_RAFT','CODEX_CC_I10','BP',6092,5292,'127.0.0.1','','NORMAL',0,'syntax evidence');
+----------
+[CALL_PROG_OBJ] sp_drop_dpc_instance('CODEX_CC_MISSING_INST');
+----------
+[CALL_PROG_OBJ] sp_modify_dpc_instance('CODEX_CC_MISSING_INST','','',6093,5293);
+----------
+[CALL_PROG_OBJ] sp_bp_group_add_raft('CODEX_CC_MISSING_BG','CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_bp_group_del_raft('CODEX_CC_MISSING_BG','CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_sp_group_add_raft('CODEX_CC_MISSING_SPG','CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_sp_group_del_raft('CODEX_CC_MISSING_SPG','CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_set_dpc_net_conf('CODEX_CC_INVALID_PARA','1');
+----------
+[CALL_PROG_OBJ] sp_disable_dpc_raft('CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_enable_dpc_raft('CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_ts_group_create('CODEX_CC_TSG','cluster control evidence');
+----------
+[CALL_PROG_OBJ] sp_ts_group_drop('CODEX_CC_TSG');
+----------
+[CALL_PROG_OBJ] sp_ts_group_add_ts('CODEX_CC_MISSING_TSG','CODEX_CC_MISSING_TS');
+----------
+[CALL_PROG_OBJ] sp_ts_group_remove_ts('CODEX_CC_MISSING_TSG','CODEX_CC_MISSING_TS');
+----------
+[CALL_PROG_OBJ] sp_rename_dpc_instance('CODEX_CC_MISSING_INST','CODEX_CC_NEW_INST');
+----------
+[CALL_PROG_OBJ] sp_alter_dpc_instance('CODEX_CC_MISSING_INST','NORMAL',4,1);
+----------
+[CALL_PROG_OBJ] sp_dpc_move_ts_offline('CODEX_CC_MISSING_TS','CODEX_CC_MISSING_RAFT');
+----------
+[CALL_PROG_OBJ] sp_set_dpc_inst_aux('CODEX_CC_MISSING_SP',0);
+----------
+[CALL_PROG_OBJ] sp_add_raft_learner('CODEX_CC_LEARNER','127.0.0.1',6094,8);
+----------
+[CALL_PROG_OBJ] sp_delete_raft_learner('CODEX_CC_LEARNER');
+----------
+[CALL_PROG_OBJ] sp_alter_raft_node('CODEX_CC_NODE1/CODEX_CC_NODE2/CODEX_CC_NODE3');
+----------
+[CALL_PROG_OBJ] sp_add_raft_node('CODEX_CC_NODE1/CODEX_CC_NODE2');
+----------
+[CALL_PROG_OBJ] sp_delete_raft_node('CODEX_CC_NODE1/CODEX_CC_NODE2');
+----------
+[CALL_PROG_OBJ] sp_replace_raft_node('CODEX_CC_OLD','CODEX_CC_NEW');
+----------
+[CALL_PROG_OBJ] sp_dpc_dump_inst('/CODEX_CC_MISSING_DIR/dpc_instance.txt');
+----------
+[CALL_PROG_OBJ] sp_set_sp_upgrade('CODEX_CC_MISSING_SP');
+----------
+[CALL_PROG_OBJ] sp_reset_sp_upgrade('CODEX_CC_MISSING_SP');
+----------
+[CALL_PROG_OBJ] sp_dpc_rebanlance_session(0);
+----------
+[CALL_PROG_OBJ] sp_raft_suspend_thread();
+----------
+[CALL_PROG_OBJ] sp_raft_switchover();
+----------
+[CALL_PROG_OBJ] sp_raft_resume_thread('CODEX_CC_MISSING_INST');
+----------
+[CALL_PROG_OBJ] sp_ts_drop_invalid();
+----------
+[CALL_PROG_OBJ] sp_clear_tab_rowcnt_cache(null,null);
+----------
+[CALL_PROG_OBJ] sp_get_all_ts_by_tsgroup('CODEX_CC_MISSING_TSG');
+----------
+[CALL_PROG_OBJ] sp_set_raft_async_interval('CODEX_CC_MISSING_INST',30);
+----------
+[CALL_PROG_OBJ] sp_get_raft_async_interval('CODEX_CC_MISSING_INST');

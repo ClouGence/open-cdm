@@ -1,0 +1,162 @@
+select a.id, b.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a cross join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b;
+select a.id, b.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a, (select 1 id, 10 amount from dual union all select 3, 30 from dual) b;
+select id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a natural join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b;
+select id, name, amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b using(id);
+select a.id, a.name, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a inner join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a left join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a left outer join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a right join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a right outer join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a full join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a full outer join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+select a.id, x.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 'A' name from dual union all select 2, 'B' from dual) x on a.id < x.id;
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id and b.amount > 0;
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id where a.name = 'A';
+select (select 1 from dual) scalar_value from dual;
+select 1 + (select 2 from dual) scalar_value from dual;
+select coalesce((select null from dual), 1) scalar_value from dual;
+select (select max(x) from (select 1 x from dual union all select 2 from dual) s) scalar_value from dual;
+select * from dual where 1 in (select 1 from dual union all select 2 from dual);
+select * from dual where 3 not in (select 1 from dual union all select 2 from dual);
+select d.id from (select 1 id from dual) d;
+select d.id, d.name from (select 1 id, 'A' name from dual) d;
+select d.id from (select 1 id from dual union all select 2 from dual) d where d.id > 1;
+select d.id, x.amount from (select 1 id from dual) d join (select 1 id, 10 amount from dual) x on d.id = x.id;
+select 1 from dual where 3 > all (select 1 from dual union all select 2 from dual);
+select 1 from dual where 1 < any (select 2 from dual union all select 3 from dual);
+select 1 from dual where 1 < some (select 2 from dual union all select 3 from dual);
+select 1 from dual where exists (select 1 from dual);
+select 1 from dual where not exists (select 1 from dual where 1 = 2);
+select a.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a where exists (select 1 from (select 1 id, 10 amount from dual union all select 3, 30 from dual) b where b.id = a.id);
+select a.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a where not exists (select 1 from (select 1 id, 10 amount from dual union all select 3, 30 from dual) b where b.id = a.id);
+select 1 from dual where (1, 'A') in (select 1, 'A' from dual);
+select 1 from dual where (1, 'A') not in (select 2, 'B' from dual);
+with cte(id) as (select 1 from dual) select id from cte;
+with cte(id, name) as (select 1, 'A' from dual) select id, name from cte;
+with cte1(id) as (select 1 from dual), cte2(id) as (select 2 from dual) select * from cte1, cte2;
+with cte(id) as (select 1 from dual union all select 2 from dual) select count(*) from cte;
+with cte(id) as (select 1 from dual union all select 2 from dual) select * from cte where id = 2;
+with nums(n) as (select 1 from dual union all select n + 1 from nums where n < 3) select n from nums;
+with nums(n) as (select 1 from dual union all select n + 1 from nums where n < 5) select sum(n) from nums;
+select 1 from dual union select 2 from dual;
+select 1 from dual union select 1 from dual;
+select 1 from dual union all select 1 from dual;
+select 1 from dual union all select 2 from dual union all select 3 from dual;
+select 1 from dual intersect select 1 from dual;
+select 1 from dual intersect select 2 from dual;
+select 1 from dual minus select 2 from dual;
+select 1 from dual except select 2 from dual;
+select 1 id, 'A' name from dual union all select 2, 'B' from dual;
+select 1 from dual union all (select 2 from dual union all select 3 from dual);
+(select 1 from dual union all select 2 from dual) intersect select 2 from dual;
+select 1 from dual union all select 2 from dual order by 1;
+select 1 id from dual union all select 2 from dual order by id desc;
+------------------------------------------------------------------------------------------
+[SELECT] select a.id, b.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a cross join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b;
+----------
+[SELECT] select a.id, b.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a, (select 1 id, 10 amount from dual union all select 3, 30 from dual) b;
+----------
+[SELECT] select id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a natural join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b;
+----------
+[SELECT] select id, name, amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b using(id);
+----------
+[SELECT] select a.id, a.name, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+----------
+[SELECT] select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a inner join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+----------
+[SELECT] select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a left join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+----------
+[SELECT] select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a left outer join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+----------
+[SELECT] select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a right join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+----------
+[SELECT] select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a right outer join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+----------
+[SELECT] select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a full join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+----------
+[SELECT] select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a full outer join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+----------
+[SELECT] select a.id, x.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 'A' name from dual union all select 2, 'B' from dual) x on a.id < x.id;
+----------
+[SELECT] select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id and b.amount > 0;
+----------
+[SELECT] select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id where a.name = 'A';
+----------
+[SELECT] select (select 1 from dual) scalar_value from dual;
+----------
+[SELECT] select 1 + (select 2 from dual) scalar_value from dual;
+----------
+[SELECT] select coalesce((select null from dual), 1) scalar_value from dual;
+----------
+[SELECT] select (select max(x) from (select 1 x from dual union all select 2 from dual) s) scalar_value from dual;
+----------
+[SELECT] select * from dual where 1 in (select 1 from dual union all select 2 from dual);
+----------
+[SELECT] select * from dual where 3 not in (select 1 from dual union all select 2 from dual);
+----------
+[SELECT] select d.id from (select 1 id from dual) d;
+----------
+[SELECT] select d.id, d.name from (select 1 id, 'A' name from dual) d;
+----------
+[SELECT] select d.id from (select 1 id from dual union all select 2 from dual) d where d.id > 1;
+----------
+[SELECT] select d.id, x.amount from (select 1 id from dual) d join (select 1 id, 10 amount from dual) x on d.id = x.id;
+----------
+[SELECT] select 1 from dual where 3 > all (select 1 from dual union all select 2 from dual);
+----------
+[SELECT] select 1 from dual where 1 < any (select 2 from dual union all select 3 from dual);
+----------
+[SELECT] select 1 from dual where 1 < some (select 2 from dual union all select 3 from dual);
+----------
+[SELECT] select 1 from dual where exists (select 1 from dual);
+----------
+[SELECT] select 1 from dual where not exists (select 1 from dual where 1 = 2);
+----------
+[SELECT] select a.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a where exists (select 1 from (select 1 id, 10 amount from dual union all select 3, 30 from dual) b where b.id = a.id);
+----------
+[SELECT] select a.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a where not exists (select 1 from (select 1 id, 10 amount from dual union all select 3, 30 from dual) b where b.id = a.id);
+----------
+[SELECT] select 1 from dual where (1, 'A') in (select 1, 'A' from dual);
+----------
+[SELECT] select 1 from dual where (1, 'A') not in (select 2, 'B' from dual);
+----------
+[SELECT] with cte(id) as (select 1 from dual) select id from cte;
+----------
+[SELECT] with cte(id, name) as (select 1, 'A' from dual) select id, name from cte;
+----------
+[SELECT] with cte1(id) as (select 1 from dual), cte2(id) as (select 2 from dual) select * from cte1, cte2;
+----------
+[SELECT] with cte(id) as (select 1 from dual union all select 2 from dual) select count(*) from cte;
+----------
+[SELECT] with cte(id) as (select 1 from dual union all select 2 from dual) select * from cte where id = 2;
+----------
+[SELECT] with nums(n) as (select 1 from dual union all select n + 1 from nums where n < 3) select n from nums;
+----------
+[SELECT] with nums(n) as (select 1 from dual union all select n + 1 from nums where n < 5) select sum(n) from nums;
+----------
+[SELECT] select 1 from dual union select 2 from dual;
+----------
+[SELECT] select 1 from dual union select 1 from dual;
+----------
+[SELECT] select 1 from dual union all select 1 from dual;
+----------
+[SELECT] select 1 from dual union all select 2 from dual union all select 3 from dual;
+----------
+[SELECT] select 1 from dual intersect select 1 from dual;
+----------
+[SELECT] select 1 from dual intersect select 2 from dual;
+----------
+[SELECT] select 1 from dual minus select 2 from dual;
+----------
+[SELECT] select 1 from dual except select 2 from dual;
+----------
+[SELECT] select 1 id, 'A' name from dual union all select 2, 'B' from dual;
+----------
+[SELECT] select 1 from dual union all (select 2 from dual union all select 3 from dual);
+----------
+[SELECT] (select 1 from dual union all select 2 from dual) intersect select 2 from dual;
+----------
+[SELECT] select 1 from dual union all select 2 from dual order by 1;
+----------
+[SELECT] select 1 id from dual union all select 2 from dual order by id desc;

@@ -1,0 +1,9 @@
+SP_SET_SESSION_MPP_SELECT_LOCAL(1);
+SP_SET_SESSION_MPP_SELECT_LOCAL(0);
+SP_GET_EP_COUNT('CODEX_DM8_MPP', 'MPP_HASH');
+------------------------------------------------------------------------------------------
+[CALL_PROG_OBJ] SP_SET_SESSION_MPP_SELECT_LOCAL(1);
+----------
+[CALL_PROG_OBJ] SP_SET_SESSION_MPP_SELECT_LOCAL(0);
+----------
+[CALL_PROG_OBJ] SP_GET_EP_COUNT('CODEX_DM8_MPP', 'MPP_HASH');

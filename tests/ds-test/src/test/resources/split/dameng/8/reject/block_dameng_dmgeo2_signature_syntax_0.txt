@@ -1,0 +1,28 @@
+-- empty argument slot
+declare v varchar2(32767); begin DMGEO2.ST_AREA(,); end;
+/
+-- double comma
+declare v varchar2(32767); begin DMGEO2.ST_DISTANCE(NULL,,NULL); end;
+/
+-- dangling argument
+declare v varchar2(32767); begin DMGEO2.ST_AREA(NULL,); end;
+/
+-- unclosed call
+declare v varchar2(32767); begin DMGEO2.ST_AREA(NULL; end;
+/
+------------------------------------------------------------------------------------------
+[BLOCK] -- empty argument slot
+declare v varchar2(32767); begin DMGEO2.ST_AREA(,); end;
+/
+----------
+[BLOCK] -- double comma
+declare v varchar2(32767); begin DMGEO2.ST_DISTANCE(NULL,,NULL); end;
+/
+----------
+[BLOCK] -- dangling argument
+declare v varchar2(32767); begin DMGEO2.ST_AREA(NULL,); end;
+/
+----------
+[BLOCK] -- unclosed call
+declare v varchar2(32767); begin DMGEO2.ST_AREA(NULL; end;
+/
