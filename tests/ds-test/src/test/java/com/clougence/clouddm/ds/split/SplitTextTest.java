@@ -39,7 +39,9 @@ public abstract class SplitTextTest {
             SplitFixture splitFixture = loadFixtureUnchecked(fixture.resourcePath);
             SplitRun run = createRun(splitFixture, () -> splitAnalysisSpi(fixture));
             for (SplitCase splitCase : splitFixture.cases()) {
-                tests.add(DynamicTest.dynamicTest(splitCase.displayName(), () -> verifyCase(splitCase, run, verifyAllTypes())));
+                tests.add(DynamicTest.dynamicTest(splitCase.displayName(), () -> {
+                    verifyCase(splitCase, run, verifyAllTypes());
+                }));
             }
         }
         return tests.stream();
@@ -64,8 +66,7 @@ public abstract class SplitTextTest {
 
     protected final String rejectedScript(String resourcePath, int splitIndex) throws IOException {
         SplitFixture fixture = loadFixture(resourcePath);
-        Assert.assertTrue("reject split index missing: " + resourcePath + " index " + splitIndex,
-            splitIndex < fixture.expected().size());
+        Assert.assertTrue("reject split index missing: " + resourcePath + " index " + splitIndex, splitIndex < fixture.expected().size());
         String rejectedSql = fixture.expected().get(splitIndex).script();
         Assert.assertFalse("empty rejected SQL: " + resourcePath + " index " + splitIndex, rejectedSql.isBlank());
         return rejectedSql;
@@ -77,8 +78,7 @@ public abstract class SplitTextTest {
             SplitFixture fixture = loadFixtureUnchecked(resourcePath);
             for (SplitCase splitCase : fixture.cases()) {
                 tests.add(DynamicTest.dynamicTest(splitCase.displayName(), () -> {
-                    Assertions.assertThrows(RuntimeException.class,
-                        () -> splitRejectedCase(resourcePath, datasource, splitCase.splitIndex()));
+                    Assertions.assertThrows(RuntimeException.class, () -> splitRejectedCase(resourcePath, datasource, splitCase.splitIndex()));
                 }));
             }
         }
@@ -114,8 +114,7 @@ public abstract class SplitTextTest {
             if (verifyAllTypes || expectedType.hasMultipleTypes() || expectedType.hasChildren()) {
                 Assert.assertEquals("split type mismatch: " + fixture.resourcePath() + " index " + index, expectedType, actualType);
             } else {
-                Assert.assertEquals("split primary type mismatch: " + fixture.resourcePath() + " index " + index,
-                        expectedType.primaryType(), actualType.primaryType());
+                Assert.assertEquals("split primary type mismatch: " + fixture.resourcePath() + " index " + index, expectedType.primaryType(), actualType.primaryType());
             }
             Assert.assertEquals("split script mismatch: " + fixture.resourcePath() + " index " + index, expected.get(index).script, actual.get(index).script);
         } finally {
@@ -279,12 +278,9 @@ public abstract class SplitTextTest {
             return;
         }
         for (SplitScript child : children) {
-            Assert.assertTrue("child is not part of parent: " + child.getScript(),
-                    parent.getScript().contains(child.getScript()));
-            Assert.assertTrue("child starts before parent: " + child.getScript(),
-                    child.getBodyStartCodeLine() >= parent.getBodyStartCodeLine());
-            Assert.assertTrue("child ends before it starts: " + child.getScript(),
-                    child.getBodyEndCodeLine() >= child.getBodyStartCodeLine());
+            Assert.assertTrue("child is not part of parent: " + child.getScript(), parent.getScript().contains(child.getScript()));
+            Assert.assertTrue("child starts before parent: " + child.getScript(), child.getBodyStartCodeLine() >= parent.getBodyStartCodeLine());
+            Assert.assertTrue("child ends before it starts: " + child.getScript(), child.getBodyEndCodeLine() >= child.getBodyStartCodeLine());
             verifySplitTree(child);
         }
     }
@@ -301,7 +297,7 @@ public abstract class SplitTextTest {
 
     record ExpectedTypeTree(List<String> types, List<ExpectedTypeTree> children) {
 
-        ExpectedTypeTree {
+        ExpectedTypeTree{
             types = List.copyOf(types);
             children = List.copyOf(children);
             if (types.isEmpty()) {
@@ -315,8 +311,7 @@ public abstract class SplitTextTest {
             parser.requireEnd();
             for (ExpectedTypeTree child : result.children) {
                 if (child.types.size() != 1 || !child.children.isEmpty()) {
-                    throw new IllegalArgumentException(
-                            "split descendant summary must contain one flat type per child: " + value);
+                    throw new IllegalArgumentException("split descendant summary must contain one flat type per child: " + value);
                 }
             }
             return result;
@@ -326,9 +321,7 @@ public abstract class SplitTextTest {
             List<String> types = script.getType().stream().map(Enum::name).toList();
             LinkedHashSet<String> descendantTypes = new LinkedHashSet<>();
             collectDescendantTypes(script, descendantTypes);
-            List<ExpectedTypeTree> children = descendantTypes.stream()
-                    .map(type -> new ExpectedTypeTree(List.of(type), List.of()))
-                    .toList();
+            List<ExpectedTypeTree> children = descendantTypes.stream().map(type -> new ExpectedTypeTree(List.of(type), List.of())).toList();
             return new ExpectedTypeTree(types, children);
         }
 
@@ -446,5 +439,4 @@ public abstract class SplitTextTest {
         }
         return text.substring(0, 117) + "...";
     }
-
 }

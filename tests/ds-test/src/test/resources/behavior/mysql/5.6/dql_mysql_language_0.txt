@@ -4689,7 +4689,7 @@ expect:
 {
   "SELECT": [
     {
-      "subject": "ConfigKey(1:7~1:22) /test/1/'audit-hyphen'/",
+      "subject": "ConfigKey(1:7~1:22) /test/1/audit-hyphen/",
       "action" : "READ"
     },
     {
@@ -4880,15 +4880,15 @@ expect:
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:21~1:35) /test/1/'hyphen-name'/",
+      "subject": "ConfigKey(1:21~1:35) /test/1/hyphen-name/",
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:37~1:50) /test/1/\"space name\"/",
+      "subject": "ConfigKey(1:37~1:50) /test/1/space name/",
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:52~1:64) /test/1/`tick-name`/",
+      "subject": "ConfigKey(1:52~1:64) /test/1/tick-name/",
       "action" : "READ"
     }
   ]
@@ -4922,7 +4922,7 @@ expect:
 {
   "SELECT": [
     {
-      "subject": "ConfigKey(1:7~1:19) /test/1/`sql_mode`/",
+      "subject": "ConfigKey(1:7~1:19) /test/1/sql_mode/",
       "action" : "READ"
     },
     {
@@ -5113,15 +5113,15 @@ expect:
 {
   "SESSION_VARIABLE_RW": [
     {
-      "subject": "ConfigKey(1:4~1:11) /test/1/'a''b'/",
+      "subject": "ConfigKey(1:4~1:11) /test/1/a'b/",
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:15~1:22) /test/1/\"c\"\"d\"/",
+      "subject": "ConfigKey(1:15~1:22) /test/1/c\"d/",
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:26~1:33) /test/1/`e``f`/",
+      "subject": "ConfigKey(1:26~1:33) /test/1/e`f/",
       "action" : "READ"
     }
   ]
@@ -5136,15 +5136,15 @@ expect:
 {
   "SELECT": [
     {
-      "subject": "ConfigKey(1:7~1:14) /test/1/'a''b'/",
+      "subject": "ConfigKey(1:7~1:14) /test/1/a'b/",
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:15~1:22) /test/1/\"c\"\"d\"/",
+      "subject": "ConfigKey(1:15~1:22) /test/1/c\"d/",
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:23~1:30) /test/1/`e``f`/",
+      "subject": "ConfigKey(1:23~1:30) /test/1/e`f/",
       "action" : "READ"
     }
   ]
@@ -5159,7 +5159,7 @@ expect:
 {
   "SESSION_VARIABLE_RW": [
     {
-      "subject": "ConfigKey(1:4~1:16) /test/1/'semi;name'/",
+      "subject": "ConfigKey(1:4~1:16) /test/1/semi;name/",
       "action" : "READ"
     }
   ]
@@ -5174,7 +5174,7 @@ expect:
 {
   "SELECT": [
     {
-      "subject": "ConfigKey(1:7~1:19) /test/1/'semi;name'/",
+      "subject": "ConfigKey(1:7~1:19) /test/1/semi;name/",
       "action" : "READ"
     }
   ]
@@ -5261,7 +5261,7 @@ expect:
 {
   "SELECT": [
     {
-      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/`a``b`/",
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/a`b/",
       "action" : "CALL"
     }
   ]

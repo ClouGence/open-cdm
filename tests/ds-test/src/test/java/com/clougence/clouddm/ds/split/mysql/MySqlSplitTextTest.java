@@ -27,8 +27,11 @@ public abstract class MySqlSplitTextTest extends SplitTextTest {
 
     @Override
     protected final List<String> fixtureResources() {
-        return TextCaseSupport.resourceFiles(resourceDirectory,
-                path -> !path.contains("/reject/") && !path.contains("/mode/") && !isNestedExactVersion(path));
+        return TextCaseSupport.resourceFiles(resourceDirectory, path -> {
+            return !path.contains("/reject/") &&//
+                   !path.contains("/mode/") &&  //
+                   !isNestedExactVersion(path);
+        });
     }
 
     @Override
@@ -48,8 +51,11 @@ public abstract class MySqlSplitTextTest extends SplitTextTest {
 
     @TestFactory
     public Stream<DynamicTest> rejectedScripts() {
-        return rejectedDynamicTests(TextCaseSupport.resourceFiles(resourceDirectory,
-                path -> path.contains("/reject/") && !path.contains("/mode/") && !isNestedExactVersion(path)), "mysql");
+        return rejectedDynamicTests(TextCaseSupport.resourceFiles(resourceDirectory, path -> {
+            return path.contains("/reject/") && //
+                   !path.contains("/mode/") &&  //
+                   !isNestedExactVersion(path);
+        }), "mysql");
     }
 
     private boolean isNestedExactVersion(String path) {

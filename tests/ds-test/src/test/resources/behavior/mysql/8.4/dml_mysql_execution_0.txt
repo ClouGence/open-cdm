@@ -970,7 +970,7 @@ expect:
 {
   "UNSAFE": [
     {
-      "subject": "ConfigKey(1:18~1:31) /test/1/`quoted sql`/",
+      "subject": "ConfigKey(1:18~1:31) /test/1/quoted sql/",
       "action" : "READ"
     },
     {
@@ -989,7 +989,7 @@ expect:
 {
   "UNSAFE": [
     {
-      "subject": "ConfigKey(1:18~1:31) /test/1/\"quoted sql\"/",
+      "subject": "ConfigKey(1:18~1:31) /test/1/quoted sql/",
       "action" : "READ"
     },
     {
@@ -1104,7 +1104,7 @@ expect:
 {
   "UNSAFE": [
     {
-      "subject": "ConfigKey(1:16~1:27) /test/1/'sql text'/",
+      "subject": "ConfigKey(1:16~1:27) /test/1/sql text/",
       "action" : "READ"
     },
     {
@@ -1127,7 +1127,7 @@ expect:
       "action" : "ADMIN"
     },
     {
-      "subject": "ConfigKey(1:17~1:28) /test/1/'arg name'/",
+      "subject": "ConfigKey(1:17~1:28) /test/1/arg name/",
       "action" : "READ"
     }
   ]

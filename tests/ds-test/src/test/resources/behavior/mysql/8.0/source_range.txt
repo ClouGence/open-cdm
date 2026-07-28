@@ -1,0 +1,21 @@
+[document_offset]
+sql:
+SELECT db1.f_score(t.score)
+FROM db1.t1 t;
+levels:
+/test/1/catalog1/schema1
+base:
+10:5
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(10:12~10:23) /test/1/catalog1/db1/f_score/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(11:5~11:11) /test/1/catalog1/db1/t1/",
+      "action" : "READ"
+    }
+  ]
+}

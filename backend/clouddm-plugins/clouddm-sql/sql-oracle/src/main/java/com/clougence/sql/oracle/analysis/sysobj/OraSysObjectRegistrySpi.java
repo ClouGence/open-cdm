@@ -9,6 +9,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
 import com.clougence.sql.oracle.OraSqlEngineSpi;
+import com.clougence.utils.StringUtils;
 
 /** Oracle virtual resources. */
 public final class OraSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
@@ -20,6 +21,6 @@ public final class OraSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi 
 
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
-        return action == BehaviorAction.READ && targetType == TargetType.Table && schema == null && "DUAL".equalsIgnoreCase(objectName);
+        return action == BehaviorAction.READ && targetType == TargetType.Table && schema == null && StringUtils.equalsIgnoreCase("DUAL", objectName);
     }
 }

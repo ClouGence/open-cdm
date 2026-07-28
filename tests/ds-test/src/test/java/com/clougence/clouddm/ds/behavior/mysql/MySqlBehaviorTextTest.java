@@ -27,7 +27,10 @@ import com.clougence.clouddm.ds.TextCaseSupport;
 import com.clougence.clouddm.ds.behavior.BehaviorTextTest;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.ObjectName;
 import com.clougence.sql.mysql.MySqlEngineSpi;
+import com.clougence.sql.mysql.analysis.sysobj.MySysObjectRegistrySpi;
 
 /** MySQL behavior fixtures are isolated by parser version. */
 public abstract class MySqlBehaviorTextTest {
@@ -44,6 +47,7 @@ public abstract class MySqlBehaviorTextTest {
     public Stream<DynamicTest> behaviorScripts() {
         MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
         BehaviorAnalysisSpi spi = engine.behaviorAnalysisSpi(SqlParserParameters.ofVersion(version));
+        MySysObjectRegistrySpi registry = new MySysObjectRegistrySpi();
         if (spi == null) {
             throw new IllegalStateException("No BehaviorAnalysisSpi for MySQL " + version);
         }
@@ -60,7 +64,13 @@ public abstract class MySqlBehaviorTextTest {
                     continue;
                 }
                 tests.add(DynamicTest.dynamicTest(testCase.displayName(),
-                        () -> BehaviorTextTest.assertStrictCase(resourcePath, testCase, spi)));
+                        () -> BehaviorTextTest.assertStrictCase(
+                                resourcePath, testCase, spi, relation -> {
+                                    BehaviorObject object = relation.getSubject();
+                                    ObjectName name = object.getObjectName();
+                                    return name != null && registry.isPermissionExempt(relation.getAction(), object.getObjectType(),//
+                                            name.getCatalog(), name.getSchema(), name.getObjectName(), version);
+                                })));
             }
         }
         return tests.stream();

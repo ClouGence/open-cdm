@@ -202,7 +202,12 @@ expect:
 {
   "DATA_EXPORT": [
     {
-      "subject": "File(1:40~1:57) /test/1/tmp/orders.csv/",
+      "subject": {
+        "value"     : "File(1:40~1:57) /test/1/tmp/orders.csv/",
+        "catalog"   : null,
+        "schema"    : null,
+        "objectName": "tmp/orders.csv"
+      },
       "action" : "EXPORT",
       "target" : "Table(1:14~1:26) /test/1/catalog1/sales/orders/"
     }

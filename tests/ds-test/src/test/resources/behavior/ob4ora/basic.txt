@@ -47,3 +47,18 @@ expect:
     }
   ]
 }
+----------
+[constant_select_from_dual]
+sql:
+select 1 from dual
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action" : "READ"
+    }
+  ]
+}

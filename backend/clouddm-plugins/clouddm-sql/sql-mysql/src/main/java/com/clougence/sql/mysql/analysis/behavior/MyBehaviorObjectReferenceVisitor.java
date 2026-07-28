@@ -26,6 +26,7 @@ import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlVersion;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser.*;
+import com.clougence.utils.StringUtils;
 
 /**
  * Adds behavior-only object facts that must not alter legacy resource analysis.
@@ -266,15 +267,11 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     }
 
     private void addReadTable(TableNameContext tableName) {
-        if (isDual(tableName)) {
-            addInstanceResource(SplitQueryType.SELECT, TargetType.Table, true, tableName, "DUAL");
-        } else {
-            add(SplitQueryType.SELECT, TargetType.Table, tableName);
-        }
+        add(SplitQueryType.SELECT, TargetType.Table, tableName);
     }
 
     private static boolean isDual(TableNameContext tableName) {
-        return tableName != null && tableName.fullId() != null && tableName.fullId().DOT() == null && "DUAL".equalsIgnoreCase(tableName.fullId().uid(0).getText());
+        return tableName != null && tableName.fullId() != null && tableName.fullId().DOT() == null && StringUtils.equalsIgnoreCase("DUAL", tableName.fullId().uid(0).getText());
     }
 
     @Override

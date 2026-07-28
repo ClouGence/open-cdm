@@ -337,14 +337,14 @@ expect:
 ----------
 [session_setting_write__032]
 sql:
-SET AUTOCOMMIT = 1;
+SET autocommit = 1;
 levels:
 /test/1/catalog1/schema1
 expect:
 {
   "SESSION_SETTING_WRITE": [
     {
-      "subject": "ConfigKey(1:4~1:14) /test/1/AUTOCOMMIT/",
+      "subject": "ConfigKey(1:4~1:14) /test/1/autocommit/",
       "action" : "CONFIGURE"
     }
   ]

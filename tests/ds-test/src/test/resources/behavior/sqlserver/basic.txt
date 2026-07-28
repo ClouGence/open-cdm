@@ -19,6 +19,21 @@ expect:
   ]
 }
 ----------
+[exec_user_procedure]
+sql:
+exec dbo.user_defined_proc;
+levels:
+/test/1/catalog1/dbo
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:26) /test/1/catalog1/dbo/user_defined_proc/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
 [select_join]
 sql:
 select * from dbo.t1 join t2 on t1.id = t2.id

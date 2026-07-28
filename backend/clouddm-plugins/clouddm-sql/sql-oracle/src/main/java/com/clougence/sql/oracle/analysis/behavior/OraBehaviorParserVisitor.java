@@ -19,6 +19,7 @@ import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 import com.clougence.sql.oracle.parser.antlr.PlSqlParserBaseVisitor;
 import com.clougence.sql.oracle.parser.antlr.PlSqlParser.*;
+import com.clougence.utils.StringUtils;
 
 final class OraBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
@@ -233,7 +234,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         }
         List<String> names = new ArrayList<>();
         collectNames(context, names);
-        if (type == TargetType.Table && names.size() == 1 && "DUAL".equalsIgnoreCase(names.get(0))) {
+        if (type == TargetType.Table && names.size() == 1 && StringUtils.equalsIgnoreCase("DUAL", names.get(0))) {
             return objects.instanceObject(type, context, names.get(0));
         }
         return objects.object(type, context, names);

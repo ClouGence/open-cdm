@@ -19,7 +19,9 @@ import com.clougence.sql.redis.analysis.security.RedisAnalysisHelper;
 import com.clougence.sql.redis.parser.RedisDslProvider;
 import com.clougence.sql.redis.parser.ast.RedisCmdType;
 import com.clougence.sql.redis.parser.ast.commands.AbstractRedisCmd;
+import com.clougence.sql.redis.parser.ast.commands.control.SwapDbRedisCmd;
 import com.clougence.sql.redis.parser.ast.token.ArgToken;
+import com.clougence.sql.redis.parser.ast.token.IntToken;
 import com.clougence.sql.redis.parser.ast.token.StrToken;
 import com.clougence.utils.StringUtils;
 
@@ -42,6 +44,12 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             StatementBehavior behavior = new StatementBehavior();
             behavior.setStatementType(statementType);
             List<StrToken> keys = keyTokens(command);
+            if (command instanceof SwapDbRedisCmd swapDb) {
+                addSwapDbRelation(behavior, levels, swapDb, baseLine, baseColumn);
+                searchOffset = nextLineOffset(query, searchOffset);
+                result.add(behavior);
+                continue;
+            }
             if (keys.isEmpty()) {
                 int offset = searchOffset;
                 while (offset < query.length() && Character.isWhitespace(query.charAt(offset))) {
@@ -55,7 +63,7 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
                 BehaviorObject object = new BehaviorObject();
                 boolean registeredCommand = command.getCmdType() == RedisCmdType.TIME;
                 if (registeredCommand) {
-                    String commandName = command.getCmdType().name();
+                    String commandName = query.substring(offset, end);
                     object.setObjectType(TargetType.Function);
                     object.setObjectPath(resourcePath(levels, commandName));
                     object.setObjectName(new ObjectName(null, null, commandName));
@@ -88,6 +96,28 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             result.add(behavior);
         }
         return result;
+    }
+
+    private void addSwapDbRelation(StatementBehavior behavior, Map<UmiTypes, Object> levels, SwapDbRedisCmd command, int baseLine, int baseColumn) {
+        BehaviorObject source = schemaObject(levels, command.getIndex1(), baseLine, baseColumn);
+        BehaviorObject target = schemaObject(levels, command.getIndex2(), baseLine, baseColumn);
+        addRelation(behavior, source, BehaviorAction.TRANSFER).getTarget().add(target);
+    }
+
+    private BehaviorObject schemaObject(Map<UmiTypes, Object> levels, IntToken index, int baseLine, int baseColumn) {
+        String schema = index.isArg() ? "?" : index.getBigInteger().toString();
+        BehaviorObject object = new BehaviorObject();
+        object.setObjectType(TargetType.Schema);
+        object.setObjectPath(resourcePath(levels, schema, null));
+        object.setObjectName(new ObjectName(null, schema, null));
+        setRange(object, index.getStartPosition().getLineNumber(), index.getStartPosition().getColumnNumber(),//
+                index.getEndPosition().getLineNumber(), index.getEndPosition().getColumnNumber(), baseLine, baseColumn);
+        return object;
+    }
+
+    private int nextLineOffset(String query, int offset) {
+        int lineEnd = query.indexOf('\n', offset);
+        return lineEnd < 0 ? query.length() : lineEnd + 1;
     }
 
     private List<StrToken> keyTokens(AbstractRedisCmd command) {
@@ -135,9 +165,13 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     }
 
     private String resourcePath(Map<UmiTypes, Object> levels, String key) {
+        return resourcePath(levels, level(levels, UmiTypes.Schema), key);
+    }
+
+    private String resourcePath(Map<UmiTypes, Object> levels, String schema, String key) {
         List<String> nodes = new ArrayList<>();
         addPath(nodes, levels == null ? null : levels.get(UmiTypes.Instance));
-        addPath(nodes, levels == null ? null : levels.get(UmiTypes.Schema));
+        addPath(nodes, schema);
         addPath(nodes, key);
         return "/" + String.join("/", nodes) + "/";
     }
@@ -172,6 +206,14 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         object.setStartColumn(column);
         object.setEndLine(line);
         object.setEndColumn(column + length);
+    }
+
+    private void setRange(BehaviorObject object, int startLine, int startColumn, int endLine, int endColumn, int baseLine, int baseColumn) {
+        int lineOffset = Math.max(1, baseLine) - 1;
+        object.setStartLine(lineOffset + startLine);
+        object.setStartColumn(startLine == 1 ? Math.max(0, baseColumn) + startColumn : startColumn);
+        object.setEndLine(lineOffset + endLine);
+        object.setEndColumn(endLine == 1 ? Math.max(0, baseColumn) + endColumn : endColumn);
     }
 
     private BehaviorRelation addRelation(StatementBehavior behavior, BehaviorObject object, BehaviorAction action) {

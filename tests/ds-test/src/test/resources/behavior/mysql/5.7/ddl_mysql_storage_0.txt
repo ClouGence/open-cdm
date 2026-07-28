@@ -322,7 +322,7 @@ expect:
 {
   "SYSTEM_SETTING_WRITE": [
     {
-      "subject": "ConfigKey(1:13~1:26) /test/1/catalog1/schema1/'audit_srv_q'/",
+      "subject": "ConfigKey(1:13~1:26) /test/1/catalog1/schema1/audit_srv_q/",
       "action" : "CONFIGURE"
     }
   ]
@@ -337,7 +337,7 @@ expect:
 {
   "SYSTEM_SETTING_WRITE": [
     {
-      "subject": "ConfigKey(1:14~1:27) /test/1/catalog1/schema1/'audit_srv_q'/",
+      "subject": "ConfigKey(1:14~1:27) /test/1/catalog1/schema1/audit_srv_q/",
       "action" : "CONFIGURE"
     }
   ]
@@ -352,7 +352,7 @@ expect:
 {
   "SYSTEM_SETTING_WRITE": [
     {
-      "subject": "ConfigKey(1:22~1:35) /test/1/catalog1/schema1/'audit_srv_q'/",
+      "subject": "ConfigKey(1:22~1:35) /test/1/catalog1/schema1/audit_srv_q/",
       "action" : "CONFIGURE"
     }
   ]

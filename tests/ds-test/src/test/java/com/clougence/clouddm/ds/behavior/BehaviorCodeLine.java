@@ -38,8 +38,7 @@ public final class BehaviorCodeLine {
             throw new IllegalArgumentException("codeLine must match startLine:startColumn~endLine:endColumn: " + value);
         }
         try {
-            return new Range(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)),
-                    Integer.parseInt(matcher.group(3)), Integer.parseInt(matcher.group(4)));
+            return new Range(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)), Integer.parseInt(matcher.group(4)));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("codeLine coordinate exceeds integer range: " + value, e);
         }
@@ -47,7 +46,7 @@ public final class BehaviorCodeLine {
 
     public record Range(int startLine, int startColumn, int endLine, int endColumn) {
 
-        public Range {
+        public Range{
             if (startLine < 1 || startColumn < 0 || endLine < 1 || endColumn < 0) {
                 throw new IllegalArgumentException("codeLine coordinates must use 1-based lines and 0-based columns");
             }

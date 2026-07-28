@@ -14,8 +14,8 @@
 
 - `BehaviorAnalysisSpi`：语句行为分析入口；
 - `StatementBehavior`：聚合一条语句中的多个 `BehaviorRelation`；
-- `BehaviorRelation`：一个行为主体、一个 `BehaviorAction` 和零个或多个行为客体；
-- `BehaviorObject`：主体或客体的 `TargetType`、`resourcePath` 与绝对代码起止位置；
+- `BehaviorRelation`：一个行为主体、一个 `BehaviorAction`、零个或多个行为客体，以及主体是否跳过对象级权限的标记；
+- `BehaviorObject`：主体或客体的 `TargetType`、`objectPath` 与绝对代码起止位置；
 - `BehaviorAction`：行为动作及其关联的现有 `SecDataAuthKind`。
 
 不要把本任务重新做成资源请求分析。不得让行为模型引用或返回 `ResourceRequest`，不得把 `BehaviorRelation` 退化为一组没有主客体关系的资源列表，也不得在行为 visitor 中直接计算权限计划、执行鉴权或映射数据库原生权限。
@@ -33,12 +33,12 @@
 1. 使用目标数据库全部受支持版本的 SQL 语料，逐条人工分析其中表达的全部行为关系。
 2. 为每个关系确定唯一行为主体、准确的 `BehaviorAction` 和完整的行为客体列表。
 3. 为每个主体和客体确定最准确的 `TargetType`。
-4. 为每个主体和客体生成符合 CloudDM 层级的完整 `resourcePath`。
+4. 为每个主体和客体生成符合 CloudDM 层级的完整 `objectPath`。
 5. 为每个主体和客体生成精确的代码起止位置。
 6. 完善 `behavior/<dialect>` 测试脚本；一个 `BehaviorObject` 独占一行。
 7. 修复目标数据库行为分析中的漏行为、错行为、错误主体、错误客体、错误动作、错误 TargetType、错误路径、错误位置和错误关系合并。
 8. 对名称无法识别但行为对象确实存在的场景，保留准确类型，并让路径停在能够确认的最近祖先层级。
-9. 所有真实函数调用默认产生 Function 行为对象并使用 CALL，包括内置函数、聚合函数、窗口函数和用户自定义函数；只有经厂商官网确认会执行运维动作或改变、影响数据库运行状态的功能性函数，才通过可注册的方言规则映射为对应的非 CALL 行为，parser 不感知该规则。
+9. 所有真实函数调用默认产生 Function 行为对象并使用 CALL，包括内置函数、聚合函数、窗口函数和用户自定义函数；系统内置函数仍保留行为但跳过对象级权限，UDF 必须保留对象级权限。只有经厂商官网确认会执行运维动作或改变、影响数据库运行状态的功能性函数，才通过可注册的方言规则映射为对应的非 CALL 行为，parser 不感知该规则。
 10. 行为分析必须递归覆盖 SQL 的全部可执行子级；外层语句、routine/trigger/event body、控制块、handler 和嵌套查询中的行为统一汇总到当前 `StatementBehavior.relations`。
 11. `BehaviorAction` 必须只关联已有 `SecDataAuthKind`；不得为接入行为分析增加、删除或改名 `SecDataAuthKind`。
 12. 主体和客体必须来自 SQL 可以证明的真实行为语义；不得为了填满结构而伪造主体、客体或关系。
@@ -53,7 +53,7 @@
 6. 不修改目标方言的 split/classification visitor 来迁就行为结果。
 7. 不建立 DDL、DML、DCL、DQL、ADMIN 等语句分类台账。
 8. 不把 `StatementBehavior.statementType` 当作资源级动作；真正的行为动作必须来自 `BehaviorRelation.action`。
-9. 不在行为分析 SPI 中计算权限计划、权限 AND/OR 表达式或权限校验结果。
+9. 不在行为分析 SPI 中计算权限计划、权限 AND/OR 表达式或执行权限校验；允许根据明确的方言事实标记某个行为主体跳过对象级权限。
 10. 不把行为分析变成列分析、安全规则 Domain 或 SQL 重写任务。
 
 `split/<dialect>` 或目标数据库现有的等价 SQL fixture 在本任务中只有三个用途：
@@ -66,7 +66,7 @@ split fixture 中已有的 `[TYPE]` 对行为关系没有裁决作用。读取 S
 
 行为分析是独立能力。生产运行时不得调用 split SPI、读取 `SplitScript`、依赖 split 类型树或把 split 结果转换为 `StatementBehavior`。行为分析必须直接基于自己的 AST/behavior visitor 递归遍历。
 
-版本化系统函数、系统表/视图、系统过程等方言知识不属于 split 私有逻辑，也不应散落在 behavior visitor 中。需要共享时，应提炼到目标方言模块的公共工具包，由 split、resource、behavior 分别调用。MySQL 的共享方言事实统一放在 `com.clougence.sql.mysql.utils`。共享的是版本化事实和查询 API，不共享各分析能力的遍历与输出流程。
+版本化系统函数、系统表/视图、系统过程等方言知识不属于 split 私有逻辑，也不应散落在 behavior visitor 中。需要共享时，应提炼到目标方言模块的公共注册器，由 split、resource、behavior 分别调用。MySQL 的共享方言事实统一放在 `com.clougence.sql.mysql.analysis.reference`。共享的是版本化事实和查询 API，不共享各分析能力的遍历与输出流程。
 
 ## 二、通用路径与参考实现
 
@@ -199,11 +199,15 @@ MySQL 只能作为 SQL 语料和方言工具的参考：
 - `action`：唯一 `BehaviorAction`；
 - `target`：零个或多个行为客体。
 
+`BehaviorRelation` 不承载白名单或权限过滤标记。对象级权限豁免由 SQL 引擎按名称
+注册唯一的 `SysObjectRegistrySpi`，analysis 在行为分析之后消费该注册表，
+生成独立的权限请求。
+
 运行时模型始终保持上述 `subject + action + target` 三部分结构。fixture 始终使用
 `subject`、`action` 表达主体和动作，并根据行为客体数量投影 `target`：
 
-- `target` 为空时，只输出 `subject`、`action` 两个字段，不输出 `target`；
-- `target` 非空时，输出 `subject`、`action`、`target` 三个字段；
+- `target` 为空时，输出 `subject`、`action`，不输出 `target`；
+- `target` 非空时，输出 `subject`、`action`、`target`；
 - `target` 只有一个客体时，字段值直接使用一个紧凑字符串，不使用数组封装；
 - `target` 有两个或更多客体时，字段值使用紧凑字符串数组；
 - fixture 中的 subject 和 target 行为对象都压缩为
@@ -242,8 +246,8 @@ MySQL 只能作为 SQL 语料和方言工具的参考：
 
 每个 subject 和 target 都是 `BehaviorObject`，必须包含：
 
-- `targetType`：准确的 `TargetType`；
-- `resourcePath`：完整 CloudDM 路径；
+- `objectType`：准确的 `TargetType`；
+- `objectPath`：完整 CloudDM 路径；
 - `startLine`、`startColumn`：对象名称 token 的绝对起点；
 - `endLine`、`endColumn`：对象名称 token 的绝对结束开区间。
 
@@ -356,7 +360,7 @@ fixture 中每个行为对象以紧凑字符串表示：subject 独占一行；�
 函数就是函数。只要 SQL 中存在真实函数调用，就必须生成 `TargetType.Function` 行为对象：
 
 - 内置聚合函数、普通内置函数、窗口函数和用户自定义函数默认都使用 `CALL`；
-- `COUNT`、`SUM`、`AVG`、`MIN`、`MAX` 等聚合函数不能因为是系统内置而被过滤；
+- `COUNT`、`SUM`、`AVG`、`MIN`、`MAX` 等聚合函数不能因为是系统内置而从行为结果中删除，但应跳过对象级权限；
 - `DISTINCT`、函数内 `ORDER BY`、`SEPARATOR`、`FILTER`、`WITHIN GROUP`、`OVER` 等调用形态不改变 CALL 语义；
 - schema/catalog 限定函数和未限定函数都必须识别，限定名用于计算真实 resourcePath；
 - 嵌套函数逐层生成 Function 行为，外层函数不能遮蔽内层函数；
@@ -392,7 +396,7 @@ COUNT、SUM 和 `analytics.risk_score` 都必须形成独立 Function/CALL；`sa
 11. registry 与官网证据清单一一对应，测试拒绝“已注册但无证据”或“有证据但无明确 BehaviorAction”的函数。
 12. 不得为功能性函数新增或修改 `SecDataAuthKind`；只允许选择已有 BehaviorAction。
 
-已经存在的系统内置聚合函数清单可以继续供 resource 分析或其他方言事实查询使用，但 behavior visitor 不得使用它过滤 Function/CALL。
+已经存在的系统内置聚合函数和普通函数清单应作为跳过对象级权限的白名单来源，但 behavior visitor 不得据此删除 Function/CALL。
 
 #### 官网文档准入规则
 
@@ -463,8 +467,8 @@ routine 参数、局部变量、字面量和表达式别名不是行为对象。
 
 如果能确认对象类型但无法取得具体名称，仍然输出：
 
-- `targetType` 使用最准确类型；
-- `resourcePath` 停在能够确认的最近祖先层级；
+- `objectType` 使用最准确类型；
+- `objectPath` 停在能够确认的最近祖先层级；
 - 不制造假名字；
 - 不用 Unknown 或 Object 掩盖准确类型；
 - 不因名字未知而删除 relation。
@@ -516,7 +520,7 @@ defaultDatabaseLevels = <目标数据库按 UmiTypes 定义的层级与测试值
 
 路径规则：
 
-1. `resourcePath` 以 `/` 开头并以 `/` 结尾。
+1. `objectPath` 以 `/` 开头并以 `/` 结尾。
 2. 环境和数据源 ID 位于数据源对象路径最前面。
 3. SQL 明确限定层级时以 SQL 为准。
 4. SQL 未限定时由测试入口补默认上下文。
@@ -698,7 +702,7 @@ levels:
 
 测试框架必须逐 testcase 读取并传给 `BehaviorAnalysisSpi.analysisBehavior(...)`，禁止由方言测试类
 暗中统一注入默认 catalog/schema。SQL 显式限定的层级覆盖对应的上下文层级；SQL 未限定的对象才使用
-`levels` 补全路径。这样审计者可以直接判断 `resourcePath` 中哪些层级来自 SQL，哪些来自执行上下文。
+`levels` 补全路径。这样审计者可以直接判断 `objectPath` 中哪些层级来自 SQL，哪些来自执行上下文。
 
 #### 行为对象：统一紧凑字符串
 
@@ -715,7 +719,7 @@ subject、单个 target 和 target 数组元素统一使用：
 - 右括号与 resourcePath 之间只保留一个普通空格；
 - codeLine 必须与 BehaviorObject 的四个位置整数完全一致；
 - resourcePath 必须是完整 CloudDM 路径；
-- 禁止重新展开为包含 `targetType`、`codeLine`、`resourcePath` 三个字段的对象。
+- 禁止重新展开为包含 `objectType`、`codeLine`、`objectPath` 三个字段的对象。
 
 #### 单个 case 内的对齐
 
@@ -1068,7 +1072,7 @@ BehaviorObject 必须真实携带：
 - 方言 BehaviorAnalysisSpi 或行为初始化组件只装配功能性函数例外 registry；
 - 每个方言只注册本数据库、对应版本且有官网证据的功能性函数及其非 CALL action；
 - behavior visitor 只提交函数限定信息并查询例外；未命中必须回落 CALL；
-- parser、grammar、lexer、split visitor、resource visitor 和聚合函数清单都不参与 behavior 的 CALL 过滤；
+- parser、grammar、lexer、split visitor 和 resource visitor 都不参与 behavior 的 CALL 删除；方言函数注册器只决定对象级权限是否跳过；
 - 禁止在 behavior visitor 中堆积函数名 if/switch；
 - 注册 API 能在测试中添加功能性函数并证明 parser 无需修改；
 - 已注册例外不能同时产生指定 action 和重复的 CALL。
@@ -1146,11 +1150,12 @@ BehaviorObject 必须真实携带：
 - 每个 BehaviorObject 都有准确 TargetType、完整 resourcePath 和精确结束开区间；
 - BehaviorAnalysisSpi 的 baseLine/baseColumn 正确叠加到起止端点，后续行没有错误叠加首行 baseColumn；
 - 每个 subject 和 target 紧凑字符串独占一行，字符串内部顺序严格为
-  `TargetType`、`codeLine`、`resourcePath`；
+  `TargetType`、`codeLine`、`objectPath`；
 - 同一对象在不同 action 或关系角色中没有错误合并；
 - JOIN、多表、多函数、多变量、导入导出没有遗漏；
 - routine、trigger、event 及嵌套控制块、handler、子查询和函数参数中的行为全部进入当前 StatementBehavior.relations；
 - 内置聚合函数、普通内置函数、窗口函数和 UDF 都生成 Function/CALL；
+- 内置函数和系统过程保留行为记录但跳过对象级权限，UDF 和普通用户过程仍执行对象级权限；
 - CASE 和 typed literal 等非函数语法没有误生成 Function；
 - 功能性函数例外可注册、按方言和版本隔离，parser 不感知；
 - 功能性函数例外每项都有对应版本厂商官网证据和明确的现有 BehaviorAction；

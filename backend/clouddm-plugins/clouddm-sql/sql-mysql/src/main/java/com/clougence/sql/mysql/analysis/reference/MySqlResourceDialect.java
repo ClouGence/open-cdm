@@ -24,7 +24,8 @@ public final class MySqlResourceDialect implements ResourceRegistryDialect {
         if (normalized.length() >= 2) {
             char quote = normalized.charAt(0);
             if ((quote == '`' || quote == '"') && normalized.charAt(normalized.length() - 1) == quote) {
-                normalized = normalized.substring(1, normalized.length() - 1);
+                String delimiter = String.valueOf(quote);
+                normalized = normalized.substring(1, normalized.length() - 1).replace(delimiter + delimiter, delimiter);
             }
         }
         return normalized.toLowerCase(Locale.ROOT);

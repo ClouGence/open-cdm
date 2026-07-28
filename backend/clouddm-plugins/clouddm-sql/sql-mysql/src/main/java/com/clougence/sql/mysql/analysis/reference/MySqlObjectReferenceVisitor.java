@@ -300,7 +300,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             return;
         }
         List<String> parts = new ArrayList<>();
-        addPart(parts, token.getText());
+        addPart(parts, unquoteIdentifier(token.getText()));
         List<String> nodes = resolveNodes(TargetType.Function, parts);
         addWithNodes(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, true, token, nodes);
     }
@@ -533,19 +533,19 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateServer(CreateServerContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, false, ctx.serverObjectName());
+        addQuotedResourceName(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, false, ctx.serverObjectName());
         return null;
     }
 
     @Override
     public Void visitAlterServer(AlterServerContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.serverObjectName());
+        addQuotedResourceName(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx.serverObjectName());
         return null;
     }
 
     @Override
     public Void visitDropServer(DropServerContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.serverObjectName());
+        addQuotedResourceName(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx.serverObjectName());
         return null;
     }
 
@@ -953,7 +953,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             while (variable.startsWith("@")) {
                 variable = variable.substring(1);
             }
-            addInstanceResource(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, variable);
+            addInstanceResource(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, unquote(variable));
         }
         return null;
     }
@@ -1014,14 +1014,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         if (value == null) {
             return "";
         }
-        String normalized = value.trim();
-        if (normalized.length() >= 2) {
-            char quote = normalized.charAt(0);
-            if ((quote == '`' || quote == '"') && normalized.charAt(normalized.length() - 1) == quote) {
-                normalized = normalized.substring(1, normalized.length() - 1);
-            }
-        }
-        return normalized.toLowerCase(Locale.ROOT);
+        return unquoteIdentifier(value.trim()).toLowerCase(Locale.ROOT);
     }
 
     @Override
@@ -1038,7 +1031,8 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitSetAutocommit(SetAutocommitContext ctx) {
-        addInstanceResource(SplitQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, ctx, "autocommit");
+        Token token = ctx.setAutocommitStatement().AUTOCOMMIT().getSymbol();
+        addInstanceResource(SplitQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, token, token.getText());
         return null;
     }
 
@@ -1235,7 +1229,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         if (scopeSeparator >= 0 && scopeSeparator + 1 < variable.length()) {
             variable = variable.substring(scopeSeparator + 1);
         }
-        addInstanceResource(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, variable);
+        addInstanceResource(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, unquote(variable));
     }
 
     private void addConfigKey(SplitQueryType permission, VariableClauseContext ctx) {
@@ -1244,7 +1238,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             variable = variable.substring(1);
         }
         variable = variable.replaceFirst("(?i)^(GLOBAL|SESSION|LOCAL|PERSIST_ONLY|PERSIST)[.=]?", "");
-        addInstanceResource(permission, TargetType.ConfigKey, true, ctx, variable);
+        addInstanceResource(permission, TargetType.ConfigKey, true, ctx, unquote(variable));
     }
 
     private void addFile(SplitQueryType sqlType, boolean require, ParserRuleContext ctx) {
@@ -1255,6 +1249,15 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         List<String> nodes = new ArrayList<>();
         addPart(nodes, normalizePath(file));
         addWithNodes(sqlType, TargetType.File, require, ctx, nodes);
+    }
+
+    private void addQuotedResourceName(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+        if (ctx == null) {
+            return;
+        }
+        List<String> parts = new ArrayList<>();
+        addPart(parts, unquote(name(ctx)));
+        add(sqlType, targetType, require, ctx, parts);
     }
 
     private String normalizePath(String path) {
@@ -1296,8 +1299,21 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         }
         char first = value.charAt(0);
         char last = value.charAt(value.length() - 1);
-        if ((first == '\'' && last == '\'') || (first == '"' && last == '"')) {
-            return value.substring(1, value.length() - 1);
+        if ((first == '\'' || first == '"' || first == '`') && last == first) {
+            String quote = String.valueOf(first);
+            return value.substring(1, value.length() - 1).replace(quote + quote, quote);
+        }
+        return value;
+    }
+
+    private static String unquoteIdentifier(String value) {
+        if (value == null || value.length() < 2) {
+            return value;
+        }
+        char quote = value.charAt(0);
+        if ((quote == '`' || quote == '"') && value.charAt(value.length() - 1) == quote) {
+            String delimiter = String.valueOf(quote);
+            return value.substring(1, value.length() - 1).replace(delimiter + delimiter, delimiter);
         }
         return value;
     }
@@ -1315,7 +1331,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             variable = variable.substring(1);
         }
         List<String> nodes = new ArrayList<>();
-        addPart(nodes, variable);
+        addPart(nodes, unquote(variable));
         addWithNodes(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, token, nodes);
     }
 
@@ -1324,11 +1340,8 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             return;
         }
         String normalized = variable.replaceFirst("^@+", "").replaceFirst("(?i)^(GLOBAL|SESSION|LOCAL)\\.", "");
-        if (normalized.length() >= 2 && normalized.startsWith("`") && normalized.endsWith("`")) {
-            normalized = normalized.substring(1, normalized.length() - 1).replace("``", "`");
-        }
         List<String> nodes = new ArrayList<>();
-        addPart(nodes, normalized);
+        addPart(nodes, unquote(normalized));
         addWithNodes(sqlType, TargetType.ConfigKey, true, token, nodes);
     }
 
@@ -1391,7 +1404,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             return;
         }
         List<String> parts = new ArrayList<>();
-        addPart(parts, token.getText());
+        addPart(parts, unquoteIdentifier(token.getText()));
         List<String> nodes = resolveNodes(targetType, parts);
         addWithNodes(sqlType, targetType, require, token, nodes);
     }
@@ -1454,10 +1467,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             return text;
         }
         String value = text.trim();
-        if (value.length() >= 2 && ((value.charAt(0) == '`' && value.charAt(value.length() - 1) == '`') || (value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"'))) {
-            return value.substring(1, value.length() - 1);
-        }
-        return value;
+        return unquoteIdentifier(value);
     }
 
     private int line(ParserRuleContext ctx) {

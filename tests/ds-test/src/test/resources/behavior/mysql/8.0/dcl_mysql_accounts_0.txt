@@ -1608,15 +1608,15 @@ expect:
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:22~1:36) /test/1/'hyphen-name'/",
+      "subject": "ConfigKey(1:22~1:36) /test/1/hyphen-name/",
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:43~1:56) /test/1/\"spacename\"/",
+      "subject": "ConfigKey(1:43~1:56) /test/1/spacename/",
       "action" : "READ"
     },
     {
-      "subject": "ConfigKey(1:62~1:74) /test/1/`tick-name`/",
+      "subject": "ConfigKey(1:62~1:74) /test/1/tick-name/",
       "action" : "READ"
     }
   ]

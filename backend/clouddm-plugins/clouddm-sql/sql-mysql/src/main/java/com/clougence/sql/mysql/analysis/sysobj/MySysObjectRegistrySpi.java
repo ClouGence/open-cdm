@@ -11,6 +11,7 @@ import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
 import com.clougence.sql.mysql.MySqlEngineSpi;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlVersion;
+import com.clougence.utils.StringUtils;
 
 /** MySQL permission-exempt resources backed by the parser resource registry. */
 public final class MySysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
@@ -32,7 +33,7 @@ public final class MySysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
             return schema != null && resources.isSystemProcedure(schema, objectName, version);
         }
         if (targetType == TargetType.Table && action == BehaviorAction.READ) {
-            return schema == null && "DUAL".equalsIgnoreCase(objectName) || schema != null && resources.isMetadataTable(schema, objectName, version);
+            return schema == null && StringUtils.equalsIgnoreCase("DUAL", objectName) || schema != null && resources.isMetadataTable(schema, objectName, version);
         }
         return false;
     }

@@ -34,17 +34,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class MySqlSqlModeFixtureTest extends SplitTextTest {
 
-    private static final String FIXTURE_DELIMITER =
-            "------------------------------------------------------------------------------------------";
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final String       FIXTURE_DELIMITER = "------------------------------------------------------------------------------------------";
+    private static final ObjectMapper JSON              = new ObjectMapper();
 
     @Override
     protected List<String> fixtureResources() {
-        return TextCaseSupport.resourceFiles("split/mysql",
-                path -> path.contains("/mode/")
-                        && path.endsWith(".txt")
-                        && !path.contains("/reject/")
-                        && !path.contains("/unknown/"));
+        return TextCaseSupport.resourceFiles("split/mysql", path -> {
+            return path.contains("/mode/") &&   //
+                   path.endsWith(".txt") &&     //
+                   !path.contains("/reject/") &&//
+                   !path.contains("/unknown/");
+        });
     }
 
     @Override
@@ -53,6 +53,7 @@ public class MySqlSqlModeFixtureTest extends SplitTextTest {
         if (version == null) {
             version = segmentAfter(fixture.resourcePath(), "split/mysql/");
         }
+
         try {
             MyDslProvider provider = new MyDslProvider(parserConfig(version, fixture.resourcePath()));
             return new MySplitAnalysisSpi(provider);
@@ -63,26 +64,38 @@ public class MySqlSqlModeFixtureTest extends SplitTextTest {
 
     @Test
     public void parserPropertySidecarsMatchFixtures() {
-        Set<String> expectedConfigs = TextCaseSupport.resourceFiles("split/mysql",
-                path -> path.contains("/mode/") && path.endsWith(".txt")).stream()
-                .map(path -> path.substring(0, path.length() - ".txt".length()) + ".json")
-                .collect(Collectors.toSet());
-        Set<String> actualConfigs = Set.copyOf(TextCaseSupport.resourceFiles("split/mysql", ".json",
-                path -> path.contains("/mode/")));
+        Set<String> expectedConfigs = TextCaseSupport.resourceFiles("split/mysql", path -> {
+            return path.contains("/mode/") && path.endsWith(".txt");
+        }).stream().map(path -> {
+            return path.substring(0, path.length() - ".txt".length()) + ".json";
+        }).collect(Collectors.toSet());
+
+        Set<String> actualConfigs = Set.copyOf(TextCaseSupport.resourceFiles("split/mysql", ".json", path -> {
+            return path.contains("/mode/");
+        }));
         Assertions.assertEquals(expectedConfigs, actualConfigs);
     }
 
     @TestFactory
     public Stream<DynamicTest> modeSensitiveTokensAndTrees() {
-        return TextCaseSupport.resourceFiles("split/mysql", path -> path.contains("/mode/")
-                && path.endsWith(".txt") && !path.contains("/reject/")).stream()
-                .map(path -> DynamicTest.dynamicTest(path, () -> verifyFixture(path)));
+        return TextCaseSupport.resourceFiles("split/mysql", path -> {
+            return path.contains("/mode/") &&  //
+                   path.endsWith(".txt") &&    //
+                   !path.contains("/reject/");
+        }).stream().map(path -> {
+            return DynamicTest.dynamicTest(path, () -> {
+                verifyFixture(path);
+            });
+        });
     }
 
     @TestFactory
     public Stream<DynamicTest> modeSensitiveRejections() {
-        return rejectedDynamicTests(TextCaseSupport.resourceFiles("split/mysql",
-                path -> path.contains("/mode/") && path.endsWith(".txt") && path.contains("/reject/")), "mysql");
+        return rejectedDynamicTests(TextCaseSupport.resourceFiles("split/mysql", path -> {
+            return path.contains("/mode/") &&  //
+                   path.endsWith(".txt") &&    //
+                   path.contains("/reject/");
+        }), "mysql");
     }
 
     @Override
@@ -157,16 +170,13 @@ public class MySqlSqlModeFixtureTest extends SplitTextTest {
             case "pipes-as-concat" -> {
                 assertToken(evidence, MySqlLexer.PIPES_CONCAT, resourcePath);
                 assertNoToken(evidence, MySqlLexer.PIPES_LOGICAL_OR, resourcePath);
-                Assertions.assertTrue(hasTree(evidence, MySqlParser.PipesConcatExpressionAtomContext.class),
-                        resourcePath);
+                Assertions.assertTrue(hasTree(evidence, MySqlParser.PipesConcatExpressionAtomContext.class), resourcePath);
             }
-            case "high-not-precedence" -> Assertions.assertTrue(
-                    hasTree(evidence, MySqlParser.HighNotExpressionContext.class), resourcePath);
+            case "high-not-precedence" -> Assertions.assertTrue(hasTree(evidence, MySqlParser.HighNotExpressionContext.class), resourcePath);
             case "pipes-as-concat-high-not-precedence" -> {
                 assertToken(evidence, MySqlLexer.PIPES_CONCAT, resourcePath);
                 assertNoToken(evidence, MySqlLexer.PIPES_LOGICAL_OR, resourcePath);
-                Assertions.assertTrue(hasTree(evidence, MySqlParser.PipesConcatExpressionAtomContext.class),
-                        resourcePath);
+                Assertions.assertTrue(hasTree(evidence, MySqlParser.PipesConcatExpressionAtomContext.class), resourcePath);
                 Assertions.assertTrue(hasTree(evidence, MySqlParser.HighNotExpressionContext.class), resourcePath);
             }
             case "ignore-space" -> {
@@ -186,12 +196,11 @@ public class MySqlSqlModeFixtureTest extends SplitTextTest {
 
     private static ParseEvidence evidence(MyDslProvider provider, String input) {
         Lexer lexer = provider.createLexer(CharStreams.fromString(input));
-        List<TokenEvidence> tokens = lexer.getAllTokens().stream()
-                .map(token -> new TokenEvidence(token.getText(), token.getType()))
-                .toList();
-        List<ParseTree> trees = DslHelper.splitDsl(provider, input).stream()
-                .map(AstSplitScript::getAstTree)
-                .toList();
+        List<TokenEvidence> tokens = lexer.getAllTokens().stream().map(token -> {
+            return new TokenEvidence(token.getText(), token.getType());
+        }).toList();
+
+        List<ParseTree> trees = DslHelper.splitDsl(provider, input).stream().map(AstSplitScript::getAstTree).toList();
         return new ParseEvidence(tokens, trees);
     }
 
@@ -212,23 +221,29 @@ public class MySqlSqlModeFixtureTest extends SplitTextTest {
     }
 
     private static void assertToken(ParseEvidence evidence, int tokenType, String resourcePath) {
-        Assertions.assertTrue(evidence.tokens().stream().anyMatch(token -> token.type() == tokenType),
-                () -> "missing token " + MySqlLexer.VOCABULARY.getSymbolicName(tokenType) + ": " + resourcePath);
+        Assertions.assertTrue(evidence.tokens().stream().anyMatch(token -> {
+            return token.type() == tokenType;
+        }), () -> {
+            return "missing token " + MySqlLexer.VOCABULARY.getSymbolicName(tokenType) + ": " + resourcePath;
+        });
     }
 
     private static void assertNoToken(ParseEvidence evidence, int tokenType, String resourcePath) {
-        Assertions.assertFalse(evidence.tokens().stream().anyMatch(token -> token.type() == tokenType),
-                () -> "unexpected token " + MySqlLexer.VOCABULARY.getSymbolicName(tokenType) + ": " + resourcePath);
+        Assertions.assertFalse(evidence.tokens().stream().anyMatch(token -> {
+            return token.type() == tokenType;
+        }), () -> {
+            return "unexpected token " + MySqlLexer.VOCABULARY.getSymbolicName(tokenType) + ": " + resourcePath;
+        });
     }
 
-    private static void assertTokenCount(ParseEvidence evidence, String text, int tokenType, long expected,
-            String resourcePath) {
-        long actual = evidence.tokens().stream()
-                .filter(token -> token.type() == tokenType && text.equalsIgnoreCase(token.text()))
-                .count();
-        Assertions.assertEquals(expected, actual,
-                () -> "unexpected " + text + " token count for "
-                        + MySqlLexer.VOCABULARY.getSymbolicName(tokenType) + ": " + resourcePath);
+    private static void assertTokenCount(ParseEvidence evidence, String text, int tokenType, long expected, String resourcePath) {
+        long actual = evidence.tokens().stream().filter(token -> {
+            return token.type() == tokenType && text.equalsIgnoreCase(token.text());
+        }).count();
+
+        Assertions.assertEquals(expected, actual, () -> {
+            return "unexpected " + text + " token count for " + MySqlLexer.VOCABULARY.getSymbolicName(tokenType) + ": " + resourcePath;
+        });
     }
 
     private static String fixtureInput(String resourcePath) {
@@ -241,17 +256,15 @@ public class MySqlSqlModeFixtureTest extends SplitTextTest {
     private static MySqlParserConfig parserConfig(String version, String resourcePath) throws Exception {
         String configPath = resourcePath.substring(0, resourcePath.length() - ".txt".length()) + ".json";
         JsonNode config = JSON.readTree(TextCaseSupport.readResource(configPath));
-        Assertions.assertTrue(config.has("known") && config.get("known").isBoolean(),
-                "parser property config requires boolean known: " + configPath);
-        Assertions.assertTrue(config.has("features") && config.get("features").isArray(),
-                "parser property config requires feature array: " + configPath);
+        Assertions.assertTrue(config.has("known") && config.get("known").isBoolean(), "parser property config requires boolean known: " + configPath);
+        Assertions.assertTrue(config.has("features") && config.get("features").isArray(), "parser property config requires feature array: " + configPath);
         boolean known = config.path("known").asBoolean(false);
         EnumSet<Feature> features = EnumSet.noneOf(Feature.class);
         for (JsonNode feature : config.path("features")) {
             features.add(Feature.valueOf(feature.asText()));
         }
-        Assertions.assertTrue(known || features.isEmpty(),
-                "unknown parser properties cannot enable features: " + configPath);
+
+        Assertions.assertTrue(known || features.isEmpty(), "unknown parser properties cannot enable features: " + configPath);
         return known ? MySqlParserConfig.knownSqlMode(version, features) : MySqlParserConfig.unknownSqlMode(version);
     }
 

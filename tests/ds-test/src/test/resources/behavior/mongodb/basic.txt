@@ -27,3 +27,18 @@ expect:
     }
   ]
 }
+----------
+[show_collections]
+sql:
+show collections
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "METADATA": [
+    {
+      "subject": "Schema(1:0~1:16) /test/1/schema1/",
+      "action" : "READ"
+    }
+  ]
+}

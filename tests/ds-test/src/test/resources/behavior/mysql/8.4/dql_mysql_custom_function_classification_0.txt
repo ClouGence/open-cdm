@@ -130,7 +130,7 @@ expect:
 {
   "SELECT": [
     {
-      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/`COUNT`/",
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/COUNT/",
       "action" : "CALL"
     },
     {

@@ -985,7 +985,7 @@ expect:
       "target" : "File(1:17~1:42) /test/1/tmp/codex_missing_load/"
     },
     {
-      "subject": "ConfigKey(1:59~1:71) /test/1/'raw value'/",
+      "subject": "ConfigKey(1:59~1:71) /test/1/raw value/",
       "action" : "READ"
     }
   ]

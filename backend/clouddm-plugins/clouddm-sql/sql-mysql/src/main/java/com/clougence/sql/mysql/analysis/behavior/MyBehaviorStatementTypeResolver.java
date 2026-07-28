@@ -12,6 +12,7 @@ import java.util.Locale;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.mysql.analysis.reference.MySqlObjectReference;
+import com.clougence.utils.StringUtils;
 
 final class MyBehaviorStatementTypeResolver {
 
@@ -236,7 +237,7 @@ final class MyBehaviorStatementTypeResolver {
     }
 
     private static boolean containsNode(MySqlObjectReference reference, String name) {
-        return reference.nodes().stream().anyMatch(node -> node.equalsIgnoreCase(name));
+        return reference.nodes().stream().anyMatch(node -> StringUtils.equalsIgnoreCase(node, name));
     }
 
     private static boolean containsNode(List<MySqlObjectReference> references, String name) {
