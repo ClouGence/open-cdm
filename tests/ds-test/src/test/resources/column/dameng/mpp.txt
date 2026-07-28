@@ -1,0 +1,49 @@
+[mpp_distribution_columns]
+sql:
+select id, sf_get_ep_seqno(rowid) as ep_seqno from catalog1.app.mpp_hash order by id
+expect:
+{
+  "id" : [ "/catalog1/app/mpp_hash/id/" ],
+  "ep_seqno" : [ "/catalog1/app/mpp_hash/rowid/" ]
+}
+----------
+[mpp_distribution_group_columns]
+sql:
+select sf_get_ep_seqno(rowid) as ep_seqno, count(*) as row_count
+from catalog1.app.mpp_hash group by sf_get_ep_seqno(rowid) order by ep_seqno
+expect:
+{
+  "ep_seqno" : [ "/catalog1/app/mpp_hash/rowid/" ],
+  "row_count" : [ ]
+}
+----------
+[mpp_cross_ep_join_columns]
+sql:
+select h.id, h.note, r.note as range_note
+from catalog1.app.mpp_hash h join catalog1.app.mpp_range r on r.id=150
+where h.id=2
+expect:
+{
+  "id" : [ "/catalog1/app/mpp_hash/id/" ],
+  "note" : [ "/catalog1/app/mpp_hash/note/" ],
+  "range_note" : [ "/catalog1/app/mpp_range/note/" ]
+}
+----------
+[mpp_system_view_columns]
+sql:
+select distinct inst_name, ep_seqno from catalog1.sys.v$mpp_cfg_item order by ep_seqno
+expect:
+{
+  "inst_name" : [ "/catalog1/sys/v$mpp_cfg_item/inst_name/" ],
+  "ep_seqno" : [ "/catalog1/sys/v$mpp_cfg_item/ep_seqno/" ]
+}
+----------
+[mpp_table_pages_and_instance_columns]
+sql:
+select table_used_pages('APP', 'MPP_HASH') as used_pages, name
+from catalog1.sys.v$instance order by name
+expect:
+{
+  "used_pages" : [ ],
+  "name" : [ "/catalog1/sys/v$instance/name/" ]
+}

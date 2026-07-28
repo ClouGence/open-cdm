@@ -1,0 +1,362 @@
+[split_block_dameng_dbms_mview_signature_combinations_0_001]
+sql:
+-- ONE_ARGUMENT_DEFAULT_FAST
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FAST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FAST/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_002]
+sql:
+-- TWO_ARGUMENTS_FAST
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FAST','F');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FAST/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_003]
+sql:
+-- THREE_ARGUMENTS
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','C','IGNORED');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_004]
+sql:
+-- FOUR_ARGUMENTS
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','C',NULL,FALSE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_005]
+sql:
+-- FIVE_ARGUMENTS
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','C',NULL,TRUE,TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_006]
+sql:
+-- SIX_ARGUMENTS
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','C',NULL,TRUE,FALSE,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_007]
+sql:
+-- SEVEN_ARGUMENTS
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','C',NULL,TRUE,FALSE,1,4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_008]
+sql:
+-- EIGHT_ARGUMENTS
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','C',NULL,TRUE,FALSE,1,0,64);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_009]
+sql:
+-- NINE_ARGUMENTS_ATOMIC_FALSE
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','C',NULL,TRUE,FALSE,1,0,0,FALSE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_010]
+sql:
+-- TEN_ARGUMENTS_NESTED_TRUE
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','C',NULL,TRUE,FALSE,1,0,0,TRUE,TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_011]
+sql:
+-- NAMED_ALL
+CALL DBMS_MVIEW.REFRESH(LST=>'CODEX_DM8_MVIEW_FULL',METHOD=>'C',ROLLBACK_SEG=>'IGNORED',PUSH_DEFERRED_RPC=>FALSE,REFRESH_AFTER_ERRORS=>TRUE,PURGE_OPTION=>2,PARALLELISM=>4,HEAP_SIZE=>64,ATOMIC_REFRESH=>FALSE,NESTED=>TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:29~2:51) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_012]
+sql:
+-- NAMED_REORDERED
+CALL DBMS_MVIEW.REFRESH(NESTED=>FALSE,ATOMIC_REFRESH=>TRUE,HEAP_SIZE=>0,PARALLELISM=>0,PURGE_OPTION=>1,REFRESH_AFTER_ERRORS=>FALSE,PUSH_DEFERRED_RPC=>TRUE,ROLLBACK_SEG=>NULL,METHOD=>'C',LST=>'CODEX_DM8_MVIEW_FULL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:191~2:213) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_013]
+sql:
+-- MULTI_VIEW_FC
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FAST,CODEX_DM8_MVIEW_FULL','FC');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": [
+        "Materialized(2:24~2:67) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FAST/",
+        "Materialized(2:24~2:67) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_014]
+sql:
+-- LOWERCASE_METHOD
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_015]
+sql:
+-- METHOD_A_SYNTAX_COMPATIBLE
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_016]
+sql:
+-- METHOD_P_SYNTAX_COMPATIBLE
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','P');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_017]
+sql:
+-- EMPTY_METHOD_DEFAULT
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FAST','');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FAST/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_018]
+sql:
+-- NULL_METHOD_DEFAULT
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FAST',NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FAST/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_019]
+sql:
+-- ALL_OPTIONAL_NULL
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','C',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_020]
+sql:
+-- PACK29_SHORT_METHOD_LIST_EXTENSION
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FAST,CODEX_DM8_MVIEW_FULL','C');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": [
+        "Materialized(2:24~2:67) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FAST/",
+        "Materialized(2:24~2:67) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_mview_signature_combinations_0_021]
+sql:
+-- PACK29_LONG_METHOD_LIST_EXTENSION
+CALL DBMS_MVIEW.REFRESH('CODEX_DM8_MVIEW_FULL','CC');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_MVIEW/REFRESH/",
+      "action": "CALL",
+      "target": "Materialized(2:24~2:46) /test/1/catalog1/schema1/CODEX_DM8_MVIEW_FULL/"
+    }
+  ]
+}

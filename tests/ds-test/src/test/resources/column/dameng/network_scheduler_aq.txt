@@ -1,0 +1,24 @@
+[network_http_url_column]
+sql:
+select utl_http.request(endpoint_url) as response_body from catalog1.app.http_endpoints
+expect:
+{
+  "response_body" : [ "/catalog1/app/http_endpoints/endpoint_url/" ]
+}
+----------
+[scheduler_log_message_column]
+sql:
+select message as job_message from catalog1.app.scheduler_log
+expect:
+{
+  "job_message" : [ "/catalog1/app/scheduler_log/message/" ]
+}
+----------
+[aq_queue_state_columns]
+sql:
+select name as queue_name, enable_flag as queue_state from catalog1.sys.aq$_queues
+expect:
+{
+  "queue_name" : [ "/catalog1/sys/aq$_queues/name/" ],
+  "queue_state" : [ "/catalog1/sys/aq$_queues/enable_flag/" ]
+}

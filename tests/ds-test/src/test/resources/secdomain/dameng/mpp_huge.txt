@@ -1,0 +1,56 @@
+[mpp_huge_range_create]
+sql:
+create huge table app.mpp_huge_range(id int, note varchar(40))
+storage(stat none, with delta, section(1024), filesize(16))
+distributed by range(id)(values equ or less than(100) on ep01, values less than(maxvalue) on ep02)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"mpp_huge_range"}
+  ]
+}
+----------
+[mpp_huge_ctas]
+sql:
+create huge table app.mpp_huge_ctas as
+select id, note from app.mpp_huge_stage distributed by hash(id)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"mpp_huge_ctas"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"mpp_huge_stage"}
+  ]
+}
+----------
+[mpp_huge_distribution_key_update]
+sql:
+update app.mpp_huge_hash set id=101 where id=1
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "schema":"app", "table":"mpp_huge_hash"}
+  ]
+}
+----------
+[mpp_huge_cross_ep_join]
+sql:
+select h.id, h.note, r.note as range_note
+from app.mpp_huge_hash h join app.mpp_huge_range r on r.id=150
+where h.id=2
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"mpp_huge_hash"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"mpp_huge_range"}
+  ]
+}
+----------
+[mpp_huge_route_query]
+sql:
+select id, sf_get_ep_seqno(rowid) as ep_seqno from app.mpp_huge_hash order by id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"mpp_huge_hash"}
+  ]
+}

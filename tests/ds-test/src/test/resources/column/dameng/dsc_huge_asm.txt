@@ -1,0 +1,19 @@
+[dsc_huge_read_columns]
+sql:
+select id, payload, rowid from catalog1.app.dsc_huge_basic
+expect:
+{
+  "id": ["/catalog1/app/dsc_huge_basic/id/"],
+  "payload": ["/catalog1/app/dsc_huge_basic/payload/"],
+  "rowid": ["/catalog1/app/dsc_huge_basic/rowid/"]
+}
+----------
+[dsc_huge_ctas_columns]
+sql:
+create huge table app.dsc_huge_ctas as
+select id, payload from catalog1.app.dsc_huge_stage striping 32 external
+expect:
+{
+  "id": ["/catalog1/app/dsc_huge_stage/id/"],
+  "payload": ["/catalog1/app/dsc_huge_stage/payload/"]
+}

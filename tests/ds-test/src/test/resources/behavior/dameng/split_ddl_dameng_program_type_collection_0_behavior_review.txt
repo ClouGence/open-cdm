@@ -1,0 +1,195 @@
+[split_ddl_dameng_program_type_collection_0_001_behavior_review]
+sql:
+CREATE TABLE TYPE_BASE(ID INT PRIMARY KEY, NAME VARCHAR2(30), AMOUNT NUMBER(10,2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/TYPE_BASE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_002_behavior_review]
+sql:
+CREATE OR REPLACE TYPE REC_SQL AS RECORD(ID INT, NAME VARCHAR2(30));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:30) /test/1/catalog1/schema1/REC_SQL/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_003_behavior_review]
+sql:
+CREATE OR REPLACE TYPE STATIC_MIN AS ARRAY INT[1];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:33) /test/1/catalog1/schema1/STATIC_MIN/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_004_behavior_review]
+sql:
+CREATE OR REPLACE TYPE STATIC_MAX AS ARRAY INT[65534];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:33) /test/1/catalog1/schema1/STATIC_MAX/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_005_behavior_review]
+sql:
+CREATE OR REPLACE TYPE STATIC_MULTI AS ARRAY VARCHAR2[2,3];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:35) /test/1/catalog1/schema1/STATIC_MULTI/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_006_behavior_review]
+sql:
+CREATE OR REPLACE TYPE DYNAMIC_ONE AS ARRAY INT[];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:34) /test/1/catalog1/schema1/DYNAMIC_ONE/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_007_behavior_review]
+sql:
+CREATE OR REPLACE TYPE DYNAMIC_MULTI AS ARRAY VARCHAR2[,];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:36) /test/1/catalog1/schema1/DYNAMIC_MULTI/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_008_behavior_review]
+sql:
+CREATE OR REPLACE TYPE VARRAY_MIN AS VARRAY(1) OF INT NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:33) /test/1/catalog1/schema1/VARRAY_MIN/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_009_behavior_review]
+sql:
+CREATE OR REPLACE TYPE NESTED_INT AS TABLE OF INT NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:33) /test/1/catalog1/schema1/NESTED_INT/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_010_behavior_review]
+sql:
+CREATE OR REPLACE TYPE INDEX_INT AS TABLE OF VARCHAR2(30) INDEX BY INT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:32) /test/1/catalog1/schema1/INDEX_INT/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_011_behavior_review]
+sql:
+CREATE OR REPLACE TYPE INDEX_VARCHAR_MAX AS TABLE OF INT INDEX BY VARCHAR2(1024);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:40) /test/1/catalog1/schema1/INDEX_VARCHAR_MAX/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_012_behavior_review]
+sql:
+CREATE OR REPLACE TYPE INDEX_VARCHAR_OVER AS TABLE OF INT INDEX BY VARCHAR2(1025);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:41) /test/1/catalog1/schema1/INDEX_VARCHAR_OVER/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_program_type_collection_0_013_behavior_review]
+sql:
+CREATE TABLE INDEX_COLUMN_COMPAT(ID INT PRIMARY KEY, V INDEX_INT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/INDEX_COLUMN_COMPAT/",
+      "action": "CREATE",
+      "target": "Type(1:55~1:64) /test/1/catalog1/schema1/INDEX_INT/"
+    }
+  ]
+}

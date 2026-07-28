@@ -1,0 +1,23 @@
+[dbms_crypto_package_calls_no_static_lineage]
+sql:
+declare
+  v_raw varbinary(128):='74696765727469676572746967657274';
+  v_hash varbinary(2048); v_enc varbinary(2048); v_dec varbinary(2048);
+  v_blob blob:=hextoraw('7469676572'); v_clob clob:='crypto clob data';
+  v_out_blob blob; v_out_clob clob;
+  v_typ pls_integer:=DBMS_CRYPTO.ENCRYPT_DES+DBMS_CRYPTO.CHAIN_ECB+DBMS_CRYPTO.PAD_PKCS5;
+  v_key varbinary(128):='3132333435363738';
+  v_iv varbinary(128):='3132333435363738';
+begin
+  v_hash:=DBMS_CRYPTO.HASH(v_raw,DBMS_CRYPTO.HASH_MD5);
+  v_hash:=DBMS_CRYPTO.HASH(v_blob,DBMS_CRYPTO.HASH_MD5);
+  v_hash:=DBMS_CRYPTO.HASH(v_clob,DBMS_CRYPTO.HASH_MD5);
+  v_enc:=DBMS_CRYPTO.ENCRYPT(v_raw,v_typ,v_key);
+  DBMS_CRYPTO.ENCRYPT(v_out_blob,v_blob,v_typ,v_key);
+  DBMS_CRYPTO.ENCRYPT(v_out_blob,v_clob,v_typ,v_key);
+  v_dec:=DBMS_CRYPTO.DECRYPT(v_enc,v_typ,v_key);
+  DBMS_CRYPTO.DECRYPT(v_blob,v_out_blob,v_typ,v_key);
+  DBMS_CRYPTO.DECRYPT(v_out_clob,v_out_blob,v_typ,v_key);
+end;
+expect:
+{}

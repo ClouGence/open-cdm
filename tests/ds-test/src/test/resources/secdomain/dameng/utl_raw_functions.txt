@@ -1,0 +1,13 @@
+[utl_raw_expression_domain]
+sql:
+select utl_raw.bit_and(RAW_LEFT,RAW_RIGHT),
+utl_raw.cast_to_varchar2(RAW_VALUE),
+utl_raw.cast_to_varchar2(BLOB_VALUE),
+utl_raw.cast_to_number(NUMBER_RAW)
+from app.raw_source
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"raw_source"}
+  ]
+}

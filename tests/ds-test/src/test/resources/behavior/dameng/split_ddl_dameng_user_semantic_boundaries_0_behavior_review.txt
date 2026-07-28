@@ -1,0 +1,860 @@
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_001]
+sql:
+CREATE USER CODEX_DM8_USER_BOUND IDENTIFIED BY "Dm8Duplicate#2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:32) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_002]
+sql:
+CREATE USER UXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX IDENTIFIED BY "Dm8Long#2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:141) /test/1/UXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_003]
+sql:
+CREATE USER CODEX_DM8_USER_CONFLICT IDENTIFIED BY "Dm8Conflict#2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:35) /test/1/CODEX_DM8_USER_CONFLICT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_004]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND PASSWORD_POLICY 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_005]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND PASSWORD_POLICY 14;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_006]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND PASSWORD_POLICY 32;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_007]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND IDENTIFIED BY "Dm8Engine#2026" HASH WITH ENGINE1.SHA256 SALT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_008]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND DISKSPACE LIMIT 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_009]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND DISKSPACE LIMIT 1048577;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_010]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT GLOBAL_SESSION_PER_USER 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_011]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT GLOBAL_SESSION_PER_USER 32769;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_012]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT SESSION_PER_USER 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_013]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT SESSION_PER_USER 32769;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_014]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT CONNECT_IDLE_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_015]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT CONNECT_IDLE_TIME 1441;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_016]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT CONNECT_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_017]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT CONNECT_TIME 1441;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_018]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT CPU_PER_CALL 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_019]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT CPU_PER_CALL 86401;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_020]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT CPU_PER_SESSION 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_021]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT CPU_PER_SESSION 31536001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_022]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT MEM_SPACE 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_023]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT MEM_SPACE 2147483648;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_024]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT READ_PER_CALL 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_025]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT READ_PER_CALL 2147483647;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_026]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT READ_PER_SESSION 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_027]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT READ_PER_SESSION 2147483647;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_028]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT FAILED_LOGIN_ATTEMPTS 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_029]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT FAILED_LOGIN_ATTEMPTS 101;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_030]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_LIFE_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_031]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_LIFE_TIME 366;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_032]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_REUSE_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_033]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_REUSE_TIME 366;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_034]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_REUSE_MAX 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_035]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_REUSE_MAX 32769;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_036]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_LOCK_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_037]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_LOCK_TIME 1441;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_038]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_GRACE_TIME 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_039]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT PASSWORD_GRACE_TIME 31;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_040]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT INACTIVE_ACCOUNT_TIME 14;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_041]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND LIMIT INACTIVE_ACCOUNT_TIME 24856;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_042]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND ALLOW_IP "10.0.0.0/8";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_043]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND ALLOW_IP ADD "172.16.0.*";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_044]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND ALLOW_IP DROP "172.16.0.*";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_045]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND NOT_ALLOW_IP ADD "172.16.1.1";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_046]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND NOT_ALLOW_IP DROP "172.16.1.1";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_047]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND ALLOW_DATETIME MON "24:00:00" TO TUE "25:00:00";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_048]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND DEFAULT TABLESPACE SYSTEM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER",
+      "target": "Tablespace(1:51~1:57) /test/1/SYSTEM/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_049]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND DEFAULT INDEX TABLESPACE TEMP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER",
+      "target": "Tablespace(1:57~1:61) /test/1/TEMP/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_050]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND QUOTA 1M ON MAIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER",
+      "target": "Tablespace(1:44~1:48) /test/1/MAIN/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_051]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND ON SCHEMA SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER",
+      "target": "Schema(1:42~1:48) /test/1/catalog1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_052]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND PROFILE CODEX_DM8_PROFILE_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "ALTER",
+      "target": "Profile(1:40~1:65) /test/1/CODEX_DM8_PROFILE_MISSING/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_053]
+sql:
+ALTER USER CODEX_DM8_USER_BOUND GRANT CONNECT THROUGH CODEX_DM8_PROXY_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:31) /test/1/CODEX_DM8_USER_BOUND/",
+      "action": "GRANT",
+      "target": "User(1:54~1:77) /test/1/CODEX_DM8_PROXY_MISSING/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_054]
+sql:
+CREATE USER CODEX_DM8_USER_EXTERNAL IDENTIFIED EXTERNALLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:35) /test/1/CODEX_DM8_USER_EXTERNAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_055]
+sql:
+CREATE USER CODEX_DM8_USER_DN IDENTIFIED EXTERNALLY AS 'CN=dm8,OU=db,O=example';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/CODEX_DM8_USER_DN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_056]
+sql:
+DROP USER CODEX_DM8_USER_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:32) /test/1/CODEX_DM8_USER_MISSING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_user_semantic_boundaries_0_behavior_review_057]
+sql:
+DROP USER SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:16) /test/1/SYSDBA/",
+      "action": "DROP"
+    }
+  ]
+}

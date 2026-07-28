@@ -1,0 +1,13 @@
+[functions]
+sql:
+select round(t.c_dec,1) as rounded,trunc(t.c_number,1) as truncated,
+t.c_numeric+t.c_decimal as exact_sum from catalog1.app.exact_num_t t
+expect:
+{"rounded":["/catalog1/app/exact_num_t/c_dec/"],"truncated":["/catalog1/app/exact_num_t/c_number/"],"exact_sum":["/catalog1/app/exact_num_t/c_numeric/","/catalog1/app/exact_num_t/c_decimal/"]}
+----------
+[aggregate]
+sql:
+select min(t.c_numeric) as min_numeric,max(t.c_decimal) as max_decimal,
+sum(t.c_dec) as sum_dec,avg(t.c_number) as avg_number from catalog1.app.exact_num_t t
+expect:
+{"min_numeric":["/catalog1/app/exact_num_t/c_numeric/"],"max_decimal":["/catalog1/app/exact_num_t/c_decimal/"],"sum_dec":["/catalog1/app/exact_num_t/c_dec/"],"avg_number":["/catalog1/app/exact_num_t/c_number/"]}

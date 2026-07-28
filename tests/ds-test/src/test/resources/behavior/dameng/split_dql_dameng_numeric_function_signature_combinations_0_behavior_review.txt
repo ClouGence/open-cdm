@@ -1,0 +1,1475 @@
+[split_dql_dameng_numeric_function_signature_combinations_0_001_behavior_review]
+sql:
+SELECT ABS(CAST(-12 AS INTEGER));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ABS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_002_behavior_review]
+sql:
+SELECT ABS(CAST(-12.34 AS DECIMAL(8,2)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ABS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_003_behavior_review]
+sql:
+SELECT ABS(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/ABS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_004_behavior_review]
+sql:
+SELECT ACOS(-1), ACOS(0), ACOS(1), ACOS(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ACOS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/ACOS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:30) /test/1/catalog1/schema1/ACOS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/ACOS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_005_behavior_review]
+sql:
+SELECT ASIN(-1), ASIN(0), ASIN(1), ASIN(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ASIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/ASIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:30) /test/1/catalog1/schema1/ASIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/ASIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_006_behavior_review]
+sql:
+SELECT ATAN(-1), ATAN(0), ATAN(1), ATAN(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/ATAN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/ATAN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:30) /test/1/catalog1/schema1/ATAN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/ATAN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_007_behavior_review]
+sql:
+SELECT ATAN2(1,1), ATAN2(1,-1), ATAN2(-1,-1), ATAN2(-1,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ATAN2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:24) /test/1/catalog1/schema1/ATAN2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:37) /test/1/catalog1/schema1/ATAN2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:46~1:51) /test/1/catalog1/schema1/ATAN2/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_008_behavior_review]
+sql:
+SELECT ATAN2(NULL,1), ATAN2(1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ATAN2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:27) /test/1/catalog1/schema1/ATAN2/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_009_behavior_review]
+sql:
+SELECT BITAND(-4,-5), BITAND(7.9,3.2), BITAND(0,7);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/BITAND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:28) /test/1/catalog1/schema1/BITAND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:45) /test/1/catalog1/schema1/BITAND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_010_behavior_review]
+sql:
+SELECT BITAND(NULL,1), BITAND(1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/BITAND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:29) /test/1/catalog1/schema1/BITAND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_011_behavior_review]
+sql:
+SELECT CEIL(CAST(12 AS INTEGER)), CEIL(12.34), CEIL(-12.34), CEIL(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CEIL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:38) /test/1/catalog1/schema1/CEIL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:47~1:51) /test/1/catalog1/schema1/CEIL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:65) /test/1/catalog1/schema1/CEIL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_012_behavior_review]
+sql:
+SELECT CEILING(CAST(12 AS INTEGER)), CEILING(12.34), CEILING(-12.34), CEILING(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/CEILING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:44) /test/1/catalog1/schema1/CEILING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:60) /test/1/catalog1/schema1/CEILING/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:70~1:77) /test/1/catalog1/schema1/CEILING/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_013_behavior_review]
+sql:
+SELECT COS(-1), COS(0), COS(1), COS(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/COS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:19) /test/1/catalog1/schema1/COS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:27) /test/1/catalog1/schema1/COS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/COS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_014_behavior_review]
+sql:
+SELECT COSH(-1), COSH(0), COSH(1), COSH(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/COSH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/COSH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:30) /test/1/catalog1/schema1/COSH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/COSH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_015_behavior_review]
+sql:
+SELECT COT(-1), COT(1), COT(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/COT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:19) /test/1/catalog1/schema1/COT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:27) /test/1/catalog1/schema1/COT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_016_behavior_review]
+sql:
+SELECT DEGREES(-1), DEGREES(0), DEGREES(1), DEGREES(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/DEGREES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:27) /test/1/catalog1/schema1/DEGREES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:39) /test/1/catalog1/schema1/DEGREES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:51) /test/1/catalog1/schema1/DEGREES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_017_behavior_review]
+sql:
+SELECT EXP(-1), EXP(0), EXP(1), EXP(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/EXP/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:19) /test/1/catalog1/schema1/EXP/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:27) /test/1/catalog1/schema1/EXP/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/EXP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_018_behavior_review]
+sql:
+SELECT FLOOR(CAST(12 AS INTEGER)), FLOOR(12.34), FLOOR(-12.34), FLOOR(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/FLOOR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:40) /test/1/catalog1/schema1/FLOOR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:49~1:54) /test/1/catalog1/schema1/FLOOR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:64~1:69) /test/1/catalog1/schema1/FLOOR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_019_behavior_review]
+sql:
+SELECT GREAT(-1,1), GREAT(1.2,1.1), GREAT(NULL,1), GREAT(1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:25) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:51~1:56) /test/1/catalog1/schema1/GREAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_020_behavior_review]
+sql:
+SELECT GREATEST(1), GREATEST(1,2), GREATEST(1,2,3), GREATEST(NULL,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:28) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:43) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:60) /test/1/catalog1/schema1/GREATEST/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_021_behavior_review]
+sql:
+SELECT LEAST(1), LEAST(1,2), LEAST(1,2,3), LEAST(NULL,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:22) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:34) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:48) /test/1/catalog1/schema1/LEAST/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_022_behavior_review]
+sql:
+SELECT LN(0.5), LN(1), LN(2), LN(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:9) /test/1/catalog1/schema1/LN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:18) /test/1/catalog1/schema1/LN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:25) /test/1/catalog1/schema1/LN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:32) /test/1/catalog1/schema1/LN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_023_behavior_review]
+sql:
+SELECT LOG(0.5), LOG(1), LOG(2), LOG(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:28) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:36) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_024_behavior_review]
+sql:
+SELECT LOG(2,0.5), LOG(2,1), LOG(2,8), LOG(NULL,8), LOG(2,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:22) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:32) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:42) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:55) /test/1/catalog1/schema1/LOG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_025_behavior_review]
+sql:
+SELECT LOG10(0.5), LOG10(1), LOG10(10), LOG10(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/LOG10/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:24) /test/1/catalog1/schema1/LOG10/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:34) /test/1/catalog1/schema1/LOG10/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:45) /test/1/catalog1/schema1/LOG10/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_026_behavior_review]
+sql:
+SELECT MOD(7,3), MOD(-7,3), MOD(7,-3), MOD(7,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MOD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/MOD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:31) /test/1/catalog1/schema1/MOD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:42) /test/1/catalog1/schema1/MOD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_027_behavior_review]
+sql:
+SELECT MOD(7.5,2), MOD(NULL,2), MOD(7,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MOD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:22) /test/1/catalog1/schema1/MOD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/MOD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_028_behavior_review]
+sql:
+SELECT NANVL(1,2), NANVL(NULL,2), NANVL(1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/NANVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:24) /test/1/catalog1/schema1/NANVL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:39) /test/1/catalog1/schema1/NANVL/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_029_behavior_review]
+sql:
+SELECT PI();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:9) /test/1/catalog1/schema1/PI/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_030_behavior_review]
+sql:
+SELECT POWER(2,-2), POWER(2,0), POWER(2,3), POWER(NULL,2), POWER(2,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/POWER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:25) /test/1/catalog1/schema1/POWER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:37) /test/1/catalog1/schema1/POWER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:49) /test/1/catalog1/schema1/POWER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:64) /test/1/catalog1/schema1/POWER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_031_behavior_review]
+sql:
+SELECT POWER(-2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/POWER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_032_behavior_review]
+sql:
+SELECT POWER2(2,0), POWER2(2,3), POWER2(2,3.5), POWER2(NULL,2), POWER2(2,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/POWER2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:26) /test/1/catalog1/schema1/POWER2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:33~1:39) /test/1/catalog1/schema1/POWER2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:54) /test/1/catalog1/schema1/POWER2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:64~1:70) /test/1/catalog1/schema1/POWER2/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_033_behavior_review]
+sql:
+SELECT POWER2(-2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/POWER2/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_034_behavior_review]
+sql:
+SELECT RADIANS(-180), RADIANS(0), RADIANS(180), RADIANS(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/RADIANS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:29) /test/1/catalog1/schema1/RADIANS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:41) /test/1/catalog1/schema1/RADIANS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:55) /test/1/catalog1/schema1/RADIANS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_035_behavior_review]
+sql:
+SELECT RAND();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/RAND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_036_behavior_review]
+sql:
+SELECT RAND(0), RAND(314), RAND(-314), RAND(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/RAND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:20) /test/1/catalog1/schema1/RAND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:31) /test/1/catalog1/schema1/RAND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:43) /test/1/catalog1/schema1/RAND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_037_behavior_review]
+sql:
+SELECT REMAINDER(11,4), REMAINDER(-11,4), REMAINDER(11,-4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/REMAINDER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:33) /test/1/catalog1/schema1/REMAINDER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:42~1:51) /test/1/catalog1/schema1/REMAINDER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_038_behavior_review]
+sql:
+SELECT REMAINDER(NULL,4), REMAINDER(11,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/REMAINDER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:35) /test/1/catalog1/schema1/REMAINDER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_039_behavior_review]
+sql:
+SELECT ROUND(12.56), ROUND(-12.56), ROUND(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:21~1:26) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_040_behavior_review]
+sql:
+SELECT ROUND(12.56,1), ROUND(12.56,0), ROUND(12.56,-1), ROUND(12.56,1.9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:28) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:44) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:61) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_041_behavior_review]
+sql:
+SELECT ROUND(12.56,1,0), ROUND(12.56,1,1), ROUND(12.56,1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:30) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:48) /test/1/catalog1/schema1/ROUND/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_042_behavior_review]
+sql:
+SELECT SIGN(-1), SIGN(0), SIGN(1), SIGN(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/SIGN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/SIGN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:30) /test/1/catalog1/schema1/SIGN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/SIGN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_043_behavior_review]
+sql:
+SELECT SIN(-1), SIN(0), SIN(1), SIN(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/SIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:19) /test/1/catalog1/schema1/SIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:27) /test/1/catalog1/schema1/SIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/SIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_044_behavior_review]
+sql:
+SELECT SINH(-1), SINH(0), SINH(1), SINH(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/SINH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/SINH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:30) /test/1/catalog1/schema1/SINH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/SINH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_045_behavior_review]
+sql:
+SELECT SQRT(0), SQRT(4), SQRT(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/SQRT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:20) /test/1/catalog1/schema1/SQRT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:29) /test/1/catalog1/schema1/SQRT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_046_behavior_review]
+sql:
+SELECT TAN(-1), TAN(0), TAN(1), TAN(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/TAN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:19) /test/1/catalog1/schema1/TAN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:27) /test/1/catalog1/schema1/TAN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:32~1:35) /test/1/catalog1/schema1/TAN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_047_behavior_review]
+sql:
+SELECT TANH(-1), TANH(0), TANH(1), TANH(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/TANH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:21) /test/1/catalog1/schema1/TANH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:30) /test/1/catalog1/schema1/TANH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:35~1:39) /test/1/catalog1/schema1/TANH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_048_behavior_review]
+sql:
+SELECT TO_BINARY_DOUBLE(12), TO_BINARY_DOUBLE(12.34), TO_BINARY_DOUBLE(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/TO_BINARY_DOUBLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:29~1:45) /test/1/catalog1/schema1/TO_BINARY_DOUBLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:54~1:70) /test/1/catalog1/schema1/TO_BINARY_DOUBLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_049_behavior_review]
+sql:
+SELECT TO_BINARY_FLOAT(12), TO_BINARY_FLOAT(12.34), TO_BINARY_FLOAT(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/TO_BINARY_FLOAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:43) /test/1/catalog1/schema1/TO_BINARY_FLOAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:52~1:67) /test/1/catalog1/schema1/TO_BINARY_FLOAT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_050_behavior_review]
+sql:
+SELECT TO_CHAR(12.34), TO_CHAR(-12.34), TO_CHAR(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:30) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:47) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_051_behavior_review]
+sql:
+SELECT TO_CHAR(12.34,'FM999D99'), TO_CHAR(-12.34,'S999D99');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:34~1:41) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_052_behavior_review]
+sql:
+SELECT TO_CHAR(12.34,'999D99','NLS_NUMERIC_CHARACTERS = '',.''');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/TO_CHAR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_053_behavior_review]
+sql:
+SELECT TO_NUMBER('12.34'), TO_NUMBER('-12.34'), TO_NUMBER(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:36) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:48~1:57) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_054_behavior_review]
+sql:
+SELECT TO_NUMBER('12.34','999D99'), TO_NUMBER('-12.34','S999D99');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:45) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_055_behavior_review]
+sql:
+SELECT TO_NUMBER('12,34','999D99','NLS_NUMERIC_CHARACTERS = '',.''');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/TO_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_056_behavior_review]
+sql:
+SELECT TRUNC(12.56), TRUNC(-12.56), TRUNC(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:21~1:26) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_057_behavior_review]
+sql:
+SELECT TRUNC(12.56,1), TRUNC(12.56,0), TRUNC(12.56,-1), TRUNC(12.56,99);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:28) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:44) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:61) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_058_behavior_review]
+sql:
+SELECT TRUNC('-12.56',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/TRUNC/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_059_behavior_review]
+sql:
+SELECT TRUNCATE(12.56), TRUNCATE(-12.56), TRUNCATE(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/TRUNCATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:32) /test/1/catalog1/schema1/TRUNCATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:42~1:50) /test/1/catalog1/schema1/TRUNCATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_060_behavior_review]
+sql:
+SELECT TRUNCATE(12.56,1), TRUNCATE(12.56,0), TRUNCATE(12.56,-1), TRUNCATE(12.56,99);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/TRUNCATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:34) /test/1/catalog1/schema1/TRUNCATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:53) /test/1/catalog1/schema1/TRUNCATE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:65~1:73) /test/1/catalog1/schema1/TRUNCATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_061_behavior_review]
+sql:
+SELECT TRUNCATE('-12.56',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/TRUNCATE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_062_behavior_review]
+sql:
+SELECT FOUND_ROWS();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/FOUND_ROWS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_063_behavior_review]
+sql:
+SELECT CONV(10,10,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/CONV/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_numeric_function_signature_combinations_0_064_behavior_review]
+sql:
+SELECT FORMAT(1234.567,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/FORMAT/",
+      "action": "CALL"
+    }
+  ]
+}

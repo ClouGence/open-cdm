@@ -1,0 +1,12 @@
+[dbms_utility_argument_columns]
+sql:
+select NAME_VALUE, BASE_VALUE, HASH_SIZE_VALUE, LIST_VALUE, DDL_VALUE
+from catalog1.app.dbms_utility_payload
+expect:
+{
+  "NAME_VALUE": ["/catalog1/app/dbms_utility_payload/NAME_VALUE/"],
+  "BASE_VALUE": ["/catalog1/app/dbms_utility_payload/BASE_VALUE/"],
+  "HASH_SIZE_VALUE": ["/catalog1/app/dbms_utility_payload/HASH_SIZE_VALUE/"],
+  "LIST_VALUE": ["/catalog1/app/dbms_utility_payload/LIST_VALUE/"],
+  "DDL_VALUE": ["/catalog1/app/dbms_utility_payload/DDL_VALUE/"]
+}

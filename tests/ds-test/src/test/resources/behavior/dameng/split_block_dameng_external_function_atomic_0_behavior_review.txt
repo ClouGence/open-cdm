@@ -1,0 +1,1001 @@
+[split_block_dameng_external_function_atomic_0_001_behavior_review]
+sql:
+-- C_CURRENT_SCHEMA
+create function APP.C_ADD(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:25) /test/1/catalog1/APP/C_ADD/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_002_behavior_review]
+sql:
+-- C_OR_REPLACE
+create or replace function APP.C_REPLACE(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:27~2:40) /test/1/catalog1/APP/C_REPLACE/",
+      "action": "REPLACE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_003_behavior_review]
+sql:
+-- C_IF_NOT_EXISTS
+create function if not exists APP.C_IFNE(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:30~2:40) /test/1/catalog1/APP/C_IFNE/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_004_behavior_review]
+sql:
+-- C_OR_REPLACE_IF_NOT_EXISTS
+create or replace function if not exists APP.C_REPLACE_IFNE(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:41~2:59) /test/1/catalog1/APP/C_REPLACE_IFNE/",
+      "action": "REPLACE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_005_behavior_review]
+sql:
+-- C_EXPLICIT_IN
+create function APP.C_IN(A in int,B in int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:24) /test/1/catalog1/APP/C_IN/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_006_behavior_review]
+sql:
+-- C_OUT
+create function APP.C_OUT(A in int,B out int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_out" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:25) /test/1/catalog1/APP/C_OUT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_007_behavior_review]
+sql:
+-- C_IN_OUT
+create function APP.C_INOUT(A in int,B in out int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_out" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/C_INOUT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_008_behavior_review]
+sql:
+-- C_OUT_IN
+create function APP.C_OUTIN(A in int,B out in int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_out" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/C_OUTIN/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_009_behavior_review]
+sql:
+-- C_INPUT_PARAMETER_NAME
+create function APP.C_INPUT_NAME(INPUT int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:32) /test/1/catalog1/APP/C_INPUT_NAME/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_010_behavior_review]
+sql:
+-- C_ZERO_PARAMETERS
+create function APP.C_ZERO return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_null_safe" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:26) /test/1/catalog1/APP/C_ZERO/",
+      "action": "CREATE",
+      "target": "File(2:47~2:94) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_011_behavior_review]
+sql:
+-- C_EMPTY_PARAMETERS
+create function APP.C_EMPTY() return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_null_safe" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/C_EMPTY/",
+      "action": "CREATE",
+      "target": "File(2:50~2:97) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_012_behavior_review]
+sql:
+-- C_INT
+create function APP.C_INT(A int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_null_safe" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:25) /test/1/catalog1/APP/C_INT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_013_behavior_review]
+sql:
+-- C_DOUBLE
+create function APP.C_DOUBLE(A double) return double
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_double" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:28) /test/1/catalog1/APP/C_DOUBLE/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_014_behavior_review]
+sql:
+-- C_FLOAT
+create function APP.C_FLOAT(A float) return double
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_double" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/C_FLOAT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_015_behavior_review]
+sql:
+-- C_VARCHAR
+create function APP.C_VARCHAR(A varchar) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_length" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:29) /test/1/catalog1/APP/C_VARCHAR/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_016_behavior_review]
+sql:
+-- C_REFERENCE_OMITTED
+create function APP.C_DEFAULT_REF(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:33) /test/1/catalog1/APP/C_DEFAULT_REF/",
+      "action": "CREATE",
+      "target": "File(2:61~2:108) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_017_behavior_review]
+sql:
+-- C_REFERENCE_UNQUOTED
+create function APP.C_UNQUOTED(A int,B int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' dm8_c_add using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:30) /test/1/catalog1/APP/C_UNQUOTED/",
+      "action": "CREATE",
+      "target": "File(2:64~2:111) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_018_behavior_review]
+sql:
+-- C_REFERENCE_DOUBLE_QUOTED
+create function APP.C_QUOTED(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_structured.so' "dm8_c_add" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:28) /test/1/catalog1/APP/C_QUOTED/",
+      "action": "CREATE",
+      "target": "File(3:9~3:56) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_019_behavior_review]
+sql:
+-- C_REFERENCE_AND_STRING
+create function APP.C_LONG_REF(A int,B int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' and 'dm8_c_add' using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:30) /test/1/catalog1/APP/C_LONG_REF/",
+      "action": "CREATE",
+      "target": "File(2:64~2:111) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_020_behavior_review]
+sql:
+-- C_MISSING_FILE_DEFINITION
+create function APP.C_MISSING_FILE(A int) return int external '/opt/no-such.so' "missing" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:34) /test/1/catalog1/APP/C_MISSING_FILE/",
+      "action": "CREATE",
+      "target": "File(2:62~2:79) /test/1/opt/no-such.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_021_behavior_review]
+sql:
+-- C_MISSING_SYMBOL_DEFINITION
+create function APP.C_MISSING_SYMBOL(A int) return int external '/opt/dmdbms/bin/libdm8_external_structured.so' "missing" using c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:36) /test/1/catalog1/APP/C_MISSING_SYMBOL/",
+      "action": "CREATE",
+      "target": "File(2:64~2:111) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_022_behavior_review]
+sql:
+-- CS_INT
+create function APP.CS_INT(A int,B int) return int
+external '/opt/dmdbms/bin/libdm8_external_scalar.so' "dm8_cs_add" using cs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:26) /test/1/catalog1/APP/CS_INT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:52) /test/1/opt/dmdbms/bin/libdm8_external_scalar.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_023_behavior_review]
+sql:
+-- CS_DOUBLE
+create function APP.CS_DOUBLE(A double) return double
+external '/opt/dmdbms/bin/libdm8_external_scalar.so' "dm8_cs_double" using cs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:29) /test/1/catalog1/APP/CS_DOUBLE/",
+      "action": "CREATE",
+      "target": "File(3:9~3:52) /test/1/opt/dmdbms/bin/libdm8_external_scalar.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_024_behavior_review]
+sql:
+-- CS_VARCHAR
+create function APP.CS_VARCHAR(A varchar,B varchar) return varchar
+external '/opt/dmdbms/bin/libdm8_external_scalar.so' "dm8_cs_concat" using cs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:30) /test/1/catalog1/APP/CS_VARCHAR/",
+      "action": "CREATE",
+      "target": "File(3:9~3:52) /test/1/opt/dmdbms/bin/libdm8_external_scalar.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_025_behavior_review]
+sql:
+-- JAVA_INT
+create function APP.J_INT(A int,B int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:25) /test/1/catalog1/APP/J_INT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_026_behavior_review]
+sql:
+-- JAVA_CHAR
+create function APP.J_CHAR(A char) return varchar
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:26) /test/1/catalog1/APP/J_CHAR/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_027_behavior_review]
+sql:
+-- JAVA_VARCHAR
+create function APP.J_VARCHAR(A varchar) return varchar
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:29) /test/1/catalog1/APP/J_VARCHAR/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_028_behavior_review]
+sql:
+-- JAVA_VARCHAR2
+create function APP.J_VARCHAR2(A varchar2) return varchar2
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:30) /test/1/catalog1/APP/J_VARCHAR2/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_029_behavior_review]
+sql:
+-- JAVA_BIGINT
+create function APP.J_BIGINT(A bigint,B bigint) return bigint
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.addLong" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:28) /test/1/catalog1/APP/J_BIGINT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_030_behavior_review]
+sql:
+-- JAVA_DOUBLE
+create function APP.J_DOUBLE(A double) return double
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.doubleValue" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:28) /test/1/catalog1/APP/J_DOUBLE/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_031_behavior_review]
+sql:
+-- JAVA_FLOAT
+create function APP.J_FLOAT(A float) return double
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.doubleValue" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/J_FLOAT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_032_behavior_review]
+sql:
+-- JAVA_BINARY_FLOAT
+create function APP.J_BINARY_FLOAT(A binary_float) return double
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.doubleValue" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:34) /test/1/catalog1/APP/J_BINARY_FLOAT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_033_behavior_review]
+sql:
+-- JAVA_BINARY
+create function APP.J_BINARY(A binary) return varbinary
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.reverse" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:28) /test/1/catalog1/APP/J_BINARY/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_034_behavior_review]
+sql:
+-- JAVA_VARBINARY
+create function APP.J_VARBINARY(A varbinary) return varbinary
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.reverse" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:31) /test/1/catalog1/APP/J_VARBINARY/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_035_behavior_review]
+sql:
+-- JAVA_CLOB
+create function APP.J_CLOB(A clob) return clob
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:26) /test/1/catalog1/APP/J_CLOB/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_036_behavior_review]
+sql:
+-- JAVA_BLOB
+create function APP.J_BLOB(A blob) return blob
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.reverse" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:26) /test/1/catalog1/APP/J_BLOB/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_037_behavior_review]
+sql:
+-- JAVA_EXPLICIT_SIGNATURE
+create function APP.J_SIGNATURE(A int,B int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:31) /test/1/catalog1/APP/J_SIGNATURE/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_038_behavior_review]
+sql:
+-- JAVA_FULL_SIGNATURE
+create function APP.J_FULL_SIGNATURE(A varchar) return varchar
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.append(java.lang.String)" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:36) /test/1/catalog1/APP/J_FULL_SIGNATURE/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_039_behavior_review]
+sql:
+-- JAVA_SLASH_CLASS
+create function APP.J_SLASH(A int,B int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com/clougence/dm8/external/Dm8ExternalFunctions.add" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/J_SLASH/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_040_behavior_review]
+sql:
+-- JAVA_REFERENCE_OMITTED
+create function APP.J_NO_REF(A int) return int external '/opt/dmagent/resources/ap/dm8-external-functions.jar' using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:28) /test/1/catalog1/APP/J_NO_REF/",
+      "action": "CREATE",
+      "target": "File(2:56~2:110) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_041_behavior_review]
+sql:
+-- JAVA_LONG_REFERENCE_AND_STRING
+create function APP.J_LONG_REF(A varchar) return varchar external '/opt/dmagent/resources/ap/dm8-external-functions.jar' and 'com.clougence.dm8.external.Dm8ExternalFunctions.append(java.lang.String,java.lang.String,java.lang.String)' using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:30) /test/1/catalog1/APP/J_LONG_REF/",
+      "action": "CREATE",
+      "target": "File(2:66~2:120) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_042_behavior_review]
+sql:
+-- JAVA_EXPLICIT_IN
+create function APP.J_IN(A in int,B in int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:24) /test/1/catalog1/APP/J_IN/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_043_behavior_review]
+sql:
+-- JAVA_OUT
+create function APP.J_OUT(A out int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:25) /test/1/catalog1/APP/J_OUT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_044_behavior_review]
+sql:
+-- JAVA_IN_OUT
+create function APP.J_INOUT(A in out int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/J_INOUT/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_045_behavior_review]
+sql:
+-- JAVA_OUT_IN
+create function APP.J_OUTIN(A out in int) return int
+external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add(int,int)" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/J_OUTIN/",
+      "action": "CREATE",
+      "target": "File(3:9~3:63) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_046_behavior_review]
+sql:
+-- JAVA_ZERO_PARAMETERS
+create function APP.J_ZERO return int external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:26) /test/1/catalog1/APP/J_ZERO/",
+      "action": "CREATE",
+      "target": "File(2:47~2:101) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_047_behavior_review]
+sql:
+-- JAVA_EMPTY_PARAMETERS
+create function APP.J_EMPTY() return int external '/opt/dmagent/resources/ap/dm8-external-functions.jar' "com.clougence.dm8.external.Dm8ExternalFunctions.add" using java;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:27) /test/1/catalog1/APP/J_EMPTY/",
+      "action": "CREATE",
+      "target": "File(2:50~2:104) /test/1/opt/dmagent/resources/ap/dm8-external-functions.jar/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_048_behavior_review]
+sql:
+-- LIBRARY_CREATE
+create library APP.C_LIB as '/opt/dmdbms/bin/libdm8_external_structured.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(2:15~2:24) /test/1/catalog1/APP/C_LIB/",
+      "action": "CREATE",
+      "target": "File(2:28~2:75) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_049_behavior_review]
+sql:
+-- LIBRARY_OR_REPLACE
+create or replace library APP.C_LIB as '/opt/dmdbms/bin/libdm8_external_structured.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(2:26~2:35) /test/1/catalog1/APP/C_LIB/",
+      "action": "REPLACE",
+      "target": "File(2:39~2:86) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_050_behavior_review]
+sql:
+-- LIBRARY_IF_NOT_EXISTS
+create library if not exists APP.C_LIB as '/opt/dmdbms/bin/libdm8_external_structured.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(2:29~2:38) /test/1/catalog1/APP/C_LIB/",
+      "action": "CREATE",
+      "target": "File(2:42~2:89) /test/1/opt/dmdbms/bin/libdm8_external_structured.so/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_051_behavior_review]
+sql:
+-- C_USING_LIBRARY
+create function APP.C_LIBRARY(A int,B int) return int
+as language c library APP.C_LIB name "dm8_c_add";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:29) /test/1/catalog1/APP/C_LIBRARY/",
+      "action": "CREATE",
+      "target": "Library(3:22~3:31) /test/1/catalog1/APP/C_LIB/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_052_behavior_review]
+sql:
+-- CS_USING_LIBRARY
+create function APP.CS_LIBRARY(A int,B int) return int
+as language cs library APP.C_LIB name "dm8_cs_add";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(2:16~2:30) /test/1/catalog1/APP/CS_LIBRARY/",
+      "action": "CREATE",
+      "target": "Library(3:23~3:32) /test/1/catalog1/APP/C_LIB/"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_053_behavior_review]
+sql:
+-- ALTER_EXTERNAL
+alter function APP.C_ADD compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_PROG_OBJ": [
+    {
+      "subject": "Function(2:15~2:24) /test/1/catalog1/APP/C_ADD/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_054_behavior_review]
+sql:
+-- DROP_EXTERNAL
+drop function APP.C_ADD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(2:14~2:23) /test/1/catalog1/APP/C_ADD/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_055_behavior_review]
+sql:
+-- DROP_EXTERNAL_IF_EXISTS
+drop function if exists APP.C_ADD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(2:24~2:33) /test/1/catalog1/APP/C_ADD/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_056_behavior_review]
+sql:
+-- DROP_LIBRARY
+drop library APP.C_LIB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(2:13~2:22) /test/1/catalog1/APP/C_LIB/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_external_function_atomic_0_057_behavior_review]
+sql:
+-- DROP_LIBRARY_IF_EXISTS
+drop library if exists APP.C_LIB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(2:23~2:32) /test/1/catalog1/APP/C_LIB/",
+      "action": "DROP"
+    }
+  ]
+}

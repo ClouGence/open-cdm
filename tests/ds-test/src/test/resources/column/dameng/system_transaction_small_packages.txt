@@ -1,0 +1,16 @@
+[dbms_transaction_constant]
+sql:
+select dbms_transaction.local_transaction_id(false) as transaction_id from dual
+expect:
+{
+  "transaction_id": []
+}
+----------
+[dbms_transaction_column_lineage]
+sql:
+select dbms_transaction.local_transaction_id(t.create_transaction) as transaction_id
+from catalog1.app.transaction_options t
+expect:
+{
+  "transaction_id": ["/catalog1/app/transaction_options/create_transaction/"]
+}

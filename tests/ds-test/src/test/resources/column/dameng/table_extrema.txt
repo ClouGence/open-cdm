@@ -1,0 +1,26 @@
+[table_extrema_value_columns]
+sql:
+select id, value from catalog1.app.table_extrema
+expect:
+{
+  "id": ["/catalog1/app/table_extrema/id/"],
+  "value": ["/catalog1/app/table_extrema/value/"]
+}
+----------
+[table_extrema_dictionary_columns]
+sql:
+select table_name, column_name from catalog1.sys.user_tab_columns
+where table_name='TABLE_EXTREMA'
+expect:
+{
+  "table_name": ["/catalog1/sys/user_tab_columns/table_name/"],
+  "column_name": ["/catalog1/sys/user_tab_columns/column_name/"]
+}
+----------
+[table_extrema_ddl_has_no_lineage]
+sql:
+create table app.table_extrema(id int, value varchar(3000) default 'D');
+comment on table app.table_extrema is 'table boundary';
+comment on column app.table_extrema.value is 'column boundary'
+expect:
+{}

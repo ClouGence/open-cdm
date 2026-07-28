@@ -1,0 +1,231 @@
+[split_dcl_dameng_user_privileges_0_001_behavior_review]
+sql:
+grant create user, alter user, drop user to CODEX_DM8_USER_ADMIN with admin option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "User(1:13~1:17) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:44~1:64) /test/1/CODEX_DM8_USER_ADMIN/"
+    },
+    {
+      "subject": "User(1:25~1:29) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:44~1:64) /test/1/CODEX_DM8_USER_ADMIN/"
+    },
+    {
+      "subject": "User(1:36~1:40) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:44~1:64) /test/1/CODEX_DM8_USER_ADMIN/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_002_behavior_review]
+sql:
+grant create user to CODEX_DM8_USER_CREATOR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "User(1:13~1:17) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:21~1:43) /test/1/CODEX_DM8_USER_CREATOR/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_003_behavior_review]
+sql:
+grant alter user to CODEX_DM8_USER_ALTERER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "User(1:12~1:16) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:20~1:42) /test/1/CODEX_DM8_USER_ALTERER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_004_behavior_review]
+sql:
+grant drop user to CODEX_DM8_USER_DROPPER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "User(1:11~1:15) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:19~1:41) /test/1/CODEX_DM8_USER_DROPPER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_005_behavior_review]
+sql:
+grant create user, alter user, drop user to CODEX_DM8_USER_ROLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "User(1:13~1:17) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:44~1:63) /test/1/CODEX_DM8_USER_ROLE/"
+    },
+    {
+      "subject": "User(1:25~1:29) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:44~1:63) /test/1/CODEX_DM8_USER_ROLE/"
+    },
+    {
+      "subject": "User(1:36~1:40) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:44~1:63) /test/1/CODEX_DM8_USER_ROLE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_006_behavior_review]
+sql:
+grant create user to public;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "User(1:13~1:17) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:21~1:27) /test/1/public/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_007_behavior_review]
+sql:
+revoke admin option for create user, alter user, drop user from CODEX_DM8_USER_ADMIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "User(1:31~1:35) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:64~1:84) /test/1/CODEX_DM8_USER_ADMIN/"
+    },
+    {
+      "subject": "User(1:43~1:47) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:64~1:84) /test/1/CODEX_DM8_USER_ADMIN/"
+    },
+    {
+      "subject": "User(1:54~1:58) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:64~1:84) /test/1/CODEX_DM8_USER_ADMIN/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_008_behavior_review]
+sql:
+revoke create user from CODEX_DM8_USER_CREATOR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "User(1:14~1:18) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:24~1:46) /test/1/CODEX_DM8_USER_CREATOR/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_009_behavior_review]
+sql:
+revoke alter user from CODEX_DM8_USER_ALTERER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "User(1:13~1:17) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:23~1:45) /test/1/CODEX_DM8_USER_ALTERER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_010_behavior_review]
+sql:
+revoke drop user from CODEX_DM8_USER_DROPPER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "User(1:12~1:16) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:22~1:44) /test/1/CODEX_DM8_USER_DROPPER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_011_behavior_review]
+sql:
+revoke create user, alter user, drop user from CODEX_DM8_USER_ROLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "User(1:14~1:18) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:47~1:66) /test/1/CODEX_DM8_USER_ROLE/"
+    },
+    {
+      "subject": "User(1:26~1:30) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:47~1:66) /test/1/CODEX_DM8_USER_ROLE/"
+    },
+    {
+      "subject": "User(1:37~1:41) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:47~1:66) /test/1/CODEX_DM8_USER_ROLE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_user_privileges_0_012_behavior_review]
+sql:
+revoke create user from public;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "User(1:14~1:18) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:24~1:30) /test/1/public/"
+    }
+  ]
+}

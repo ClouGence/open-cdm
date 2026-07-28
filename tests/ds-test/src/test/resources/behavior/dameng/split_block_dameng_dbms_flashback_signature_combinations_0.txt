@@ -1,0 +1,240 @@
+[split_block_dameng_dbms_flashback_signature_combinations_0_001]
+sql:
+-- FUNC-0326 GET_SYSTEM_CHANGE_NUMBER block zero argument
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:15~5:54) /test/1/catalog1/DBMS_FLASHBACK/GET_SYSTEM_CHANGE_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_flashback_signature_combinations_0_002]
+sql:
+-- FUNC-0323 DISABLE zero argument idempotent call
+begin
+  DBMS_FLASHBACK.DISABLE;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:24) /test/1/catalog1/DBMS_FLASHBACK/DISABLE/",
+      "action": "CALL",
+      "target": "ConfigKey(3:2~3:24) /test/1/FLASHBACK/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_flashback_signature_combinations_0_003]
+sql:
+-- FUNC-0324 ENABLE_AT_SYSTEM_CHANGE_NUMBER current positional and disable
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+  DBMS_FLASHBACK.ENABLE_AT_SYSTEM_CHANGE_NUMBER(current_lsn);
+  DBMS_FLASHBACK.DISABLE;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(6:2~6:47) /test/1/catalog1/DBMS_FLASHBACK/ENABLE_AT_SYSTEM_CHANGE_NUMBER/",
+      "action": "CALL",
+      "target": "ConfigKey(6:2~6:47) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Procedure(7:2~7:24) /test/1/catalog1/DBMS_FLASHBACK/DISABLE/",
+      "action": "CALL",
+      "target": "ConfigKey(7:2~7:24) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Function(5:15~5:54) /test/1/catalog1/DBMS_FLASHBACK/GET_SYSTEM_CHANGE_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_flashback_signature_combinations_0_004]
+sql:
+-- FUNC-0324 ENABLE_AT_SYSTEM_CHANGE_NUMBER historical positional and query
+declare
+  snapshot_value varchar(30);
+begin
+  DBMS_FLASHBACK.ENABLE_AT_SYSTEM_CHANGE_NUMBER(
+    (select snapshot_lsn from CODEX_DBMS_FLASHBACK_CTL)
+  );
+  select value_text into snapshot_value
+  from CODEX_DBMS_FLASHBACK_BASE where id=1;
+  DBMS_FLASHBACK.DISABLE;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:47) /test/1/catalog1/DBMS_FLASHBACK/ENABLE_AT_SYSTEM_CHANGE_NUMBER/",
+      "action": "CALL",
+      "target": "ConfigKey(5:2~5:47) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Table(6:30~6:54) /test/1/catalog1/schema1/CODEX_DBMS_FLASHBACK_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(9:7~9:32) /test/1/catalog1/schema1/CODEX_DBMS_FLASHBACK_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(10:2~10:24) /test/1/catalog1/DBMS_FLASHBACK/DISABLE/",
+      "action": "CALL",
+      "target": "ConfigKey(10:2~10:24) /test/1/FLASHBACK/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_flashback_signature_combinations_0_005]
+sql:
+-- FUNC-0324 ENABLE_AT_SYSTEM_CHANGE_NUMBER named argument
+declare
+  current_lsn bigint;
+begin
+  current_lsn:=DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+  DBMS_FLASHBACK.ENABLE_AT_SYSTEM_CHANGE_NUMBER(QUERY_SCN=>current_lsn);
+  DBMS_FLASHBACK.DISABLE;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(6:2~6:47) /test/1/catalog1/DBMS_FLASHBACK/ENABLE_AT_SYSTEM_CHANGE_NUMBER/",
+      "action": "CALL",
+      "target": "ConfigKey(6:2~6:47) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Procedure(7:2~7:24) /test/1/catalog1/DBMS_FLASHBACK/DISABLE/",
+      "action": "CALL",
+      "target": "ConfigKey(7:2~7:24) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Function(5:15~5:54) /test/1/catalog1/DBMS_FLASHBACK/GET_SYSTEM_CHANGE_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_flashback_signature_combinations_0_006]
+sql:
+-- FUNC-0325 ENABLE_AT_TIME recent positional and disable
+begin
+  DBMS_FLASHBACK.ENABLE_AT_TIME(cast(sysdate - 1/86400 as timestamp));
+  DBMS_FLASHBACK.DISABLE;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:31) /test/1/catalog1/DBMS_FLASHBACK/ENABLE_AT_TIME/",
+      "action": "CALL",
+      "target": "ConfigKey(3:2~3:31) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Function(3:37~3:44) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(4:2~4:24) /test/1/catalog1/DBMS_FLASHBACK/DISABLE/",
+      "action": "CALL",
+      "target": "ConfigKey(4:2~4:24) /test/1/FLASHBACK/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_flashback_signature_combinations_0_007]
+sql:
+-- FUNC-0325 ENABLE_AT_TIME historical positional and query
+declare
+  snapshot_value varchar(30);
+begin
+  DBMS_FLASHBACK.ENABLE_AT_TIME(
+    (select snapshot_time from CODEX_DBMS_FLASHBACK_CTL)
+  );
+  select value_text into snapshot_value
+  from CODEX_DBMS_FLASHBACK_BASE where id=1;
+  DBMS_FLASHBACK.DISABLE;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(5:2~5:31) /test/1/catalog1/DBMS_FLASHBACK/ENABLE_AT_TIME/",
+      "action": "CALL",
+      "target": "ConfigKey(5:2~5:31) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Table(6:31~6:55) /test/1/catalog1/schema1/CODEX_DBMS_FLASHBACK_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(9:7~9:32) /test/1/catalog1/schema1/CODEX_DBMS_FLASHBACK_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(10:2~10:24) /test/1/catalog1/DBMS_FLASHBACK/DISABLE/",
+      "action": "CALL",
+      "target": "ConfigKey(10:2~10:24) /test/1/FLASHBACK/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_flashback_signature_combinations_0_008]
+sql:
+-- FUNC-0325 ENABLE_AT_TIME named argument
+begin
+  DBMS_FLASHBACK.ENABLE_AT_TIME(
+    QUERY_TIME=>cast(sysdate - 1/86400 as timestamp)
+  );
+  DBMS_FLASHBACK.DISABLE;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:31) /test/1/catalog1/DBMS_FLASHBACK/ENABLE_AT_TIME/",
+      "action": "CALL",
+      "target": "ConfigKey(3:2~3:31) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Function(4:21~4:28) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(6:2~6:24) /test/1/catalog1/DBMS_FLASHBACK/DISABLE/",
+      "action": "CALL",
+      "target": "ConfigKey(6:2~6:24) /test/1/FLASHBACK/"
+    }
+  ]
+}

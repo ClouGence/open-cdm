@@ -1,0 +1,13 @@
+[timezone_public_signatures]
+sql:
+select
+  from_tz(timestamp '2024-01-01 12:00:00','Asia/Hong_kong') as zoned_value,
+  tz_offset(dbtimezone) as offset_value,
+  sys_extract_utc(timestamp '2024-01-01 12:00:00 +08:00') as utc_value
+from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

@@ -1,0 +1,14 @@
+[create_external_function_has_no_result_columns]
+sql:
+create function app.c_add(a int,b int) return int
+external '/opt/libdm8_external.so' "dm8_c_add" using c;
+/
+expect:
+{}
+----------
+[library_has_no_result_columns]
+sql:
+create library app.c_lib as '/opt/libdm8_external.so';
+drop library if exists app.c_lib;
+expect:
+{}

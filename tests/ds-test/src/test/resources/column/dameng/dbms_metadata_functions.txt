@@ -1,0 +1,17 @@
+[dbms_metadata_argument_columns]
+sql:
+select OBJECT_TYPE, OBJECT_NAME, SCHEMA_NAME, HANDLE_VALUE, FILTER_NAME,
+       FILTER_VALUE, OBJECT_COUNT, TRANSFORM_NAME, TRANSFORM_VALUE
+from catalog1.app.dbms_metadata_payload
+expect:
+{
+  "OBJECT_TYPE": ["/catalog1/app/dbms_metadata_payload/OBJECT_TYPE/"],
+  "OBJECT_NAME": ["/catalog1/app/dbms_metadata_payload/OBJECT_NAME/"],
+  "SCHEMA_NAME": ["/catalog1/app/dbms_metadata_payload/SCHEMA_NAME/"],
+  "HANDLE_VALUE": ["/catalog1/app/dbms_metadata_payload/HANDLE_VALUE/"],
+  "FILTER_NAME": ["/catalog1/app/dbms_metadata_payload/FILTER_NAME/"],
+  "FILTER_VALUE": ["/catalog1/app/dbms_metadata_payload/FILTER_VALUE/"],
+  "OBJECT_COUNT": ["/catalog1/app/dbms_metadata_payload/OBJECT_COUNT/"],
+  "TRANSFORM_NAME": ["/catalog1/app/dbms_metadata_payload/TRANSFORM_NAME/"],
+  "TRANSFORM_VALUE": ["/catalog1/app/dbms_metadata_payload/TRANSFORM_VALUE/"]
+}

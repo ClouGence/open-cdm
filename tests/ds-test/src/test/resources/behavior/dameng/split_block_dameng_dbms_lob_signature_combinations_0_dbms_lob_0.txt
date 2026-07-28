@@ -1,0 +1,1715 @@
+[split_block_dameng_dbms_lob_signature_combinations_0_001]
+sql:
+-- FUNC-0538 APPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.APPEND(LOB_LOC=>b1,LOB_SRC=>b2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:72) /test/1/catalog1/DBMS_LOB/APPEND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_002]
+sql:
+-- FUNC-0539 APPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.APPEND(LOB_LOC=>c1,LOB_SRC=>c2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:72) /test/1/catalog1/DBMS_LOB/APPEND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_003]
+sql:
+-- FUNC-0540 CLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CLOSE(LOB_LOC=>b1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:71) /test/1/catalog1/DBMS_LOB/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_004]
+sql:
+-- FUNC-0541 CLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CLOSE(LOB_LOC=>c1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:71) /test/1/catalog1/DBMS_LOB/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_005]
+sql:
+-- FUNC-0542 CLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CLOSE(FIL_LOC=>f); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:71) /test/1/catalog1/DBMS_LOB/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_006]
+sql:
+-- FUNC-0543 COMPARE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.COMPARE(LOB_1=>b1,LOB_2=>b2,AMOUNT=>4,OFFSET_1=>1,OFFSET_2=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:76) /test/1/catalog1/DBMS_LOB/COMPARE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_007]
+sql:
+-- FUNC-0544 COMPARE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.COMPARE(LOB_1=>c1,LOB_2=>c2,AMOUNT=>4,OFFSET_1=>1,OFFSET_2=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:76) /test/1/catalog1/DBMS_LOB/COMPARE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_008]
+sql:
+-- FUNC-0545 COMPARE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.COMPARE(LOB_1=>f,LOB_2=>f,AMOUNT=>4,OFFSET_1=>1,OFFSET_2=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:76) /test/1/catalog1/DBMS_LOB/COMPARE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_009]
+sql:
+-- FUNC-0546 CONVERTTOBLOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CONVERTTOBLOB(DEST_LOB=>b1,SRC_CLOB=>c1,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2,BLOB_CSID=>0,LANG_CONTEXT=>lang,WARNING=>warning); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:79) /test/1/catalog1/DBMS_LOB/CONVERTTOBLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_010]
+sql:
+-- FUNC-0547 CONVERTTOCLOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CONVERTTOCLOB(DEST_LOB=>c1,SRC_BLOB=>b1,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2,BLOB_CSID=>0,LANG_CONTEXT=>lang,WARNING=>warning); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:79) /test/1/catalog1/DBMS_LOB/CONVERTTOCLOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_011]
+sql:
+-- FUNC-0548 COPY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.COPY(DEST_LOB=>b1,SRC_LOB=>b2,AMOUNT=>4,DEST_OFFSET=>1,SRC_OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/COPY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_012]
+sql:
+-- FUNC-0549 COPY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.COPY(DEST_LOB=>c1,SRC_LOB=>c2,AMOUNT=>4,DEST_OFFSET=>1,SRC_OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/COPY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_013]
+sql:
+-- FUNC-0550 CREATETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CREATETEMPORARY(LOB_LOC=>b1,CACHE=>TRUE,DUR=>DBMS_LOB.SESSION); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:81) /test/1/catalog1/DBMS_LOB/CREATETEMPORARY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_014]
+sql:
+-- FUNC-0551 CREATETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.CREATETEMPORARY(LOB_LOC=>c1,CACHE=>TRUE,DUR=>DBMS_LOB.SESSION); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:81) /test/1/catalog1/DBMS_LOB/CREATETEMPORARY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_015]
+sql:
+-- FUNC-0552 ERASE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.ERASE(LOB_LOC=>b1,AMOUNT=>amt,OFFSET=>2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:71) /test/1/catalog1/DBMS_LOB/ERASE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_016]
+sql:
+-- FUNC-0553 ERASE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.ERASE(LOB_LOC=>c1,AMOUNT=>amt,OFFSET=>2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:71) /test/1/catalog1/DBMS_LOB/ERASE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_017]
+sql:
+-- FUNC-0554 FILECLOSE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILECLOSE(FIL_LOC=>f); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:75) /test/1/catalog1/DBMS_LOB/FILECLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_018]
+sql:
+-- FUNC-0555 FILECLOSEALL
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILECLOSEALL(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:78) /test/1/catalog1/DBMS_LOB/FILECLOSEALL/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_019]
+sql:
+-- FUNC-0556 FILEEXISTS
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.FILEEXISTS(FILE_LOC=>f); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:79) /test/1/catalog1/DBMS_LOB/FILEEXISTS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_020]
+sql:
+-- FUNC-0557 FILEGETNAME
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILEGETNAME(FILE_LOC=>f,DIR_ALIAS=>dir_name,FILENAME=>file_name); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:77) /test/1/catalog1/DBMS_LOB/FILEGETNAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_021]
+sql:
+-- FUNC-0558 FILEISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.FILEISOPEN(FILE_LOC=>f); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:79) /test/1/catalog1/DBMS_LOB/FILEISOPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_022]
+sql:
+-- FUNC-0559 FILEOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FILEOPEN(FILE_LOC=>f,OPEN_MODE=>DBMS_LOB.FILE_READONLY); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:74) /test/1/catalog1/DBMS_LOB/FILEOPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_023]
+sql:
+-- FUNC-0560 FRAGMENT_DELETE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_DELETE(LOB_LOC=>b1,AMOUNT=>2,OFFSET=>2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:81) /test/1/catalog1/DBMS_LOB/FRAGMENT_DELETE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_024]
+sql:
+-- FUNC-0561 FRAGMENT_DELETE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_DELETE(LOB_LOC=>c1,AMOUNT=>2,OFFSET=>2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:81) /test/1/catalog1/DBMS_LOB/FRAGMENT_DELETE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_025]
+sql:
+-- FUNC-0562 FRAGMENT_INSERT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_INSERT(LOB_LOC=>b1,AMOUNT=>2,OFFSET=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:81) /test/1/catalog1/DBMS_LOB/FRAGMENT_INSERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_026]
+sql:
+-- FUNC-0563 FRAGMENT_INSERT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_INSERT(LOB_LOC=>c1,AMOUNT=>2,OFFSET=>2,BUFFER=>'XY'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:81) /test/1/catalog1/DBMS_LOB/FRAGMENT_INSERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_027]
+sql:
+-- FUNC-0564 FRAGMENT_MOVE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_MOVE(LOB_LOC=>b1,AMOUNT=>1,SRC_OFFSET=>1,DEST_OFFSET=>3); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:79) /test/1/catalog1/DBMS_LOB/FRAGMENT_MOVE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_028]
+sql:
+-- FUNC-0565 FRAGMENT_MOVE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_MOVE(LOB_LOC=>c1,AMOUNT=>1,SRC_OFFSET=>1,DEST_OFFSET=>3); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:79) /test/1/catalog1/DBMS_LOB/FRAGMENT_MOVE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_029]
+sql:
+-- FUNC-0566 FRAGMENT_REPLACE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_REPLACE(LOB_LOC=>b1,OLD_AMOUNT=>2,NEW_AMOUNT=>2,OFFSET=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:82) /test/1/catalog1/DBMS_LOB/FRAGMENT_REPLACE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_030]
+sql:
+-- FUNC-0567 FRAGMENT_REPLACE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FRAGMENT_REPLACE(LOB_LOC=>c1,OLD_AMOUNT=>2,NEW_AMOUNT=>2,OFFSET=>2,BUFFER=>'XY'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:82) /test/1/catalog1/DBMS_LOB/FRAGMENT_REPLACE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_031]
+sql:
+-- FUNC-0568 FREETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FREETEMPORARY(LOB_LOC=>b1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:79) /test/1/catalog1/DBMS_LOB/FREETEMPORARY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_032]
+sql:
+-- FUNC-0569 FREETEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.FREETEMPORARY(LOB_LOC=>c1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:79) /test/1/catalog1/DBMS_LOB/FREETEMPORARY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_033]
+sql:
+-- FUNC-0570 GET_STORAGE_LIMIT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GET_STORAGE_LIMIT(LOB_LOC=>b1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:86) /test/1/catalog1/DBMS_LOB/GET_STORAGE_LIMIT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_034]
+sql:
+-- FUNC-0571 GET_STORAGE_LIMIT
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GET_STORAGE_LIMIT(LOB_LOC=>c1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:86) /test/1/catalog1/DBMS_LOB/GET_STORAGE_LIMIT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_035]
+sql:
+-- FUNC-0572 GETCHUNKSIZE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.GETCHUNKSIZE(LOB_LOC=>b1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:81) /test/1/catalog1/DBMS_LOB/GETCHUNKSIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_036]
+sql:
+-- FUNC-0573 GETCHUNKSIZE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.GETCHUNKSIZE(LOB_LOC=>c1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:81) /test/1/catalog1/DBMS_LOB/GETCHUNKSIZE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_037]
+sql:
+-- FUNC-0574 GETLENGTH
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GETLENGTH(LOB_1=>b1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:78) /test/1/catalog1/DBMS_LOB/GETLENGTH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_038]
+sql:
+-- FUNC-0575 GETLENGTH
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GETLENGTH(LOB_1=>c1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:78) /test/1/catalog1/DBMS_LOB/GETLENGTH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_039]
+sql:
+-- FUNC-0576 GETLENGTH
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.GETLENGTH(FILE_LOC=>f); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:78) /test/1/catalog1/DBMS_LOB/GETLENGTH/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_040]
+sql:
+-- FUNC-0577 INSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.INSTR(LOB_LOC=>b1,PATTERN=>CAST('4142' AS VARBINARY(8)),OFFSET=>1,NTH=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:74) /test/1/catalog1/DBMS_LOB/INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_041]
+sql:
+-- FUNC-0578 INSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin n:=DBMS_LOB.INSTR(LOB_LOC=>c1,PATTERN=>'AB',OFFSET=>1,NTH=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:74) /test/1/catalog1/DBMS_LOB/INSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_042]
+sql:
+-- FUNC-0579 ISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISOPEN(LOB_LOC=>b1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:75) /test/1/catalog1/DBMS_LOB/ISOPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_043]
+sql:
+-- FUNC-0580 ISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISOPEN(LOB_LOC=>c1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:75) /test/1/catalog1/DBMS_LOB/ISOPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_044]
+sql:
+-- FUNC-0581 ISOPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISOPEN(FILE_LOC=>f); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:75) /test/1/catalog1/DBMS_LOB/ISOPEN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_045]
+sql:
+-- FUNC-0582 ISTEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISTEMPORARY(LOB_LOC=>b1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:80) /test/1/catalog1/DBMS_LOB/ISTEMPORARY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_046]
+sql:
+-- FUNC-0583 ISTEMPORARY
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin i:=DBMS_LOB.ISTEMPORARY(LOB_LOC=>c1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:60~8:80) /test/1/catalog1/DBMS_LOB/ISTEMPORARY/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_047]
+sql:
+-- FUNC-0584 LOADBLOBFROMFILE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.LOADBLOBFROMFILE(DEST_LOB=>b1,SRC_BFILE=>f,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:82) /test/1/catalog1/DBMS_LOB/LOADBLOBFROMFILE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_048]
+sql:
+-- FUNC-0585 LOADCLOBFROMFILE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.LOADCLOBFROMFILE(DEST_LOB=>c1,SRC_BFILE=>f,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2,BFILE_CSID=>0,LANG_CONTEXT=>lang,WARNING=>warning); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:82) /test/1/catalog1/DBMS_LOB/LOADCLOBFROMFILE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_049]
+sql:
+-- FUNC-0586 LOADFROMFILE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.LOADFROMFILE(DEST_LOB=>b1,SRC_FILE=>f,AMOUNT=>4,DEST_OFFSET=>off1,SRC_OFFSET=>off2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:78) /test/1/catalog1/DBMS_LOB/LOADFROMFILE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_050]
+sql:
+-- FUNC-0587 OPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.OPEN(LOB_LOC=>b1,OPEN_MODE=>DBMS_LOB.LOB_READWRITE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_051]
+sql:
+-- FUNC-0588 OPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.OPEN(LOB_LOC=>c1,OPEN_MODE=>DBMS_LOB.LOB_READWRITE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_052]
+sql:
+-- FUNC-0589 OPEN
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.OPEN(FILE_LOC=>f,OPEN_MODE=>DBMS_LOB.FILE_READONLY); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_053]
+sql:
+-- FUNC-0590 READ
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.READ(LOB_LOC=>b1,AMOUNT=>read_amount,OFFSET=>1,BUFFER=>vb); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/READ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_054]
+sql:
+-- FUNC-0591 READ
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.READ(LOB_LOC=>c1,AMOUNT=>read_amount,OFFSET=>1,BUFFER=>vc); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/READ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_055]
+sql:
+-- FUNC-0592 READ
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.READ(FILE_LOC=>f,AMOUNT=>read_amount,OFFSET=>1,BUFFER=>vb); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/READ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_056]
+sql:
+-- FUNC-0593 SUBSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin vb:=DBMS_LOB.SUBSTR(LOB_LOC=>b1,AMOUNT=>4,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:61~8:76) /test/1/catalog1/DBMS_LOB/SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_057]
+sql:
+-- FUNC-0594 SUBSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin vc:=DBMS_LOB.SUBSTR(LOB_LOC=>c1,AMOUNT=>4,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:61~8:76) /test/1/catalog1/DBMS_LOB/SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_058]
+sql:
+-- FUNC-0595 SUBSTR
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin vb:=DBMS_LOB.SUBSTR(FILE_LOC=>f,AMOUNT=>4,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(8:61~8:76) /test/1/catalog1/DBMS_LOB/SUBSTR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_059]
+sql:
+-- FUNC-0596 TRIM
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM(LOB_LOC=>b1,NEWLEN=>2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/TRIM/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_060]
+sql:
+-- FUNC-0597 TRIM
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM(LOB_LOC=>c1,NEWLEN=>2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:70) /test/1/catalog1/DBMS_LOB/TRIM/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_061]
+sql:
+-- FUNC-0598 TRIM_LOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM_LOB(LOB_LOC=>b1,NEWLEN=>2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:74) /test/1/catalog1/DBMS_LOB/TRIM_LOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_062]
+sql:
+-- FUNC-0599 TRIM_LOB
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.TRIM_LOB(LOB_LOC=>c1,NEWLEN=>2); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:74) /test/1/catalog1/DBMS_LOB/TRIM_LOB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_063]
+sql:
+-- FUNC-0600 WRITE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITE(LOB_LOC=>b1,AMOUNT=>2,OFFSET=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:71) /test/1/catalog1/DBMS_LOB/WRITE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_064]
+sql:
+-- FUNC-0601 WRITE
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITE(LOB_LOC=>c1,AMOUNT=>2,OFFSET=>2,BUFFER=>'XY'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:71) /test/1/catalog1/DBMS_LOB/WRITE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_065]
+sql:
+-- FUNC-0602 WRITEAPPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITEAPPEND(LOB_LOC=>b1,AMOUNT=>2,BUFFER=>CAST('5859' AS VARBINARY(8))); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:77) /test/1/catalog1/DBMS_LOB/WRITEAPPEND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_lob_signature_combinations_0_066]
+sql:
+-- FUNC-0603 WRITEAPPEND
+declare
+  b1 blob; b2 blob; c1 clob; c2 clob;
+  f bfile:=BFILENAME('CODEX_LOB_SIG_DIR','dm.ini');
+  amt bigint:=2; off1 bigint:=1; off2 bigint:=1; n bigint;
+  lang integer:=0; warning integer; i integer; read_amount integer:=4;
+  vb varbinary(32767); vc varchar2(32767);
+  dir_name varchar2(128); file_name varchar2(256); begin DBMS_LOB.WRITEAPPEND(LOB_LOC=>c1,AMOUNT=>2,BUFFER=>'XY'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:57~8:77) /test/1/catalog1/DBMS_LOB/WRITEAPPEND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:11~4:20) /test/1/catalog1/schema1/BFILENAME/",
+      "action": "CALL"
+    }
+  ]
+}

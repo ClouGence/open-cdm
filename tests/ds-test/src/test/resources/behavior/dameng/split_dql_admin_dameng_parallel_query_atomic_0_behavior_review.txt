@@ -1,0 +1,625 @@
+[split_dql_admin_dameng_parallel_query_atomic_0_001_behavior_review]
+sql:
+-- CASE_001
+ALTER SESSION SET 'MAX_PARALLEL_DEGREE'=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(2:18~2:39) /test/1/MAX_PARALLEL_DEGREE/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_002_behavior_review]
+sql:
+-- CASE_002
+ALTER SESSION ENABLE PARALLEL DML;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(2:21~2:33) /test/1/PARALLEL_DML/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_003_behavior_review]
+sql:
+-- CASE_003
+SELECT /*+ PARALLEL(4) */ COUNT(*) FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:26~2:31) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:40~2:74) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_004_behavior_review]
+sql:
+-- CASE_004
+SELECT /*+ PARALLEL(T_BASE 4) */ GROUP_ID, COUNT(*)
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE GROUP BY GROUP_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:43~2:48) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_005_behavior_review]
+sql:
+-- CASE_005
+SELECT /*+ PARALLEL(B 4) */ B.ID
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE B WHERE B.ID <= 3 ORDER BY B.ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_006_behavior_review]
+sql:
+-- CASE_006
+SELECT /*+ PARALLEL(1) */ COUNT(*) FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:26~2:31) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:40~2:74) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_007_behavior_review]
+sql:
+-- CASE_007
+SELECT /*+ PARALLEL(128) */ COUNT(*) FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:28~2:33) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:42~2:76) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_008_behavior_review]
+sql:
+-- CASE_008
+SELECT /*+ PARALLEL(1) */ /*+ PARALLEL(4) */ COUNT(*)
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:45~2:50) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_009_behavior_review]
+sql:
+-- CASE_009
+SELECT /*+ PARALLEL(T_PART 4) */ COUNT(*)
+FROM CODEX_DM8_PARQUERY_20260727.T_PART PARTITION(P2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:33~2:38) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Partition(3:50~3:52) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_PART/P2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_010_behavior_review]
+sql:
+-- CASE_010
+SELECT /*+ PARALLEL(T_PART 4) */ D.LABEL, COUNT(*)
+FROM CODEX_DM8_PARQUERY_20260727.T_PART T_PART
+JOIN CODEX_DM8_PARQUERY_20260727.T_DIM D ON D.GROUP_ID=T_PART.GROUP_ID
+GROUP BY D.LABEL ORDER BY D.LABEL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:42~2:47) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_PART/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:5~4:38) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_DIM/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_011_behavior_review]
+sql:
+-- CASE_011
+WITH Q AS (
+  SELECT /*+ PARALLEL(4) */ GROUP_ID, COUNT(*) C
+  FROM CODEX_DM8_PARQUERY_20260727.T_PART GROUP BY GROUP_ID
+) SELECT /*+ PARALLEL(2) */ SUM(C) FROM Q;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:38~3:43) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(5:28~5:31) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(4:7~4:41) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_PART/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_012_behavior_review]
+sql:
+-- CASE_012
+SELECT /*+ PARALLEL(4) */ *
+FROM (
+  SELECT GROUP_ID, COUNT(*) C
+  FROM CODEX_DM8_PARQUERY_20260727.T_BASE GROUP BY GROUP_ID
+) Q ORDER BY GROUP_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(4:19~4:24) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(5:7~5:41) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_013_behavior_review]
+sql:
+-- CASE_013
+SELECT /*+ PARALLEL(4) */ ID FROM CODEX_DM8_PARQUERY_20260727.T_BASE WHERE ID <= 2
+UNION ALL
+SELECT /*+ PARALLEL(2) */ ID FROM CODEX_DM8_PARQUERY_20260727.T_PART WHERE ID <= 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:34~2:68) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(4:34~4:68) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_PART/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_014_behavior_review]
+sql:
+-- CASE_014
+SELECT /*+ PARALLEL(4) */ ID,
+       ROW_NUMBER() OVER(PARTITION BY GROUP_ID ORDER BY ID) RN
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE WHERE ID <= 20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(3:7~3:17) /test/1/catalog1/schema1/ROW_NUMBER/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(4:5~4:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_015_behavior_review]
+sql:
+-- CASE_015
+SELECT /*+ PARALLEL(4) */ B.ID,
+       (SELECT D.LABEL FROM CODEX_DM8_PARQUERY_20260727.T_DIM D
+        WHERE D.GROUP_ID=B.GROUP_ID) LABEL
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE B WHERE B.ID <= 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:28~3:61) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_DIM/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(5:5~5:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_016_behavior_review]
+sql:
+-- CASE_016
+SELECT /*+ PARALLEL(4) */ B.ID
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE B
+WHERE B.ID <= 3
+  AND EXISTS (SELECT 1 FROM CODEX_DM8_PARQUERY_20260727.T_DIM D
+              WHERE D.GROUP_ID=B.GROUP_ID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(5:28~5:61) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_DIM/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_017_behavior_review]
+sql:
+-- CASE_017
+SELECT /*+ PARALLEL(4) */ DISTINCT GROUP_ID
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE ORDER BY GROUP_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_018_behavior_review]
+sql:
+-- CASE_018
+SELECT /*+ PARALLEL(4) */ GROUP_ID, SUM(ID)
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE
+GROUP BY GROUP_ID HAVING SUM(ID)>0 ORDER BY GROUP_ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:36~2:39) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(4:25~4:28) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_019_behavior_review]
+sql:
+-- CASE_019
+ALTER SESSION DISABLE PARALLEL DML;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(2:22~2:34) /test/1/PARALLEL_DML/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_020_behavior_review]
+sql:
+-- CASE_020
+ALTER SESSION ENABLE PARALLEL QUERY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(2:21~2:35) /test/1/PARALLEL_QUERY/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_021_behavior_review]
+sql:
+-- CASE_021
+ALTER SESSION DISABLE PARALLEL QUERY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(2:22~2:36) /test/1/PARALLEL_QUERY/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_022_behavior_review]
+sql:
+-- CASE_022
+ALTER SESSION ENABLE PARALLEL DDL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(2:21~2:33) /test/1/PARALLEL_DDL/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_023_behavior_review]
+sql:
+-- CASE_023
+ALTER SESSION DISABLE PARALLEL DDL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(2:22~2:34) /test/1/PARALLEL_DDL/",
+      "action" : "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_024_behavior_review]
+sql:
+-- SEMANTIC_CASE_001_NEGATIVE_DEGREE_IGNORED
+SELECT /*+ PARALLEL(-1) */ COUNT(*) FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:27~2:32) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:41~2:75) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_025_behavior_review]
+sql:
+-- SEMANTIC_CASE_002_ABOVE_MAX_IGNORED
+SELECT /*+ PARALLEL(129) */ COUNT(*) FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:28~2:33) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:42~2:76) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_026_behavior_review]
+sql:
+-- SEMANTIC_CASE_003_DECIMAL_IGNORED
+SELECT /*+ PARALLEL(2.5) */ COUNT(*) FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:28~2:33) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:42~2:76) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_027_behavior_review]
+sql:
+-- SEMANTIC_CASE_004_STRING_IGNORED
+SELECT /*+ PARALLEL('4') */ COUNT(*) FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:28~2:33) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:42~2:76) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_028_behavior_review]
+sql:
+-- SEMANTIC_CASE_005_EMPTY_IGNORED
+SELECT /*+ PARALLEL() */ COUNT(*) FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:25~2:30) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:39~2:73) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_029_behavior_review]
+sql:
+-- SEMANTIC_CASE_006_NO_ARGUMENT_IGNORED
+SELECT /*+ PARALLEL */ COUNT(*) FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:23~2:28) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:37~2:71) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_030_behavior_review]
+sql:
+-- SEMANTIC_CASE_007_UNKNOWN_TABLE_IGNORED
+SELECT /*+ PARALLEL(NO_SUCH_TABLE 4) */ COUNT(*)
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:40~2:45) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_parallel_query_atomic_0_031_behavior_review]
+sql:
+-- SEMANTIC_CASE_008_EXTRA_ARGUMENT_IGNORED
+SELECT /*+ PARALLEL(T_BASE 4 5) */ COUNT(*)
+FROM CODEX_DM8_PARQUERY_20260727.T_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:35~2:40) /test/1/catalog1/schema1/COUNT/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:5~3:39) /test/1/catalog1/CODEX_DM8_PARQUERY_20260727/T_BASE/",
+      "action" : "READ"
+    }
+  ]
+}

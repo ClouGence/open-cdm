@@ -1,0 +1,13 @@
+[ddl]
+sql:
+create table app.tz_t(id int,ts timestamp(9) with time zone);
+create view app.tz_v as select id,ts from app.tz_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"tz_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"tz_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"tz_t"}]}
+----------
+[dml]
+sql:
+insert into app.tz_t values(1,timestamp '2026-07-23 10:00:00 +08:00');
+update app.tz_t set ts=current_timestamp where id=1;delete from app.tz_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"tz_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"tz_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"tz_t"}]}

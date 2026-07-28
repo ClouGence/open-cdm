@@ -1,0 +1,499 @@
+[split_dcl_dameng_schema_privileges_0_behavior_review_001]
+sql:
+create user CODEX_DM8_SCHEMA_CREATOR_20260722 identified by "Dm8Schema2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:45) /test/1/CODEX_DM8_SCHEMA_CREATOR_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_002]
+sql:
+create user CODEX_DM8_SCHEMA_DROPPER_20260722 identified by "Dm8Schema2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:45) /test/1/CODEX_DM8_SCHEMA_DROPPER_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_003]
+sql:
+create user CODEX_DM8_SCHEMA_OTHER_20260722 identified by "Dm8Schema2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:43) /test/1/CODEX_DM8_SCHEMA_OTHER_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_004]
+sql:
+grant create schema to CODEX_DM8_SCHEMA_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:13~1:19) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:23~1:56) /test/1/CODEX_DM8_SCHEMA_CREATOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_005]
+sql:
+grant dba to CODEX_DM8_SCHEMA_DROPPER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:46) /test/1/CODEX_DM8_SCHEMA_DROPPER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_006]
+sql:
+create schema CODEX_DM8_SCHEMA_DROP_TARGET_20260722 authorization SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:51) /test/1/catalog1/CODEX_DM8_SCHEMA_DROP_TARGET_20260722/",
+      "action": "CREATE",
+      "target": "User(1:66~1:72) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_007]
+sql:
+create schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722 authorization SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:52) /test/1/catalog1/CODEX_DM8_SCHEMA_OTHER_TARGET_20260722/",
+      "action": "CREATE",
+      "target": "User(1:67~1:73) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_008]
+sql:
+create schema CODEX_DM8_SCHEMA_BY_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:50) /test/1/catalog1/CODEX_DM8_SCHEMA_BY_CREATOR_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_009]
+sql:
+set schema CODEX_DM8_SCHEMA_BY_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:47) /test/1/catalog1/CODEX_DM8_SCHEMA_BY_CREATOR_20260722/",
+      "action": "SWITCH"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_010]
+sql:
+select sys_context('USERENV','CURRENT_SCHEMA') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:29~1:45) /test/1/USERENV/CURRENT_SCHEMA/"
+    },
+    {
+      "subject": "View(1:52~1:56) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_011]
+sql:
+set schema CODEX_DM8_SCHEMA_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:44) /test/1/catalog1/CODEX_DM8_SCHEMA_CREATOR_20260722/",
+      "action": "SWITCH"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_012]
+sql:
+drop schema CODEX_DM8_SCHEMA_BY_CREATOR_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:48) /test/1/catalog1/CODEX_DM8_SCHEMA_BY_CREATOR_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_013]
+sql:
+drop schema CODEX_DM8_SCHEMA_DROP_TARGET_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:49) /test/1/catalog1/CODEX_DM8_SCHEMA_DROP_TARGET_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_014]
+sql:
+set schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:49) /test/1/catalog1/CODEX_DM8_SCHEMA_OTHER_TARGET_20260722/",
+      "action": "SWITCH"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_015]
+sql:
+select sys_context('USERENV','CURRENT_SCHEMA') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:29~1:45) /test/1/USERENV/CURRENT_SCHEMA/"
+    },
+    {
+      "subject": "View(1:52~1:56) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_016]
+sql:
+drop schema if exists CODEX_DM8_SCHEMA_BY_CREATOR_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:58) /test/1/catalog1/CODEX_DM8_SCHEMA_BY_CREATOR_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_017]
+sql:
+drop schema if exists CODEX_DM8_SCHEMA_OTHER_OWNER_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:59) /test/1/catalog1/CODEX_DM8_SCHEMA_OTHER_OWNER_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_018]
+sql:
+drop schema if exists CODEX_DM8_SCHEMA_DENIED_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:54) /test/1/catalog1/CODEX_DM8_SCHEMA_DENIED_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_019]
+sql:
+drop schema if exists CODEX_DM8_SCHEMA_DROP_TARGET_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:59) /test/1/catalog1/CODEX_DM8_SCHEMA_DROP_TARGET_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_020]
+sql:
+drop schema if exists CODEX_DM8_SCHEMA_OTHER_TARGET_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:22~1:60) /test/1/catalog1/CODEX_DM8_SCHEMA_OTHER_TARGET_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_021]
+sql:
+drop user CODEX_DM8_SCHEMA_CREATOR_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:43) /test/1/CODEX_DM8_SCHEMA_CREATOR_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_022]
+sql:
+drop user CODEX_DM8_SCHEMA_DROPPER_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:43) /test/1/CODEX_DM8_SCHEMA_DROPPER_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_023]
+sql:
+drop user CODEX_DM8_SCHEMA_OTHER_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:41) /test/1/CODEX_DM8_SCHEMA_OTHER_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_024]
+sql:
+create schema CODEX_DM8_SCHEMA_OTHER_OWNER_20260722 authorization CODEX_DM8_SCHEMA_OTHER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:51) /test/1/catalog1/CODEX_DM8_SCHEMA_OTHER_OWNER_20260722/",
+      "action": "CREATE",
+      "target": "User(1:66~1:97) /test/1/CODEX_DM8_SCHEMA_OTHER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_025]
+sql:
+drop schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:50) /test/1/catalog1/CODEX_DM8_SCHEMA_OTHER_TARGET_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_026]
+sql:
+create schema CODEX_DM8_SCHEMA_DENIED_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:46) /test/1/catalog1/CODEX_DM8_SCHEMA_DENIED_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_027]
+sql:
+drop schema CODEX_DM8_SCHEMA_OTHER_TARGET_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:50) /test/1/catalog1/CODEX_DM8_SCHEMA_OTHER_TARGET_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_028]
+sql:
+grant create any schema to CODEX_DM8_SCHEMA_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:17~1:23) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:60) /test/1/CODEX_DM8_SCHEMA_CREATOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_029]
+sql:
+grant drop any schema to CODEX_DM8_SCHEMA_DROPPER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Schema(1:15~1:21) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:25~1:58) /test/1/CODEX_DM8_SCHEMA_DROPPER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_030]
+sql:
+revoke create any schema from CODEX_DM8_SCHEMA_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Schema(1:18~1:24) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:30~1:63) /test/1/CODEX_DM8_SCHEMA_CREATOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_031]
+sql:
+revoke drop any schema from CODEX_DM8_SCHEMA_DROPPER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Schema(1:16~1:22) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:28~1:61) /test/1/CODEX_DM8_SCHEMA_DROPPER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_schema_privileges_0_behavior_review_032]
+sql:
+grant DB_OBJECT_ADMIN to CODEX_DM8_SCHEMA_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:21) /test/1/DB_OBJECT_ADMIN/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:25~1:58) /test/1/CODEX_DM8_SCHEMA_CREATOR_20260722/"
+    }
+  ]
+}

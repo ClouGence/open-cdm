@@ -1,0 +1,496 @@
+[split_block_dameng_stateful_file_json_packages_0_021]
+sql:
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_046.txt', 'W'); utl_file.put_line(f, 'CODEX'); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_046.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:99~1:116) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:130~1:145) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:150~1:166) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:188~1:202) /test/1/CODEX_DM8_UTL_DIR/case_046.txt/"
+    },
+    {
+      "subject": "Function(1:41~1:55) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:77~1:91) /test/1/CODEX_DM8_UTL_DIR/case_046.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_022]
+sql:
+declare f utl_file.file_type; opened boolean; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_047.txt', 'W', 32767); opened := utl_file.is_open(f); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_047.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:153~1:168) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:173~1:189) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:211~1:225) /test/1/CODEX_DM8_UTL_DIR/case_047.txt/"
+    },
+    {
+      "subject": "Function(1:57~1:71) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:93~1:107) /test/1/CODEX_DM8_UTL_DIR/case_047.txt/"
+    },
+    {
+      "subject": "Function(1:132~1:148) /test/1/catalog1/utl_file/is_open/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_023]
+sql:
+declare f utl_file.file_type; pos int; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_048.txt', 'W'); utl_file.put(f, 'CODEX'); pos := utl_file.fgetpos(f); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_048.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:108~1:120) /test/1/catalog1/utl_file/put/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:162~1:177) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:182~1:198) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:220~1:234) /test/1/CODEX_DM8_UTL_DIR/case_048.txt/"
+    },
+    {
+      "subject": "Function(1:50~1:64) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:86~1:100) /test/1/CODEX_DM8_UTL_DIR/case_048.txt/"
+    },
+    {
+      "subject": "Function(1:141~1:157) /test/1/catalog1/utl_file/fgetpos/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_024]
+sql:
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_049.txt', 'W'); utl_file.put(f, 'A'); utl_file.new_line(f, 2); utl_file.put_line(f, 'B', true); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_049.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:99~1:111) /test/1/catalog1/utl_file/put/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:121~1:138) /test/1/catalog1/utl_file/new_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:146~1:163) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:179~1:194) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:199~1:215) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:237~1:251) /test/1/CODEX_DM8_UTL_DIR/case_049.txt/"
+    },
+    {
+      "subject": "Function(1:41~1:55) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:77~1:91) /test/1/CODEX_DM8_UTL_DIR/case_049.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_025]
+sql:
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_050.txt', 'W'); utl_file.putf(f, '%s-%s-%s', 'A', 'B', 'C'); utl_file.fflush(f); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_050.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:99~1:112) /test/1/catalog1/utl_file/putf/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:144~1:159) /test/1/catalog1/utl_file/fflush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:164~1:179) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:184~1:200) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:222~1:236) /test/1/CODEX_DM8_UTL_DIR/case_050.txt/"
+    },
+    {
+      "subject": "Function(1:41~1:55) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:77~1:91) /test/1/CODEX_DM8_UTL_DIR/case_050.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_026]
+sql:
+declare f utl_file.file_type; value varchar(128); begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_051.txt', 'W'); utl_file.put_line(f, 'READ_051'); utl_file.fclose(f); f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_051.txt', 'R'); utl_file.get_line(f, value); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_051.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:119~1:136) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:153~1:168) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:236~1:253) /test/1/catalog1/utl_file/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:265~1:280) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:285~1:301) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:323~1:337) /test/1/CODEX_DM8_UTL_DIR/case_051.txt/"
+    },
+    {
+      "subject": "Function(1:61~1:75) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:97~1:111) /test/1/CODEX_DM8_UTL_DIR/case_051.txt/"
+    },
+    {
+      "subject": "Function(1:178~1:192) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:214~1:228) /test/1/CODEX_DM8_UTL_DIR/case_051.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_027]
+sql:
+declare f utl_file.file_type; value varchar(128); begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_052.txt', 'W'); utl_file.put_line(f, 'READ_052'); utl_file.fclose(f); f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_052.txt', 'R'); utl_file.get_line(f, value, 8); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_052.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:119~1:136) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:153~1:168) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:236~1:253) /test/1/catalog1/utl_file/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:268~1:283) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:288~1:304) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:326~1:340) /test/1/CODEX_DM8_UTL_DIR/case_052.txt/"
+    },
+    {
+      "subject": "Function(1:61~1:75) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:97~1:111) /test/1/CODEX_DM8_UTL_DIR/case_052.txt/"
+    },
+    {
+      "subject": "Function(1:178~1:192) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:214~1:228) /test/1/CODEX_DM8_UTL_DIR/case_052.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_028]
+sql:
+declare f utl_file.file_type; exists_flag boolean; file_length number; block_size number; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_053.txt', 'W'); utl_file.put_line(f, 'ATTR'); utl_file.fclose(f); utl_file.fgetattr('CODEX_DM8_UTL_DIR', 'case_053.txt', exists_flag, file_length, block_size); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_053.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:159~1:176) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:189~1:204) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:209~1:226) /test/1/catalog1/utl_file/fgetattr/",
+      "action": "CALL",
+      "target": "File(1:248~1:262) /test/1/CODEX_DM8_UTL_DIR/case_053.txt/"
+    },
+    {
+      "subject": "Procedure(1:303~1:319) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:341~1:355) /test/1/CODEX_DM8_UTL_DIR/case_053.txt/"
+    },
+    {
+      "subject": "Function(1:101~1:115) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:137~1:151) /test/1/CODEX_DM8_UTL_DIR/case_053.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_029]
+sql:
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_054_a.txt', 'W'); utl_file.put_line(f, 'RENAME'); utl_file.fclose(f); utl_file.frename('CODEX_DM8_UTL_DIR', 'case_054_a.txt', 'CODEX_DM8_UTL_DIR', 'case_054_b.txt', true); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_054_b.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:101~1:118) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:133~1:148) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:153~1:169) /test/1/catalog1/utl_file/frename/",
+      "action": "CALL",
+      "target": [
+        "File(1:191~1:207) /test/1/CODEX_DM8_UTL_DIR/case_054_a.txt/",
+        "File(1:230~1:246) /test/1/CODEX_DM8_UTL_DIR/case_054_b.txt/"
+      ]
+    },
+    {
+      "subject": "Procedure(1:255~1:271) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:293~1:309) /test/1/CODEX_DM8_UTL_DIR/case_054_b.txt/"
+    },
+    {
+      "subject": "Function(1:41~1:55) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:77~1:93) /test/1/CODEX_DM8_UTL_DIR/case_054_a.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_030]
+sql:
+declare f utl_file.file_type; begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_055_a.txt', 'W'); utl_file.put_line(f, 'COPY'); utl_file.fclose(f); utl_file.fcopy('CODEX_DM8_UTL_DIR', 'case_055_a.txt', 'CODEX_DM8_UTL_DIR', 'case_055_b.txt'); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_055_a.txt'); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_055_b.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:101~1:118) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:131~1:146) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:151~1:165) /test/1/catalog1/utl_file/fcopy/",
+      "action": "CALL",
+      "target": [
+        "File(1:187~1:203) /test/1/CODEX_DM8_UTL_DIR/case_055_a.txt/",
+        "File(1:226~1:242) /test/1/CODEX_DM8_UTL_DIR/case_055_b.txt/"
+      ]
+    },
+    {
+      "subject": "Procedure(1:245~1:261) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:283~1:299) /test/1/CODEX_DM8_UTL_DIR/case_055_a.txt/"
+    },
+    {
+      "subject": "Procedure(1:302~1:318) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:340~1:356) /test/1/CODEX_DM8_UTL_DIR/case_055_b.txt/"
+    },
+    {
+      "subject": "Function(1:41~1:55) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:77~1:93) /test/1/CODEX_DM8_UTL_DIR/case_055_a.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_031]
+sql:
+declare f utl_file.file_type; value varchar(128); begin f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_056.txt', 'W'); utl_file.put_line(f, 'SEEK_056'); utl_file.fclose(f); f := utl_file.fopen('CODEX_DM8_UTL_DIR', 'case_056.txt', 'R'); utl_file.fseek(f, 0, null); utl_file.get_line(f, value); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_056.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:119~1:136) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:153~1:168) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:236~1:250) /test/1/catalog1/utl_file/fseek/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:264~1:281) /test/1/catalog1/utl_file/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:293~1:308) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:313~1:329) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:351~1:365) /test/1/CODEX_DM8_UTL_DIR/case_056.txt/"
+    },
+    {
+      "subject": "Function(1:61~1:75) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:97~1:111) /test/1/CODEX_DM8_UTL_DIR/case_056.txt/"
+    },
+    {
+      "subject": "Function(1:178~1:192) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(1:214~1:228) /test/1/CODEX_DM8_UTL_DIR/case_056.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_032]
+sql:
+declare f utl_file.file_type; begin f := utl_file.fopen_nchar('CODEX_DM8_UTL_DIR', 'case_057.txt', 'W'); utl_file.put_line_nchar(f, 'CODEX_NCHAR', true); utl_file.fclose(f); utl_file.fremove('CODEX_DM8_UTL_DIR', 'case_057.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:105~1:128) /test/1/catalog1/utl_file/put_line_nchar/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:154~1:169) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:174~1:190) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(1:212~1:226) /test/1/CODEX_DM8_UTL_DIR/case_057.txt/"
+    },
+    {
+      "subject": "Function(1:41~1:61) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(1:83~1:97) /test/1/CODEX_DM8_UTL_DIR/case_057.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_033]
+sql:
+begin utl_file.fclose_all(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:25) /test/1/catalog1/utl_file/fclose_all/",
+      "action": "CALL",
+      "target": "File(1:6~1:25) /test/1/"
+    }
+  ]
+}

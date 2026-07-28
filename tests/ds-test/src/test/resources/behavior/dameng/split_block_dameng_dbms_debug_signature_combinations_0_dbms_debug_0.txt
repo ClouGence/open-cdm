@@ -1,0 +1,155 @@
+[split_block_dameng_dbms_debug_signature_combinations_0_001]
+sql:
+-- FUNC-0315 ATTACH_SESSION
+call DBMS_DEBUG.ATTACH_SESSION('CODEX_DEBUG_20260724',0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/DBMS_DEBUG/ATTACH_SESSION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_debug_signature_combinations_0_002]
+sql:
+-- FUNC-0316 DEBUG_OFF
+call DBMS_DEBUG.DEBUG_OFF();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:25) /test/1/catalog1/DBMS_DEBUG/DEBUG_OFF/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_debug_signature_combinations_0_003]
+sql:
+-- FUNC-0317 DEBUG_ON
+call DBMS_DEBUG.DEBUG_ON(FALSE,TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:24) /test/1/catalog1/DBMS_DEBUG/DEBUG_ON/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_debug_signature_combinations_0_004]
+sql:
+-- FUNC-0318 DETACH_SESSION
+call DBMS_DEBUG.DETACH_SESSION();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/DBMS_DEBUG/DETACH_SESSION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_debug_signature_combinations_0_005]
+sql:
+-- FUNC-0319 INITIALIZE
+select DBMS_DEBUG.INITIALIZE('CODEX_DEBUG_20260724',0,NULL,NULL) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:28) /test/1/catalog1/DBMS_DEBUG/INITIALIZE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_debug_signature_combinations_0_006]
+sql:
+-- FUNC-0320 PROBE_VERSION
+declare a int; b int; begin DBMS_DEBUG.PROBE_VERSION(a,b); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:28~2:52) /test/1/catalog1/DBMS_DEBUG/PROBE_VERSION/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_debug_signature_combinations_0_007]
+sql:
+-- FUNC-0321 SET_BREAKPOINT
+declare b int; r int; begin r:=DBMS_DEBUG.SET_BREAKPOINT(NULL,1,b,0,0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:31~2:56) /test/1/catalog1/DBMS_DEBUG/SET_BREAKPOINT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_debug_signature_combinations_0_008]
+sql:
+-- FUNC-1775 CONTINUE
+declare i DBMS_DEBUG.RUNTIME_INFO; r int; begin r:=DBMS_DEBUG."CONTINUE"(i,0,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:33) /test/1/catalog1/DBMS_DEBUG/RUNTIME_INFO/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:51~2:72) /test/1/catalog1/DBMS_DEBUG/CONTINUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_debug_signature_combinations_0_009]
+sql:
+-- FUNC-1776 GET_RUNTIME_INFO
+declare i DBMS_DEBUG.RUNTIME_INFO; r int; begin r:=DBMS_DEBUG.GET_RUNTIME_INFO(0,i); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:33) /test/1/catalog1/DBMS_DEBUG/RUNTIME_INFO/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:51~2:78) /test/1/catalog1/DBMS_DEBUG/GET_RUNTIME_INFO/",
+      "action": "CALL"
+    }
+  ]
+}

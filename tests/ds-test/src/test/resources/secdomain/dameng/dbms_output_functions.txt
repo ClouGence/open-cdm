@@ -1,0 +1,28 @@
+[dbms_output_all_procedure_domains]
+sql:
+declare
+  l varchar(32767); s int; n int:=1;
+  c dbms_output.chararr;
+  o sys.dbmsoutput_linesarray;
+begin
+  dbms_output.enable;
+  dbms_output.put('A');
+  dbms_output.put_line('B');
+  dbms_output.new_line;
+  dbms_output.get_line(l,s);
+  dbms_output.get_lines(c,n);
+  dbms_output.get_lines(o,n);
+  dbms_output.disable;
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_output"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_output"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_output"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_output"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_output"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_output"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_output"}
+  ]
+}

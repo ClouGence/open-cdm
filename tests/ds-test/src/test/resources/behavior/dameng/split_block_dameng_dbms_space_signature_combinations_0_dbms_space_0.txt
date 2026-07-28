@@ -1,0 +1,1679 @@
+[split_block_dameng_dbms_space_signature_combinations_0_001]
+sql:
+-- FUNC-0771 EXTENT_SIZE_GET without parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.EXTENT_SIZE_GET; if value_number<=0 then raise_application_error(-20001,'extent size'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:98~2:121) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:72) /test/1/catalog1/DBMS_SPACE/EXTENT_SIZE_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_002]
+sql:
+-- FUNC-0771 EXTENT_SIZE_GET with parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.EXTENT_SIZE_GET(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:46~2:72) /test/1/catalog1/DBMS_SPACE/EXTENT_SIZE_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_003]
+sql:
+-- FUNC-0772 EXTENT_SIZE_LOAD
+declare value_number int; begin DBMS_SPACE.EXTENT_SIZE_LOAD(value_number); if value_number<=0 then raise_application_error(-20002,'extent size load'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:32~2:59) /test/1/catalog1/DBMS_SPACE/EXTENT_SIZE_LOAD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:99~2:122) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_004]
+sql:
+-- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET required arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:102) /test/1/catalog1/DBMS_SPACE/EXTENT_XDESC_PAGE_NO_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_005]
+sql:
+-- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET all arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0,1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:102) /test/1/catalog1/DBMS_SPACE/EXTENT_XDESC_PAGE_NO_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_006]
+sql:
+-- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(NUM=>1,FILE_ID=>0,TS_ID=>4,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:102) /test/1/catalog1/DBMS_SPACE/EXTENT_XDESC_PAGE_NO_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_007]
+sql:
+-- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD required arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,value_array); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:90) /test/1/catalog1/DBMS_SPACE/EXTENT_XDESC_PAGE_NO_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_008]
+sql:
+-- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD all arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,value_array,1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:90) /test/1/catalog1/DBMS_SPACE/EXTENT_XDESC_PAGE_NO_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_009]
+sql:
+-- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(XPAGE_ADDR_ARR=>value_array,NUM=>1,TS_ID=>4,FILE_ID=>0,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:90) /test/1/catalog1/DBMS_SPACE/EXTENT_XDESC_PAGE_NO_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_010]
+sql:
+-- FUNC-0775 FILE_ALL_GET required argument
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/DBMS_SPACE/FILE_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:66~2:89) /test/1/catalog1/DBMS_SPACE/FILE_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_011]
+sql:
+-- FUNC-0775 FILE_ALL_GET all arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(4,1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/DBMS_SPACE/FILE_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:66~2:89) /test/1/catalog1/DBMS_SPACE/FILE_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_012]
+sql:
+-- FUNC-0775 FILE_ALL_GET named arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(NUM=>1,TS_ID=>4,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/DBMS_SPACE/FILE_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:66~2:89) /test/1/catalog1/DBMS_SPACE/FILE_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_013]
+sql:
+-- FUNC-0776 FILE_ALL_LOAD required arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin DBMS_SPACE.FILE_ALL_LOAD(4,value_array); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/DBMS_SPACE/FILE_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:53~2:77) /test/1/catalog1/DBMS_SPACE/FILE_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_014]
+sql:
+-- FUNC-0776 FILE_ALL_LOAD full named arguments
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin DBMS_SPACE.FILE_ALL_LOAD(FILE_ALL_ARR=>value_array,NUM=>1,TS_ID=>4,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/DBMS_SPACE/FILE_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:53~2:77) /test/1/catalog1/DBMS_SPACE/FILE_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_015]
+sql:
+-- FUNC-0777 FILE_GET positional
+declare value_array DBMS_SPACE.FILE_ARR_T; begin value_array:=DBMS_SPACE.FILE_GET(4,0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:41) /test/1/catalog1/DBMS_SPACE/FILE_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:62~2:81) /test/1/catalog1/DBMS_SPACE/FILE_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_016]
+sql:
+-- FUNC-0777 FILE_GET named
+declare value_array DBMS_SPACE.FILE_ARR_T; begin value_array:=DBMS_SPACE.FILE_GET(FILE_ID=>0,TS_ID=>4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:41) /test/1/catalog1/DBMS_SPACE/FILE_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:62~2:81) /test/1/catalog1/DBMS_SPACE/FILE_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_017]
+sql:
+-- FUNC-0778 FILE_LOAD positional
+declare value_array DBMS_SPACE.FILE_ARR_T; begin DBMS_SPACE.FILE_LOAD(4,0,value_array); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:41) /test/1/catalog1/DBMS_SPACE/FILE_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:49~2:69) /test/1/catalog1/DBMS_SPACE/FILE_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_018]
+sql:
+-- FUNC-0778 FILE_LOAD named
+declare value_array DBMS_SPACE.FILE_ARR_T; begin DBMS_SPACE.FILE_LOAD(FILE_ARR=>value_array,FILE_ID=>0,TS_ID=>4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:41) /test/1/catalog1/DBMS_SPACE/FILE_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:49~2:69) /test/1/catalog1/DBMS_SPACE/FILE_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_019]
+sql:
+-- FUNC-0779 IPAGE_NO_ALL_GET required argument
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:94) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_020]
+sql:
+-- FUNC-0779 IPAGE_NO_ALL_GET all arguments and alternate enums
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FREE','BACKWARD',1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:94) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_021]
+sql:
+-- FUNC-0779 IPAGE_NO_ALL_GET named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,LINKTYPE=>'FULL',OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:94) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_022]
+sql:
+-- FUNC-0780 IPAGE_NO_ALL_LOAD required arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:82) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_023]
+sql:
+-- FUNC-0780 IPAGE_NO_ALL_LOAD all arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FREE','BACKWARD',1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:82) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_024]
+sql:
+-- FUNC-0780 IPAGE_NO_ALL_LOAD named arguments
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(PAGE_ADDR_ARR=>value_array,NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,LINKTYPE=>'FULL',OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:82) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_025]
+sql:
+-- FUNC-0781 PAGE_N_GET without parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.PAGE_N_GET; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:46~2:67) /test/1/catalog1/DBMS_SPACE/PAGE_N_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_026]
+sql:
+-- FUNC-0781 PAGE_N_GET with parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.PAGE_N_GET(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:46~2:67) /test/1/catalog1/DBMS_SPACE/PAGE_N_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_027]
+sql:
+-- FUNC-0782 PAGE_N_LOAD
+declare value_number int; begin DBMS_SPACE.PAGE_N_LOAD(value_number); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:32~2:54) /test/1/catalog1/DBMS_SPACE/PAGE_N_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_028]
+sql:
+-- FUNC-0783 SEG_ALL_GET required argument
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/SEG_ID_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:86) /test/1/catalog1/DBMS_SPACE/SEG_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_029]
+sql:
+-- FUNC-0783 SEG_ALL_GET all arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(4,1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/SEG_ID_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:86) /test/1/catalog1/DBMS_SPACE/SEG_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_030]
+sql:
+-- FUNC-0783 SEG_ALL_GET named arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(NUM=>1,TS_ID=>4,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/SEG_ID_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:86) /test/1/catalog1/DBMS_SPACE/SEG_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_031]
+sql:
+-- FUNC-0784 SEG_ALL_LOAD required arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(4,value_array); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/SEG_ID_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:74) /test/1/catalog1/DBMS_SPACE/SEG_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_032]
+sql:
+-- FUNC-0784 SEG_ALL_LOAD all arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(4,value_array,1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/SEG_ID_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:74) /test/1/catalog1/DBMS_SPACE/SEG_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_033]
+sql:
+-- FUNC-0784 SEG_ALL_LOAD named arguments
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(SEG_ID_ARR=>value_array,NUM=>1,TS_ID=>4,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/SEG_ID_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:74) /test/1/catalog1/DBMS_SPACE/SEG_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_034]
+sql:
+-- FUNC-0785 SEG_EXTENT_LST_GET documented defaults on a segment with FULL extents
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID()); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:93) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_GET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:96~2:117) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_035]
+sql:
+-- FUNC-0785 SEG_EXTENT_LST_GET all arguments and alternate enums
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FRAG','BACKWARD',1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:93) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_GET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:96~2:117) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_036]
+sql:
+-- FUNC-0785 SEG_EXTENT_LST_GET named arguments
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,SEGID=>CODEX_DM8_SPACE_SEGID(),LINKTYPE=>'FULL',OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:93) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_GET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:135~2:156) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_037]
+sql:
+-- FUNC-0786 SEG_EXTENT_LST_LOAD documented defaults
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:81) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_LOAD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:84~2:105) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_038]
+sql:
+-- FUNC-0786 SEG_EXTENT_LST_LOAD all arguments
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FRAG','BACKWARD',1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:81) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_LOAD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:84~2:105) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_039]
+sql:
+-- FUNC-0786 SEG_EXTENT_LST_LOAD named arguments
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(EXTENT_ARR=>value_array,NUM=>1,DIRECT=>'FORWARD',TS_ID=>4,SEGID=>CODEX_DM8_SPACE_SEGID(),LINKTYPE=>'FULL',OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:81) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_LOAD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:147~2:168) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_040]
+sql:
+-- FUNC-0788 SEG_GET_BY_ID positional
+declare value_record DBMS_SPACE.SEG_T; begin value_record:=DBMS_SPACE.SEG_GET_BY_ID(4,CODEX_DM8_SPACE_SEGID()); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:21~2:37) /test/1/catalog1/DBMS_SPACE/SEG_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:59~2:83) /test/1/catalog1/DBMS_SPACE/SEG_GET_BY_ID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:86~2:107) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_041]
+sql:
+-- FUNC-0788 SEG_GET_BY_ID named
+declare value_record DBMS_SPACE.SEG_T; begin value_record:=DBMS_SPACE.SEG_GET_BY_ID(SEGID=>CODEX_DM8_SPACE_SEGID(),TS_ID=>4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:21~2:37) /test/1/catalog1/DBMS_SPACE/SEG_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:59~2:83) /test/1/catalog1/DBMS_SPACE/SEG_GET_BY_ID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:91~2:112) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_042]
+sql:
+-- FUNC-0790 SEG_LOAD_BY_ID positional
+declare value_record DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_ID(4,CODEX_DM8_SPACE_SEGID(),value_record); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:21~2:37) /test/1/catalog1/DBMS_SPACE/SEG_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:45~2:70) /test/1/catalog1/DBMS_SPACE/SEG_LOAD_BY_ID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:73~2:94) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_043]
+sql:
+-- FUNC-0790 SEG_LOAD_BY_ID named
+declare value_record DBMS_SPACE.SEG_T; begin DBMS_SPACE.SEG_LOAD_BY_ID(SEG_INFO=>value_record,SEGID=>CODEX_DM8_SPACE_SEGID(),TS_ID=>4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:21~2:37) /test/1/catalog1/DBMS_SPACE/SEG_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:45~2:70) /test/1/catalog1/DBMS_SPACE/SEG_LOAD_BY_ID/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:101~2:122) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_044]
+sql:
+-- FUNC-0791 TS_ALL_GET zero arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/TS_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:85) /test/1/catalog1/DBMS_SPACE/TS_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_045]
+sql:
+-- FUNC-0791 TS_ALL_GET one optional argument
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET(1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/TS_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:85) /test/1/catalog1/DBMS_SPACE/TS_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_046]
+sql:
+-- FUNC-0791 TS_ALL_GET all arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET(1,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/TS_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:85) /test/1/catalog1/DBMS_SPACE/TS_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_047]
+sql:
+-- FUNC-0791 TS_ALL_GET named arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin value_array:=DBMS_SPACE.TS_ALL_GET(NUM=>1,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/TS_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:85) /test/1/catalog1/DBMS_SPACE/TS_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_048]
+sql:
+-- FUNC-0792 TS_ALL_LOAD required OUT argument
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin DBMS_SPACE.TS_ALL_LOAD(value_array); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/TS_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:73) /test/1/catalog1/DBMS_SPACE/TS_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_049]
+sql:
+-- FUNC-0792 TS_ALL_LOAD one optional argument
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin DBMS_SPACE.TS_ALL_LOAD(value_array,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/TS_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:73) /test/1/catalog1/DBMS_SPACE/TS_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_050]
+sql:
+-- FUNC-0792 TS_ALL_LOAD full named arguments
+declare value_array DBMS_SPACE.TS_ALL_ARR_T; begin DBMS_SPACE.TS_ALL_LOAD(NUM=>1,TS_ALL_ARR=>value_array,OFFSET=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/TS_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:73) /test/1/catalog1/DBMS_SPACE/TS_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_051]
+sql:
+-- FUNC-0793 TS_GET positional
+declare value_array DBMS_SPACE.TS_ARR_T; begin value_array:=DBMS_SPACE.TS_GET(4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:39) /test/1/catalog1/DBMS_SPACE/TS_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:60~2:77) /test/1/catalog1/DBMS_SPACE/TS_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_052]
+sql:
+-- FUNC-0793 TS_GET named
+declare value_array DBMS_SPACE.TS_ARR_T; begin value_array:=DBMS_SPACE.TS_GET(TS_ID=>4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:39) /test/1/catalog1/DBMS_SPACE/TS_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:60~2:77) /test/1/catalog1/DBMS_SPACE/TS_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_053]
+sql:
+-- FUNC-0794 TS_LOAD positional
+declare value_array DBMS_SPACE.TS_ARR_T; begin DBMS_SPACE.TS_LOAD(4,value_array); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:39) /test/1/catalog1/DBMS_SPACE/TS_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:47~2:65) /test/1/catalog1/DBMS_SPACE/TS_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_054]
+sql:
+-- FUNC-0794 TS_LOAD named
+declare value_array DBMS_SPACE.TS_ARR_T; begin DBMS_SPACE.TS_LOAD(TS_ARR=>value_array,TS_ID=>4); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:39) /test/1/catalog1/DBMS_SPACE/TS_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:47~2:65) /test/1/catalog1/DBMS_SPACE/TS_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_055]
+sql:
+-- FUNC-0795 TS_N_GET without parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.TS_N_GET; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:46~2:65) /test/1/catalog1/DBMS_SPACE/TS_N_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_056]
+sql:
+-- FUNC-0795 TS_N_GET with parentheses
+declare value_number int; begin value_number:=DBMS_SPACE.TS_N_GET(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:46~2:65) /test/1/catalog1/DBMS_SPACE/TS_N_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_057]
+sql:
+-- FUNC-0796 TS_N_LOAD
+declare value_number int; begin DBMS_SPACE.TS_N_LOAD(value_number); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:32~2:52) /test/1/catalog1/DBMS_SPACE/TS_N_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_058]
+sql:
+-- FUNC-1622 FREE_BLOCKS required arguments
+declare free_blocks number; begin DBMS_SPACE.FREE_BLOCKS('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',0,free_blocks); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:34~2:56) /test/1/catalog1/DBMS_SPACE/FREE_BLOCKS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_059]
+sql:
+-- FUNC-1622 FREE_BLOCKS all named arguments
+declare free_blocks number; begin DBMS_SPACE.FREE_BLOCKS(FREE_BLKS=>free_blocks,SEGMENT_TYPE=>'TABLE',SEGMENT_NAME=>'CODEX_DM8_SPACE_TABLE',SEGMENT_OWNER=>'SYSDBA',FREELIST_GROUP_ID=>0,SCAN_LIMIT=>NULL,PARTITION_NAME=>NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:34~2:56) /test/1/catalog1/DBMS_SPACE/FREE_BLOCKS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_060]
+sql:
+-- FUNC-1623 SPACE_USAGE required arguments and OUT values
+declare u1 number; u2 number; f1 number; f2 number; f3 number; f4 number; f5 number; f6 number; f7 number; f8 number; f9 number; f10 number; begin DBMS_SPACE.SPACE_USAGE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',u1,u2,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:147~2:169) /test/1/catalog1/DBMS_SPACE/SPACE_USAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_061]
+sql:
+-- FUNC-1623 SPACE_USAGE optional partition name
+declare u1 number; u2 number; f1 number; f2 number; f3 number; f4 number; f5 number; f6 number; f7 number; f8 number; f9 number; f10 number; begin DBMS_SPACE.SPACE_USAGE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',u1,u2,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:147~2:169) /test/1/catalog1/DBMS_SPACE/SPACE_USAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_062]
+sql:
+-- FUNC-1624 UNUSED_SPACE required arguments and OUT values
+declare a number; b number; c number; d number; e number; f number; g number; begin DBMS_SPACE.UNUSED_SPACE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',a,b,c,d,e,f,g); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:84~2:107) /test/1/catalog1/DBMS_SPACE/UNUSED_SPACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_063]
+sql:
+-- FUNC-1624 UNUSED_SPACE optional partition name
+declare a number; b number; c number; d number; e number; f number; g number; begin DBMS_SPACE.UNUSED_SPACE('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',a,b,c,d,e,f,g,NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:84~2:107) /test/1/catalog1/DBMS_SPACE/UNUSED_SPACE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_064]
+sql:
+-- FUNC-0773 EXTENT_XDESC_PAGE_NO_GET OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.EXTENT_XDESC_PAGE_NO_GET(4,0,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:102) /test/1/catalog1/DBMS_SPACE/EXTENT_XDESC_PAGE_NO_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_065]
+sql:
+-- FUNC-0774 EXTENT_XDESC_PAGE_NO_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.EXTENT_XDESC_PAGE_NO_LOAD(4,0,value_array,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:90) /test/1/catalog1/DBMS_SPACE/EXTENT_XDESC_PAGE_NO_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_066]
+sql:
+-- FUNC-0775 FILE_ALL_GET OFFSET prefix
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin value_array:=DBMS_SPACE.FILE_ALL_GET(4,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/DBMS_SPACE/FILE_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:66~2:89) /test/1/catalog1/DBMS_SPACE/FILE_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_067]
+sql:
+-- FUNC-0776 FILE_ALL_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.FILE_ALL_ARR_T; begin DBMS_SPACE.FILE_ALL_LOAD(4,value_array,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/DBMS_SPACE/FILE_ALL_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:53~2:77) /test/1/catalog1/DBMS_SPACE/FILE_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_068]
+sql:
+-- FUNC-0779 IPAGE_NO_ALL_GET LINKTYPE prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FULL'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:94) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_069]
+sql:
+-- FUNC-0779 IPAGE_NO_ALL_GET DIRECT prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FULL','FORWARD'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:94) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_070]
+sql:
+-- FUNC-0779 IPAGE_NO_ALL_GET OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin value_array:=DBMS_SPACE.IPAGE_NO_ALL_GET(4,'FULL','FORWARD',1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:67~2:94) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_071]
+sql:
+-- FUNC-0780 IPAGE_NO_ALL_LOAD LINKTYPE prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FULL'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:82) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_072]
+sql:
+-- FUNC-0780 IPAGE_NO_ALL_LOAD DIRECT prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FULL','FORWARD'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:82) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_073]
+sql:
+-- FUNC-0780 IPAGE_NO_ALL_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.PAGE_ADDR_ARR_T; begin DBMS_SPACE.IPAGE_NO_ALL_LOAD(4,value_array,'FULL','FORWARD',1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:46) /test/1/catalog1/DBMS_SPACE/PAGE_ADDR_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:54~2:82) /test/1/catalog1/DBMS_SPACE/IPAGE_NO_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_074]
+sql:
+-- FUNC-0783 SEG_ALL_GET OFFSET prefix
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin value_array:=DBMS_SPACE.SEG_ALL_GET(4,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/SEG_ID_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:86) /test/1/catalog1/DBMS_SPACE/SEG_ALL_GET/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_075]
+sql:
+-- FUNC-0784 SEG_ALL_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.SEG_ID_ARR_T; begin DBMS_SPACE.SEG_ALL_LOAD(4,value_array,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/SEG_ID_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:74) /test/1/catalog1/DBMS_SPACE/SEG_ALL_LOAD/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_076]
+sql:
+-- FUNC-0785 SEG_EXTENT_LST_GET LINKTYPE prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FULL'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:93) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_GET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:96~2:117) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_077]
+sql:
+-- FUNC-0785 SEG_EXTENT_LST_GET DIRECT prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FULL','FORWARD'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:93) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_GET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:96~2:117) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_078]
+sql:
+-- FUNC-0785 SEG_EXTENT_LST_GET OFFSET prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin value_array:=DBMS_SPACE.SEG_EXTENT_LST_GET(4,CODEX_DM8_SPACE_SEGID(),'FULL','FORWARD',1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(2:64~2:93) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_GET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:96~2:117) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_079]
+sql:
+-- FUNC-0786 SEG_EXTENT_LST_LOAD LINKTYPE prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FULL'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:81) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_LOAD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:84~2:105) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_080]
+sql:
+-- FUNC-0786 SEG_EXTENT_LST_LOAD DIRECT prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FULL','FORWARD'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:81) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_LOAD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:84~2:105) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_081]
+sql:
+-- FUNC-0786 SEG_EXTENT_LST_LOAD OFFSET prefix
+declare value_array DBMS_SPACE.EXTENT_ARR_T; begin DBMS_SPACE.SEG_EXTENT_LST_LOAD(4,CODEX_DM8_SPACE_SEGID(),value_array,'FULL','FORWARD',1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:43) /test/1/catalog1/DBMS_SPACE/EXTENT_ARR_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:51~2:81) /test/1/catalog1/DBMS_SPACE/SEG_EXTENT_LST_LOAD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:84~2:105) /test/1/catalog1/schema1/CODEX_DM8_SPACE_SEGID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_082]
+sql:
+-- FUNC-1622 FREE_BLOCKS SCAN_LIMIT prefix
+declare free_blocks number; begin DBMS_SPACE.FREE_BLOCKS('SYSDBA','CODEX_DM8_SPACE_TABLE','TABLE',0,free_blocks,1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:34~2:56) /test/1/catalog1/DBMS_SPACE/FREE_BLOCKS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_083]
+sql:
+-- FUNC-1623 SPACE_USAGE full named arguments
+declare a number; begin DBMS_SPACE.SPACE_USAGE(FULL_BYTES=>a,FULL_BLOCKS=>a,FS4_BYTES=>a,FS4_BLOCKS=>a,FS3_BYTES=>a,FS3_BLOCKS=>a,FS2_BYTES=>a,FS2_BLOCKS=>a,FS1_BYTES=>a,FS1_BLOCKS=>a,UNFORMATTED_BYTES=>a,UNFORMATTED_BLOCKS=>a,SEGMENT_TYPE=>'TABLE',SEGMENT_NAME=>'CODEX_DM8_SPACE_TABLE',SEGMENT_OWNER=>'SYSDBA',PARTITION_NAME=>NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:24~2:46) /test/1/catalog1/DBMS_SPACE/SPACE_USAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_space_signature_combinations_0_084]
+sql:
+-- FUNC-1624 UNUSED_SPACE full named arguments
+declare a number; begin DBMS_SPACE.UNUSED_SPACE(LAST_USED_BLOCK=>a,LAST_USED_EXTENT_BLOCK_ID=>a,LAST_USED_EXTENT_FILE_ID=>a,UNUSED_BYTES=>a,UNUSED_BLOCKS=>a,TOTAL_BYTES=>a,TOTAL_BLOCKS=>a,SEGMENT_TYPE=>'TABLE',SEGMENT_NAME=>'CODEX_DM8_SPACE_TABLE',SEGMENT_OWNER=>'SYSDBA',PARTITION_NAME=>NULL); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:24~2:47) /test/1/catalog1/DBMS_SPACE/UNUSED_SPACE/",
+      "action": "CALL"
+    }
+  ]
+}

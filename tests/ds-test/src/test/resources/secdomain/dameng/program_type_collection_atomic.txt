@@ -1,0 +1,16 @@
+[ddl]
+sql:
+create table app.program_type_base(id int,name varchar2(30));
+create type app.nested_int as table of int;
+/
+create table app.nested_tab(id int,v app.nested_int)
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"program_type_base"},{"class":"RdbObjectDomain","sqlType":"CREATE_TYPE","auditKind":"CREATE","schema":"app","name":"nested_int"},{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"nested_tab"}]}
+----------
+[dml]
+sql:
+insert into app.nested_tab values(1,app.nested_int(1,2));
+update app.nested_tab set v=app.nested_int(3,4) where id=1;
+delete from app.nested_tab where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"nested_tab"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"nested_tab"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"nested_tab"}]}

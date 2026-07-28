@@ -1,0 +1,74 @@
+[split_dml_dameng_redefinition_xa_xmldom_0_001]
+sql:
+insert into CODEX_REDEF_MAIN values(21, 'C21', 26.25, 'DURING-INSERT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/CODEX_REDEF_MAIN/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_redefinition_xa_xmldom_0_002]
+sql:
+update CODEX_REDEF_MAIN set amount=amount+100, note='DURING-UPDATE' where id=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:23) /test/1/catalog1/schema1/CODEX_REDEF_MAIN/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_redefinition_xa_xmldom_0_003]
+sql:
+delete from CODEX_REDEF_MAIN where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/CODEX_REDEF_MAIN/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_redefinition_xa_xmldom_0_004]
+sql:
+insert into CODEX_REDEF_ABORT values(2, 'ABORT-ME');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/CODEX_REDEF_ABORT/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_redefinition_xa_xmldom_0_005]
+sql:
+update CODEX_REDEF_ROWID set payload='ROWID-UPDATED' where id=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:24) /test/1/catalog1/schema1/CODEX_REDEF_ROWID/",
+      "action": "UPDATE"
+    }
+  ]
+}

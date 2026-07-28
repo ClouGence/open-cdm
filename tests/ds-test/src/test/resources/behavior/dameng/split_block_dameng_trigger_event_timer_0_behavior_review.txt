@@ -1,0 +1,1360 @@
+[split_block_dameng_trigger_event_timer_0_001_behavior_review]
+sql:
+create table event_log(
+  seq int identity,
+  trigger_name varchar(40),
+  operation varchar(20),
+  object_type varchar(40),
+  object_name varchar(128),
+  schema_name varchar(128)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/schema1/event_log/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_002_behavior_review]
+sql:
+create or replace trigger evt_after_create
+after create on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_AFTER_CREATE', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:42) /test/1/catalog1/schema1/evt_after_create/",
+      "action": "REPLACE",
+      "target": "Schema(2:16~2:48) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/"
+    },
+    {
+      "subject": "Table(4:14~4:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_003_behavior_review]
+sql:
+create table event_table(id int, name varchar(20));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/schema1/event_table/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_004_behavior_review]
+sql:
+create view event_view as select id, name from event_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:22) /test/1/catalog1/schema1/event_view/",
+      "action": "CREATE",
+      "target": "Table(1:47~1:58) /test/1/catalog1/schema1/event_table/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_005_behavior_review]
+sql:
+create sequence event_sequence start with 1 increment by 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:30) /test/1/catalog1/schema1/event_sequence/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_006_behavior_review]
+sql:
+select operation, object_type, object_name from event_log where trigger_name = 'EVT_AFTER_CREATE' order by seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:48~1:57) /test/1/catalog1/schema1/event_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_007_behavior_review]
+sql:
+create or replace trigger evt_after_alter
+after alter on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_AFTER_ALTER', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:41) /test/1/catalog1/schema1/evt_after_alter/",
+      "action": "REPLACE",
+      "target": "Schema(2:15~2:47) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/"
+    },
+    {
+      "subject": "Table(4:14~4:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_008_behavior_review]
+sql:
+alter table event_table add amount int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/schema1/event_table/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_009_behavior_review]
+sql:
+alter sequence event_sequence increment by 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:29) /test/1/catalog1/schema1/event_sequence/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_010_behavior_review]
+sql:
+select operation, object_type, object_name from event_log where trigger_name = 'EVT_AFTER_ALTER' order by seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:48~1:57) /test/1/catalog1/schema1/event_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_011_behavior_review]
+sql:
+create or replace trigger evt_after_drop
+after drop on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_AFTER_DROP', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:40) /test/1/catalog1/schema1/evt_after_drop/",
+      "action": "REPLACE",
+      "target": "Schema(2:14~2:46) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/"
+    },
+    {
+      "subject": "Table(4:14~4:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_012_behavior_review]
+sql:
+create table event_drop_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/event_drop_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_013_behavior_review]
+sql:
+drop table event_drop_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/event_drop_target/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_014_behavior_review]
+sql:
+select operation, object_type, object_name from event_log where trigger_name = 'EVT_AFTER_DROP' order by seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:48~1:57) /test/1/catalog1/schema1/event_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_015_behavior_review]
+sql:
+create or replace trigger evt_before_ddl
+before ddl on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+when (:eventinfo.objecttype <> 'TRIGGER')
+begin
+  insert into event_log(trigger_name, operation, object_type, object_name, schema_name)
+  values('EVT_BEFORE_DDL', :eventinfo.optype, :eventinfo.objecttype,
+         :eventinfo.objectname, :eventinfo.schemaname);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:40) /test/1/catalog1/schema1/evt_before_ddl/",
+      "action": "REPLACE",
+      "target": "Schema(2:14~2:46) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/"
+    },
+    {
+      "subject": "Table(5:14~5:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_016_behavior_review]
+sql:
+create table event_ddl_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/event_ddl_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_017_behavior_review]
+sql:
+comment on table event_ddl_target is 'event trigger target';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:33) /test/1/catalog1/schema1/event_ddl_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_018_behavior_review]
+sql:
+truncate table event_ddl_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:31) /test/1/catalog1/schema1/event_ddl_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_019_behavior_review]
+sql:
+alter table event_ddl_target add name varchar(20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/event_ddl_target/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_020_behavior_review]
+sql:
+drop table event_ddl_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/event_ddl_target/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_021_behavior_review]
+sql:
+select operation, object_type, object_name from event_log where trigger_name = 'EVT_BEFORE_DDL' order by seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:48~1:57) /test/1/catalog1/schema1/event_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_022_behavior_review]
+sql:
+create table event_sql_text(
+  fragment_count int,
+  sql_text varchar,
+  object_name varchar(128),
+  object_type varchar(128),
+  object_owner varchar(128)
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/event_sql_text/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_023_behavior_review]
+sql:
+create or replace trigger evt_sql_text
+before create on CODEX_DM8_EVENT_TRIGGER_20260721.schema
+declare
+  v_count int;
+  v_text varchar;
+  v_parts dm_name_list_t;
+begin
+  v_count = dm_sql_txt(v_parts);
+  for i in 1..v_count loop
+    v_text = v_text || v_parts(i);
+  end loop;
+  insert into event_sql_text values(v_count, v_text, dm_dict_obj_name,
+    dm_dict_obj_type, dm_dict_obj_owner);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:38) /test/1/catalog1/schema1/evt_sql_text/",
+      "action": "REPLACE",
+      "target": "Schema(2:17~2:49) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/"
+    },
+    {
+      "subject": "Table(12:14~12:28) /test/1/catalog1/schema1/event_sql_text/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(8:12~8:22) /test/1/catalog1/schema1/dm_sql_txt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_024_behavior_review]
+sql:
+create table event_text_target(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/event_text_target/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_025_behavior_review]
+sql:
+select fragment_count, object_name, object_type, object_owner from event_sql_text where object_name = 'EVENT_TEXT_TARGET';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:67~1:81) /test/1/catalog1/schema1/event_sql_text/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_026_behavior_review]
+sql:
+create or replace trigger evt_privilege
+after grant or revoke on database
+begin
+  insert into event_log(trigger_name, operation)
+  values('EVT_PRIVILEGE', 'PRIVILEGE');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:39) /test/1/catalog1/schema1/evt_privilege/",
+      "action": "REPLACE",
+      "target": "Catalog(2:25~2:33) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_027_behavior_review]
+sql:
+create role event_trigger_role;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:30) /test/1/event_trigger_role/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_028_behavior_review]
+sql:
+grant select any table to event_trigger_role;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:17~1:22) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:26~1:44) /test/1/event_trigger_role/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_029_behavior_review]
+sql:
+revoke select any table from event_trigger_role;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Table(1:18~1:23) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:29~1:47) /test/1/event_trigger_role/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_030_behavior_review]
+sql:
+select operation from event_log where trigger_name = 'EVT_PRIVILEGE' order by seq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:31) /test/1/catalog1/schema1/event_log/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_031_behavior_review]
+sql:
+create or replace trigger evt_login
+after login on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_LOGIN', 'LOGIN');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:35) /test/1/catalog1/schema1/evt_login/",
+      "action": "REPLACE",
+      "target": "Catalog(2:15~2:23) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_032_behavior_review]
+sql:
+create or replace trigger timer_once
+after timer on database
+for once at datetime '2099-01-01 00:00:00'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_ONCE', 'TIMER');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:36) /test/1/catalog1/schema1/timer_once/",
+      "action": "REPLACE",
+      "target": "Catalog(2:15~2:23) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(5:14~5:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_033_behavior_review]
+sql:
+alter trigger timer_once disable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:24) /test/1/catalog1/schema1/timer_once/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_034_behavior_review]
+sql:
+create or replace trigger timer_daily
+after timer on database
+for each 1 day at time '23:59:59'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_DAILY', 'TIMER');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:37) /test/1/catalog1/schema1/timer_daily/",
+      "action": "REPLACE",
+      "target": "Catalog(2:15~2:23) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(5:14~5:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_035_behavior_review]
+sql:
+alter trigger timer_daily disable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:25) /test/1/catalog1/schema1/timer_daily/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_036_behavior_review]
+sql:
+create or replace trigger timer_weekly
+after timer on database
+for each 1 week 1, 3, 5 at time '23:59:58'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_WEEKLY', 'TIMER');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:38) /test/1/catalog1/schema1/timer_weekly/",
+      "action": "REPLACE",
+      "target": "Catalog(2:15~2:23) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(5:14~5:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_037_behavior_review]
+sql:
+alter trigger timer_weekly disable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:26) /test/1/catalog1/schema1/timer_weekly/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_038_behavior_review]
+sql:
+create or replace trigger timer_monthly
+after timer on database
+for each 1 month day 1 at time '23:59:57'
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_MONTHLY', 'TIMER');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:39) /test/1/catalog1/schema1/timer_monthly/",
+      "action": "REPLACE",
+      "target": "Catalog(2:15~2:23) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(5:14~5:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_039_behavior_review]
+sql:
+alter trigger timer_monthly disable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:27) /test/1/catalog1/schema1/timer_monthly/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_040_behavior_review]
+sql:
+create or replace trigger timer_interval
+after timer on database
+for each 1 day from time '00:00:00' to time '23:59:59' for each 10 minute
+begin
+  insert into event_log(trigger_name, operation) values('TIMER_INTERVAL', 'TIMER');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:40) /test/1/catalog1/schema1/timer_interval/",
+      "action": "REPLACE",
+      "target": "Catalog(2:15~2:23) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(5:14~5:23) /test/1/catalog1/schema1/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_041_behavior_review]
+sql:
+alter trigger timer_interval disable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:28) /test/1/catalog1/schema1/timer_interval/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_042_behavior_review]
+sql:
+drop trigger timer_interval;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:27) /test/1/catalog1/schema1/timer_interval/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_043_behavior_review]
+sql:
+drop trigger timer_monthly;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:26) /test/1/catalog1/schema1/timer_monthly/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_044_behavior_review]
+sql:
+drop trigger timer_weekly;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:25) /test/1/catalog1/schema1/timer_weekly/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_045_behavior_review]
+sql:
+drop trigger timer_daily;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:24) /test/1/catalog1/schema1/timer_daily/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_046_behavior_review]
+sql:
+drop trigger timer_once;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:23) /test/1/catalog1/schema1/timer_once/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_047_behavior_review]
+sql:
+drop trigger evt_privilege;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:26) /test/1/catalog1/schema1/evt_privilege/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_048_behavior_review]
+sql:
+drop role event_trigger_role;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:28) /test/1/event_trigger_role/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_049_behavior_review]
+sql:
+drop trigger evt_sql_text;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:25) /test/1/catalog1/schema1/evt_sql_text/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_050_behavior_review]
+sql:
+drop table event_text_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/event_text_target/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_051_behavior_review]
+sql:
+drop table event_sql_text;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/event_sql_text/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_052_behavior_review]
+sql:
+drop trigger evt_before_ddl;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:27) /test/1/catalog1/schema1/evt_before_ddl/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_053_behavior_review]
+sql:
+drop trigger evt_after_drop;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:27) /test/1/catalog1/schema1/evt_after_drop/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_054_behavior_review]
+sql:
+drop trigger evt_after_alter;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:28) /test/1/catalog1/schema1/evt_after_alter/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_055_behavior_review]
+sql:
+drop trigger evt_after_create;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:29) /test/1/catalog1/schema1/evt_after_create/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_056_behavior_review]
+sql:
+drop view event_view;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:20) /test/1/catalog1/schema1/event_view/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_057_behavior_review]
+sql:
+drop sequence event_sequence;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:28) /test/1/catalog1/schema1/event_sequence/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_058_behavior_review]
+sql:
+drop table event_table;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:22) /test/1/catalog1/schema1/event_table/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_059_behavior_review]
+sql:
+create or replace trigger evt_logout
+before logout on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation, object_name)
+  values('EVT_LOGOUT', 'LOGOUT', :eventinfo.loginname);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:36) /test/1/catalog1/schema1/evt_logout/",
+      "action": "REPLACE",
+      "target": "Catalog(2:17~2:25) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_060_behavior_review]
+sql:
+create or replace trigger evt_sererr
+after sererr on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation, object_type, object_name)
+  values('EVT_SERERR', 'SERERR', cast(:eventinfo.errcode as varchar(40)),
+    substr(:eventinfo.errmsg, 1, 128));
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:36) /test/1/catalog1/schema1/evt_sererr/",
+      "action": "REPLACE",
+      "target": "Catalog(2:16~2:24) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(7:4~7:10) /test/1/catalog1/schema1/substr/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_061_behavior_review]
+sql:
+create or replace trigger evt_backup_database
+after backup database on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation)
+  values('EVT_BACKUP_DATABASE', 'BACKUP DATABASE');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:45) /test/1/catalog1/schema1/evt_backup_database/",
+      "action": "REPLACE",
+      "target": "Catalog(2:25~2:33) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_062_behavior_review]
+sql:
+create or replace trigger evt_restore_database
+after restore database on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log
+    (trigger_name, operation)
+  values('EVT_RESTORE_DATABASE', 'RESTORE DATABASE');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:46) /test/1/catalog1/schema1/evt_restore_database/",
+      "action": "REPLACE",
+      "target": "Catalog(2:26~2:34) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_063_behavior_review]
+sql:
+create or replace trigger evt_startup
+after startup on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_STARTUP', 'STARTUP');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:37) /test/1/catalog1/schema1/evt_startup/",
+      "action": "REPLACE",
+      "target": "Catalog(2:17~2:25) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_064_behavior_review]
+sql:
+create or replace trigger evt_shutdown
+before shutdown on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_SHUTDOWN', 'SHUTDOWN');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:38) /test/1/catalog1/schema1/evt_shutdown/",
+      "action": "REPLACE",
+      "target": "Catalog(2:19~2:27) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_065_behavior_review]
+sql:
+create or replace trigger evt_audit
+after audit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_AUDIT', 'AUDIT');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:35) /test/1/catalog1/schema1/evt_audit/",
+      "action": "REPLACE",
+      "target": "Catalog(2:15~2:23) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_066_behavior_review]
+sql:
+create or replace trigger evt_noaudit
+after noaudit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_NOAUDIT', 'NOAUDIT');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:37) /test/1/catalog1/schema1/evt_noaudit/",
+      "action": "REPLACE",
+      "target": "Catalog(2:17~2:25) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_067_behavior_review]
+sql:
+create or replace trigger evt_checkpoint
+after checkpoint on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_CHECKPOINT', 'CHECKPOINT');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:40) /test/1/catalog1/schema1/evt_checkpoint/",
+      "action": "REPLACE",
+      "target": "Catalog(2:20~2:28) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_068_behavior_review]
+sql:
+create or replace trigger evt_before_audit
+before audit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_BEFORE_AUDIT', 'AUDIT');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:42) /test/1/catalog1/schema1/evt_before_audit/",
+      "action": "REPLACE",
+      "target": "Catalog(2:16~2:24) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_069_behavior_review]
+sql:
+create or replace trigger evt_before_noaudit
+before noaudit on database
+begin
+  insert into CODEX_DM8_EVENT_TRIGGER_20260721.event_log(trigger_name, operation)
+  values('EVT_BEFORE_NOAUDIT', 'NOAUDIT');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:44) /test/1/catalog1/schema1/evt_before_noaudit/",
+      "action": "REPLACE",
+      "target": "Catalog(2:18~2:26) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:56) /test/1/catalog1/CODEX_DM8_EVENT_TRIGGER_20260721/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_070_behavior_review]
+sql:
+create or replace trigger evt_backup_eventinfo
+after backup database on database
+begin
+  insert into CODEX_DM8_EVENTINFO_20260722.event_log
+    (event_name, db_name, op_user, op_time)
+  values('BACKUP EVENTINFO', :eventinfo.databasename,
+    :eventinfo.opuser, :eventinfo.optime);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:46) /test/1/catalog1/schema1/evt_backup_eventinfo/",
+      "action": "REPLACE",
+      "target": "Catalog(2:25~2:33) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:52) /test/1/catalog1/CODEX_DM8_EVENTINFO_20260722/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_event_timer_0_071_behavior_review]
+sql:
+create or replace trigger evt_restore_eventinfo
+after restore database on database
+begin
+  insert into CODEX_DM8_EVENTINFO_20260722.event_log
+    (event_name, db_name, op_user, op_time)
+  values('RESTORE EVENTINFO', :eventinfo.databasename,
+    :eventinfo.opuser, :eventinfo.optime);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:47) /test/1/catalog1/schema1/evt_restore_eventinfo/",
+      "action": "REPLACE",
+      "target": "Catalog(2:26~2:34) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:52) /test/1/catalog1/CODEX_DM8_EVENTINFO_20260722/event_log/",
+      "action": "INSERT"
+    }
+  ]
+}

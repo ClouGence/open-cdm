@@ -1,0 +1,1465 @@
+[split_block_dameng_utl_file_signature_combinations_0_001]
+sql:
+-- FOPEN_FCLOSE_POSITIONAL_DEFAULT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c001.txt','w'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c001.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:107) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:112~2:128) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:150~2:160) /test/1/CODEX_UTL_FILE_DIR/c001.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c001.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_002]
+sql:
+-- FOPEN_NAMED_MAX_LINESIZE
+declare f utl_file.file_type; begin f:=utl_file.fopen(open_mode=>'w',filename=>'c002.txt',location=>'CODEX_UTL_FILE_DIR',max_linesize=>32767); utl_file.fclose(file=>f); utl_file.fremove('CODEX_UTL_FILE_DIR','c002.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:143~2:158) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:169~2:185) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:207~2:217) /test/1/CODEX_UTL_FILE_DIR/c002.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:79~2:89) /test/1/CODEX_UTL_FILE_DIR/c002.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_003]
+sql:
+-- IS_OPEN_TRUE_FALSE
+declare f utl_file.file_type; b boolean; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c003.txt','w',1); b:=utl_file.is_open(f); if not b then raise_application_error(-20001,'expected open'); end if; utl_file.fclose(f); b:=utl_file.is_open(f); if b then raise_application_error(-20002,'expected closed'); end if; utl_file.fremove('CODEX_UTL_FILE_DIR','c003.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:143~2:166) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:200~2:215) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:254~2:277) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:313~2:329) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:351~2:361) /test/1/CODEX_UTL_FILE_DIR/c003.txt/"
+    },
+    {
+      "subject": "Function(2:50~2:64) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:86~2:96) /test/1/CODEX_UTL_FILE_DIR/c003.txt/"
+    },
+    {
+      "subject": "Function(2:108~2:124) /test/1/catalog1/utl_file/is_open/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:223~2:239) /test/1/catalog1/utl_file/is_open/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_004]
+sql:
+-- FCLOSE_ALL_ZERO_ARGUMENT
+declare f1 utl_file.file_type; f2 utl_file.file_type; begin f1:=utl_file.fopen('CODEX_UTL_FILE_DIR','c004a.txt','w'); f2:=utl_file.fopen('CODEX_UTL_FILE_DIR','c004b.txt','w'); utl_file.fclose_all(); utl_file.fremove('CODEX_UTL_FILE_DIR','c004a.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c004b.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:11~2:29) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(2:34~2:52) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:176~2:195) /test/1/catalog1/utl_file/fclose_all/",
+      "action": "CALL",
+      "target": "File(2:176~2:195) /test/1/"
+    },
+    {
+      "subject": "Procedure(2:199~2:215) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:237~2:248) /test/1/CODEX_UTL_FILE_DIR/c004a.txt/"
+    },
+    {
+      "subject": "Procedure(2:251~2:267) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:289~2:300) /test/1/CODEX_UTL_FILE_DIR/c004b.txt/"
+    },
+    {
+      "subject": "Function(2:64~2:78) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:100~2:111) /test/1/CODEX_UTL_FILE_DIR/c004a.txt/"
+    },
+    {
+      "subject": "Function(2:122~2:136) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:158~2:169) /test/1/CODEX_UTL_FILE_DIR/c004b.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_005]
+sql:
+-- PUT_TEXT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c005.txt','w',32767); utl_file.put(f,'DM8_FILE_PUT'); utl_file.new_line(f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c005.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:98~2:110) /test/1/catalog1/utl_file/put/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:130~2:147) /test/1/catalog1/utl_file/new_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:152~2:167) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:172~2:188) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:210~2:220) /test/1/CODEX_UTL_FILE_DIR/c005.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c005.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_006]
+sql:
+-- PUT_LINE_DEFAULT_AUTOFLUSH
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c006.txt','w'); utl_file.put_line(f,'DM8_FILE_LINE'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c006.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:109) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:130~2:145) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:150~2:166) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:188~2:198) /test/1/CODEX_UTL_FILE_DIR/c006.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c006.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_007]
+sql:
+-- PUT_LINE_NAMED_AUTOFLUSH_TRUE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c007.txt','w'); utl_file.put_line(autoflush=>true,buffer=>'DM8_FILE_FLUSH',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c007.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:109) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:161~2:176) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:181~2:197) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:219~2:229) /test/1/CODEX_UTL_FILE_DIR/c007.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c007.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_008]
+sql:
+-- NEW_LINE_DEFAULT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c008.txt','w'); utl_file.new_line(f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c008.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:109) /test/1/catalog1/utl_file/new_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:114~2:129) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:134~2:150) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:172~2:182) /test/1/CODEX_UTL_FILE_DIR/c008.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c008.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_009]
+sql:
+-- NEW_LINE_EXPLICIT
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c009.txt','w'); utl_file.new_line(lines=>2,file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c009.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:109) /test/1/catalog1/utl_file/new_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:129~2:144) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:149~2:165) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:187~2:197) /test/1/CODEX_UTL_FILE_DIR/c009.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c009.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_010]
+sql:
+-- FFLUSH_AFTER_NEWLINE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c010.txt','w'); utl_file.put_line(f,'DM8_FLUSH'); utl_file.fflush(f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c010.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:109) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:126~2:141) /test/1/catalog1/utl_file/fflush/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:146~2:161) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:166~2:182) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:204~2:214) /test/1/CODEX_UTL_FILE_DIR/c010.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c010.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_011]
+sql:
+-- FGETPOS_ZERO_AND_AFTER_WRITE
+declare f utl_file.file_type; n int; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c011.txt','w'); n:=utl_file.fgetpos(f); utl_file.put_line(f,'ABC'); n:=utl_file.fgetpos(f); if n<=0 then raise_application_error(-20003,'expected positive position'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c011.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:123~2:140) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:188~2:211) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:258~2:273) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:278~2:294) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:316~2:326) /test/1/CODEX_UTL_FILE_DIR/c011.txt/"
+    },
+    {
+      "subject": "Function(2:46~2:60) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:82~2:92) /test/1/CODEX_UTL_FILE_DIR/c011.txt/"
+    },
+    {
+      "subject": "Function(2:102~2:118) /test/1/catalog1/utl_file/fgetpos/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:154~2:170) /test/1/catalog1/utl_file/fgetpos/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_012]
+sql:
+-- FREMOVE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c012.txt','w'); utl_file.fclose(f); utl_file.fremove(location=>'CODEX_UTL_FILE_DIR',filename=>'c012.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:107) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:112~2:128) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:170~2:180) /test/1/CODEX_UTL_FILE_DIR/c012.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c012.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_013]
+sql:
+-- FRENAME_DEFAULT_OVERWRITE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c013a.txt','w'); utl_file.fclose(f); utl_file.frename('CODEX_UTL_FILE_DIR','c013a.txt','CODEX_UTL_FILE_DIR','c013b.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c013b.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:93~2:108) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:113~2:129) /test/1/catalog1/utl_file/frename/",
+      "action": "CALL",
+      "target": [
+        "File(2:151~2:162) /test/1/CODEX_UTL_FILE_DIR/c013a.txt/",
+        "File(2:184~2:195) /test/1/CODEX_UTL_FILE_DIR/c013b.txt/"
+      ]
+    },
+    {
+      "subject": "Procedure(2:198~2:214) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:236~2:247) /test/1/CODEX_UTL_FILE_DIR/c013b.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:86) /test/1/CODEX_UTL_FILE_DIR/c013a.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_014]
+sql:
+-- FRENAME_NAMED_OVERWRITE_TRUE
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c014a.txt','w'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c014b.txt','w'); utl_file.fclose(f); utl_file.frename(overwrite=>true,dest_filename=>'c014b.txt',dest_location=>'CODEX_UTL_FILE_DIR',src_filename=>'c014a.txt',src_location=>'CODEX_UTL_FILE_DIR'); utl_file.fremove('CODEX_UTL_FILE_DIR','c014b.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:93~2:108) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:170~2:185) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:190~2:206) /test/1/catalog1/utl_file/frename/",
+      "action": "CALL",
+      "target": [
+        "File(2:300~2:311) /test/1/CODEX_UTL_FILE_DIR/c014a.txt/",
+        "File(2:238~2:249) /test/1/CODEX_UTL_FILE_DIR/c014b.txt/"
+      ]
+    },
+    {
+      "subject": "Procedure(2:349~2:365) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:387~2:398) /test/1/CODEX_UTL_FILE_DIR/c014b.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:86) /test/1/CODEX_UTL_FILE_DIR/c014a.txt/"
+    },
+    {
+      "subject": "Function(2:116~2:130) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:152~2:163) /test/1/CODEX_UTL_FILE_DIR/c014b.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_015]
+sql:
+-- GET_LINE_DEFAULT
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c015.txt','w'); utl_file.put_line(f,'DM8_GET_LINE'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c015.txt','r'); utl_file.get_line(f,t); if t<>'DM8_GET_LINE' then raise_application_error(-20004,'line mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c015.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:110~2:127) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:147~2:162) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:223~2:240) /test/1/catalog1/utl_file/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:273~2:296) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:330~2:345) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:350~2:366) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:388~2:398) /test/1/CODEX_UTL_FILE_DIR/c015.txt/"
+    },
+    {
+      "subject": "Function(2:57~2:71) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:93~2:103) /test/1/CODEX_UTL_FILE_DIR/c015.txt/"
+    },
+    {
+      "subject": "Function(2:170~2:184) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:206~2:216) /test/1/CODEX_UTL_FILE_DIR/c015.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_016]
+sql:
+-- GET_LINE_NAMED_LEN
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c016.txt','w'); utl_file.put_line(f,'ABCDEFG'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c016.txt','r'); utl_file.get_line(len=>3,buffer=>t,file=>f); if t<>'ABC' then raise_application_error(-20005,'line length mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c016.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:110~2:127) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:142~2:157) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:218~2:235) /test/1/catalog1/utl_file/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:280~2:303) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:344~2:359) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:364~2:380) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:402~2:412) /test/1/CODEX_UTL_FILE_DIR/c016.txt/"
+    },
+    {
+      "subject": "Function(2:57~2:71) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:93~2:103) /test/1/CODEX_UTL_FILE_DIR/c016.txt/"
+    },
+    {
+      "subject": "Function(2:165~2:179) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:201~2:211) /test/1/CODEX_UTL_FILE_DIR/c016.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_017]
+sql:
+-- FSEEK_ABSOLUTE_RELATIVE
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c017.txt','w'); utl_file.put_line(f,'ABCDE'); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c017.txt','r'); utl_file.fseek(f,2); utl_file.fseek(f,0,1); utl_file.get_line(f,t); if t<>'DE' then raise_application_error(-20006,'seek mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c017.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:110~2:127) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:140~2:155) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:216~2:230) /test/1/catalog1/utl_file/fseek/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:237~2:251) /test/1/catalog1/utl_file/fseek/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:260~2:277) /test/1/catalog1/utl_file/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:300~2:323) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:357~2:372) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:377~2:393) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:415~2:425) /test/1/CODEX_UTL_FILE_DIR/c017.txt/"
+    },
+    {
+      "subject": "Function(2:57~2:71) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:93~2:103) /test/1/CODEX_UTL_FILE_DIR/c017.txt/"
+    },
+    {
+      "subject": "Function(2:163~2:177) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:199~2:209) /test/1/CODEX_UTL_FILE_DIR/c017.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_018]
+sql:
+-- FGETATTR_EXISTING
+declare f utl_file.file_type; e boolean; n number; b number; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c018.txt','w'); utl_file.put_line(f,'ATTR'); utl_file.fclose(f); utl_file.fgetattr('CODEX_UTL_FILE_DIR','c018.txt',e,n,b); if not e or n<=0 or b<=0 then raise_application_error(-20007,'attribute mismatch'); end if; utl_file.fremove('CODEX_UTL_FILE_DIR','c018.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:123~2:140) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:152~2:167) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:172~2:189) /test/1/catalog1/utl_file/fgetattr/",
+      "action": "CALL",
+      "target": "File(2:211~2:221) /test/1/CODEX_UTL_FILE_DIR/c018.txt/"
+    },
+    {
+      "subject": "Procedure(2:260~2:283) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:322~2:338) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:360~2:370) /test/1/CODEX_UTL_FILE_DIR/c018.txt/"
+    },
+    {
+      "subject": "Function(2:70~2:84) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:106~2:116) /test/1/CODEX_UTL_FILE_DIR/c018.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_019]
+sql:
+-- FGETATTR_MISSING_NAMED
+declare e boolean; n number; b number; begin utl_file.fgetattr(blocksize=>b,file_length=>n,fexists=>e,filename=>'missing.txt',location=>'CODEX_UTL_FILE_DIR'); if e or n is not null or b is not null then raise_application_error(-20008,'missing attribute mismatch'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:45~2:62) /test/1/catalog1/utl_file/fgetattr/",
+      "action": "CALL",
+      "target": "File(2:112~2:125) /test/1/CODEX_UTL_FILE_DIR/missing.txt/"
+    },
+    {
+      "subject": "Procedure(2:203~2:226) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_020]
+sql:
+-- FCOPY_DEFAULT_LINES
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c020src.txt','w'); utl_file.put_line(f,'L1'); utl_file.put_line(f,'L2'); utl_file.fclose(f); utl_file.fcopy('CODEX_UTL_FILE_DIR','c020src.txt','CODEX_UTL_FILE_DIR','c020dst.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c020src.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c020dst.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:95~2:112) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:122~2:139) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:149~2:164) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:169~2:183) /test/1/catalog1/utl_file/fcopy/",
+      "action": "CALL",
+      "target": [
+        "File(2:205~2:218) /test/1/CODEX_UTL_FILE_DIR/c020src.txt/",
+        "File(2:240~2:253) /test/1/CODEX_UTL_FILE_DIR/c020dst.txt/"
+      ]
+    },
+    {
+      "subject": "Procedure(2:256~2:272) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:294~2:307) /test/1/CODEX_UTL_FILE_DIR/c020src.txt/"
+    },
+    {
+      "subject": "Procedure(2:310~2:326) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:348~2:361) /test/1/CODEX_UTL_FILE_DIR/c020dst.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:88) /test/1/CODEX_UTL_FILE_DIR/c020src.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_021]
+sql:
+-- FCOPY_NAMED_LINE_RANGE
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c021src.txt','w'); utl_file.put_line(f,'L1'); utl_file.put_line(f,'L2'); utl_file.put_line(f,'L3'); utl_file.fclose(f); utl_file.fcopy(end_line=>2,start_line=>2,dest_filename=>'c021dst.txt',dest_location=>'CODEX_UTL_FILE_DIR',src_filename=>'c021src.txt',src_location=>'CODEX_UTL_FILE_DIR'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c021dst.txt','r'); utl_file.get_line(f,t); utl_file.fclose(f); if t<>'L2' then raise_application_error(-20009,'copy mismatch'); end if; utl_file.fremove('CODEX_UTL_FILE_DIR','c021src.txt'); utl_file.fremove('CODEX_UTL_FILE_DIR','c021dst.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:113~2:130) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:140~2:157) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:167~2:184) /test/1/catalog1/utl_file/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:194~2:209) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:214~2:228) /test/1/catalog1/utl_file/fcopy/",
+      "action": "CALL",
+      "target": [
+        "File(2:334~2:347) /test/1/CODEX_UTL_FILE_DIR/c021src.txt/",
+        "File(2:270~2:283) /test/1/CODEX_UTL_FILE_DIR/c021dst.txt/"
+      ]
+    },
+    {
+      "subject": "Procedure(2:444~2:461) /test/1/catalog1/utl_file/get_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:468~2:483) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:504~2:527) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:561~2:577) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:599~2:612) /test/1/CODEX_UTL_FILE_DIR/c021src.txt/"
+    },
+    {
+      "subject": "Procedure(2:615~2:631) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:653~2:666) /test/1/CODEX_UTL_FILE_DIR/c021dst.txt/"
+    },
+    {
+      "subject": "Function(2:57~2:71) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:93~2:106) /test/1/CODEX_UTL_FILE_DIR/c021src.txt/"
+    },
+    {
+      "subject": "Function(2:388~2:402) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:424~2:437) /test/1/CODEX_UTL_FILE_DIR/c021dst.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_022]
+sql:
+-- PUTF_NO_OPTIONAL_ARGUMENTS
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c022.txt','w'); utl_file.putf(f,'PLAIN\n'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c022.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:105) /test/1/catalog1/utl_file/putf/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:120~2:135) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:140~2:156) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:178~2:188) /test/1/CODEX_UTL_FILE_DIR/c022.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c022.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_023]
+sql:
+-- PUTF_ALL_ARGUMENTS_NAMED
+declare f utl_file.file_type; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c023.txt','w'); utl_file.putf(arg5=>'5',arg4=>'4',arg3=>'3',arg2=>'2',arg1=>'1',format=>'%s%s%s%s%s\n',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c023.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:92~2:105) /test/1/catalog1/utl_file/putf/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:189~2:204) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:209~2:225) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:247~2:257) /test/1/CODEX_UTL_FILE_DIR/c023.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:53) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:75~2:85) /test/1/CODEX_UTL_FILE_DIR/c023.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_024]
+sql:
+-- FOPEN_NCHAR_DEFAULT
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c024.txt','w'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c024.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:98~2:113) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:118~2:134) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:156~2:166) /test/1/CODEX_UTL_FILE_DIR/c024.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:59) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:81~2:91) /test/1/CODEX_UTL_FILE_DIR/c024.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_025]
+sql:
+-- FOPEN_NCHAR_NAMED_MAX_LINESIZE
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar(max_linesize=>32767,open_mode=>'w',filename=>'c025.txt',location=>'CODEX_UTL_FILE_DIR'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c025.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:149~2:164) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:169~2:185) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:207~2:217) /test/1/CODEX_UTL_FILE_DIR/c025.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:59) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:105~2:115) /test/1/CODEX_UTL_FILE_DIR/c025.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_026]
+sql:
+-- PUT_NCHAR_AND_GET_LINE_NCHAR_DEFAULT
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c026.txt','w'); utl_file.put_nchar(f,'达梦UTF8'); utl_file.new_line(f); utl_file.fclose(f); f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c026.txt','r'); utl_file.get_line_nchar(f,t); if t<>'达梦UTF8' then raise_application_error(-20010,'nchar mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c026.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:116~2:134) /test/1/catalog1/utl_file/put_nchar/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:148~2:165) /test/1/catalog1/utl_file/new_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:170~2:185) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:252~2:275) /test/1/catalog1/utl_file/get_line_nchar/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:302~2:325) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:360~2:375) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:380~2:396) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:418~2:428) /test/1/CODEX_UTL_FILE_DIR/c026.txt/"
+    },
+    {
+      "subject": "Function(2:57~2:77) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:99~2:109) /test/1/CODEX_UTL_FILE_DIR/c026.txt/"
+    },
+    {
+      "subject": "Function(2:193~2:213) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:235~2:245) /test/1/CODEX_UTL_FILE_DIR/c026.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_027]
+sql:
+-- GET_LINE_NCHAR_NAMED_LEN
+declare f utl_file.file_type; t varchar(32767); begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c027.txt','w'); utl_file.put_line_nchar(f,'ABCDEFG'); utl_file.fclose(f); f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c027.txt','r'); utl_file.get_line_nchar(len=>3,buffer=>t,file=>f); if t<>'ABC' then raise_application_error(-20011,'nchar length mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c027.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:116~2:139) /test/1/catalog1/utl_file/put_line_nchar/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:154~2:169) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:236~2:259) /test/1/catalog1/utl_file/get_line_nchar/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:304~2:327) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:369~2:384) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:389~2:405) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:427~2:437) /test/1/CODEX_UTL_FILE_DIR/c027.txt/"
+    },
+    {
+      "subject": "Function(2:57~2:77) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:99~2:109) /test/1/CODEX_UTL_FILE_DIR/c027.txt/"
+    },
+    {
+      "subject": "Function(2:177~2:197) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:219~2:229) /test/1/CODEX_UTL_FILE_DIR/c027.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_028]
+sql:
+-- PUT_LINE_NCHAR_DEFAULT_AUTOFLUSH
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c028.txt','w'); utl_file.put_line_nchar(f,'DM8_NCHAR_LINE'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c028.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:98~2:121) /test/1/catalog1/utl_file/put_line_nchar/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:143~2:158) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:163~2:179) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:201~2:211) /test/1/CODEX_UTL_FILE_DIR/c028.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:59) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:81~2:91) /test/1/CODEX_UTL_FILE_DIR/c028.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_029]
+sql:
+-- PUT_LINE_NCHAR_NAMED_AUTOFLUSH_TRUE
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c029.txt','w'); utl_file.put_line_nchar(autoflush=>true,buffer=>'达梦刷写',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c029.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:98~2:121) /test/1/catalog1/utl_file/put_line_nchar/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:163~2:178) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:183~2:199) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:221~2:231) /test/1/CODEX_UTL_FILE_DIR/c029.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:59) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:81~2:91) /test/1/CODEX_UTL_FILE_DIR/c029.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_030]
+sql:
+-- PUTF_NCHAR_NO_OPTIONAL_ARGUMENTS
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c030.txt','w'); utl_file.putf_nchar(f,'纯文本\n'); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c030.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:98~2:117) /test/1/catalog1/utl_file/putf_nchar/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:130~2:145) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:150~2:166) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:188~2:198) /test/1/CODEX_UTL_FILE_DIR/c030.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:59) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:81~2:91) /test/1/CODEX_UTL_FILE_DIR/c030.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_031]
+sql:
+-- PUTF_NCHAR_ALL_ARGUMENTS_NAMED
+declare f utl_file.file_type; begin f:=utl_file.fopen_nchar('CODEX_UTL_FILE_DIR','c031.txt','w'); utl_file.putf_nchar(arg5=>'5',arg4=>'4',arg3=>'3',arg2=>'2',arg1=>'1',format=>'%s%s%s%s%s\n',file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c031.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:98~2:117) /test/1/catalog1/utl_file/putf_nchar/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:201~2:216) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:221~2:237) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:259~2:269) /test/1/CODEX_UTL_FILE_DIR/c031.txt/"
+    },
+    {
+      "subject": "Function(2:39~2:59) /test/1/catalog1/utl_file/fopen_nchar/",
+      "action": "CALL",
+      "target": "File(2:81~2:91) /test/1/CODEX_UTL_FILE_DIR/c031.txt/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_032]
+sql:
+-- PUT_RAW_DEFAULT_AUTOFLUSH
+declare f utl_file.file_type; b blob; begin b:=hextoraw('444D38524157'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c032.bin','wb',32767); utl_file.put_raw(f,b); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c032.bin'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:136~2:152) /test/1/catalog1/utl_file/put_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:159~2:174) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:179~2:195) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:217~2:227) /test/1/CODEX_UTL_FILE_DIR/c032.bin/"
+    },
+    {
+      "subject": "Function(2:47~2:55) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:76~2:90) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:112~2:122) /test/1/CODEX_UTL_FILE_DIR/c032.bin/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_033]
+sql:
+-- PUT_RAW_NAMED_AUTOFLUSH_TRUE
+declare f utl_file.file_type; b blob; begin b:=hextoraw('00FF01'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c033.bin','wb',32767); utl_file.put_raw(autoflush=>true,buffer=>b,file=>f); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c033.bin'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:130~2:146) /test/1/catalog1/utl_file/put_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:183~2:198) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:203~2:219) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:241~2:251) /test/1/CODEX_UTL_FILE_DIR/c033.bin/"
+    },
+    {
+      "subject": "Function(2:47~2:55) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:70~2:84) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:106~2:116) /test/1/CODEX_UTL_FILE_DIR/c033.bin/"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_034]
+sql:
+-- GET_RAW_FUNCTION_DEFAULT_LEN
+declare f utl_file.file_type; b blob; n int; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c034.bin','wb',32767); b:=hextoraw('444D38524157'); utl_file.put_raw(f,b,true); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c034.bin','rb',32767); n:=utl_file.get_raw(f,b); if n<>6 then raise_application_error(-20012,'raw length mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c034.bin'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:143~2:159) /test/1/catalog1/utl_file/put_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:171~2:186) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:293~2:316) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:356~2:371) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:376~2:392) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:414~2:424) /test/1/CODEX_UTL_FILE_DIR/c034.bin/"
+    },
+    {
+      "subject": "Function(2:54~2:68) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:90~2:100) /test/1/CODEX_UTL_FILE_DIR/c034.bin/"
+    },
+    {
+      "subject": "Function(2:117~2:125) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:194~2:208) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:230~2:240) /test/1/CODEX_UTL_FILE_DIR/c034.bin/"
+    },
+    {
+      "subject": "Function(2:257~2:273) /test/1/catalog1/utl_file/get_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_035]
+sql:
+-- GET_RAW_FUNCTION_NAMED_LEN
+declare f utl_file.file_type; b blob; n int; begin f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c035.bin','wb',32767); b:=hextoraw('0102030405'); utl_file.put_raw(f,b,true); utl_file.fclose(f); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c035.bin','rb',32767); n:=utl_file.get_raw(len=>3,buffer=>b,file=>f); if n<>3 then raise_application_error(-20013,'raw partial mismatch'); end if; utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c035.bin'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:141~2:157) /test/1/catalog1/utl_file/put_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:169~2:184) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:312~2:335) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:376~2:391) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:396~2:412) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:434~2:444) /test/1/CODEX_UTL_FILE_DIR/c035.bin/"
+    },
+    {
+      "subject": "Function(2:54~2:68) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:90~2:100) /test/1/CODEX_UTL_FILE_DIR/c035.bin/"
+    },
+    {
+      "subject": "Function(2:117~2:125) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:192~2:206) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:228~2:238) /test/1/CODEX_UTL_FILE_DIR/c035.bin/"
+    },
+    {
+      "subject": "Function(2:255~2:271) /test/1/catalog1/utl_file/get_raw/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_utl_file_signature_combinations_0_036]
+sql:
+-- PUT_RAW_ON_TEXT_HANDLE_PACK29
+declare f utl_file.file_type; b blob; begin b:=hextoraw('01'); f:=utl_file.fopen('CODEX_UTL_FILE_DIR','c036.txt','w'); utl_file.put_raw(f,b,true); utl_file.fclose(f); utl_file.fremove('CODEX_UTL_FILE_DIR','c036.txt'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/utl_file/file_type/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:119~2:135) /test/1/catalog1/utl_file/put_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:147~2:162) /test/1/catalog1/utl_file/fclose/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:167~2:183) /test/1/catalog1/utl_file/fremove/",
+      "action": "CALL",
+      "target": "File(2:205~2:215) /test/1/CODEX_UTL_FILE_DIR/c036.txt/"
+    },
+    {
+      "subject": "Function(2:47~2:55) /test/1/catalog1/schema1/hextoraw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:66~2:80) /test/1/catalog1/utl_file/fopen/",
+      "action": "CALL",
+      "target": "File(2:102~2:112) /test/1/CODEX_UTL_FILE_DIR/c036.txt/"
+    }
+  ]
+}

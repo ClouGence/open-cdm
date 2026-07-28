@@ -1,0 +1,92 @@
+[split_block_dameng_dbms_audit_signature_combinations_0_001]
+sql:
+-- FUNC-0277 ADD_AUDFILE
+begin DBMS_AUDIT.ADD_AUDFILE('/audit/AUDIT_CODEX.log'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:28) /test/1/catalog1/DBMS_AUDIT/ADD_AUDFILE/",
+      "action": "CALL",
+      "target": "File(2:29~2:53) /test/1/audit/AUDIT_CODEX.log/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_audit_signature_combinations_0_002]
+sql:
+-- FUNC-0278 END_AUD
+begin DBMS_AUDIT.END_AUD(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:24) /test/1/catalog1/DBMS_AUDIT/END_AUD/",
+      "action": "CALL",
+      "target": "Environment(2:6~2:24) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_audit_signature_combinations_0_003]
+sql:
+-- FUNC-0279 REMOVE_AUDFILE
+begin DBMS_AUDIT.REMOVE_AUDFILE('/audit/AUDIT_CODEX.log'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:31) /test/1/catalog1/DBMS_AUDIT/REMOVE_AUDFILE/",
+      "action": "CALL",
+      "target": "File(2:32~2:56) /test/1/audit/AUDIT_CODEX.log/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_audit_signature_combinations_0_004]
+sql:
+-- FUNC-0280 START_AUD parameterized overload
+begin DBMS_AUDIT.START_AUD(startTime=>sysdate-1,endTime=>sysdate+1,userName=>'SYSDBA',ip=>'',succFlag=>1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:26) /test/1/catalog1/DBMS_AUDIT/START_AUD/",
+      "action": "CALL",
+      "target": "Environment(2:6~2:26) /test/1/"
+    },
+    {
+      "subject": "Function(2:38~2:45) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:57~2:64) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_audit_signature_combinations_0_005]
+sql:
+-- FUNC-0281 START_AUD zero-argument overload
+begin DBMS_AUDIT.START_AUD(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:26) /test/1/catalog1/DBMS_AUDIT/START_AUD/",
+      "action": "CALL",
+      "target": "Environment(2:6~2:26) /test/1/"
+    }
+  ]
+}

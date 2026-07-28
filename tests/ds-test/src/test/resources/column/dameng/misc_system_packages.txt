@@ -1,0 +1,25 @@
+[binary_payload_column]
+sql:
+select dbms_binary.binary_get_int(payload, 0) as decoded_value from catalog1.app.binary_data
+expect:
+{
+  "decoded_value" : [ "/catalog1/app/binary_data/payload/" ]
+}
+----------
+[url_i18n_columns]
+sql:
+select utl_url.escape(endpoint_url) as escaped_url, utl_i18n.string_to_raw(note, 'UTF8') as raw_note from catalog1.app.endpoints
+expect:
+{
+  "escaped_url" : [ "/catalog1/app/endpoints/endpoint_url/" ],
+  "raw_note" : [ "/catalog1/app/endpoints/note/" ]
+}
+----------
+[errlog_columns]
+sql:
+select DM_ERR_NUMBER$ as error_number, DM_ERR_TAG$ as error_tag from catalog1.app.err_orders
+expect:
+{
+  "error_number" : [ "/catalog1/app/err_orders/DM_ERR_NUMBER$/" ],
+  "error_tag" : [ "/catalog1/app/err_orders/DM_ERR_TAG$/" ]
+}

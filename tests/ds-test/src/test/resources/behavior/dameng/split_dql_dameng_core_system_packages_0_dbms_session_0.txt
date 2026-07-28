@@ -1,0 +1,33 @@
+[split_dql_dameng_core_system_packages_0_010]
+sql:
+select dbms_session.unique_session_id();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:37) /test/1/catalog1/dbms_session/unique_session_id/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_core_system_packages_0_011]
+sql:
+select dbms_session.is_session_alive(dbms_session.unique_session_id());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/dbms_session/is_session_alive/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:37~1:67) /test/1/catalog1/dbms_session/unique_session_id/",
+      "action": "CALL"
+    }
+  ]
+}

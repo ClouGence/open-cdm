@@ -1,0 +1,14 @@
+[predicate]
+sql:
+select t.id as source_id,
+case when app.bool_f(t.id) then 1 else 0 end as truth_value
+from catalog1.app.bool_expr t
+expect:
+{"source_id":["/catalog1/app/bool_expr/id/"],"truth_value":["/catalog1/app/bool_expr/id/"]}
+----------
+[conversion]
+sql:
+select cast(t.id as boolean) as bool_value,
+cast(cast(t.id as boolean) as int) as int_value from catalog1.app.bool_expr t
+expect:
+{"bool_value":["/catalog1/app/bool_expr/id/"],"int_value":["/catalog1/app/bool_expr/id/"]}

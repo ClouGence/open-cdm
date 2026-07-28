@@ -1,0 +1,14 @@
+[ddl]
+sql:
+create table app.int_type_t(id int,c_tiny tinyint,c_big bigint);
+create view app.int_type_v as select id,c_tiny,c_big from app.int_type_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"int_type_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"int_type_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"int_type_t"}]}
+----------
+[dml]
+sql:
+insert into app.int_type_t values(1,-1,-1);
+update app.int_type_t set c_big=c_big+1 where id=1;
+delete from app.int_type_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"int_type_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"int_type_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"int_type_t"}]}

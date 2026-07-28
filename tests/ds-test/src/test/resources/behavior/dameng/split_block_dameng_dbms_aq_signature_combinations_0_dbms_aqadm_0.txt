@@ -1,0 +1,232 @@
+[split_block_dameng_dbms_aq_signature_combinations_0_005]
+sql:
+-- FUNC-0262 DBMS_AQADM.ADD_SUBSCRIBER
+call DBMS_AQADM.ADD_SUBSCRIBER('SYSDBA.Q',SYS.AQ$_AGENT('S',NULL,0),NULL,NULL,FALSE,DBMS_AQADM.PERSISTENT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/DBMS_AQADM/ADD_SUBSCRIBER/",
+      "action": "CALL",
+      "target": [
+        "Queue(2:31~2:41) /test/1/catalog1/SYSDBA/Q/",
+        "QueueSubscriber(2:56~2:59) /test/1/catalog1/SYSDBA/Q/S/"
+      ]
+    },
+    {
+      "subject": "Function(2:42~2:55) /test/1/catalog1/SYS/AQ$_AGENT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_006]
+sql:
+-- FUNC-0263 DBMS_AQADM.ALTER_QUEUE
+call DBMS_AQADM.ALTER_QUEUE('SYSDBA.Q',NULL,NULL,NULL,'C');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:27) /test/1/catalog1/DBMS_AQADM/ALTER_QUEUE/",
+      "action": "CALL",
+      "target": "Queue(2:28~2:38) /test/1/catalog1/SYSDBA/Q/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_007]
+sql:
+-- FUNC-0264 DBMS_AQADM.ALTER_QUEUE_TABLE
+call DBMS_AQADM.ALTER_QUEUE_TABLE('SYSDBA.QT','C',NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:33) /test/1/catalog1/DBMS_AQADM/ALTER_QUEUE_TABLE/",
+      "action": "CALL",
+      "target": "Table(2:34~2:45) /test/1/catalog1/SYSDBA/QT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_008]
+sql:
+-- FUNC-0265 DBMS_AQADM.ALTER_SUBSCRIBER
+call DBMS_AQADM.ALTER_SUBSCRIBER('SYSDBA.Q',SYS.AQ$_AGENT('S',NULL,0),NULL,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:32) /test/1/catalog1/DBMS_AQADM/ALTER_SUBSCRIBER/",
+      "action": "CALL",
+      "target": [
+        "Queue(2:33~2:43) /test/1/catalog1/SYSDBA/Q/",
+        "QueueSubscriber(2:58~2:61) /test/1/catalog1/SYSDBA/Q/S/"
+      ]
+    },
+    {
+      "subject": "Function(2:44~2:57) /test/1/catalog1/SYS/AQ$_AGENT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_009]
+sql:
+-- FUNC-0266 DBMS_AQADM.CREATE_QUEUE
+call DBMS_AQADM.CREATE_QUEUE('SYSDBA.Q','SYSDBA.QT',DBMS_AQADM.NORMAL_QUEUE,NULL,0,0,FALSE,NULL,TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:28) /test/1/catalog1/DBMS_AQADM/CREATE_QUEUE/",
+      "action": "CALL",
+      "target": [
+        "Queue(2:29~2:39) /test/1/catalog1/SYSDBA/Q/",
+        "Table(2:40~2:51) /test/1/catalog1/SYSDBA/QT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_010]
+sql:
+-- FUNC-0267 DBMS_AQADM.CREATE_QUEUE_TABLE
+call DBMS_AQADM.CREATE_QUEUE_TABLE('SYSDBA.QT','RAW',NULL,NULL,TRUE,DBMS_AQADM.NONE,NULL,TRUE,0,0,NULL,FALSE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:34) /test/1/catalog1/DBMS_AQADM/CREATE_QUEUE_TABLE/",
+      "action": "CALL",
+      "target": "Table(2:35~2:46) /test/1/catalog1/SYSDBA/QT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_011]
+sql:
+-- FUNC-0268 DBMS_AQADM.DROP_QUEUE
+call DBMS_AQADM.DROP_QUEUE('SYSDBA.Q',TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:26) /test/1/catalog1/DBMS_AQADM/DROP_QUEUE/",
+      "action": "CALL",
+      "target": "Queue(2:27~2:37) /test/1/catalog1/SYSDBA/Q/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_012]
+sql:
+-- FUNC-0269 DBMS_AQADM.DROP_QUEUE_TABLE
+call DBMS_AQADM.DROP_QUEUE_TABLE('SYSDBA.QT',TRUE,TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:32) /test/1/catalog1/DBMS_AQADM/DROP_QUEUE_TABLE/",
+      "action": "CALL",
+      "target": "Table(2:33~2:44) /test/1/catalog1/SYSDBA/QT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_013]
+sql:
+-- FUNC-0272 DBMS_AQADM.PURGE_QUEUE_TABLE
+declare o DBMS_AQADM.AQ$_PURGE_OPTIONS_T;
+begin DBMS_AQADM.PURGE_QUEUE_TABLE('SYSDBA.QT',NULL,o); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:40) /test/1/catalog1/DBMS_AQADM/AQ$_PURGE_OPTIONS_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(3:6~3:34) /test/1/catalog1/DBMS_AQADM/PURGE_QUEUE_TABLE/",
+      "action": "CALL",
+      "target": "Table(3:35~3:46) /test/1/catalog1/SYSDBA/QT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_014]
+sql:
+-- FUNC-0274 DBMS_AQADM.REMOVE_SUBSCRIBER
+call DBMS_AQADM.REMOVE_SUBSCRIBER('SYSDBA.Q',SYS.AQ$_AGENT('S',NULL,0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:33) /test/1/catalog1/DBMS_AQADM/REMOVE_SUBSCRIBER/",
+      "action": "CALL",
+      "target": [
+        "Queue(2:34~2:44) /test/1/catalog1/SYSDBA/Q/",
+        "QueueSubscriber(2:59~2:62) /test/1/catalog1/SYSDBA/Q/S/"
+      ]
+    },
+    {
+      "subject": "Function(2:45~2:58) /test/1/catalog1/SYS/AQ$_AGENT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_015]
+sql:
+-- FUNC-0275 DBMS_AQADM.START_QUEUE
+call DBMS_AQADM.START_QUEUE('SYSDBA.Q',TRUE,TRUE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:27) /test/1/catalog1/DBMS_AQADM/START_QUEUE/",
+      "action": "CALL",
+      "target": "Queue(2:28~2:38) /test/1/catalog1/SYSDBA/Q/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_016]
+sql:
+-- FUNC-0276 DBMS_AQADM.STOP_QUEUE
+call DBMS_AQADM.STOP_QUEUE('SYSDBA.Q',TRUE,TRUE,FALSE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:26) /test/1/catalog1/DBMS_AQADM/STOP_QUEUE/",
+      "action": "CALL",
+      "target": "Queue(2:27~2:37) /test/1/catalog1/SYSDBA/Q/"
+    }
+  ]
+}

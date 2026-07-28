@@ -1,0 +1,72 @@
+[type_methods]
+sql:
+create or replace type app.t_methods as object(
+  value int,
+  static function add_two(a int, b int) return int,
+  member function get_value return int,
+  member procedure set_value(p_value int),
+  map member function map_value return int
+) not final;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"t_methods"}
+  ]
+}
+----------
+[type_methods_body]
+sql:
+create or replace type body app.t_methods as
+  member function get_value return int is
+  begin
+    return value;
+  end;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"t_methods"}
+  ]
+}
+----------
+[collection_table_query]
+sql:
+select id, values_col from app.arr_table order by id;
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"arr_table"}
+  ]
+}
+----------
+[collection_unnest_query]
+sql:
+select column_value from table(select values_col from app.arr_table where id = 2);
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"arr_table"}
+  ]
+}
+----------
+[collection_update]
+sql:
+update app.arr_table set values_col = arr_num(6, 7, 8) where id = 1;
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"arr_table"}
+  ]
+}
+----------
+[map_method_filter]
+sql:
+select id from app.method_table where obj > t_methods(4);
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"method_table"}
+  ]
+}

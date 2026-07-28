@@ -1,0 +1,132 @@
+[split_dcl_dameng_materialized_view_privileges_0_001]
+sql:
+grant create any materialized view to CODEX_DM8_MV_ACTOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Materialized(1:17~1:34) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:38~1:65) /test/1/CODEX_DM8_MV_ACTOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_materialized_view_privileges_0_002]
+sql:
+grant alter any materialized view to CODEX_DM8_MV_ACTOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Materialized(1:16~1:33) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:37~1:64) /test/1/CODEX_DM8_MV_ACTOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_materialized_view_privileges_0_003]
+sql:
+grant drop any materialized view to CODEX_DM8_MV_ACTOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Materialized(1:15~1:32) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:36~1:63) /test/1/CODEX_DM8_MV_ACTOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_materialized_view_privileges_0_004]
+sql:
+grant select any table to CODEX_DM8_MV_ACTOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:17~1:22) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:26~1:53) /test/1/CODEX_DM8_MV_ACTOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_materialized_view_privileges_0_005]
+sql:
+grant create any table to CODEX_DM8_MV_ACTOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:17~1:22) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:26~1:53) /test/1/CODEX_DM8_MV_ACTOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_materialized_view_privileges_0_006]
+sql:
+grant dba to CODEX_DM8_MV_ACTOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:40) /test/1/CODEX_DM8_MV_ACTOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_materialized_view_privileges_0_007]
+sql:
+grant create table, create materialized view to CODEX_DM8_MV_OWNER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:48~1:75) /test/1/CODEX_DM8_MV_OWNER_20260722/"
+    },
+    {
+      "subject": "Materialized(1:27~1:44) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:48~1:75) /test/1/CODEX_DM8_MV_OWNER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_materialized_view_privileges_0_008]
+sql:
+grant select on CODEX_DM8_MV_ATOM_20260722.MV_BASE to CODEX_DM8_MV_OWNER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:16~1:50) /test/1/catalog1/CODEX_DM8_MV_ATOM_20260722/MV_BASE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:54~1:81) /test/1/CODEX_DM8_MV_OWNER_20260722/"
+    }
+  ]
+}

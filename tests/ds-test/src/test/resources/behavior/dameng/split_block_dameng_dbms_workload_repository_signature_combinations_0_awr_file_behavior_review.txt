@@ -1,0 +1,86 @@
+[split_block_dameng_dbms_workload_repository_signature_combinations_0_011_awr_file_behavior_review]
+sql:
+-- FUNC-1618 SYS.AWR_REPORT_HTML positional file report
+declare low_id int; high_id int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; SYS.AWR_REPORT_HTML(low_id,high_id,'/tmp','CODEX_DM8_AWR_POSITIONAL.HTML'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:46~2:49) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:59~2:62) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:97~2:114) /test/1/catalog1/SYS/WRM$_SNAPSHOT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:116~2:135) /test/1/catalog1/SYS/AWR_REPORT_HTML/",
+      "action": "CALL",
+      "target": "File(2:158~2:189) /test/1/tmp/CODEX_DM8_AWR_POSITIONAL.HTML/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_workload_repository_signature_combinations_0_012_awr_file_behavior_review]
+sql:
+-- FUNC-1618 SYS.AWR_REPORT_HTML named and optional ID_IS_GLOBAL
+declare low_id int; high_id int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; SYS.AWR_REPORT_HTML(DEST_FILE=>'CODEX_DM8_AWR_NAMED.HTML',DEST_DIR=>'/tmp',END_ID=>high_id,START_ID=>low_id,ID_IS_GLOBAL=>FALSE); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:46~2:49) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:59~2:62) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:97~2:114) /test/1/catalog1/SYS/WRM$_SNAPSHOT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:116~2:135) /test/1/catalog1/SYS/AWR_REPORT_HTML/",
+      "action": "CALL",
+      "target": "File(2:147~2:173) /test/1/tmp/CODEX_DM8_AWR_NAMED.HTML/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_workload_repository_signature_combinations_0_013_awr_file_behavior_review]
+sql:
+-- FUNC-1619 SYS.AWR_REPORT_TEXT positional file report
+declare low_id int; high_id int; begin select min(SNAP_ID),max(SNAP_ID) into low_id,high_id from SYS.WRM$_SNAPSHOT; SYS.AWR_REPORT_TEXT(low_id,high_id,'/tmp','CODEX_DM8_AWR_REPORT.TXT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:46~2:49) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:59~2:62) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:97~2:114) /test/1/catalog1/SYS/WRM$_SNAPSHOT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:116~2:135) /test/1/catalog1/SYS/AWR_REPORT_TEXT/",
+      "action": "CALL",
+      "target": "File(2:158~2:184) /test/1/tmp/CODEX_DM8_AWR_REPORT.TXT/"
+    }
+  ]
+}

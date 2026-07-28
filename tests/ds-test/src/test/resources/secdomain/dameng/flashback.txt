@@ -1,0 +1,51 @@
+[flashback_query]
+sql:
+select id, name from app.flash_target as of timestamp sysdate - 3/86400 where id = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"flash_target"}
+  ]
+}
+----------
+[flashback_join]
+sql:
+select f.id, o.label from app.flash_target as of timestamp sysdate - 3/86400 f join app.flash_other as of timestamp sysdate - 3/86400 o on f.id = o.id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"flash_target"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"flash_other"}
+  ]
+}
+----------
+[flashback_versions]
+sql:
+select versions_startscn, versions_endscn, id from app.flash_target versions between timestamp sysdate - 3/86400 and sysdate
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"flash_target"}
+  ]
+}
+----------
+[flashback_table]
+sql:
+flashback table app.fb_time_1 to timestamp sysdate - 3/86400
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ADMIN_TABLE", "auditKind":"ADMIN", "schema":"app", "table":"fb_time_1"}
+  ]
+}
+----------
+[flashback_tables]
+sql:
+flashback table app.fb_time_2, app.fb_time_3 to timestamp sysdate - 3/86400 disable triggers
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ADMIN_TABLE", "auditKind":"ADMIN", "schema":"app", "table":"fb_time_2"},
+    {"class":"RdbTableDomain", "sqlType":"ADMIN_TABLE", "auditKind":"ADMIN", "schema":"app", "table":"fb_time_3"}
+  ]
+}

@@ -1,0 +1,9 @@
+[dbms_mview_refresh_domain]
+sql:
+call dbms_mview.refresh('APP.MV_ORDERS','C')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_mview"}
+  ]
+}

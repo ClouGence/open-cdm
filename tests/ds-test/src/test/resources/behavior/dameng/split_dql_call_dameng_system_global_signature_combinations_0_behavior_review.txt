@@ -1,0 +1,213 @@
+[split_dql_call_dameng_system_global_signature_combinations_0_001_behavior_review]
+sql:
+-- SF_CHECK_AWR_SYS
+select SF_CHECK_AWR_SYS() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:23) /test/1/catalog1/schema1/SF_CHECK_AWR_SYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_002_behavior_review]
+sql:
+-- SF_CHECK_GEO_SYS
+select SF_CHECK_GEO_SYS() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:23) /test/1/catalog1/schema1/SF_CHECK_GEO_SYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_003_behavior_review]
+sql:
+-- SF_CHECK_GEO2_SYS
+select SF_CHECK_GEO2_SYS() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:24) /test/1/catalog1/schema1/SF_CHECK_GEO2_SYS/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:32~2:36) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_004_behavior_review]
+sql:
+-- SF_CHECK_SYSTEM_PACKAGE
+select SF_CHECK_SYSTEM_PACKAGE('DBMS_BINARY') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:30) /test/1/catalog1/schema1/SF_CHECK_SYSTEM_PACKAGE/",
+      "action": "CALL",
+      "target": "Package(2:31~2:44) /test/1/DBMS_BINARY/"
+    },
+    {
+      "subject": "View(2:51~2:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_005_behavior_review]
+sql:
+-- SF_CHECK_SYSTEM_PACKAGES
+select SF_CHECK_SYSTEM_PACKAGES() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:31) /test/1/catalog1/schema1/SF_CHECK_SYSTEM_PACKAGES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_006_behavior_review]
+sql:
+-- SP_CREATE_SYSTEM_PACKAGES specific
+call SP_CREATE_SYSTEM_PACKAGES(1,'DBMS_BINARY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/schema1/SP_CREATE_SYSTEM_PACKAGES/",
+      "action": "CALL",
+      "target": "Package(2:33~2:46) /test/1/DBMS_BINARY/"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_007_behavior_review]
+sql:
+-- SP_CREATE_SYSTEM_PACKAGES all
+call SP_CREATE_SYSTEM_PACKAGES(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/schema1/SP_CREATE_SYSTEM_PACKAGES/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_008_behavior_review]
+sql:
+-- SP_INIT_AWR_SYS
+call SP_INIT_AWR_SYS(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/SP_INIT_AWR_SYS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_009_behavior_review]
+sql:
+-- SP_INIT_DBMS_SCHEDULER_SYS
+call SP_INIT_DBMS_SCHEDULER_SYS(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:31) /test/1/catalog1/schema1/SP_INIT_DBMS_SCHEDULER_SYS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_010_behavior_review]
+sql:
+-- SP_INIT_GEO_SYS environment probe
+call SP_INIT_GEO_SYS(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/SP_INIT_GEO_SYS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_011_behavior_review]
+sql:
+-- SP_INIT_GEO2_SYS environment probe
+call SP_INIT_GEO2_SYS(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:21) /test/1/catalog1/schema1/SP_INIT_GEO2_SYS/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_call_dameng_system_global_signature_combinations_0_012_behavior_review]
+sql:
+-- SP_INIT_JOB_SYS
+call SP_INIT_JOB_SYS(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/SP_INIT_JOB_SYS/",
+      "action": "CALL"
+    }
+  ]
+}

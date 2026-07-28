@@ -1,0 +1,76 @@
+[create_schema_forms]
+sql:
+create schema app authorization SYSDBA;
+create schema authorization app_owner;
+expect:
+{
+  "domains": [
+    {"class":"RdbSchemaDomain", "sqlType":"CREATE_SCHEMA", "auditKind":"CREATE", "schema":"app"},
+    {"class":"RdbSchemaDomain", "sqlType":"CREATE_SCHEMA", "auditKind":"CREATE", "schema":"app_owner"}
+  ]
+}
+----------
+[create_schema_embedded_objects]
+sql:
+create schema app authorization SYSDBA
+create table orders(id int primary key, amount decimal(12,2))
+create view v_orders as select id, amount from orders
+create index idx_orders_amount on orders(amount)
+create sequence seq_orders start with 1
+expect:
+{
+  "contains": [
+    {"class":"RdbSchemaDomain", "sqlType":"CREATE_SCHEMA", "auditKind":"CREATE", "schema":"app"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"orders"},
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"v_orders"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"},
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "name":"idx_orders_amount", "tableSchema":"app", "tableName":"orders"},
+    {"class":"RdbSequenceDomain", "sqlType":"CREATE_SEQUENCE", "auditKind":"CREATE", "schema":"app", "name":"seq_orders"}
+  ]
+}
+----------
+[switch_and_drop_schema]
+sql:
+set schema app;
+drop schema app cascade;
+expect:
+{
+  "domains": [
+    {"class":"RdbSchemaDomain", "sqlType":"SWITCH_SCHEMA", "auditKind":"QUERY", "schema":"app"},
+    {"class":"RdbSchemaDomain", "sqlType":"DROP_SCHEMA", "auditKind":"DROP", "schema":"app"}
+  ]
+}
+----------
+[create_schema_all_embedded_object_families]
+sql:
+create schema app authorization SYSDBA
+create domain positive_id int check(value > 0)
+create table base_table(id positive_id primary key, amount int)
+create procedure add_row(p_id int) as begin insert into base_table values(p_id, 1); end;
+create function plus_one(p_id int) return int as begin return p_id + 1; end;
+create trigger trg_base after insert on base_table for each row begin update base_table set amount = amount + 1 where id = :new.id; end;
+create package embed_pkg as function get_value return int; end embed_pkg;
+create package body embed_pkg as function get_value return int as begin return 3; end; end embed_pkg;
+create class embed_class as value int; member function get_value return int; end;
+create class body embed_class as member function get_value return int as begin return value; end; end;
+create link embed_link connect 'DPI' with bad_user identified by bad_password using '127.0.0.1:1';
+create materialized view log on base_table with primary key
+create materialized view mv_embed refresh complete as select id, amount from base_table
+create operator @^ (function plus_one, leftarg int);
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbSchemaDomain", "sqlType":"CREATE_SCHEMA", "auditKind":"CREATE", "schema":"app"},
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"positive_id"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"base_table"},
+    {"class":"RdbProcedureDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"add_row"},
+    {"class":"RdbFunctionDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"plus_one"},
+    {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"trg_base"},
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"embed_pkg"},
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"embed_class"},
+    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"embed_link"},
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"mv_embed"},
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"@^"}
+  ]
+}

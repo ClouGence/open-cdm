@@ -1,0 +1,131 @@
+[create_private_link]
+sql:
+create link employee_link connect 'DPI' with remote_user identified by remote_password using 'remote:5236'
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"employee_link"}
+  ]
+}
+----------
+[create_public_link]
+sql:
+create public link public_employee_link connect 'DPI' with remote_user identified by remote_password using 'remote:5236'
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"public_employee_link"}
+  ]
+}
+----------
+[select_remote_table]
+sql:
+select id, name from remote_app.employee@employee_link where id = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"remote_app", "table":"employee"},
+    {"class":"RdbObjectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "name":"employee_link"}
+  ]
+}
+----------
+[insert_remote_table]
+sql:
+insert into remote_app.employee@employee_link(id, name) values(2, 'B')
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"remote_app", "table":"employee"},
+    {"class":"RdbObjectDomain", "sqlType":"INSERT", "auditKind":"DML", "name":"employee_link"}
+  ]
+}
+----------
+[select_remote_table_schema_link]
+sql:
+select id from remote_app.employee@app.employee_link where id = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"remote_app", "table":"employee"},
+    {"class":"RdbObjectDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "name":"employee_link"}
+  ]
+}
+----------
+[update_remote_table]
+sql:
+update remote_app.employee@employee_link set name = 'C' where id = 2
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"remote_app", "table":"employee"},
+    {"class":"RdbObjectDomain", "sqlType":"UPDATE", "auditKind":"DML", "name":"employee_link"}
+  ]
+}
+----------
+[delete_remote_table]
+sql:
+delete from remote_app.employee@employee_link where id = 2
+expect:
+{
+  "contains": [
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"remote_app", "table":"employee"},
+    {"class":"RdbObjectDomain", "sqlType":"DELETE", "auditKind":"DML", "name":"employee_link"}
+  ]
+}
+----------
+[merge_remote_table]
+sql:
+merge into remote_app.employee@employee_link e using app.employee_stage s on(e.id=s.id)
+when matched then update set e.name=s.name
+when not matched then insert(id,name) values(s.id,s.name)
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"MERGE", "auditKind":"DML", "schema":"remote_app", "table":"employee"},
+    {"class":"RdbObjectDomain", "sqlType":"MERGE", "auditKind":"DML", "name":"employee_link"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee_stage"}
+  ]
+}
+----------
+[call_remote_procedure]
+sql:
+call remote_app.refresh_employee@employee_link(1)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"remote_app", "callName":"refresh_employee"},
+    {"class":"RdbObjectDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "name":"employee_link"}
+  ]
+}
+----------
+[drop_links]
+sql:
+drop link if exists employee_link restrict;
+drop public link if exists public_employee_link;
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"employee_link"},
+    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"public_employee_link"}
+  ]
+}
+----------
+[grant_link_system_privileges]
+sql:
+grant create link, drop link to link_admin
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"link_admin"}
+  ]
+}
+----------
+[revoke_link_system_privileges]
+sql:
+revoke create link, drop link from link_admin
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"link_admin"}
+  ]
+}

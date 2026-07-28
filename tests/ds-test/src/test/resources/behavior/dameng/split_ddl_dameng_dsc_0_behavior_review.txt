@@ -1,0 +1,130 @@
+[split_ddl_dameng_dsc_0_001_behavior_review]
+sql:
+create schema CODEX_DM8_DSC authorization SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:27) /test/1/catalog1/CODEX_DM8_DSC/",
+      "action": "CREATE",
+      "target": "User(1:42~1:48) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_0_002_behavior_review]
+sql:
+create table CODEX_DM8_DSC.SHARED_T(ID int primary key, OWNER_EP int, NOTE varchar(40));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/CODEX_DM8_DSC/SHARED_T/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_0_003_behavior_review]
+sql:
+create table CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG(ID int identity, SOURCE_EP int, NOTE varchar(40));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:47) /test/1/catalog1/CODEX_DM8_DSC/CHECKPOINT_EVENT_LOG/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_0_004_behavior_review]
+sql:
+create or replace trigger CODEX_DM8_DSC.EVT_CHECKPOINT_DSC
+after checkpoint on database execute at 0
+begin
+  insert into CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG(SOURCE_EP, NOTE)
+  values(0, 'DSC_CHECKPOINT');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:26~1:58) /test/1/catalog1/CODEX_DM8_DSC/EVT_CHECKPOINT_DSC/",
+      "action": "REPLACE",
+      "target": "Catalog(2:20~2:28) /test/1/catalog1/"
+    },
+    {
+      "subject": "Table(4:14~4:48) /test/1/catalog1/CODEX_DM8_DSC/CHECKPOINT_EVENT_LOG/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_0_005_behavior_review]
+sql:
+drop trigger CODEX_DM8_DSC.EVT_CHECKPOINT_DSC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:45) /test/1/catalog1/CODEX_DM8_DSC/EVT_CHECKPOINT_DSC/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_0_006_behavior_review]
+sql:
+drop table CODEX_DM8_DSC.CHECKPOINT_EVENT_LOG purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:45) /test/1/catalog1/CODEX_DM8_DSC/CHECKPOINT_EVENT_LOG/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_0_007_behavior_review]
+sql:
+drop table CODEX_DM8_DSC.SHARED_T purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:33) /test/1/catalog1/CODEX_DM8_DSC/SHARED_T/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_dsc_0_008_behavior_review]
+sql:
+drop schema CODEX_DM8_DSC cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SCHEMA": [
+    {
+      "subject": "Schema(1:12~1:25) /test/1/catalog1/CODEX_DM8_DSC/",
+      "action": "DROP"
+    }
+  ]
+}

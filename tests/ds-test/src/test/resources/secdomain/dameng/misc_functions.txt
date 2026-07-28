@@ -1,0 +1,21 @@
+[misc_function_public_signatures]
+sql:
+select
+  decode(1,1,'one','other') as decoded_value,
+  dm_hash('abc') as hash_value,
+  field('b','a','b') as field_value,
+  if(1=1,'a','b') as if_value,
+  isdate('2024-02-29') as date_flag,
+  isnumeric('1.5') as numeric_flag,
+  lengthb('达梦') as byte_length,
+  lnnvl(1=2) as lnnvl_value,
+  object_id('dual') as object_value,
+  ora_hash('abc',100,1) as ora_hash_value,
+  width_bucket(2,1,5,4) as bucket_value
+from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

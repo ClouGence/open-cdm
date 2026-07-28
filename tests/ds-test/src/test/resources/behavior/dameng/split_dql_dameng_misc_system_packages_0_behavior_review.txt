@@ -1,0 +1,124 @@
+[split_dql_dameng_misc_system_packages_0_039_behavior_review]
+sql:
+select count(*) from CODEX_DM8_ERR_LOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_040_behavior_review]
+sql:
+select count(*) from CODEX_DM8_ERR_LOG where DM_ERR_TAG$ is not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_041_behavior_review]
+sql:
+select DM_ERR_NUMBER$, DM_ERR_OPTYPE$, DM_ERR_TAG$ from CODEX_DM8_ERR_LOG order by DM_ERR_TAG$;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:56~1:73) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_042_behavior_review]
+sql:
+select count(*) from ERR$_CODEX_DM8_ERR_DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:47) /test/1/catalog1/schema1/ERR$_CODEX_DM8_ERR_DEFAULT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_043_behavior_review]
+sql:
+select count(*) from CODEX_DM8_ERR_SKIP_LOG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:43) /test/1/catalog1/schema1/CODEX_DM8_ERR_SKIP_LOG/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_044_behavior_review]
+sql:
+select count(*) from CODEX_DM8_MV_A;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:35) /test/1/catalog1/schema1/CODEX_DM8_MV_A/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_misc_system_packages_0_045_behavior_review]
+sql:
+select row_count, total_amount from CODEX_DM8_MV_B;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:50) /test/1/catalog1/schema1/CODEX_DM8_MV_B/",
+      "action": "READ"
+    }
+  ]
+}

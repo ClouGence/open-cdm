@@ -1,0 +1,116 @@
+[split_block_dameng_dbms_logmnr_signature_combinations_0_001]
+sql:
+-- FUNC-0614 ADD_LOGFILE three-argument overload
+begin DBMS_LOGMNR.ADD_LOGFILE('/archive/A.log',DBMS_LOGMNR."NEW",0); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:29) /test/1/catalog1/DBMS_LOGMNR/ADD_LOGFILE/",
+      "action": "CALL",
+      "target": "File(2:30~2:46) /test/1/archive/A.log/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_logmnr_signature_combinations_0_002]
+sql:
+-- FUNC-0615 COLUMN_PRESENT
+declare n int; begin n:=DBMS_LOGMNR.COLUMN_PRESENT(0,'APP.T.C'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:24~2:50) /test/1/catalog1/DBMS_LOGMNR/COLUMN_PRESENT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_logmnr_signature_combinations_0_003]
+sql:
+-- FUNC-0616 END_LOGMNR
+begin DBMS_LOGMNR.END_LOGMNR(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:28) /test/1/catalog1/DBMS_LOGMNR/END_LOGMNR/",
+      "action": "CALL",
+      "target": "Environment(2:6~2:28) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_logmnr_signature_combinations_0_004]
+sql:
+-- FUNC-0617 MINE_VALUE
+declare s varchar(100); begin s:=DBMS_LOGMNR.MINE_VALUE(0,'APP.T.C'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(2:33~2:55) /test/1/catalog1/DBMS_LOGMNR/MINE_VALUE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_logmnr_signature_combinations_0_005]
+sql:
+-- FUNC-0618 REMOVE_LOGFILE
+begin DBMS_LOGMNR.REMOVE_LOGFILE('/archive/A.log'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:32) /test/1/catalog1/DBMS_LOGMNR/REMOVE_LOGFILE/",
+      "action": "CALL",
+      "target": "File(2:33~2:49) /test/1/archive/A.log/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_logmnr_signature_combinations_0_006]
+sql:
+-- FUNC-0619 START_LOGMNR
+begin DBMS_LOGMNR.START_LOGMNR(options=>2128); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:30) /test/1/catalog1/DBMS_LOGMNR/START_LOGMNR/",
+      "action": "CALL",
+      "target": "Environment(2:6~2:30) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_logmnr_signature_combinations_0_007]
+sql:
+-- FUNC-1764 ADD_LOGFILE one/two-argument overload
+begin DBMS_LOGMNR.ADD_LOGFILE('/archive/A.log'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:29) /test/1/catalog1/DBMS_LOGMNR/ADD_LOGFILE/",
+      "action": "CALL",
+      "target": "File(2:30~2:46) /test/1/archive/A.log/"
+    }
+  ]
+}

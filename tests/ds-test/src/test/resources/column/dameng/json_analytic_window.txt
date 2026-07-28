@@ -1,0 +1,64 @@
+[analytic_rank_columns]
+sql:
+select t.id,row_number() over(partition by t.g order by t.v,t.id) rn
+from catalog1.app.analytic_t t
+expect:
+{
+  "id": ["/catalog1/app/analytic_t/id/"],
+  "rn": [
+    "/catalog1/app/analytic_t/g/",
+    "/catalog1/app/analytic_t/v/",
+    "/catalog1/app/analytic_t/id/"
+  ]
+}
+----------
+[analytic_aggregate_columns]
+sql:
+select t.g,sum(t.v) over(
+  partition by t.g
+  order by t.id
+  rows between 1 preceding and current row
+) running_total
+from catalog1.app.analytic_t t
+expect:
+{
+  "g": ["/catalog1/app/analytic_t/g/"],
+  "running_total": [
+    "/catalog1/app/analytic_t/v/",
+    "/catalog1/app/analytic_t/g/",
+    "/catalog1/app/analytic_t/id/"
+  ]
+}
+----------
+[analytic_navigation_columns]
+sql:
+select lag(t.v,1,t.v2) ignore nulls over(
+  partition by t.g order by t.id
+) previous_value
+from catalog1.app.analytic_t t
+expect:
+{
+  "previous_value": [
+    "/catalog1/app/analytic_t/v/",
+    "/catalog1/app/analytic_t/v2/",
+    "/catalog1/app/analytic_t/g/",
+    "/catalog1/app/analytic_t/id/"
+  ]
+}
+----------
+[analytic_join_columns]
+sql:
+select a.id,sum(b.v) over(
+  partition by a.g order by b.id rows unbounded preceding
+) running_total
+from catalog1.app.analytic_t a
+join catalog1.app.analytic_other b on a.id=b.id
+expect:
+{
+  "id": ["/catalog1/app/analytic_t/id/"],
+  "running_total": [
+    "/catalog1/app/analytic_other/v/",
+    "/catalog1/app/analytic_t/g/",
+    "/catalog1/app/analytic_other/id/"
+  ]
+}

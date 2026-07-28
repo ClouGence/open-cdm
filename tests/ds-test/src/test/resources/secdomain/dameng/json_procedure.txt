@@ -1,0 +1,70 @@
+[create_procedure]
+sql:
+create procedure app.p_basic as begin null;end;
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"p_basic"}
+  ]
+}
+----------
+[create_procedure_with_dml]
+sql:
+create procedure app.p_dml(p_id int,p_v int) authid current_user as
+begin
+  update app.proc_data set v=p_v where id=p_id;
+  insert into app.proc_log values(p_id,p_v);
+  delete from app.proc_log where id<0;
+end p_dml;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"p_dml"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"proc_data"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"proc_log"},
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"proc_log"}
+  ]
+}
+----------
+[alter_procedure]
+sql:
+alter procedure app.p_basic compile cascade debug;
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"ALTER_PROG_OBJ", "auditKind":"ALTER", "schema":"app", "name":"p_basic"}
+  ]
+}
+----------
+[call_procedure]
+sql:
+call app.p_basic;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"app"}
+  ]
+}
+----------
+[grant_revoke_procedure]
+sql:
+grant execute on procedure app.p_basic to public;
+revoke execute on procedure app.p_basic from public;
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"public"},
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"public"}
+  ]
+}
+----------
+[drop_procedure]
+sql:
+drop procedure app.p_basic cascade;
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"DROP_PROG_OBJ", "auditKind":"DROP", "schema":"app", "name":"p_basic"}
+  ]
+}

@@ -1,0 +1,13 @@
+[ddl]
+sql:
+create table app.approx_t(id int,c_float float,c_double double);
+create view app.approx_v as select id,c_float,c_double from app.approx_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"approx_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"approx_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"approx_t"}]}
+----------
+[dml]
+sql:
+insert into app.approx_t values(1,1,2);
+update app.approx_t set c_double=c_double+1 where id=1;delete from app.approx_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"approx_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"approx_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"approx_t"}]}

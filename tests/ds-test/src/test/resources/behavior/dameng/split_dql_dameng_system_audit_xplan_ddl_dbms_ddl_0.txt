@@ -1,0 +1,51 @@
+[split_dql_dameng_system_audit_xplan_ddl_dbms_ddl_0_001]
+sql:
+select length(dbms_ddl.wrap(
+  'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAP_ONLY RETURN INT AS BEGIN RETURN 7; END;'
+)) wrapped_length
+from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:27) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(4:5~4:9) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_system_audit_xplan_ddl_dbms_ddl_0_002]
+sql:
+select substr(dbms_ddl.wrap(
+  'CREATE OR REPLACE FUNCTION CODEX_DM8_WRAP_ONLY RETURN INT AS BEGIN RETURN 7; END;'
+), 1, 34) wrapped_prefix
+from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/substr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:27) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(4:5~4:9) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

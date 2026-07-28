@@ -1,0 +1,15 @@
+[utl_encode_column_lineage]
+sql:
+select
+  utl_encode.base64_encode(t.raw_value) as raw_encoded,
+  utl_encode.base64_encode(t.blob_value) as blob_encoded,
+  utl_encode.base64_decode(t.base64_value) as decoded,
+  utl_encode.base64_decode2(t.base64_value) as decoded2
+from catalog1.app.encode_source t
+expect:
+{
+  "raw_encoded": ["/catalog1/app/encode_source/raw_value/"],
+  "blob_encoded": ["/catalog1/app/encode_source/blob_value/"],
+  "decoded": ["/catalog1/app/encode_source/base64_value/"],
+  "decoded2": ["/catalog1/app/encode_source/base64_value/"]
+}

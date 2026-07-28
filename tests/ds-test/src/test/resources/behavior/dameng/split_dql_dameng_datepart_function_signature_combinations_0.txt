@@ -1,0 +1,6079 @@
+[split_dql_dameng_datepart_function_signature_combinations_0_001]
+sql:
+-- DATEADD_YEAR
+SELECT DATEADD(YEAR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_002]
+sql:
+-- DATEADD_YYYY
+SELECT DATEADD(YYYY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_003]
+sql:
+-- DATEADD_YY
+SELECT DATEADD(YY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_004]
+sql:
+-- DATEADD_SQL_TSI_YEAR
+SELECT DATEADD(SQL_TSI_YEAR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:75~2:79) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_005]
+sql:
+-- DATEADD_MONTH
+SELECT DATEADD(MONTH,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_006]
+sql:
+-- DATEADD_MM
+SELECT DATEADD(MM,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_007]
+sql:
+-- DATEADD_M
+SELECT DATEADD(M,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_008]
+sql:
+-- DATEADD_SQL_TSI_MONTH
+SELECT DATEADD(SQL_TSI_MONTH,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_009]
+sql:
+-- DATEADD_DAY
+SELECT DATEADD(DAY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_010]
+sql:
+-- DATEADD_DD
+SELECT DATEADD(DD,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_011]
+sql:
+-- DATEADD_D
+SELECT DATEADD(D,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_012]
+sql:
+-- DATEADD_SQL_TSI_DAY
+SELECT DATEADD(SQL_TSI_DAY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_013]
+sql:
+-- DATEADD_HOUR
+SELECT DATEADD(HOUR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_014]
+sql:
+-- DATEADD_HH
+SELECT DATEADD(HH,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_015]
+sql:
+-- DATEADD_SQL_TSI_HOUR
+SELECT DATEADD(SQL_TSI_HOUR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:75~2:79) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_016]
+sql:
+-- DATEADD_MINUTE
+SELECT DATEADD(MINUTE,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_017]
+sql:
+-- DATEADD_MI
+SELECT DATEADD(MI,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_018]
+sql:
+-- DATEADD_N
+SELECT DATEADD(N,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_019]
+sql:
+-- DATEADD_SQL_TSI_MINUTE
+SELECT DATEADD(SQL_TSI_MINUTE,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:77~2:81) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_020]
+sql:
+-- DATEADD_SECOND
+SELECT DATEADD(SECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_021]
+sql:
+-- DATEADD_S
+SELECT DATEADD(S,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_022]
+sql:
+-- DATEADD_SS
+SELECT DATEADD(SS,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_023]
+sql:
+-- DATEADD_SQL_TSI_SECOND
+SELECT DATEADD(SQL_TSI_SECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:77~2:81) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_024]
+sql:
+-- DATEADD_MILLISECOND
+SELECT DATEADD(MILLISECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_025]
+sql:
+-- DATEADD_MS
+SELECT DATEADD(MS,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_026]
+sql:
+-- DATEADD_SQL_TSI_FRAC_SECOND
+SELECT DATEADD(SQL_TSI_FRAC_SECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:82~2:86) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_027]
+sql:
+-- DATEADD_MICROSECOND
+SELECT DATEADD(MICROSECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_028]
+sql:
+-- DATEADD_US
+SELECT DATEADD(US,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_029]
+sql:
+-- DATEADD_QUARTER
+SELECT DATEADD(QUARTER,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_030]
+sql:
+-- DATEADD_QQ
+SELECT DATEADD(QQ,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_031]
+sql:
+-- DATEADD_Q
+SELECT DATEADD(Q,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_032]
+sql:
+-- DATEADD_SQL_TSI_QUARTER
+SELECT DATEADD(SQL_TSI_QUARTER,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:78~2:82) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_033]
+sql:
+-- DATEADD_DAYOFYEAR
+SELECT DATEADD(DAYOFYEAR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_034]
+sql:
+-- DATEADD_DY
+SELECT DATEADD(DY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_035]
+sql:
+-- DATEADD_Y
+SELECT DATEADD(Y,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_036]
+sql:
+-- DATEADD_WEEK
+SELECT DATEADD(WEEK,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_037]
+sql:
+-- DATEADD_WK
+SELECT DATEADD(WK,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_038]
+sql:
+-- DATEADD_WW
+SELECT DATEADD(WW,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_039]
+sql:
+-- DATEADD_SQL_TSI_WEEK
+SELECT DATEADD(SQL_TSI_WEEK,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:75~2:79) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_040]
+sql:
+-- DATEADD_WEEKDAY
+SELECT DATEADD(WEEKDAY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_041]
+sql:
+-- DATEADD_DW
+SELECT DATEADD(DW,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_042]
+sql:
+-- DATEADD_NULL_EACH_POSITION
+SELECT DATEADD(YEAR,NULL,TIMESTAMP '2024-02-29 12:34:56.123456'),DATEADD(YEAR,1,NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:65~2:72) /test/1/catalog1/schema1/DATEADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:91~2:95) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_043]
+sql:
+-- DATEDIFF_YEAR
+SELECT DATEDIFF(YEAR,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_044]
+sql:
+-- DATEDIFF_YYYY
+SELECT DATEDIFF(YYYY,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_045]
+sql:
+-- DATEDIFF_YY
+SELECT DATEDIFF(YY,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_046]
+sql:
+-- DATEDIFF_SQL_TSI_YEAR
+SELECT DATEDIFF(SQL_TSI_YEAR,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:113~2:117) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_047]
+sql:
+-- DATEDIFF_MONTH
+SELECT DATEDIFF(MONTH,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_048]
+sql:
+-- DATEDIFF_MM
+SELECT DATEDIFF(MM,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_049]
+sql:
+-- DATEDIFF_M
+SELECT DATEDIFF(M,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:102~2:106) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_050]
+sql:
+-- DATEDIFF_SQL_TSI_MONTH
+SELECT DATEDIFF(SQL_TSI_MONTH,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:114~2:118) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_051]
+sql:
+-- DATEDIFF_DAY
+SELECT DATEDIFF(DAY,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:104~2:108) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_052]
+sql:
+-- DATEDIFF_DD
+SELECT DATEDIFF(DD,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_053]
+sql:
+-- DATEDIFF_D
+SELECT DATEDIFF(D,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:102~2:106) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_054]
+sql:
+-- DATEDIFF_SQL_TSI_DAY
+SELECT DATEDIFF(SQL_TSI_DAY,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:112~2:116) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_055]
+sql:
+-- DATEDIFF_HOUR
+SELECT DATEDIFF(HOUR,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_056]
+sql:
+-- DATEDIFF_HH
+SELECT DATEDIFF(HH,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_057]
+sql:
+-- DATEDIFF_SQL_TSI_HOUR
+SELECT DATEDIFF(SQL_TSI_HOUR,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:113~2:117) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_058]
+sql:
+-- DATEDIFF_MINUTE
+SELECT DATEDIFF(MINUTE,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_059]
+sql:
+-- DATEDIFF_MI
+SELECT DATEDIFF(MI,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_060]
+sql:
+-- DATEDIFF_N
+SELECT DATEDIFF(N,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:102~2:106) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_061]
+sql:
+-- DATEDIFF_SQL_TSI_MINUTE
+SELECT DATEDIFF(SQL_TSI_MINUTE,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:115~2:119) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_062]
+sql:
+-- DATEDIFF_SECOND
+SELECT DATEDIFF(SECOND,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_063]
+sql:
+-- DATEDIFF_S
+SELECT DATEDIFF(S,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:102~2:106) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_064]
+sql:
+-- DATEDIFF_SS
+SELECT DATEDIFF(SS,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_065]
+sql:
+-- DATEDIFF_SQL_TSI_SECOND
+SELECT DATEDIFF(SQL_TSI_SECOND,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:115~2:119) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_066]
+sql:
+-- DATEDIFF_MILLISECOND
+SELECT DATEDIFF(MILLISECOND,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:112~2:116) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_067]
+sql:
+-- DATEDIFF_MS
+SELECT DATEDIFF(MS,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_068]
+sql:
+-- DATEDIFF_SQL_TSI_FRAC_SECOND
+SELECT DATEDIFF(SQL_TSI_FRAC_SECOND,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:120~2:124) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_069]
+sql:
+-- DATEDIFF_MICROSECOND
+SELECT DATEDIFF(MICROSECOND,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:112~2:116) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_070]
+sql:
+-- DATEDIFF_US
+SELECT DATEDIFF(US,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_071]
+sql:
+-- DATEDIFF_QUARTER
+SELECT DATEDIFF(QUARTER,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_072]
+sql:
+-- DATEDIFF_QQ
+SELECT DATEDIFF(QQ,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_073]
+sql:
+-- DATEDIFF_Q
+SELECT DATEDIFF(Q,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:102~2:106) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_074]
+sql:
+-- DATEDIFF_SQL_TSI_QUARTER
+SELECT DATEDIFF(SQL_TSI_QUARTER,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:116~2:120) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_075]
+sql:
+-- DATEDIFF_DAYOFYEAR
+SELECT DATEDIFF(DAYOFYEAR,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:110~2:114) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_076]
+sql:
+-- DATEDIFF_DY
+SELECT DATEDIFF(DY,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_077]
+sql:
+-- DATEDIFF_Y
+SELECT DATEDIFF(Y,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:102~2:106) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_078]
+sql:
+-- DATEDIFF_WEEK
+SELECT DATEDIFF(WEEK,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_079]
+sql:
+-- DATEDIFF_WK
+SELECT DATEDIFF(WK,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_080]
+sql:
+-- DATEDIFF_WW
+SELECT DATEDIFF(WW,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_081]
+sql:
+-- DATEDIFF_SQL_TSI_WEEK
+SELECT DATEDIFF(SQL_TSI_WEEK,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:113~2:117) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_082]
+sql:
+-- DATEDIFF_WEEKDAY
+SELECT DATEDIFF(WEEKDAY,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_083]
+sql:
+-- DATEDIFF_DW
+SELECT DATEDIFF(DW,TIMESTAMP '2024-02-29 12:34:55.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:103~2:107) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_084]
+sql:
+-- DATEDIFF_NULL_EACH_POSITION
+SELECT DATEDIFF(YEAR,NULL,TIMESTAMP '2024-02-29 12:34:56.123456'),DATEDIFF(YEAR,TIMESTAMP '2024-02-29 12:34:56.123456',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:66~2:74) /test/1/catalog1/schema1/DATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:130~2:134) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_085]
+sql:
+-- BIGDATEDIFF_YEAR
+SELECT BIGDATEDIFF(YEAR,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_086]
+sql:
+-- BIGDATEDIFF_YYYY
+SELECT BIGDATEDIFF(YYYY,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_087]
+sql:
+-- BIGDATEDIFF_YY
+SELECT BIGDATEDIFF(YY,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_088]
+sql:
+-- BIGDATEDIFF_SQL_TSI_YEAR
+SELECT BIGDATEDIFF(SQL_TSI_YEAR,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:116~2:120) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_089]
+sql:
+-- BIGDATEDIFF_MONTH
+SELECT BIGDATEDIFF(MONTH,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:109~2:113) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_090]
+sql:
+-- BIGDATEDIFF_MM
+SELECT BIGDATEDIFF(MM,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_091]
+sql:
+-- BIGDATEDIFF_M
+SELECT BIGDATEDIFF(M,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_092]
+sql:
+-- BIGDATEDIFF_SQL_TSI_MONTH
+SELECT BIGDATEDIFF(SQL_TSI_MONTH,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:117~2:121) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_093]
+sql:
+-- BIGDATEDIFF_DAY
+SELECT BIGDATEDIFF(DAY,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_094]
+sql:
+-- BIGDATEDIFF_DD
+SELECT BIGDATEDIFF(DD,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_095]
+sql:
+-- BIGDATEDIFF_D
+SELECT BIGDATEDIFF(D,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_096]
+sql:
+-- BIGDATEDIFF_SQL_TSI_DAY
+SELECT BIGDATEDIFF(SQL_TSI_DAY,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:115~2:119) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_097]
+sql:
+-- BIGDATEDIFF_HOUR
+SELECT BIGDATEDIFF(HOUR,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_098]
+sql:
+-- BIGDATEDIFF_HH
+SELECT BIGDATEDIFF(HH,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_099]
+sql:
+-- BIGDATEDIFF_SQL_TSI_HOUR
+SELECT BIGDATEDIFF(SQL_TSI_HOUR,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:116~2:120) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_100]
+sql:
+-- BIGDATEDIFF_MINUTE
+SELECT BIGDATEDIFF(MINUTE,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:110~2:114) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_101]
+sql:
+-- BIGDATEDIFF_MI
+SELECT BIGDATEDIFF(MI,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_102]
+sql:
+-- BIGDATEDIFF_N
+SELECT BIGDATEDIFF(N,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_103]
+sql:
+-- BIGDATEDIFF_SQL_TSI_MINUTE
+SELECT BIGDATEDIFF(SQL_TSI_MINUTE,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:118~2:122) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_104]
+sql:
+-- BIGDATEDIFF_SECOND
+SELECT BIGDATEDIFF(SECOND,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:110~2:114) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_105]
+sql:
+-- BIGDATEDIFF_S
+SELECT BIGDATEDIFF(S,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_106]
+sql:
+-- BIGDATEDIFF_SS
+SELECT BIGDATEDIFF(SS,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_107]
+sql:
+-- BIGDATEDIFF_SQL_TSI_SECOND
+SELECT BIGDATEDIFF(SQL_TSI_SECOND,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:118~2:122) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_108]
+sql:
+-- BIGDATEDIFF_MILLISECOND
+SELECT BIGDATEDIFF(MILLISECOND,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:115~2:119) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_109]
+sql:
+-- BIGDATEDIFF_MS
+SELECT BIGDATEDIFF(MS,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_110]
+sql:
+-- BIGDATEDIFF_SQL_TSI_FRAC_SECOND
+SELECT BIGDATEDIFF(SQL_TSI_FRAC_SECOND,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:123~2:127) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_111]
+sql:
+-- BIGDATEDIFF_MICROSECOND
+SELECT BIGDATEDIFF(MICROSECOND,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:115~2:119) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_112]
+sql:
+-- BIGDATEDIFF_US
+SELECT BIGDATEDIFF(US,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_113]
+sql:
+-- BIGDATEDIFF_QUARTER
+SELECT BIGDATEDIFF(QUARTER,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:111~2:115) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_114]
+sql:
+-- BIGDATEDIFF_QQ
+SELECT BIGDATEDIFF(QQ,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_115]
+sql:
+-- BIGDATEDIFF_Q
+SELECT BIGDATEDIFF(Q,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_116]
+sql:
+-- BIGDATEDIFF_SQL_TSI_QUARTER
+SELECT BIGDATEDIFF(SQL_TSI_QUARTER,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:119~2:123) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_117]
+sql:
+-- BIGDATEDIFF_DAYOFYEAR
+SELECT BIGDATEDIFF(DAYOFYEAR,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:113~2:117) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_118]
+sql:
+-- BIGDATEDIFF_DY
+SELECT BIGDATEDIFF(DY,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_119]
+sql:
+-- BIGDATEDIFF_Y
+SELECT BIGDATEDIFF(Y,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:105~2:109) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_120]
+sql:
+-- BIGDATEDIFF_WEEK
+SELECT BIGDATEDIFF(WEEK,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_121]
+sql:
+-- BIGDATEDIFF_WK
+SELECT BIGDATEDIFF(WK,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_122]
+sql:
+-- BIGDATEDIFF_WW
+SELECT BIGDATEDIFF(WW,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_123]
+sql:
+-- BIGDATEDIFF_SQL_TSI_WEEK
+SELECT BIGDATEDIFF(SQL_TSI_WEEK,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:116~2:120) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_124]
+sql:
+-- BIGDATEDIFF_WEEKDAY
+SELECT BIGDATEDIFF(WEEKDAY,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:111~2:115) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_125]
+sql:
+-- BIGDATEDIFF_DW
+SELECT BIGDATEDIFF(DW,TIMESTAMP '1900-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:106~2:110) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_126]
+sql:
+-- BIGDATEDIFF_NULL_EACH_POSITION
+SELECT BIGDATEDIFF(YEAR,NULL,TIMESTAMP '2024-02-29 12:34:56.123456'),BIGDATEDIFF(YEAR,TIMESTAMP '2024-02-29 12:34:56.123456',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:18) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:69~2:80) /test/1/catalog1/schema1/BIGDATEDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:136~2:140) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_127]
+sql:
+-- DATEPART_YEAR
+SELECT DATEPART(YEAR,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_128]
+sql:
+-- DATEPART_YYYY
+SELECT DATEPART(YYYY,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_129]
+sql:
+-- DATEPART_YY
+SELECT DATEPART(YY,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_130]
+sql:
+-- DATEPART_SQL_TSI_YEAR
+SELECT DATEPART(SQL_TSI_YEAR,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_131]
+sql:
+-- DATEPART_MONTH
+SELECT DATEPART(MONTH,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_132]
+sql:
+-- DATEPART_MM
+SELECT DATEPART(MM,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_133]
+sql:
+-- DATEPART_M
+SELECT DATEPART(M,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_134]
+sql:
+-- DATEPART_SQL_TSI_MONTH
+SELECT DATEPART(SQL_TSI_MONTH,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:75~2:79) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_135]
+sql:
+-- DATEPART_DAY
+SELECT DATEPART(DAY,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_136]
+sql:
+-- DATEPART_DD
+SELECT DATEPART(DD,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_137]
+sql:
+-- DATEPART_D
+SELECT DATEPART(D,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_138]
+sql:
+-- DATEPART_SQL_TSI_DAY
+SELECT DATEPART(SQL_TSI_DAY,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:73~2:77) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_139]
+sql:
+-- DATEPART_HOUR
+SELECT DATEPART(HOUR,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_140]
+sql:
+-- DATEPART_HH
+SELECT DATEPART(HH,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_141]
+sql:
+-- DATEPART_SQL_TSI_HOUR
+SELECT DATEPART(SQL_TSI_HOUR,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_142]
+sql:
+-- DATEPART_MINUTE
+SELECT DATEPART(MINUTE,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_143]
+sql:
+-- DATEPART_MI
+SELECT DATEPART(MI,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_144]
+sql:
+-- DATEPART_N
+SELECT DATEPART(N,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_145]
+sql:
+-- DATEPART_SQL_TSI_MINUTE
+SELECT DATEPART(SQL_TSI_MINUTE,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_146]
+sql:
+-- DATEPART_SECOND
+SELECT DATEPART(SECOND,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_147]
+sql:
+-- DATEPART_S
+SELECT DATEPART(S,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_148]
+sql:
+-- DATEPART_SS
+SELECT DATEPART(SS,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_149]
+sql:
+-- DATEPART_SQL_TSI_SECOND
+SELECT DATEPART(SQL_TSI_SECOND,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_150]
+sql:
+-- DATEPART_MILLISECOND
+SELECT DATEPART(MILLISECOND,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:73~2:77) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_151]
+sql:
+-- DATEPART_MS
+SELECT DATEPART(MS,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_152]
+sql:
+-- DATEPART_SQL_TSI_FRAC_SECOND
+SELECT DATEPART(SQL_TSI_FRAC_SECOND,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:81~2:85) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_153]
+sql:
+-- DATEPART_MICROSECOND
+SELECT DATEPART(MICROSECOND,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:73~2:77) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_154]
+sql:
+-- DATEPART_US
+SELECT DATEPART(US,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_155]
+sql:
+-- DATEPART_QUARTER
+SELECT DATEPART(QUARTER,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_156]
+sql:
+-- DATEPART_QQ
+SELECT DATEPART(QQ,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_157]
+sql:
+-- DATEPART_Q
+SELECT DATEPART(Q,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_158]
+sql:
+-- DATEPART_SQL_TSI_QUARTER
+SELECT DATEPART(SQL_TSI_QUARTER,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:77~2:81) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_159]
+sql:
+-- DATEPART_DAYOFYEAR
+SELECT DATEPART(DAYOFYEAR,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:71~2:75) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_160]
+sql:
+-- DATEPART_DY
+SELECT DATEPART(DY,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_161]
+sql:
+-- DATEPART_Y
+SELECT DATEPART(Y,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:63~2:67) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_162]
+sql:
+-- DATEPART_WEEK
+SELECT DATEPART(WEEK,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_163]
+sql:
+-- DATEPART_WK
+SELECT DATEPART(WK,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_164]
+sql:
+-- DATEPART_WW
+SELECT DATEPART(WW,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_165]
+sql:
+-- DATEPART_SQL_TSI_WEEK
+SELECT DATEPART(SQL_TSI_WEEK,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_166]
+sql:
+-- DATEPART_WEEKDAY
+SELECT DATEPART(WEEKDAY,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_167]
+sql:
+-- DATEPART_DW
+SELECT DATEPART(DW,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:64~2:68) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_168]
+sql:
+-- DATEPART_NULL_DATE
+SELECT DATEPART(YEAR,NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/DATEPART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:32~2:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_169]
+sql:
+-- DATE_PART_TYPED_DATE_YEAR
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_170]
+sql:
+-- DATE_PART_TYPED_DATE_YYYY
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','YYYY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_171]
+sql:
+-- DATE_PART_TYPED_DATE_YY
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','YY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_172]
+sql:
+-- DATE_PART_TYPED_DATE_MONTH
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_173]
+sql:
+-- DATE_PART_TYPED_DATE_MM
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','MM') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_174]
+sql:
+-- DATE_PART_TYPED_DATE_M
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','M') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_175]
+sql:
+-- DATE_PART_TYPED_DATE_DAY
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','DAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_176]
+sql:
+-- DATE_PART_TYPED_DATE_DD
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','DD') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_177]
+sql:
+-- DATE_PART_TYPED_DATE_D
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','D') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_178]
+sql:
+-- DATE_PART_TYPED_DATE_HOUR
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','HOUR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_179]
+sql:
+-- DATE_PART_TYPED_DATE_HH
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','HH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_180]
+sql:
+-- DATE_PART_TYPED_DATE_MINUTE
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','MINUTE') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:71~2:75) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_181]
+sql:
+-- DATE_PART_TYPED_DATE_MI
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','MI') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_182]
+sql:
+-- DATE_PART_TYPED_DATE_N
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','N') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_183]
+sql:
+-- DATE_PART_TYPED_DATE_SECOND
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','SECOND') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:71~2:75) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_184]
+sql:
+-- DATE_PART_TYPED_DATE_S
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','S') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_185]
+sql:
+-- DATE_PART_TYPED_DATE_SS
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','SS') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_186]
+sql:
+-- DATE_PART_TYPED_DATE_MILLISECOND
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','MILLISECOND') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_187]
+sql:
+-- DATE_PART_TYPED_DATE_MS
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','MS') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_188]
+sql:
+-- DATE_PART_TYPED_DATE_MICROSECOND
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','MICROSECOND') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:76~2:80) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_189]
+sql:
+-- DATE_PART_TYPED_DATE_US
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','US') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_190]
+sql:
+-- DATE_PART_TYPED_DATE_QUARTER
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','QUARTER') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_191]
+sql:
+-- DATE_PART_TYPED_DATE_QQ
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','QQ') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_192]
+sql:
+-- DATE_PART_TYPED_DATE_Q
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','Q') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_193]
+sql:
+-- DATE_PART_TYPED_DATE_DAYOFYEAR
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','DAYOFYEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_194]
+sql:
+-- DATE_PART_TYPED_DATE_DY
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','DY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_195]
+sql:
+-- DATE_PART_TYPED_DATE_Y
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','Y') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_196]
+sql:
+-- DATE_PART_TYPED_DATE_WEEK
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','WEEK') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_197]
+sql:
+-- DATE_PART_TYPED_DATE_WK
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','WK') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_198]
+sql:
+-- DATE_PART_TYPED_DATE_WW
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','WW') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_199]
+sql:
+-- DATE_PART_TYPED_DATE_WEEKDAY
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','WEEKDAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_200]
+sql:
+-- DATE_PART_TYPED_DATE_DW
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456','DW') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_201]
+sql:
+-- DATE_PART_TYPED_DATE_NULL_DATE
+SELECT DATE_PART(NULL,'YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_202]
+sql:
+-- DATE_PART_TYPED_DATE_NULL_DATEPART
+SELECT DATE_PART(TIMESTAMP '2024-02-29 12:34:56.123456',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_203]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_YEAR
+SELECT DATE_PART('2024-02-29 12:34:56.123456','YEAR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_204]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_Y
+SELECT DATE_PART('2024-02-29 12:34:56.123456','Y') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_205]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_MONTH
+SELECT DATE_PART('2024-02-29 12:34:56.123456','MONTH') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_206]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_DAY
+SELECT DATE_PART('2024-02-29 12:34:56.123456','DAY') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:58~2:62) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_207]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_D
+SELECT DATE_PART('2024-02-29 12:34:56.123456','D') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_208]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_HOUR
+SELECT DATE_PART('2024-02-29 12:34:56.123456','HOUR') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_209]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_MINUTE
+SELECT DATE_PART('2024-02-29 12:34:56.123456','MINUTE') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:61~2:65) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_210]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_MM
+SELECT DATE_PART('2024-02-29 12:34:56.123456','MM') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:57~2:61) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_211]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_M
+SELECT DATE_PART('2024-02-29 12:34:56.123456','M') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_212]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_SECOND
+SELECT DATE_PART('2024-02-29 12:34:56.123456','SECOND') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:61~2:65) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_213]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_S
+SELECT DATE_PART('2024-02-29 12:34:56.123456','S') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:56~2:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_214]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_MILLISECOND
+SELECT DATE_PART('2024-02-29 12:34:56.123456','MILLISECOND') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_215]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_MS
+SELECT DATE_PART('2024-02-29 12:34:56.123456','MS') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:57~2:61) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_216]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_MICROSECOND
+SELECT DATE_PART('2024-02-29 12:34:56.123456','MICROSECOND') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_217]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_US
+SELECT DATE_PART('2024-02-29 12:34:56.123456','US') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:57~2:61) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_218]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_QUARTER
+SELECT DATE_PART('2024-02-29 12:34:56.123456','QUARTER') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_219]
+sql:
+-- DATE_PART_STRING_DATE_FIELD_WEEK
+SELECT DATE_PART('2024-02-29 12:34:56.123456','WEEK') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/DATE_PART/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_220]
+sql:
+-- TIMESTAMPADD_YEAR
+SELECT TIMESTAMPADD(YEAR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_221]
+sql:
+-- TIMESTAMPADD_YYYY
+SELECT TIMESTAMPADD(YYYY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_222]
+sql:
+-- TIMESTAMPADD_YY
+SELECT TIMESTAMPADD(YY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_223]
+sql:
+-- TIMESTAMPADD_SQL_TSI_YEAR
+SELECT TIMESTAMPADD(SQL_TSI_YEAR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:80~2:84) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_224]
+sql:
+-- TIMESTAMPADD_MONTH
+SELECT TIMESTAMPADD(MONTH,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:73~2:77) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_225]
+sql:
+-- TIMESTAMPADD_MM
+SELECT TIMESTAMPADD(MM,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_226]
+sql:
+-- TIMESTAMPADD_M
+SELECT TIMESTAMPADD(M,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_227]
+sql:
+-- TIMESTAMPADD_SQL_TSI_MONTH
+SELECT TIMESTAMPADD(SQL_TSI_MONTH,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:81~2:85) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_228]
+sql:
+-- TIMESTAMPADD_DAY
+SELECT TIMESTAMPADD(DAY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:71~2:75) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_229]
+sql:
+-- TIMESTAMPADD_DD
+SELECT TIMESTAMPADD(DD,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_230]
+sql:
+-- TIMESTAMPADD_D
+SELECT TIMESTAMPADD(D,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_231]
+sql:
+-- TIMESTAMPADD_SQL_TSI_DAY
+SELECT TIMESTAMPADD(SQL_TSI_DAY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:79~2:83) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_232]
+sql:
+-- TIMESTAMPADD_HOUR
+SELECT TIMESTAMPADD(HOUR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_233]
+sql:
+-- TIMESTAMPADD_HH
+SELECT TIMESTAMPADD(HH,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_234]
+sql:
+-- TIMESTAMPADD_SQL_TSI_HOUR
+SELECT TIMESTAMPADD(SQL_TSI_HOUR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:80~2:84) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_235]
+sql:
+-- TIMESTAMPADD_MINUTE
+SELECT TIMESTAMPADD(MINUTE,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_236]
+sql:
+-- TIMESTAMPADD_MI
+SELECT TIMESTAMPADD(MI,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_237]
+sql:
+-- TIMESTAMPADD_N
+SELECT TIMESTAMPADD(N,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_238]
+sql:
+-- TIMESTAMPADD_SQL_TSI_MINUTE
+SELECT TIMESTAMPADD(SQL_TSI_MINUTE,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:82~2:86) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_239]
+sql:
+-- TIMESTAMPADD_SECOND
+SELECT TIMESTAMPADD(SECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:74~2:78) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_240]
+sql:
+-- TIMESTAMPADD_S
+SELECT TIMESTAMPADD(S,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_241]
+sql:
+-- TIMESTAMPADD_SS
+SELECT TIMESTAMPADD(SS,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_242]
+sql:
+-- TIMESTAMPADD_SQL_TSI_SECOND
+SELECT TIMESTAMPADD(SQL_TSI_SECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:82~2:86) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_243]
+sql:
+-- TIMESTAMPADD_MILLISECOND
+SELECT TIMESTAMPADD(MILLISECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:79~2:83) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_244]
+sql:
+-- TIMESTAMPADD_MS
+SELECT TIMESTAMPADD(MS,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_245]
+sql:
+-- TIMESTAMPADD_SQL_TSI_FRAC_SECOND
+SELECT TIMESTAMPADD(SQL_TSI_FRAC_SECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:87~2:91) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_246]
+sql:
+-- TIMESTAMPADD_MICROSECOND
+SELECT TIMESTAMPADD(MICROSECOND,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:79~2:83) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_247]
+sql:
+-- TIMESTAMPADD_US
+SELECT TIMESTAMPADD(US,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_248]
+sql:
+-- TIMESTAMPADD_QUARTER
+SELECT TIMESTAMPADD(QUARTER,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:75~2:79) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_249]
+sql:
+-- TIMESTAMPADD_QQ
+SELECT TIMESTAMPADD(QQ,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_250]
+sql:
+-- TIMESTAMPADD_Q
+SELECT TIMESTAMPADD(Q,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_251]
+sql:
+-- TIMESTAMPADD_SQL_TSI_QUARTER
+SELECT TIMESTAMPADD(SQL_TSI_QUARTER,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:83~2:87) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_252]
+sql:
+-- TIMESTAMPADD_DAYOFYEAR
+SELECT TIMESTAMPADD(DAYOFYEAR,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:77~2:81) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_253]
+sql:
+-- TIMESTAMPADD_DY
+SELECT TIMESTAMPADD(DY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_254]
+sql:
+-- TIMESTAMPADD_Y
+SELECT TIMESTAMPADD(Y,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_255]
+sql:
+-- TIMESTAMPADD_WEEK
+SELECT TIMESTAMPADD(WEEK,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:72~2:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_256]
+sql:
+-- TIMESTAMPADD_WK
+SELECT TIMESTAMPADD(WK,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_257]
+sql:
+-- TIMESTAMPADD_WW
+SELECT TIMESTAMPADD(WW,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_258]
+sql:
+-- TIMESTAMPADD_SQL_TSI_WEEK
+SELECT TIMESTAMPADD(SQL_TSI_WEEK,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:80~2:84) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_259]
+sql:
+-- TIMESTAMPADD_WEEKDAY
+SELECT TIMESTAMPADD(WEEKDAY,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:75~2:79) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_260]
+sql:
+-- TIMESTAMPADD_DW
+SELECT TIMESTAMPADD(DW,1,TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_261]
+sql:
+-- TIMESTAMPADD_NULL_EACH_POSITION
+SELECT TIMESTAMPADD(SQL_TSI_YEAR,NULL,TIMESTAMP '2024-02-29 12:34:56.123456'),TIMESTAMPADD(SQL_TSI_YEAR,1,NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:78~2:90) /test/1/catalog1/schema1/TIMESTAMPADD/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:117~2:121) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_262]
+sql:
+-- TIMESTAMPDIFF_YEAR
+SELECT TIMESTAMPDIFF(YEAR,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:110~2:114) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_263]
+sql:
+-- TIMESTAMPDIFF_YYYY
+SELECT TIMESTAMPDIFF(YYYY,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:110~2:114) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_264]
+sql:
+-- TIMESTAMPDIFF_YY
+SELECT TIMESTAMPDIFF(YY,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_265]
+sql:
+-- TIMESTAMPDIFF_SQL_TSI_YEAR
+SELECT TIMESTAMPDIFF(SQL_TSI_YEAR,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:118~2:122) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_266]
+sql:
+-- TIMESTAMPDIFF_MONTH
+SELECT TIMESTAMPDIFF(MONTH,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:111~2:115) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_267]
+sql:
+-- TIMESTAMPDIFF_MM
+SELECT TIMESTAMPDIFF(MM,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_268]
+sql:
+-- TIMESTAMPDIFF_M
+SELECT TIMESTAMPDIFF(M,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_269]
+sql:
+-- TIMESTAMPDIFF_SQL_TSI_MONTH
+SELECT TIMESTAMPDIFF(SQL_TSI_MONTH,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:119~2:123) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_270]
+sql:
+-- TIMESTAMPDIFF_DAY
+SELECT TIMESTAMPDIFF(DAY,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:109~2:113) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_271]
+sql:
+-- TIMESTAMPDIFF_DD
+SELECT TIMESTAMPDIFF(DD,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_272]
+sql:
+-- TIMESTAMPDIFF_D
+SELECT TIMESTAMPDIFF(D,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_273]
+sql:
+-- TIMESTAMPDIFF_SQL_TSI_DAY
+SELECT TIMESTAMPDIFF(SQL_TSI_DAY,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:117~2:121) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_274]
+sql:
+-- TIMESTAMPDIFF_HOUR
+SELECT TIMESTAMPDIFF(HOUR,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:110~2:114) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_275]
+sql:
+-- TIMESTAMPDIFF_HH
+SELECT TIMESTAMPDIFF(HH,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_276]
+sql:
+-- TIMESTAMPDIFF_SQL_TSI_HOUR
+SELECT TIMESTAMPDIFF(SQL_TSI_HOUR,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:118~2:122) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_277]
+sql:
+-- TIMESTAMPDIFF_MINUTE
+SELECT TIMESTAMPDIFF(MINUTE,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:112~2:116) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_278]
+sql:
+-- TIMESTAMPDIFF_MI
+SELECT TIMESTAMPDIFF(MI,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_279]
+sql:
+-- TIMESTAMPDIFF_N
+SELECT TIMESTAMPDIFF(N,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_280]
+sql:
+-- TIMESTAMPDIFF_SQL_TSI_MINUTE
+SELECT TIMESTAMPDIFF(SQL_TSI_MINUTE,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:120~2:124) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_281]
+sql:
+-- TIMESTAMPDIFF_SECOND
+SELECT TIMESTAMPDIFF(SECOND,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:112~2:116) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_282]
+sql:
+-- TIMESTAMPDIFF_S
+SELECT TIMESTAMPDIFF(S,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_283]
+sql:
+-- TIMESTAMPDIFF_SS
+SELECT TIMESTAMPDIFF(SS,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_284]
+sql:
+-- TIMESTAMPDIFF_SQL_TSI_SECOND
+SELECT TIMESTAMPDIFF(SQL_TSI_SECOND,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:120~2:124) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_285]
+sql:
+-- TIMESTAMPDIFF_MILLISECOND
+SELECT TIMESTAMPDIFF(MILLISECOND,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:117~2:121) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_286]
+sql:
+-- TIMESTAMPDIFF_MS
+SELECT TIMESTAMPDIFF(MS,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_287]
+sql:
+-- TIMESTAMPDIFF_SQL_TSI_FRAC_SECOND
+SELECT TIMESTAMPDIFF(SQL_TSI_FRAC_SECOND,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:125~2:129) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_288]
+sql:
+-- TIMESTAMPDIFF_MICROSECOND
+SELECT TIMESTAMPDIFF(MICROSECOND,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:117~2:121) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_289]
+sql:
+-- TIMESTAMPDIFF_US
+SELECT TIMESTAMPDIFF(US,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_290]
+sql:
+-- TIMESTAMPDIFF_QUARTER
+SELECT TIMESTAMPDIFF(QUARTER,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:113~2:117) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_291]
+sql:
+-- TIMESTAMPDIFF_QQ
+SELECT TIMESTAMPDIFF(QQ,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_292]
+sql:
+-- TIMESTAMPDIFF_Q
+SELECT TIMESTAMPDIFF(Q,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_293]
+sql:
+-- TIMESTAMPDIFF_SQL_TSI_QUARTER
+SELECT TIMESTAMPDIFF(SQL_TSI_QUARTER,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:121~2:125) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_294]
+sql:
+-- TIMESTAMPDIFF_DAYOFYEAR
+SELECT TIMESTAMPDIFF(DAYOFYEAR,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:115~2:119) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_295]
+sql:
+-- TIMESTAMPDIFF_DY
+SELECT TIMESTAMPDIFF(DY,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_296]
+sql:
+-- TIMESTAMPDIFF_Y
+SELECT TIMESTAMPDIFF(Y,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:107~2:111) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_297]
+sql:
+-- TIMESTAMPDIFF_WEEK
+SELECT TIMESTAMPDIFF(WEEK,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:110~2:114) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_298]
+sql:
+-- TIMESTAMPDIFF_WK
+SELECT TIMESTAMPDIFF(WK,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_299]
+sql:
+-- TIMESTAMPDIFF_WW
+SELECT TIMESTAMPDIFF(WW,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_300]
+sql:
+-- TIMESTAMPDIFF_SQL_TSI_WEEK
+SELECT TIMESTAMPDIFF(SQL_TSI_WEEK,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:118~2:122) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_301]
+sql:
+-- TIMESTAMPDIFF_WEEKDAY
+SELECT TIMESTAMPDIFF(WEEKDAY,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:113~2:117) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_302]
+sql:
+-- TIMESTAMPDIFF_DW
+SELECT TIMESTAMPDIFF(DW,TIMESTAMP '2023-01-01 00:00:00.000000',TIMESTAMP '2024-02-29 12:34:56.123456') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:108~2:112) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datepart_function_signature_combinations_0_303]
+sql:
+-- TIMESTAMPDIFF_NULL_EACH_POSITION
+SELECT TIMESTAMPDIFF(SQL_TSI_YEAR,NULL,TIMESTAMP '2024-02-29 12:34:56.123456'),TIMESTAMPDIFF(SQL_TSI_YEAR,TIMESTAMP '2024-02-29 12:34:56.123456',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:20) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:79~2:92) /test/1/catalog1/schema1/TIMESTAMPDIFF/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:156~2:160) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

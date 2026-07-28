@@ -1,0 +1,215 @@
+[split_dql_dameng_mpp_0_001_behavior_review]
+sql:
+select SF_GET_SELF_EP_SEQNO();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:27) /test/1/catalog1/schema1/SF_GET_SELF_EP_SEQNO/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_002_behavior_review]
+sql:
+select SF_GET_SESSION_MPP_SELECT_LOCAL();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:38) /test/1/catalog1/schema1/SF_GET_SESSION_MPP_SELECT_LOCAL/",
+      "action" : "READ",
+      "target" : "ConfigKey(1:7~1:40) /test/1/MPP_SELECT_LOCAL/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_003_behavior_review]
+sql:
+select SF_GET_SESSION_MPP_SELECT_LOCAL();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:38) /test/1/catalog1/schema1/SF_GET_SESSION_MPP_SELECT_LOCAL/",
+      "action" : "READ",
+      "target" : "ConfigKey(1:7~1:40) /test/1/MPP_SELECT_LOCAL/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_004_behavior_review]
+sql:
+select ID, SF_GET_EP_SEQNO(ROWID) as EP_SEQNO from MPP_HASH order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:26) /test/1/catalog1/schema1/SF_GET_EP_SEQNO/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(1:51~1:59) /test/1/catalog1/schema1/MPP_HASH/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_005_behavior_review]
+sql:
+select SF_GET_EP_SEQNO(ROWID) as EP_SEQNO, count(*) as ROW_COUNT
+from MPP_HASH group by SF_GET_EP_SEQNO(ROWID) order by EP_SEQNO;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/SF_GET_EP_SEQNO/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:48) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:23~2:38) /test/1/catalog1/schema1/SF_GET_EP_SEQNO/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:13) /test/1/catalog1/schema1/MPP_HASH/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_006_behavior_review]
+sql:
+select distinct INST_NAME, EP_SEQNO from V$MPP_CFG_ITEM order by EP_SEQNO;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:41~1:55) /test/1/catalog1/schema1/V$MPP_CFG_ITEM/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_007_behavior_review]
+sql:
+select NAME from V$INSTANCE where SF_GET_EP_SEQNO(ROWID)=SF_GET_SELF_EP_SEQNO();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:34~1:49) /test/1/catalog1/schema1/SF_GET_EP_SEQNO/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:77) /test/1/catalog1/schema1/SF_GET_SELF_EP_SEQNO/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "View(1:17~1:27) /test/1/catalog1/schema1/V$INSTANCE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_008_behavior_review]
+sql:
+select count(*) as SESSION_COUNT from V$SESSIONS
+where SF_GET_EP_SEQNO(ROWID)=SF_GET_SELF_EP_SEQNO();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:6~2:21) /test/1/catalog1/schema1/SF_GET_EP_SEQNO/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:29~2:49) /test/1/catalog1/schema1/SF_GET_SELF_EP_SEQNO/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "View(1:38~1:48) /test/1/catalog1/schema1/V$SESSIONS/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_009_behavior_review]
+sql:
+select TABLE_USED_PAGES('CODEX_DM8_MPP', 'MPP_HASH');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/TABLE_USED_PAGES/",
+      "action" : "CALL",
+      "target" : "Table(1:41~1:51) /test/1/catalog1/CODEX_DM8_MPP/MPP_HASH/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_010_behavior_review]
+sql:
+select TABLE_USED_PAGES('CODEX_DM8_MPP', 'MPP_HASH'), NAME from V$INSTANCE order by NAME;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/TABLE_USED_PAGES/",
+      "action" : "CALL",
+      "target" : "Table(1:41~1:51) /test/1/catalog1/CODEX_DM8_MPP/MPP_HASH/"
+    },
+    {
+      "subject": "View(1:64~1:74) /test/1/catalog1/schema1/V$INSTANCE/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_mpp_0_011_behavior_review]
+sql:
+select H.ID, H.NOTE, R.NOTE as RANGE_NOTE from MPP_HASH H join MPP_RANGE R on R.ID=150
+where H.ID=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:47~1:55) /test/1/catalog1/schema1/MPP_HASH/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Table(1:63~1:72) /test/1/catalog1/schema1/MPP_RANGE/",
+      "action" : "READ"
+    }
+  ]
+}

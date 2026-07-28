@@ -1,0 +1,12 @@
+[utl_url_table_domain]
+sql:
+select
+  utl_url.escape(t.url_value,false,'UTF8') as escaped_value,
+  utl_url.unescape(t.escaped_value,'UTF8') as unescaped_value
+from catalog1.app.url_source t
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"url_source"}
+  ]
+}

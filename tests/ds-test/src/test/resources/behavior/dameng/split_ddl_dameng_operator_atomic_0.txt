@@ -1,0 +1,116 @@
+[split_ddl_dameng_operator_atomic_0_001]
+sql:
+-- NAME_63
+create operator "@*************************************************************%" (function F_BINARY,leftarg int,rightarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(2:16~2:81) /test/1/catalog1/schema1/@*************************************************************%/",
+      "action": "CREATE",
+      "target": "Function(2:92~2:100) /test/1/catalog1/schema1/F_BINARY/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_operator_atomic_0_002]
+sql:
+-- NAME_64_SERVER_BOUNDARY
+create operator "@**************************************************************%" (function F_BINARY,leftarg int,rightarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(2:16~2:82) /test/1/catalog1/schema1/@**************************************************************%/",
+      "action": "CREATE",
+      "target": "Function(2:93~2:101) /test/1/catalog1/schema1/F_BINARY/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_operator_atomic_0_003]
+sql:
+-- DUPLICATE_LEFT_SERVER_BOUNDARY
+create operator %^ (function F_BINARY,leftarg int,leftarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(2:16~2:18) /test/1/catalog1/schema1/%^/",
+      "action": "CREATE",
+      "target": "Function(2:29~2:37) /test/1/catalog1/schema1/F_BINARY/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_operator_atomic_0_004]
+sql:
+-- DUPLICATE_RIGHT_SERVER_BOUNDARY
+create operator %& (function F_BINARY,rightarg int,rightarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(2:16~2:18) /test/1/catalog1/schema1/%&/",
+      "action": "CREATE",
+      "target": "Function(2:29~2:37) /test/1/catalog1/schema1/F_BINARY/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_operator_atomic_0_005]
+sql:
+-- BOTH_NULL_SERVER_BOUNDARY
+create operator %| (function F_ZERO,leftarg null,rightarg null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(2:16~2:18) /test/1/catalog1/schema1/%|/",
+      "action": "CREATE",
+      "target": "Function(2:29~2:35) /test/1/catalog1/schema1/F_ZERO/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_operator_atomic_0_006]
+sql:
+-- DROP_MISSING_SERVER_BOUNDARY
+drop operator %%(int,int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(2:14~2:16) /test/1/catalog1/schema1/%%/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_operator_atomic_0_007]
+sql:
+-- DROP_MISSING_IF_EXISTS
+drop operator if exists %%(int,int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(2:24~2:26) /test/1/catalog1/schema1/%%/",
+      "action": "DROP"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+[conversion]
+sql:
+select cast(t.flag as int) as flag_int,
+case when t.flag then 1 else 0 end as truth_value from catalog1.app.bit_t t
+expect:
+{"flag_int":["/catalog1/app/bit_t/flag/"],"truth_value":["/catalog1/app/bit_t/flag/"]}
+----------
+[aggregate]
+sql:
+select min(t.flag) as min_flag,max(t.flag) as max_flag,
+sum(cast(t.flag as int)) as true_sum from catalog1.app.bit_t t
+expect:
+{"min_flag":["/catalog1/app/bit_t/flag/"],"max_flag":["/catalog1/app/bit_t/flag/"],"true_sum":["/catalog1/app/bit_t/flag/"]}

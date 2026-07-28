@@ -1,0 +1,648 @@
+[split_dcl_dameng_profile_privileges_0_001_behavior_review]
+sql:
+create user CODEX_DM8_PF_CREATOR_20260722 identified by "Dm8@Profile2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:41) /test/1/CODEX_DM8_PF_CREATOR_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_002_behavior_review]
+sql:
+create user CODEX_DM8_PF_ALTERER_20260722 identified by "Dm8@Profile2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:41) /test/1/CODEX_DM8_PF_ALTERER_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_003_behavior_review]
+sql:
+create user CODEX_DM8_PF_DROPPER_20260722 identified by "Dm8@Profile2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:41) /test/1/CODEX_DM8_PF_DROPPER_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_004_behavior_review]
+sql:
+create user CODEX_DM8_PF_DENIED_20260722 identified by "Dm8@Profile2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:40) /test/1/CODEX_DM8_PF_DENIED_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_005_behavior_review]
+sql:
+create user CODEX_DM8_PF_ROLE_USER_20260722 identified by "Dm8@Profile2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:43) /test/1/CODEX_DM8_PF_ROLE_USER_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_006_behavior_review]
+sql:
+create user CODEX_DM8_PF_DELEGATE_20260722 identified by "Dm8@Profile2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:42) /test/1/CODEX_DM8_PF_DELEGATE_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_007_behavior_review]
+sql:
+create user CODEX_DM8_PF_BENEFIT_20260722 identified by "Dm8@Profile2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:41) /test/1/CODEX_DM8_PF_BENEFIT_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_008_behavior_review]
+sql:
+create role CODEX_DM8_PF_ROLE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:38) /test/1/CODEX_DM8_PF_ROLE_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_009_behavior_review]
+sql:
+create profile CODEX_DM8_PF_DENIED_TARGET_20260722 limit session_per_user 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:50) /test/1/CODEX_DM8_PF_DENIED_TARGET_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_010_behavior_review]
+sql:
+grant create profile to CODEX_DM8_PF_CREATOR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Profile(1:13~1:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:24~1:53) /test/1/CODEX_DM8_PF_CREATOR_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_011_behavior_review]
+sql:
+grant alter profile to CODEX_DM8_PF_ALTERER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Profile(1:12~1:19) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:23~1:52) /test/1/CODEX_DM8_PF_ALTERER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_012_behavior_review]
+sql:
+grant drop profile to CODEX_DM8_PF_DROPPER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Profile(1:11~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:22~1:51) /test/1/CODEX_DM8_PF_DROPPER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_013_behavior_review]
+sql:
+grant create profile, alter profile, drop profile to CODEX_DM8_PF_ROLE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Profile(1:13~1:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:53~1:79) /test/1/CODEX_DM8_PF_ROLE_20260722/"
+    },
+    {
+      "subject": "Profile(1:28~1:35) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:53~1:79) /test/1/CODEX_DM8_PF_ROLE_20260722/"
+    },
+    {
+      "subject": "Profile(1:42~1:49) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:53~1:79) /test/1/CODEX_DM8_PF_ROLE_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_014_behavior_review]
+sql:
+grant CODEX_DM8_PF_ROLE_20260722 to CODEX_DM8_PF_ROLE_USER_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:32) /test/1/CODEX_DM8_PF_ROLE_20260722/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:36~1:67) /test/1/CODEX_DM8_PF_ROLE_USER_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_015_behavior_review]
+sql:
+grant create profile to CODEX_DM8_PF_DELEGATE_20260722 with admin option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Profile(1:13~1:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:24~1:54) /test/1/CODEX_DM8_PF_DELEGATE_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_016_behavior_review]
+sql:
+create profile CODEX_DM8_PF_GLOBAL_20260722 limit session_per_user 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:43) /test/1/CODEX_DM8_PF_GLOBAL_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_017_behavior_review]
+sql:
+alter profile CODEX_DM8_PF_GLOBAL_20260722 limit session_per_user 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PF_GLOBAL_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_018_behavior_review]
+sql:
+alter profile CODEX_DM8_PF_GLOBAL_20260722 limit session_per_user 32768;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PF_GLOBAL_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_019_behavior_review]
+sql:
+drop profile CODEX_DM8_PF_GLOBAL_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:41) /test/1/CODEX_DM8_PF_GLOBAL_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_020_behavior_review]
+sql:
+drop profile CODEX_DM8_PF_GLOBAL_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:41) /test/1/CODEX_DM8_PF_GLOBAL_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_021_behavior_review]
+sql:
+create profile CODEX_DM8_PF_NOAUTH_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:43) /test/1/CODEX_DM8_PF_NOAUTH_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_022_behavior_review]
+sql:
+alter profile CODEX_DM8_PF_DENIED_TARGET_20260722 limit session_per_user 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:49) /test/1/CODEX_DM8_PF_DENIED_TARGET_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_023_behavior_review]
+sql:
+drop profile CODEX_DM8_PF_DENIED_TARGET_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:48) /test/1/CODEX_DM8_PF_DENIED_TARGET_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_024_behavior_review]
+sql:
+create profile CODEX_DM8_PF_ROLE_TARGET_20260722 limit session_per_user 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:48) /test/1/CODEX_DM8_PF_ROLE_TARGET_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_025_behavior_review]
+sql:
+alter profile CODEX_DM8_PF_ROLE_TARGET_20260722 limit session_per_user 32768;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:47) /test/1/CODEX_DM8_PF_ROLE_TARGET_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_026_behavior_review]
+sql:
+drop profile CODEX_DM8_PF_ROLE_TARGET_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:46) /test/1/CODEX_DM8_PF_ROLE_TARGET_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_027_behavior_review]
+sql:
+grant create profile to CODEX_DM8_PF_BENEFIT_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Profile(1:13~1:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:24~1:53) /test/1/CODEX_DM8_PF_BENEFIT_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_028_behavior_review]
+sql:
+create profile CODEX_DM8_PF_DELEGATED_20260722 limit session_per_user 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:46) /test/1/CODEX_DM8_PF_DELEGATED_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_029_behavior_review]
+sql:
+grant create profile to public;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Profile(1:13~1:20) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:24~1:30) /test/1/public/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_030_behavior_review]
+sql:
+create profile CODEX_DM8_PF_PUBLIC_20260722 limit session_per_user 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:43) /test/1/CODEX_DM8_PF_PUBLIC_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_031_behavior_review]
+sql:
+revoke create profile from public;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Profile(1:14~1:21) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:27~1:33) /test/1/public/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_032_behavior_review]
+sql:
+drop profile CODEX_DM8_PF_DENIED_TARGET_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:48) /test/1/CODEX_DM8_PF_DENIED_TARGET_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_033_behavior_review]
+sql:
+drop profile CODEX_DM8_PF_DELEGATED_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:44) /test/1/CODEX_DM8_PF_DELEGATED_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_034_behavior_review]
+sql:
+drop profile CODEX_DM8_PF_PUBLIC_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:41) /test/1/CODEX_DM8_PF_PUBLIC_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_035_behavior_review]
+sql:
+drop user CODEX_DM8_PF_CREATOR_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:39) /test/1/CODEX_DM8_PF_CREATOR_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_036_behavior_review]
+sql:
+drop user CODEX_DM8_PF_ALTERER_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:39) /test/1/CODEX_DM8_PF_ALTERER_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_037_behavior_review]
+sql:
+drop user CODEX_DM8_PF_DROPPER_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:39) /test/1/CODEX_DM8_PF_DROPPER_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_038_behavior_review]
+sql:
+drop user CODEX_DM8_PF_DENIED_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:38) /test/1/CODEX_DM8_PF_DENIED_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_039_behavior_review]
+sql:
+drop user CODEX_DM8_PF_ROLE_USER_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:41) /test/1/CODEX_DM8_PF_ROLE_USER_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_040_behavior_review]
+sql:
+drop user CODEX_DM8_PF_DELEGATE_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:40) /test/1/CODEX_DM8_PF_DELEGATE_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_041_behavior_review]
+sql:
+drop user CODEX_DM8_PF_BENEFIT_20260722 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:39) /test/1/CODEX_DM8_PF_BENEFIT_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_profile_privileges_0_042_behavior_review]
+sql:
+drop role CODEX_DM8_PF_ROLE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:36) /test/1/CODEX_DM8_PF_ROLE_20260722/",
+      "action": "DROP"
+    }
+  ]
+}

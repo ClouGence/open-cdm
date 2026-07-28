@@ -1,0 +1,93 @@
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_dbms_output_0_001]
+sql:
+declare
+  b0 bool:=false;b1 boolean:=true;bn boolean:=null;
+  i0 int;i1 int;ineg int;bnot bool;
+begin
+  b0:=0;b1:=-7;i0:=cast(b0 as int);i1:=cast(b1 as int);
+  bnot:=not b0;ineg:=cast(bnot as int);
+  if b1 and not b0 or bn is null then
+    dbms_output.put_line('BOOL='||i0||','||i1||','||ineg);
+  end if;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(8:4~8:24) /test/1/catalog1/dbms_output/put_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_dbms_output_0_002]
+sql:
+declare
+  type bool_record is record(a bool,b boolean);
+  type bool_array is array boolean[3];
+  type bool_index is table of bool index by int;
+  r bool_record;a bool_array;t bool_index;
+begin
+  r.a:=true;r.b:=false;a[1]:=true;a[2]:=false;a[3]:=null;
+  t(1):=r.a;t(2):=a[2];
+  dbms_output.put_line(cast(t(1) as int)||','||cast(t(2) as int));
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(9:2~9:22) /test/1/catalog1/dbms_output/put_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_dbms_output_0_003]
+sql:
+declare o boolean;i bool:=true;
+begin app.bool_p(false,o,i);
+  dbms_output.put_line(cast(o as int)||','||cast(i as int));
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:16) /test/1/catalog1/app/bool_p/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(3:2~3:22) /test/1/catalog1/dbms_output/put_line/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_ddl_dml_block_dameng_bool_boolean_type_atomic_dbms_output_0_004]
+sql:
+declare o app.bool_obj:=app.bool_obj(true);
+begin dbms_output.put_line(cast(o.b as int));end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:22) /test/1/catalog1/app/bool_obj/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:6~2:26) /test/1/catalog1/dbms_output/put_line/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:36) /test/1/catalog1/app/bool_obj/",
+      "action": "CALL"
+    }
+  ]
+}

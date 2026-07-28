@@ -1,0 +1,140 @@
+[contains_single]
+sql:
+select id from app.ft_docs where contains(body,'database')
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "ft_docs"
+    }
+  ]
+}
+----------
+[contains_boolean_score]
+sql:
+select id,score(1) from app.ft_docs where contains(body,'database' and not 'security',1)
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "ft_docs"
+    }
+  ]
+}
+----------
+[contains_view]
+sql:
+select id from app.v_docs where contains(body,'database')
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "v_docs"
+    }
+  ]
+}
+----------
+[contains_join]
+sql:
+select d.id,o.body from app.ft_docs d join app.ft_other o on o.id=d.id where contains(d.body,'database',1) and contains(o.body,'reference',2)
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "ft_docs"
+    },
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "ft_other"
+    }
+  ]
+}
+----------
+[contains_no_index_semantic]
+sql:
+select id from app.ft_no_index where contains(body,'database')
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "ft_no_index"
+    }
+  ]
+}
+----------
+[create_context_index]
+sql:
+create context index app.ft_idx on app.ft_docs(body) lexer english_lexer sync
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbIndexDomain",
+      "sqlType": "ADD_INDEX",
+      "auditKind": "CREATE",
+      "schema": "app",
+      "name": "ft_idx",
+      "tableSchema": "app",
+      "tableName": "ft_docs"
+    }
+  ]
+}
+----------
+[alter_context_index]
+sql:
+alter context index app.ft_idx on app.ft_docs rebuild lexer english_lexer
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbIndexDomain",
+      "sqlType": "ALTER_INDEX",
+      "auditKind": "ALTER",
+      "schema": "app",
+      "name": "ft_idx",
+      "tableSchema": "app",
+      "tableName": "ft_docs"
+    }
+  ]
+}
+----------
+[drop_context_index]
+sql:
+drop context index app.ft_idx on app.ft_docs
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbIndexDomain",
+      "sqlType": "DROP_INDEX",
+      "auditKind": "DROP",
+      "schema": "app",
+      "name": "ft_idx",
+      "tableSchema": "app",
+      "tableName": "ft_docs"
+    }
+  ]
+}

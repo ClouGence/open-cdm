@@ -1,0 +1,29 @@
+[stats_preference_columns]
+sql:
+select dbms_stats.get_prefs(pref_name, owner_name, table_name) pref_value from catalog1.app.stats_config
+expect:
+{
+  "pref_value" : [
+    "/catalog1/app/stats_config/pref_name/",
+    "/catalog1/app/stats_config/owner_name/",
+    "/catalog1/app/stats_config/table_name/"
+  ]
+}
+----------
+[sql_monitor_columns]
+sql:
+select dbms_sqltune.report_sql_monitor(sql_exec_id=>sql_exec_id) monitor_report from catalog1.app.sql_monitor_exec
+expect:
+{
+  "monitor_report" : [ "/catalog1/app/sql_monitor_exec/sql_exec_id/" ]
+}
+----------
+[awr_snapshot_columns]
+sql:
+select snap_id, begin_time, end_time from catalog1.app.awr_snapshot
+expect:
+{
+  "snap_id" : [ "/catalog1/app/awr_snapshot/snap_id/" ],
+  "begin_time" : [ "/catalog1/app/awr_snapshot/begin_time/" ],
+  "end_time" : [ "/catalog1/app/awr_snapshot/end_time/" ]
+}

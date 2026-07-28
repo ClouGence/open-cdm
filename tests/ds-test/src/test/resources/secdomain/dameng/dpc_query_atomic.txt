@@ -1,0 +1,60 @@
+[dpc_query_cross_bp_join_domains]
+sql:
+select a.id,b.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.id=b.id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"dpc_q_range_a"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"dpc_q_range_b"}
+  ]
+}
+----------
+[dpc_query_system_table_domain]
+sql:
+select name,dpc_mode from sys.dpc_instance order by raft_id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"dpc_instance"}
+  ]
+}
+----------
+[dpc_query_dynamic_view_domain]
+sql:
+select * from sys.v$dpc_qc_history
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"v$dpc_qc_history"}
+  ]
+}
+----------
+[dpc_query_route_function_domain]
+sql:
+select sf_get_ep_seqno(rowid) as ep_no from app.dpc_q_hash
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"dpc_q_hash"}
+  ]
+}
+----------
+[dpc_query_clear_cache_domain]
+sql:
+call sysdba.sp_clear_tab_rowcnt_cache(null,null)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"sysdba", "callName":"sp_clear_tab_rowcnt_cache"}
+  ]
+}
+----------
+[dpc_query_debug_show_domain]
+sql:
+call sysdba.sp_set_dbg_show('PHD',1)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"sysdba", "callName":"sp_set_dbg_show"}
+  ]
+}

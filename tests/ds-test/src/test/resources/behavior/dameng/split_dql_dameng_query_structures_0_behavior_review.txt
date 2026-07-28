@@ -1,0 +1,1189 @@
+[split_dql_dameng_query_structures_0_001_behavior_review]
+sql:
+select a.id, b.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a cross join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:85~1:89) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:133~1:137) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:166~1:170) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_002_behavior_review]
+sql:
+select a.id, b.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a, (select 1 id, 10 amount from dual union all select 3, 30 from dual) b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:85~1:89) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:123~1:127) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:156~1:160) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_003_behavior_review]
+sql:
+select id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a natural join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:77~1:81) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:127~1:131) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:160~1:164) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_004_behavior_review]
+sql:
+select id, name, amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b using(id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:57~1:61) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:91~1:95) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:133~1:137) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:166~1:170) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_005_behavior_review]
+sql:
+select a.id, a.name, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:63~1:67) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:97~1:101) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:139~1:143) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:172~1:176) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_006_behavior_review]
+sql:
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a inner join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:170~1:174) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_007_behavior_review]
+sql:
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a left join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:136~1:140) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:169~1:173) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_008_behavior_review]
+sql:
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a left outer join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:142~1:146) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:175~1:179) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_009_behavior_review]
+sql:
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a right join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:170~1:174) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_010_behavior_review]
+sql:
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a right outer join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:143~1:147) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:176~1:180) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_011_behavior_review]
+sql:
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a full join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:136~1:140) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:169~1:173) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_012_behavior_review]
+sql:
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a full outer join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:142~1:146) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:175~1:179) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_013_behavior_review]
+sql:
+select a.id, x.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 'A' name from dual union all select 2, 'B' from dual) x on a.id < x.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:85~1:89) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:126~1:130) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:160~1:164) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_014_behavior_review]
+sql:
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id and b.amount > 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:131~1:135) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:164~1:168) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_015_behavior_review]
+sql:
+select a.id, b.amount from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a join (select 1 id, 10 amount from dual union all select 3, 30 from dual) b on a.id = b.id where a.name = 'A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:131~1:135) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:164~1:168) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_016_behavior_review]
+sql:
+select (select 1 from dual) scalar_value from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:22~1:26) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:46~1:50) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_017_behavior_review]
+sql:
+select 1 + (select 2 from dual) scalar_value from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:26~1:30) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:50~1:54) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_018_behavior_review]
+sql:
+select coalesce((select null from dual), 1) scalar_value from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/coalesce/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:34~1:38) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:62~1:66) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_019_behavior_review]
+sql:
+select (select max(x) from (select 1 x from dual union all select 2 from dual) s) scalar_value from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:15~1:18) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:44~1:48) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:73~1:77) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:100~1:104) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_020_behavior_review]
+sql:
+select * from dual where 1 in (select 1 from dual union all select 2 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:74~1:78) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_021_behavior_review]
+sql:
+select * from dual where 3 not in (select 1 from dual union all select 2 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:78~1:82) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_022_behavior_review]
+sql:
+select d.id from (select 1 id from dual) d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_023_behavior_review]
+sql:
+select d.id, d.name from (select 1 id, 'A' name from dual) d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:53~1:57) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_024_behavior_review]
+sql:
+select d.id from (select 1 id from dual union all select 2 from dual) d where d.id > 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:64~1:68) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_025_behavior_review]
+sql:
+select d.id, x.amount from (select 1 id from dual) d join (select 1 id, 10 amount from dual) x on d.id = x.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_026_behavior_review]
+sql:
+select 1 from dual where 3 > all (select 1 from dual union all select 2 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:77~1:81) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_027_behavior_review]
+sql:
+select 1 from dual where 1 < any (select 2 from dual union all select 3 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:77~1:81) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_028_behavior_review]
+sql:
+select 1 from dual where 1 < some (select 2 from dual union all select 3 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:78~1:82) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_029_behavior_review]
+sql:
+select 1 from dual where exists (select 1 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:47~1:51) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_030_behavior_review]
+sql:
+select 1 from dual where not exists (select 1 from dual where 1 = 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_031_behavior_review]
+sql:
+select a.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a where exists (select 1 from (select 1 id, 10 amount from dual union all select 3, 30 from dual) b where b.id = a.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:79~1:83) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:144~1:148) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:177~1:181) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_032_behavior_review]
+sql:
+select a.id from (select 1 id, 'A' name from dual union all select 2, 'B' from dual) a where not exists (select 1 from (select 1 id, 10 amount from dual union all select 3, 30 from dual) b where b.id = a.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:79~1:83) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:148~1:152) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:181~1:185) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_033_behavior_review]
+sql:
+select 1 from dual where (1, 'A') in (select 1, 'A' from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:57~1:61) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_034_behavior_review]
+sql:
+select 1 from dual where (1, 'A') not in (select 2, 'B' from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_035_behavior_review]
+sql:
+with cte(id) as (select 1 from dual) select id from cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_036_behavior_review]
+sql:
+with cte(id, name) as (select 1, 'A' from dual) select id, name from cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_037_behavior_review]
+sql:
+with cte1(id) as (select 1 from dual), cte2(id) as (select 2 from dual) select * from cte1, cte2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:36) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:66~1:70) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_038_behavior_review]
+sql:
+with cte(id) as (select 1 from dual union all select 2 from dual) select count(*) from cte;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:73~1:78) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:60~1:64) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_039_behavior_review]
+sql:
+with cte(id) as (select 1 from dual union all select 2 from dual) select * from cte where id = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:60~1:64) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_040_behavior_review]
+sql:
+with nums(n) as (select 1 from dual union all select n + 1 from nums where n < 3) select n from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_041_behavior_review]
+sql:
+with nums(n) as (select 1 from dual union all select n + 1 from nums where n < 5) select sum(n) from nums;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:89~1:92) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_042_behavior_review]
+sql:
+select 1 from dual union select 2 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_043_behavior_review]
+sql:
+select 1 from dual union select 1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_044_behavior_review]
+sql:
+select 1 from dual union all select 1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_045_behavior_review]
+sql:
+select 1 from dual union all select 2 from dual union all select 3 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:72~1:76) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_046_behavior_review]
+sql:
+select 1 from dual intersect select 1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_047_behavior_review]
+sql:
+select 1 from dual intersect select 2 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_048_behavior_review]
+sql:
+select 1 from dual minus select 2 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_049_behavior_review]
+sql:
+select 1 from dual except select 2 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:40~1:44) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_050_behavior_review]
+sql:
+select 1 id, 'A' name from dual union all select 2, 'B' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:27~1:31) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_051_behavior_review]
+sql:
+select 1 from dual union all (select 2 from dual union all select 3 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:44~1:48) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:73~1:77) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_052_behavior_review]
+sql:
+(select 1 from dual union all select 2 from dual) intersect select 2 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:15~1:19) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:44~1:48) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:74~1:78) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_053_behavior_review]
+sql:
+select 1 from dual union all select 2 from dual order by 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:18) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_query_structures_0_054_behavior_review]
+sql:
+select 1 id from dual union all select 2 from dual order by id desc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:17~1:21) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:46~1:50) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

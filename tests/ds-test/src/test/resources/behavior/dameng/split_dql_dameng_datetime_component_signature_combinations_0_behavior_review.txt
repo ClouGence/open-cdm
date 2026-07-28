@@ -1,0 +1,1405 @@
+[split_dql_dameng_datetime_component_signature_combinations_0_001_behavior_review]
+sql:
+SELECT DAY(DATE '2024-02-29') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_002_behavior_review]
+sql:
+SELECT DAY(TIMESTAMP '2024-12-31 23:59:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_003_behavior_review]
+sql:
+SELECT DAY('2023-06-07') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:30~1:34) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_004_behavior_review]
+sql:
+SELECT DAY(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/DAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:22~1:26) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_005_behavior_review]
+sql:
+SELECT DAYNAME(DATE '2023-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/DAYNAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_006_behavior_review]
+sql:
+SELECT DAYNAME(TIMESTAMP '2024-02-29 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/DAYNAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:53~1:57) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_007_behavior_review]
+sql:
+SELECT DAYNAME(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/DAYNAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:26~1:30) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_008_behavior_review]
+sql:
+SELECT DAYOFMONTH(DATE '2023-01-03') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/DAYOFMONTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_009_behavior_review]
+sql:
+SELECT DAYOFMONTH(TIMESTAMP '2024-02-29 23:59:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/DAYOFMONTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:56~1:60) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_010_behavior_review]
+sql:
+SELECT DAYOFMONTH(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/DAYOFMONTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:29~1:33) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_011_behavior_review]
+sql:
+SELECT DAYOFWEEK(DATE '2023-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DAYOFWEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_012_behavior_review]
+sql:
+SELECT DAYOFWEEK(DATE '2023-01-07') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DAYOFWEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_013_behavior_review]
+sql:
+SELECT DAYOFWEEK(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DAYOFWEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_014_behavior_review]
+sql:
+SELECT DAYOFYEAR(DATE '2023-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DAYOFYEAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_015_behavior_review]
+sql:
+SELECT DAYOFYEAR(DATE '2024-02-29') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DAYOFYEAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_016_behavior_review]
+sql:
+SELECT DAYOFYEAR(DATE '2024-12-31') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DAYOFYEAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_017_behavior_review]
+sql:
+SELECT DAYOFYEAR(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/DAYOFYEAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_018_behavior_review]
+sql:
+SELECT HOUR(TIME '20:10:16') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/HOUR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:34~1:38) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_019_behavior_review]
+sql:
+SELECT HOUR(TIMESTAMP '2024-02-29 23:59:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/HOUR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:50~1:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_020_behavior_review]
+sql:
+SELECT HOUR('00:10:16') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/HOUR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:29~1:33) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_021_behavior_review]
+sql:
+SELECT HOUR(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/HOUR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_022_behavior_review]
+sql:
+SELECT MINUTE(TIME '20:10:16') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/MINUTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_023_behavior_review]
+sql:
+SELECT MINUTE(TIMESTAMP '2024-02-29 23:59:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/MINUTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:52~1:56) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_024_behavior_review]
+sql:
+SELECT MINUTE('00:01:16') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/MINUTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_025_behavior_review]
+sql:
+SELECT MINUTE(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/MINUTE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:25~1:29) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_026_behavior_review]
+sql:
+SELECT MONTH(DATE '2022-11-12') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/MONTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:37~1:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_027_behavior_review]
+sql:
+SELECT MONTH(TIMESTAMP '2024-02-29 23:59:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/MONTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_028_behavior_review]
+sql:
+SELECT MONTH('2023-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/MONTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:32~1:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_029_behavior_review]
+sql:
+SELECT MONTH(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/MONTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:24~1:28) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_030_behavior_review]
+sql:
+SELECT MONTHNAME(DATE '2022-11-12') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/MONTHNAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_031_behavior_review]
+sql:
+SELECT MONTHNAME(TIMESTAMP '2024-02-29 23:59:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/MONTHNAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_032_behavior_review]
+sql:
+SELECT MONTHNAME(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/MONTHNAME/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:28~1:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_033_behavior_review]
+sql:
+SELECT QUARTER(DATE '2023-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/QUARTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_034_behavior_review]
+sql:
+SELECT QUARTER(DATE '2023-04-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/QUARTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_035_behavior_review]
+sql:
+SELECT QUARTER(DATE '2023-12-31') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/QUARTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_036_behavior_review]
+sql:
+SELECT QUARTER(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/QUARTER/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:26~1:30) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_037_behavior_review]
+sql:
+SELECT SECOND(TIME '08:10:25.300') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/SECOND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:40~1:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_038_behavior_review]
+sql:
+SELECT SECOND(TIMESTAMP '2024-02-29 23:59:59.999999') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/SECOND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:59~1:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_039_behavior_review]
+sql:
+SELECT SECOND('00:01:16') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/SECOND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_040_behavior_review]
+sql:
+SELECT SECOND(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/SECOND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:25~1:29) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_041_behavior_review]
+sql:
+SELECT WEEK(DATE '2023-02-10') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_042_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_043_behavior_review]
+sql:
+SELECT WEEK(TIMESTAMP '2024-12-31 23:59:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:50~1:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_044_behavior_review]
+sql:
+SELECT WEEK(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_045_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-12-31',0) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_046_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-12-31',1) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_047_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-12-31',2) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_048_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-12-31',3) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_049_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-12-31',4) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_050_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-12-31',5) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_051_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-12-31',6) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_052_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-12-31',7) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:38~1:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_053_behavior_review]
+sql:
+SELECT WEEK(DATE '2024-12-31',15) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_054_behavior_review]
+sql:
+SELECT WEEK(NULL,0) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/WEEK/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:25~1:29) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_055_behavior_review]
+sql:
+SELECT WEEKDAY(DATE '2023-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/WEEKDAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_056_behavior_review]
+sql:
+SELECT WEEKDAY(DATE '2023-10-26') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/WEEKDAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_057_behavior_review]
+sql:
+SELECT WEEKDAY(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/WEEKDAY/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:26~1:30) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_058_behavior_review]
+sql:
+SELECT YEAR(DATE '2023-05-12') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/YEAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_059_behavior_review]
+sql:
+SELECT YEAR(TIMESTAMP '2024-02-29 23:59:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/YEAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:50~1:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_060_behavior_review]
+sql:
+SELECT YEAR('2000-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/YEAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_061_behavior_review]
+sql:
+SELECT YEAR(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/YEAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:23~1:27) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_062_behavior_review]
+sql:
+SELECT EXTRACT(YEAR FROM DATE '2023-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_063_behavior_review]
+sql:
+SELECT EXTRACT(MONTH FROM DATE '2023-12-31') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:50~1:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_064_behavior_review]
+sql:
+SELECT EXTRACT(DAY FROM DATE '2024-02-29') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_065_behavior_review]
+sql:
+SELECT EXTRACT(HOUR FROM TIME '12:34:56') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:47~1:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_066_behavior_review]
+sql:
+SELECT EXTRACT(MINUTE FROM TIME '12:34:56') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_067_behavior_review]
+sql:
+SELECT EXTRACT(SECOND FROM TIMESTAMP '2023-01-01 12:00:01.35') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:68~1:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_068_behavior_review]
+sql:
+SELECT EXTRACT(TIMEZONE_HOUR FROM TIME '12:00:01.35 +9:30') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:65~1:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_069_behavior_review]
+sql:
+SELECT EXTRACT(TIMEZONE_MINUTE FROM TIME '12:00:01.35 +9:30') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:67~1:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_070_behavior_review]
+sql:
+SELECT EXTRACT(SECOND FROM INTERVAL '-05:01:22.01' HOUR TO SECOND) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:72~1:76) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_071_behavior_review]
+sql:
+SELECT EXTRACT(YEAR FROM INTERVAL '12-3' YEAR TO MONTH) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_072_behavior_review]
+sql:
+SELECT EXTRACT(MONTH FROM INTERVAL '12-3' YEAR TO MONTH) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:62~1:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_073_behavior_review]
+sql:
+SELECT EXTRACT(YEAR FROM CAST(NULL AS DATE)) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:50~1:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_datetime_component_signature_combinations_0_074_behavior_review]
+sql:
+SELECT EXTRACT(WEEK FROM DATE '2024-12-11') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/EXTRACT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

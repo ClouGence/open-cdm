@@ -1,0 +1,28 @@
+[type_body_has_no_result_lineage]
+sql:
+create or replace type body app.t_methods as
+  member function get_value return int is
+  begin
+    return value;
+  end;
+end;
+/
+expect:
+{}
+----------
+[collection_table_columns]
+sql:
+select id, values_col from catalog1.app.arr_table order by id
+expect:
+{
+  "id" : [ "/catalog1/app/arr_table/id/" ],
+  "values_col" : [ "/catalog1/app/arr_table/values_col/" ]
+}
+----------
+[map_method_filter_columns]
+sql:
+select id from catalog1.app.method_table where obj > t_methods(4)
+expect:
+{
+  "id" : [ "/catalog1/app/method_table/id/" ]
+}

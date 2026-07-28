@@ -1,0 +1,207 @@
+[split_dql_dameng_utl_url_signature_combinations_0_013]
+sql:
+-- ESCAPE_UTF8_BYTES
+SELECT UTL_URL.ESCAPE(UTL_I18N.RAW_TO_CHAR(HEXTORAW('E4B8AD'),'UTF8'),FALSE,'UTF8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:21) /test/1/catalog1/UTL_URL/ESCAPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:22~2:42) /test/1/catalog1/UTL_I18N/RAW_TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:51) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:89~2:93) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_url_signature_combinations_0_014]
+sql:
+-- ESCAPE_GBK_BYTES
+SELECT UTL_URL.ESCAPE(UTL_I18N.RAW_TO_CHAR(HEXTORAW('D6D0'),'GBK'),FALSE,'GBK') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:21) /test/1/catalog1/UTL_URL/ESCAPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:22~2:42) /test/1/catalog1/UTL_I18N/RAW_TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:51) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:85~2:89) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_url_signature_combinations_0_015]
+sql:
+-- ESCAPE_BIG5_BYTES
+SELECT UTL_URL.ESCAPE(UTL_I18N.RAW_TO_CHAR(HEXTORAW('A4A4'),'BIG5'),FALSE,'BIG5') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:21) /test/1/catalog1/UTL_URL/ESCAPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:22~2:42) /test/1/catalog1/UTL_I18N/RAW_TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:43~2:51) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:87~2:91) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_url_signature_combinations_0_040]
+sql:
+-- UNESCAPE_UTF8_BYTES
+SELECT RAWTOHEX(UTL_I18N.STRING_TO_RAW(UTL_URL.UNESCAPE('%E4%B8%AD','UTF8'),'UTF8')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/RAWTOHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:16~2:38) /test/1/catalog1/UTL_I18N/STRING_TO_RAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:39~2:55) /test/1/catalog1/UTL_URL/UNESCAPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:90~2:94) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_url_signature_combinations_0_041]
+sql:
+-- UNESCAPE_GBK_BYTES
+SELECT RAWTOHEX(UTL_I18N.STRING_TO_RAW(UTL_URL.UNESCAPE('%D6%D0','GBK'),'GBK')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/RAWTOHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:16~2:38) /test/1/catalog1/UTL_I18N/STRING_TO_RAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:39~2:55) /test/1/catalog1/UTL_URL/UNESCAPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:85~2:89) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_url_signature_combinations_0_042]
+sql:
+-- UNESCAPE_BIG5_BYTES
+SELECT RAWTOHEX(UTL_I18N.STRING_TO_RAW(UTL_URL.UNESCAPE('%A4%A4','BIG5'),'BIG5')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/RAWTOHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:16~2:38) /test/1/catalog1/UTL_I18N/STRING_TO_RAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:39~2:55) /test/1/catalog1/UTL_URL/UNESCAPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:87~2:91) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_utl_url_signature_combinations_0_057]
+sql:
+-- ESCAPE_UNESCAPE_UTF8_ROUNDTRIP
+SELECT RAWTOHEX(UTL_I18N.STRING_TO_RAW(UTL_URL.UNESCAPE(UTL_URL.ESCAPE(UTL_I18N.RAW_TO_CHAR(HEXTORAW('E4B8AD'),'UTF8'),TRUE,'UTF8'),'UTF8'),'UTF8')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/RAWTOHEX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:16~2:38) /test/1/catalog1/UTL_I18N/STRING_TO_RAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:39~2:55) /test/1/catalog1/UTL_URL/UNESCAPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:56~2:70) /test/1/catalog1/UTL_URL/ESCAPE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:71~2:91) /test/1/catalog1/UTL_I18N/RAW_TO_CHAR/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:92~2:100) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:154~2:158) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

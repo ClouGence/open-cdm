@@ -1,0 +1,1478 @@
+[split_dcl_dameng_language_0_001]
+sql:
+create user codex_dm8_dcl_u01 identified by "Dm8@Test2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u01/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_002]
+sql:
+create user codex_dm8_dcl_u02 identified by "Dm8@Test2026" password_policy 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u02/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_003]
+sql:
+create user codex_dm8_dcl_u03 identified by "Dm8@Test2026" account lock;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u03/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_004]
+sql:
+create user codex_dm8_dcl_u04 identified by "Dm8@Test2026" account unlock;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u04/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_005]
+sql:
+create user codex_dm8_dcl_u05 identified by "Dm8@Test2026" read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u05/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_006]
+sql:
+create user codex_dm8_dcl_u06 identified by "Dm8@Test2026" not read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u06/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_007]
+sql:
+create user codex_dm8_dcl_u07 identified by "Dm8@Test2026" limit connect_time 30;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u07/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_008]
+sql:
+create user codex_dm8_dcl_u08 identified by "Dm8@Test2026" limit session_per_user 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u08/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_009]
+sql:
+create user codex_dm8_dcl_u09 identified by "Dm8@Test2026" default tablespace main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u09/",
+      "action": "CREATE",
+      "target": "Tablespace(1:78~1:82) /test/1/main/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_010]
+sql:
+create user codex_dm8_dcl_u10 identified by "Dm8@Test2026" password expire;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_011]
+sql:
+create user codex_dm8_dcl_u11 identified by "Dm8@Test2026" account unlock limit connect_idle_time 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u11/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_012]
+sql:
+create user codex_dm8_dcl_u12 identified by "Dm8@Test2026" password_policy 15 not read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:29) /test/1/codex_dm8_dcl_u12/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_013]
+sql:
+alter user codex_dm8_dcl_u01 identified by "Dm8@Test2027";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:28) /test/1/codex_dm8_dcl_u01/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_014]
+sql:
+alter user codex_dm8_dcl_u02 account lock;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:28) /test/1/codex_dm8_dcl_u02/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_015]
+sql:
+alter user codex_dm8_dcl_u02 account unlock;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:28) /test/1/codex_dm8_dcl_u02/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_016]
+sql:
+alter user codex_dm8_dcl_u03 read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:28) /test/1/codex_dm8_dcl_u03/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_017]
+sql:
+alter user codex_dm8_dcl_u03 not read only;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:28) /test/1/codex_dm8_dcl_u03/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_018]
+sql:
+alter user codex_dm8_dcl_u04 limit connect_time 60;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:28) /test/1/codex_dm8_dcl_u04/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_019]
+sql:
+alter user codex_dm8_dcl_u05 password_policy 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:28) /test/1/codex_dm8_dcl_u05/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_020]
+sql:
+alter user codex_dm8_dcl_u06 default tablespace main;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_USER": [
+    {
+      "subject": "User(1:11~1:28) /test/1/codex_dm8_dcl_u06/",
+      "action": "ALTER",
+      "target": "Tablespace(1:48~1:52) /test/1/main/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_021]
+sql:
+create role codex_dm8_dcl_r01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r01/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_022]
+sql:
+create role codex_dm8_dcl_r02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r02/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_023]
+sql:
+create role codex_dm8_dcl_r03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r03/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_024]
+sql:
+create role codex_dm8_dcl_r04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r04/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_025]
+sql:
+create role codex_dm8_dcl_r05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r05/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_026]
+sql:
+create role codex_dm8_dcl_r06;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r06/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_027]
+sql:
+create role codex_dm8_dcl_r07;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r07/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_028]
+sql:
+create role codex_dm8_dcl_r08;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r08/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_029]
+sql:
+create role codex_dm8_dcl_r09;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r09/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_030]
+sql:
+create role codex_dm8_dcl_r10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:29) /test/1/codex_dm8_dcl_r10/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_031]
+sql:
+grant create table to codex_dm8_dcl_u01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:22~1:39) /test/1/codex_dm8_dcl_u01/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_032]
+sql:
+grant create view to codex_dm8_dcl_u02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "View(1:13~1:17) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:21~1:38) /test/1/codex_dm8_dcl_u02/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_033]
+sql:
+grant create sequence to codex_dm8_dcl_u03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Sequence(1:13~1:21) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:25~1:42) /test/1/codex_dm8_dcl_u03/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_034]
+sql:
+grant create procedure to codex_dm8_dcl_u04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Procedure(1:13~1:22) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:26~1:43) /test/1/codex_dm8_dcl_u04/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_035]
+sql:
+grant create table, create view to codex_dm8_dcl_u05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:35~1:52) /test/1/codex_dm8_dcl_u05/"
+    },
+    {
+      "subject": "View(1:27~1:31) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:35~1:52) /test/1/codex_dm8_dcl_u05/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_036]
+sql:
+grant create table to codex_dm8_dcl_u06 with admin option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:22~1:39) /test/1/codex_dm8_dcl_u06/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_037]
+sql:
+grant create table to codex_dm8_dcl_r01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:22~1:39) /test/1/codex_dm8_dcl_r01/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_038]
+sql:
+grant create view to codex_dm8_dcl_r02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "View(1:13~1:17) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:21~1:38) /test/1/codex_dm8_dcl_r02/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_039]
+sql:
+grant create sequence, create procedure to codex_dm8_dcl_r03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Sequence(1:13~1:21) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:43~1:60) /test/1/codex_dm8_dcl_r03/"
+    },
+    {
+      "subject": "Procedure(1:30~1:39) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:43~1:60) /test/1/codex_dm8_dcl_r03/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_040]
+sql:
+grant select on codex_dm8_dcl_object to codex_dm8_dcl_u01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:16~1:36) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:40~1:57) /test/1/codex_dm8_dcl_u01/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_041]
+sql:
+grant insert on table codex_dm8_dcl_object to codex_dm8_dcl_u02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:22~1:42) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:46~1:63) /test/1/codex_dm8_dcl_u02/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_042]
+sql:
+grant update on codex_dm8_dcl_object to codex_dm8_dcl_u03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:16~1:36) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:40~1:57) /test/1/codex_dm8_dcl_u03/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_043]
+sql:
+grant delete on codex_dm8_dcl_object to codex_dm8_dcl_u04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:16~1:36) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:40~1:57) /test/1/codex_dm8_dcl_u04/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_044]
+sql:
+grant references on codex_dm8_dcl_object to codex_dm8_dcl_u05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:20~1:40) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:44~1:61) /test/1/codex_dm8_dcl_u05/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_045]
+sql:
+grant select, insert, update, delete on codex_dm8_dcl_object to codex_dm8_dcl_u06;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:40~1:60) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:64~1:81) /test/1/codex_dm8_dcl_u06/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_046]
+sql:
+grant all privileges on codex_dm8_dcl_object to codex_dm8_dcl_u07;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:24~1:44) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:48~1:65) /test/1/codex_dm8_dcl_u07/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_047]
+sql:
+grant select on codex_dm8_dcl_object to codex_dm8_dcl_u08 with grant option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:16~1:36) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:40~1:57) /test/1/codex_dm8_dcl_u08/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_048]
+sql:
+grant update(id, name) on codex_dm8_dcl_object to codex_dm8_dcl_u09;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:26~1:46) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:50~1:67) /test/1/codex_dm8_dcl_u09/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_049]
+sql:
+grant select on table codex_dm8_dcl_object to codex_dm8_dcl_r04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:22~1:42) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:46~1:63) /test/1/codex_dm8_dcl_r04/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_050]
+sql:
+grant insert, update on codex_dm8_dcl_object to codex_dm8_dcl_r05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:24~1:44) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:48~1:65) /test/1/codex_dm8_dcl_r05/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_051]
+sql:
+grant all on codex_dm8_dcl_object to codex_dm8_dcl_r06;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:13~1:33) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:37~1:54) /test/1/codex_dm8_dcl_r06/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_052]
+sql:
+grant codex_dm8_dcl_r01 to codex_dm8_dcl_u01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:23) /test/1/codex_dm8_dcl_r01/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:44) /test/1/codex_dm8_dcl_u01/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_053]
+sql:
+grant codex_dm8_dcl_r02, codex_dm8_dcl_r03 to codex_dm8_dcl_u02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:23) /test/1/codex_dm8_dcl_r02/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:46~1:63) /test/1/codex_dm8_dcl_u02/"
+    },
+    {
+      "subject": "Role(1:25~1:42) /test/1/codex_dm8_dcl_r03/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:46~1:63) /test/1/codex_dm8_dcl_u02/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_054]
+sql:
+grant codex_dm8_dcl_r04 to codex_dm8_dcl_u03 with admin option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:23) /test/1/codex_dm8_dcl_r04/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:44) /test/1/codex_dm8_dcl_u03/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_055]
+sql:
+grant codex_dm8_dcl_r05 to codex_dm8_dcl_r07;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:23) /test/1/codex_dm8_dcl_r05/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:44) /test/1/codex_dm8_dcl_r07/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_056]
+sql:
+grant codex_dm8_dcl_r06, codex_dm8_dcl_r07 to codex_dm8_dcl_u04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:23) /test/1/codex_dm8_dcl_r06/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:46~1:63) /test/1/codex_dm8_dcl_u04/"
+    },
+    {
+      "subject": "Role(1:25~1:42) /test/1/codex_dm8_dcl_r07/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:46~1:63) /test/1/codex_dm8_dcl_u04/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_057]
+sql:
+revoke create table from codex_dm8_dcl_u01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Table(1:14~1:19) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:25~1:42) /test/1/codex_dm8_dcl_u01/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_058]
+sql:
+revoke admin option for create table from codex_dm8_dcl_u06;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Table(1:31~1:36) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:42~1:59) /test/1/codex_dm8_dcl_u06/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_059]
+sql:
+revoke create view from codex_dm8_dcl_u02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "View(1:14~1:18) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:24~1:41) /test/1/codex_dm8_dcl_u02/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_060]
+sql:
+revoke create sequence from codex_dm8_dcl_u03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Sequence(1:14~1:22) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:28~1:45) /test/1/codex_dm8_dcl_u03/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_061]
+sql:
+revoke create procedure from codex_dm8_dcl_u04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Procedure(1:14~1:23) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:29~1:46) /test/1/codex_dm8_dcl_u04/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_062]
+sql:
+revoke select on codex_dm8_dcl_object from codex_dm8_dcl_u01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:17~1:37) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:43~1:60) /test/1/codex_dm8_dcl_u01/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_063]
+sql:
+revoke insert on table codex_dm8_dcl_object from codex_dm8_dcl_u02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Table(1:23~1:43) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:49~1:66) /test/1/codex_dm8_dcl_u02/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_064]
+sql:
+revoke update on codex_dm8_dcl_object from codex_dm8_dcl_u03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:17~1:37) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:43~1:60) /test/1/codex_dm8_dcl_u03/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_065]
+sql:
+revoke delete on codex_dm8_dcl_object from codex_dm8_dcl_u04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:17~1:37) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:43~1:60) /test/1/codex_dm8_dcl_u04/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_066]
+sql:
+revoke references on codex_dm8_dcl_object from codex_dm8_dcl_u05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:21~1:41) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:47~1:64) /test/1/codex_dm8_dcl_u05/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_067]
+sql:
+revoke all privileges on codex_dm8_dcl_object from codex_dm8_dcl_u07;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:25~1:45) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:51~1:68) /test/1/codex_dm8_dcl_u07/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_068]
+sql:
+revoke grant option for select on codex_dm8_dcl_object from codex_dm8_dcl_u08 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:34~1:54) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:60~1:77) /test/1/codex_dm8_dcl_u08/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_069]
+sql:
+revoke update on codex_dm8_dcl_object from codex_dm8_dcl_u09;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "SchemaObject(1:17~1:37) /test/1/catalog1/schema1/codex_dm8_dcl_object/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:43~1:60) /test/1/codex_dm8_dcl_u09/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_070]
+sql:
+revoke codex_dm8_dcl_r01 from codex_dm8_dcl_u01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:24) /test/1/codex_dm8_dcl_r01/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:30~1:47) /test/1/codex_dm8_dcl_u01/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_071]
+sql:
+revoke codex_dm8_dcl_r02, codex_dm8_dcl_r03 from codex_dm8_dcl_u02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:24) /test/1/codex_dm8_dcl_r02/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:49~1:66) /test/1/codex_dm8_dcl_u02/"
+    },
+    {
+      "subject": "Role(1:26~1:43) /test/1/codex_dm8_dcl_r03/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:49~1:66) /test/1/codex_dm8_dcl_u02/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_072]
+sql:
+revoke admin option for codex_dm8_dcl_r04 from codex_dm8_dcl_u03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:24~1:41) /test/1/codex_dm8_dcl_r04/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:47~1:64) /test/1/codex_dm8_dcl_u03/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_073]
+sql:
+drop role codex_dm8_dcl_r01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r01/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_074]
+sql:
+drop role codex_dm8_dcl_r02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r02/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_075]
+sql:
+drop role codex_dm8_dcl_r03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r03/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_076]
+sql:
+drop role codex_dm8_dcl_r04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r04/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_077]
+sql:
+drop role codex_dm8_dcl_r05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r05/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_078]
+sql:
+drop role codex_dm8_dcl_r06;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r06/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_079]
+sql:
+drop role codex_dm8_dcl_r07;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r07/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_080]
+sql:
+drop role codex_dm8_dcl_r08;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r08/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_081]
+sql:
+drop role codex_dm8_dcl_r09;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r09/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_082]
+sql:
+drop role codex_dm8_dcl_r10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:27) /test/1/codex_dm8_dcl_r10/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_083]
+sql:
+drop user codex_dm8_dcl_u01 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u01/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_084]
+sql:
+drop user codex_dm8_dcl_u02 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u02/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_085]
+sql:
+drop user codex_dm8_dcl_u03 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u03/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_086]
+sql:
+drop user codex_dm8_dcl_u04 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u04/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_087]
+sql:
+drop user codex_dm8_dcl_u05 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u05/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_088]
+sql:
+drop user codex_dm8_dcl_u06 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u06/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_089]
+sql:
+drop user codex_dm8_dcl_u07 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u07/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_090]
+sql:
+drop user codex_dm8_dcl_u08 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u08/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_091]
+sql:
+drop user codex_dm8_dcl_u09 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u09/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_092]
+sql:
+drop user codex_dm8_dcl_u10 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u10/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_093]
+sql:
+drop user codex_dm8_dcl_u11 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u11/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_language_0_094]
+sql:
+drop user codex_dm8_dcl_u12 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:27) /test/1/codex_dm8_dcl_u12/",
+      "action": "DROP"
+    }
+  ]
+}

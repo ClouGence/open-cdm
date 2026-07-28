@@ -1,0 +1,1236 @@
+[split_ddl_dameng_domain_0_001_behavior_review]
+sql:
+create user CODEX_DM8_DOMAIN_USER_20260721 identified by "Dm8@Domain2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:42) /test/1/CODEX_DM8_DOMAIN_USER_20260721/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_002_behavior_review]
+sql:
+create role CODEX_DM8_DOMAIN_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:42) /test/1/CODEX_DM8_DOMAIN_ROLE_20260721/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_003_behavior_review]
+sql:
+create domain dom_int int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:21) /test/1/catalog1/schema1/dom_int/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_004_behavior_review]
+sql:
+create domain dom_int_as as int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:24) /test/1/catalog1/schema1/dom_int_as/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_005_behavior_review]
+sql:
+create domain dom_int_default int default 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:29) /test/1/catalog1/schema1/dom_int_default/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_006_behavior_review]
+sql:
+create domain dom_positive int check(value > 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:26) /test/1/catalog1/schema1/dom_positive/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_007_behavior_review]
+sql:
+create domain dom_nonnegative int constraint ck_dom_nonnegative check(value >= 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:29) /test/1/catalog1/schema1/dom_nonnegative/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_008_behavior_review]
+sql:
+create domain dom_default_check int default 1 check(value between 1 and 100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:31) /test/1/catalog1/schema1/dom_default_check/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_009_behavior_review]
+sql:
+create domain dom_named_default_check as int default 2
+constraint ck_dom_named_range check(value between 1 and 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:37) /test/1/catalog1/schema1/dom_named_default_check/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_010_behavior_review]
+sql:
+create domain dom_code varchar(20) default 'UNKNOWN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:22) /test/1/catalog1/schema1/dom_code/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_011_behavior_review]
+sql:
+create domain dom_short_text varchar(40) check(length(value) <= 40);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:28) /test/1/catalog1/schema1/dom_short_text/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:47~1:53) /test/1/catalog1/schema1/length/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_012_behavior_review]
+sql:
+create domain dom_amount decimal(12,2) default 0 check(value >= 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:24) /test/1/catalog1/schema1/dom_amount/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_013_behavior_review]
+sql:
+create domain dom_ratio numeric(8,4) check(value between 0 and 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:23) /test/1/catalog1/schema1/dom_ratio/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_014_behavior_review]
+sql:
+create domain dom_flag char(1) default 'Y' check(value in ('Y', 'N'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:22) /test/1/catalog1/schema1/dom_flag/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_015_behavior_review]
+sql:
+create domain dom_created_date date default current_date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:30) /test/1/catalog1/schema1/dom_created_date/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:44~1:56) /test/1/catalog1/schema1/current_date/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_016_behavior_review]
+sql:
+create domain dom_created_at timestamp default current_timestamp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:28) /test/1/catalog1/schema1/dom_created_at/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(1:47~1:64) /test/1/catalog1/schema1/current_timestamp/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_017_behavior_review]
+sql:
+create domain dom_big_id bigint check(value > 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:24) /test/1/catalog1/schema1/dom_big_id/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_018_behavior_review]
+sql:
+create domain "Dom_Quoted_20260721" varchar(16) default 'quoted';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:35) /test/1/catalog1/schema1/Dom_Quoted_20260721/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_019_behavior_review]
+sql:
+create domain CODEX_DM8_DOMAIN_20260721.dom_qualified int default 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:53) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_qualified/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_020_behavior_review]
+sql:
+create domain if not exists dom_int int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:35) /test/1/catalog1/schema1/dom_int/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_021_behavior_review]
+sql:
+create domain if not exists CODEX_DM8_DOMAIN_20260721.dom_ifne varchar(8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:28~1:62) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_ifne/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_022_behavior_review]
+sql:
+create table domain_defaults(
+  id dom_big_id,
+  score dom_int_default,
+  code dom_code,
+  flag dom_flag,
+  created_on dom_created_date
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/domain_defaults/",
+      "action" : "CREATE",
+      "target" : [
+        "Type(2:5~2:15) /test/1/catalog1/schema1/dom_big_id/",
+        "Type(3:8~3:23) /test/1/catalog1/schema1/dom_int_default/",
+        "Type(4:7~4:15) /test/1/catalog1/schema1/dom_code/",
+        "Type(5:7~5:15) /test/1/catalog1/schema1/dom_flag/",
+        "Type(6:13~6:29) /test/1/catalog1/schema1/dom_created_date/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_023_behavior_review]
+sql:
+insert into domain_defaults(id) values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/domain_defaults/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_024_behavior_review]
+sql:
+select id, score, code, flag, created_on from domain_defaults;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:46~1:61) /test/1/catalog1/schema1/domain_defaults/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_025_behavior_review]
+sql:
+create table domain_override(
+  id dom_big_id,
+  score dom_int_default default 99,
+  code dom_code default 'OVERRIDE'
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/domain_override/",
+      "action" : "CREATE",
+      "target" : [
+        "Type(2:5~2:15) /test/1/catalog1/schema1/dom_big_id/",
+        "Type(3:8~3:23) /test/1/catalog1/schema1/dom_int_default/",
+        "Type(4:7~4:15) /test/1/catalog1/schema1/dom_code/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_026_behavior_review]
+sql:
+insert into domain_override(id) values(2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/schema1/domain_override/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_027_behavior_review]
+sql:
+select id, score, code from domain_override;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:28~1:43) /test/1/catalog1/schema1/domain_override/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_028_behavior_review]
+sql:
+create table domain_constraints(
+  id dom_big_id,
+  positive_value dom_positive,
+  amount dom_amount,
+  ratio dom_ratio
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/domain_constraints/",
+      "action" : "CREATE",
+      "target" : [
+        "Type(2:5~2:15) /test/1/catalog1/schema1/dom_big_id/",
+        "Type(3:17~3:29) /test/1/catalog1/schema1/dom_positive/",
+        "Type(4:9~4:19) /test/1/catalog1/schema1/dom_amount/",
+        "Type(5:8~5:17) /test/1/catalog1/schema1/dom_ratio/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_029_behavior_review]
+sql:
+insert into domain_constraints values(3, 7, 12.50, 0.7500);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/domain_constraints/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_030_behavior_review]
+sql:
+update domain_constraints set positive_value = 8, amount = amount + 1 where id = 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:25) /test/1/catalog1/schema1/domain_constraints/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_031_behavior_review]
+sql:
+select id, positive_value, amount, ratio from domain_constraints;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:46~1:64) /test/1/catalog1/schema1/domain_constraints/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_032_behavior_review]
+sql:
+create table domain_quoted(id int, quoted_value "Dom_Quoted_20260721");
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/domain_quoted/",
+      "action" : "CREATE",
+      "target" : "Type(1:48~1:69) /test/1/catalog1/schema1/Dom_Quoted_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_033_behavior_review]
+sql:
+insert into domain_quoted(id) values(4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/domain_quoted/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_034_behavior_review]
+sql:
+select id, quoted_value from domain_quoted;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:29~1:42) /test/1/catalog1/schema1/domain_quoted/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_035_behavior_review]
+sql:
+create table domain_qualified_use(
+  id int,
+  value_one CODEX_DM8_DOMAIN_20260721.dom_qualified,
+  value_two CODEX_DM8_DOMAIN_20260721.dom_ifne
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/domain_qualified_use/",
+      "action" : "CREATE",
+      "target" : [
+        "Type(3:12~3:51) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_qualified/",
+        "Type(4:12~4:46) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_ifne/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_036_behavior_review]
+sql:
+insert into domain_qualified_use(id, value_two) values(5, 'DM8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/domain_qualified_use/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_037_behavior_review]
+sql:
+select id, value_one, value_two from domain_qualified_use;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:37~1:57) /test/1/catalog1/schema1/domain_qualified_use/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_038_behavior_review]
+sql:
+select name, schid, subtype$ from sysobjects
+where subtype$ = 'DOMAIN' and name like 'DOM_%' order by name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:34~1:44) /test/1/catalog1/schema1/sysobjects/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_039_behavior_review]
+sql:
+grant usage on domain CODEX_DM8_DOMAIN_20260721.dom_int
+to CODEX_DM8_DOMAIN_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:22~1:55) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_int/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(2:3~2:33) /test/1/CODEX_DM8_DOMAIN_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_040_behavior_review]
+sql:
+grant usage on domain CODEX_DM8_DOMAIN_20260721.dom_code
+to CODEX_DM8_DOMAIN_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:22~1:56) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_code/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(2:3~2:33) /test/1/CODEX_DM8_DOMAIN_ROLE_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_041_behavior_review]
+sql:
+grant usage on domain CODEX_DM8_DOMAIN_20260721.dom_flag to public;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:22~1:56) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_flag/",
+      "action" : "GRANT",
+      "target" : "UserOrRole(1:60~1:66) /test/1/public/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_042_behavior_review]
+sql:
+revoke usage on domain CODEX_DM8_DOMAIN_20260721.dom_int
+from CODEX_DM8_DOMAIN_USER_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Type(1:23~1:56) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_int/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(2:5~2:35) /test/1/CODEX_DM8_DOMAIN_USER_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_043_behavior_review]
+sql:
+revoke usage on domain CODEX_DM8_DOMAIN_20260721.dom_code
+from CODEX_DM8_DOMAIN_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Type(1:23~1:57) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_code/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(2:5~2:35) /test/1/CODEX_DM8_DOMAIN_ROLE_20260721/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_044_behavior_review]
+sql:
+revoke usage on domain CODEX_DM8_DOMAIN_20260721.dom_flag from public;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Type(1:23~1:57) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_flag/",
+      "action" : "REVOKE",
+      "target" : "UserOrRole(1:63~1:69) /test/1/public/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_045_behavior_review]
+sql:
+create domain dom_drop_restrict int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:31) /test/1/catalog1/schema1/dom_drop_restrict/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_046_behavior_review]
+sql:
+drop domain dom_drop_restrict restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:29) /test/1/catalog1/schema1/dom_drop_restrict/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_047_behavior_review]
+sql:
+create domain dom_drop_cascade int default 7 check(value > 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:30) /test/1/catalog1/schema1/dom_drop_cascade/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_048_behavior_review]
+sql:
+create table domain_cascade_use(id int, value_one dom_drop_cascade);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/domain_cascade_use/",
+      "action" : "CREATE",
+      "target" : "Type(1:50~1:66) /test/1/catalog1/schema1/dom_drop_cascade/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_049_behavior_review]
+sql:
+insert into domain_cascade_use(id) values(6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/domain_cascade_use/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_050_behavior_review]
+sql:
+drop domain dom_drop_cascade cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:28) /test/1/catalog1/schema1/dom_drop_cascade/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_051_behavior_review]
+sql:
+select id, value_one from domain_cascade_use;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:26~1:44) /test/1/catalog1/schema1/domain_cascade_use/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_052_behavior_review]
+sql:
+drop table domain_cascade_use;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/domain_cascade_use/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_053_behavior_review]
+sql:
+drop domain if exists dom_not_present;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:37) /test/1/catalog1/schema1/dom_not_present/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_054_behavior_review]
+sql:
+drop table domain_qualified_use;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:31) /test/1/catalog1/schema1/domain_qualified_use/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_055_behavior_review]
+sql:
+drop table domain_quoted;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:24) /test/1/catalog1/schema1/domain_quoted/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_056_behavior_review]
+sql:
+drop table domain_constraints;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/domain_constraints/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_057_behavior_review]
+sql:
+drop table domain_override;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/domain_override/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_058_behavior_review]
+sql:
+drop table domain_defaults;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/domain_defaults/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_059_behavior_review]
+sql:
+drop domain if exists CODEX_DM8_DOMAIN_20260721.dom_ifne;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:56) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_ifne/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_060_behavior_review]
+sql:
+drop domain if exists CODEX_DM8_DOMAIN_20260721.dom_qualified;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:61) /test/1/catalog1/CODEX_DM8_DOMAIN_20260721/dom_qualified/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_061_behavior_review]
+sql:
+drop domain if exists "Dom_Quoted_20260721";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:43) /test/1/catalog1/schema1/Dom_Quoted_20260721/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_062_behavior_review]
+sql:
+drop domain if exists dom_big_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:32) /test/1/catalog1/schema1/dom_big_id/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_063_behavior_review]
+sql:
+drop domain if exists dom_created_at;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:36) /test/1/catalog1/schema1/dom_created_at/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_064_behavior_review]
+sql:
+drop domain if exists dom_created_date;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:38) /test/1/catalog1/schema1/dom_created_date/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_065_behavior_review]
+sql:
+drop domain if exists dom_flag;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:30) /test/1/catalog1/schema1/dom_flag/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_066_behavior_review]
+sql:
+drop domain if exists dom_ratio;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:31) /test/1/catalog1/schema1/dom_ratio/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_067_behavior_review]
+sql:
+drop domain if exists dom_amount;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:32) /test/1/catalog1/schema1/dom_amount/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_068_behavior_review]
+sql:
+drop domain if exists dom_short_text;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:36) /test/1/catalog1/schema1/dom_short_text/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_069_behavior_review]
+sql:
+drop domain if exists dom_code;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:30) /test/1/catalog1/schema1/dom_code/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_070_behavior_review]
+sql:
+drop domain if exists dom_named_default_check;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:45) /test/1/catalog1/schema1/dom_named_default_check/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_071_behavior_review]
+sql:
+drop domain if exists dom_default_check;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:39) /test/1/catalog1/schema1/dom_default_check/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_072_behavior_review]
+sql:
+drop domain if exists dom_nonnegative;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:37) /test/1/catalog1/schema1/dom_nonnegative/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_073_behavior_review]
+sql:
+drop domain if exists dom_positive;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:34) /test/1/catalog1/schema1/dom_positive/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_074_behavior_review]
+sql:
+drop domain if exists dom_int_default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:37) /test/1/catalog1/schema1/dom_int_default/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_075_behavior_review]
+sql:
+drop domain if exists dom_int_as;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:32) /test/1/catalog1/schema1/dom_int_as/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_076_behavior_review]
+sql:
+drop domain if exists dom_int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:22~1:29) /test/1/catalog1/schema1/dom_int/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_077_behavior_review]
+sql:
+drop role CODEX_DM8_DOMAIN_ROLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:40) /test/1/CODEX_DM8_DOMAIN_ROLE_20260721/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_domain_0_078_behavior_review]
+sql:
+drop user CODEX_DM8_DOMAIN_USER_20260721 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:40) /test/1/CODEX_DM8_DOMAIN_USER_20260721/",
+      "action" : "DROP"
+    }
+  ]
+}

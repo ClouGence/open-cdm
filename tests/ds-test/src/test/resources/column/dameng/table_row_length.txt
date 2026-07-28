@@ -1,0 +1,11 @@
+[tblen_length_columns]
+sql:
+select lengthb(a) as a_len,lengthb(b) as b_len,i from catalog1.app.tblen_ps16_long
+expect:
+{"a_len":["/catalog1/app/tblen_ps16_long/a/"],"b_len":["/catalog1/app/tblen_ps16_long/b/"],"i":["/catalog1/app/tblen_ps16_long/i/"]}
+----------
+[tblen_value_columns]
+sql:
+select v,i from catalog1.app.tblen_ps16_varchar
+expect:
+{"v":["/catalog1/app/tblen_ps16_varchar/v/"],"i":["/catalog1/app/tblen_ps16_varchar/i/"]}

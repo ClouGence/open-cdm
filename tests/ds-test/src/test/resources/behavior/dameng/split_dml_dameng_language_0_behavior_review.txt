@@ -1,0 +1,930 @@
+[split_dml_dameng_language_0_behavior_review_001]
+sql:
+insert into dm8_dml_target(id, name, amount, status) values (101, 'A', 10.50, 'N');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_002]
+sql:
+insert into dm8_dml_target(id, name) values (102, 'B');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_003]
+sql:
+insert into dm8_dml_target(id, name, amount) values (103, 'C', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_004]
+sql:
+insert into dm8_dml_target(id, name, amount, status) values (104, upper('d'), abs(-20), 'N');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:66~1:71) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:78~1:81) /test/1/catalog1/schema1/abs/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_005]
+sql:
+insert into dm8_dml_target(id, name, created_at) values (105, 'E', current_timestamp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:67~1:84) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_006]
+sql:
+insert into dm8_dml_target(id, name, created_at) values (106, 'F', timestamp '2020-01-01 12:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_007]
+sql:
+insert into dm8_dml_target(id, name, flag) values (107, 'G', 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_008]
+sql:
+insert into dm8_dml_target(id, name, flag) values (108, 'H', 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_009]
+sql:
+insert into dm8_dml_target(id, name, note) values (109, 'I', 'note');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_010]
+sql:
+insert into dm8_dml_target(id, name, status) values (110, 'J', default);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_011]
+sql:
+insert into dm8_dml_target(id, name, amount) values (111, 'K', (select 11 from dual));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT",
+      "target": "View(1:79~1:83) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_012]
+sql:
+insert into dm8_dml_target(id, name, amount) values (112, 'L', 1 + 2 * 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_013]
+sql:
+insert into dm8_dml_target(id, name, status) values (113, 'M', case when 1 = 1 then 'Y' else 'N' end);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_014]
+sql:
+insert into dm8_dml_target(id, name, amount) values (114, 'N', cast('14.25' as decimal(10,2)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_015]
+sql:
+insert into dm8_dml_target(id, name, amount) values (115, 'O', round(15.555, 2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:63~1:68) /test/1/catalog1/schema1/round/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_016]
+sql:
+insert into dm8_dml_target(id, name) values (116, 'P'), (117, 'Q');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_017]
+sql:
+insert into dm8_dml_target(id, name, amount) values (118, 'R', 18), (119, 'S', 19), (120, 'T', 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_018]
+sql:
+insert into dm8_dml_target(id, name, amount) select 121, 'U', 21 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT",
+      "target": "View(1:70~1:74) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_019]
+sql:
+insert into dm8_dml_target(id, name, amount) select 122, 'V', 22 from dual union all select 123, 'W', 23 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT",
+      "target": [
+        "View(1:70~1:74) /test/1/catalog1/schema1/dual/",
+        "View(1:110~1:114) /test/1/catalog1/schema1/dual/"
+      ]
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_020]
+sql:
+insert into dm8_dml_target select 124, 'X', 24, 'N', current_timestamp, null, 1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "INSERT",
+      "target": "View(1:85~1:89) /test/1/catalog1/schema1/dual/"
+    },
+    {
+      "subject": "Function(1:53~1:70) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_021]
+sql:
+update dm8_dml_target set name = 'AA' where id = 101;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_022]
+sql:
+update dm8_dml_target set amount = amount + 1 where id = 102;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_023]
+sql:
+update dm8_dml_target set name = 'CC', status = 'Y' where id = 103;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_024]
+sql:
+update dm8_dml_target set amount = null where id = 104;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_025]
+sql:
+update dm8_dml_target set created_at = current_timestamp where id = 105;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:39~1:56) /test/1/catalog1/schema1/current_timestamp/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_026]
+sql:
+update dm8_dml_target set flag = 1 where id in (106, 107);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_027]
+sql:
+update dm8_dml_target set status = case when amount >= 10 then 'Y' else 'N' end where id between 108 and 110;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_028]
+sql:
+update dm8_dml_target set amount = (select 20 from dual) where id = 111;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE",
+      "target": "View(1:51~1:55) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_029]
+sql:
+update dm8_dml_target set amount = (select max(amount) from dm8_dml_target) where id = 112;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE",
+      "target": "Table(1:60~1:74) /test/1/catalog1/schema1/dm8_dml_target/"
+    },
+    {
+      "subject": "Function(1:43~1:46) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_030]
+sql:
+update dm8_dml_target set name = upper(name) where status = 'N';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:33~1:38) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_031]
+sql:
+update dm8_dml_target set note = name || '-note' where note is null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_032]
+sql:
+update dm8_dml_target set amount = coalesce(amount, 0) where amount is null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:35~1:43) /test/1/catalog1/schema1/coalesce/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_033]
+sql:
+update dm8_dml_target set amount = amount * 1.10 where id >= 113 and id <= 115;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_034]
+sql:
+update dm8_dml_target set status = default where id = 116;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_035]
+sql:
+update dm8_dml_target set (name, amount) = (select 'PAIR', 17 from dual) where id = 117;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE",
+      "target": "View(1:67~1:71) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_036]
+sql:
+update dm8_dml_target t set t.amount = t.amount + 1 where t.id = 118;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_037]
+sql:
+update dm8_dml_target set status = 'Y' where exists (select 1 from dual where 1 = 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE",
+      "target": "View(1:67~1:71) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_038]
+sql:
+update dm8_dml_target set amount = -amount where id = 119;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_039]
+sql:
+update dm8_dml_target set name = trim(name) where id = 120;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:33~1:37) /test/1/catalog1/schema1/trim/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_040]
+sql:
+update dm8_dml_target set note = null, flag = 0 where id = 121;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_041]
+sql:
+delete from dm8_dml_target where id = 124;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_042]
+sql:
+delete dm8_dml_target where id = 123;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_043]
+sql:
+delete from dm8_dml_target where id in (121, 122);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_044]
+sql:
+delete from dm8_dml_target where id between 118 and 120;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_045]
+sql:
+delete from dm8_dml_target where status = 'Y' and id >= 116;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_046]
+sql:
+delete from dm8_dml_target where amount is null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_047]
+sql:
+delete from dm8_dml_target where exists (select 1 from dual where dm8_dml_target.id = 115);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE",
+      "target": "View(1:55~1:59) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_048]
+sql:
+delete from dm8_dml_target where id = (select 114 from dual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE",
+      "target": "View(1:55~1:59) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_049]
+sql:
+delete from dm8_dml_target t where t.id = 113;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_050]
+sql:
+delete from dm8_dml_target where 1 = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_051]
+sql:
+merge into dm8_dml_target t using (select 201 id, 'M1' name, 20 amount from dual) s on (t.id = s.id) when not matched then insert (id, name, amount) values (s.id, s.name, s.amount);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "MERGE",
+      "target": "View(1:76~1:80) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_052]
+sql:
+merge into dm8_dml_target t using (select 201 id, 'M1U' name, 21 amount from dual) s on (t.id = s.id) when matched then update set t.name = s.name, t.amount = s.amount;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "MERGE",
+      "target": "View(1:77~1:81) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_053]
+sql:
+merge into dm8_dml_target t using (select 202 id, 'M2' name, 22 amount from dual) s on (t.id = s.id) when matched then update set t.amount = s.amount when not matched then insert (id, name, amount) values (s.id, s.name, s.amount);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "MERGE",
+      "target": "View(1:76~1:80) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_054]
+sql:
+merge into dm8_dml_target t using dm8_dml_source s on (t.id = s.id) when matched then update set t.amount = s.amount;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "MERGE",
+      "target": "Table(1:34~1:48) /test/1/catalog1/schema1/dm8_dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_055]
+sql:
+merge into dm8_dml_target t using dm8_dml_source s on (t.id = s.id) when not matched then insert (id, name, amount) values (s.id, s.name, s.amount);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "MERGE",
+      "target": "Table(1:34~1:48) /test/1/catalog1/schema1/dm8_dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_056]
+sql:
+merge into dm8_dml_target t using dm8_dml_source s on (t.id = s.id) when matched then update set t.status = 'Y' where s.amount > 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "MERGE",
+      "target": "Table(1:34~1:48) /test/1/catalog1/schema1/dm8_dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_057]
+sql:
+merge into dm8_dml_target t using (select 203 id, 'M3' name, 23 amount from dual) s on (t.id = s.id) when not matched then insert (id, name, amount, status) values (s.id, s.name, s.amount, 'N');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "MERGE",
+      "target": "View(1:76~1:80) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_language_0_behavior_review_058]
+sql:
+merge into dm8_dml_target t using (select 203 id, 'M3U' name, 24 amount from dual) s on (t.id = s.id) when matched then update set t.name = s.name where t.status = 'N';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/dm8_dml_target/",
+      "action": "MERGE",
+      "target": "View(1:77~1:81) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}

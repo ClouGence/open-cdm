@@ -1,0 +1,33 @@
+[dpc_huge_route_columns]
+sql:
+select id, payload, sf_get_ep_seqno(rowid) as ep_seqno
+from catalog1.app.dpc_huge_range order by id
+expect:
+{
+  "id": ["/catalog1/app/dpc_huge_range/id/"],
+  "payload": ["/catalog1/app/dpc_huge_range/payload/"],
+  "ep_seqno": ["/catalog1/app/dpc_huge_range/rowid/"]
+}
+----------
+[dpc_huge_cross_bp_join_columns]
+sql:
+select r.id, r.payload as range_payload, l.payload as list_payload
+from catalog1.app.dpc_huge_range r
+join catalog1.app.dpc_huge_list l on l.id=1
+where r.id=150
+expect:
+{
+  "id": ["/catalog1/app/dpc_huge_range/id/"],
+  "range_payload": ["/catalog1/app/dpc_huge_range/payload/"],
+  "list_payload": ["/catalog1/app/dpc_huge_list/payload/"]
+}
+----------
+[dpc_huge_constant_default_columns]
+sql:
+select id, payload, const_value from catalog1.app.dpc_huge_range order by id
+expect:
+{
+  "id": ["/catalog1/app/dpc_huge_range/id/"],
+  "payload": ["/catalog1/app/dpc_huge_range/payload/"],
+  "const_value": ["/catalog1/app/dpc_huge_range/const_value/"]
+}

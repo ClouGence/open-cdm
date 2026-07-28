@@ -62,7 +62,15 @@ public class Utils {
         scoreMap.put(TargetType.MaskingPolicy, 6);
         scoreMap.put(TargetType.RedactionPolicy, 6);
         scoreMap.put(TargetType.Job, 6);
+        scoreMap.put(TargetType.Link, 6);
         scoreMap.put(TargetType.Package, 6);
+        scoreMap.put(TargetType.Profile, 6);
+        scoreMap.put(TargetType.Context, 6);
+        scoreMap.put(TargetType.Queue, 6);
+        scoreMap.put(TargetType.QueueSubscriber, 6);
+        scoreMap.put(TargetType.Pipe, 6);
+        scoreMap.put(TargetType.SchedulerObject, 6);
+        scoreMap.put(TargetType.SchemaObject, 6);
         scoreMap.put(TargetType.Type, 6);
         scoreMap.put(TargetType.Operator, 6);
         scoreMap.put(TargetType.Library, 6);

@@ -1,0 +1,32 @@
+[java_this_constructor_chain_has_no_result_lineage]
+sql:
+create or replace java class j_this_chain
+{
+  int value;
+  j_this_chain()
+  {
+    this.value = 1;
+  }
+  j_this_chain(int p_value)
+  {
+    this();
+    this.value = p_value;
+  }
+}
+/
+expect:
+{}
+----------
+[java_inherited_overload_has_no_result_lineage]
+sql:
+create or replace java class j_overload_child extends j_overload_parent
+{
+  int extra;
+  public varchar calculate(varchar p_value)
+  {
+    return p_value;
+  }
+}
+/
+expect:
+{}

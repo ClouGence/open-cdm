@@ -1,0 +1,113 @@
+[for_update]
+sql:
+select id, name from app.employee where id = 1 for update of name nowait
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[for_update_join]
+sql:
+select e.id, d.name from app.employee e join app.department d on e.dept_id = d.id for update of e.name
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"department"}
+  ]
+}
+----------
+[multi_insert]
+sql:
+insert all
+  into app.employee_archive(id, name) values(id, name)
+  into app.employee_audit(id, name) values(id, name)
+select id, name from app.employee
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"employee_archive"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"employee_audit"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[conditional_multi_insert]
+sql:
+insert first
+  when amount < 100 then into app.small_order(id, amount) values(id, amount)
+  else into app.large_order(id, amount) values(id, amount)
+select id, amount from app.orders
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"small_order"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"large_order"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[update_from]
+sql:
+update app.employee e set e.name = s.name from app.employee_stage s where e.id = s.id
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"employee"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee_stage"}
+  ]
+}
+----------
+[delete_subquery_target]
+sql:
+delete from (select id, name from app.employee where status = 'D') e where e.id = 1
+expect:
+{
+  "contains": [
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[partition_query]
+sql:
+select id, name from app.employee_partitioned partition for(10)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee_partitioned"}
+  ]
+}
+----------
+[create_partition_table]
+sql:
+create table app.employee_partitioned(id int, name varchar(40))
+partition by range(id)(partition p1 values less than(10), partition pmax values less than(maxvalue))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"employee_partitioned"}
+  ]
+}
+----------
+[alter_partition_table]
+sql:
+alter table app.employee_partitioned split partition p1 at(5) into(partition p1a, partition p1b)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"employee_partitioned"}
+  ]
+}
+----------
+[returning_block]
+sql:
+declare v_id int; begin insert into app.employee(id, name) values(1, 'A') returning id into v_id; end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"employee"}
+  ]
+}

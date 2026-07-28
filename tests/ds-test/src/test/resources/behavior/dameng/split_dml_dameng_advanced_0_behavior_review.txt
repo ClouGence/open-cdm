@@ -1,0 +1,965 @@
+[split_dml_dameng_advanced_0_behavior_review_001]
+sql:
+insert into dml_target_a default values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_002]
+sql:
+insert dml_target_a(id, category, name, amount) values(10, 1, 'TEN', 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_003]
+sql:
+insert into dml_target_a a(id, category, name, amount) values(11, 1, 'ELEVEN', 11);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_004]
+sql:
+insert into dml_target_a as a(id, category, name, amount) values(12, 1, 'TWELVE', 12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_005]
+sql:
+insert into dml_target_a index idx_dml_target_a_id(id, category, name, amount) values(13, 1, 'THIRTEEN', 13);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_006]
+sql:
+insert into dml_partition_target partition(p_low)(id, category, name) values(14, 1, 'FOURTEEN');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Partition(1:43~1:48) /test/1/catalog1/schema1/dml_partition_target/p_low/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_007]
+sql:
+insert into dml_partition_target partition for(15)(id, category, name) values(15, 1, 'FIFTEEN');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Partition(1:33~1:50) /test/1/catalog1/schema1/dml_partition_target/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_008]
+sql:
+insert into dml_target_a(id, category, name, amount) table dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(1:59~1:69) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_009]
+sql:
+insert into dml_target_b(id, category, name, amount) (select id + 20, category, name, amount from dml_source);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(1:98~1:108) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_010]
+sql:
+insert into dml_target_c(id, category, name, amount) values(31, 3, 'THIRTY_ONE', 31), (32, 3, 'THIRTY_TWO', 32), (33, 3, 'THIRTY_THREE', 33);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_011]
+sql:
+insert all
+  into dml_target_a(id, category, name, amount) values(id + 100, category, name, amount)
+  into dml_target_b(id, category, name, amount) values(id + 100, category, name, amount)
+select id, category, name, amount from dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(4:39~4:49) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(3:7~3:19) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(4:39~4:49) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_012]
+sql:
+insert all
+  into dml_target_a(id, name) values(id + 200, name)
+  into dml_target_b(id, name) values(id + 200, upper(name))
+  into dml_target_c(id, name) values(id + 200, lower(name))
+select id, name from dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(5:21~5:31) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(3:7~3:19) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(5:21~5:31) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(4:7~4:19) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "INSERT",
+      "target": "Table(5:21~5:31) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Function(3:47~3:52) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:47~4:52) /test/1/catalog1/schema1/lower/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_013]
+sql:
+insert all
+  into dml_target_a(id, category, name, amount)
+  into dml_target_b(id, category, name, amount)
+select id + 300, category, name, amount from dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(4:45~4:55) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(3:7~3:19) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(4:45~4:55) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_014]
+sql:
+insert all
+  into dml_target_a(id, category, name, amount) values(id + 400, category, name, amount * 2)
+  into dml_target_b(id, category, name, amount) values(id + 400, category, name, amount + 1)
+select id, category, name, amount from dml_source where category = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(4:39~4:49) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(3:7~3:19) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(4:39~4:49) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_015]
+sql:
+insert all
+  into dml_target_a(id, name) values(id + 500, name)
+  into dml_target_b(id, name, status) values(id + 500, name, 'Y')
+select id, name from dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(4:21~4:31) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(3:7~3:19) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(4:21~4:31) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_016]
+sql:
+insert first
+  when category = 1 then into dml_target_a(id, category, name, amount) values(id + 600, category, name, amount)
+  when category = 2 then into dml_target_b(id, category, name, amount) values(id + 600, category, name, amount)
+  else into dml_target_c(id, category, name, amount) values(id + 600, category, name, amount)
+select id, category, name, amount from dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:30~2:42) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(5:39~5:49) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(3:30~3:42) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(5:39~5:49) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(4:12~4:24) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "INSERT",
+      "target": "Table(5:39~5:49) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_017]
+sql:
+insert all
+  when amount <= 20 then into dml_target_a(id, name, amount) values(id + 700, name, amount)
+  when amount >= 20 then into dml_target_b(id, name, amount) values(id + 700, name, amount)
+select id, name, amount from dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:30~2:42) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(4:29~4:39) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(3:30~3:42) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(4:29~4:39) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_018]
+sql:
+insert
+  when category = 1 then into dml_target_a(id, category, name) values(id + 800, category, name)
+  when category = 2 then into dml_target_b(id, category, name) values(id + 800, category, name)
+  else into dml_target_c(id, category, name) values(id + 800, category, name)
+select id, category, name from dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:30~2:42) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(5:31~5:41) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(3:30~3:42) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(5:31~5:41) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(4:12~4:24) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "INSERT",
+      "target": "Table(5:31~5:41) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_019]
+sql:
+insert first
+  when amount < 0 then into dml_target_a(id, name) values(id + 900, name)
+  else into dml_target_b(id, name) values(id + 900, name)
+select id, name, amount from dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(2:28~2:40) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(4:29~4:39) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(3:12~3:24) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(4:29~4:39) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_020]
+sql:
+insert all
+  when category in(1, 2) then
+    into dml_target_a(id, category, name) values(id + 1000, category, name)
+    into dml_target_b(id, category, name) values(id + 1000, category, name)
+  else into dml_target_c(id, category, name) values(id + 1000, category, name)
+select id, category, name from dml_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(3:9~3:21) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "INSERT",
+      "target": "Table(6:31~6:41) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(4:9~4:21) /test/1/catalog1/schema1/dml_target_b/",
+      "action": "INSERT",
+      "target": "Table(6:31~6:41) /test/1/catalog1/schema1/dml_source/"
+    },
+    {
+      "subject": "Table(5:12~5:24) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "INSERT",
+      "target": "Table(6:31~6:41) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_021]
+sql:
+with s as(select id, name from dml_source where id = 1)
+update dml_target_a set name = (select name from s) where id = 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE",
+      "target": "Table(1:31~1:41) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_022]
+sql:
+update dml_target_a set(category, name) = (select category, name from dml_source where id = 2) where id = 11;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE",
+      "target": "Table(1:70~1:80) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_023]
+sql:
+update dml_target_a a set a.amount = (select s.amount from dml_source s where s.id = 3) where a.id = 12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE",
+      "target": "Table(1:59~1:69) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_024]
+sql:
+update dml_target_a a set a.name = s.name from dml_source s where a.id = s.id + 9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE",
+      "target": "Table(1:47~1:57) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_025]
+sql:
+update dml_target_a a, dml_source s set a.amount = s.amount where a.id = s.id + 9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE",
+      "target": "Table(1:23~1:33) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_026]
+sql:
+update (select id, name, amount from dml_target_a where id = 10) t set t.name = 'SUBQUERY_TARGET';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:37~1:49) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_027]
+sql:
+update dml_partition_target partition(p_low) set name = upper(name) where id = 14;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Partition(1:38~1:43) /test/1/catalog1/schema1/dml_partition_target/p_low/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:56~1:61) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_028]
+sql:
+update dml_partition_target partition for(15) set name = lower(name) where id = 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Partition(1:28~1:45) /test/1/catalog1/schema1/dml_partition_target/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:57~1:62) /test/1/catalog1/schema1/lower/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_029]
+sql:
+update dml_target_a index idx_dml_target_a_id set amount = amount + 1 where id = 13;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_030]
+sql:
+update dml_target_a set status = case category when 1 then 'A' when 2 then 'B' else 'C' end where id is not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_031]
+sql:
+update dml_target_a set amount = default where id = 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_032]
+sql:
+update dml_target_a set name = coalesce(name, 'UNKNOWN'), amount = nvl(amount, 0) where id is null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Function(1:31~1:39) /test/1/catalog1/schema1/coalesce/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:67~1:70) /test/1/catalog1/schema1/nvl/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_033]
+sql:
+update dml_target_a set amount = amount + 5 where id in(select id + 9 from dml_source);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE",
+      "target": "Table(1:75~1:85) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_034]
+sql:
+update dml_target_a set status = 'Y' where exists(select 1 from dml_source s where s.id + 9 = dml_target_a.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE",
+      "target": "Table(1:64~1:74) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_035]
+sql:
+with s as(select id + 9 id from dml_source)
+update dml_target_a set status = 'C' where id in(select id from s);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(2:7~2:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "UPDATE",
+      "target": "Table(1:32~1:42) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_036]
+sql:
+delete from dml_target_a where id is null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_037]
+sql:
+delete dml_target_a where id = -1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:7~1:19) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_038]
+sql:
+delete from dml_target_a a where a.id = -2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_039]
+sql:
+delete from dml_partition_target partition(p_low) where id = -3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Partition(1:43~1:48) /test/1/catalog1/schema1/dml_partition_target/p_low/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_040]
+sql:
+delete from dml_partition_target partition for(15) where id = -4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Partition(1:33~1:50) /test/1/catalog1/schema1/dml_partition_target/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_041]
+sql:
+delete from (select id, name from dml_target_a where id < 0) t where t.id = -5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:34~1:46) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_042]
+sql:
+with s as(select -6 id from dual)
+delete from dml_target_a where id in(select id from s);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(2:12~2:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "DELETE",
+      "target": "View(1:28~1:32) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_043]
+sql:
+delete from dml_target_a where exists(select 1 from dml_source where dml_source.id = -7);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "DELETE",
+      "target": "Table(1:52~1:62) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_044]
+sql:
+delete from dml_target_a where id = any(select id from dml_source where id < 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "DELETE",
+      "target": "Table(1:55~1:65) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_045]
+sql:
+delete from dml_target_a where id not in(select id + 9 from dml_source) and id < 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/schema1/dml_target_a/",
+      "action": "DELETE",
+      "target": "Table(1:60~1:70) /test/1/catalog1/schema1/dml_source/"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_046]
+sql:
+declare v_id int; begin insert into dml_target_c(id, name) values(2001, 'RETURN_INSERT') returning id into v_id; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_047]
+sql:
+declare v_id int; v_name varchar(40); begin insert into dml_target_c(id, name) values(2002, 'RETURNING_INSERT') return id, name into v_id, v_name; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:56~1:68) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_048]
+sql:
+declare v_id int; begin update dml_target_c set name = 'RETURN_UPDATE' where id = 2001 returning id into v_id; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:31~1:43) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_049]
+sql:
+declare v_id int; v_name varchar(40); begin update dml_target_c set name = 'RETURNING_UPDATE' where id = 2002 return id, name into v_id, v_name; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:51~1:63) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_050]
+sql:
+declare v_id int; begin delete from dml_target_c where id = 2001 return id into v_id; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_051]
+sql:
+declare v_id int; v_name varchar(40); begin delete from dml_target_c where id = 2002 returning id, name into v_id, v_name; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:56~1:68) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_052]
+sql:
+declare type int_array is table of int index by int; ids int_array; begin insert into dml_target_c(id, name) values(2010, 'A'), (2011, 'B') returning id bulk collect into ids; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:86~1:98) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_053]
+sql:
+declare type int_array is table of int index by int; ids int_array; begin update dml_target_c set status = 'R' where id in(2010, 2011) returning id bulk collect into ids; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:81~1:93) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dml_dameng_advanced_0_behavior_review_054]
+sql:
+declare type int_array is table of int index by int; ids int_array; begin delete from dml_target_c where id in(2010, 2011) returning id bulk collect into ids; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:86~1:98) /test/1/catalog1/schema1/dml_target_c/",
+      "action": "DELETE"
+    }
+  ]
+}

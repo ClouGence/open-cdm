@@ -1,0 +1,49 @@
+[debug_initialize_domain]
+sql:
+select dbms_debug.initialize('CODEX_DEBUG_STANDALONE') debug_session_id from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}
+----------
+[debug_on_domain]
+sql:
+call dbms_debug.debug_on()
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_debug"}
+  ]
+}
+----------
+[debug_attach_domain]
+sql:
+call dbms_debug.attach_session('CODEX_DEBUG_20260722')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_debug"}
+  ]
+}
+----------
+[debug_detach_domain]
+sql:
+call dbms_debug.detach_session()
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_debug"}
+  ]
+}
+----------
+[debug_control_domain]
+sql:
+select label, number_value, text_value from app.codex_dm8_debug_ctl where label='PROBE_VERSION'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"codex_dm8_debug_ctl"}
+  ]
+}

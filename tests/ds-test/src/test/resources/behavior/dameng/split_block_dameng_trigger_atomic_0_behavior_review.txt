@@ -1,0 +1,1795 @@
+[split_block_dameng_trigger_atomic_0_001_behavior_review]
+sql:
+-- CREATE_BASIC
+create trigger CODEX_DM8_TRIGGER.TR_BASIC before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:41) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BASIC/",
+      "action": "CREATE",
+      "target": "Table(2:59~2:91) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_002_behavior_review]
+sql:
+-- CREATE_OR_REPLACE
+create or replace trigger CODEX_DM8_TRIGGER.TR_BASIC after update on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:26~2:52) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BASIC/",
+      "action": "REPLACE",
+      "target": "Table(2:69~2:101) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_003_behavior_review]
+sql:
+-- CREATE_NAME_128
+create trigger CODEX_DM8_TRIGGER.TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA after delete on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:161) /test/1/catalog1/CODEX_DM8_TRIGGER/TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE",
+      "target": "Table(2:178~2:210) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_004_behavior_review]
+sql:
+-- CREATE_NAME_129_SERVER_BOUNDARY
+create trigger CODEX_DM8_TRIGGER.TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA after delete on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:162) /test/1/catalog1/CODEX_DM8_TRIGGER/TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE",
+      "target": "Table(2:179~2:211) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_005_behavior_review]
+sql:
+-- CREATE_QUOTED_NAME
+create trigger CODEX_DM8_TRIGGER."Mixed Trigger" before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:48) /test/1/catalog1/CODEX_DM8_TRIGGER/Mixed Trigger/",
+      "action": "CREATE",
+      "target": "Table(2:66~2:98) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_006_behavior_review]
+sql:
+-- CREATE_WITH_ENCRYPTION
+create trigger CODEX_DM8_TRIGGER.TR_ENCRYPTED with encryption after delete on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:45) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ENCRYPTED/",
+      "action": "CREATE",
+      "target": "Table(2:78~2:110) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_007_behavior_review]
+sql:
+-- CREATE_LOCAL
+create trigger CODEX_DM8_TRIGGER.TR_LOCAL after insert local on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:41) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_LOCAL/",
+      "action": "CREATE",
+      "target": "Table(2:64~2:96) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_008_behavior_review]
+sql:
+-- RESERVED_PREFIX_MTRG
+create trigger CODEX_DM8_TRIGGER.MTRG$_CODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:44) /test/1/catalog1/CODEX_DM8_TRIGGER/MTRG$_CODEX/",
+      "action": "CREATE",
+      "target": "Table(2:62~2:94) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_009_behavior_review]
+sql:
+-- RESERVED_PREFIX_TRIG_ARR
+create trigger CODEX_DM8_TRIGGER.TRIG_ARR$CODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:47) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIG_ARR$CODEX/",
+      "action": "CREATE",
+      "target": "Table(2:65~2:97) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_010_behavior_review]
+sql:
+-- RESERVED_PREFIX_BM_TRG
+create trigger CODEX_DM8_TRIGGER.BM$TRGCODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:44) /test/1/catalog1/CODEX_DM8_TRIGGER/BM$TRGCODEX/",
+      "action": "CREATE",
+      "target": "Table(2:62~2:94) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_011_behavior_review]
+sql:
+-- RESERVED_PREFIX_REF_CON
+create trigger CODEX_DM8_TRIGGER.REF_CON_TRIGCODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:50) /test/1/catalog1/CODEX_DM8_TRIGGER/REF_CON_TRIGCODEX/",
+      "action": "CREATE",
+      "target": "Table(2:68~2:100) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_012_behavior_review]
+sql:
+-- RESERVED_PREFIX_SREF_CON
+create trigger CODEX_DM8_TRIGGER.SREF_CON_TRIGCODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:51) /test/1/catalog1/CODEX_DM8_TRIGGER/SREF_CON_TRIGCODEX/",
+      "action": "CREATE",
+      "target": "Table(2:69~2:101) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_013_behavior_review]
+sql:
+-- RESERVED_PREFIX_MDRT
+create trigger CODEX_DM8_TRIGGER.TRIG_MDRT$TMPCODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:51) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIG_MDRT$TMPCODEX/",
+      "action": "CREATE",
+      "target": "Table(2:69~2:101) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_014_behavior_review]
+sql:
+-- RESERVED_PREFIX_HNSW
+create trigger CODEX_DM8_TRIGGER.TRIG_HNSW$TMPCODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:51) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIG_HNSW$TMPCODEX/",
+      "action": "CREATE",
+      "target": "Table(2:69~2:101) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_015_behavior_review]
+sql:
+-- RESERVED_PREFIX_IVFFLAT
+create trigger CODEX_DM8_TRIGGER.TRIG_IVFFLAT$TMPCODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:54) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIG_IVFFLAT$TMPCODEX/",
+      "action": "CREATE",
+      "target": "Table(2:72~2:104) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_016_behavior_review]
+sql:
+-- RESERVED_PREFIX_ASYNC_INDEX
+create trigger CODEX_DM8_TRIGGER.ASYN$INDEX_TRIGGER_CODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:57) /test/1/catalog1/CODEX_DM8_TRIGGER/ASYN$INDEX_TRIGGER_CODEX/",
+      "action": "CREATE",
+      "target": "Table(2:75~2:107) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_017_behavior_review]
+sql:
+-- RESERVED_PREFIX_TIMER_PAGE
+create trigger CODEX_DM8_TRIGGER.BM$_TRG_CODEX before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/BM$_TRG_CODEX/",
+      "action": "CREATE",
+      "target": "Table(2:64~2:96) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_018_behavior_review]
+sql:
+-- NAME_COLLISION_SERVER_BOUNDARY
+create trigger CODEX_DM8_TRIGGER.TR_OBJECT_COLLISION before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:52) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_OBJECT_COLLISION/",
+      "action": "CREATE",
+      "target": "Table(2:70~2:102) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_019_behavior_review]
+sql:
+-- REFERENCING_OLD_NEW
+create trigger CODEX_DM8_TRIGGER.TR_REFERENCING before update on CODEX_DM8_TRIGGER.TRIGGER_TARGET referencing old row as O new row as N for each row when (:N.V>=0) begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:47) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_REFERENCING/",
+      "action": "CREATE",
+      "target": "Table(2:65~2:97) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_020_behavior_review]
+sql:
+-- REFERENCING_NEW_ONLY
+create trigger CODEX_DM8_TRIGGER.TR_REFERENCING_NEW before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET referencing new as N for each row begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:51) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_REFERENCING_NEW/",
+      "action": "CREATE",
+      "target": "Table(2:69~2:101) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_021_behavior_review]
+sql:
+-- FOR_EACH_ROW
+create trigger CODEX_DM8_TRIGGER.TR_ROW after insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:39) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ROW/",
+      "action": "CREATE",
+      "target": "Table(2:56~2:88) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_022_behavior_review]
+sql:
+-- FOR_EACH_STATEMENT
+create trigger CODEX_DM8_TRIGGER.TR_STATEMENT after insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each statement begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:45) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_STATEMENT/",
+      "action": "CREATE",
+      "target": "Table(2:62~2:94) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_023_behavior_review]
+sql:
+-- FOR_EACH_DEFAULT_STATEMENT
+create trigger CODEX_DM8_TRIGGER.TR_DEFAULT_STATEMENT after insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:53) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_DEFAULT_STATEMENT/",
+      "action": "CREATE",
+      "target": "Table(2:70~2:102) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_024_behavior_review]
+sql:
+-- WHEN_STATEMENT_INVALID_OBJECT
+create trigger CODEX_DM8_TRIGGER.TR_WHEN_STATEMENT before update on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each statement when (1=1) begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:50) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_WHEN_STATEMENT/",
+      "action": "CREATE",
+      "target": "Table(2:68~2:100) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_025_behavior_review]
+sql:
+-- ASSIGN_OLD_INVALID_OBJECT
+create trigger CODEX_DM8_TRIGGER.TR_ASSIGN_OLD before update on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row begin :OLD.V=1;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ASSIGN_OLD/",
+      "action": "CREATE",
+      "target": "Table(2:64~2:96) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_026_behavior_review]
+sql:
+-- ASSIGN_NEW_AFTER_INVALID_OBJECT
+create trigger CODEX_DM8_TRIGGER.TR_ASSIGN_NEW_AFTER after update on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row begin :NEW.V=1;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:52) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ASSIGN_NEW_AFTER/",
+      "action": "CREATE",
+      "target": "Table(2:69~2:101) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_027_behavior_review]
+sql:
+-- UPDATE_OF_128
+create trigger CODEX_DM8_TRIGGER.TR_UPDATE_128 before update of C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20,C21,C22,C23,C24,C25,C26,C27,C28,C29,C30,C31,C32,C33,C34,C35,C36,C37,C38,C39,C40,C41,C42,C43,C44,C45,C46,C47,C48,C49,C50,C51,C52,C53,C54,C55,C56,C57,C58,C59,C60,C61,C62,C63,C64,C65,C66,C67,C68,C69,C70,C71,C72,C73,C74,C75,C76,C77,C78,C79,C80,C81,C82,C83,C84,C85,C86,C87,C88,C89,C90,C91,C92,C93,C94,C95,C96,C97,C98,C99,C100,C101,C102,C103,C104,C105,C106,C107,C108,C109,C110,C111,C112,C113,C114,C115,C116,C117,C118,C119,C120,C121,C122,C123,C124,C125,C126,C127,C128 on CODEX_DM8_TRIGGER.TRIGGER_WIDE begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_UPDATE_128/",
+      "action": "CREATE",
+      "target": "Table(2:599~2:629) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_WIDE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_028_behavior_review]
+sql:
+-- UPDATE_OF_129_SERVER_BOUNDARY
+create trigger CODEX_DM8_TRIGGER.TR_UPDATE_129 before update of C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20,C21,C22,C23,C24,C25,C26,C27,C28,C29,C30,C31,C32,C33,C34,C35,C36,C37,C38,C39,C40,C41,C42,C43,C44,C45,C46,C47,C48,C49,C50,C51,C52,C53,C54,C55,C56,C57,C58,C59,C60,C61,C62,C63,C64,C65,C66,C67,C68,C69,C70,C71,C72,C73,C74,C75,C76,C77,C78,C79,C80,C81,C82,C83,C84,C85,C86,C87,C88,C89,C90,C91,C92,C93,C94,C95,C96,C97,C98,C99,C100,C101,C102,C103,C104,C105,C106,C107,C108,C109,C110,C111,C112,C113,C114,C115,C116,C117,C118,C119,C120,C121,C122,C123,C124,C125,C126,C127,C128,C129 on CODEX_DM8_TRIGGER.TRIGGER_WIDE begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_UPDATE_129/",
+      "action": "CREATE",
+      "target": "Table(2:604~2:634) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_WIDE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_029_behavior_review]
+sql:
+-- INSTEAD_VIEW_ROW
+create trigger CODEX_DM8_TRIGGER.TR_VIEW_ROW instead of insert on CODEX_DM8_TRIGGER.TRIGGER_VIEW for each row begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:44) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_VIEW_ROW/",
+      "action": "CREATE",
+      "target": "View(2:66~2:96) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_VIEW/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_030_behavior_review]
+sql:
+-- INSTEAD_VIEW_STATEMENT_DOC_DELTA
+create trigger CODEX_DM8_TRIGGER.TR_VIEW_STATEMENT instead of insert on CODEX_DM8_TRIGGER.TRIGGER_VIEW for each statement begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:50) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_VIEW_STATEMENT/",
+      "action": "CREATE",
+      "target": "View(2:72~2:102) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_VIEW/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_031_behavior_review]
+sql:
+-- INSTEAD_VIEW_UPDATE_OF_BOUNDARY
+create trigger CODEX_DM8_TRIGGER.TR_VIEW_UPDATE_OF instead of update of V on CODEX_DM8_TRIGGER.TRIGGER_VIEW for each row begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:50) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_VIEW_UPDATE_OF/",
+      "action": "CREATE",
+      "target": "View(2:77~2:107) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_VIEW/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_032_behavior_review]
+sql:
+-- INSTEAD_ON_TABLE_BOUNDARY
+create trigger CODEX_DM8_TRIGGER.TR_INSTEAD_TABLE instead of insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:49) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_INSTEAD_TABLE/",
+      "action": "CREATE",
+      "target": "View(2:71~2:103) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_033_behavior_review]
+sql:
+-- BEFORE_ON_VIEW_BOUNDARY
+create trigger CODEX_DM8_TRIGGER.TR_BEFORE_VIEW before insert on CODEX_DM8_TRIGGER.TRIGGER_VIEW for each row begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:47) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BEFORE_VIEW/",
+      "action": "CREATE",
+      "target": "Table(2:65~2:95) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_VIEW/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_034_behavior_review]
+sql:
+-- ORDER_MULTI_FOLLOWS
+create trigger CODEX_DM8_TRIGGER.TR_ORDER_MULTI before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row follows CODEX_DM8_TRIGGER.TR_ORDER_ONE,CODEX_DM8_TRIGGER.TR_ORDER_TWO begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:47) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_MULTI/",
+      "action": "CREATE",
+      "target": [
+        "Table(2:65~2:97) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/",
+        "Trigger(2:119~2:149) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_ONE/",
+        "Trigger(2:150~2:180) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_TWO/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_035_behavior_review]
+sql:
+-- ORDER_MULTI_PRECEDES
+create trigger CODEX_DM8_TRIGGER.TR_ORDER_PRECEDES before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row precedes CODEX_DM8_TRIGGER.TR_ORDER_ONE,CODEX_DM8_TRIGGER.TR_ORDER_TWO begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:50) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_PRECEDES/",
+      "action": "CREATE",
+      "target": [
+        "Table(2:68~2:100) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/",
+        "Trigger(2:123~2:153) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_ONE/",
+        "Trigger(2:154~2:184) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_TWO/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_036_behavior_review]
+sql:
+-- ORDER_DIFFERENT_TYPE_INVALID_OBJECT
+create trigger CODEX_DM8_TRIGGER.TR_ORDER_DIFFERENT after insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row follows CODEX_DM8_TRIGGER.TR_ORDER_ONE begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:51) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_DIFFERENT/",
+      "action": "CREATE",
+      "target": [
+        "Table(2:68~2:100) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/",
+        "Trigger(2:122~2:152) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_ONE/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_037_behavior_review]
+sql:
+-- ORDER_MISSING_INVALID_OBJECT
+create trigger CODEX_DM8_TRIGGER.TR_ORDER_MISSING before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row follows CODEX_DM8_TRIGGER.TR_NO_SUCH_ORDER begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:49) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_MISSING/",
+      "action": "CREATE",
+      "target": [
+        "Table(2:67~2:99) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/",
+        "Trigger(2:121~2:155) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_NO_SUCH_ORDER/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_038_behavior_review]
+sql:
+-- ORDER_254
+create trigger CODEX_DM8_TRIGGER.TR_ORDER_254 after delete on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row follows CODEX_DM8_TRIGGER.TR_BOUND_1,CODEX_DM8_TRIGGER.TR_BOUND_2,CODEX_DM8_TRIGGER.TR_BOUND_3,CODEX_DM8_TRIGGER.TR_BOUND_4,CODEX_DM8_TRIGGER.TR_BOUND_5,CODEX_DM8_TRIGGER.TR_BOUND_6,CODEX_DM8_TRIGGER.TR_BOUND_7,CODEX_DM8_TRIGGER.TR_BOUND_8,CODEX_DM8_TRIGGER.TR_BOUND_9,CODEX_DM8_TRIGGER.TR_BOUND_10,CODEX_DM8_TRIGGER.TR_BOUND_11,CODEX_DM8_TRIGGER.TR_BOUND_12,CODEX_DM8_TRIGGER.TR_BOUND_13,CODEX_DM8_TRIGGER.TR_BOUND_14,CODEX_DM8_TRIGGER.TR_BOUND_15,CODEX_DM8_TRIGGER.TR_BOUND_16,CODEX_DM8_TRIGGER.TR_BOUND_17,CODEX_DM8_TRIGGER.TR_BOUND_18,CODEX_DM8_TRIGGER.TR_BOUND_19,CODEX_DM8_TRIGGER.TR_BOUND_20,CODEX_DM8_TRIGGER.TR_BOUND_21,CODEX_DM8_TRIGGER.TR_BOUND_22,CODEX_DM8_TRIGGER.TR_BOUND_23,CODEX_DM8_TRIGGER.TR_BOUND_24,CODEX_DM8_TRIGGER.TR_BOUND_25,CODEX_DM8_TRIGGER.TR_BOUND_26,CODEX_DM8_TRIGGER.TR_BOUND_27,CODEX_DM8_TRIGGER.TR_BOUND_28,CODEX_DM8_TRIGGER.TR_BOUND_29,CODEX_DM8_TRIGGER.TR_BOUND_30,CODEX_DM8_TRIGGER.TR_BOUND_31,CODEX_DM8_TRIGGER.TR_BOUND_32,CODEX_DM8_TRIGGER.TR_BOUND_33,CODEX_DM8_TRIGGER.TR_BOUND_34,CODEX_DM8_TRIGGER.TR_BOUND_35,CODEX_DM8_TRIGGER.TR_BOUND_36,CODEX_DM8_TRIGGER.TR_BOUND_37,CODEX_DM8_TRIGGER.TR_BOUND_38,CODEX_DM8_TRIGGER.TR_BOUND_39,CODEX_DM8_TRIGGER.TR_BOUND_40,CODEX_DM8_TRIGGER.TR_BOUND_41,CODEX_DM8_TRIGGER.TR_BOUND_42,CODEX_DM8_TRIGGER.TR_BOUND_43,CODEX_DM8_TRIGGER.TR_BOUND_44,CODEX_DM8_TRIGGER.TR_BOUND_45,CODEX_DM8_TRIGGER.TR_BOUND_46,CODEX_DM8_TRIGGER.TR_BOUND_47,CODEX_DM8_TRIGGER.TR_BOUND_48,CODEX_DM8_TRIGGER.TR_BOUND_49,CODEX_DM8_TRIGGER.TR_BOUND_50,CODEX_DM8_TRIGGER.TR_BOUND_51,CODEX_DM8_TRIGGER.TR_BOUND_52,CODEX_DM8_TRIGGER.TR_BOUND_53,CODEX_DM8_TRIGGER.TR_BOUND_54,CODEX_DM8_TRIGGER.TR_BOUND_55,CODEX_DM8_TRIGGER.TR_BOUND_56,CODEX_DM8_TRIGGER.TR_BOUND_57,CODEX_DM8_TRIGGER.TR_BOUND_58,CODEX_DM8_TRIGGER.TR_BOUND_59,CODEX_DM8_TRIGGER.TR_BOUND_60,CODEX_DM8_TRIGGER.TR_BOUND_61,CODEX_DM8_TRIGGER.TR_BOUND_62,CODEX_DM8_TRIGGER.TR_BOUND_63,CODEX_DM8_TRIGGER.TR_BOUND_64,CODEX_DM8_TRIGGER.TR_BOUND_65,CODEX_DM8_TRIGGER.TR_BOUND_66,CODEX_DM8_TRIGGER.TR_BOUND_67,CODEX_DM8_TRIGGER.TR_BOUND_68,CODEX_DM8_TRIGGER.TR_BOUND_69,CODEX_DM8_TRIGGER.TR_BOUND_70,CODEX_DM8_TRIGGER.TR_BOUND_71,CODEX_DM8_TRIGGER.TR_BOUND_72,CODEX_DM8_TRIGGER.TR_BOUND_73,CODEX_DM8_TRIGGER.TR_BOUND_74,CODEX_DM8_TRIGGER.TR_BOUND_75,CODEX_DM8_TRIGGER.TR_BOUND_76,CODEX_DM8_TRIGGER.TR_BOUND_77,CODEX_DM8_TRIGGER.TR_BOUND_78,CODEX_DM8_TRIGGER.TR_BOUND_79,CODEX_DM8_TRIGGER.TR_BOUND_80,CODEX_DM8_TRIGGER.TR_BOUND_81,CODEX_DM8_TRIGGER.TR_BOUND_82,CODEX_DM8_TRIGGER.TR_BOUND_83,CODEX_DM8_TRIGGER.TR_BOUND_84,CODEX_DM8_TRIGGER.TR_BOUND_85,CODEX_DM8_TRIGGER.TR_BOUND_86,CODEX_DM8_TRIGGER.TR_BOUND_87,CODEX_DM8_TRIGGER.TR_BOUND_88,CODEX_DM8_TRIGGER.TR_BOUND_89,CODEX_DM8_TRIGGER.TR_BOUND_90,CODEX_DM8_TRIGGER.TR_BOUND_91,CODEX_DM8_TRIGGER.TR_BOUND_92,CODEX_DM8_TRIGGER.TR_BOUND_93,CODEX_DM8_TRIGGER.TR_BOUND_94,CODEX_DM8_TRIGGER.TR_BOUND_95,CODEX_DM8_TRIGGER.TR_BOUND_96,CODEX_DM8_TRIGGER.TR_BOUND_97,CODEX_DM8_TRIGGER.TR_BOUND_98,CODEX_DM8_TRIGGER.TR_BOUND_99,CODEX_DM8_TRIGGER.TR_BOUND_100,CODEX_DM8_TRIGGER.TR_BOUND_101,CODEX_DM8_TRIGGER.TR_BOUND_102,CODEX_DM8_TRIGGER.TR_BOUND_103,CODEX_DM8_TRIGGER.TR_BOUND_104,CODEX_DM8_TRIGGER.TR_BOUND_105,CODEX_DM8_TRIGGER.TR_BOUND_106,CODEX_DM8_TRIGGER.TR_BOUND_107,CODEX_DM8_TRIGGER.TR_BOUND_108,CODEX_DM8_TRIGGER.TR_BOUND_109,CODEX_DM8_TRIGGER.TR_BOUND_110,CODEX_DM8_TRIGGER.TR_BOUND_111,CODEX_DM8_TRIGGER.TR_BOUND_112,CODEX_DM8_TRIGGER.TR_BOUND_113,CODEX_DM8_TRIGGER.TR_BOUND_114,CODEX_DM8_TRIGGER.TR_BOUND_115,CODEX_DM8_TRIGGER.TR_BOUND_116,CODEX_DM8_TRIGGER.TR_BOUND_117,CODEX_DM8_TRIGGER.TR_BOUND_118,CODEX_DM8_TRIGGER.TR_BOUND_119,CODEX_DM8_TRIGGER.TR_BOUND_120,CODEX_DM8_TRIGGER.TR_BOUND_121,CODEX_DM8_TRIGGER.TR_BOUND_122,CODEX_DM8_TRIGGER.TR_BOUND_123,CODEX_DM8_TRIGGER.TR_BOUND_124,CODEX_DM8_TRIGGER.TR_BOUND_125,CODEX_DM8_TRIGGER.TR_BOUND_126,CODEX_DM8_TRIGGER.TR_BOUND_127,CODEX_DM8_TRIGGER.TR_BOUND_128,CODEX_DM8_TRIGGER.TR_BOUND_129,CODEX_DM8_TRIGGER.TR_BOUND_130,CODEX_DM8_TRIGGER.TR_BOUND_131,CODEX_DM8_TRIGGER.TR_BOUND_132,CODEX_DM8_TRIGGER.TR_BOUND_133,CODEX_DM8_TRIGGER.TR_BOUND_134,CODEX_DM8_TRIGGER.TR_BOUND_135,CODEX_DM8_TRIGGER.TR_BOUND_136,CODEX_DM8_TRIGGER.TR_BOUND_137,CODEX_DM8_TRIGGER.TR_BOUND_138,CODEX_DM8_TRIGGER.TR_BOUND_139,CODEX_DM8_TRIGGER.TR_BOUND_140,CODEX_DM8_TRIGGER.TR_BOUND_141,CODEX_DM8_TRIGGER.TR_BOUND_142,CODEX_DM8_TRIGGER.TR_BOUND_143,CODEX_DM8_TRIGGER.TR_BOUND_144,CODEX_DM8_TRIGGER.TR_BOUND_145,CODEX_DM8_TRIGGER.TR_BOUND_146,CODEX_DM8_TRIGGER.TR_BOUND_147,CODEX_DM8_TRIGGER.TR_BOUND_148,CODEX_DM8_TRIGGER.TR_BOUND_149,CODEX_DM8_TRIGGER.TR_BOUND_150,CODEX_DM8_TRIGGER.TR_BOUND_151,CODEX_DM8_TRIGGER.TR_BOUND_152,CODEX_DM8_TRIGGER.TR_BOUND_153,CODEX_DM8_TRIGGER.TR_BOUND_154,CODEX_DM8_TRIGGER.TR_BOUND_155,CODEX_DM8_TRIGGER.TR_BOUND_156,CODEX_DM8_TRIGGER.TR_BOUND_157,CODEX_DM8_TRIGGER.TR_BOUND_158,CODEX_DM8_TRIGGER.TR_BOUND_159,CODEX_DM8_TRIGGER.TR_BOUND_160,CODEX_DM8_TRIGGER.TR_BOUND_161,CODEX_DM8_TRIGGER.TR_BOUND_162,CODEX_DM8_TRIGGER.TR_BOUND_163,CODEX_DM8_TRIGGER.TR_BOUND_164,CODEX_DM8_TRIGGER.TR_BOUND_165,CODEX_DM8_TRIGGER.TR_BOUND_166,CODEX_DM8_TRIGGER.TR_BOUND_167,CODEX_DM8_TRIGGER.TR_BOUND_168,CODEX_DM8_TRIGGER.TR_BOUND_169,CODEX_DM8_TRIGGER.TR_BOUND_170,CODEX_DM8_TRIGGER.TR_BOUND_171,CODEX_DM8_TRIGGER.TR_BOUND_172,CODEX_DM8_TRIGGER.TR_BOUND_173,CODEX_DM8_TRIGGER.TR_BOUND_174,CODEX_DM8_TRIGGER.TR_BOUND_175,CODEX_DM8_TRIGGER.TR_BOUND_176,CODEX_DM8_TRIGGER.TR_BOUND_177,CODEX_DM8_TRIGGER.TR_BOUND_178,CODEX_DM8_TRIGGER.TR_BOUND_179,CODEX_DM8_TRIGGER.TR_BOUND_180,CODEX_DM8_TRIGGER.TR_BOUND_181,CODEX_DM8_TRIGGER.TR_BOUND_182,CODEX_DM8_TRIGGER.TR_BOUND_183,CODEX_DM8_TRIGGER.TR_BOUND_184,CODEX_DM8_TRIGGER.TR_BOUND_185,CODEX_DM8_TRIGGER.TR_BOUND_186,CODEX_DM8_TRIGGER.TR_BOUND_187,CODEX_DM8_TRIGGER.TR_BOUND_188,CODEX_DM8_TRIGGER.TR_BOUND_189,CODEX_DM8_TRIGGER.TR_BOUND_190,CODEX_DM8_TRIGGER.TR_BOUND_191,CODEX_DM8_TRIGGER.TR_BOUND_192,CODEX_DM8_TRIGGER.TR_BOUND_193,CODEX_DM8_TRIGGER.TR_BOUND_194,CODEX_DM8_TRIGGER.TR_BOUND_195,CODEX_DM8_TRIGGER.TR_BOUND_196,CODEX_DM8_TRIGGER.TR_BOUND_197,CODEX_DM8_TRIGGER.TR_BOUND_198,CODEX_DM8_TRIGGER.TR_BOUND_199,CODEX_DM8_TRIGGER.TR_BOUND_200,CODEX_DM8_TRIGGER.TR_BOUND_201,CODEX_DM8_TRIGGER.TR_BOUND_202,CODEX_DM8_TRIGGER.TR_BOUND_203,CODEX_DM8_TRIGGER.TR_BOUND_204,CODEX_DM8_TRIGGER.TR_BOUND_205,CODEX_DM8_TRIGGER.TR_BOUND_206,CODEX_DM8_TRIGGER.TR_BOUND_207,CODEX_DM8_TRIGGER.TR_BOUND_208,CODEX_DM8_TRIGGER.TR_BOUND_209,CODEX_DM8_TRIGGER.TR_BOUND_210,CODEX_DM8_TRIGGER.TR_BOUND_211,CODEX_DM8_TRIGGER.TR_BOUND_212,CODEX_DM8_TRIGGER.TR_BOUND_213,CODEX_DM8_TRIGGER.TR_BOUND_214,CODEX_DM8_TRIGGER.TR_BOUND_215,CODEX_DM8_TRIGGER.TR_BOUND_216,CODEX_DM8_TRIGGER.TR_BOUND_217,CODEX_DM8_TRIGGER.TR_BOUND_218,CODEX_DM8_TRIGGER.TR_BOUND_219,CODEX_DM8_TRIGGER.TR_BOUND_220,CODEX_DM8_TRIGGER.TR_BOUND_221,CODEX_DM8_TRIGGER.TR_BOUND_222,CODEX_DM8_TRIGGER.TR_BOUND_223,CODEX_DM8_TRIGGER.TR_BOUND_224,CODEX_DM8_TRIGGER.TR_BOUND_225,CODEX_DM8_TRIGGER.TR_BOUND_226,CODEX_DM8_TRIGGER.TR_BOUND_227,CODEX_DM8_TRIGGER.TR_BOUND_228,CODEX_DM8_TRIGGER.TR_BOUND_229,CODEX_DM8_TRIGGER.TR_BOUND_230,CODEX_DM8_TRIGGER.TR_BOUND_231,CODEX_DM8_TRIGGER.TR_BOUND_232,CODEX_DM8_TRIGGER.TR_BOUND_233,CODEX_DM8_TRIGGER.TR_BOUND_234,CODEX_DM8_TRIGGER.TR_BOUND_235,CODEX_DM8_TRIGGER.TR_BOUND_236,CODEX_DM8_TRIGGER.TR_BOUND_237,CODEX_DM8_TRIGGER.TR_BOUND_238,CODEX_DM8_TRIGGER.TR_BOUND_239,CODEX_DM8_TRIGGER.TR_BOUND_240,CODEX_DM8_TRIGGER.TR_BOUND_241,CODEX_DM8_TRIGGER.TR_BOUND_242,CODEX_DM8_TRIGGER.TR_BOUND_243,CODEX_DM8_TRIGGER.TR_BOUND_244,CODEX_DM8_TRIGGER.TR_BOUND_245,CODEX_DM8_TRIGGER.TR_BOUND_246,CODEX_DM8_TRIGGER.TR_BOUND_247,CODEX_DM8_TRIGGER.TR_BOUND_248,CODEX_DM8_TRIGGER.TR_BOUND_249,CODEX_DM8_TRIGGER.TR_BOUND_250,CODEX_DM8_TRIGGER.TR_BOUND_251,CODEX_DM8_TRIGGER.TR_BOUND_252,CODEX_DM8_TRIGGER.TR_BOUND_253,CODEX_DM8_TRIGGER.TR_BOUND_254 begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:45) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_254/",
+      "action": "CREATE",
+      "target": [
+        "Table(2:62~2:94) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/",
+        "Trigger(2:116~2:144) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_1/",
+        "Trigger(2:145~2:173) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_2/",
+        "Trigger(2:174~2:202) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_3/",
+        "Trigger(2:203~2:231) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_4/",
+        "Trigger(2:232~2:260) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_5/",
+        "Trigger(2:261~2:289) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_6/",
+        "Trigger(2:290~2:318) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_7/",
+        "Trigger(2:319~2:347) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_8/",
+        "Trigger(2:348~2:376) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_9/",
+        "Trigger(2:377~2:406) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_10/",
+        "Trigger(2:407~2:436) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_11/",
+        "Trigger(2:437~2:466) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_12/",
+        "Trigger(2:467~2:496) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_13/",
+        "Trigger(2:497~2:526) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_14/",
+        "Trigger(2:527~2:556) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_15/",
+        "Trigger(2:557~2:586) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_16/",
+        "Trigger(2:587~2:616) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_17/",
+        "Trigger(2:617~2:646) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_18/",
+        "Trigger(2:647~2:676) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_19/",
+        "Trigger(2:677~2:706) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_20/",
+        "Trigger(2:707~2:736) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_21/",
+        "Trigger(2:737~2:766) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_22/",
+        "Trigger(2:767~2:796) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_23/",
+        "Trigger(2:797~2:826) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_24/",
+        "Trigger(2:827~2:856) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_25/",
+        "Trigger(2:857~2:886) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_26/",
+        "Trigger(2:887~2:916) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_27/",
+        "Trigger(2:917~2:946) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_28/",
+        "Trigger(2:947~2:976) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_29/",
+        "Trigger(2:977~2:1006) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_30/",
+        "Trigger(2:1007~2:1036) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_31/",
+        "Trigger(2:1037~2:1066) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_32/",
+        "Trigger(2:1067~2:1096) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_33/",
+        "Trigger(2:1097~2:1126) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_34/",
+        "Trigger(2:1127~2:1156) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_35/",
+        "Trigger(2:1157~2:1186) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_36/",
+        "Trigger(2:1187~2:1216) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_37/",
+        "Trigger(2:1217~2:1246) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_38/",
+        "Trigger(2:1247~2:1276) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_39/",
+        "Trigger(2:1277~2:1306) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_40/",
+        "Trigger(2:1307~2:1336) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_41/",
+        "Trigger(2:1337~2:1366) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_42/",
+        "Trigger(2:1367~2:1396) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_43/",
+        "Trigger(2:1397~2:1426) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_44/",
+        "Trigger(2:1427~2:1456) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_45/",
+        "Trigger(2:1457~2:1486) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_46/",
+        "Trigger(2:1487~2:1516) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_47/",
+        "Trigger(2:1517~2:1546) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_48/",
+        "Trigger(2:1547~2:1576) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_49/",
+        "Trigger(2:1577~2:1606) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_50/",
+        "Trigger(2:1607~2:1636) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_51/",
+        "Trigger(2:1637~2:1666) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_52/",
+        "Trigger(2:1667~2:1696) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_53/",
+        "Trigger(2:1697~2:1726) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_54/",
+        "Trigger(2:1727~2:1756) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_55/",
+        "Trigger(2:1757~2:1786) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_56/",
+        "Trigger(2:1787~2:1816) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_57/",
+        "Trigger(2:1817~2:1846) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_58/",
+        "Trigger(2:1847~2:1876) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_59/",
+        "Trigger(2:1877~2:1906) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_60/",
+        "Trigger(2:1907~2:1936) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_61/",
+        "Trigger(2:1937~2:1966) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_62/",
+        "Trigger(2:1967~2:1996) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_63/",
+        "Trigger(2:1997~2:2026) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_64/",
+        "Trigger(2:2027~2:2056) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_65/",
+        "Trigger(2:2057~2:2086) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_66/",
+        "Trigger(2:2087~2:2116) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_67/",
+        "Trigger(2:2117~2:2146) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_68/",
+        "Trigger(2:2147~2:2176) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_69/",
+        "Trigger(2:2177~2:2206) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_70/",
+        "Trigger(2:2207~2:2236) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_71/",
+        "Trigger(2:2237~2:2266) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_72/",
+        "Trigger(2:2267~2:2296) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_73/",
+        "Trigger(2:2297~2:2326) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_74/",
+        "Trigger(2:2327~2:2356) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_75/",
+        "Trigger(2:2357~2:2386) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_76/",
+        "Trigger(2:2387~2:2416) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_77/",
+        "Trigger(2:2417~2:2446) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_78/",
+        "Trigger(2:2447~2:2476) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_79/",
+        "Trigger(2:2477~2:2506) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_80/",
+        "Trigger(2:2507~2:2536) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_81/",
+        "Trigger(2:2537~2:2566) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_82/",
+        "Trigger(2:2567~2:2596) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_83/",
+        "Trigger(2:2597~2:2626) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_84/",
+        "Trigger(2:2627~2:2656) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_85/",
+        "Trigger(2:2657~2:2686) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_86/",
+        "Trigger(2:2687~2:2716) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_87/",
+        "Trigger(2:2717~2:2746) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_88/",
+        "Trigger(2:2747~2:2776) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_89/",
+        "Trigger(2:2777~2:2806) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_90/",
+        "Trigger(2:2807~2:2836) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_91/",
+        "Trigger(2:2837~2:2866) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_92/",
+        "Trigger(2:2867~2:2896) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_93/",
+        "Trigger(2:2897~2:2926) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_94/",
+        "Trigger(2:2927~2:2956) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_95/",
+        "Trigger(2:2957~2:2986) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_96/",
+        "Trigger(2:2987~2:3016) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_97/",
+        "Trigger(2:3017~2:3046) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_98/",
+        "Trigger(2:3047~2:3076) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_99/",
+        "Trigger(2:3077~2:3107) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_100/",
+        "Trigger(2:3108~2:3138) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_101/",
+        "Trigger(2:3139~2:3169) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_102/",
+        "Trigger(2:3170~2:3200) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_103/",
+        "Trigger(2:3201~2:3231) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_104/",
+        "Trigger(2:3232~2:3262) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_105/",
+        "Trigger(2:3263~2:3293) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_106/",
+        "Trigger(2:3294~2:3324) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_107/",
+        "Trigger(2:3325~2:3355) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_108/",
+        "Trigger(2:3356~2:3386) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_109/",
+        "Trigger(2:3387~2:3417) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_110/",
+        "Trigger(2:3418~2:3448) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_111/",
+        "Trigger(2:3449~2:3479) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_112/",
+        "Trigger(2:3480~2:3510) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_113/",
+        "Trigger(2:3511~2:3541) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_114/",
+        "Trigger(2:3542~2:3572) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_115/",
+        "Trigger(2:3573~2:3603) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_116/",
+        "Trigger(2:3604~2:3634) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_117/",
+        "Trigger(2:3635~2:3665) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_118/",
+        "Trigger(2:3666~2:3696) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_119/",
+        "Trigger(2:3697~2:3727) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_120/",
+        "Trigger(2:3728~2:3758) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_121/",
+        "Trigger(2:3759~2:3789) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_122/",
+        "Trigger(2:3790~2:3820) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_123/",
+        "Trigger(2:3821~2:3851) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_124/",
+        "Trigger(2:3852~2:3882) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_125/",
+        "Trigger(2:3883~2:3913) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_126/",
+        "Trigger(2:3914~2:3944) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_127/",
+        "Trigger(2:3945~2:3975) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_128/",
+        "Trigger(2:3976~2:4006) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_129/",
+        "Trigger(2:4007~2:4037) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_130/",
+        "Trigger(2:4038~2:4068) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_131/",
+        "Trigger(2:4069~2:4099) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_132/",
+        "Trigger(2:4100~2:4130) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_133/",
+        "Trigger(2:4131~2:4161) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_134/",
+        "Trigger(2:4162~2:4192) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_135/",
+        "Trigger(2:4193~2:4223) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_136/",
+        "Trigger(2:4224~2:4254) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_137/",
+        "Trigger(2:4255~2:4285) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_138/",
+        "Trigger(2:4286~2:4316) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_139/",
+        "Trigger(2:4317~2:4347) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_140/",
+        "Trigger(2:4348~2:4378) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_141/",
+        "Trigger(2:4379~2:4409) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_142/",
+        "Trigger(2:4410~2:4440) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_143/",
+        "Trigger(2:4441~2:4471) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_144/",
+        "Trigger(2:4472~2:4502) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_145/",
+        "Trigger(2:4503~2:4533) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_146/",
+        "Trigger(2:4534~2:4564) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_147/",
+        "Trigger(2:4565~2:4595) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_148/",
+        "Trigger(2:4596~2:4626) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_149/",
+        "Trigger(2:4627~2:4657) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_150/",
+        "Trigger(2:4658~2:4688) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_151/",
+        "Trigger(2:4689~2:4719) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_152/",
+        "Trigger(2:4720~2:4750) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_153/",
+        "Trigger(2:4751~2:4781) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_154/",
+        "Trigger(2:4782~2:4812) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_155/",
+        "Trigger(2:4813~2:4843) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_156/",
+        "Trigger(2:4844~2:4874) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_157/",
+        "Trigger(2:4875~2:4905) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_158/",
+        "Trigger(2:4906~2:4936) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_159/",
+        "Trigger(2:4937~2:4967) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_160/",
+        "Trigger(2:4968~2:4998) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_161/",
+        "Trigger(2:4999~2:5029) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_162/",
+        "Trigger(2:5030~2:5060) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_163/",
+        "Trigger(2:5061~2:5091) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_164/",
+        "Trigger(2:5092~2:5122) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_165/",
+        "Trigger(2:5123~2:5153) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_166/",
+        "Trigger(2:5154~2:5184) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_167/",
+        "Trigger(2:5185~2:5215) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_168/",
+        "Trigger(2:5216~2:5246) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_169/",
+        "Trigger(2:5247~2:5277) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_170/",
+        "Trigger(2:5278~2:5308) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_171/",
+        "Trigger(2:5309~2:5339) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_172/",
+        "Trigger(2:5340~2:5370) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_173/",
+        "Trigger(2:5371~2:5401) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_174/",
+        "Trigger(2:5402~2:5432) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_175/",
+        "Trigger(2:5433~2:5463) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_176/",
+        "Trigger(2:5464~2:5494) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_177/",
+        "Trigger(2:5495~2:5525) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_178/",
+        "Trigger(2:5526~2:5556) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_179/",
+        "Trigger(2:5557~2:5587) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_180/",
+        "Trigger(2:5588~2:5618) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_181/",
+        "Trigger(2:5619~2:5649) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_182/",
+        "Trigger(2:5650~2:5680) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_183/",
+        "Trigger(2:5681~2:5711) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_184/",
+        "Trigger(2:5712~2:5742) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_185/",
+        "Trigger(2:5743~2:5773) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_186/",
+        "Trigger(2:5774~2:5804) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_187/",
+        "Trigger(2:5805~2:5835) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_188/",
+        "Trigger(2:5836~2:5866) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_189/",
+        "Trigger(2:5867~2:5897) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_190/",
+        "Trigger(2:5898~2:5928) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_191/",
+        "Trigger(2:5929~2:5959) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_192/",
+        "Trigger(2:5960~2:5990) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_193/",
+        "Trigger(2:5991~2:6021) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_194/",
+        "Trigger(2:6022~2:6052) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_195/",
+        "Trigger(2:6053~2:6083) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_196/",
+        "Trigger(2:6084~2:6114) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_197/",
+        "Trigger(2:6115~2:6145) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_198/",
+        "Trigger(2:6146~2:6176) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_199/",
+        "Trigger(2:6177~2:6207) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_200/",
+        "Trigger(2:6208~2:6238) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_201/",
+        "Trigger(2:6239~2:6269) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_202/",
+        "Trigger(2:6270~2:6300) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_203/",
+        "Trigger(2:6301~2:6331) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_204/",
+        "Trigger(2:6332~2:6362) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_205/",
+        "Trigger(2:6363~2:6393) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_206/",
+        "Trigger(2:6394~2:6424) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_207/",
+        "Trigger(2:6425~2:6455) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_208/",
+        "Trigger(2:6456~2:6486) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_209/",
+        "Trigger(2:6487~2:6517) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_210/",
+        "Trigger(2:6518~2:6548) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_211/",
+        "Trigger(2:6549~2:6579) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_212/",
+        "Trigger(2:6580~2:6610) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_213/",
+        "Trigger(2:6611~2:6641) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_214/",
+        "Trigger(2:6642~2:6672) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_215/",
+        "Trigger(2:6673~2:6703) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_216/",
+        "Trigger(2:6704~2:6734) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_217/",
+        "Trigger(2:6735~2:6765) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_218/",
+        "Trigger(2:6766~2:6796) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_219/",
+        "Trigger(2:6797~2:6827) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_220/",
+        "Trigger(2:6828~2:6858) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_221/",
+        "Trigger(2:6859~2:6889) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_222/",
+        "Trigger(2:6890~2:6920) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_223/",
+        "Trigger(2:6921~2:6951) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_224/",
+        "Trigger(2:6952~2:6982) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_225/",
+        "Trigger(2:6983~2:7013) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_226/",
+        "Trigger(2:7014~2:7044) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_227/",
+        "Trigger(2:7045~2:7075) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_228/",
+        "Trigger(2:7076~2:7106) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_229/",
+        "Trigger(2:7107~2:7137) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_230/",
+        "Trigger(2:7138~2:7168) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_231/",
+        "Trigger(2:7169~2:7199) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_232/",
+        "Trigger(2:7200~2:7230) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_233/",
+        "Trigger(2:7231~2:7261) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_234/",
+        "Trigger(2:7262~2:7292) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_235/",
+        "Trigger(2:7293~2:7323) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_236/",
+        "Trigger(2:7324~2:7354) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_237/",
+        "Trigger(2:7355~2:7385) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_238/",
+        "Trigger(2:7386~2:7416) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_239/",
+        "Trigger(2:7417~2:7447) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_240/",
+        "Trigger(2:7448~2:7478) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_241/",
+        "Trigger(2:7479~2:7509) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_242/",
+        "Trigger(2:7510~2:7540) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_243/",
+        "Trigger(2:7541~2:7571) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_244/",
+        "Trigger(2:7572~2:7602) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_245/",
+        "Trigger(2:7603~2:7633) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_246/",
+        "Trigger(2:7634~2:7664) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_247/",
+        "Trigger(2:7665~2:7695) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_248/",
+        "Trigger(2:7696~2:7726) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_249/",
+        "Trigger(2:7727~2:7757) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_250/",
+        "Trigger(2:7758~2:7788) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_251/",
+        "Trigger(2:7789~2:7819) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_252/",
+        "Trigger(2:7820~2:7850) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_253/",
+        "Trigger(2:7851~2:7881) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_254/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_039_behavior_review]
+sql:
+-- ORDER_255_INVALID_OBJECT
+create trigger CODEX_DM8_TRIGGER.TR_ORDER_255 after delete on CODEX_DM8_TRIGGER.TRIGGER_TARGET for each row follows CODEX_DM8_TRIGGER.TR_BOUND_1,CODEX_DM8_TRIGGER.TR_BOUND_2,CODEX_DM8_TRIGGER.TR_BOUND_3,CODEX_DM8_TRIGGER.TR_BOUND_4,CODEX_DM8_TRIGGER.TR_BOUND_5,CODEX_DM8_TRIGGER.TR_BOUND_6,CODEX_DM8_TRIGGER.TR_BOUND_7,CODEX_DM8_TRIGGER.TR_BOUND_8,CODEX_DM8_TRIGGER.TR_BOUND_9,CODEX_DM8_TRIGGER.TR_BOUND_10,CODEX_DM8_TRIGGER.TR_BOUND_11,CODEX_DM8_TRIGGER.TR_BOUND_12,CODEX_DM8_TRIGGER.TR_BOUND_13,CODEX_DM8_TRIGGER.TR_BOUND_14,CODEX_DM8_TRIGGER.TR_BOUND_15,CODEX_DM8_TRIGGER.TR_BOUND_16,CODEX_DM8_TRIGGER.TR_BOUND_17,CODEX_DM8_TRIGGER.TR_BOUND_18,CODEX_DM8_TRIGGER.TR_BOUND_19,CODEX_DM8_TRIGGER.TR_BOUND_20,CODEX_DM8_TRIGGER.TR_BOUND_21,CODEX_DM8_TRIGGER.TR_BOUND_22,CODEX_DM8_TRIGGER.TR_BOUND_23,CODEX_DM8_TRIGGER.TR_BOUND_24,CODEX_DM8_TRIGGER.TR_BOUND_25,CODEX_DM8_TRIGGER.TR_BOUND_26,CODEX_DM8_TRIGGER.TR_BOUND_27,CODEX_DM8_TRIGGER.TR_BOUND_28,CODEX_DM8_TRIGGER.TR_BOUND_29,CODEX_DM8_TRIGGER.TR_BOUND_30,CODEX_DM8_TRIGGER.TR_BOUND_31,CODEX_DM8_TRIGGER.TR_BOUND_32,CODEX_DM8_TRIGGER.TR_BOUND_33,CODEX_DM8_TRIGGER.TR_BOUND_34,CODEX_DM8_TRIGGER.TR_BOUND_35,CODEX_DM8_TRIGGER.TR_BOUND_36,CODEX_DM8_TRIGGER.TR_BOUND_37,CODEX_DM8_TRIGGER.TR_BOUND_38,CODEX_DM8_TRIGGER.TR_BOUND_39,CODEX_DM8_TRIGGER.TR_BOUND_40,CODEX_DM8_TRIGGER.TR_BOUND_41,CODEX_DM8_TRIGGER.TR_BOUND_42,CODEX_DM8_TRIGGER.TR_BOUND_43,CODEX_DM8_TRIGGER.TR_BOUND_44,CODEX_DM8_TRIGGER.TR_BOUND_45,CODEX_DM8_TRIGGER.TR_BOUND_46,CODEX_DM8_TRIGGER.TR_BOUND_47,CODEX_DM8_TRIGGER.TR_BOUND_48,CODEX_DM8_TRIGGER.TR_BOUND_49,CODEX_DM8_TRIGGER.TR_BOUND_50,CODEX_DM8_TRIGGER.TR_BOUND_51,CODEX_DM8_TRIGGER.TR_BOUND_52,CODEX_DM8_TRIGGER.TR_BOUND_53,CODEX_DM8_TRIGGER.TR_BOUND_54,CODEX_DM8_TRIGGER.TR_BOUND_55,CODEX_DM8_TRIGGER.TR_BOUND_56,CODEX_DM8_TRIGGER.TR_BOUND_57,CODEX_DM8_TRIGGER.TR_BOUND_58,CODEX_DM8_TRIGGER.TR_BOUND_59,CODEX_DM8_TRIGGER.TR_BOUND_60,CODEX_DM8_TRIGGER.TR_BOUND_61,CODEX_DM8_TRIGGER.TR_BOUND_62,CODEX_DM8_TRIGGER.TR_BOUND_63,CODEX_DM8_TRIGGER.TR_BOUND_64,CODEX_DM8_TRIGGER.TR_BOUND_65,CODEX_DM8_TRIGGER.TR_BOUND_66,CODEX_DM8_TRIGGER.TR_BOUND_67,CODEX_DM8_TRIGGER.TR_BOUND_68,CODEX_DM8_TRIGGER.TR_BOUND_69,CODEX_DM8_TRIGGER.TR_BOUND_70,CODEX_DM8_TRIGGER.TR_BOUND_71,CODEX_DM8_TRIGGER.TR_BOUND_72,CODEX_DM8_TRIGGER.TR_BOUND_73,CODEX_DM8_TRIGGER.TR_BOUND_74,CODEX_DM8_TRIGGER.TR_BOUND_75,CODEX_DM8_TRIGGER.TR_BOUND_76,CODEX_DM8_TRIGGER.TR_BOUND_77,CODEX_DM8_TRIGGER.TR_BOUND_78,CODEX_DM8_TRIGGER.TR_BOUND_79,CODEX_DM8_TRIGGER.TR_BOUND_80,CODEX_DM8_TRIGGER.TR_BOUND_81,CODEX_DM8_TRIGGER.TR_BOUND_82,CODEX_DM8_TRIGGER.TR_BOUND_83,CODEX_DM8_TRIGGER.TR_BOUND_84,CODEX_DM8_TRIGGER.TR_BOUND_85,CODEX_DM8_TRIGGER.TR_BOUND_86,CODEX_DM8_TRIGGER.TR_BOUND_87,CODEX_DM8_TRIGGER.TR_BOUND_88,CODEX_DM8_TRIGGER.TR_BOUND_89,CODEX_DM8_TRIGGER.TR_BOUND_90,CODEX_DM8_TRIGGER.TR_BOUND_91,CODEX_DM8_TRIGGER.TR_BOUND_92,CODEX_DM8_TRIGGER.TR_BOUND_93,CODEX_DM8_TRIGGER.TR_BOUND_94,CODEX_DM8_TRIGGER.TR_BOUND_95,CODEX_DM8_TRIGGER.TR_BOUND_96,CODEX_DM8_TRIGGER.TR_BOUND_97,CODEX_DM8_TRIGGER.TR_BOUND_98,CODEX_DM8_TRIGGER.TR_BOUND_99,CODEX_DM8_TRIGGER.TR_BOUND_100,CODEX_DM8_TRIGGER.TR_BOUND_101,CODEX_DM8_TRIGGER.TR_BOUND_102,CODEX_DM8_TRIGGER.TR_BOUND_103,CODEX_DM8_TRIGGER.TR_BOUND_104,CODEX_DM8_TRIGGER.TR_BOUND_105,CODEX_DM8_TRIGGER.TR_BOUND_106,CODEX_DM8_TRIGGER.TR_BOUND_107,CODEX_DM8_TRIGGER.TR_BOUND_108,CODEX_DM8_TRIGGER.TR_BOUND_109,CODEX_DM8_TRIGGER.TR_BOUND_110,CODEX_DM8_TRIGGER.TR_BOUND_111,CODEX_DM8_TRIGGER.TR_BOUND_112,CODEX_DM8_TRIGGER.TR_BOUND_113,CODEX_DM8_TRIGGER.TR_BOUND_114,CODEX_DM8_TRIGGER.TR_BOUND_115,CODEX_DM8_TRIGGER.TR_BOUND_116,CODEX_DM8_TRIGGER.TR_BOUND_117,CODEX_DM8_TRIGGER.TR_BOUND_118,CODEX_DM8_TRIGGER.TR_BOUND_119,CODEX_DM8_TRIGGER.TR_BOUND_120,CODEX_DM8_TRIGGER.TR_BOUND_121,CODEX_DM8_TRIGGER.TR_BOUND_122,CODEX_DM8_TRIGGER.TR_BOUND_123,CODEX_DM8_TRIGGER.TR_BOUND_124,CODEX_DM8_TRIGGER.TR_BOUND_125,CODEX_DM8_TRIGGER.TR_BOUND_126,CODEX_DM8_TRIGGER.TR_BOUND_127,CODEX_DM8_TRIGGER.TR_BOUND_128,CODEX_DM8_TRIGGER.TR_BOUND_129,CODEX_DM8_TRIGGER.TR_BOUND_130,CODEX_DM8_TRIGGER.TR_BOUND_131,CODEX_DM8_TRIGGER.TR_BOUND_132,CODEX_DM8_TRIGGER.TR_BOUND_133,CODEX_DM8_TRIGGER.TR_BOUND_134,CODEX_DM8_TRIGGER.TR_BOUND_135,CODEX_DM8_TRIGGER.TR_BOUND_136,CODEX_DM8_TRIGGER.TR_BOUND_137,CODEX_DM8_TRIGGER.TR_BOUND_138,CODEX_DM8_TRIGGER.TR_BOUND_139,CODEX_DM8_TRIGGER.TR_BOUND_140,CODEX_DM8_TRIGGER.TR_BOUND_141,CODEX_DM8_TRIGGER.TR_BOUND_142,CODEX_DM8_TRIGGER.TR_BOUND_143,CODEX_DM8_TRIGGER.TR_BOUND_144,CODEX_DM8_TRIGGER.TR_BOUND_145,CODEX_DM8_TRIGGER.TR_BOUND_146,CODEX_DM8_TRIGGER.TR_BOUND_147,CODEX_DM8_TRIGGER.TR_BOUND_148,CODEX_DM8_TRIGGER.TR_BOUND_149,CODEX_DM8_TRIGGER.TR_BOUND_150,CODEX_DM8_TRIGGER.TR_BOUND_151,CODEX_DM8_TRIGGER.TR_BOUND_152,CODEX_DM8_TRIGGER.TR_BOUND_153,CODEX_DM8_TRIGGER.TR_BOUND_154,CODEX_DM8_TRIGGER.TR_BOUND_155,CODEX_DM8_TRIGGER.TR_BOUND_156,CODEX_DM8_TRIGGER.TR_BOUND_157,CODEX_DM8_TRIGGER.TR_BOUND_158,CODEX_DM8_TRIGGER.TR_BOUND_159,CODEX_DM8_TRIGGER.TR_BOUND_160,CODEX_DM8_TRIGGER.TR_BOUND_161,CODEX_DM8_TRIGGER.TR_BOUND_162,CODEX_DM8_TRIGGER.TR_BOUND_163,CODEX_DM8_TRIGGER.TR_BOUND_164,CODEX_DM8_TRIGGER.TR_BOUND_165,CODEX_DM8_TRIGGER.TR_BOUND_166,CODEX_DM8_TRIGGER.TR_BOUND_167,CODEX_DM8_TRIGGER.TR_BOUND_168,CODEX_DM8_TRIGGER.TR_BOUND_169,CODEX_DM8_TRIGGER.TR_BOUND_170,CODEX_DM8_TRIGGER.TR_BOUND_171,CODEX_DM8_TRIGGER.TR_BOUND_172,CODEX_DM8_TRIGGER.TR_BOUND_173,CODEX_DM8_TRIGGER.TR_BOUND_174,CODEX_DM8_TRIGGER.TR_BOUND_175,CODEX_DM8_TRIGGER.TR_BOUND_176,CODEX_DM8_TRIGGER.TR_BOUND_177,CODEX_DM8_TRIGGER.TR_BOUND_178,CODEX_DM8_TRIGGER.TR_BOUND_179,CODEX_DM8_TRIGGER.TR_BOUND_180,CODEX_DM8_TRIGGER.TR_BOUND_181,CODEX_DM8_TRIGGER.TR_BOUND_182,CODEX_DM8_TRIGGER.TR_BOUND_183,CODEX_DM8_TRIGGER.TR_BOUND_184,CODEX_DM8_TRIGGER.TR_BOUND_185,CODEX_DM8_TRIGGER.TR_BOUND_186,CODEX_DM8_TRIGGER.TR_BOUND_187,CODEX_DM8_TRIGGER.TR_BOUND_188,CODEX_DM8_TRIGGER.TR_BOUND_189,CODEX_DM8_TRIGGER.TR_BOUND_190,CODEX_DM8_TRIGGER.TR_BOUND_191,CODEX_DM8_TRIGGER.TR_BOUND_192,CODEX_DM8_TRIGGER.TR_BOUND_193,CODEX_DM8_TRIGGER.TR_BOUND_194,CODEX_DM8_TRIGGER.TR_BOUND_195,CODEX_DM8_TRIGGER.TR_BOUND_196,CODEX_DM8_TRIGGER.TR_BOUND_197,CODEX_DM8_TRIGGER.TR_BOUND_198,CODEX_DM8_TRIGGER.TR_BOUND_199,CODEX_DM8_TRIGGER.TR_BOUND_200,CODEX_DM8_TRIGGER.TR_BOUND_201,CODEX_DM8_TRIGGER.TR_BOUND_202,CODEX_DM8_TRIGGER.TR_BOUND_203,CODEX_DM8_TRIGGER.TR_BOUND_204,CODEX_DM8_TRIGGER.TR_BOUND_205,CODEX_DM8_TRIGGER.TR_BOUND_206,CODEX_DM8_TRIGGER.TR_BOUND_207,CODEX_DM8_TRIGGER.TR_BOUND_208,CODEX_DM8_TRIGGER.TR_BOUND_209,CODEX_DM8_TRIGGER.TR_BOUND_210,CODEX_DM8_TRIGGER.TR_BOUND_211,CODEX_DM8_TRIGGER.TR_BOUND_212,CODEX_DM8_TRIGGER.TR_BOUND_213,CODEX_DM8_TRIGGER.TR_BOUND_214,CODEX_DM8_TRIGGER.TR_BOUND_215,CODEX_DM8_TRIGGER.TR_BOUND_216,CODEX_DM8_TRIGGER.TR_BOUND_217,CODEX_DM8_TRIGGER.TR_BOUND_218,CODEX_DM8_TRIGGER.TR_BOUND_219,CODEX_DM8_TRIGGER.TR_BOUND_220,CODEX_DM8_TRIGGER.TR_BOUND_221,CODEX_DM8_TRIGGER.TR_BOUND_222,CODEX_DM8_TRIGGER.TR_BOUND_223,CODEX_DM8_TRIGGER.TR_BOUND_224,CODEX_DM8_TRIGGER.TR_BOUND_225,CODEX_DM8_TRIGGER.TR_BOUND_226,CODEX_DM8_TRIGGER.TR_BOUND_227,CODEX_DM8_TRIGGER.TR_BOUND_228,CODEX_DM8_TRIGGER.TR_BOUND_229,CODEX_DM8_TRIGGER.TR_BOUND_230,CODEX_DM8_TRIGGER.TR_BOUND_231,CODEX_DM8_TRIGGER.TR_BOUND_232,CODEX_DM8_TRIGGER.TR_BOUND_233,CODEX_DM8_TRIGGER.TR_BOUND_234,CODEX_DM8_TRIGGER.TR_BOUND_235,CODEX_DM8_TRIGGER.TR_BOUND_236,CODEX_DM8_TRIGGER.TR_BOUND_237,CODEX_DM8_TRIGGER.TR_BOUND_238,CODEX_DM8_TRIGGER.TR_BOUND_239,CODEX_DM8_TRIGGER.TR_BOUND_240,CODEX_DM8_TRIGGER.TR_BOUND_241,CODEX_DM8_TRIGGER.TR_BOUND_242,CODEX_DM8_TRIGGER.TR_BOUND_243,CODEX_DM8_TRIGGER.TR_BOUND_244,CODEX_DM8_TRIGGER.TR_BOUND_245,CODEX_DM8_TRIGGER.TR_BOUND_246,CODEX_DM8_TRIGGER.TR_BOUND_247,CODEX_DM8_TRIGGER.TR_BOUND_248,CODEX_DM8_TRIGGER.TR_BOUND_249,CODEX_DM8_TRIGGER.TR_BOUND_250,CODEX_DM8_TRIGGER.TR_BOUND_251,CODEX_DM8_TRIGGER.TR_BOUND_252,CODEX_DM8_TRIGGER.TR_BOUND_253,CODEX_DM8_TRIGGER.TR_BOUND_254,CODEX_DM8_TRIGGER.TR_BOUND_255 begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:45) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_ORDER_255/",
+      "action": "CREATE",
+      "target": [
+        "Table(2:62~2:94) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET/",
+        "Trigger(2:116~2:144) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_1/",
+        "Trigger(2:145~2:173) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_2/",
+        "Trigger(2:174~2:202) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_3/",
+        "Trigger(2:203~2:231) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_4/",
+        "Trigger(2:232~2:260) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_5/",
+        "Trigger(2:261~2:289) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_6/",
+        "Trigger(2:290~2:318) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_7/",
+        "Trigger(2:319~2:347) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_8/",
+        "Trigger(2:348~2:376) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_9/",
+        "Trigger(2:377~2:406) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_10/",
+        "Trigger(2:407~2:436) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_11/",
+        "Trigger(2:437~2:466) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_12/",
+        "Trigger(2:467~2:496) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_13/",
+        "Trigger(2:497~2:526) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_14/",
+        "Trigger(2:527~2:556) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_15/",
+        "Trigger(2:557~2:586) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_16/",
+        "Trigger(2:587~2:616) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_17/",
+        "Trigger(2:617~2:646) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_18/",
+        "Trigger(2:647~2:676) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_19/",
+        "Trigger(2:677~2:706) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_20/",
+        "Trigger(2:707~2:736) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_21/",
+        "Trigger(2:737~2:766) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_22/",
+        "Trigger(2:767~2:796) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_23/",
+        "Trigger(2:797~2:826) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_24/",
+        "Trigger(2:827~2:856) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_25/",
+        "Trigger(2:857~2:886) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_26/",
+        "Trigger(2:887~2:916) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_27/",
+        "Trigger(2:917~2:946) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_28/",
+        "Trigger(2:947~2:976) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_29/",
+        "Trigger(2:977~2:1006) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_30/",
+        "Trigger(2:1007~2:1036) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_31/",
+        "Trigger(2:1037~2:1066) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_32/",
+        "Trigger(2:1067~2:1096) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_33/",
+        "Trigger(2:1097~2:1126) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_34/",
+        "Trigger(2:1127~2:1156) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_35/",
+        "Trigger(2:1157~2:1186) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_36/",
+        "Trigger(2:1187~2:1216) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_37/",
+        "Trigger(2:1217~2:1246) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_38/",
+        "Trigger(2:1247~2:1276) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_39/",
+        "Trigger(2:1277~2:1306) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_40/",
+        "Trigger(2:1307~2:1336) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_41/",
+        "Trigger(2:1337~2:1366) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_42/",
+        "Trigger(2:1367~2:1396) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_43/",
+        "Trigger(2:1397~2:1426) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_44/",
+        "Trigger(2:1427~2:1456) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_45/",
+        "Trigger(2:1457~2:1486) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_46/",
+        "Trigger(2:1487~2:1516) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_47/",
+        "Trigger(2:1517~2:1546) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_48/",
+        "Trigger(2:1547~2:1576) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_49/",
+        "Trigger(2:1577~2:1606) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_50/",
+        "Trigger(2:1607~2:1636) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_51/",
+        "Trigger(2:1637~2:1666) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_52/",
+        "Trigger(2:1667~2:1696) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_53/",
+        "Trigger(2:1697~2:1726) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_54/",
+        "Trigger(2:1727~2:1756) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_55/",
+        "Trigger(2:1757~2:1786) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_56/",
+        "Trigger(2:1787~2:1816) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_57/",
+        "Trigger(2:1817~2:1846) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_58/",
+        "Trigger(2:1847~2:1876) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_59/",
+        "Trigger(2:1877~2:1906) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_60/",
+        "Trigger(2:1907~2:1936) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_61/",
+        "Trigger(2:1937~2:1966) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_62/",
+        "Trigger(2:1967~2:1996) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_63/",
+        "Trigger(2:1997~2:2026) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_64/",
+        "Trigger(2:2027~2:2056) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_65/",
+        "Trigger(2:2057~2:2086) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_66/",
+        "Trigger(2:2087~2:2116) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_67/",
+        "Trigger(2:2117~2:2146) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_68/",
+        "Trigger(2:2147~2:2176) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_69/",
+        "Trigger(2:2177~2:2206) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_70/",
+        "Trigger(2:2207~2:2236) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_71/",
+        "Trigger(2:2237~2:2266) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_72/",
+        "Trigger(2:2267~2:2296) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_73/",
+        "Trigger(2:2297~2:2326) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_74/",
+        "Trigger(2:2327~2:2356) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_75/",
+        "Trigger(2:2357~2:2386) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_76/",
+        "Trigger(2:2387~2:2416) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_77/",
+        "Trigger(2:2417~2:2446) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_78/",
+        "Trigger(2:2447~2:2476) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_79/",
+        "Trigger(2:2477~2:2506) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_80/",
+        "Trigger(2:2507~2:2536) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_81/",
+        "Trigger(2:2537~2:2566) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_82/",
+        "Trigger(2:2567~2:2596) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_83/",
+        "Trigger(2:2597~2:2626) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_84/",
+        "Trigger(2:2627~2:2656) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_85/",
+        "Trigger(2:2657~2:2686) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_86/",
+        "Trigger(2:2687~2:2716) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_87/",
+        "Trigger(2:2717~2:2746) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_88/",
+        "Trigger(2:2747~2:2776) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_89/",
+        "Trigger(2:2777~2:2806) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_90/",
+        "Trigger(2:2807~2:2836) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_91/",
+        "Trigger(2:2837~2:2866) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_92/",
+        "Trigger(2:2867~2:2896) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_93/",
+        "Trigger(2:2897~2:2926) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_94/",
+        "Trigger(2:2927~2:2956) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_95/",
+        "Trigger(2:2957~2:2986) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_96/",
+        "Trigger(2:2987~2:3016) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_97/",
+        "Trigger(2:3017~2:3046) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_98/",
+        "Trigger(2:3047~2:3076) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_99/",
+        "Trigger(2:3077~2:3107) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_100/",
+        "Trigger(2:3108~2:3138) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_101/",
+        "Trigger(2:3139~2:3169) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_102/",
+        "Trigger(2:3170~2:3200) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_103/",
+        "Trigger(2:3201~2:3231) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_104/",
+        "Trigger(2:3232~2:3262) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_105/",
+        "Trigger(2:3263~2:3293) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_106/",
+        "Trigger(2:3294~2:3324) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_107/",
+        "Trigger(2:3325~2:3355) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_108/",
+        "Trigger(2:3356~2:3386) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_109/",
+        "Trigger(2:3387~2:3417) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_110/",
+        "Trigger(2:3418~2:3448) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_111/",
+        "Trigger(2:3449~2:3479) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_112/",
+        "Trigger(2:3480~2:3510) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_113/",
+        "Trigger(2:3511~2:3541) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_114/",
+        "Trigger(2:3542~2:3572) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_115/",
+        "Trigger(2:3573~2:3603) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_116/",
+        "Trigger(2:3604~2:3634) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_117/",
+        "Trigger(2:3635~2:3665) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_118/",
+        "Trigger(2:3666~2:3696) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_119/",
+        "Trigger(2:3697~2:3727) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_120/",
+        "Trigger(2:3728~2:3758) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_121/",
+        "Trigger(2:3759~2:3789) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_122/",
+        "Trigger(2:3790~2:3820) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_123/",
+        "Trigger(2:3821~2:3851) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_124/",
+        "Trigger(2:3852~2:3882) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_125/",
+        "Trigger(2:3883~2:3913) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_126/",
+        "Trigger(2:3914~2:3944) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_127/",
+        "Trigger(2:3945~2:3975) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_128/",
+        "Trigger(2:3976~2:4006) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_129/",
+        "Trigger(2:4007~2:4037) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_130/",
+        "Trigger(2:4038~2:4068) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_131/",
+        "Trigger(2:4069~2:4099) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_132/",
+        "Trigger(2:4100~2:4130) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_133/",
+        "Trigger(2:4131~2:4161) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_134/",
+        "Trigger(2:4162~2:4192) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_135/",
+        "Trigger(2:4193~2:4223) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_136/",
+        "Trigger(2:4224~2:4254) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_137/",
+        "Trigger(2:4255~2:4285) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_138/",
+        "Trigger(2:4286~2:4316) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_139/",
+        "Trigger(2:4317~2:4347) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_140/",
+        "Trigger(2:4348~2:4378) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_141/",
+        "Trigger(2:4379~2:4409) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_142/",
+        "Trigger(2:4410~2:4440) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_143/",
+        "Trigger(2:4441~2:4471) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_144/",
+        "Trigger(2:4472~2:4502) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_145/",
+        "Trigger(2:4503~2:4533) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_146/",
+        "Trigger(2:4534~2:4564) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_147/",
+        "Trigger(2:4565~2:4595) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_148/",
+        "Trigger(2:4596~2:4626) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_149/",
+        "Trigger(2:4627~2:4657) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_150/",
+        "Trigger(2:4658~2:4688) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_151/",
+        "Trigger(2:4689~2:4719) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_152/",
+        "Trigger(2:4720~2:4750) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_153/",
+        "Trigger(2:4751~2:4781) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_154/",
+        "Trigger(2:4782~2:4812) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_155/",
+        "Trigger(2:4813~2:4843) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_156/",
+        "Trigger(2:4844~2:4874) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_157/",
+        "Trigger(2:4875~2:4905) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_158/",
+        "Trigger(2:4906~2:4936) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_159/",
+        "Trigger(2:4937~2:4967) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_160/",
+        "Trigger(2:4968~2:4998) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_161/",
+        "Trigger(2:4999~2:5029) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_162/",
+        "Trigger(2:5030~2:5060) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_163/",
+        "Trigger(2:5061~2:5091) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_164/",
+        "Trigger(2:5092~2:5122) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_165/",
+        "Trigger(2:5123~2:5153) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_166/",
+        "Trigger(2:5154~2:5184) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_167/",
+        "Trigger(2:5185~2:5215) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_168/",
+        "Trigger(2:5216~2:5246) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_169/",
+        "Trigger(2:5247~2:5277) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_170/",
+        "Trigger(2:5278~2:5308) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_171/",
+        "Trigger(2:5309~2:5339) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_172/",
+        "Trigger(2:5340~2:5370) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_173/",
+        "Trigger(2:5371~2:5401) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_174/",
+        "Trigger(2:5402~2:5432) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_175/",
+        "Trigger(2:5433~2:5463) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_176/",
+        "Trigger(2:5464~2:5494) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_177/",
+        "Trigger(2:5495~2:5525) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_178/",
+        "Trigger(2:5526~2:5556) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_179/",
+        "Trigger(2:5557~2:5587) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_180/",
+        "Trigger(2:5588~2:5618) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_181/",
+        "Trigger(2:5619~2:5649) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_182/",
+        "Trigger(2:5650~2:5680) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_183/",
+        "Trigger(2:5681~2:5711) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_184/",
+        "Trigger(2:5712~2:5742) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_185/",
+        "Trigger(2:5743~2:5773) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_186/",
+        "Trigger(2:5774~2:5804) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_187/",
+        "Trigger(2:5805~2:5835) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_188/",
+        "Trigger(2:5836~2:5866) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_189/",
+        "Trigger(2:5867~2:5897) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_190/",
+        "Trigger(2:5898~2:5928) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_191/",
+        "Trigger(2:5929~2:5959) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_192/",
+        "Trigger(2:5960~2:5990) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_193/",
+        "Trigger(2:5991~2:6021) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_194/",
+        "Trigger(2:6022~2:6052) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_195/",
+        "Trigger(2:6053~2:6083) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_196/",
+        "Trigger(2:6084~2:6114) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_197/",
+        "Trigger(2:6115~2:6145) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_198/",
+        "Trigger(2:6146~2:6176) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_199/",
+        "Trigger(2:6177~2:6207) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_200/",
+        "Trigger(2:6208~2:6238) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_201/",
+        "Trigger(2:6239~2:6269) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_202/",
+        "Trigger(2:6270~2:6300) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_203/",
+        "Trigger(2:6301~2:6331) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_204/",
+        "Trigger(2:6332~2:6362) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_205/",
+        "Trigger(2:6363~2:6393) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_206/",
+        "Trigger(2:6394~2:6424) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_207/",
+        "Trigger(2:6425~2:6455) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_208/",
+        "Trigger(2:6456~2:6486) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_209/",
+        "Trigger(2:6487~2:6517) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_210/",
+        "Trigger(2:6518~2:6548) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_211/",
+        "Trigger(2:6549~2:6579) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_212/",
+        "Trigger(2:6580~2:6610) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_213/",
+        "Trigger(2:6611~2:6641) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_214/",
+        "Trigger(2:6642~2:6672) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_215/",
+        "Trigger(2:6673~2:6703) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_216/",
+        "Trigger(2:6704~2:6734) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_217/",
+        "Trigger(2:6735~2:6765) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_218/",
+        "Trigger(2:6766~2:6796) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_219/",
+        "Trigger(2:6797~2:6827) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_220/",
+        "Trigger(2:6828~2:6858) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_221/",
+        "Trigger(2:6859~2:6889) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_222/",
+        "Trigger(2:6890~2:6920) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_223/",
+        "Trigger(2:6921~2:6951) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_224/",
+        "Trigger(2:6952~2:6982) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_225/",
+        "Trigger(2:6983~2:7013) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_226/",
+        "Trigger(2:7014~2:7044) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_227/",
+        "Trigger(2:7045~2:7075) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_228/",
+        "Trigger(2:7076~2:7106) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_229/",
+        "Trigger(2:7107~2:7137) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_230/",
+        "Trigger(2:7138~2:7168) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_231/",
+        "Trigger(2:7169~2:7199) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_232/",
+        "Trigger(2:7200~2:7230) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_233/",
+        "Trigger(2:7231~2:7261) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_234/",
+        "Trigger(2:7262~2:7292) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_235/",
+        "Trigger(2:7293~2:7323) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_236/",
+        "Trigger(2:7324~2:7354) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_237/",
+        "Trigger(2:7355~2:7385) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_238/",
+        "Trigger(2:7386~2:7416) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_239/",
+        "Trigger(2:7417~2:7447) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_240/",
+        "Trigger(2:7448~2:7478) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_241/",
+        "Trigger(2:7479~2:7509) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_242/",
+        "Trigger(2:7510~2:7540) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_243/",
+        "Trigger(2:7541~2:7571) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_244/",
+        "Trigger(2:7572~2:7602) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_245/",
+        "Trigger(2:7603~2:7633) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_246/",
+        "Trigger(2:7634~2:7664) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_247/",
+        "Trigger(2:7665~2:7695) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_248/",
+        "Trigger(2:7696~2:7726) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_249/",
+        "Trigger(2:7727~2:7757) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_250/",
+        "Trigger(2:7758~2:7788) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_251/",
+        "Trigger(2:7789~2:7819) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_252/",
+        "Trigger(2:7820~2:7850) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_253/",
+        "Trigger(2:7851~2:7881) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_254/",
+        "Trigger(2:7882~2:7912) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BOUND_255/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_040_behavior_review]
+sql:
+-- REPLACE_TABLE_TARGET_CHANGED
+create or replace trigger CODEX_DM8_TRIGGER.TR_REPLACE_TABLE before insert on CODEX_DM8_TRIGGER.TRIGGER_TARGET_TWO begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:26~2:60) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_REPLACE_TABLE/",
+      "action": "REPLACE",
+      "target": "Table(2:78~2:114) /test/1/catalog1/CODEX_DM8_TRIGGER/TRIGGER_TARGET_TWO/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_041_behavior_review]
+sql:
+-- REPLACE_TABLE_TO_EVENT
+create or replace trigger CODEX_DM8_TRIGGER.TR_REPLACE_TABLE after create on CODEX_DM8_TRIGGER.schema begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:26~2:60) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_REPLACE_TABLE/",
+      "action": "REPLACE",
+      "target": "Schema(2:77~2:94) /test/1/catalog1/CODEX_DM8_TRIGGER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_042_behavior_review]
+sql:
+-- REPLACE_EVENT_TARGET_DATABASE
+create or replace trigger CODEX_DM8_TRIGGER.TR_REPLACE_EVENT after create on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:26~2:60) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_REPLACE_EVENT/",
+      "action": "REPLACE",
+      "target": "Catalog(2:77~2:85) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_043_behavior_review]
+sql:
+-- REPLACE_EVENT_SCHEMA_CHANGED
+create or replace trigger CODEX_DM8_TRIGGER.TR_REPLACE_EVENT after create on CODEX_DM8_TRIGGER_OTHER.schema begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:26~2:60) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_REPLACE_EVENT/",
+      "action": "REPLACE",
+      "target": "Schema(2:77~2:100) /test/1/catalog1/CODEX_DM8_TRIGGER_OTHER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_044_behavior_review]
+sql:
+-- REPLACE_EVENT_CLASS_CHANGED
+create or replace trigger CODEX_DM8_TRIGGER.TR_REPLACE_EVENT after grant on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:26~2:60) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_REPLACE_EVENT/",
+      "action": "REPLACE",
+      "target": "Catalog(2:76~2:84) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_045_behavior_review]
+sql:
+-- EVENT_DDL_SET
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_DDL before create or alter or drop or truncate or comment on CODEX_DM8_TRIGGER.schema when (:EVENTINFO.OPTYPE<>'NONE') begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:45) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_DDL/",
+      "action": "CREATE",
+      "target": "Schema(2:103~2:120) /test/1/catalog1/CODEX_DM8_TRIGGER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_046_behavior_review]
+sql:
+-- EVENT_PRIV_SET
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_PRIV after grant or revoke on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_PRIV/",
+      "action": "CREATE",
+      "target": "Catalog(2:72~2:80) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_047_behavior_review]
+sql:
+-- EVENT_LOGON
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_LOGON after logon on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:47) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_LOGON/",
+      "action": "CREATE",
+      "target": "Catalog(2:63~2:71) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_048_behavior_review]
+sql:
+-- EVENT_LOGOFF
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_LOGOFF before logoff on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:48) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_LOGOFF/",
+      "action": "CREATE",
+      "target": "Catalog(2:66~2:74) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_049_behavior_review]
+sql:
+-- EVENT_LOGIN_LOGOFF_INVALID_COMBINATION
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_LOGIN after login or logoff on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:47) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_LOGIN/",
+      "action": "CREATE",
+      "target": "Catalog(2:73~2:81) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_050_behavior_review]
+sql:
+-- EVENT_BACKUP_RESTORE
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_BACK after backup database or restore database on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_BACK/",
+      "action": "CREATE",
+      "target": "Catalog(2:92~2:100) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_051_behavior_review]
+sql:
+-- EVENT_AUDIT_NOAUDIT
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_AUDIT after audit or noaudit on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:47) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_AUDIT/",
+      "action": "CREATE",
+      "target": "Catalog(2:74~2:82) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_052_behavior_review]
+sql:
+-- EVENT_STARTUP
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_STARTUP after startup on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:49) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_STARTUP/",
+      "action": "CREATE",
+      "target": "Catalog(2:67~2:75) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_053_behavior_review]
+sql:
+-- EVENT_SHUTDOWN
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_SHUTDOWN before shutdown on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:50) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_SHUTDOWN/",
+      "action": "CREATE",
+      "target": "Catalog(2:70~2:78) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_054_behavior_review]
+sql:
+-- EVENT_STARTUP_SHUTDOWN_INVALID_COMBINATION
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_STARTUP_SET after startup or shutdown on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:53) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_STARTUP_SET/",
+      "action": "CREATE",
+      "target": "Catalog(2:83~2:91) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_055_behavior_review]
+sql:
+-- EVENT_MIXED_SET_BOUNDARY
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_MIXED after create or grant on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:47) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_MIXED/",
+      "action": "CREATE",
+      "target": "Catalog(2:73~2:81) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_056_behavior_review]
+sql:
+-- EVENT_SYSTEM_ON_SCHEMA_BOUNDARY
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_SCHEMA after login on CODEX_DM8_TRIGGER.schema begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:48) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_SCHEMA/",
+      "action": "CREATE",
+      "target": "Schema(2:64~2:81) /test/1/catalog1/CODEX_DM8_TRIGGER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_057_behavior_review]
+sql:
+-- EVENT_WITH_ENCRYPTION
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_ENCRYPTED with encryption after create on database begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:51) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_ENCRYPTED/",
+      "action": "CREATE",
+      "target": "Catalog(2:84~2:92) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_058_behavior_review]
+sql:
+-- EVENT_EXECUTE_AT_RAFT
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_RAFT after create on database execute at RAFT_AT_ALL_SP$ begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_RAFT/",
+      "action": "CREATE",
+      "target": "Catalog(2:63~2:71) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_059_behavior_review]
+sql:
+-- CHECKPOINT_EXECUTE_AT_NODE
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_NODE after checkpoint on database execute at 0 begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_NODE/",
+      "action": "CREATE",
+      "target": "Catalog(2:67~2:75) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_060_behavior_review]
+sql:
+-- NON_CHECKPOINT_EXECUTE_AT_NODE_DOC_DELTA
+create trigger CODEX_DM8_TRIGGER.TR_EVENT_BAD_NODE after create on database execute at 0 begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:50) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_EVENT_BAD_NODE/",
+      "action": "CREATE",
+      "target": "Catalog(2:67~2:75) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_061_behavior_review]
+sql:
+-- TIMER_ONCE
+create trigger CODEX_DM8_TRIGGER.TR_TIMER_ONCE after timer on database for once at datetime '2099-01-01 00:00:00' begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_TIMER_ONCE/",
+      "action": "CREATE",
+      "target": "Catalog(2:62~2:70) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_062_behavior_review]
+sql:
+-- TIMER_MONTH_DAY
+create trigger CODEX_DM8_TRIGGER.TR_TIMER_MONTH_DAY after timer on database for each 2 month day 15 at time '23:00:00' begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:51) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_TIMER_MONTH_DAY/",
+      "action": "CREATE",
+      "target": "Catalog(2:67~2:75) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_063_behavior_review]
+sql:
+-- TIMER_MONTH_WEEK
+create trigger CODEX_DM8_TRIGGER.TR_TIMER_MONTH_WEEK after timer on database for each 2 month day 2 of week 3 at time '23:00:00' begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:52) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_TIMER_MONTH_WEEK/",
+      "action": "CREATE",
+      "target": "Catalog(2:68~2:76) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_064_behavior_review]
+sql:
+-- TIMER_MONTH_LAST_WEEK
+create trigger CODEX_DM8_TRIGGER.TR_TIMER_MONTH_LAST after timer on database for each 2 month day 2 of week last at time '23:00:00' begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:52) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_TIMER_MONTH_LAST/",
+      "action": "CREATE",
+      "target": "Catalog(2:68~2:76) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_065_behavior_review]
+sql:
+-- TIMER_WEEK
+create trigger CODEX_DM8_TRIGGER.TR_TIMER_WEEK after timer on database for each 2 week 1,3,5 at time '23:00:00' begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_TIMER_WEEK/",
+      "action": "CREATE",
+      "target": "Catalog(2:62~2:70) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_066_behavior_review]
+sql:
+-- TIMER_DAY
+create trigger CODEX_DM8_TRIGGER.TR_TIMER_DAY after timer on database for each 2 day at time '23:00:00' begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:45) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_TIMER_DAY/",
+      "action": "CREATE",
+      "target": "Catalog(2:61~2:69) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_067_behavior_review]
+sql:
+-- TIMER_MINUTE_RANGE
+create trigger CODEX_DM8_TRIGGER.TR_TIMER_MINUTE after timer on database for each 1 day from time '01:00:00' to time '02:00:00' for each 10 minute begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:48) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_TIMER_MINUTE/",
+      "action": "CREATE",
+      "target": "Catalog(2:64~2:72) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_068_behavior_review]
+sql:
+-- TIMER_SECOND_RANGE
+create trigger CODEX_DM8_TRIGGER.TR_TIMER_SECOND after timer on database for each 1 day from time '01:00:00' for each 10 second begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:48) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_TIMER_SECOND/",
+      "action": "CREATE",
+      "target": "Catalog(2:64~2:72) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_069_behavior_review]
+sql:
+-- TIMER_DURING_DATE
+create trigger CODEX_DM8_TRIGGER.TR_TIMER_DATE after timer on database for each 1 day at time '23:00:00' from datetime '2098-01-01' to datetime '2099-01-01' begin null;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(2:15~2:46) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_TIMER_DATE/",
+      "action": "CREATE",
+      "target": "Catalog(2:62~2:70) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_070_behavior_review]
+sql:
+-- ALTER_DISABLE
+alter trigger CODEX_DM8_TRIGGER.TR_BASIC disable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(2:14~2:40) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_071_behavior_review]
+sql:
+-- ALTER_ENABLE
+alter trigger CODEX_DM8_TRIGGER.TR_BASIC enable;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(2:14~2:40) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_072_behavior_review]
+sql:
+-- ALTER_COMPILE
+alter trigger CODEX_DM8_TRIGGER.TR_BASIC compile;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(2:14~2:40) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_073_behavior_review]
+sql:
+-- ALTER_COMPILE_DEBUG
+alter trigger CODEX_DM8_TRIGGER.TR_BASIC compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(2:14~2:40) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_074_behavior_review]
+sql:
+-- DROP
+drop trigger CODEX_DM8_TRIGGER.TR_BASIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(2:13~2:39) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_BASIC/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_block_dameng_trigger_atomic_0_075_behavior_review]
+sql:
+-- DROP_IF_EXISTS
+drop trigger if exists CODEX_DM8_TRIGGER.TR_NO_SUCH;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(2:23~2:51) /test/1/catalog1/CODEX_DM8_TRIGGER/TR_NO_SUCH/",
+      "action": "DROP"
+    }
+  ]
+}

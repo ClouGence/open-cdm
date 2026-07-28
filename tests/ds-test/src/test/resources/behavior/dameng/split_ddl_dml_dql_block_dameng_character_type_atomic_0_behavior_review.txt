@@ -1,0 +1,1321 @@
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_001_behavior_review]
+sql:
+create table app.char_t(
+  id int primary key,c_char char(4) default 'A' not null,
+  c_character character(4) default 'B',c_varchar varchar(12) default 'C',
+  c_varchar2 varchar2(12) default 'D',c_char_sem char(4 char),
+  c_character_sem character(4 char),c_varchar_sem varchar(4 char),
+  c_varchar2_sem varchar2(4 char),c_char_byte char(12 byte),
+  c_character_byte character(12 byte),c_varchar_byte varchar(12 byte),
+  c_varchar2_byte varchar2(12 byte),c_null varchar2(12) null,
+  constraint ck_char check(length(c_varchar)<=12),
+  constraint uk_char unique(c_varchar,c_varchar2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/app/char_t/",
+      "action" : "CREATE"
+    },
+    {
+      "subject": "Function(9:27~9:33) /test/1/catalog1/schema1/length/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_002_behavior_review]
+sql:
+comment on column app.char_t.c_char is 'fixed-width character';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:28) /test/1/catalog1/app/char_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_003_behavior_review]
+sql:
+comment on column app.char_t.c_varchar2 is 'variable-width character';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:28) /test/1/catalog1/app/char_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_004_behavior_review]
+sql:
+create index app.idx_char on app.char_t(c_varchar,c_char);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/app/idx_char/",
+      "action" : "CREATE",
+      "target" : "Table(1:29~1:39) /test/1/catalog1/app/char_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_005_behavior_review]
+sql:
+alter table app.char_t add c_alter varchar2(8) default 'ALTERED';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_006_behavior_review]
+sql:
+alter table app.char_t modify c_alter varchar2(16);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_007_behavior_review]
+sql:
+insert into app.char_t(id,c_char,c_character,c_varchar,c_varchar2,
+  c_char_sem,c_character_sem,c_varchar_sem,c_varchar2_sem,c_char_byte,
+  c_character_byte,c_varchar_byte,c_varchar2_byte,c_null)
+values(1,'A','B','alpha','Beta','达梦数据','达梦数据','达梦数据','达梦数据',
+  '达梦数据','达梦数据','达梦数据','达梦数据',null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_008_behavior_review]
+sql:
+insert into app.char_t(id,c_char,c_character,c_varchar,c_varchar2,
+  c_char_sem,c_character_sem,c_varchar_sem,c_varchar2_sem,c_null)
+values(2,'XY','ZW','gamma','delta','AB','CD','EF','GH','nullable');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_009_behavior_review]
+sql:
+insert into app.char_t(id) values(3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_010_behavior_review]
+sql:
+update app.char_t set c_varchar=upper(c_varchar),
+  c_varchar2=lower(c_varchar2),c_alter=c_alter||'_OK' where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/app/char_t/",
+      "action" : "UPDATE"
+    },
+    {
+      "subject": "Function(1:32~1:37) /test/1/catalog1/schema1/upper/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:13~2:18) /test/1/catalog1/schema1/lower/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_011_behavior_review]
+sql:
+select id,length(c_char),lengthb(c_char),length(c_character),
+  lengthb(c_character),length(c_varchar),lengthb(c_varchar),
+  length(c_varchar2),lengthb(c_varchar2) from app.char_t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:10~1:16) /test/1/catalog1/schema1/length/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:32) /test/1/catalog1/schema1/lengthb/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:41~1:47) /test/1/catalog1/schema1/length/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:9) /test/1/catalog1/schema1/lengthb/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:23~2:29) /test/1/catalog1/schema1/length/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:41~2:48) /test/1/catalog1/schema1/lengthb/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:2~3:8) /test/1/catalog1/schema1/length/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(3:21~3:28) /test/1/catalog1/schema1/lengthb/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:46~3:56) /test/1/catalog1/app/char_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_012_behavior_review]
+sql:
+select trim(c_char),ltrim(c_character),rtrim(c_character),
+  substr(c_varchar,1,3),instr(c_varchar2,'t'),replace(c_varchar,'A','a')
+  from app.char_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/trim/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:20~1:25) /test/1/catalog1/schema1/ltrim/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:44) /test/1/catalog1/schema1/rtrim/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:8) /test/1/catalog1/schema1/substr/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:24~2:29) /test/1/catalog1/schema1/instr/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:46~2:53) /test/1/catalog1/schema1/replace/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:7~3:17) /test/1/catalog1/app/char_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_013_behavior_review]
+sql:
+select concat(c_varchar,c_varchar2),c_char||c_character,
+  lpad(c_varchar,12,'_'),rpad(c_varchar2,12,'_'),ascii(c_char),chr(65)
+  from app.char_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/concat/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:6) /test/1/catalog1/schema1/lpad/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:25~2:29) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:49~2:54) /test/1/catalog1/schema1/ascii/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:63~2:66) /test/1/catalog1/schema1/chr/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:7~3:17) /test/1/catalog1/app/char_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_014_behavior_review]
+sql:
+select lower(c_varchar),upper(c_varchar2),initcap(c_varchar),
+  reverse(c_varchar2),translate(c_varchar,'abc','ABC')
+  from app.char_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/lower/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:24~1:29) /test/1/catalog1/schema1/upper/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:42~1:49) /test/1/catalog1/schema1/initcap/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:9) /test/1/catalog1/schema1/reverse/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:22~2:31) /test/1/catalog1/schema1/translate/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:7~3:17) /test/1/catalog1/app/char_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_015_behavior_review]
+sql:
+select cast(c_char as varchar2(20)),cast(c_varchar as char(12)),
+  convert(c_varchar2,'UTF-8','UTF-8'),to_char(12345),to_number('12345')
+  from app.char_t where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:2~2:9) /test/1/catalog1/schema1/convert/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:38~2:45) /test/1/catalog1/schema1/to_char/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:53~2:62) /test/1/catalog1/schema1/to_number/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(3:7~3:17) /test/1/catalog1/app/char_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_016_behavior_review]
+sql:
+select min(c_char),max(c_character),count(c_varchar),
+  count(distinct c_varchar2) from app.char_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:22) /test/1/catalog1/schema1/max/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:41) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:7) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Table(2:34~2:44) /test/1/catalog1/app/char_t/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_017_behavior_review]
+sql:
+select id from app.char_t index idx_char
+  where c_varchar>='A' and c_char='A' order by c_varchar;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:25) /test/1/catalog1/app/char_t/",
+      "action" : "READ"
+    },
+    {
+      "subject": "Index(1:32~1:40) /test/1/catalog1/app/idx_char/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_018_behavior_review]
+sql:
+create view app.char_v as
+  select id,c_char,c_character,c_varchar,c_varchar2,c_alter
+  from app.char_t where c_varchar is not null;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:22) /test/1/catalog1/app/char_v/",
+      "action" : "CREATE",
+      "target" : "Table(3:7~3:17) /test/1/catalog1/app/char_t/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_019_behavior_review]
+sql:
+select c_char||c_character as fixed_pair,
+  c_varchar||':'||c_varchar2 as variable_pair from app.char_v order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:51~2:61) /test/1/catalog1/app/char_v/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_020_behavior_review]
+sql:
+update app.char_v set c_varchar2='viewedit' where id=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:17) /test/1/catalog1/app/char_v/",
+      "action" : "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_021_behavior_review]
+sql:
+create function app.char_char_f(p_value char(32767)) return char(32767) as
+begin
+  return p_value;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:31) /test/1/catalog1/app/char_char_f/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_022_behavior_review]
+sql:
+create function app.char_character_f(p_value character(32767)) return character(32767) as
+begin
+  return p_value;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:36) /test/1/catalog1/app/char_character_f/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_023_behavior_review]
+sql:
+create function app.char_varchar_f(p_value varchar(32767)) return varchar(32767) as
+begin
+  return p_value;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:34) /test/1/catalog1/app/char_varchar_f/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_024_behavior_review]
+sql:
+create function app.char_varchar2_f(p_value varchar2(32767)) return varchar2(32767) as
+begin
+  return p_value;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:35) /test/1/catalog1/app/char_varchar2_f/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_025_behavior_review]
+sql:
+select length(app.char_char_f('A')),length(app.char_character_f('B')),
+  length(app.char_varchar_f('varchar')),length(app.char_varchar2_f('varchar2')) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:29) /test/1/catalog1/app/char_char_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:42) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:63) /test/1/catalog1/app/char_character_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:8) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:9~2:27) /test/1/catalog1/app/char_varchar_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:40~2:46) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:47~2:66) /test/1/catalog1/app/char_varchar2_f/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:85~2:89) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_026_behavior_review]
+sql:
+create table app.char_p_char(id char(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/char_p_char/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_027_behavior_review]
+sql:
+insert into app.char_p_char values('A',1),('Z',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/char_p_char/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_028_behavior_review]
+sql:
+select count(*) from app.char_p_char partition for('A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Partition(1:37~1:55) /test/1/catalog1/app/char_p_char/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_029_behavior_review]
+sql:
+create table app.char_p_character(id character(4),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/app/char_p_character/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_030_behavior_review]
+sql:
+insert into app.char_p_character values('A',1),('Z',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/app/char_p_character/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_031_behavior_review]
+sql:
+select count(*) from app.char_p_character partition for('A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Partition(1:42~1:60) /test/1/catalog1/app/char_p_character/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_032_behavior_review]
+sql:
+create table app.char_p_varchar(id varchar(12),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/char_p_varchar/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_033_behavior_review]
+sql:
+insert into app.char_p_varchar values('A',1),('Z',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/app/char_p_varchar/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_034_behavior_review]
+sql:
+select count(*) from app.char_p_varchar partition for('A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Partition(1:40~1:58) /test/1/catalog1/app/char_p_varchar/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_035_behavior_review]
+sql:
+create table app.char_p_varchar2(id varchar2(12),v int)
+  partition by range(id)(partition p0 values less than('M'),
+  partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/char_p_varchar2/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_036_behavior_review]
+sql:
+insert into app.char_p_varchar2 values('A',1),('Z',2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/app/char_p_varchar2/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_037_behavior_review]
+sql:
+select count(*) from app.char_p_varchar2 partition for('A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Partition(1:41~1:59) /test/1/catalog1/app/char_p_varchar2/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_038_behavior_review]
+sql:
+create table app.char_long(
+  c_char char(32767),c_character character(32767),
+  c_varchar varchar(32767),c_varchar2 varchar2(32767))
+storage(using long row);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/app/char_long/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_039_behavior_review]
+sql:
+insert into app.char_long values(rpad('A',32767,'A'),
+  rpad('B',32767,'B'),rpad('C',32767,'C'),rpad('D',32767,'D'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/char_long/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:33~1:37) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:2~2:6) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:22~2:26) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(2:42~2:46) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_040_behavior_review]
+sql:
+select data_type,data_length,data_scale from user_tab_columns
+  where table_name='CHAR_LONG' order by column_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:45~1:61) /test/1/catalog1/schema1/user_tab_columns/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_041_behavior_review]
+sql:
+create table app.char_defaults(c1 char,c2 character,c3 varchar,c4 varchar2) storage(using long row);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/char_defaults/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_042_behavior_review]
+sql:
+select column_name,data_type,data_length from user_tab_columns
+  where table_name='CHAR_DEFAULTS' order by column_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:46~1:62) /test/1/catalog1/schema1/user_tab_columns/",
+      "action" : "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_043_behavior_review]
+sql:
+insert into app.char_defaults(c1,c2,c3)
+  values('A','B',rpad('C',8188,'C'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/app/char_defaults/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(2:17~2:21) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_044_behavior_review]
+sql:
+insert into app.char_defaults(c1,c2,c4)
+  values('A','B',rpad('D',8188,'D'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/app/char_defaults/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(2:17~2:21) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_045_behavior_review]
+sql:
+create table app.char_ordinary(c char(32767),v varchar(32767));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/char_ordinary/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_046_behavior_review]
+sql:
+insert into app.char_ordinary values(rpad('C',7979,'C'),rpad('V',7979,'V'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/app/char_ordinary/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:37~1:41) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    },
+    {
+      "subject": "Function(1:56~1:60) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_047_behavior_review]
+sql:
+create table app.bad_char_0(c char(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/bad_char_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_048_behavior_review]
+sql:
+create table app.bad_char_32768(c char(32768));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/bad_char_32768/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_049_behavior_review]
+sql:
+create table app.bad_character_0(c character(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/app/bad_character_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_050_behavior_review]
+sql:
+create table app.bad_character_32768(c character(32768));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/app/bad_character_32768/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_051_behavior_review]
+sql:
+create table app.bad_varchar_0(c varchar(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/app/bad_varchar_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_052_behavior_review]
+sql:
+create table app.bad_varchar_32768(c varchar(32768));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/app/bad_varchar_32768/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_053_behavior_review]
+sql:
+create table app.bad_varchar2_0(c varchar2(0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/app/bad_varchar2_0/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_054_behavior_review]
+sql:
+create table app.bad_varchar2_32768(c varchar2(32768));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/app/bad_varchar2_32768/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_055_behavior_review]
+sql:
+insert into app.char_t(id,c_char) values(101,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_056_behavior_review]
+sql:
+insert into app.char_t(id,c_char) values(102,'ABCDE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_057_behavior_review]
+sql:
+insert into app.char_t(id,c_character) values(103,'ABCDE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_058_behavior_review]
+sql:
+insert into app.char_t(id,c_varchar) values(104,'1234567890123');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_059_behavior_review]
+sql:
+insert into app.char_t(id,c_varchar2) values(105,'1234567890123');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_060_behavior_review]
+sql:
+insert into app.char_t(id,c_char_sem) values(106,'达梦数据库');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_061_behavior_review]
+sql:
+insert into app.char_t(id,c_character_sem) values(107,'达梦数据库');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_062_behavior_review]
+sql:
+insert into app.char_t(id,c_varchar_sem) values(108,'达梦数据库');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_063_behavior_review]
+sql:
+insert into app.char_t(id,c_varchar2_sem) values(109,'达梦数据库');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/app/char_t/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_064_behavior_review]
+sql:
+insert into app.char_defaults(c1,c2,c3) values('A','B',rpad('C',8189,'C'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/app/char_defaults/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:55~1:59) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_065_behavior_review]
+sql:
+insert into app.char_defaults(c1,c2,c4) values('A','B',rpad('D',8189,'D'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/app/char_defaults/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:55~1:59) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_066_behavior_review]
+sql:
+insert into app.char_long(c_varchar2) values(rpad('X',32768,'X'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/app/char_long/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:45~1:49) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_067_behavior_review]
+sql:
+insert into app.char_ordinary(c) values(rpad('X',7980,'X'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/app/char_ordinary/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:44) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_character_type_atomic_0_068_behavior_review]
+sql:
+insert into app.char_ordinary(v) values(rpad('X',7980,'X'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/app/char_ordinary/",
+      "action" : "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:44) /test/1/catalog1/schema1/rpad/",
+      "action" : "CALL"
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+[split_dml_dameng_misc_system_packages_0_001_behavior_review]
+sql:
+insert into CODEX_DM8_ERR_BASE values (2, 'TWO', 2) log errors into CODEX_DM8_ERR_LOG ('VALID_INSERT') reject limit unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_ERR_BASE/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(1:68~1:85) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_misc_system_packages_0_002_behavior_review]
+sql:
+insert into CODEX_DM8_ERR_BASE values (1, 'DUP', 2) log errors into CODEX_DM8_ERR_LOG ('DUP_INSERT') reject limit unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_ERR_BASE/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(1:68~1:85) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_misc_system_packages_0_003_behavior_review]
+sql:
+insert into CODEX_DM8_ERR_BASE values (3, null, 3) log errors into CODEX_DM8_ERR_LOG ('NULL_INSERT') reject limit 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_ERR_BASE/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(1:67~1:84) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_misc_system_packages_0_004_behavior_review]
+sql:
+update CODEX_DM8_ERR_BASE set code=null where id=2 log errors into CODEX_DM8_ERR_LOG ('NULL_UPDATE') reject limit 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:25) /test/1/catalog1/schema1/CODEX_DM8_ERR_BASE/",
+      "action": "UPDATE"
+    },
+    {
+      "subject": "Table(1:67~1:84) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_misc_system_packages_0_005_behavior_review]
+sql:
+delete from CODEX_DM8_ERR_BASE where id=999 log errors into CODEX_DM8_ERR_LOG ('DELETE_NONE') reject limit unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_ERR_BASE/",
+      "action": "DELETE"
+    },
+    {
+      "subject": "Table(1:60~1:77) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_misc_system_packages_0_006_behavior_review]
+sql:
+insert into CODEX_DM8_ERR_DEFAULT values (1, 'ONE') log errors reject limit unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/CODEX_DM8_ERR_DEFAULT/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_misc_system_packages_0_007_behavior_review]
+sql:
+insert into CODEX_DM8_ERR_DEFAULT values (1, 'DUP') log errors ('DEFAULT_DUP') reject limit unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/CODEX_DM8_ERR_DEFAULT/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_misc_system_packages_0_008_behavior_review]
+sql:
+insert into CODEX_DM8_ERR_BASE values (5, 'FIV', 5) log errors into CODEX_DM8_ERR_LOG reject limit 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_ERR_BASE/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Table(1:68~1:85) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_misc_system_packages_0_009_behavior_review]
+sql:
+delete from CODEX_DM8_ERR_BASE where id=5 log errors into CODEX_DM8_ERR_LOG reject limit unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_DM8_ERR_BASE/",
+      "action": "DELETE"
+    },
+    {
+      "subject": "Table(1:58~1:75) /test/1/catalog1/schema1/CODEX_DM8_ERR_LOG/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dml_dameng_misc_system_packages_0_010_behavior_review]
+sql:
+insert into CODEX_DM8_MV_BASE values (3, 30);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/CODEX_DM8_MV_BASE/",
+      "action": "INSERT"
+    }
+  ]
+}

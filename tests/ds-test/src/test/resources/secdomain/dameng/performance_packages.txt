@@ -1,0 +1,59 @@
+[stats_gather_domain]
+sql:
+call dbms_stats.gather_table_stats('APP', 'ORDERS')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_stats"}
+  ]
+}
+----------
+[awr_interval_domain]
+sql:
+call dbms_workload_repository.awr_set_interval(10)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_workload_repository"}
+  ]
+}
+----------
+[sqltune_drop_domain]
+sql:
+call dbms_sqltune.drop_tuning_task('TASK_1')
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_sqltune"}
+  ]
+}
+----------
+[stats_preference_domain]
+sql:
+select dbms_stats.get_prefs(pref_name, owner_name, table_name) from app.stats_config
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"stats_config"}
+  ]
+}
+----------
+[sql_monitor_domain]
+sql:
+select dbms_sqltune.report_sql_monitor(sql_exec_id=>sql_exec_id) from app.sql_monitor_exec
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"sql_monitor_exec"}
+  ]
+}
+----------
+[awr_snapshot_domain]
+sql:
+select snap_id, begin_time, end_time from app.awr_snapshot
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"awr_snapshot"}
+  ]
+}

@@ -1,0 +1,15 @@
+[utl_i18n_column_lineage]
+sql:
+select
+  utl_i18n.string_to_raw(t.text_value,'UTF8') as raw_value,
+  utl_i18n.raw_to_char(t.raw_value,'UTF8') as text_value,
+  utl_i18n.escape_reference(t.reference_value) as escaped_value,
+  utl_i18n.unescape_reference(t.reference_value) as unescaped_value
+from catalog1.app.i18n_source t
+expect:
+{
+  "raw_value": ["/catalog1/app/i18n_source/text_value/"],
+  "text_value": ["/catalog1/app/i18n_source/raw_value/"],
+  "escaped_value": ["/catalog1/app/i18n_source/reference_value/"],
+  "unescaped_value": ["/catalog1/app/i18n_source/reference_value/"]
+}

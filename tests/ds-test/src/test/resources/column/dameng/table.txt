@@ -1,0 +1,35 @@
+[create_table_as_select_column_lineage]
+sql:
+create table app.orders_archive as select o.id, o.amount from catalog1.app.orders o
+expect:
+{
+  "id" : [ "/catalog1/app/orders/id/" ],
+  "amount" : [ "/catalog1/app/orders/amount/" ]
+}
+----------
+[create_table_as_join_column_lineage]
+sql:
+create table app.order_customer as select o.id as order_id, c.name as customer_name from catalog1.app.orders o join catalog1.app.customers c on o.customer_id=c.id
+expect:
+{
+  "order_id" : [ "/catalog1/app/orders/id/" ],
+  "customer_name" : [ "/catalog1/app/customers/name/" ]
+}
+----------
+[create_table_as_cte_column_lineage]
+sql:
+create table app.active_orders as with q as (select id, customer_id from catalog1.app.orders where status='A') select q.id, c.name from q join catalog1.app.customers c on q.customer_id=c.id
+expect:
+{
+  "id" : [ "/catalog1/app/orders/id/" ],
+  "name" : [ "/catalog1/app/customers/name/" ]
+}
+----------
+[create_table_as_union_column_lineage]
+sql:
+create table app.all_orders as select id, amount from catalog1.app.orders union all select id, amount from catalog1.app.orders_history
+expect:
+{
+  "id" : [ "/catalog1/app/orders/id/", "/catalog1/app/orders_history/id/" ],
+  "amount" : [ "/catalog1/app/orders/amount/", "/catalog1/app/orders_history/amount/" ]
+}

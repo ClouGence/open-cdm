@@ -1,0 +1,856 @@
+[split_dql_dml_dameng_binary_prefix_atomic_0_001_behavior_review]
+sql:
+-- TOP_COLUMN
+select binary C1 from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:22~2:24) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_002_behavior_review]
+sql:
+-- TOP_LITERAL
+select binary '123abc' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:28~2:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_003_behavior_review]
+sql:
+-- TOP_CONCAT
+select binary(C1||C2) from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:27~2:29) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_004_behavior_review]
+sql:
+-- TOP_NUMERIC_IGNORED
+select binary N from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:23) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_005_behavior_review]
+sql:
+-- TOP_DATE_IGNORED
+select binary D from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:21~2:23) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_006_behavior_review]
+sql:
+-- DERIVED_PROJECTION
+select * from(select binary C1 from BT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:36~2:38) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_007_behavior_review]
+sql:
+-- SCALAR_SUBQUERY
+select C1 from BT where C1=(select top 1 binary C1 from BT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:56~2:58) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_008_behavior_review]
+sql:
+-- FILTER_EQ
+select ID from BT where binary C2='a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_009_behavior_review]
+sql:
+-- FILTER_NE
+select ID from BT where binary C2<>'a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_010_behavior_review]
+sql:
+-- FILTER_LT
+select ID from BT where binary C2<'b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_011_behavior_review]
+sql:
+-- FILTER_LE
+select ID from BT where binary C2<='b';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_012_behavior_review]
+sql:
+-- FILTER_GT
+select ID from BT where binary C2>'A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_013_behavior_review]
+sql:
+-- FILTER_GE
+select ID from BT where binary C2>='A';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_014_behavior_review]
+sql:
+-- FILTER_LEFT_LITERAL
+select ID from BT where binary 'a'=C2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_015_behavior_review]
+sql:
+-- AND_SCOPE
+select ID from BT where C1='a' and binary C2='b' and C3='c';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_016_behavior_review]
+sql:
+-- OR_SCOPE
+select ID from BT where binary C2='a' or C3='B';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_017_behavior_review]
+sql:
+-- LIKE
+select ID from BT where binary C1 like 'A%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_018_behavior_review]
+sql:
+-- NOT_LIKE
+select ID from BT where binary C1 not like 'A%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_019_behavior_review]
+sql:
+-- ROW_LIKE
+select B.ID from BT B where binary B.ROW like '%A%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:19) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_020_behavior_review]
+sql:
+-- IN_LIST
+select ID from BT where binary C2 in('a','b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_021_behavior_review]
+sql:
+-- NOT_IN_LIST
+select ID from BT where binary C2 not in('a','b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_022_behavior_review]
+sql:
+-- IN_SUBQUERY
+select ID from BT where binary C2 in(select C1 from BT2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:52~2:55) /test/1/catalog1/schema1/BT2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_023_behavior_review]
+sql:
+-- SCALAR_COMPARE
+select ID from BT where binary C2=(select C1 from BT2 where ID=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:50~2:53) /test/1/catalog1/schema1/BT2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_024_behavior_review]
+sql:
+-- JOIN_CONDITION
+select B.ID from BT B join BT2 D on binary B.C2=D.C1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:17~2:19) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:27~2:30) /test/1/catalog1/schema1/BT2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_025_behavior_review]
+sql:
+-- HAVING_CONDITION
+select C2,count(*) from BT group by C2 having binary C2='a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:10~2:15) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:24~2:26) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_026_behavior_review]
+sql:
+-- ORDER_ITEM
+select C2 from BT order by binary C2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_027_behavior_review]
+sql:
+-- ORDER_MULTIPLE
+select C2,C3 from BT order by binary C2,C3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:18~2:20) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_028_behavior_review]
+sql:
+-- GROUP_ITEM
+select C2,count(*) from BT group by binary C2 order by binary C2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:10~2:15) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:24~2:26) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_029_behavior_review]
+sql:
+-- GROUP_MULTIPLE
+select C2,C3,count(*) from BT group by binary C2,C3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:13~2:18) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:27~2:29) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_030_behavior_review]
+sql:
+-- HIERARCHICAL_CONDITION
+select ID,C2 from BT start with ID=1 connect by binary prior C2=C3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:18~2:20) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_031_behavior_review]
+sql:
+-- ALL_SUBQUERY
+select ID from BT where binary C2=all(select C1 from BT2 where ID=1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:53~2:56) /test/1/catalog1/schema1/BT2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_032_behavior_review]
+sql:
+-- SOME_SUBQUERY
+select ID from BT where binary C2=some(select C1 from BT2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:54~2:57) /test/1/catalog1/schema1/BT2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_033_behavior_review]
+sql:
+-- ANY_SUBQUERY
+select ID from BT where binary C2=any(select C1 from BT2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:53~2:56) /test/1/catalog1/schema1/BT2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_034_behavior_review]
+sql:
+-- AGGREGATE_ARGUMENT
+select max(binary C2) from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:27~2:29) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_035_behavior_review]
+sql:
+-- WITHIN_GROUP_ORDER
+select listagg(C2,',') within group(order by binary C2) from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/listagg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:61~2:63) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_036_behavior_review]
+sql:
+-- ANALYTIC_ARGUMENT
+select lag(binary C2) over(order by ID) from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:10) /test/1/catalog1/schema1/lag/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:45~2:47) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_037_behavior_review]
+sql:
+-- ANALYTIC_ORDER
+select row_number() over(order by binary C2) from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:17) /test/1/catalog1/schema1/row_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:50~2:52) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_038_behavior_review]
+sql:
+-- ANALYTIC_PARTITION
+select count(*) over(partition by binary C2) from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:50~2:52) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_039_behavior_review]
+sql:
+-- FUNCTION_ARGUMENT
+select length(binary C1) from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:30~2:32) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_040_behavior_review]
+sql:
+-- CONTAINS_ARGUMENT
+select ID from BT where contains(C1,binary 'A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:24~2:32) /test/1/catalog1/schema1/contains/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:15~2:17) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_041_behavior_review]
+sql:
+-- NESTED_BINARY
+select binary binary C1 from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:29~2:31) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_042_behavior_review]
+sql:
+-- PARENTHESIZED_BINARY
+select(binary C1) from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:23~2:25) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_043_behavior_review]
+sql:
+-- CASE_EXPRESSION
+select case when binary C2='a' then 1 else 0 end from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:54~2:56) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_044_behavior_review]
+sql:
+-- CTE_COMBINATION
+with Q as(select C1,C2 from BT) select C1 from Q where binary C2='a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:28~2:30) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_045_behavior_review]
+sql:
+-- UNION_COMBINATION
+select binary C1 from BT union all select binary C1 from BT2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:22~2:24) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:57~2:60) /test/1/catalog1/schema1/BT2/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_046_behavior_review]
+sql:
+-- UPDATE_FILTER
+update BT set C3='X' where binary C2='a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(2:7~2:9) /test/1/catalog1/schema1/BT/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_047_behavior_review]
+sql:
+-- DELETE_FILTER
+delete from BT where binary C2='a';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(2:12~2:14) /test/1/catalog1/schema1/BT/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_048_behavior_review]
+sql:
+-- MERGE_JOIN
+merge into BT2 D using BT S on(binary D.C1=S.C2) when matched then update set D.C2=S.C3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(2:11~2:14) /test/1/catalog1/schema1/BT2/",
+      "action": "MERGE",
+      "target": "Table(2:23~2:25) /test/1/catalog1/schema1/BT/"
+    }
+  ]
+}
+----------
+[split_dql_dml_dameng_binary_prefix_atomic_0_049_behavior_review]
+sql:
+-- FUNCTION_BINARY_ONE
+select binary(C1) from BT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:23~2:25) /test/1/catalog1/schema1/BT/",
+      "action": "READ"
+    }
+  ]
+}

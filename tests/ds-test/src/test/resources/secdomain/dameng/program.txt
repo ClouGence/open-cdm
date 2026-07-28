@@ -1,0 +1,132 @@
+[create_procedure_with_dml]
+sql:
+create or replace procedure app.refresh_employee(p_id int) as
+begin
+  update app.employee set active = 1 where id = p_id;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"refresh_employee"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[create_function_with_query]
+sql:
+create or replace function app.employee_name(p_id int) return varchar as
+  v_name varchar(64);
+begin
+  select name into v_name from app.employee where id = p_id;
+  return v_name;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"employee_name"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[create_calculate_function]
+sql:
+create or replace function app.employee_score for calculate return int as
+begin
+  return 1;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbFunctionDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"employee_score"}
+  ]
+}
+----------
+[create_package_spec]
+sql:
+create or replace package app.employee_api as
+  procedure refresh_employee(p_id int);
+  function employee_name(p_id int) return varchar;
+end employee_api;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"employee_api"}
+  ]
+}
+----------
+[create_package_body]
+sql:
+create or replace package body app.employee_api as
+  procedure refresh_employee(p_id int) as
+  begin
+    update app.employee set active = 1 where id = p_id;
+  end refresh_employee;
+  function employee_name(p_id int) return varchar as
+    v_name varchar(64);
+  begin
+    select name into v_name from app.employee where id = p_id;
+    return v_name;
+  end employee_name;
+end employee_api;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"employee_api"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"employee"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[create_trigger]
+sql:
+create or replace trigger app.employee_bi
+before insert on app.employee
+for each row
+begin
+  :new.active := 1;
+end;
+/
+expect:
+{
+  "contains": [
+    {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"employee_bi"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[alter_program_objects]
+sql:
+alter procedure app.refresh_employee compile;
+alter function app.employee_name compile;
+alter trigger app.employee_bi disable;
+alter package app.employee_api compile;
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"ALTER_PROG_OBJ", "auditKind":"ALTER", "schema":"app", "name":"refresh_employee"},
+    {"class":"RdbFunctionDomain", "sqlType":"ALTER_PROG_OBJ", "auditKind":"ALTER", "schema":"app", "name":"employee_name"},
+    {"class":"RdbTriggerDomain", "sqlType":"ALTER_TRIGGER", "auditKind":"ALTER", "schema":"app", "name":"employee_bi"},
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN_PROG_OBJ", "auditKind":"ADMIN", "schema":"app", "name":"employee_api"}
+  ]
+}
+----------
+[drop_program_objects]
+sql:
+drop procedure app.refresh_employee;
+drop function app.employee_name;
+drop trigger app.employee_bi;
+drop package app.employee_api;
+expect:
+{
+  "contains": [
+    {"class":"RdbProcedureDomain", "sqlType":"DROP_PROG_OBJ", "auditKind":"DROP", "schema":"app", "name":"refresh_employee"},
+    {"class":"RdbFunctionDomain", "sqlType":"DROP_PROG_OBJ", "auditKind":"DROP", "schema":"app", "name":"employee_name"},
+    {"class":"RdbTriggerDomain", "sqlType":"DROP_TRIGGER", "auditKind":"DROP", "schema":"app", "name":"employee_bi"},
+    {"class":"RdbObjectDomain", "sqlType":"DROP_PROG_OBJ", "auditKind":"DROP", "schema":"app", "name":"employee_api"}
+  ]
+}

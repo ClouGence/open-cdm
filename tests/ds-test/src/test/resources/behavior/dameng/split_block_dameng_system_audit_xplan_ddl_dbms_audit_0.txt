@@ -1,0 +1,141 @@
+[split_block_dameng_system_audit_xplan_ddl_dbms_audit_0_001]
+sql:
+begin
+  dbms_audit.start_aud();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:2~2:22) /test/1/catalog1/dbms_audit/start_aud/",
+      "action": "CALL",
+      "target": "Environment(2:2~2:22) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_audit_xplan_ddl_dbms_audit_0_002]
+sql:
+begin
+  dbms_audit.end_aud();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:2~2:20) /test/1/catalog1/dbms_audit/end_aud/",
+      "action": "CALL",
+      "target": "Environment(2:2~2:20) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_audit_xplan_ddl_dbms_audit_0_003]
+sql:
+declare
+  audit_file varchar(32767);
+begin
+  select min(filepath) into audit_file from v$audit_file;
+  dbms_audit.add_audfile(audit_file);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:9~4:12) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(4:44~4:56) /test/1/catalog1/schema1/v$audit_file/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:2~5:24) /test/1/catalog1/dbms_audit/add_audfile/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_audit_xplan_ddl_dbms_audit_0_004]
+sql:
+declare
+  audit_file varchar(32767);
+begin
+  select min(filepath) into audit_file from v$dbmsaudit_file;
+  dbms_audit.remove_audfile(audit_file);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:9~4:12) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(4:44~4:60) /test/1/catalog1/schema1/v$dbmsaudit_file/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:2~5:27) /test/1/catalog1/dbms_audit/remove_audfile/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_audit_xplan_ddl_dbms_audit_0_005]
+sql:
+begin
+  dbms_audit.start_aud(
+    startTime=>sysdate - 1,
+    endTime=>sysdate + 1,
+    userName=>'SYSDBA',
+    ip=>'',
+    succFlag=>1
+  );
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:2~2:22) /test/1/catalog1/dbms_audit/start_aud/",
+      "action": "CALL",
+      "target": "Environment(2:2~2:22) /test/1/"
+    },
+    {
+      "subject": "Function(3:15~3:22) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:13~4:20) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_audit_xplan_ddl_dbms_audit_0_006]
+sql:
+begin
+  dbms_audit.end_aud();
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:2~2:20) /test/1/catalog1/dbms_audit/end_aud/",
+      "action": "CALL",
+      "target": "Environment(2:2~2:20) /test/1/"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[split_dql_dameng_stateful_file_json_packages_0_008]
+sql:
+select count(*) from v$dbms_locks;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:33) /test/1/catalog1/schema1/v$dbms_locks/",
+      "action": "READ"
+    }
+  ]
+}

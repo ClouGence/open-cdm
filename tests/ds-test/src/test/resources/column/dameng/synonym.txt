@@ -1,0 +1,30 @@
+[synonym_definition_has_no_result_lineage]
+sql:
+create synonym app.syn_orders for app.orders
+expect:
+{}
+----------
+[synonym_query_columns]
+sql:
+select id, amount from catalog1.app.syn_orders
+expect:
+{
+  "id": ["/catalog1/app/syn_orders/id/"],
+  "amount": ["/catalog1/app/syn_orders/amount/"]
+}
+----------
+[synonym_expression_columns]
+sql:
+select id, amount * 2 as doubled_amount
+from catalog1.app.syn_orders
+expect:
+{
+  "id": ["/catalog1/app/syn_orders/id/"],
+  "doubled_amount": ["/catalog1/app/syn_orders/amount/"]
+}
+----------
+[synonym_system_privilege_has_no_column_lineage]
+sql:
+grant create synonym, create public synonym, drop public synonym to synonym_owner
+expect:
+{}

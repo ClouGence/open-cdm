@@ -1,0 +1,10 @@
+[checkpoint_database]
+sql:
+checkpoint(30)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------

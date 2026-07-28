@@ -1,0 +1,61 @@
+[utl_file_procedure_domains]
+sql:
+declare
+  f utl_file.file_type; t varchar(32767); b blob; ok boolean; n number; n2 number;
+begin
+  utl_file.fclose(f);
+  utl_file.fclose_all();
+  utl_file.fcopy('D','S','D','T');
+  utl_file.fflush(f);
+  utl_file.fgetattr('D','F',ok,n,n2);
+  utl_file.fremove('D','F');
+  utl_file.frename('D','S','D','T');
+  utl_file.fseek(f);
+  utl_file.get_line(f,t);
+  utl_file.get_line_nchar(f,t);
+  utl_file.new_line(f);
+  utl_file.put(f,t);
+  utl_file.put_line(f,t);
+  utl_file.put_line_nchar(f,t);
+  utl_file.put_nchar(f,t);
+  utl_file.put_raw(f,b);
+  utl_file.putf(f,t);
+  utl_file.putf_nchar(f,t);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"utl_file"}
+  ]
+}
+----------
+[utl_file_function_expressions_no_domain]
+sql:
+declare
+  f utl_file.file_type; b blob; ok boolean; n int;
+begin
+  f:=utl_file.fopen('D','F','R');
+  f:=utl_file.fopen_nchar('D','F','R');
+  n:=utl_file.fgetpos(f);
+  n:=utl_file.get_raw(f,b);
+  ok:=utl_file.is_open(f);
+end;
+expect:
+{"size":0}

@@ -1,0 +1,47 @@
+[row_to_json_table]
+sql:
+select row_to_json(d) as doc from app.json_docs d
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "json_docs"
+    }
+  ]
+}
+----------
+[json_table_lateral]
+sql:
+select d.id,jt.v from app.json_docs d,json_table(d.payload,'$.items[*]' columns(v int path '$.v')) jt
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "json_docs"
+    }
+  ]
+}
+----------
+[json_valid_table]
+sql:
+select id from app.json_docs where json_valid(payload)=1
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "app",
+      "table": "json_docs"
+    }
+  ]
+}

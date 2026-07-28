@@ -1,0 +1,22 @@
+[system_global_calls_no_static_lineage]
+sql:
+select SF_CHECK_AWR_SYS() from dual;
+select SF_CHECK_GEO_SYS() from dual;
+select SF_CHECK_GEO2_SYS() from dual;
+select SF_CHECK_SYSTEM_PACKAGE('DBMS_BINARY') from dual;
+select SF_CHECK_SYSTEM_PACKAGES() from dual;
+call SP_CREATE_SYSTEM_PACKAGES(1,'DBMS_BINARY');
+call SP_CREATE_SYSTEM_PACKAGES(1);
+call SP_INIT_AWR_SYS(1);
+call SP_INIT_DBMS_SCHEDULER_SYS(1);
+call SP_INIT_GEO_SYS(1);
+call SP_INIT_GEO2_SYS(1);
+call SP_INIT_JOB_SYS(1);
+expect:
+{
+  "SF_CHECK_AWR_SYS()":[],
+  "SF_CHECK_GEO_SYS()":[],
+  "SF_CHECK_GEO2_SYS()":[],
+  "SF_CHECK_SYSTEM_PACKAGE('DBMS_BINARY')":[],
+  "SF_CHECK_SYSTEM_PACKAGES()":[]
+}

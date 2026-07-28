@@ -1,0 +1,234 @@
+[split_dql_dameng_data_type_extrema_0_001_behavior_review]
+sql:
+SELECT TINY_MIN, TINY_MAX, SMALL_MIN, SMALL_MAX, INT_MIN, INT_MAX, BIG_MIN, BIG_MAX
+FROM CODEX_DM8_TYPE_INTEGER WHERE ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:27) /test/1/catalog1/schema1/CODEX_DM8_TYPE_INTEGER/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_002_behavior_review]
+sql:
+SELECT MIN(TINY_MIN), MAX(BIG_MAX), SUM(SMALL_MAX) FROM CODEX_DM8_TYPE_INTEGER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/MIN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:25) /test/1/catalog1/schema1/MAX/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:39) /test/1/catalog1/schema1/SUM/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:56~1:78) /test/1/catalog1/schema1/CODEX_DM8_TYPE_INTEGER/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_003_behavior_review]
+sql:
+SELECT N_MIN, N_MAX, N_SCALE_MIN, N_SCALE_MAX, N_ROUND,
+       F_MIN, F_REAL, F_DOUBLE, F_MAX, D_MAX, DP_MAX, R
+FROM CODEX_DM8_TYPE_NUMERIC WHERE ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(3:5~3:27) /test/1/catalog1/schema1/CODEX_DM8_TYPE_NUMERIC/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_004_behavior_review]
+sql:
+SELECT LENGTH(C_MIN), LENGTH(C_ALIAS), LENGTH(V_MIN), LENGTH(V_CHAR), LENGTH(V_ALIAS)
+FROM CODEX_DM8_TYPE_CHAR WHERE ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:28) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:39~1:45) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:54~1:60) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:70~1:76) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:24) /test/1/catalog1/schema1/CODEX_DM8_TYPE_CHAR/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_005_behavior_review]
+sql:
+SELECT LENGTH(CAST(REPEAT('C', 32767) AS CHAR(32767))),
+       LENGTH(CAST(REPEAT('V', 32767) AS VARCHAR(32767)))
+FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:19~1:25) /test/1/catalog1/schema1/REPEAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:7~2:13) /test/1/catalog1/schema1/LENGTH/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:19~2:25) /test/1/catalog1/schema1/REPEAT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(3:5~3:9) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_006_behavior_review]
+sql:
+SELECT LENGTHB(B_MIN), LENGTHB(VB_MIN), LENGTHB(RAW_MAX)
+FROM CODEX_DM8_TYPE_BINARY WHERE ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:23~1:30) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:40~1:47) /test/1/catalog1/schema1/LENGTHB/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:5~2:26) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BINARY/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_007_behavior_review]
+sql:
+SELECT DATE_MIN, DATE_MAX, TIME_MIN, TIME_MAX, TS_MIN, TS_MAX
+FROM CODEX_DM8_TYPE_DATETIME WHERE ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:28) /test/1/catalog1/schema1/CODEX_DM8_TYPE_DATETIME/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_008_behavior_review]
+sql:
+SELECT DATE '1582-10-04' + 1 AS CALENDAR_NEXT_DAY FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_009_behavior_review]
+sql:
+SELECT I_YM, I_Y, I_M, I_D, I_DH, I_DM, I_DS, I_H, I_HM, I_HS, I_MI, I_MS, I_S
+FROM CODEX_DM8_TYPE_INTERVAL WHERE ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:28) /test/1/catalog1/schema1/CODEX_DM8_TYPE_INTERVAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_010_behavior_review]
+sql:
+SELECT T_NEG, T_POS, TS_NEG, TS_POS, TS_LOCAL FROM CODEX_DM8_TYPE_TZ WHERE ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:51~1:68) /test/1/catalog1/schema1/CODEX_DM8_TYPE_TZ/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_data_type_extrema_0_011_behavior_review]
+sql:
+SELECT CAST(TS_NEG AS TIMESTAMP(9)), CAST(TS_LOCAL AS TIMESTAMP(9) WITH TIME ZONE)
+FROM CODEX_DM8_TYPE_TZ WHERE ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:5~2:22) /test/1/catalog1/schema1/CODEX_DM8_TYPE_TZ/",
+      "action": "READ"
+    }
+  ]
+}

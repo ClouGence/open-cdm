@@ -34,8 +34,30 @@ public abstract class DmSqlParserBase extends Parser {
         super(input);
     }
 
-    protected boolean isKeywordAhead(String keyword) {
-        return _input.LT(1).getText().equalsIgnoreCase(keyword);
+    protected final boolean isEndOfInputAhead() { return getInputStream().LA(1) == Token.EOF; }
+
+    protected final boolean isTokenAhead(int tokenType) {
+        return getInputStream().LA(1) == tokenType;
+    }
+
+    protected final boolean isTokenNotAhead(int... tokenTypes) {
+        int currentTokenType = getInputStream().LA(1);
+        for (int tokenType : tokenTypes) {
+            if (currentTokenType == tokenType) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected final boolean isStatementContentAhead() {
+        int tokenType = getInputStream().LA(1);
+        return tokenType != DmSqlParser.SEMI && tokenType != DmSqlParser.SLASH && tokenType != Token.EOF;
+    }
+
+    protected final boolean isKeywordAhead(String keyword) {
+        String text = getInputStream().LT(1).getText();
+        return text != null && text.equalsIgnoreCase(keyword);
     }
 
     protected final boolean isSchemaDefinitionCreateAhead() {
@@ -49,8 +71,7 @@ public abstract class DmSqlParserBase extends Parser {
         }
         int type = _input.LA(offset);
         if (type == DmSqlParser.PUBLIC) {
-            return _input.LA(offset + 1) == DmSqlParser.SYNONYM
-                || _input.LA(offset + 1) == DmSqlParser.LINK;
+            return _input.LA(offset + 1) == DmSqlParser.SYNONYM || _input.LA(offset + 1) == DmSqlParser.LINK;
         }
         if (type == DmSqlParser.EXTERNAL) {
             return _input.LA(offset + 1) == DmSqlParser.TABLE;
@@ -61,23 +82,10 @@ public abstract class DmSqlParserBase extends Parser {
         if (type == DmSqlParser.CONTEXT || type == DmSqlParser.CLUSTER) {
             return _input.LA(offset + 1) == DmSqlParser.INDEX;
         }
-        return type == DmSqlParser.TABLE
-            || type == DmSqlParser.GLOBAL
-            || type == DmSqlParser.LOCAL
-            || type == DmSqlParser.TEMPORARY
-            || type == DmSqlParser.HUGE
-            || type == DmSqlParser.VIEW
-            || type == DmSqlParser.INDEX
-            || type == DmSqlParser.SEQUENCE
-            || type == DmSqlParser.PROCEDURE
-            || type == DmSqlParser.FUNCTION
-            || type == DmSqlParser.TRIGGER
-            || type == DmSqlParser.SYNONYM
-            || type == DmSqlParser.DOMAIN
-            || type == DmSqlParser.OPERATOR
-            || type == DmSqlParser.LINK
-            || type == DmSqlParser.PACKAGE
-            || type == DmSqlParser.CLASS;
+        return type == DmSqlParser.TABLE || type == DmSqlParser.GLOBAL || type == DmSqlParser.LOCAL || type == DmSqlParser.TEMPORARY || type == DmSqlParser.HUGE
+               || type == DmSqlParser.VIEW || type == DmSqlParser.INDEX || type == DmSqlParser.SEQUENCE || type == DmSqlParser.PROCEDURE || type == DmSqlParser.FUNCTION
+               || type == DmSqlParser.TRIGGER || type == DmSqlParser.SYNONYM || type == DmSqlParser.DOMAIN || type == DmSqlParser.OPERATOR || type == DmSqlParser.LINK
+               || type == DmSqlParser.PACKAGE || type == DmSqlParser.CLASS;
     }
 
     protected boolean isCreateTableSelectTailAhead() {
@@ -236,8 +244,7 @@ public abstract class DmSqlParserBase extends Parser {
 
     protected boolean isStringLiteralAhead(String... supportedValues) {
         String text = _input.LT(1).getText();
-        if (text == null || text.length() < 2
-            || text.charAt(0) != '\'' || text.charAt(text.length() - 1) != '\'') {
+        if (text == null || text.length() < 2 || text.charAt(0) != '\'' || text.charAt(text.length() - 1) != '\'') {
             return false;
         }
         String value = text.substring(1, text.length() - 1).replace("''", "'");

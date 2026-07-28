@@ -1,0 +1,29 @@
+[selector]
+sql:
+select e.id,e.name from catalog1.app.employee index idx_employee_name e where e.name='A'
+expect:
+{"id":["/catalog1/app/employee/id/"],"name":["/catalog1/app/employee/name/"]}
+----------
+[function]
+sql:
+select e.id,upper(e.name) as upper_name from catalog1.app.employee e where upper(e.name)='A'
+expect:
+{"id":["/catalog1/app/employee/id/"],"upper_name":["/catalog1/app/employee/name/"]}
+----------
+[bitmap_join]
+sql:
+select f.amount,d.label from catalog1.app.idx_fact f join catalog1.app.idx_dim d on d.id=f.dim_id where d.label='N'
+expect:
+{"amount":["/catalog1/app/idx_fact/amount/"],"label":["/catalog1/app/idx_dim/label/"]}
+----------
+[array_contains]
+sql:
+select a.id from catalog1.app.idx_array a where contains(a.v1,1,2,3)
+expect:
+{"id":["/catalog1/app/idx_array/id/"]}
+----------
+[context_contains]
+sql:
+select d.id,d.content from catalog1.app.ft_docs d where contains(d.content,'DM8')
+expect:
+{"id":["/catalog1/app/ft_docs/id/"],"content":["/catalog1/app/ft_docs/content/"]}

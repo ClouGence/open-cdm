@@ -1,0 +1,71 @@
+[resize_logfile_has_no_result_lineage]
+sql:
+alter database resize logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to 300;
+expect:
+{}
+----------
+[add_logfile_has_no_result_lineage]
+sql:
+alter database add logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' size 256;
+expect:
+{}
+----------
+[drop_logfile_has_no_result_lineage]
+sql:
+alter database drop logfile '/opt/dmdbms/data/DAMENG/CODEX03.log';
+expect:
+{}
+----------
+[rename_logfile_has_no_result_lineage]
+sql:
+alter database rename logfile '/opt/dmdbms/data/DAMENG/CODEX03.log' to '/opt/dmdbms/data/DAMENG/CODEX03_NEW.log';
+expect:
+{}
+----------
+[mount_database_has_no_result_lineage]
+sql:
+alter database mount;
+expect:
+{}
+----------
+[normal_database_has_no_result_lineage]
+sql:
+alter database normal;
+expect:
+{}
+----------
+[archivelog_database_has_no_result_lineage]
+sql:
+alter database archivelog;
+expect:
+{}
+----------
+[archive_current_has_no_result_lineage]
+sql:
+alter database archivelog current;
+expect:
+{}
+----------
+[add_local_archive_has_no_result_lineage]
+sql:
+alter database add archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH';
+expect:
+{}
+----------
+[modify_local_archive_has_no_result_lineage]
+sql:
+alter database modify archivelog 'TYPE = LOCAL, DEST = /opt/dmdbms/data/CODEX_ARCH, FILE_SIZE = 256, SPACE_LIMIT = 2048';
+expect:
+{}
+----------
+[add_realtime_archive_has_no_result_lineage]
+sql:
+alter database add archivelog 'TYPE = REALTIME, DEST = CODEX_RT';
+expect:
+{}
+----------
+[add_sync_archive_has_no_result_lineage]
+sql:
+alter database add archivelog 'TYPE = SYNC, DEST = CODEX_SYNC';
+expect:
+{}

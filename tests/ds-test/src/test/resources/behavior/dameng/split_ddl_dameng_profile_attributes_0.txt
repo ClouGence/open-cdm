@@ -1,0 +1,1364 @@
+[split_ddl_dameng_profile_attributes_0_001]
+sql:
+drop profile if exists "PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:23~1:153) /test/1/PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_002]
+sql:
+create profile "PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" limit session_per_user 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:145) /test/1/PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_003]
+sql:
+select profile, resource_name, limit from dba_profiles where profile = 'PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:42~1:54) /test/1/catalog1/schema1/dba_profiles/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_004]
+sql:
+drop profile "PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:143) /test/1/PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_005]
+sql:
+create profile CODEX_DM8_PFX_GSPU_20260722 limit GLOBAL_SESSION_PER_USER 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_GSPU_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_006]
+sql:
+create profile CODEX_DM8_PFX_SPU_20260722 limit SESSION_PER_USER 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:41) /test/1/CODEX_DM8_PFX_SPU_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_007]
+sql:
+create profile CODEX_DM8_PFX_IDLE_20260722 limit CONNECT_IDLE_TIME 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_IDLE_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_008]
+sql:
+create profile CODEX_DM8_PFX_CONN_20260722 limit CONNECT_TIME 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_CONN_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_009]
+sql:
+create profile CODEX_DM8_PFX_CPUC_20260722 limit CPU_PER_CALL 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_CPUC_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_010]
+sql:
+create profile CODEX_DM8_PFX_CPUS_20260722 limit CPU_PER_SESSION 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_CPUS_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_011]
+sql:
+create profile CODEX_DM8_PFX_MEM_20260722 limit MEM_SPACE 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:41) /test/1/CODEX_DM8_PFX_MEM_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_012]
+sql:
+create profile CODEX_DM8_PFX_READC_20260722 limit READ_PER_CALL 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:43) /test/1/CODEX_DM8_PFX_READC_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_013]
+sql:
+create profile CODEX_DM8_PFX_READS_20260722 limit READ_PER_SESSION 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:43) /test/1/CODEX_DM8_PFX_READS_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_014]
+sql:
+create profile CODEX_DM8_PFX_FAIL_20260722 limit FAILED_LOGIN_ATTEMPTS 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_FAIL_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_015]
+sql:
+create profile CODEX_DM8_PFX_LIFE_20260722 limit PASSWORD_LIFE_TIME 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_LIFE_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_016]
+sql:
+create profile CODEX_DM8_PFX_RTIME_20260722 limit PASSWORD_REUSE_TIME 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:43) /test/1/CODEX_DM8_PFX_RTIME_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_017]
+sql:
+create profile CODEX_DM8_PFX_RMAX_20260722 limit PASSWORD_REUSE_MAX 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_RMAX_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_018]
+sql:
+create profile CODEX_DM8_PFX_LOCK_20260722 limit PASSWORD_LOCK_TIME 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:42) /test/1/CODEX_DM8_PFX_LOCK_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_019]
+sql:
+create profile CODEX_DM8_PFX_GRACE_20260722 limit PASSWORD_GRACE_TIME 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:43) /test/1/CODEX_DM8_PFX_GRACE_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_020]
+sql:
+create profile CODEX_DM8_PFX_INACTIVE_20260722 limit INACTIVE_ACCOUNT_TIME 15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:46) /test/1/CODEX_DM8_PFX_INACTIVE_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_021]
+sql:
+select profile, resource_name, limit from dba_profiles where profile like 'CODEX_DM8_PFX_%_20260722' order by profile, resource_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:42~1:54) /test/1/catalog1/schema1/dba_profiles/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_022]
+sql:
+alter profile CODEX_DM8_PFX_GSPU_20260722 limit GLOBAL_SESSION_PER_USER 32768;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_GSPU_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_023]
+sql:
+alter profile CODEX_DM8_PFX_SPU_20260722 limit SESSION_PER_USER 32768;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:40) /test/1/CODEX_DM8_PFX_SPU_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_024]
+sql:
+alter profile CODEX_DM8_PFX_IDLE_20260722 limit CONNECT_IDLE_TIME 1440;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_IDLE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_025]
+sql:
+alter profile CODEX_DM8_PFX_CONN_20260722 limit CONNECT_TIME 1440;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_CONN_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_026]
+sql:
+alter profile CODEX_DM8_PFX_CPUC_20260722 limit CPU_PER_CALL 86400;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_CPUC_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_027]
+sql:
+alter profile CODEX_DM8_PFX_CPUS_20260722 limit CPU_PER_SESSION 31536000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_CPUS_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_028]
+sql:
+alter profile CODEX_DM8_PFX_MEM_20260722 limit MEM_SPACE 2147483647;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:40) /test/1/CODEX_DM8_PFX_MEM_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_029]
+sql:
+alter profile CODEX_DM8_PFX_READC_20260722 limit READ_PER_CALL 2147483646;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_READC_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_030]
+sql:
+alter profile CODEX_DM8_PFX_READS_20260722 limit READ_PER_SESSION 2147483646;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_READS_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_031]
+sql:
+alter profile CODEX_DM8_PFX_FAIL_20260722 limit FAILED_LOGIN_ATTEMPTS 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_FAIL_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_032]
+sql:
+alter profile CODEX_DM8_PFX_LIFE_20260722 limit PASSWORD_LIFE_TIME 365;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_LIFE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_033]
+sql:
+alter profile CODEX_DM8_PFX_RTIME_20260722 limit PASSWORD_REUSE_TIME 365;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_RTIME_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_034]
+sql:
+alter profile CODEX_DM8_PFX_RMAX_20260722 limit PASSWORD_REUSE_MAX 32768;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_RMAX_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_035]
+sql:
+alter profile CODEX_DM8_PFX_LOCK_20260722 limit PASSWORD_LOCK_TIME 1440;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_LOCK_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_036]
+sql:
+alter profile CODEX_DM8_PFX_GRACE_20260722 limit PASSWORD_GRACE_TIME 30;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_GRACE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_037]
+sql:
+alter profile CODEX_DM8_PFX_INACTIVE_20260722 limit INACTIVE_ACCOUNT_TIME 24855;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:45) /test/1/CODEX_DM8_PFX_INACTIVE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_038]
+sql:
+select profile, resource_name, limit from dba_profiles where profile like 'CODEX_DM8_PFX_%_20260722' order by profile, resource_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:42~1:54) /test/1/catalog1/schema1/dba_profiles/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_039]
+sql:
+alter profile CODEX_DM8_PFX_GSPU_20260722 limit GLOBAL_SESSION_PER_USER default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_GSPU_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_040]
+sql:
+alter profile CODEX_DM8_PFX_SPU_20260722 limit SESSION_PER_USER default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:40) /test/1/CODEX_DM8_PFX_SPU_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_041]
+sql:
+alter profile CODEX_DM8_PFX_IDLE_20260722 limit CONNECT_IDLE_TIME default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_IDLE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_042]
+sql:
+alter profile CODEX_DM8_PFX_CONN_20260722 limit CONNECT_TIME default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_CONN_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_043]
+sql:
+alter profile CODEX_DM8_PFX_CPUC_20260722 limit CPU_PER_CALL default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_CPUC_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_044]
+sql:
+alter profile CODEX_DM8_PFX_CPUS_20260722 limit CPU_PER_SESSION default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_CPUS_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_045]
+sql:
+alter profile CODEX_DM8_PFX_MEM_20260722 limit MEM_SPACE default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:40) /test/1/CODEX_DM8_PFX_MEM_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_046]
+sql:
+alter profile CODEX_DM8_PFX_READC_20260722 limit READ_PER_CALL default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_READC_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_047]
+sql:
+alter profile CODEX_DM8_PFX_READS_20260722 limit READ_PER_SESSION default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_READS_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_048]
+sql:
+alter profile CODEX_DM8_PFX_FAIL_20260722 limit FAILED_LOGIN_ATTEMPTS default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_FAIL_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_049]
+sql:
+alter profile CODEX_DM8_PFX_LIFE_20260722 limit PASSWORD_LIFE_TIME default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_LIFE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_050]
+sql:
+alter profile CODEX_DM8_PFX_RTIME_20260722 limit PASSWORD_REUSE_TIME default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_RTIME_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_051]
+sql:
+alter profile CODEX_DM8_PFX_RMAX_20260722 limit PASSWORD_REUSE_MAX default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_RMAX_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_052]
+sql:
+alter profile CODEX_DM8_PFX_LOCK_20260722 limit PASSWORD_LOCK_TIME default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_LOCK_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_053]
+sql:
+alter profile CODEX_DM8_PFX_GRACE_20260722 limit PASSWORD_GRACE_TIME default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_GRACE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_054]
+sql:
+alter profile CODEX_DM8_PFX_INACTIVE_20260722 limit INACTIVE_ACCOUNT_TIME default;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:45) /test/1/CODEX_DM8_PFX_INACTIVE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_055]
+sql:
+select profile, resource_name, limit from dba_profiles where profile like 'CODEX_DM8_PFX_%_20260722' order by profile, resource_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:42~1:54) /test/1/catalog1/schema1/dba_profiles/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_056]
+sql:
+alter profile CODEX_DM8_PFX_GSPU_20260722 limit GLOBAL_SESSION_PER_USER unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_GSPU_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_057]
+sql:
+alter profile CODEX_DM8_PFX_SPU_20260722 limit SESSION_PER_USER unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:40) /test/1/CODEX_DM8_PFX_SPU_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_058]
+sql:
+alter profile CODEX_DM8_PFX_IDLE_20260722 limit CONNECT_IDLE_TIME unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_IDLE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_059]
+sql:
+alter profile CODEX_DM8_PFX_CONN_20260722 limit CONNECT_TIME unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_CONN_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_060]
+sql:
+alter profile CODEX_DM8_PFX_CPUC_20260722 limit CPU_PER_CALL unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_CPUC_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_061]
+sql:
+alter profile CODEX_DM8_PFX_CPUS_20260722 limit CPU_PER_SESSION unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_CPUS_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_062]
+sql:
+alter profile CODEX_DM8_PFX_MEM_20260722 limit MEM_SPACE unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:40) /test/1/CODEX_DM8_PFX_MEM_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_063]
+sql:
+alter profile CODEX_DM8_PFX_READC_20260722 limit READ_PER_CALL unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_READC_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_064]
+sql:
+alter profile CODEX_DM8_PFX_READS_20260722 limit READ_PER_SESSION unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_READS_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_065]
+sql:
+alter profile CODEX_DM8_PFX_FAIL_20260722 limit FAILED_LOGIN_ATTEMPTS unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_FAIL_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_066]
+sql:
+alter profile CODEX_DM8_PFX_LIFE_20260722 limit PASSWORD_LIFE_TIME unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_LIFE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_067]
+sql:
+alter profile CODEX_DM8_PFX_RTIME_20260722 limit PASSWORD_REUSE_TIME unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_RTIME_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_068]
+sql:
+alter profile CODEX_DM8_PFX_RMAX_20260722 limit PASSWORD_REUSE_MAX unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_RMAX_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_069]
+sql:
+alter profile CODEX_DM8_PFX_LOCK_20260722 limit PASSWORD_LOCK_TIME unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:41) /test/1/CODEX_DM8_PFX_LOCK_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_070]
+sql:
+alter profile CODEX_DM8_PFX_GRACE_20260722 limit PASSWORD_GRACE_TIME unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:42) /test/1/CODEX_DM8_PFX_GRACE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_071]
+sql:
+alter profile CODEX_DM8_PFX_INACTIVE_20260722 limit INACTIVE_ACCOUNT_TIME unlimited;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:14~1:45) /test/1/CODEX_DM8_PFX_INACTIVE_20260722/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_072]
+sql:
+select profile, resource_name, limit from dba_profiles where profile like 'CODEX_DM8_PFX_%_20260722' order by profile, resource_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:42~1:54) /test/1/catalog1/schema1/dba_profiles/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_073]
+sql:
+drop profile CODEX_DM8_PFX_GSPU_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:40) /test/1/CODEX_DM8_PFX_GSPU_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_074]
+sql:
+drop profile CODEX_DM8_PFX_SPU_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:39) /test/1/CODEX_DM8_PFX_SPU_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_075]
+sql:
+drop profile CODEX_DM8_PFX_IDLE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:40) /test/1/CODEX_DM8_PFX_IDLE_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_076]
+sql:
+drop profile CODEX_DM8_PFX_CONN_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:40) /test/1/CODEX_DM8_PFX_CONN_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_077]
+sql:
+drop profile CODEX_DM8_PFX_CPUC_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:40) /test/1/CODEX_DM8_PFX_CPUC_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_078]
+sql:
+drop profile CODEX_DM8_PFX_CPUS_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:40) /test/1/CODEX_DM8_PFX_CPUS_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_079]
+sql:
+drop profile CODEX_DM8_PFX_MEM_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:39) /test/1/CODEX_DM8_PFX_MEM_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_080]
+sql:
+drop profile CODEX_DM8_PFX_READC_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:41) /test/1/CODEX_DM8_PFX_READC_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_081]
+sql:
+drop profile CODEX_DM8_PFX_READS_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:41) /test/1/CODEX_DM8_PFX_READS_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_082]
+sql:
+drop profile CODEX_DM8_PFX_FAIL_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:40) /test/1/CODEX_DM8_PFX_FAIL_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_083]
+sql:
+drop profile CODEX_DM8_PFX_LIFE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:40) /test/1/CODEX_DM8_PFX_LIFE_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_084]
+sql:
+drop profile CODEX_DM8_PFX_RTIME_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:41) /test/1/CODEX_DM8_PFX_RTIME_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_085]
+sql:
+drop profile CODEX_DM8_PFX_RMAX_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:40) /test/1/CODEX_DM8_PFX_RMAX_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_086]
+sql:
+drop profile CODEX_DM8_PFX_LOCK_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:40) /test/1/CODEX_DM8_PFX_LOCK_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_087]
+sql:
+drop profile CODEX_DM8_PFX_GRACE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:41) /test/1/CODEX_DM8_PFX_GRACE_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_088]
+sql:
+drop profile CODEX_DM8_PFX_INACTIVE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:44) /test/1/CODEX_DM8_PFX_INACTIVE_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_089]
+sql:
+create profile CODEX_DM8_PFX_IMPLICIT_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:15~1:46) /test/1/CODEX_DM8_PFX_IMPLICIT_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_090]
+sql:
+select profile, resource_name, limit from dba_profiles where profile = 'CODEX_DM8_PFX_IMPLICIT_20260722' order by resource_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:42~1:54) /test/1/catalog1/schema1/dba_profiles/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_profile_attributes_0_091]
+sql:
+drop profile CODEX_DM8_PFX_IMPLICIT_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Profile(1:13~1:44) /test/1/CODEX_DM8_PFX_IMPLICIT_20260722/",
+      "action": "DROP"
+    }
+  ]
+}

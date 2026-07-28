@@ -1,0 +1,33 @@
+[procedure_body_has_no_result_lineage]
+sql:
+create procedure app.refresh_employee(p_id int) as
+begin
+  update app.employee set active = 1 where id = p_id;
+end refresh_employee;
+/
+expect:
+{}
+----------
+[function_body_has_no_result_lineage]
+sql:
+create function app.employee_name(p_id int) return varchar as
+  v_name varchar(80);
+begin
+  select name into v_name from app.employee where id = p_id;
+  return v_name;
+end employee_name;
+/
+expect:
+{}
+----------
+[call_has_no_result_lineage]
+sql:
+call app.refresh_employee(1);
+expect:
+{}
+----------
+[direct_call_has_no_result_lineage]
+sql:
+app.refresh_employee(1);
+expect:
+{}

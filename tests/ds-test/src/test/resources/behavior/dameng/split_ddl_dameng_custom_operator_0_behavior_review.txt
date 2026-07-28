@@ -1,0 +1,727 @@
+[split_ddl_dameng_custom_operator_0_behavior_review_001]
+sql:
+create function op_left_int(c in int) return int as
+begin
+  return c * 2;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:27) /test/1/catalog1/schema1/op_left_int/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_002]
+sql:
+create function op_left_bigint(c in bigint) return bigint as
+begin
+  return c * 3;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:30) /test/1/catalog1/schema1/op_left_bigint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_003]
+sql:
+create function op_right_varchar(c in varchar) return int as
+begin
+  return length(c);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:32) /test/1/catalog1/schema1/op_right_varchar/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(3:9~3:15) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_004]
+sql:
+create function op_right_int(c in int) return int as
+begin
+  return -c;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:28) /test/1/catalog1/schema1/op_right_int/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_005]
+sql:
+create function op_binary_int(c1 in int, c2 in int) return int as
+begin
+  return (c1 + c2) * 2;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:29) /test/1/catalog1/schema1/op_binary_int/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_006]
+sql:
+create function op_binary_bigint(c1 in bigint, c2 in bigint) return bigint as
+begin
+  return (c1 + c2) * 3;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:32) /test/1/catalog1/schema1/op_binary_bigint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_007]
+sql:
+create function op_binary_varchar(c1 in varchar, c2 in varchar) return varchar as
+begin
+  return c1 || ':' || c2;
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:33) /test/1/catalog1/schema1/op_binary_varchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_008]
+sql:
+create operator <% (function op_left_int, leftarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1/<%/",
+      "action": "CREATE",
+      "target": "Function(1:29~1:40) /test/1/catalog1/schema1/op_left_int/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_009]
+sql:
+create operator |% (function op_left_bigint, leftarg bigint);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1/|%/",
+      "action": "CREATE",
+      "target": "Function(1:29~1:43) /test/1/catalog1/schema1/op_left_bigint/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_010]
+sql:
+create operator /> (function op_right_varchar, rightarg varchar);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1//>/",
+      "action": "CREATE",
+      "target": "Function(1:29~1:45) /test/1/catalog1/schema1/op_right_varchar/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_011]
+sql:
+create operator ^> (function op_right_int, rightarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1/^>/",
+      "action": "CREATE",
+      "target": "Function(1:29~1:41) /test/1/catalog1/schema1/op_right_int/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_012]
+sql:
+create operator @^ (function op_binary_int, leftarg int, rightarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1/@^/",
+      "action": "CREATE",
+      "target": "Function(1:29~1:42) /test/1/catalog1/schema1/op_binary_int/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_013]
+sql:
+create operator @^ (function op_binary_bigint, leftarg bigint, rightarg bigint);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1/@^/",
+      "action": "CREATE",
+      "target": "Function(1:29~1:45) /test/1/catalog1/schema1/op_binary_bigint/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_014]
+sql:
+create operator @^ (function op_binary_varchar, leftarg varchar, rightarg varchar);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1/@^/",
+      "action": "CREATE",
+      "target": "Function(1:29~1:46) /test/1/catalog1/schema1/op_binary_varchar/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_015]
+sql:
+create operator CODEX_DM8_CUSTOM_OPERATOR_20260721."@&"
+  (function op_binary_int, rightarg int, leftarg int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Operator(1:16~1:55) /test/1/catalog1/CODEX_DM8_CUSTOM_OPERATOR_20260721/@&/",
+      "action": "CREATE",
+      "target": "Function(2:12~2:25) /test/1/catalog1/schema1/op_binary_int/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_016]
+sql:
+select (2<%);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:9~1:11) /test/1/catalog1/schema1/<%/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_017]
+sql:
+select (cast(3 as bigint)|%);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:25~1:27) /test/1/catalog1/schema1/|%/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_018]
+sql:
+select />'abc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:7~1:9) /test/1/catalog1/schema1//>/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_019]
+sql:
+select ^>5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:7~1:9) /test/1/catalog1/schema1/^>/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_020]
+sql:
+select 2@^3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:8~1:10) /test/1/catalog1/schema1/@^/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_021]
+sql:
+select cast(2 as bigint)@^cast(3 as bigint);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:24~1:26) /test/1/catalog1/schema1/@^/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_022]
+sql:
+select 'alpha'@^'beta';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:14~1:16) /test/1/catalog1/schema1/@^/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_023]
+sql:
+select (2 operator(<%));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:19~1:21) /test/1/catalog1/schema1/<%/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_024]
+sql:
+select operator(/>) 'abcd';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1//>/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_025]
+sql:
+select 2 operator(@^) 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:18~1:20) /test/1/catalog1/schema1/@^/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_026]
+sql:
+select 2 operator(CODEX_DM8_CUSTOM_OPERATOR_20260721.@^) 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:18~1:55) /test/1/catalog1/CODEX_DM8_CUSTOM_OPERATOR_20260721/@^/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_027]
+sql:
+select 2 operator(CODEX_DM8_CUSTOM_OPERATOR_20260721."@&") 6;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:18~1:57) /test/1/catalog1/CODEX_DM8_CUSTOM_OPERATOR_20260721/@&/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_028]
+sql:
+select 1 + 2 @^ 3 * 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:13~1:15) /test/1/catalog1/schema1/@^/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_029]
+sql:
+select operatordef('CODEX_DM8_CUSTOM_OPERATOR_20260721', '<%');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/operatordef/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_030]
+sql:
+select operatordef('CODEX_DM8_CUSTOM_OPERATOR_20260721', '@^');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/operatordef/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_031]
+sql:
+select count(*) from sysopargs;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:30) /test/1/catalog1/schema1/sysopargs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_032]
+sql:
+drop operator if exists CODEX_DM8_CUSTOM_OPERATOR_20260721."@&"(int,int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(1:24~1:63) /test/1/catalog1/CODEX_DM8_CUSTOM_OPERATOR_20260721/@&/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_033]
+sql:
+drop operator if exists @^(varchar,varchar);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(1:24~1:26) /test/1/catalog1/schema1/@^/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_034]
+sql:
+drop operator if exists @^(bigint,bigint);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(1:24~1:26) /test/1/catalog1/schema1/@^/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_035]
+sql:
+drop operator if exists @^(int,int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(1:24~1:26) /test/1/catalog1/schema1/@^/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_036]
+sql:
+drop operator if exists ^>(null,int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(1:24~1:26) /test/1/catalog1/schema1/^>/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_037]
+sql:
+drop operator if exists />(null,varchar);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(1:24~1:26) /test/1/catalog1/schema1//>/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_038]
+sql:
+drop operator if exists |%(bigint,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(1:24~1:26) /test/1/catalog1/schema1/|%/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_039]
+sql:
+drop operator if exists <%(int,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Operator(1:24~1:26) /test/1/catalog1/schema1/<%/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_040]
+sql:
+drop function op_binary_varchar;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:31) /test/1/catalog1/schema1/op_binary_varchar/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_041]
+sql:
+drop function op_binary_bigint;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:30) /test/1/catalog1/schema1/op_binary_bigint/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_042]
+sql:
+drop function op_binary_int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:27) /test/1/catalog1/schema1/op_binary_int/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_043]
+sql:
+drop function op_right_int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:26) /test/1/catalog1/schema1/op_right_int/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_044]
+sql:
+drop function op_right_varchar;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:30) /test/1/catalog1/schema1/op_right_varchar/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_045]
+sql:
+drop function op_left_bigint;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:28) /test/1/catalog1/schema1/op_left_bigint/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_custom_operator_0_behavior_review_046]
+sql:
+drop function op_left_int;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/schema1/op_left_int/",
+      "action": "DROP"
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+[split_block_dameng_dbms_ddl_signature_combinations_0_001]
+sql:
+-- WRAP_VARCHAR_POSITIONAL
+declare o clob; begin o:=dbms_ddl.wrap('create or replace procedure CODEX_DDL_WRAP_ONLY_1 as begin null; end;'); if instr(lower(o),'wrapped')=0 then raise_application_error(-20001,'not wrapped'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:149~2:172) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:25~2:38) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:116~2:121) /test/1/catalog1/schema1/instr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:122~2:127) /test/1/catalog1/schema1/lower/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_002]
+sql:
+-- WRAP_VARCHAR_NAMED
+declare o clob; begin o:=dbms_ddl.wrap(ddl=>'create or replace function CODEX_DDL_WRAP_ONLY_2 return int as begin return 2; end;'); if instr(lower(o),'wrapped')=0 then raise_application_error(-20002,'not wrapped'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:168~2:191) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:25~2:38) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:135~2:140) /test/1/catalog1/schema1/instr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:141~2:146) /test/1/catalog1/schema1/lower/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_003]
+sql:
+-- WRAP_VARCHAR2A_POSITIONAL
+declare a dbms_sql.varchar2a; o dbms_sql.varchar2a; begin a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_3 as '; a(2):='begin null; end;'; o:=dbms_ddl.wrap(a,1,2); if o.count=0 then raise_application_error(-20003,'empty wrap'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/dbms_sql/varchar2a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(2:32~2:50) /test/1/catalog1/dbms_sql/varchar2a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:190~2:213) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:150~2:163) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_004]
+sql:
+-- WRAP_VARCHAR2A_NAMED_REORDERED
+declare a dbms_sql.varchar2a; o dbms_sql.varchar2a; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_4 as '; o:=dbms_ddl.wrap(ub=>2,ddl=>a,lb=>1); if o.count=0 then raise_application_error(-20004,'empty wrap'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/dbms_sql/varchar2a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(2:32~2:50) /test/1/catalog1/dbms_sql/varchar2a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:203~2:226) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:150~2:163) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_005]
+sql:
+-- WRAP_VARCHAR2S_POSITIONAL
+declare a dbms_sql.varchar2s; o dbms_sql.varchar2s; begin a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_5 as '; a(2):='begin null; end;'; o:=dbms_ddl.wrap(a,1,2); if o.count=0 then raise_application_error(-20005,'empty wrap'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/dbms_sql/varchar2s/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(2:32~2:50) /test/1/catalog1/dbms_sql/varchar2s/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:190~2:213) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:150~2:163) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_006]
+sql:
+-- WRAP_VARCHAR2S_NAMED_REORDERED
+declare a dbms_sql.varchar2s; o dbms_sql.varchar2s; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_ONLY_6 as '; o:=dbms_ddl.wrap(ub=>2,lb=>1,ddl=>a); if o.count=0 then raise_application_error(-20006,'empty wrap'); end if; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/dbms_sql/varchar2s/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(2:32~2:50) /test/1/catalog1/dbms_sql/varchar2s/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:203~2:226) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:150~2:163) /test/1/catalog1/dbms_ddl/wrap/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_007]
+sql:
+-- CREATE_WRAPPED_VARCHAR_POSITIONAL
+begin dbms_ddl.create_wrapped('create or replace procedure CODEX_DDL_WRAP_P1 as begin null; end;'); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:29) /test/1/catalog1/dbms_ddl/create_wrapped/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_008]
+sql:
+-- CREATE_WRAPPED_VARCHAR_NAMED
+begin dbms_ddl.create_wrapped(ddl=>'create or replace procedure CODEX_DDL_WRAP_P2 as begin null; end;'); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:29) /test/1/catalog1/dbms_ddl/create_wrapped/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_009]
+sql:
+-- CREATE_WRAPPED_VARCHAR2A_POSITIONAL
+declare a dbms_sql.varchar2a; begin a(1):='create or replace procedure CODEX_DDL_WRAP_A1 as '; a(2):='begin null; end;'; dbms_ddl.create_wrapped(a,1,2); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/dbms_sql/varchar2a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:121~2:144) /test/1/catalog1/dbms_ddl/create_wrapped/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_010]
+sql:
+-- CREATE_WRAPPED_VARCHAR2A_NAMED_REORDERED
+declare a dbms_sql.varchar2a; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_A2 as '; dbms_ddl.create_wrapped(ub=>2,ddl=>a,lb=>1); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/dbms_sql/varchar2a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:121~2:144) /test/1/catalog1/dbms_ddl/create_wrapped/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_011]
+sql:
+-- CREATE_WRAPPED_VARCHAR2S_POSITIONAL
+declare a dbms_sql.varchar2s; begin a(1):='create or replace procedure CODEX_DDL_WRAP_S1 as '; a(2):='begin null; end;'; dbms_ddl.create_wrapped(a,1,2); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/dbms_sql/varchar2s/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:121~2:144) /test/1/catalog1/dbms_ddl/create_wrapped/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_ddl_signature_combinations_0_012]
+sql:
+-- CREATE_WRAPPED_VARCHAR2S_NAMED_REORDERED
+declare a dbms_sql.varchar2s; begin a(2):='begin null; end;'; a(1):='create or replace procedure CODEX_DDL_WRAP_S2 as '; dbms_ddl.create_wrapped(lb=>1,ub=>2,ddl=>a); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:28) /test/1/catalog1/dbms_sql/varchar2s/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:121~2:144) /test/1/catalog1/dbms_ddl/create_wrapped/",
+      "action": "CALL"
+    }
+  ]
+}

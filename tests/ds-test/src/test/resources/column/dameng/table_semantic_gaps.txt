@@ -1,0 +1,23 @@
+[table_constraint_dictionary_columns]
+sql:
+select constraint_name, constraint_type, status, validated
+from catalog1.sys.user_constraints
+where table_name='TABLE_SEM_NV_CHILD'
+expect:
+{
+  "constraint_name": ["/catalog1/sys/user_constraints/constraint_name/"],
+  "constraint_type": ["/catalog1/sys/user_constraints/constraint_type/"],
+  "status": ["/catalog1/sys/user_constraints/status/"],
+  "validated": ["/catalog1/sys/user_constraints/validated/"]
+}
+----------
+[table_novalidate_data_columns]
+sql:
+select c.id as child_id, p.id as parent_id
+from catalog1.app.table_sem_nv_child c
+left join catalog1.app.table_sem_nv_parent p on p.id=c.id
+expect:
+{
+  "child_id": ["/catalog1/app/table_sem_nv_child/id/"],
+  "parent_id": ["/catalog1/app/table_sem_nv_parent/id/"]
+}

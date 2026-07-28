@@ -1,0 +1,41 @@
+[backup_has_no_result_lineage]
+sql:
+backup table app.employee backupset '/opt/dmdbms/data/backup/employee'
+expect:
+{}
+----------
+[restore_has_no_result_lineage]
+sql:
+restore table app.employee struct from backupset '/opt/dmdbms/data/backup/employee'
+expect:
+{}
+----------
+[rman_has_no_result_lineage]
+sql:
+configure default backupdir add '/opt/dmdbms/data/backup'
+expect:
+{}
+----------
+[restore_database_has_no_result_lineage]
+sql:
+restore database to '/opt/dmdbms/data/DAMENG_RESTORE_20260721' with check from backupset '/opt/dmdbms/data/backup/case_021_db_full'
+expect:
+{}
+----------
+[recover_database_has_no_result_lineage]
+sql:
+recover database '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' from backupset '/opt/dmdbms/data/backup/case_021_db_full'
+expect:
+{}
+----------
+[update_database_magic_has_no_result_lineage]
+sql:
+recover database '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' update db_magic
+expect:
+{}
+----------
+[show_backupset_has_no_result_lineage]
+sql:
+show backupset '/data/backup' info meta
+expect:
+{}

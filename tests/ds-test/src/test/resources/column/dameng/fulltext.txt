@@ -1,0 +1,17 @@
+[contains_columns]
+sql:
+select d.id, d.title from catalog1.app.ft_docs d where contains(d.body, 'database', 1)
+expect:
+{
+  "id" : [ "/catalog1/app/ft_docs/id/" ],
+  "title" : [ "/catalog1/app/ft_docs/title/" ]
+}
+----------
+[contains_join_columns]
+sql:
+select d.id, o.body from catalog1.app.ft_docs d join catalog1.app.ft_other o on d.id = o.id where contains(d.body, 'database') and contains(o.body, 'reference')
+expect:
+{
+  "id" : [ "/catalog1/app/ft_docs/id/" ],
+  "body" : [ "/catalog1/app/ft_other/body/" ]
+}

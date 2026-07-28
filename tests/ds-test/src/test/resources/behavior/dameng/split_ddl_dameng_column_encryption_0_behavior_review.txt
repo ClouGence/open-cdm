@@ -1,0 +1,932 @@
+[split_ddl_dameng_column_encryption_0_001_behavior_review]
+sql:
+create table CODEX_ENC_T01(ID int, SECRET varchar(100) encrypt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T01/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_002_behavior_review]
+sql:
+create table CODEX_ENC_T02(ID int, SECRET varchar(100) encrypt with DES_ECB);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T02/",
+      "action": "CREATE",
+      "target": "ConfigKey(1:68~1:75) /test/1/DES_ECB/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_003_behavior_review]
+sql:
+create table CODEX_ENC_T03(ID int, SECRET varchar(100) encrypt with DES_ECB hash with MD5 salt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T03/",
+      "action": "CREATE",
+      "target": "ConfigKey(1:68~1:75) /test/1/DES_ECB/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_004_behavior_review]
+sql:
+create table CODEX_ENC_T04(ID int, SECRET varchar(100) encrypt with DES_ECB hash with SHA1 no salt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T04/",
+      "action": "CREATE",
+      "target": "ConfigKey(1:68~1:75) /test/1/DES_ECB/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_005_behavior_review]
+sql:
+create table CODEX_ENC_T05(ID int, SECRET varchar(100) encrypt auto);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T05/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_006_behavior_review]
+sql:
+create table CODEX_ENC_T06(ID int, SECRET varchar(100) encrypt with AES256_CBC auto);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T06/",
+      "action": "CREATE",
+      "target": "ConfigKey(1:68~1:78) /test/1/AES256_CBC/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_007_behavior_review]
+sql:
+create table CODEX_ENC_T07(ID int, SECRET varchar(100) encrypt with AES256_CBC auto hash with MD5 salt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T07/",
+      "action": "CREATE",
+      "target": "ConfigKey(1:68~1:78) /test/1/AES256_CBC/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_008_behavior_review]
+sql:
+create table CODEX_ENC_T08(ID int, SECRET varchar(100) encrypt manual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T08/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_009_behavior_review]
+sql:
+create table CODEX_ENC_T09(ID int, SECRET varchar(100) encrypt with DES_ECB manual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T09/",
+      "action": "CREATE",
+      "target": "ConfigKey(1:68~1:75) /test/1/DES_ECB/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_010_behavior_review]
+sql:
+create table CODEX_ENC_T10(ID int, SECRET varchar(100) encrypt with DES_ECB manual hash with MD5 salt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T10/",
+      "action": "CREATE",
+      "target": "ConfigKey(1:68~1:75) /test/1/DES_ECB/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_011_behavior_review]
+sql:
+create table CODEX_ENC_T11(ID int, SECRET varchar(100) encrypt manual hash with SHA1 no salt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T11/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_012_behavior_review]
+sql:
+create table CODEX_ENC_T12(ID int, SECRET varchar(100) encrypt manual user (CODEX_ENC_USER1, CODEX_ENC_USER2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T12/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_013_behavior_review]
+sql:
+create table CODEX_ENC_T13(ID int, SECRET varchar(100) encrypt with DES_ECB manual user (CODEX_ENC_USER1, CODEX_ENC_USER2) hash with MD5 salt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T13/",
+      "action": "CREATE",
+      "target": "ConfigKey(1:68~1:75) /test/1/DES_ECB/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_014_behavior_review]
+sql:
+create table CODEX_ENC_T14(ID int, SECRET varchar(100));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_T14/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_015_behavior_review]
+sql:
+alter table CODEX_ENC_T14 add SECRET2 varchar(100) encrypt manual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/CODEX_ENC_T14/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_016_behavior_review]
+sql:
+alter table CODEX_ENC_T14 add SECRET3 varchar(100) encrypt with DES_ECB manual user (CODEX_ENC_USER1, CODEX_ENC_USER2) hash with SHA1 no salt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/CODEX_ENC_T14/",
+      "action": "ALTER",
+      "target": "ConfigKey(1:64~1:71) /test/1/DES_ECB/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_017_behavior_review]
+sql:
+create table CODEX_ENC_K05(ID int, SECRET varchar(100) encrypt manual user ());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/CODEX_ENC_K05/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_018_behavior_review]
+sql:
+create table CODEX_COLKEY_AUTO(ID int primary key, SECRET varchar(100) encrypt auto by StorageKey3_2026);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO/",
+      "action": "CREATE",
+      "target": "Key(1:87~1:103) /test/1/StorageKey3_2026/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_019_behavior_review]
+sql:
+create table CODEX_COLKEY_AUTO_HASH(ID int primary key, SECRET varchar(100) encrypt with AES256_CBC auto by StorageKey4_2026 hash with MD5 salt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO_HASH/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(1:89~1:99) /test/1/AES256_CBC/",
+        "Key(1:108~1:124) /test/1/StorageKey4_2026/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_020_behavior_review]
+sql:
+create table CODEX_COLKEY_MANUAL(ID int primary key, SECRET varchar(100) encrypt manual by StorageKey5_2026);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL/",
+      "action": "CREATE",
+      "target": "Key(1:91~1:107) /test/1/StorageKey5_2026/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_021_behavior_review]
+sql:
+create table CODEX_COLKEY_MANUAL_VISIBLE(ID int primary key, SECRET varchar(100) encrypt with DES_ECB manual by StorageKey6_2026 user (SYSDBA) hash with SHA1 no salt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL_VISIBLE/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(1:94~1:101) /test/1/DES_ECB/",
+        "Key(1:112~1:128) /test/1/StorageKey6_2026/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_022_behavior_review]
+sql:
+create table CODEX_COLKEY_ALTER(ID int primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/CODEX_COLKEY_ALTER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_023_behavior_review]
+sql:
+alter table CODEX_COLKEY_ALTER add AUTO_SECRET varchar(100) encrypt auto by StorageKey7_2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_COLKEY_ALTER/",
+      "action": "ALTER",
+      "target": "Key(1:76~1:92) /test/1/StorageKey7_2026/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_024_behavior_review]
+sql:
+alter table CODEX_COLKEY_ALTER add MANUAL_SECRET varchar(100) encrypt manual by StorageKey8_2026 user (SYSDBA);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/CODEX_COLKEY_ALTER/",
+      "action": "ALTER",
+      "target": "Key(1:80~1:96) /test/1/StorageKey8_2026/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_025_behavior_review]
+sql:
+drop table CODEX_COLKEY_AUTO purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_026_behavior_review]
+sql:
+drop table CODEX_COLKEY_AUTO_HASH purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:33) /test/1/catalog1/schema1/CODEX_COLKEY_AUTO_HASH/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_027_behavior_review]
+sql:
+drop table CODEX_COLKEY_MANUAL purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:30) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_028_behavior_review]
+sql:
+drop table CODEX_COLKEY_MANUAL_VISIBLE purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:38) /test/1/catalog1/schema1/CODEX_COLKEY_MANUAL_VISIBLE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_029_behavior_review]
+sql:
+drop table CODEX_COLKEY_ALTER purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/CODEX_COLKEY_ALTER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_030_behavior_review]
+sql:
+create table CODEX_WRAP_AUTO_20260722(
+  ID int primary key,
+  SECRET varchar(100) encrypt with AES256_CBC auto by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8'
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:37) /test/1/catalog1/schema1/CODEX_WRAP_AUTO_20260722/",
+      "action": "CREATE",
+      "target": "ConfigKey(3:35~3:45) /test/1/AES256_CBC/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_031_behavior_review]
+sql:
+create table CODEX_WRAP_MANUAL_20260722(
+  ID int primary key,
+  SECRET varchar(100) encrypt with AES256_CBC manual by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8' user (SYSDBA) hash with MD5 salt
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/schema1/CODEX_WRAP_MANUAL_20260722/",
+      "action": "CREATE",
+      "target": "ConfigKey(3:35~3:45) /test/1/AES256_CBC/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_032_behavior_review]
+sql:
+create table CODEX_WRAP_ALTER_20260722(ID int primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/schema1/CODEX_WRAP_ALTER_20260722/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_033_behavior_review]
+sql:
+alter table CODEX_WRAP_ALTER_20260722 add SECRET varchar(100)
+  encrypt with AES256_CBC auto by wrapped '0x5CD036397C52C40E8F6AD96A125F86E47C4B67050211CA1EDC2A3AB4A04D241133EAD7CA8C022C3E02073968E1501D0CF0C651A8'
+  hash with SHA1 no salt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:37) /test/1/catalog1/schema1/CODEX_WRAP_ALTER_20260722/",
+      "action": "ALTER",
+      "target": "ConfigKey(2:15~2:25) /test/1/AES256_CBC/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_034_behavior_review]
+sql:
+drop table CODEX_WRAP_AUTO_20260722 purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:35) /test/1/catalog1/schema1/CODEX_WRAP_AUTO_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_035_behavior_review]
+sql:
+drop table CODEX_WRAP_MANUAL_20260722 purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:37) /test/1/catalog1/schema1/CODEX_WRAP_MANUAL_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_036_behavior_review]
+sql:
+drop table CODEX_WRAP_ALTER_20260722 purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:36) /test/1/catalog1/schema1/CODEX_WRAP_ALTER_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_037_behavior_review]
+sql:
+create index CODEX_ENC_IDX_VISIBLE on CODEX_ENC_T12(SECRET);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:34) /test/1/catalog1/schema1/CODEX_ENC_IDX_VISIBLE/",
+      "action": "CREATE",
+      "target": "Table(1:38~1:51) /test/1/catalog1/schema1/CODEX_ENC_T12/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_038_behavior_review]
+sql:
+alter table CODEX_ENC_T12 modify SECRET varchar(120) encrypt manual user (CODEX_ENC_USER1, CODEX_ENC_USER2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/CODEX_ENC_T12/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_039_behavior_review]
+sql:
+create table CODEX_ENC_USER1.MANUAL_OWNER_DATA(ID int primary key, SECRET varchar(100) encrypt manual);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:46) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_OWNER_DATA/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_040_behavior_review]
+sql:
+create table CODEX_ENC_USER1.MANUAL_VISIBLE_DATA(ID int primary key, SECRET varchar(100) encrypt manual user (CODEX_ENC_USER1, CODEX_ENC_USER2) hash with MD5 salt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:48) /test/1/catalog1/CODEX_ENC_USER1/MANUAL_VISIBLE_DATA/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_041_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T01/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_042_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T02/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_043_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T03/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_044_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T04/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_045_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T05/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_046_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T06;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T06/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_047_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T07;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T07/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_048_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T08;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T08/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_049_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T09;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T09/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_050_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T10/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_051_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T11;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T11/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_052_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T12/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_053_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T13;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T13/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_054_behavior_review]
+sql:
+drop table if exists CODEX_ENC_T14;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_T14/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_055_behavior_review]
+sql:
+drop table if exists CODEX_ENC_K01;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_K01/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_056_behavior_review]
+sql:
+drop table if exists CODEX_ENC_K02;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_K02/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_057_behavior_review]
+sql:
+drop table if exists CODEX_ENC_K03;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_K03/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_058_behavior_review]
+sql:
+drop table if exists CODEX_ENC_K04;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_K04/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_059_behavior_review]
+sql:
+drop table if exists CODEX_ENC_K05;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_K05/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_column_encryption_0_060_behavior_review]
+sql:
+drop table if exists CODEX_ENC_P08;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/CODEX_ENC_P08/",
+      "action": "DROP"
+    }
+  ]
+}

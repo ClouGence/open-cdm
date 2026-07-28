@@ -29,6 +29,8 @@ dependencies {
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
 
+    testRuntimeOnly "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+
     // driver libs (compileOnly)
     compileOnly 'com.dameng:DmJdbcDriver18:8.1.2.192'
 }

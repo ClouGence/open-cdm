@@ -1,0 +1,30 @@
+[create_operator]
+sql:
+create operator app.@^ (function app.op_binary_int, leftarg int, rightarg int)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"@^"}
+  ]
+}
+----------
+[drop_operator]
+sql:
+drop operator if exists app.@^(int,int)
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"DROP_PROG_OBJ", "auditKind":"DROP", "schema":"app", "name":"@^"}
+  ]
+}
+----------
+[operator_query]
+sql:
+select o.left_value operator(app.@^) o.right_value as result
+from app.operator_input o
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"operator_input"}
+  ]
+}

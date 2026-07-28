@@ -1,0 +1,42 @@
+[split_block_dameng_redefinition_xa_xmldom_0_042]
+sql:
+declare doc dbms_xmldom.domdocument; cl text; begin doc:=dbms_xmldom.newdomdocument('<ROOT><A>ONE</A></ROOT>'); dbms_lob.createtemporary(cl, true); dbms_xmldom.writetoclob(doc, cl); insert into CODEX_DM8_PKG_CTL(label, number_value) values('XML_CLOB_LENGTH', dbms_lob.getlength(cl)); dbms_lob.freetemporary(cl); dbms_xmldom.freedocument(doc); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:12~1:35) /test/1/catalog1/dbms_xmldom/domdocument/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:112~1:136) /test/1/catalog1/dbms_lob/createtemporary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:148~1:171) /test/1/catalog1/dbms_xmldom/writetoclob/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:194~1:211) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:259~1:277) /test/1/catalog1/dbms_lob/getlength/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:284~1:306) /test/1/catalog1/dbms_lob/freetemporary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:312~1:336) /test/1/catalog1/dbms_xmldom/freedocument/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:57~1:83) /test/1/catalog1/dbms_xmldom/newdomdocument/",
+      "action": "CALL"
+    }
+  ]
+}

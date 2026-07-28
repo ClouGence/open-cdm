@@ -1,0 +1,69 @@
+[data_type_extrema_ddl]
+sql:
+create table app.codex_dm8_type_integer(id int primary key, tiny_min tinyint, tiny_max byte, small_min smallint, small_max smallint, int_min integer, int_max int, big_min bigint, big_max bigint);
+create index idx_codex_dm8_type_integer on app.codex_dm8_type_integer(big_max);
+create table app.codex_dm8_type_numeric(id int primary key, n_min numeric(38,0), n_max number(38,0), n_scale_min decimal(38,38), n_scale_max dec(38,38), n_round numeric(4,1), f_min float(1), f_real float(24), f_double float(25), f_max float(126), d_max double(126), dp_max double precision(126), r real);
+create table app.codex_dm8_type_char(id int primary key, c_min char(1), c_alias character(1), v_min varchar(1), v_char varchar(4 char), v_alias varchar2(32767)) storage(using long row);
+create table app.codex_dm8_type_binary(id int primary key, b_min binary(1), vb_min varbinary(1), raw_max raw(32767)) storage(using long row);
+create table app.codex_dm8_type_datetime(id int primary key, date_min date, date_max date, time_min time(0), time_max time(6), ts_min timestamp(9), ts_max datetime(9));
+create table app.codex_dm8_type_interval(id int primary key, i_ym interval year(9) to month, i_y interval year(9), i_m interval month(9), i_d interval day(9), i_dh interval day(9) to hour, i_dm interval day(9) to minute, i_ds interval day(9) to second(6), i_h interval hour(9), i_hm interval hour(9) to minute, i_hs interval hour(9) to second(6), i_mi interval minute(9), i_ms interval minute(9) to second(6), i_s interval second(9,6));
+create table app.codex_dm8_type_tz(id int primary key, t_neg time(6) with time zone, t_pos time(6) with time zone, ts_neg timestamp(9) with time zone, ts_pos timestamp(9) with time zone, ts_local timestamp(9) with local time zone);
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"codex_dm8_type_integer"},
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "name":"idx_codex_dm8_type_integer", "tableSchema":"app", "tableName":"codex_dm8_type_integer"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"codex_dm8_type_numeric"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"codex_dm8_type_char"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"codex_dm8_type_binary"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"codex_dm8_type_datetime"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"codex_dm8_type_interval"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"codex_dm8_type_tz"}
+  ]
+}
+----------
+[data_type_extrema_dml]
+sql:
+insert into app.codex_dm8_type_integer values(1,-128,127,-32768,32767,-2147483648,2147483647,-9223372036854775808,9223372036854775807);
+insert into app.codex_dm8_type_numeric values(1,-99999999999999999999999999999999999999,99999999999999999999999999999999999999,-0.99999999999999999999999999999999999999,0.99999999999999999999999999999999999999,999.94,1,3.4e38,1.7e308,-1.7e308,1.7e308,-1.7e308,-3.4e38);
+insert into app.codex_dm8_type_char values(1,'A','B','C','DM8X',repeat('X',32767));
+insert into app.codex_dm8_type_binary values(1,0x00,0xFF,utl_raw.cast_to_raw(repeat('R',32767)));
+insert into app.codex_dm8_type_datetime values(1,date '-4712-01-01',date '9999-12-31',time '00:00:00',time '23:59:59.999999',timestamp '-4712-01-01 00:00:00.000000000',timestamp '9999-12-31 23:59:59.999999999');
+insert into app.codex_dm8_type_interval values(1,interval '999999999-11' year(9) to month,interval '-999999999' year(9),interval '999999999' month(9),interval '-999999999' day(9),interval '999999999 23' day(9) to hour,interval '-999999999 23:59' day(9) to minute,interval '999999999 23:59:59.999999' day(9) to second(6),interval '-999999999' hour(9),interval '999999999:59' hour(9) to minute,interval '-999999999:59:59.999999' hour(9) to second(6),interval '999999999' minute(9),interval '-999999999:59.999999' minute(9) to second(6),interval '999999999.999999' second(9,6));
+insert into app.codex_dm8_type_tz values(1,time '00:00:00.000000 -12:59',time '23:59:59.999999 +14:00',timestamp '0001-01-01 00:00:00.000000000 -12:59',timestamp '9999-12-31 23:59:59.999999999 +14:00',timestamp '2026-07-22 12:34:56.123456789 +08:00');
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"codex_dm8_type_integer"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"codex_dm8_type_numeric"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"codex_dm8_type_char"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"codex_dm8_type_binary"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"codex_dm8_type_datetime"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"codex_dm8_type_interval"},
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"codex_dm8_type_tz"}
+  ]
+}
+----------
+[data_type_extrema_queries]
+sql:
+select tiny_min,tiny_max,small_min,small_max,int_min,int_max,big_min,big_max from app.codex_dm8_type_integer where id=1;
+select min(tiny_min),max(big_max),sum(small_max) from app.codex_dm8_type_integer;
+select n_min,n_max,n_scale_min,n_scale_max,n_round,f_min,f_real,f_double,f_max,d_max,dp_max,r from app.codex_dm8_type_numeric where id=1;
+select length(c_min),length(c_alias),length(v_min),length(v_char),length(v_alias) from app.codex_dm8_type_char where id=1;
+select lengthb(b_min),lengthb(vb_min),lengthb(raw_max) from app.codex_dm8_type_binary where id=1;
+select date_min,date_max,time_min,time_max,ts_min,ts_max from app.codex_dm8_type_datetime where id=1;
+select i_ym,i_y,i_m,i_d,i_dh,i_dm,i_ds,i_h,i_hm,i_hs,i_mi,i_ms,i_s from app.codex_dm8_type_interval where id=1;
+select t_neg,t_pos,ts_neg,ts_pos,ts_local from app.codex_dm8_type_tz where id=1;
+select cast(ts_neg as timestamp(9)),cast(ts_local as timestamp(9) with time zone) from app.codex_dm8_type_tz where id=1;
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"codex_dm8_type_integer"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"codex_dm8_type_numeric"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"codex_dm8_type_char"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"codex_dm8_type_binary"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"codex_dm8_type_datetime"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"codex_dm8_type_interval"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"codex_dm8_type_tz"}
+  ]
+}

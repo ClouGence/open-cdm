@@ -1,0 +1,45 @@
+[split_dql_dameng_performance_packages_0_005]
+sql:
+select * from table(dbms_workload_repository.awr_report_text((select number_value from CODEX_DM8_PERF_CTL where label='AWR_START'), (select number_value from CODEX_DM8_PERF_CTL where label='AWR_END')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:60) /test/1/catalog1/dbms_workload_repository/awr_report_text/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:87~1:105) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:158~1:176) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_performance_packages_0_006]
+sql:
+select * from table(dbms_workload_repository.awr_report_html((select number_value from CODEX_DM8_PERF_CTL where label='AWR_START'), (select number_value from CODEX_DM8_PERF_CTL where label='AWR_END')));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:20~1:60) /test/1/catalog1/dbms_workload_repository/awr_report_html/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:87~1:105) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:158~1:176) /test/1/catalog1/schema1/CODEX_DM8_PERF_CTL/",
+      "action": "READ"
+    }
+  ]
+}

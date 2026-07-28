@@ -1,0 +1,52 @@
+[mpp_colocated_join_domains]
+sql:
+select a.id,a.note,b.note from app.mpp_hash_a a join app.mpp_hash_b b on a.id=b.id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_hash_a"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_hash_b"}
+  ]
+}
+----------
+[mpp_redistributed_join_domains]
+sql:
+select a.id,b.id from app.mpp_hash_a a join app.mpp_hash_b b on a.grp_id=b.grp_id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_hash_a"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_hash_b"}
+  ]
+}
+----------
+[mpp_fully_join_domains]
+sql:
+select a.id,f.note from app.mpp_hash_a a join app.mpp_fully f on a.id=f.id
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_hash_a"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_fully"}
+  ]
+}
+----------
+[mpp_local_ddl_switch_domain]
+sql:
+call sysdba.sp_set_session_local_type(1)
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"sysdba", "callName":"sp_set_session_local_type"}
+  ]
+}
+----------
+[mpp_dynamic_scalar_functions]
+sql:
+select sf_mpp_inst_add('', ''),sf_mpp_inst_remove('CODEX_MISSING_EP_27') from dual
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "table":"dual"}
+  ]
+}

@@ -1,0 +1,424 @@
+[split_ddl_dameng_directory_attributes_0_behavior_review_001]
+sql:
+create directory DIR_ATTR_EMPTY as '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:31) /test/1/catalog1/schema1/DIR_ATTR_EMPTY/",
+      "action": "CONFIGURE",
+      "target": "File(1:35~1:37) /test/1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_002]
+sql:
+select directory_name, directory_path from dba_directories where directory_name = 'DIR_ATTR_EMPTY';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:43~1:58) /test/1/catalog1/schema1/dba_directories/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_003]
+sql:
+create directory DIR_ATTR_PATH_256 as '/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:34) /test/1/catalog1/schema1/DIR_ATTR_PATH_256/",
+      "action": "CONFIGURE",
+      "target": "File(1:38~1:296) /test/1/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_004]
+sql:
+select lengthb(directory_path) from dba_directories where directory_name = 'DIR_ATTR_PATH_256';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:51) /test/1/catalog1/schema1/dba_directories/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_005]
+sql:
+create directory DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA as '/tmp';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:145) /test/1/catalog1/schema1/DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CONFIGURE",
+      "target": "File(1:149~1:155) /test/1/tmp/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_006]
+sql:
+select owner, lengthb(directory_name), directory_path from dba_directories
+where directory_name = 'DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:21) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:59~1:74) /test/1/catalog1/schema1/dba_directories/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_007]
+sql:
+create directory DIR_ATTR_NONEXISTENT as '/tmp/codex_dm8_directory_path_need_not_exist_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:37) /test/1/catalog1/schema1/DIR_ATTR_NONEXISTENT/",
+      "action": "CONFIGURE",
+      "target": "File(1:41~1:96) /test/1/tmp/codex_dm8_directory_path_need_not_exist_20260722/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_008]
+sql:
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_NONEXISTENT';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:27~1:42) /test/1/catalog1/schema1/dba_directories/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_009]
+sql:
+create directory if not exists DIR_ATTR_IFNE as '/tmp/ifne_before';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:31~1:44) /test/1/catalog1/schema1/DIR_ATTR_IFNE/",
+      "action": "CONFIGURE",
+      "target": "File(1:48~1:66) /test/1/tmp/ifne_before/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_010]
+sql:
+create directory if not exists DIR_ATTR_IFNE as '/tmp/ifne_ignored';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:31~1:44) /test/1/catalog1/schema1/DIR_ATTR_IFNE/",
+      "action": "CONFIGURE",
+      "target": "File(1:48~1:67) /test/1/tmp/ifne_ignored/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_011]
+sql:
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_IFNE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:27~1:42) /test/1/catalog1/schema1/dba_directories/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_012]
+sql:
+create directory DIR_ATTR_REPLACE as '/tmp/replace_before';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:33) /test/1/catalog1/schema1/DIR_ATTR_REPLACE/",
+      "action": "CONFIGURE",
+      "target": "File(1:37~1:58) /test/1/tmp/replace_before/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_013]
+sql:
+create or replace directory DIR_ATTR_REPLACE as '/tmp/replace_after';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:28~1:44) /test/1/catalog1/schema1/DIR_ATTR_REPLACE/",
+      "action": "CONFIGURE",
+      "target": "File(1:48~1:68) /test/1/tmp/replace_after/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_014]
+sql:
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_REPLACE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:27~1:42) /test/1/catalog1/schema1/dba_directories/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_015]
+sql:
+create directory DIR_ATTR_BOTH as '/tmp/both_before';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:30) /test/1/catalog1/schema1/DIR_ATTR_BOTH/",
+      "action": "CONFIGURE",
+      "target": "File(1:34~1:52) /test/1/tmp/both_before/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_016]
+sql:
+create or replace directory if not exists DIR_ATTR_BOTH as '/tmp/both_after';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:42~1:55) /test/1/catalog1/schema1/DIR_ATTR_BOTH/",
+      "action": "CONFIGURE",
+      "target": "File(1:59~1:76) /test/1/tmp/both_after/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_017]
+sql:
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_BOTH';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:27~1:42) /test/1/catalog1/schema1/dba_directories/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_018]
+sql:
+create directory DIR_ATTR_QUOTE as '/tmp/codex''directory';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:31) /test/1/catalog1/schema1/DIR_ATTR_QUOTE/",
+      "action": "CONFIGURE",
+      "target": "File(1:35~1:58) /test/1/tmp/codex'directory/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_019]
+sql:
+select directory_path from dba_directories where directory_name = 'DIR_ATTR_QUOTE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:27~1:42) /test/1/catalog1/schema1/dba_directories/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_020]
+sql:
+drop directory DIR_ATTR_EMPTY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:29) /test/1/catalog1/schema1/DIR_ATTR_EMPTY/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_021]
+sql:
+drop directory DIR_ATTR_PATH_256;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:32) /test/1/catalog1/schema1/DIR_ATTR_PATH_256/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_022]
+sql:
+drop directory DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:143) /test/1/catalog1/schema1/DIR_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_023]
+sql:
+drop directory DIR_ATTR_NONEXISTENT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:35) /test/1/catalog1/schema1/DIR_ATTR_NONEXISTENT/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_024]
+sql:
+drop directory DIR_ATTR_IFNE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:28) /test/1/catalog1/schema1/DIR_ATTR_IFNE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_025]
+sql:
+drop directory DIR_ATTR_REPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:31) /test/1/catalog1/schema1/DIR_ATTR_REPLACE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_026]
+sql:
+drop directory DIR_ATTR_BOTH;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:28) /test/1/catalog1/schema1/DIR_ATTR_BOTH/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_directory_attributes_0_behavior_review_027]
+sql:
+drop directory DIR_ATTR_QUOTE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:29) /test/1/catalog1/schema1/DIR_ATTR_QUOTE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+[create_function_has_no_result_columns]
+sql:
+create function app.f_value(p_id int) return int as
+  x int;
+begin
+  select value into x from catalog1.app.func_data where id=p_id;
+  return x;
+end f_value;
+/
+expect:
+{}
+----------
+[alter_function_has_no_result_columns]
+sql:
+alter function app.f_value compile cascade debug;
+expect:
+{}
+----------
+[call_function_has_no_result_columns]
+sql:
+call app.f_value(1);
+expect:
+{}
+----------
+[select_function_argument_lineage]
+sql:
+select app.f_value(t.id) as result_value
+from catalog1.app.func_data t
+expect:
+{
+  "result_value": ["/catalog1/app/func_data/id/"]
+}
+----------
+[drop_function_has_no_result_columns]
+sql:
+drop function app.f_value;
+expect:
+{}

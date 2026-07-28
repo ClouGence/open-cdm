@@ -1,0 +1,2073 @@
+[split_ddl_dameng_table_0_001]
+sql:
+CREATE SCHEMA CODEX_DM8_TABLE_20260721 AUTHORIZATION SYSDBA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SCHEMA": [
+    {
+      "subject": "Schema(1:14~1:38) /test/1/catalog1/CODEX_DM8_TABLE_20260721/",
+      "action": "CREATE",
+      "target": "User(1:53~1:59) /test/1/SYSDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_002]
+sql:
+SET SCHEMA CODEX_DM8_TABLE_20260721;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SWITCH_SCHEMA": [
+    {
+      "subject": "Schema(1:11~1:35) /test/1/catalog1/CODEX_DM8_TABLE_20260721/",
+      "action": "SWITCH"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_003]
+sql:
+CREATE TABLE T_BASIC (ID INT);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_BASIC/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_004]
+sql:
+CREATE TABLE T_NULLABILITY (ID INT NOT NULL, NOTE VARCHAR(40) NULL);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_NULLABILITY/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_005]
+sql:
+CREATE TABLE T_DEFAULTS (ID INT DEFAULT 0, STATUS CHAR(1) DEFAULT 'N', CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DEFAULTS/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(1:100~1:117) /test/1/catalog1/CODEX_DM8_TABLE_20260721/CURRENT_TIMESTAMP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_006]
+sql:
+CREATE TABLE T_IDENTITY_DEFAULT (ID BIGINT IDENTITY, NOTE VARCHAR(40));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_IDENTITY_DEFAULT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_007]
+sql:
+CREATE TABLE T_IDENTITY_RANGE (ID BIGINT IDENTITY(100, 5), NOTE VARCHAR(40));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_IDENTITY_RANGE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_008]
+sql:
+CREATE TABLE T_AUTO_INCREMENT (ID INT AUTO_INCREMENT PRIMARY KEY, NOTE VARCHAR(40)) AUTO_INCREMENT = 20;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_AUTO_INCREMENT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_009]
+sql:
+CREATE TABLE T_COLUMN_PK (ID INT PRIMARY KEY, NOTE VARCHAR(40));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_COLUMN_PK/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_010]
+sql:
+CREATE TABLE T_TABLE_PK (ID INT, CODE VARCHAR(20), CONSTRAINT PK_T_TABLE_PK PRIMARY KEY (ID, CODE));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_TABLE_PK/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_011]
+sql:
+CREATE TABLE T_COLUMN_UNIQUE (ID INT UNIQUE, NOTE VARCHAR(40));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_COLUMN_UNIQUE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_012]
+sql:
+CREATE TABLE T_TABLE_UNIQUE (ID INT, CODE VARCHAR(20), CONSTRAINT UK_T_TABLE_UNIQUE UNIQUE (CODE));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_TABLE_UNIQUE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_013]
+sql:
+CREATE TABLE T_COLUMN_CHECK (ID INT CHECK (ID > 0), STATUS CHAR(1));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_COLUMN_CHECK/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_014]
+sql:
+CREATE TABLE T_TABLE_CHECK (ID INT, AMOUNT DECIMAL(12, 2), CONSTRAINT CK_T_TABLE_CHECK CHECK (AMOUNT >= 0));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_TABLE_CHECK/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_015]
+sql:
+CREATE TABLE T_CONSTRAINT_NAMES (ID INT CONSTRAINT NN_T_CONSTRAINT_NAMES NOT NULL, CODE VARCHAR(20) CONSTRAINT UK_T_CONSTRAINT_NAMES UNIQUE);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_CONSTRAINT_NAMES/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_016]
+sql:
+CREATE TABLE T_PARENT (ID INT PRIMARY KEY, CODE VARCHAR(20) UNIQUE);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:21) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_017]
+sql:
+CREATE TABLE T_FK_COLUMN (ID INT PRIMARY KEY, PARENT_ID INT REFERENCES T_PARENT (ID));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_FK_COLUMN/",
+      "action": "CREATE",
+      "target": "Table(1:71~1:79) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_018]
+sql:
+CREATE TABLE T_FK_TABLE (ID INT PRIMARY KEY, PARENT_ID INT, CONSTRAINT FK_T_FK_TABLE FOREIGN KEY (PARENT_ID) REFERENCES T_PARENT (ID));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_FK_TABLE/",
+      "action": "CREATE",
+      "target": "Table(1:120~1:128) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_019]
+sql:
+CREATE TABLE T_FK_DELETE_CASCADE (ID INT PRIMARY KEY, PARENT_ID INT REFERENCES T_PARENT (ID) ON DELETE CASCADE);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_FK_DELETE_CASCADE/",
+      "action": "CREATE",
+      "target": "Table(1:79~1:87) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_020]
+sql:
+CREATE TABLE T_FK_DELETE_NULL (ID INT PRIMARY KEY, PARENT_ID INT REFERENCES T_PARENT (ID) ON DELETE SET NULL);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_FK_DELETE_NULL/",
+      "action": "CREATE",
+      "target": "Table(1:76~1:84) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_021]
+sql:
+CREATE TABLE T_FK_NO_ACTION (ID INT PRIMARY KEY, PARENT_ID INT REFERENCES T_PARENT (ID) ON DELETE NO ACTION);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_FK_NO_ACTION/",
+      "action": "CREATE",
+      "target": "Table(1:74~1:82) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_022]
+sql:
+CREATE TABLE T_FK_MATCH_FULL (ID INT PRIMARY KEY, PARENT_ID INT REFERENCES T_PARENT (ID) MATCH FULL);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_FK_MATCH_FULL/",
+      "action": "CREATE",
+      "target": "Table(1:75~1:83) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_023]
+sql:
+CREATE TABLE T_FK_WITH_INDEX (ID INT PRIMARY KEY, PARENT_ID INT REFERENCES T_PARENT (ID) WITH INDEX);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_FK_WITH_INDEX/",
+      "action": "CREATE",
+      "target": "Table(1:75~1:83) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_024]
+sql:
+CREATE TABLE T_VIRTUAL_IMPLICIT (A INT, B AS (A + 1));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_VIRTUAL_IMPLICIT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_025]
+sql:
+CREATE TABLE T_VIRTUAL_TYPED (A INT, B INT GENERATED ALWAYS AS (A * 2) VIRTUAL);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_VIRTUAL_TYPED/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_026]
+sql:
+CREATE TABLE T_VIRTUAL_VISIBLE (A INT, B INT AS (A + 10) VIRTUAL VISIBLE);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_VIRTUAL_VISIBLE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_027]
+sql:
+CREATE TABLE T_INVISIBLE (ID INT PRIMARY KEY, SECRET_VALUE VARCHAR(20) NOT VISIBLE);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_INVISIBLE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_028]
+sql:
+CREATE TABLE T_COLUMN_COMMENT (ID INT, NOTE VARCHAR(40) COMMENT 'table column comment');
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_COLUMN_COMMENT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_029]
+sql:
+CREATE TABLE "T_QUOTED" ("ID" INT, "SELECT" VARCHAR(20));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_QUOTED/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_030]
+sql:
+CREATE TABLE T_MIXED_TYPES (ID BIGINT, FLAG BIT, PAYLOAD BLOB, CONTENT CLOB, RAW_VALUE VARBINARY(20));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_MIXED_TYPES/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_031]
+sql:
+CREATE TABLE T_STORAGE_INITIAL (ID INT) STORAGE (INITIAL 1, NEXT 1, MINEXTENTS 1);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_STORAGE_INITIAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_032]
+sql:
+CREATE TABLE T_STORAGE_BRANCH (ID INT) STORAGE (BRANCH 2);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_STORAGE_BRANCH/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_033]
+sql:
+CREATE TABLE T_STORAGE_NOBRANCH (ID INT) STORAGE (NOBRANCH);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_STORAGE_NOBRANCH/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_034]
+sql:
+CREATE TABLE T_STORAGE_COUNTER (ID INT) STORAGE (WITH COUNTER);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_STORAGE_COUNTER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_035]
+sql:
+CREATE TABLE T_STORAGE_NO_COUNTER (ID INT) STORAGE (WITHOUT COUNTER);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_STORAGE_NO_COUNTER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_036]
+sql:
+CREATE TABLE T_TABLESPACE (ID INT) TABLESPACE MAIN;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_TABLESPACE/",
+      "action": "CREATE",
+      "target": "Tablespace(1:46~1:50) /test/1/MAIN/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_037]
+sql:
+CREATE TABLE T_DISKSPACE_LIMIT (ID INT) DISKSPACE LIMIT 64;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DISKSPACE_LIMIT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_038]
+sql:
+CREATE TABLE T_DISKSPACE_UNLIMITED (ID INT) DISKSPACE UNLIMITED;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DISKSPACE_UNLIMITED/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_039]
+sql:
+CREATE TABLE T_COMPRESS_ALL (ID INT, NOTE VARCHAR(40)) COMPRESS;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_COMPRESS_ALL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_040]
+sql:
+CREATE TABLE T_COMPRESS_COLUMNS (ID INT, CODE INT, NOTE VARCHAR(40)) COMPRESS (CODE, NOTE);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_COMPRESS_COLUMNS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_041]
+sql:
+CREATE TABLE T_COMPRESS_EXCEPT (ID INT, CODE INT, NOTE VARCHAR(40)) COMPRESS EXCEPT (NOTE);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_COMPRESS_EXCEPT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_042]
+sql:
+CREATE TABLE T_LOGIC_LOG (ID INT) ADD LOGIC LOG;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_LOGIC_LOG/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_043]
+sql:
+CREATE GLOBAL TEMPORARY TABLE T_GTT_DELETE (ID INT, NOTE VARCHAR(40)) ON COMMIT DELETE ROWS;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:30~1:42) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_GTT_DELETE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_044]
+sql:
+CREATE GLOBAL TEMPORARY TABLE T_GTT_PRESERVE (ID INT, NOTE VARCHAR(40)) ON COMMIT PRESERVE ROWS;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:30~1:44) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_GTT_PRESERVE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_045]
+sql:
+CREATE TEMPORARY TABLE T_TEMP_DEFAULT (ID INT, NOTE VARCHAR(40));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:23~1:37) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_TEMP_DEFAULT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_046]
+sql:
+CREATE TABLE IF NOT EXISTS T_IF_NOT_EXISTS (ID INT PRIMARY KEY, NOTE VARCHAR(40));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:27~1:42) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_IF_NOT_EXISTS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_047]
+sql:
+CREATE TABLE IF NOT EXISTS T_IF_NOT_EXISTS (ID INT PRIMARY KEY, NOTE VARCHAR(40));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:27~1:42) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_IF_NOT_EXISTS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_048]
+sql:
+CREATE TABLE T_LIKE_SOURCE (ID INT PRIMARY KEY, NOTE VARCHAR(40) DEFAULT 'x');
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_LIKE_SOURCE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_049]
+sql:
+CREATE TABLE T_LIKE_COPY LIKE T_LIKE_SOURCE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_LIKE_COPY/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:43) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_LIKE_SOURCE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_050]
+sql:
+CREATE TABLE T_CTAS_ONE AS SELECT 1 AS ID FROM DUAL;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_CTAS_ONE/",
+      "action": "CREATE",
+      "target": "View(1:47~1:51) /test/1/catalog1/CODEX_DM8_TABLE_20260721/DUAL/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_051]
+sql:
+CREATE TABLE T_CTAS_MULTI AS SELECT 1 AS ID, 'A' AS NAME FROM DUAL;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_CTAS_MULTI/",
+      "action": "CREATE",
+      "target": "View(1:62~1:66) /test/1/catalog1/CODEX_DM8_TABLE_20260721/DUAL/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_052]
+sql:
+CREATE TABLE T_CTAS_EMPTY AS SELECT ID, NOTE FROM T_LIKE_SOURCE WHERE 1 = 0;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_CTAS_EMPTY/",
+      "action": "CREATE",
+      "target": "Table(1:50~1:63) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_LIKE_SOURCE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_053]
+sql:
+CREATE TABLE T_CTAS_UNION AS SELECT 1 AS ID FROM DUAL UNION ALL SELECT 2 FROM DUAL;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_CTAS_UNION/",
+      "action": "CREATE",
+      "target": [
+        "View(1:49~1:53) /test/1/catalog1/CODEX_DM8_TABLE_20260721/DUAL/",
+        "View(1:78~1:82) /test/1/catalog1/CODEX_DM8_TABLE_20260721/DUAL/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_054]
+sql:
+CREATE TABLE T_CTAS_WITH AS WITH Q AS (SELECT 1 AS ID FROM DUAL) SELECT ID FROM Q;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_CTAS_WITH/",
+      "action": "CREATE",
+      "target": "View(1:59~1:63) /test/1/catalog1/CODEX_DM8_TABLE_20260721/DUAL/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_055]
+sql:
+INSERT INTO T_BASIC VALUES (1);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_BASIC/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_056]
+sql:
+INSERT INTO T_DEFAULTS (ID) VALUES (1);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DEFAULTS/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_057]
+sql:
+INSERT INTO T_IDENTITY_DEFAULT (NOTE) VALUES ('A');
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_IDENTITY_DEFAULT/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_058]
+sql:
+INSERT INTO T_AUTO_INCREMENT (NOTE) VALUES ('A');
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_AUTO_INCREMENT/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_059]
+sql:
+INSERT INTO T_PARENT VALUES (1, 'P1');
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:20) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_060]
+sql:
+INSERT INTO T_FK_COLUMN VALUES (1, 1);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_FK_COLUMN/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_061]
+sql:
+SELECT ID FROM T_BASIC;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_BASIC/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_062]
+sql:
+SELECT ID, STATUS, CREATED_AT FROM T_DEFAULTS;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:35~1:45) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DEFAULTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_063]
+sql:
+SELECT ID, NOTE FROM T_IDENTITY_DEFAULT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:39) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_IDENTITY_DEFAULT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_064]
+sql:
+SELECT ID, NOTE FROM T_AUTO_INCREMENT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:37) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_AUTO_INCREMENT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_065]
+sql:
+SELECT A, B FROM T_VIRTUAL_TYPED;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:32) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_VIRTUAL_TYPED/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_066]
+sql:
+SELECT ID, NOTE FROM T_LIKE_COPY;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:32) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_LIKE_COPY/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_067]
+sql:
+SELECT ID FROM T_CTAS_UNION ORDER BY ID;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:27) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_CTAS_UNION/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_068]
+sql:
+COMMENT ON TABLE T_BASIC IS 'ordinary table';
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_069]
+sql:
+COMMENT ON COLUMN T_BASIC.ID IS 'ordinary table id';
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:25) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_070]
+sql:
+COMMENT ON TABLE T_BASIC IS '';
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_071]
+sql:
+COMMENT ON COLUMN T_BASIC.ID IS '';
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:25) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_072]
+sql:
+CREATE TABLE T_ALTER (ID INT PRIMARY KEY, CODE VARCHAR(20), AMOUNT DECIMAL(12, 2));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:20) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_073]
+sql:
+ALTER TABLE T_ALTER ADD NOTE VARCHAR(40);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_074]
+sql:
+ALTER TABLE T_ALTER ADD COLUMN FLAG INT DEFAULT 0;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_075]
+sql:
+ALTER TABLE T_ALTER ADD (CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UPDATED_AT TIMESTAMP);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    },
+    {
+      "subject": "Function(1:54~1:71) /test/1/catalog1/CODEX_DM8_TABLE_20260721/CURRENT_TIMESTAMP/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_076]
+sql:
+ALTER TABLE T_ALTER MODIFY NOTE VARCHAR(80);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_077]
+sql:
+ALTER TABLE T_ALTER MODIFY FLAG BIGINT DEFAULT 1;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_078]
+sql:
+ALTER TABLE T_ALTER ALTER COLUMN NOTE SET DEFAULT 'N/A';
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_079]
+sql:
+ALTER TABLE T_ALTER ALTER NOTE DROP DEFAULT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_080]
+sql:
+ALTER TABLE T_ALTER ALTER COLUMN NOTE SET NOT NULL;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_081]
+sql:
+ALTER TABLE T_ALTER ALTER COLUMN NOTE SET NULL;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_082]
+sql:
+ALTER TABLE T_ALTER ALTER COLUMN NOTE SET NOT VISIBLE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_083]
+sql:
+ALTER TABLE T_ALTER ALTER COLUMN NOTE SET VISIBLE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_084]
+sql:
+ALTER TABLE T_ALTER ALTER COLUMN NOTE RENAME TO DESCRIPTION;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "RENAME_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_085]
+sql:
+ALTER TABLE T_ALTER RENAME COLUMN DESCRIPTION TO NOTE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "RENAME_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_086]
+sql:
+ALTER TABLE T_ALTER ADD CONSTRAINT UK_T_ALTER_CODE UNIQUE (CODE);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ADD_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:35~1:50) /test/1/catalog1/CODEX_DM8_TABLE_20260721/UK_T_ALTER_CODE/",
+      "action": "CREATE",
+      "target": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_087]
+sql:
+ALTER TABLE T_ALTER RENAME CONSTRAINT UK_T_ALTER_CODE TO UK_T_ALTER_CODE_NEW;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "RENAME_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:38~1:53) /test/1/catalog1/CODEX_DM8_TABLE_20260721/UK_T_ALTER_CODE/",
+      "action": "RENAME",
+      "target": "Constraint(1:57~1:76) /test/1/catalog1/CODEX_DM8_TABLE_20260721/UK_T_ALTER_CODE_NEW/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_088]
+sql:
+ALTER TABLE T_ALTER DISABLE CONSTRAINT UK_T_ALTER_CODE_NEW;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:39~1:58) /test/1/catalog1/CODEX_DM8_TABLE_20260721/UK_T_ALTER_CODE_NEW/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_089]
+sql:
+ALTER TABLE T_ALTER ENABLE CONSTRAINT UK_T_ALTER_CODE_NEW;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:38~1:57) /test/1/catalog1/CODEX_DM8_TABLE_20260721/UK_T_ALTER_CODE_NEW/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_090]
+sql:
+ALTER TABLE T_ALTER DROP CONSTRAINT UK_T_ALTER_CODE_NEW;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:36~1:55) /test/1/catalog1/CODEX_DM8_TABLE_20260721/UK_T_ALTER_CODE_NEW/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_091]
+sql:
+ALTER TABLE T_ALTER ADD CONSTRAINT CK_T_ALTER_AMOUNT CHECK (AMOUNT >= 0);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ADD_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:35~1:52) /test/1/catalog1/CODEX_DM8_TABLE_20260721/CK_T_ALTER_AMOUNT/",
+      "action": "CREATE",
+      "target": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_092]
+sql:
+ALTER TABLE T_ALTER MODIFY CONSTRAINT CK_T_ALTER_AMOUNT DISABLE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:38~1:55) /test/1/catalog1/CODEX_DM8_TABLE_20260721/CK_T_ALTER_AMOUNT/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_093]
+sql:
+ALTER TABLE T_ALTER MODIFY CONSTRAINT CK_T_ALTER_AMOUNT ENABLE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:38~1:55) /test/1/catalog1/CODEX_DM8_TABLE_20260721/CK_T_ALTER_AMOUNT/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_094]
+sql:
+ALTER TABLE T_ALTER DROP CONSTRAINT CK_T_ALTER_AMOUNT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:36~1:53) /test/1/catalog1/CODEX_DM8_TABLE_20260721/CK_T_ALTER_AMOUNT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_095]
+sql:
+ALTER TABLE T_ALTER ADD PARENT_ID INT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_096]
+sql:
+ALTER TABLE T_ALTER ADD CONSTRAINT FK_T_ALTER_PARENT FOREIGN KEY (PARENT_ID) REFERENCES T_PARENT (ID);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ADD_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:35~1:52) /test/1/catalog1/CODEX_DM8_TABLE_20260721/FK_T_ALTER_PARENT/",
+      "action": "CREATE",
+      "target": [
+        "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+        "Table(1:88~1:96) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_PARENT/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_097]
+sql:
+ALTER TABLE T_ALTER DROP CONSTRAINT FK_T_ALTER_PARENT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:36~1:53) /test/1/catalog1/CODEX_DM8_TABLE_20260721/FK_T_ALTER_PARENT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_098]
+sql:
+ALTER TABLE T_ALTER DROP COLUMN PARENT_ID;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_099]
+sql:
+ALTER TABLE T_ALTER DROP FLAG RESTRICT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_100]
+sql:
+ALTER TABLE T_ALTER DROP COLUMN UPDATED_AT CASCADE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_COLUMN": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_101]
+sql:
+ALTER TABLE T_ALTER REBUILD COLUMNS;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_102]
+sql:
+ALTER TABLE T_ALTER MODIFY DISKSPACE LIMIT 128;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_103]
+sql:
+ALTER TABLE T_ALTER MODIFY DISKSPACE UNLIMITED;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_104]
+sql:
+ALTER TABLE T_ALTER WITHOUT COUNTER;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_105]
+sql:
+ALTER TABLE T_ALTER WITH COUNTER;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_106]
+sql:
+ALTER TABLE T_ALTER ADD LOGIC LOG;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_107]
+sql:
+ALTER TABLE T_ALTER DROP LOGIC LOG;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_108]
+sql:
+ALTER TABLE T_ALTER MOVE TABLESPACE MAIN;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "MOVE",
+      "target": "Tablespace(1:36~1:40) /test/1/MAIN/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_109]
+sql:
+ALTER TABLE T_ALTER RENAME TO T_ALTER_RENAMED;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "RENAME_TABLE": [
+    {
+      "subject": "Table(1:12~1:19) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/",
+      "action": "RENAME",
+      "target": "Table(1:30~1:45) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER_RENAMED/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_110]
+sql:
+ALTER TABLE T_ALTER_RENAMED RENAME TO T_ALTER;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "RENAME_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER_RENAMED/",
+      "action": "RENAME",
+      "target": "Table(1:38~1:45) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ALTER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_111]
+sql:
+CREATE TABLE T_DROP_PK (ID INT, CODE INT, CONSTRAINT PK_T_DROP_PK PRIMARY KEY (ID));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:22) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_PK/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_112]
+sql:
+ALTER TABLE T_DROP_PK DROP PRIMARY KEY;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:27~1:38) /test/1/catalog1/CODEX_DM8_TABLE_20260721/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_113]
+sql:
+CREATE TABLE T_DROP_IDENTITY (ID INT IDENTITY, NOTE VARCHAR(20));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_IDENTITY/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_114]
+sql:
+ALTER TABLE T_DROP_IDENTITY DROP IDENTITY;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_IDENTITY/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_115]
+sql:
+CREATE TABLE T_DROP_AUTO (ID INT AUTO_INCREMENT PRIMARY KEY, NOTE VARCHAR(20));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_AUTO/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_116]
+sql:
+ALTER TABLE T_DROP_AUTO DROP AUTO_INCREMENT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:23) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_AUTO/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_117]
+sql:
+CREATE TABLE T_ADD_IDENTITY (ID INT NOT NULL, NOTE VARCHAR(20));
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ADD_IDENTITY/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_118]
+sql:
+ALTER TABLE T_ADD_IDENTITY ADD COLUMN ID IDENTITY(10, 2);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_ADD_IDENTITY/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_119]
+sql:
+INSERT INTO T_GTT_DELETE VALUES (1, 'DELETE');
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:24) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_GTT_DELETE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_120]
+sql:
+COMMIT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_ddl_dameng_table_0_121]
+sql:
+SELECT COUNT(*) FROM T_GTT_DELETE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/CODEX_DM8_TABLE_20260721/COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:33) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_GTT_DELETE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_122]
+sql:
+INSERT INTO T_GTT_PRESERVE VALUES (1, 'PRESERVE');
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_GTT_PRESERVE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_123]
+sql:
+COMMIT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "TRANSACTION": []
+}
+----------
+[split_ddl_dameng_table_0_124]
+sql:
+SELECT COUNT(*) FROM T_GTT_PRESERVE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/CODEX_DM8_TABLE_20260721/COUNT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:35) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_GTT_PRESERVE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_125]
+sql:
+TRUNCATE TABLE T_GTT_PRESERVE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:29) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_GTT_PRESERVE/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_126]
+sql:
+TRUNCATE TABLE T_BASIC;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:22) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_BASIC/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_127]
+sql:
+CREATE TABLE T_DROP_PLAIN (ID INT);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_PLAIN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_128]
+sql:
+DROP TABLE T_DROP_PLAIN;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:23) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_PLAIN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_129]
+sql:
+CREATE TABLE T_DROP_RESTRICT (ID INT);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_RESTRICT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_130]
+sql:
+DROP TABLE T_DROP_RESTRICT RESTRICT;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_RESTRICT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_131]
+sql:
+CREATE TABLE T_DROP_CASCADE (ID INT);
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_CASCADE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_132]
+sql:
+DROP TABLE T_DROP_CASCADE CASCADE;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_CASCADE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_133]
+sql:
+DROP TABLE IF EXISTS T_DROP_MISSING;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:21~1:35) /test/1/catalog1/CODEX_DM8_TABLE_20260721/T_DROP_MISSING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_134]
+sql:
+SELECT TABLE_NAME FROM USER_TABLES WHERE TABLE_NAME = 'T_BASIC';
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:23~1:34) /test/1/catalog1/CODEX_DM8_TABLE_20260721/USER_TABLES/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_135]
+sql:
+SELECT COLUMN_NAME, DATA_TYPE FROM USER_TAB_COLUMNS WHERE TABLE_NAME = 'T_ALTER' ORDER BY COLUMN_ID;
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:35~1:51) /test/1/catalog1/CODEX_DM8_TABLE_20260721/USER_TAB_COLUMNS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_0_136]
+sql:
+SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE FROM USER_CONSTRAINTS WHERE TABLE_NAME = 'T_PARENT';
+levels:
+/test/1/catalog1/CODEX_DM8_TABLE_20260721
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:45~1:61) /test/1/catalog1/CODEX_DM8_TABLE_20260721/USER_CONSTRAINTS/",
+      "action": "READ"
+    }
+  ]
+}

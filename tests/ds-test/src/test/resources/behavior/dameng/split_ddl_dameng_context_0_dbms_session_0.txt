@@ -1,0 +1,49 @@
+[split_ddl_dameng_context_0_002]
+sql:
+create or replace package body app_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end app_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:31~1:46) /test/1/catalog1/schema1/app_context_pkg/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Procedure(4:4~4:28) /test/1/catalog1/dbms_session/set_context/",
+      "action": "CALL",
+      "target": "ConfigKey(4:29~4:43) /test/1/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_0_004]
+sql:
+create or replace package body replacement_context_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar) as
+  begin
+    dbms_session.set_context(namespace_name, attribute_name, attribute_value);
+  end;
+end replacement_context_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:31~1:54) /test/1/catalog1/schema1/replacement_context_pkg/",
+      "action": "REPLACE"
+    },
+    {
+      "subject": "Procedure(4:4~4:28) /test/1/catalog1/dbms_session/set_context/",
+      "action": "CALL",
+      "target": "ConfigKey(4:29~4:43) /test/1/"
+    }
+  ]
+}

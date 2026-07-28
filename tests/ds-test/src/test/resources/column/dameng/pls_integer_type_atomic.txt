@@ -1,0 +1,13 @@
+[functions]
+sql:
+select abs(t.v) as absolute_value,mod(t.v,10) as remainder,
+cast(t.v as varchar(20)) as text_value from catalog1.app.plsint_t t
+expect:
+{"absolute_value":["/catalog1/app/plsint_t/v/"],"remainder":["/catalog1/app/plsint_t/v/"],"text_value":["/catalog1/app/plsint_t/v/"]}
+----------
+[aggregate]
+sql:
+select min(t.v) as min_value,max(t.v) as max_value,
+avg(t.v) as avg_value from catalog1.app.plsint_t t
+expect:
+{"min_value":["/catalog1/app/plsint_t/v/"],"max_value":["/catalog1/app/plsint_t/v/"],"avg_value":["/catalog1/app/plsint_t/v/"]}

@@ -1,0 +1,15 @@
+[encryption_package_hash_column]
+sql:
+select dbms_crypto.hash(secret_value, dbms_crypto.hash_sh256) as secret_hash from catalog1.app.crypto_pkg_data
+expect:
+{
+  "secret_hash" : [ "/catalog1/app/crypto_pkg_data/secret_value/", "/dbms_crypto/hash_sh256/" ]
+}
+----------
+[encryption_package_nested_decrypt_column]
+sql:
+select dbms_crypto.decrypt(encrypted_value, crypto_type, crypto_key, crypto_iv) as plain_value from catalog1.app.crypto_pkg_data
+expect:
+{
+  "plain_value" : [ "/catalog1/app/crypto_pkg_data/encrypted_value/", "/catalog1/app/crypto_pkg_data/crypto_type/", "/catalog1/app/crypto_pkg_data/crypto_key/", "/catalog1/app/crypto_pkg_data/crypto_iv/" ]
+}

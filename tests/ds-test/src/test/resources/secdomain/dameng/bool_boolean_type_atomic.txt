@@ -1,0 +1,12 @@
+[ddl]
+sql:
+create table app.bool_expr(id int);
+create function app.bool_f(p bool) return bool as begin return p;end;/
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"bool_expr"},{"class":"RdbFunctionDomain","sqlType":"CREATE_PROG_OBJ","auditKind":"CREATE","schema":"app","name":"bool_f"}]}
+----------
+[dml]
+sql:
+insert into app.bool_expr values(0),(1);delete from app.bool_expr where id=0
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"bool_expr"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"bool_expr"}]}

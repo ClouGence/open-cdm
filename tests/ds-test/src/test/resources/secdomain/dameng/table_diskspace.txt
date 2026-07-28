@@ -1,0 +1,40 @@
+[table_diskspace_create]
+sql:
+create table app.table_disk_1(id int) diskspace limit 1
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"table_disk_1"}
+  ]
+}
+----------
+[table_diskspace_alter]
+sql:
+alter table app.table_disk_alt modify diskspace limit 1048576
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"table_disk_alt"}
+  ]
+}
+----------
+[table_diskspace_unlimited]
+sql:
+alter table app.table_disk_alt modify diskspace unlimited
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"table_disk_alt"}
+  ]
+}
+----------
+[table_diskspace_ctas]
+sql:
+create table app.table_disk_ctas diskspace limit 1 as select id from app.table_disk_source
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"table_disk_ctas"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"table_disk_source"}
+  ]
+}

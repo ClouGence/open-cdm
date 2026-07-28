@@ -1,0 +1,62 @@
+[cte_direct_columns]
+sql:
+with q as(
+  select t.id,t.v from catalog1.app.cte_t t
+)
+select q.id,q.v value from q
+expect:
+{
+  "id": ["/catalog1/app/cte_t/id/"],
+  "value": ["/catalog1/app/cte_t/v/"]
+}
+----------
+[cte_expression_columns]
+sql:
+with q(id,total) as(
+  select t.id,t.v+t.v2 from catalog1.app.cte_t t
+)
+select q.id,q.total from q
+expect:
+{
+  "id": ["/catalog1/app/cte_t/id/"],
+  "total": [
+    "/catalog1/app/cte_t/v/",
+    "/catalog1/app/cte_t/v2/"
+  ]
+}
+----------
+[cte_join_columns]
+sql:
+with q as(
+  select t.id,t.v from catalog1.app.cte_t t
+)
+select q.id,q.v+o.v total
+from q join catalog1.app.cte_other o on q.id=o.id
+expect:
+{
+  "id": ["/catalog1/app/cte_t/id/"],
+  "total": [
+    "/catalog1/app/cte_t/v/",
+    "/catalog1/app/cte_other/v/"
+  ]
+}
+----------
+[cte_union_columns]
+sql:
+with q(id,value) as(
+  select a.id,a.v from catalog1.app.cte_t a
+  union all
+  select b.id,b.v from catalog1.app.cte_other b
+)
+select id,value from q
+expect:
+{
+  "id": [
+    "/catalog1/app/cte_t/id/",
+    "/catalog1/app/cte_other/id/"
+  ],
+  "value": [
+    "/catalog1/app/cte_t/v/",
+    "/catalog1/app/cte_other/v/"
+  ]
+}

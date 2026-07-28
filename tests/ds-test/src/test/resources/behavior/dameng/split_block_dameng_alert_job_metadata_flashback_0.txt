@@ -1,0 +1,781 @@
+[split_block_dameng_alert_job_metadata_flashback_0_001]
+sql:
+begin dbms_alert.set_defaults(1); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:29) /test/1/catalog1/dbms_alert/set_defaults/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_002]
+sql:
+begin dbms_alert.set_defaults(null); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:29) /test/1/catalog1/dbms_alert/set_defaults/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_003]
+sql:
+begin dbms_alert.register('CODEX_ALERT_REGISTER'); dbms_alert.remove('CODEX_ALERT_REGISTER'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:25) /test/1/catalog1/dbms_alert/register/",
+      "action": "CALL",
+      "target": "Event(1:26~1:48) /test/1/CODEX_ALERT_REGISTER/"
+    },
+    {
+      "subject": "Procedure(1:51~1:68) /test/1/catalog1/dbms_alert/remove/",
+      "action": "CALL",
+      "target": "Event(1:69~1:91) /test/1/CODEX_ALERT_REGISTER/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_004]
+sql:
+begin dbms_alert.register('CODEX_ALERT_ALL_A'); dbms_alert.register('CODEX_ALERT_ALL_B'); dbms_alert.removeall(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:25) /test/1/catalog1/dbms_alert/register/",
+      "action": "CALL",
+      "target": "Event(1:26~1:45) /test/1/CODEX_ALERT_ALL_A/"
+    },
+    {
+      "subject": "Procedure(1:48~1:67) /test/1/catalog1/dbms_alert/register/",
+      "action": "CALL",
+      "target": "Event(1:68~1:87) /test/1/CODEX_ALERT_ALL_B/"
+    },
+    {
+      "subject": "Procedure(1:90~1:110) /test/1/catalog1/dbms_alert/removeall/",
+      "action": "CALL",
+      "target": "Event(1:90~1:110) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_005]
+sql:
+declare msg varchar(1800); status int; begin dbms_alert.register('CODEX_ALERT_ONE'); dbms_alert.signal('CODEX_ALERT_ONE', 'ONE_MESSAGE'); commit; dbms_alert.waitone('CODEX_ALERT_ONE', msg, status, 3); dbms_alert.remove('CODEX_ALERT_ONE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:45~1:64) /test/1/catalog1/dbms_alert/register/",
+      "action": "CALL",
+      "target": "Event(1:65~1:82) /test/1/CODEX_ALERT_ONE/"
+    },
+    {
+      "subject": "Procedure(1:85~1:102) /test/1/catalog1/dbms_alert/signal/",
+      "action": "CALL",
+      "target": "Event(1:103~1:120) /test/1/CODEX_ALERT_ONE/"
+    },
+    {
+      "subject": "Procedure(1:146~1:164) /test/1/catalog1/dbms_alert/waitone/",
+      "action": "CALL",
+      "target": "Event(1:165~1:182) /test/1/CODEX_ALERT_ONE/"
+    },
+    {
+      "subject": "Procedure(1:201~1:218) /test/1/catalog1/dbms_alert/remove/",
+      "action": "CALL",
+      "target": "Event(1:219~1:236) /test/1/CODEX_ALERT_ONE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_006]
+sql:
+declare name varchar(30); msg varchar(1800); status int; begin dbms_alert.register('CODEX_ALERT_ANY_A'); dbms_alert.register('CODEX_ALERT_ANY_B'); dbms_alert.signal('CODEX_ALERT_ANY_B', 'ANY_MESSAGE'); commit; dbms_alert.waitany(name, msg, status, 3); dbms_alert.removeall(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:63~1:82) /test/1/catalog1/dbms_alert/register/",
+      "action": "CALL",
+      "target": "Event(1:83~1:102) /test/1/CODEX_ALERT_ANY_A/"
+    },
+    {
+      "subject": "Procedure(1:105~1:124) /test/1/catalog1/dbms_alert/register/",
+      "action": "CALL",
+      "target": "Event(1:125~1:144) /test/1/CODEX_ALERT_ANY_B/"
+    },
+    {
+      "subject": "Procedure(1:147~1:164) /test/1/catalog1/dbms_alert/signal/",
+      "action": "CALL",
+      "target": "Event(1:165~1:184) /test/1/CODEX_ALERT_ANY_B/"
+    },
+    {
+      "subject": "Procedure(1:210~1:228) /test/1/catalog1/dbms_alert/waitany/",
+      "action": "CALL",
+      "target": "Event(1:210~1:228) /test/1/"
+    },
+    {
+      "subject": "Procedure(1:252~1:272) /test/1/catalog1/dbms_alert/removeall/",
+      "action": "CALL",
+      "target": "Event(1:252~1:272) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_007]
+sql:
+declare msg varchar(1800); status int; begin dbms_alert.register('CODEX_ALERT_TIMEOUT'); dbms_alert.waitone('CODEX_ALERT_TIMEOUT', msg, status, 0); dbms_alert.remove('CODEX_ALERT_TIMEOUT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:45~1:64) /test/1/catalog1/dbms_alert/register/",
+      "action": "CALL",
+      "target": "Event(1:65~1:86) /test/1/CODEX_ALERT_TIMEOUT/"
+    },
+    {
+      "subject": "Procedure(1:89~1:107) /test/1/catalog1/dbms_alert/waitone/",
+      "action": "CALL",
+      "target": "Event(1:108~1:129) /test/1/CODEX_ALERT_TIMEOUT/"
+    },
+    {
+      "subject": "Procedure(1:148~1:165) /test/1/catalog1/dbms_alert/remove/",
+      "action": "CALL",
+      "target": "Event(1:166~1:187) /test/1/CODEX_ALERT_TIMEOUT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_008]
+sql:
+declare job_no int; begin dbms_job.submit(job_no, 'insert into CODEX_DM8_JOB_LOG(marker) values(''SUBMIT_RUN''); commit;', sysdate + 1, null); insert into CODEX_DM8_JOB_CTL values(job_no, 'SUBMIT'); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:26~1:41) /test/1/catalog1/dbms_job/submit/",
+      "action": "CALL",
+      "target": "Job(1:26~1:41) /test/1/"
+    },
+    {
+      "subject": "Function(1:123~1:130) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:155~1:172) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_009]
+sql:
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.run(job_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:57~1:74) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:97~1:109) /test/1/catalog1/dbms_job/run/",
+      "action": "CALL",
+      "target": "Job(1:97~1:109) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_010]
+sql:
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.broken(job_no, true, sysdate + 1); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:57~1:74) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:97~1:112) /test/1/catalog1/dbms_job/broken/",
+      "action": "CALL",
+      "target": "Job(1:97~1:112) /test/1/"
+    },
+    {
+      "subject": "Function(1:127~1:134) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_011]
+sql:
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.broken(job_no, false, sysdate + 1); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:57~1:74) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:97~1:112) /test/1/catalog1/dbms_job/broken/",
+      "action": "CALL",
+      "target": "Job(1:97~1:112) /test/1/"
+    },
+    {
+      "subject": "Function(1:128~1:135) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_012]
+sql:
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.next_date(job_no, sysdate + 2); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:57~1:74) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:97~1:115) /test/1/catalog1/dbms_job/next_date/",
+      "action": "CALL",
+      "target": "Job(1:97~1:115) /test/1/"
+    },
+    {
+      "subject": "Function(1:124~1:131) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_013]
+sql:
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job."INTERVAL"(job_no, 'sysdate + 1'); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:57~1:74) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:97~1:116) /test/1/catalog1/dbms_job/INTERVAL/",
+      "action": "CALL",
+      "target": "Job(1:97~1:116) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_014]
+sql:
+declare job_no int; text_value varchar(1800); begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; text_value := 'insert into CODEX_DM8_JOB_LOG(marker) values(''WHAT_RUN''); commit;'; dbms_job.what(job_no, text_value); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:83~1:100) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:208~1:221) /test/1/catalog1/dbms_job/what/",
+      "action": "CALL",
+      "target": "Job(1:208~1:221) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_015]
+sql:
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job."CHANGE"(job_no, 'insert into CODEX_DM8_JOB_LOG(marker) values(''CHANGE_RUN''); commit;', sysdate + 1, null); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:57~1:74) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:97~1:114) /test/1/catalog1/dbms_job/CHANGE/",
+      "action": "CALL",
+      "target": "Job(1:97~1:114) /test/1/"
+    },
+    {
+      "subject": "Function(1:196~1:203) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_016]
+sql:
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.run(job_no, false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:57~1:74) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:97~1:109) /test/1/catalog1/dbms_job/run/",
+      "action": "CALL",
+      "target": "Job(1:97~1:109) /test/1/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_017]
+sql:
+declare job_no int; begin select job_id into job_no from CODEX_DM8_JOB_CTL where label='SUBMIT'; dbms_job.remove(job_no); delete from CODEX_DM8_JOB_CTL where job_id=job_no; commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:57~1:74) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:97~1:112) /test/1/catalog1/dbms_job/remove/",
+      "action": "CALL",
+      "target": "Job(1:97~1:112) /test/1/"
+    },
+    {
+      "subject": "Table(1:134~1:151) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_018]
+sql:
+begin dbms_job.isubmit(910002, 'insert into CODEX_DM8_JOB_LOG(marker) values(''ISUBMIT_RUN''); commit;', sysdate + 1, null, false); insert into CODEX_DM8_JOB_CTL values(910002, 'ISUBMIT'); commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:22) /test/1/catalog1/dbms_job/isubmit/",
+      "action": "CALL",
+      "target": "Job(1:23~1:29) /test/1/910002/"
+    },
+    {
+      "subject": "Function(1:105~1:112) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:144~1:161) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_019]
+sql:
+begin dbms_job.run(910002); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:18) /test/1/catalog1/dbms_job/run/",
+      "action": "CALL",
+      "target": "Job(1:19~1:25) /test/1/910002/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_020]
+sql:
+begin dbms_job.remove(910002); delete from CODEX_DM8_JOB_CTL where job_id=910002; commit; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:21) /test/1/catalog1/dbms_job/remove/",
+      "action": "CALL",
+      "target": "Job(1:22~1:28) /test/1/910002/"
+    },
+    {
+      "subject": "Table(1:43~1:60) /test/1/catalog1/schema1/CODEX_DM8_JOB_CTL/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_021]
+sql:
+declare h int; doc clob; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_filter(h, 'NAME', 'CODEX_DM8_META_BASE'); doc := dbms_metadata.fetch_clob(h); dbms_metadata."CLOSE"(h); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:67~1:91) /test/1/catalog1/dbms_metadata/set_filter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:116~1:140) /test/1/catalog1/dbms_metadata/set_filter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:212~1:233) /test/1/catalog1/dbms_metadata/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:56) /test/1/catalog1/dbms_metadata/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:183~1:207) /test/1/catalog1/dbms_metadata/fetch_clob/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_022]
+sql:
+declare h int; th number; doc clob; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_filter(h, 'NAME', 'CODEX_DM8_META_BASE'); th := dbms_metadata.add_transform(h, 'DDL'); doc := dbms_metadata.fetch_clob(h); dbms_metadata."CLOSE"(h); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:78~1:102) /test/1/catalog1/dbms_metadata/set_filter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:127~1:151) /test/1/catalog1/dbms_metadata/set_filter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:268~1:289) /test/1/catalog1/dbms_metadata/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:47~1:67) /test/1/catalog1/dbms_metadata/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:193~1:220) /test/1/catalog1/dbms_metadata/add_transform/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:239~1:263) /test/1/catalog1/dbms_metadata/fetch_clob/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_023]
+sql:
+declare h int; query_text varchar(32767); begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); query_text := dbms_metadata.get_query(h); dbms_metadata."CLOSE"(h); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:84~1:108) /test/1/catalog1/dbms_metadata/set_filter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:175~1:196) /test/1/catalog1/dbms_metadata/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:53~1:73) /test/1/catalog1/dbms_metadata/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:147~1:170) /test/1/catalog1/dbms_metadata/get_query/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_024]
+sql:
+declare h int; doc clob; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_count(h, 1); doc := dbms_metadata.fetch_clob(h); dbms_metadata."CLOSE"(h); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:67~1:91) /test/1/catalog1/dbms_metadata/set_filter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:116~1:139) /test/1/catalog1/dbms_metadata/set_count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:183~1:204) /test/1/catalog1/dbms_metadata/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:36~1:56) /test/1/catalog1/dbms_metadata/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:154~1:178) /test/1/catalog1/dbms_metadata/fetch_clob/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_025]
+sql:
+declare h int; docs dbms_metadata.ku$_ddls; begin h := dbms_metadata."OPEN"('TABLE'); dbms_metadata.set_filter(h, 'SCHEMA', 'SYSDBA'); dbms_metadata.set_filter(h, 'NAME', 'CODEX_DM8_META_BASE'); dbms_metadata.set_parse_item(h, 'NAME'); docs := dbms_metadata.fetch_ddl(h); dbms_metadata."CLOSE"(h); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:20~1:42) /test/1/catalog1/dbms_metadata/ku$_ddls/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:86~1:110) /test/1/catalog1/dbms_metadata/set_filter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:135~1:159) /test/1/catalog1/dbms_metadata/set_filter/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:195~1:223) /test/1/catalog1/dbms_metadata/set_parse_item/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:272~1:293) /test/1/catalog1/dbms_metadata/CLOSE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:55~1:75) /test/1/catalog1/dbms_metadata/OPEN/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:244~1:267) /test/1/catalog1/dbms_metadata/fetch_ddl/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_026]
+sql:
+begin dbms_metadata.set_transform_param(dbms_metadata.session_transform, 'CONSTRAINTS', false, 'TABLE'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:39) /test/1/catalog1/dbms_metadata/set_transform_param/",
+      "action": "CALL",
+      "target": "ConfigKey(1:73~1:86) /test/1/CONSTRAINTS/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_027]
+sql:
+begin dbms_metadata.set_transform_param(dbms_metadata.session_transform, 'STORAGE', false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:39) /test/1/catalog1/dbms_metadata/set_transform_param/",
+      "action": "CALL",
+      "target": "ConfigKey(1:73~1:82) /test/1/STORAGE/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_028]
+sql:
+declare current_lsn bigint; begin current_lsn := dbms_flashback.get_system_change_number; dbms_flashback.enable_at_system_change_number(current_lsn); dbms_flashback.disable; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:90~1:135) /test/1/catalog1/dbms_flashback/enable_at_system_change_number/",
+      "action": "CALL",
+      "target": "ConfigKey(1:90~1:135) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Procedure(1:150~1:172) /test/1/catalog1/dbms_flashback/disable/",
+      "action": "CALL",
+      "target": "ConfigKey(1:150~1:172) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Function(1:49~1:88) /test/1/catalog1/dbms_flashback/get_system_change_number/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_029]
+sql:
+declare snapshot_lsn bigint; old_value varchar(30); begin select snapshot_lsn into snapshot_lsn from CODEX_DM8_FLASH_CTL; dbms_flashback.enable_at_system_change_number(snapshot_lsn); select value_text into old_value from CODEX_DM8_FLASH_BASE where id=1; dbms_flashback.disable; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:101~1:120) /test/1/catalog1/schema1/CODEX_DM8_FLASH_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:122~1:167) /test/1/catalog1/dbms_flashback/enable_at_system_change_number/",
+      "action": "CALL",
+      "target": "ConfigKey(1:122~1:167) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Table(1:221~1:241) /test/1/catalog1/schema1/CODEX_DM8_FLASH_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:254~1:276) /test/1/catalog1/dbms_flashback/disable/",
+      "action": "CALL",
+      "target": "ConfigKey(1:254~1:276) /test/1/FLASHBACK/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_030]
+sql:
+declare snapshot_time timestamp; old_value varchar(30); begin select snapshot_time into snapshot_time from CODEX_DM8_FLASH_CTL; dbms_flashback.enable_at_time(snapshot_time); select value_text into old_value from CODEX_DM8_FLASH_BASE where id=1; dbms_flashback.disable; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:107~1:126) /test/1/catalog1/schema1/CODEX_DM8_FLASH_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:128~1:157) /test/1/catalog1/dbms_flashback/enable_at_time/",
+      "action": "CALL",
+      "target": "ConfigKey(1:128~1:157) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Table(1:212~1:232) /test/1/catalog1/schema1/CODEX_DM8_FLASH_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:245~1:267) /test/1/catalog1/dbms_flashback/disable/",
+      "action": "CALL",
+      "target": "ConfigKey(1:245~1:267) /test/1/FLASHBACK/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_031]
+sql:
+declare snapshot_lsn bigint; row_count int; begin select snapshot_lsn into snapshot_lsn from CODEX_DM8_FLASH_CTL; dbms_flashback.enable_at_system_change_number(snapshot_lsn); select count(*) into row_count from CODEX_DM8_FLASH_BASE; dbms_flashback.disable; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:93~1:112) /test/1/catalog1/schema1/CODEX_DM8_FLASH_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:114~1:159) /test/1/catalog1/dbms_flashback/enable_at_system_change_number/",
+      "action": "CALL",
+      "target": "ConfigKey(1:114~1:159) /test/1/FLASHBACK/"
+    },
+    {
+      "subject": "Function(1:182~1:187) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:211~1:231) /test/1/catalog1/schema1/CODEX_DM8_FLASH_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:233~1:255) /test/1/catalog1/dbms_flashback/disable/",
+      "action": "CALL",
+      "target": "ConfigKey(1:233~1:255) /test/1/FLASHBACK/"
+    }
+  ]
+}
+----------
+[split_block_dameng_alert_job_metadata_flashback_0_032]
+sql:
+begin dbms_flashback.disable; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_flashback/disable/",
+      "action": "CALL",
+      "target": "ConfigKey(1:6~1:28) /test/1/FLASHBACK/"
+    }
+  ]
+}
+

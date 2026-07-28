@@ -1,0 +1,116 @@
+[split_dql_dameng_role_diagnostics_0_001]
+sql:
+select role, password_required, authentication_type from dba_roles where role in ('CODEX_DM8_ROLE_BASIC_20260723', 'Role_Mixed_20260723', 'RXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') order by role;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:57~1:66) /test/1/catalog1/schema1/dba_roles/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_role_diagnostics_0_002]
+sql:
+select grantee, granted_role, admin_option, default_role from dba_role_privs where granted_role like 'CODEX_DM8_ROLE_%_20260723' order by grantee, granted_role;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:62~1:76) /test/1/catalog1/schema1/dba_role_privs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_role_diagnostics_0_003]
+sql:
+select privilege from dba_sys_privs where grantee='CODEX_DM8_ROLE_SYSTEM_20260723' order by privilege;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:22~1:35) /test/1/catalog1/schema1/dba_sys_privs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_role_diagnostics_0_004]
+sql:
+select grantee, privilege, owner, table_name from dba_tab_privs where grantee in ('CODEX_DM8_ROLE_SELECT_20260723','CODEX_DM8_ROLE_DML_20260723') order by grantee, privilege;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:50~1:63) /test/1/catalog1/schema1/dba_tab_privs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_role_diagnostics_0_005]
+sql:
+select role from session_roles where role in ('DBA','PUBLIC','RESOURCE') order by role;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:17~1:30) /test/1/catalog1/schema1/session_roles/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_role_diagnostics_0_006]
+sql:
+select count(*) from dba_role_privs where granted_role='CODEX_DM8_ROLE_DROP_ASSIGNED_20260723';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:35) /test/1/catalog1/schema1/dba_role_privs/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_role_diagnostics_0_007]
+sql:
+select count(*) from dba_roles where role like 'CODEX_DM8_ROLE_%_20260723' or role='Role_Mixed_20260723' or length(role)=128 and role like 'RXXX%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:108~1:114) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:30) /test/1/catalog1/schema1/dba_roles/",
+      "action": "READ"
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+[block_dameng_dbms_xplan_signature_combinations_0_txt_001]
+sql:
+-- DISPLAY_SQL_TEXT_POSITIONAL
+begin
+  dbms_xplan.display_planhist('select C2 from CODEX_DM8_XPLAN_T where C1=1;');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:29) /test/1/catalog1/dbms_xplan/display_planhist/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_dbms_xplan_signature_combinations_0_txt_002]
+sql:
+-- DISPLAY_SQL_TEXT_NAMED
+begin
+  dbms_xplan.display_planhist(SQL_TEXT=>'select C2 from CODEX_DM8_XPLAN_T where C1=1;');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(3:2~3:29) /test/1/catalog1/dbms_xplan/display_planhist/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_dbms_xplan_signature_combinations_0_txt_003]
+sql:
+-- DISPLAY_HASH_POSITIONAL
+declare
+  plan_hash int;
+begin
+  select min(plan_hash_value) into plan_hash from sysplanhist
+  where upper(sql_str) like '%CODEX_DM8_XPLAN_T%';
+  dbms_xplan.display_planhist(plan_hash);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:9~5:12) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:8~6:13) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(5:50~5:61) /test/1/catalog1/schema1/sysplanhist/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(7:2~7:29) /test/1/catalog1/dbms_xplan/display_planhist/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_dbms_xplan_signature_combinations_0_txt_004]
+sql:
+-- DISPLAY_HASH_NAMED
+declare
+  plan_hash int;
+begin
+  select min(plan_hash_value) into plan_hash from sysplanhist
+  where upper(sql_str) like '%CODEX_DM8_XPLAN_T%';
+  dbms_xplan.display_planhist(HASH_VALUE=>plan_hash);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(5:9~5:12) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:8~6:13) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(5:50~5:61) /test/1/catalog1/schema1/sysplanhist/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(7:2~7:29) /test/1/catalog1/dbms_xplan/display_planhist/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_dbms_xplan_signature_combinations_0_txt_005]
+sql:
+-- CLEAR_ALL_NULL
+call dbms_xplan.clear_planhist(null,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/dbms_xplan/clear_planhist/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_dbms_xplan_signature_combinations_0_txt_006]
+sql:
+-- CLEAR_OPEN_START
+call dbms_xplan.clear_planhist(null,sysdate+1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/dbms_xplan/clear_planhist/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:36~2:43) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_dbms_xplan_signature_combinations_0_txt_007]
+sql:
+-- CLEAR_OPEN_END
+call dbms_xplan.clear_planhist(sysdate-1,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/dbms_xplan/clear_planhist/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:31~2:38) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_dbms_xplan_signature_combinations_0_txt_008]
+sql:
+-- CLEAR_SAME_TIME
+call dbms_xplan.clear_planhist(sysdate,sysdate);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/dbms_xplan/clear_planhist/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:31~2:38) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:39~2:46) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_dbms_xplan_signature_combinations_0_txt_009]
+sql:
+-- CLEAR_VALID_RANGE
+call dbms_xplan.clear_planhist(sysdate-1,sysdate+1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/dbms_xplan/clear_planhist/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:31~2:38) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:41~2:48) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_dbms_xplan_signature_combinations_0_txt_010]
+sql:
+-- CLEAR_INSTANCE_NAMED
+call dbms_xplan.clear_planhist(STARTTIME=>null,ENDTIME=>sysdate+1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/dbms_xplan/clear_planhist/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:56~2:63) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+

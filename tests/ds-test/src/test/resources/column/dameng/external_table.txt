@@ -1,0 +1,30 @@
+[external_definition_has_no_lineage]
+sql:
+create external table app.ext_all(id int comment 'id', label varchar(20), amount decimal(10,2))
+from datafile default directory ext_dir location ('all.csv')
+parms(fields delimited by '|', records delimited by 0x0a, errors 1,
+  badfile 'all.bad', log 'all.log', null_str 'NULL_TOKEN', skip 1,
+  character_code 'UTF-8')
+expect:
+{}
+----------
+[external_query_columns]
+sql:
+select id, label, amount from catalog1.app.ext_all where amount > 0
+expect:
+{
+  "id": ["/catalog1/app/ext_all/id/"],
+  "label": ["/catalog1/app/ext_all/label/"],
+  "amount": ["/catalog1/app/ext_all/amount/"]
+}
+----------
+[external_ddl_has_no_lineage]
+sql:
+alter table app.ext_all default directory ext_dir;
+alter table app.ext_all location ('alternate.csv');
+alter table app.ext_all modify path '/tmp/alternate.csv';
+comment on table app.ext_all is 'external';
+comment on column app.ext_all.id is 'external id';
+drop table app.ext_all
+expect:
+{}

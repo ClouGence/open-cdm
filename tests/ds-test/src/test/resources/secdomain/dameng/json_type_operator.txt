@@ -1,0 +1,41 @@
+[json_type_operator_ddl]
+sql:
+create table app.json_strict(id int primary key,doc varchar2(2000) check(doc is json(strict))); create table app.json_lax(id int primary key,doc varchar2(2000) check(doc is json(lax))); create table app.json_unique(id int primary key,doc clob check(doc is json with unique keys)); create table app.json_nonunique(id int primary key,doc text check(doc is json without unique keys)); create table app.json_long(id int primary key,doc longvarchar check(doc is json));
+expect:
+{
+  "contains":[
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"json_strict"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"json_lax"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"json_unique"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"json_nonunique"},
+    {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"json_long"}
+  ]
+}
+----------
+[json_type_operator_dml]
+sql:
+insert into app.json_strict values(1,'{}'); insert into app.json_lax values(1,'{"a":0.5}'); insert into app.json_unique values(1,'{"a":1,"b":2}'); insert into app.json_nonunique values(1,'{"a":1,"a":2}'); insert into app.json_long values(1,'{"kind":"longvarchar"}');
+expect:
+{
+  "contains":[
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"json_strict"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"json_lax"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"json_unique"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"json_nonunique"},
+    {"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"json_long"}
+  ]
+}
+----------
+[json_type_operator_queries]
+sql:
+select json_type(doc) from app.json_strict; select doc::json->'a' from app.json_lax; select json_query(doc,'$' with wrapper) from app.json_unique; select jsonb_object_agg(cast(id as varchar),doc) from app.json_strict; select id from app.json_nonunique where doc is json without unique keys; select id from app.json_long where doc is not json;
+expect:
+{
+  "contains":[
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"json_strict"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"json_lax"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"json_unique"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"json_nonunique"},
+    {"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"json_long"}
+  ]
+}

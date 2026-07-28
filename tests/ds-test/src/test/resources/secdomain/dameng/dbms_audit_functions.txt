@@ -1,0 +1,18 @@
+[dbms_audit_public_routine_domains]
+sql:
+begin
+  DBMS_AUDIT.ADD_AUDFILE('/audit/A.log');
+  DBMS_AUDIT.END_AUD();
+  DBMS_AUDIT.REMOVE_AUDFILE('/audit/A.log');
+  DBMS_AUDIT.START_AUD(sysdate-1,sysdate+1,'SYSDBA','',1);
+  DBMS_AUDIT.START_AUD();
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_AUDIT"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_AUDIT"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_AUDIT"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_AUDIT"}
+  ]
+}

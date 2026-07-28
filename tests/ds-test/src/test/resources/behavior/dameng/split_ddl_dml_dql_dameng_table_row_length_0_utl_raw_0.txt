@@ -1,0 +1,183 @@
+[split_ddl_dml_dql_dameng_table_row_length_0_011]
+sql:
+insert into tblen_ps4_varbinary values(utl_raw.cast_to_raw(repeat('R',1875)),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/tblen_ps4_varbinary/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:39~1:58) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:65) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_012]
+sql:
+insert into tblen_ps4_varbinary values(utl_raw.cast_to_raw(repeat('R',1876)),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/tblen_ps4_varbinary/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:39~1:58) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:65) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_026]
+sql:
+insert into tblen_ps8_varbinary values(utl_raw.cast_to_raw(repeat('R',3875)),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/tblen_ps8_varbinary/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:39~1:58) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:65) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_027]
+sql:
+insert into tblen_ps8_varbinary values(utl_raw.cast_to_raw(repeat('R',3876)),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:31) /test/1/catalog1/schema1/tblen_ps8_varbinary/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:39~1:58) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:65) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_041]
+sql:
+insert into tblen_ps16_varbinary values(utl_raw.cast_to_raw(repeat('R',7975)),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/tblen_ps16_varbinary/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:59) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:60~1:66) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_042]
+sql:
+insert into tblen_ps16_varbinary values(utl_raw.cast_to_raw(repeat('R',7976)),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/tblen_ps16_varbinary/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:59) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:60~1:66) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_056]
+sql:
+insert into tblen_ps32_varbinary values(utl_raw.cast_to_raw(repeat('R',16175)),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/tblen_ps32_varbinary/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:59) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:60~1:66) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dameng_table_row_length_0_057]
+sql:
+insert into tblen_ps32_varbinary values(utl_raw.cast_to_raw(repeat('R',16176)),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/tblen_ps32_varbinary/",
+      "action": "INSERT"
+    },
+    {
+      "subject": "Function(1:40~1:59) /test/1/catalog1/utl_raw/cast_to_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:60~1:66) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}

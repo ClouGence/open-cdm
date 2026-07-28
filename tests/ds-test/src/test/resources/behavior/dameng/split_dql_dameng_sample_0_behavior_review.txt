@@ -1,0 +1,387 @@
+[split_dql_dameng_sample_0_behavior_review_001]
+sql:
+select * from sample_target sample(10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:27) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_002]
+sql:
+select * from sample_target sample(10) seed(5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:27) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_003]
+sql:
+select * from sample_target sample block(10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:27) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_004]
+sql:
+select * from sample_target sample block(10) seed(5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:27) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_005]
+sql:
+select id, name from sample_target sample(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_006]
+sql:
+select id, name from sample_target sample(25.5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_007]
+sql:
+select id, name from sample_target sample(99.999999);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_008]
+sql:
+select id from sample_target sample(50) seed(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:28) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_009]
+sql:
+select id from sample_target sample(50) seed(4294967295);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:28) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_010]
+sql:
+select id from sample_target sample block(0.000001);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:28) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_011]
+sql:
+select id from sample_target sample block(50.25);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:28) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_012]
+sql:
+select id from sample_target sample block(99.999999) seed(42);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:28) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_013]
+sql:
+select id, category from sample_target sample(30) where category = 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:38) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_014]
+sql:
+select id, amount from sample_target sample(30) seed(9) where amount > 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:36) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_015]
+sql:
+select category, count(*) from sample_target sample(40) group by category;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:17~1:22) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:31~1:44) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_016]
+sql:
+select category, sum(amount) from sample_target sample(40) seed(7) group by category having count(*) > 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:92~1:97) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:47) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_017]
+sql:
+select id, name from sample_target sample(20) order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_018]
+sql:
+select id, name from sample_target sample(20) seed(3) order by id limit 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_019]
+sql:
+select s.id, s.name from sample_target sample(20) s where s.id > 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:38) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_020]
+sql:
+select s.id from sample_target sample block(20) seed(3) as s order by s.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:30) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_021]
+sql:
+select count(*) from sample_target sample(10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:34) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_022]
+sql:
+select min(id), max(id), avg(amount) from sample_target sample(60) seed(11);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:16~1:19) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:28) /test/1/catalog1/schema1/avg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:42~1:55) /test/1/catalog1/schema1/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_023]
+sql:
+select * from sample_view sample(15);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:25) /test/1/catalog1/schema1/sample_view/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_0_behavior_review_024]
+sql:
+select id, category from sample_view sample(15) seed(15) where category in (1, 3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:25~1:36) /test/1/catalog1/schema1/sample_view/",
+      "action": "READ"
+    }
+  ]
+}

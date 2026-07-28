@@ -1,0 +1,35 @@
+[dbms_utility_procedure_domains]
+sql:
+declare
+  tab_len integer;
+  tab dbms_utility.lname_array;
+  name_tab varchar(32767);
+begin
+  dbms_utility.comma_to_table('A,B',tab_len,tab);
+  tab[tab_len+1]:=null;
+  dbms_utility.table_to_comma(tab,tab_len,name_tab);
+  dbms_utility.exec_ddl_statement('select 1');
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_utility"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_utility"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_utility"}
+  ]
+}
+----------
+[dbms_utility_function_expressions_no_domain]
+sql:
+declare
+  text_value varchar(32767);
+  number_value bigint;
+begin
+  text_value:=dbms_utility.format_error_stack;
+  text_value:=dbms_utility.format_call_stack;
+  text_value:=dbms_utility.format_error_backtrace;
+  number_value:=dbms_utility.get_hash_value('A',0,100);
+  number_value:=dbms_utility.get_time;
+end;
+expect:
+{"size":0}

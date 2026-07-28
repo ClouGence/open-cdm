@@ -1,0 +1,14 @@
+[functions]
+sql:
+select rawtohex(t.c_binary) as binary_hex,
+utl_raw.length(t.c_varbinary) as variable_length,
+utl_raw.substr(t.c_raw,1,2) as raw_prefix from catalog1.app.bin_t t
+expect:
+{"binary_hex":["/catalog1/app/bin_t/c_binary/"],"variable_length":["/catalog1/app/bin_t/c_varbinary/"],"raw_prefix":["/catalog1/app/bin_t/c_raw/"]}
+----------
+[bitwise]
+sql:
+select utl_raw.bit_and(t.c_varbinary,t.c_raw) as raw_and,
+utl_raw.concat(t.c_binary,t.c_raw) as raw_concat from catalog1.app.bin_t t
+expect:
+{"raw_and":["/catalog1/app/bin_t/c_varbinary/","/catalog1/app/bin_t/c_raw/"],"raw_concat":["/catalog1/app/bin_t/c_binary/","/catalog1/app/bin_t/c_raw/"]}

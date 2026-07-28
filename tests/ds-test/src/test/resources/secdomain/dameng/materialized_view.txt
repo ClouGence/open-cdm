@@ -1,0 +1,178 @@
+[create_materialized_view]
+sql:
+create materialized view app.mv_orders as select id, amount from app.orders
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"mv_orders"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[create_materialized_join]
+sql:
+create materialized view app.mv_order_customers as select o.id, c.name from app.orders o join app.customers c on o.customer_id = c.id
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"mv_order_customers"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"customers"}
+  ]
+}
+----------
+[alter_materialized_view]
+sql:
+alter materialized view app.mv_orders refresh complete using truncate
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"ALTER_VIEW", "auditKind":"ALTER", "schema":"app", "view":"mv_orders"}
+  ]
+}
+----------
+[refresh_materialized_view]
+sql:
+refresh materialized view app.mv_orders force using delete
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "schema":"app", "view":"mv_orders"}
+  ]
+}
+----------
+[materialized_view_log]
+sql:
+create materialized view log on app.orders with primary key;
+drop materialized view log on app.orders;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_LOG", "auditKind":"CREATE", "schema":"app", "name":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"orders"},
+    {"class":"RdbObjectDomain", "sqlType":"DROP_LOG", "auditKind":"DROP", "schema":"app", "name":"orders"}
+  ]
+}
+----------
+[drop_materialized_view]
+sql:
+drop materialized view app.mv_orders
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"DROP_VIEW", "auditKind":"DROP", "schema":"app", "view":"mv_orders"}
+  ]
+}
+----------
+[query_materialized_view]
+sql:
+select id, amount from app.mv_orders where amount > 100
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mv_orders"}
+  ]
+}
+----------
+[create_prebuilt_materialized_view]
+sql:
+create materialized view app.mv_prebuilt for app.prebuilt_orders on prebuilt table without reduced precision as select id, amount from app.orders
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"mv_prebuilt"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[create_on_commit_materialized_view]
+sql:
+create materialized view app.mv_on_commit refresh complete on commit as select id, amount from app.orders
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"mv_on_commit"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
+  ]
+}
+----------
+[create_index_on_materialized_view]
+sql:
+create index app.idx_mv_amount on app.mv_orders(amount)
+expect:
+{
+  "contains": [
+    {"class":"RdbIndexDomain", "sqlType":"ADD_INDEX", "auditKind":"CREATE", "schema":"app", "tableName":"mv_orders", "name":"idx_mv_amount"}
+  ]
+}
+----------
+[query_materialized_view_dictionary]
+sql:
+select mview_name, refresh_mode, staleness from sys.user_mviews where mview_name like 'MV_%'
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"sys", "table":"user_mviews"}
+  ]
+}
+----------
+[materialized_view_comment]
+sql:
+comment on view app.mv_orders is 'materialized view comment'
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"ALTER_VIEW", "auditKind":"ALTER", "schema":"app", "view":"mv_orders"}
+  ]
+}
+----------
+[materialized_view_refresh_pack29_methods]
+sql:
+refresh materialized view app.mv_orders using default;
+refresh materialized view app.mv_orders using truncate;
+refresh materialized view app.mv_orders using delete;
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"ADMIN", "auditKind":"ADMIN", "schema":"app", "view":"mv_orders"}
+  ]
+}
+----------
+[materialized_view_drop_cascade]
+sql:
+drop materialized view app.mv_orders cascade
+expect:
+{
+  "contains": [
+    {"class":"RdbViewDomain", "sqlType":"DROP_VIEW", "auditKind":"DROP", "schema":"app", "view":"mv_orders"}
+  ]
+}
+----------
+[materialized_view_direct_dml_semantic_boundaries]
+sql:
+insert into app.mv_orders(id, amount) values(9, 9);
+update app.mv_orders set amount=9 where id=1;
+delete from app.mv_orders where id=1;
+truncate table app.mv_orders;
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"mv_orders"},
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"mv_orders"},
+    {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"mv_orders"},
+    {"class":"RdbTableDomain", "sqlType":"TRUNCATE_TABLE", "auditKind":"ALTER", "schema":"app", "table":"mv_orders"}
+  ]
+}
+----------
+[materialized_view_log_ordered_attributes]
+sql:
+create materialized view log on app.orders tablespace main storage(initial 1, next 1) with sequence purge immediate asynchronous;
+drop materialized view log on app.orders;
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"CREATE_LOG", "auditKind":"CREATE", "schema":"app", "name":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"orders"},
+    {"class":"RdbObjectDomain", "sqlType":"DROP_LOG", "auditKind":"DROP", "schema":"app", "name":"orders"}
+  ]
+}

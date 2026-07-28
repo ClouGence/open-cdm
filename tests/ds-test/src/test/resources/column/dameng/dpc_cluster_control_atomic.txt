@@ -1,0 +1,19 @@
+[dpc_cluster_control_calls_no_static_lineage]
+sql:
+call sysdba.sp_create_dpc_bp_group('CODEX_CC_BG','cluster control evidence');
+/
+call sysdba.sp_create_dpc_raft('BP','CODEX_CC_MISSING_RAFT');
+/
+call sysdba.sp_create_dpc_instance('CODEX_CC_MISSING_RAFT','CODEX_CC_I10','BP',6092,5292,'127.0.0.1','','NORMAL',0,'syntax evidence');
+/
+call sysdba.sp_set_dpc_net_conf('CODEX_CC_INVALID_PARA','1');
+/
+call sysdba.sp_ts_group_create('CODEX_CC_TSG','cluster control evidence');
+/
+call sysdba.sp_add_raft_learner('CODEX_CC_LEARNER','127.0.0.1',6094,8);
+/
+call sysdba.sp_raft_suspend_thread();
+/
+call sysdba.sp_clear_tab_rowcnt_cache(null,null);
+expect:
+{}

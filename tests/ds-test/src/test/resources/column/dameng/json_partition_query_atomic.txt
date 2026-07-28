@@ -1,0 +1,64 @@
+[partition_name_columns]
+sql:
+select p.id, p.note from catalog1.app.t_range partition(p_lt10) p
+expect:
+{
+  "id": [
+    "/catalog1/app/t_range/id/"
+  ],
+  "note": [
+    "/catalog1/app/t_range/note/"
+  ]
+}
+----------
+[partition_for_columns]
+sql:
+select id, kind from catalog1.app.t_range partition for(5)
+expect:
+{
+  "id": [
+    "/catalog1/app/t_range/id/"
+  ],
+  "kind": [
+    "/catalog1/app/t_range/kind/"
+  ]
+}
+----------
+[subpartition_columns]
+sql:
+select id, kind from catalog1.app.t_range_list subpartition for(5, 'A')
+expect:
+{
+  "id": [
+    "/catalog1/app/t_range_list/id/"
+  ],
+  "kind": [
+    "/catalog1/app/t_range_list/kind/"
+  ]
+}
+----------
+[partition_join_columns]
+sql:
+select p.id, d.description from catalog1.app.t_range partition(p_lt20) p join catalog1.app.t_dim d on d.kind=p.kind
+expect:
+{
+  "id": [
+    "/catalog1/app/t_range/id/"
+  ],
+  "description": [
+    "/catalog1/app/t_dim/description/"
+  ]
+}
+----------
+[partition_cte_columns]
+sql:
+with q as(select id, kind from catalog1.app.t_range partition(p_lt10)) select id, kind from q
+expect:
+{
+  "id": [
+    "/catalog1/app/t_range/id/"
+  ],
+  "kind": [
+    "/catalog1/app/t_range/kind/"
+  ]
+}

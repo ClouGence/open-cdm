@@ -1,0 +1,1327 @@
+[split_ddl_dameng_context_attributes_0_001]
+sql:
+create or replace package context_attr_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+  procedure set_value_as(namespace_name varchar, attribute_name varchar, attribute_value varchar,
+    username varchar, client_id varchar);
+  procedure clear_value(namespace_name varchar, client_id varchar, attribute_name varchar);
+  procedure clear_all(namespace_name varchar);
+end context_attr_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:26~1:42) /test/1/catalog1/schema1/context_attr_pkg/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_003]
+sql:
+create or replace package context_attr_replacement_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end context_attr_replacement_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:26~1:54) /test/1/catalog1/schema1/context_attr_replacement_pkg/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_005]
+sql:
+create context C12345678901234567890123456789 using context_attr_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:45) /test/1/C12345678901234567890123456789/",
+      "action": "CREATE",
+      "target": "Package(1:52~1:68) /test/1/catalog1/schema1/context_attr_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_006]
+sql:
+select name, schid, info5, info6, type$, subtype$ from sysobjects
+where name='C12345678901234567890123456789';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:65) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_007]
+sql:
+drop context SYS.C12345678901234567890123456789;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:47) /test/1/C12345678901234567890123456789/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_008]
+sql:
+create context "Codex_Ctx_Mixed_20260722" using context_attr_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:41) /test/1/Codex_Ctx_Mixed_20260722/",
+      "action": "CREATE",
+      "target": "Package(1:48~1:64) /test/1/catalog1/schema1/context_attr_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_009]
+sql:
+select name, info5, info6 from sysobjects where name='Codex_Ctx_Mixed_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_010]
+sql:
+drop context SYS."Codex_Ctx_Mixed_20260722";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:43) /test/1/Codex_Ctx_Mixed_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_011]
+sql:
+create context CODEX_CTX_ATTR_20260722 using CODEX_DM8_CONTEXT_20260721.context_attr_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:38) /test/1/CODEX_CTX_ATTR_20260722/",
+      "action": "CREATE",
+      "target": "Package(1:45~1:88) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/context_attr_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_012]
+sql:
+select name, schid, info5, info6, type$, subtype$ from sysobjects
+where name='CODEX_CTX_ATTR_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:65) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_013]
+sql:
+call context_attr_pkg.set_value('codex_ctx_attr_20260722',
+  'A12345678901234567890123456789', 'CASE_INSENSITIVE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:31) /test/1/catalog1/context_attr_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_014]
+sql:
+select sys_context('CODEX_CTX_ATTR_20260722', 'a12345678901234567890123456789');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:78) /test/1/CODEX_CTX_ATTR_20260722/a12345678901234567890123456789/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_015]
+sql:
+call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', repeat('X', 4000));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:31) /test/1/catalog1/context_attr_pkg/set_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:73~1:79) /test/1/catalog1/schema1/repeat/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_016]
+sql:
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:53~1:65) /test/1/CODEX_CTX_ATTR_20260722/LONG_VALUE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_017]
+sql:
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:53~1:65) /test/1/CODEX_CTX_ATTR_20260722/LONG_VALUE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_018]
+sql:
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 4000));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:53~1:65) /test/1/CODEX_CTX_ATTR_20260722/LONG_VALUE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_019]
+sql:
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:53~1:65) /test/1/CODEX_CTX_ATTR_20260722/LONG_VALUE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_020]
+sql:
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', -1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:53~1:65) /test/1/CODEX_CTX_ATTR_20260722/LONG_VALUE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_021]
+sql:
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', 4001));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:53~1:65) /test/1/CODEX_CTX_ATTR_20260722/LONG_VALUE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_022]
+sql:
+select length(sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE', null));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/length/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:14~1:25) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:53~1:65) /test/1/CODEX_CTX_ATTR_20260722/LONG_VALUE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_023]
+sql:
+select sys_context('CODEX_CTX_ATTR_20260722', 'MISSING_ATTRIBUTE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:65) /test/1/CODEX_CTX_ATTR_20260722/MISSING_ATTRIBUTE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_024]
+sql:
+select namespace, attribute, value from v$context
+where namespace='CODEX_CTX_ATTR_20260722' order by attribute;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:40~1:49) /test/1/catalog1/schema1/v$context/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_025]
+sql:
+call context_attr_pkg.clear_value('CODEX_CTX_ATTR_20260722', 'IGNORED_CLIENT', 'LONG_VALUE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:33) /test/1/catalog1/context_attr_pkg/clear_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_026]
+sql:
+select sys_context('CODEX_CTX_ATTR_20260722', 'LONG_VALUE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:58) /test/1/CODEX_CTX_ATTR_20260722/LONG_VALUE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_027]
+sql:
+call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'CLEAR_ONE', 'ONE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:31) /test/1/catalog1/context_attr_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_028]
+sql:
+call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'CLEAR_TWO', 'TWO');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:31) /test/1/catalog1/context_attr_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_029]
+sql:
+call context_attr_pkg.clear_all('CODEX_CTX_ATTR_20260722');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:31) /test/1/catalog1/context_attr_pkg/clear_all/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_030]
+sql:
+select sys_context('CODEX_CTX_ATTR_20260722', 'CLEAR_ONE'),
+  sys_context('CODEX_CTX_ATTR_20260722', 'CLEAR_TWO');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:57) /test/1/CODEX_CTX_ATTR_20260722/CLEAR_ONE/"
+    },
+    {
+      "subject": "Function(2:2~2:13) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(2:41~2:52) /test/1/CODEX_CTX_ATTR_20260722/CLEAR_TWO/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_031]
+sql:
+call context_attr_pkg.set_value_as('CODEX_CTX_ATTR_20260722', 'FIVE_ARGS', 'IGNORED_OK',
+  'NO_SUCH_USER', 'NO_SUCH_CLIENT');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:34) /test/1/catalog1/context_attr_pkg/set_value_as/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_032]
+sql:
+select sys_context('CODEX_CTX_ATTR_20260722', 'FIVE_ARGS');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:57) /test/1/CODEX_CTX_ATTR_20260722/FIVE_ARGS/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_033]
+sql:
+create or replace context CODEX_CTX_ATTR_20260722
+using CODEX_DM8_CONTEXT_20260721.context_attr_replacement_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:26~1:49) /test/1/CODEX_CTX_ATTR_20260722/",
+      "action": "REPLACE",
+      "target": "Package(2:6~2:61) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/context_attr_replacement_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_034]
+sql:
+select name, info5, info6 from sysobjects where name='CODEX_CTX_ATTR_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_035]
+sql:
+create context if not exists CODEX_CTX_ATTR_20260722
+using CODEX_DM8_CONTEXT_20260721.context_attr_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:29~1:52) /test/1/CODEX_CTX_ATTR_20260722/",
+      "action": "CREATE",
+      "target": "Package(2:6~2:49) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/context_attr_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_036]
+sql:
+select name, info5, info6 from sysobjects where name='CODEX_CTX_ATTR_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_037]
+sql:
+create or replace context if not exists CODEX_CTX_ATTR_20260722
+using CODEX_DM8_CONTEXT_20260721.context_attr_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:40~1:63) /test/1/CODEX_CTX_ATTR_20260722/",
+      "action": "REPLACE",
+      "target": "Package(2:6~2:49) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/context_attr_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_038]
+sql:
+select name, info5, info6 from sysobjects where name='CODEX_CTX_ATTR_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_039]
+sql:
+call context_attr_pkg.set_value('CODEX_CTX_ATTR_20260722', 'DROP_KEEP', 'STILL_VISIBLE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:31) /test/1/catalog1/context_attr_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_040]
+sql:
+drop context SYS.CODEX_CTX_ATTR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:40) /test/1/CODEX_CTX_ATTR_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_041]
+sql:
+select sys_context('CODEX_CTX_ATTR_20260722', 'DROP_KEEP');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:57) /test/1/CODEX_CTX_ATTR_20260722/DROP_KEEP/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_042]
+sql:
+create context CODEX_CTX_ATTR_20260722 using context_attr_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:38) /test/1/CODEX_CTX_ATTR_20260722/",
+      "action": "CREATE",
+      "target": "Package(1:45~1:61) /test/1/catalog1/schema1/context_attr_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_043]
+sql:
+select sys_context('CODEX_CTX_ATTR_20260722', 'DROP_KEEP');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:46~1:57) /test/1/CODEX_CTX_ATTR_20260722/DROP_KEEP/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_044]
+sql:
+drop context if exists SYS.CODEX_CTX_ATTR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:23~1:50) /test/1/CODEX_CTX_ATTR_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_045]
+sql:
+drop context if exists SYS.CODEX_CTX_ATTR_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:23~1:50) /test/1/CODEX_CTX_ATTR_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_046]
+sql:
+select sys_context('USERENV', 'CURRENT_SCHEMA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:46) /test/1/USERENV/CURRENT_SCHEMA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_047]
+sql:
+select sys_context('USERENV', 'CURRENT_SCHEMAID');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:48) /test/1/USERENV/CURRENT_SCHEMAID/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_048]
+sql:
+select sys_context('USERENV', 'CURRENT_USER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:44) /test/1/USERENV/CURRENT_USER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_049]
+sql:
+select sys_context('USERENV', 'CURRENT_USERID');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:46) /test/1/USERENV/CURRENT_USERID/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_050]
+sql:
+select sys_context('USERENV', 'DB_NAME');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:39) /test/1/USERENV/DB_NAME/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_051]
+sql:
+select sys_context('USERENV', 'HOST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:36) /test/1/USERENV/HOST/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_052]
+sql:
+select sys_context('USERENV', 'INSTANCE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:40) /test/1/USERENV/INSTANCE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_053]
+sql:
+select sys_context('USERENV', 'INSTANCE_NAME');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:45) /test/1/USERENV/INSTANCE_NAME/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_054]
+sql:
+select sys_context('USERENV', 'IP_ADDRESS');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:42) /test/1/USERENV/IP_ADDRESS/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_055]
+sql:
+select sys_context('USERENV', 'ISDBA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:37) /test/1/USERENV/ISDBA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_056]
+sql:
+select sys_context('USERENV', 'LANG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:36) /test/1/USERENV/LANG/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_057]
+sql:
+select sys_context('USERENV', 'LANGUAGE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:40) /test/1/USERENV/LANGUAGE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_058]
+sql:
+select sys_context('USERENV', 'NETWORK_PROTOCOL');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:48) /test/1/USERENV/NETWORK_PROTOCOL/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_059]
+sql:
+select sys_context('USERENV', 'SERVER_HOST');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:43) /test/1/USERENV/SERVER_HOST/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_060]
+sql:
+select sys_context('USERENV', 'SESSION_USER');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:44) /test/1/USERENV/SESSION_USER/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_061]
+sql:
+select sys_context('USERENV', 'SESSION_USERID');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:46) /test/1/USERENV/SESSION_USERID/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_062]
+sql:
+select sys_context('USERENV', 'SID');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:35) /test/1/USERENV/SID/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_063]
+sql:
+select sys_context('USERENV', 'UNKNOWN_ATTRIBUTE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:30~1:49) /test/1/USERENV/UNKNOWN_ATTRIBUTE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_067]
+sql:
+select client_identifier from v$sessions
+where sess_id=cast(sys_context('USERENV', 'SID') as bigint);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:19~2:30) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(2:42~2:47) /test/1/USERENV/SID/"
+    },
+    {
+      "subject": "View(1:30~1:40) /test/1/catalog1/schema1/v$sessions/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_069]
+sql:
+drop package context_attr_replacement_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:41) /test/1/catalog1/schema1/context_attr_replacement_pkg/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_070]
+sql:
+drop package context_attr_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:29) /test/1/catalog1/schema1/context_attr_pkg/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_071]
+sql:
+create context "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+using CODEX_DM8_CONTEXT_20260721.no_such_package;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:145) /test/1/CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "CREATE",
+      "target": "Package(2:6~2:48) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/no_such_package/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_072]
+sql:
+select name, schid, info5, info6 from sysobjects
+where name='CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:38~1:48) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_073]
+sql:
+drop context SYS."CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:147) /test/1/CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_074]
+sql:
+create context CODEX_CTX_NO_PACKAGE_20260722
+using CODEX_DM8_CONTEXT_20260721.no_such_package;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:44) /test/1/CODEX_CTX_NO_PACKAGE_20260722/",
+      "action": "CREATE",
+      "target": "Package(2:6~2:48) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/no_such_package/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_075]
+sql:
+select name, info5, info6 from sysobjects where name='CODEX_CTX_NO_PACKAGE_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_076]
+sql:
+drop context SYS.CODEX_CTX_NO_PACKAGE_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:46) /test/1/CODEX_CTX_NO_PACKAGE_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_077]
+sql:
+select sys_context('CODEX_CTX_MISSING_20260722', 'ATTRIBUTE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:49~1:60) /test/1/CODEX_CTX_MISSING_20260722/ATTRIBUTE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_078]
+sql:
+create context C123456789012345678901234567890
+using CODEX_DM8_CONTEXT_20260721.no_such_package;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:46) /test/1/C123456789012345678901234567890/",
+      "action": "CREATE",
+      "target": "Package(2:6~2:48) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/no_such_package/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_079]
+sql:
+select name, info5, info6 from sysobjects where name='C123456789012345678901234567890';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:31~1:41) /test/1/catalog1/schema1/sysobjects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_080]
+sql:
+drop context SYS.C123456789012345678901234567890;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:48) /test/1/C123456789012345678901234567890/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_081]
+sql:
+create or replace package context_session_pkg as
+  procedure set_value(namespace_name varchar, attribute_name varchar, attribute_value varchar);
+end context_session_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Package(1:26~1:45) /test/1/catalog1/schema1/context_session_pkg/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_083]
+sql:
+create context CODEX_CTX_SESSION_20260722
+using CODEX_DM8_CONTEXT_20260721.context_session_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:15~1:41) /test/1/CODEX_CTX_SESSION_20260722/",
+      "action": "CREATE",
+      "target": "Package(2:6~2:52) /test/1/catalog1/CODEX_DM8_CONTEXT_20260721/context_session_pkg/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_084]
+sql:
+call context_session_pkg.set_value('CODEX_CTX_SESSION_20260722', 'SESSION_KEY', 'ORIGIN_VALUE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:34) /test/1/catalog1/context_session_pkg/set_value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_085]
+sql:
+select sys_context('CODEX_CTX_SESSION_20260722', 'SESSION_KEY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:49~1:62) /test/1/CODEX_CTX_SESSION_20260722/SESSION_KEY/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_086]
+sql:
+select sys_context('CODEX_CTX_SESSION_20260722', 'SESSION_KEY');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/sys_context/",
+      "action": "CALL",
+      "target": "ConfigKey(1:49~1:62) /test/1/CODEX_CTX_SESSION_20260722/SESSION_KEY/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_087]
+sql:
+drop context SYS.CODEX_CTX_SESSION_20260722;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "Context(1:13~1:43) /test/1/CODEX_CTX_SESSION_20260722/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_context_attributes_0_088]
+sql:
+drop package context_session_pkg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Package(1:13~1:32) /test/1/catalog1/schema1/context_session_pkg/",
+      "action": "DROP"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+[huge_create_has_no_lineage]
+sql:
+create huge table app.huge_main(
+  id int default on null 7 primary key,
+  name varchar(40) storage(stat none) comment 'huge name'
+) storage(section(65536), filesize(64), stat synchronous on(id), with delta, on main)
+  compress level 2 for 'QUERY HIGH'(name)
+expect:
+{}
+----------
+[huge_ctas_column_lineage]
+sql:
+create huge table app.huge_archive
+as select o.id, o.name from catalog1.app.orders o where o.id > 0
+expect:
+{
+  "id": ["/catalog1/app/orders/id/"],
+  "name": ["/catalog1/app/orders/name/"]
+}
+----------
+[huge_query_column_lineage]
+sql:
+select h.id, h.name, h.amount
+from catalog1.app.huge_main h
+where h.amount > 0
+expect:
+{
+  "id": ["/catalog1/app/huge_main/id/"],
+  "name": ["/catalog1/app/huge_main/name/"],
+  "amount": ["/catalog1/app/huge_main/amount/"]
+}
+----------
+[huge_ddl_has_no_lineage]
+sql:
+alter table app.huge_main set stat none;
+alter table app.huge_main refresh stat;
+alter table app.huge_main force column storage;
+alter table app.huge_main rebuild section;
+comment on table app.huge_main is 'huge';
+comment on column app.huge_main.name is 'huge name';
+drop table app.huge_main cascade
+expect:
+{}
+----------
+[huge_fast_add_privilege_has_no_lineage]
+sql:
+alter table app.huge_fast add column c_default int default 33;
+comment on table app.huge_fast is 'fast add';
+comment on column app.huge_fast.c_default is 'added column';
+drop table app.huge_fast
+expect:
+{}
+----------
+[huge_fast_add_query_lineage]
+sql:
+select h.id, h.c_default from catalog1.app.huge_fast h where h.c_default=33
+expect:
+{
+  "id": ["/catalog1/app/huge_fast/id/"],
+  "c_default": ["/catalog1/app/huge_fast/c_default/"]
+}

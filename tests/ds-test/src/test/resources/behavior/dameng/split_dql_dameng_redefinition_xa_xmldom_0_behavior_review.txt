@@ -1,0 +1,327 @@
+[split_dql_dameng_redefinition_xa_xmldom_0_001_behavior_review]
+sql:
+select redefinition_id, base_table_owner, base_table_name, interim_object_name, operation, status, restartable from dba_redefinition_status where base_table_name='CODEX_REDEF_MAIN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:116~1:139) /test/1/catalog1/schema1/dba_redefinition_status/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_002_behavior_review]
+sql:
+select id, category, amount, note from CODEX_REDEF_MAIN_INT where id in (2,3,21) order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:39~1:59) /test/1/catalog1/schema1/CODEX_REDEF_MAIN_INT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_003_behavior_review]
+sql:
+select object_type, object_owner, object_name, base_table_name, interim_object_name from dba_redefinition_objects where base_table_name='CODEX_REDEF_MAIN' order by object_type, object_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:89~1:113) /test/1/catalog1/schema1/dba_redefinition_objects/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_004_behavior_review]
+sql:
+select object_type, object_owner, object_name, err_no, err_txt from dba_redefinition_errors where base_table_name='CODEX_REDEF_MAIN' order by object_type, object_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:68~1:91) /test/1/catalog1/schema1/dba_redefinition_errors/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_005_behavior_review]
+sql:
+select id, category, amount, note from CODEX_REDEF_MAIN where id in (2,3,21) order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:39~1:55) /test/1/catalog1/schema1/CODEX_REDEF_MAIN/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_006_behavior_review]
+sql:
+select constraint_type, count(*) object_count from user_constraints where table_name='CODEX_REDEF_MAIN' group by constraint_type order by constraint_type;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:24~1:29) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:51~1:67) /test/1/catalog1/schema1/user_constraints/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_007_behavior_review]
+sql:
+select index_type, count(*) object_count from user_indexes where table_name='CODEX_REDEF_MAIN' group by index_type order by index_type;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:19~1:24) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:46~1:58) /test/1/catalog1/schema1/user_indexes/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_008_behavior_review]
+sql:
+select id, payload from CODEX_REDEF_ABORT order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:41) /test/1/catalog1/schema1/CODEX_REDEF_ABORT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_009_behavior_review]
+sql:
+select count(*) status_count from dba_redefinition_status where base_table_name='CODEX_REDEF_ABORT';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:34~1:57) /test/1/catalog1/schema1/dba_redefinition_status/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_010_behavior_review]
+sql:
+select id, payload from CODEX_REDEF_ROWID_INT order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:45) /test/1/catalog1/schema1/CODEX_REDEF_ROWID_INT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_011_behavior_review]
+sql:
+select id, payload from CODEX_REDEF_ROWID order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:24~1:41) /test/1/catalog1/schema1/CODEX_REDEF_ROWID/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_012_behavior_review]
+sql:
+select count(*) status_count from sys.sysredefstatus where obj_id=(select number_value from CODEX_DM8_PKG_CTL where label='REDEF_REDUNDANT_ID');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:34~1:52) /test/1/catalog1/sys/sysredefstatus/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:92~1:109) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_013_behavior_review]
+sql:
+select dbms_xa.xa_ok, dbms_xa.tmnoFlags, dbms_xa.tmsuccess, dbms_xa.tmsuspend, dbms_xa.tmresume from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:101~1:105) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_014_behavior_review]
+sql:
+select id, branch_name, amount from CODEX_DM8_XA where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/schema1/CODEX_DM8_XA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_015_behavior_review]
+sql:
+select id, branch_name, amount from CODEX_DM8_XA where id=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/schema1/CODEX_DM8_XA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_016_behavior_review]
+sql:
+select count(*) rollback_count from CODEX_DM8_XA where id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/schema1/CODEX_DM8_XA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_017_behavior_review]
+sql:
+select id, branch_name, amount from CODEX_DM8_XA where id=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:36~1:48) /test/1/catalog1/schema1/CODEX_DM8_XA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_018_behavior_review]
+sql:
+select dbms_xa.xa_getlastoer() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_xa/xa_getlastoer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:36~1:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_019_behavior_review]
+sql:
+select label, number_value from CODEX_DM8_PKG_CTL where label like 'XA_%' order by label;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:32~1:49) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_redefinition_xa_xmldom_0_020_behavior_review]
+sql:
+select label, number_value, text_value from CODEX_DM8_PKG_CTL where label like 'XML_%' order by label;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:44~1:61) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "READ"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+[stat_table_has_no_result_lineage]
+sql:
+stat on app.employee
+expect:
+{}
+----------
+[stat_columns_have_no_result_lineage]
+sql:
+stat 25 size 10 on app.employee(id,name)
+expect:
+{}
+----------
+[stat_procedure_has_no_result_lineage]
+sql:
+sp_col_stat_init('APP', 'EMPLOYEE', 'NAME')
+expect:
+{}

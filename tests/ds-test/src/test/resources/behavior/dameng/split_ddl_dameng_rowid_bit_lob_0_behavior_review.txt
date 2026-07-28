@@ -1,0 +1,286 @@
+[split_ddl_dameng_rowid_bit_lob_0_001_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_ROWID(ID INT PRIMARY KEY, RID ROWID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/CODEX_DM8_TYPE_ROWID/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_002_behavior_review]
+sql:
+CREATE INDEX IDX_CODEX_DM8_TYPE_ROWID ON CODEX_DM8_TYPE_ROWID(RID);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:37) /test/1/catalog1/schema1/IDX_CODEX_DM8_TYPE_ROWID/",
+      "action" : "CREATE",
+      "target" : "Table(1:41~1:61) /test/1/catalog1/schema1/CODEX_DM8_TYPE_ROWID/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_003_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_BIT(ID INT PRIMARY KEY, FLAG BIT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BIT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_004_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_TEXT(ID INT PRIMARY KEY, V TEXT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/CODEX_DM8_TYPE_TEXT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_005_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_LONG(ID INT PRIMARY KEY, V LONG);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/CODEX_DM8_TYPE_LONG/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_006_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_LONGVARCHAR(ID INT PRIMARY KEY, V LONGVARCHAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/schema1/CODEX_DM8_TYPE_LONGVARCHAR/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_007_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_IMAGE(ID INT PRIMARY KEY, V IMAGE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/CODEX_DM8_TYPE_IMAGE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_008_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_LONGVARBINARY(ID INT PRIMARY KEY, V LONGVARBINARY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/schema1/CODEX_DM8_TYPE_LONGVARBINARY/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_009_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_BLOB(ID INT PRIMARY KEY, V BLOB);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BLOB/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_010_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_CLOB(ID INT PRIMARY KEY, V CLOB);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/CODEX_DM8_TYPE_CLOB/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_011_behavior_review]
+sql:
+CREATE DIRECTORY CODEX_DM8_BFILE_DIR AS '/opt/dmdbms/data/DAMENG';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:36) /test/1/catalog1/schema1/CODEX_DM8_BFILE_DIR/",
+      "action" : "CONFIGURE",
+      "target" : "File(1:40~1:65) /test/1/opt/dmdbms/data/DAMENG/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_012_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_TYPE_BFILE(ID INT PRIMARY KEY, V BFILE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/CODEX_DM8_TYPE_BFILE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_013_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_BAD_TEXT(V TEXT(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/CODEX_DM8_BAD_TEXT/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_014_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_BAD_LONG(V LONG(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/CODEX_DM8_BAD_LONG/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_015_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_BAD_LONGVARCHAR(V LONGVARCHAR(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:38) /test/1/catalog1/schema1/CODEX_DM8_BAD_LONGVARCHAR/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_016_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_BAD_IMAGE(V IMAGE(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/CODEX_DM8_BAD_IMAGE/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_017_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_BAD_LONGVARBINARY(V LONGVARBINARY(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:40) /test/1/catalog1/schema1/CODEX_DM8_BAD_LONGVARBINARY/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_018_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_BAD_BLOB(V BLOB(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/CODEX_DM8_BAD_BLOB/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_rowid_bit_lob_0_019_behavior_review]
+sql:
+CREATE TABLE CODEX_DM8_BAD_CLOB(V CLOB(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/CODEX_DM8_BAD_CLOB/",
+      "action" : "CREATE"
+    }
+  ]
+}

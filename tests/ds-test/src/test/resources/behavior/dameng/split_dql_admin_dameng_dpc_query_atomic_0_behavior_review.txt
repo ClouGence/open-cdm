@@ -1,0 +1,1568 @@
+[split_dql_admin_dameng_dpc_query_atomic_0_001_behavior_review]
+sql:
+-- TOPOLOGY_001_ALL_INSTANCES
+select name,dpc_mode,sys_status,status from sys.dpc_instance order by raft_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:44~2:60) /test/1/catalog1/sys/dpc_instance/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_002_behavior_review]
+sql:
+-- TOPOLOGY_002_V_INSTANCE
+select name from sys.v$instance order by name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:17~2:31) /test/1/catalog1/sys/v$instance/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_003_behavior_review]
+sql:
+-- TOPOLOGY_003_LOCAL_DPC_MODE
+select para_value from sys.v$dm_ini where para_name='DPC_MODE' and sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:67~2:82) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:90~2:110) /test/1/catalog1/schema1/sf_get_self_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:23~2:35) /test/1/catalog1/sys/v$dm_ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_004_behavior_review]
+sql:
+-- ROUTE_001_RANGE
+select id,sf_get_ep_seqno(rowid) ep_no from app.dpc_q_range_a order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:10~2:25) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:44~2:61) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_005_behavior_review]
+sql:
+-- ROUTE_002_HASH
+select sf_get_ep_seqno(rowid) ep_no,count(*) row_count from app.dpc_q_hash group by sf_get_ep_seqno(rowid) order by ep_no;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:36~2:41) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:84~2:99) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:60~2:74) /test/1/catalog1/app/dpc_q_hash/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_006_behavior_review]
+sql:
+-- ROUTE_003_LIST
+select id,sf_get_ep_seqno(rowid) ep_no from app.dpc_q_list order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:10~2:25) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:44~2:58) /test/1/catalog1/app/dpc_q_list/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_007_behavior_review]
+sql:
+-- ROUTE_004_SELF_EP
+select sf_get_self_ep_seqno() self_ep from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:27) /test/1/catalog1/schema1/sf_get_self_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:43~2:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_008_behavior_review]
+sql:
+-- ROUTE_005_CURRENT_INSTANCE
+select name from sys.v$instance where sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:38~2:53) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:61~2:81) /test/1/catalog1/schema1/sf_get_self_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:17~2:31) /test/1/catalog1/sys/v$instance/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_009_behavior_review]
+sql:
+-- ROUTE_006_LOCAL_SESSIONS
+select count(*) local_session_count from sys.v$sessions where sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:62~2:77) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:85~2:105) /test/1/catalog1/schema1/sf_get_self_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:41~2:55) /test/1/catalog1/sys/v$sessions/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_010_behavior_review]
+sql:
+-- PLAN_001_RANGE_POINT
+explain select note from app.dpc_q_range_a where id=150;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:25~2:42) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_011_behavior_review]
+sql:
+-- PLAN_002_COLOCATED_JOIN
+explain select a.id,a.note,b.note from app.dpc_q_range_a a join app.dpc_q_range_b b on a.id=b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:39~2:56) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:64~2:81) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_012_behavior_review]
+sql:
+-- PLAN_003_REDISTRIBUTED_JOIN
+explain select a.id,b.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:30~2:47) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:55~2:72) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_013_behavior_review]
+sql:
+-- PLAN_004_CROSS_BP_ROWS
+select a.id,a.note,b.note from app.dpc_q_range_a a join app.dpc_q_range_b b on a.id=b.id order by a.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(2:31~2:48) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:56~2:73) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_014_behavior_review]
+sql:
+-- HINT_001_L_NO_R_NO
+explain select /*+ DPC(1 L_NO_R_NO) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:49~2:66) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:74~2:91) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_015_behavior_review]
+sql:
+-- HINT_002_L_BRO
+explain select /*+ DPC(1 L_BRO) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:45~2:62) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:70~2:87) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_016_behavior_review]
+sql:
+-- HINT_003_R_BRO
+explain select /*+ DPC(1 R_BRO) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:45~2:62) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:70~2:87) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_017_behavior_review]
+sql:
+-- HINT_004_L_DIS_R_DIS
+explain select /*+ DPC(1 L_DIS_R_DIS) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:51~2:68) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:76~2:93) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_018_behavior_review]
+sql:
+-- HINT_005_L_DIS
+explain select /*+ DPC(1 L_DIS) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:45~2:62) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:70~2:87) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_019_behavior_review]
+sql:
+-- HINT_006_R_DIS
+explain select /*+ DPC(1 R_DIS) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:45~2:62) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:70~2:87) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_020_behavior_review]
+sql:
+-- HINT_007_L_GAT_R_GAT
+explain select /*+ DPC(1 L_GAT_R_GAT) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:51~2:68) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:76~2:93) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_021_behavior_review]
+sql:
+-- HINT_008_ONE_GAT_ONLY
+explain select /*+ DPC(1 ONE_GAT_ONLY) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:52~2:69) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:77~2:94) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_022_behavior_review]
+sql:
+-- HINT_009_ONE_PART_ONLY
+explain select /*+ DPC(1 ONE_PART_ONLY) */ a.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.grp_id=b.grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:53~2:70) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(2:78~2:95) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_023_behavior_review]
+sql:
+-- HINT_010_X
+explain select /*+ DPC(1 X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:38~2:43) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:52~2:69) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_024_behavior_review]
+sql:
+-- HINT_011_X_DIS_X
+explain select /*+ DPC(1 X_DIS_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:44~2:49) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:58~2:75) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_025_behavior_review]
+sql:
+-- HINT_012_DIS_X
+explain select /*+ DPC(1 DIS_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:42~2:47) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:56~2:73) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_026_behavior_review]
+sql:
+-- HINT_013_DIS_SORT_X
+explain select /*+ DPC(1 DIS_SORT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:47~2:52) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:61~2:78) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_027_behavior_review]
+sql:
+-- HINT_014_X_GAT_X
+explain select /*+ DPC(1 X_GAT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:44~2:49) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:58~2:75) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_028_behavior_review]
+sql:
+-- HINT_015_GAT_X
+explain select /*+ DPC(1 GAT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:42~2:47) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:56~2:73) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_029_behavior_review]
+sql:
+-- HINT_016_GAT_SORT_X
+explain select /*+ DPC(1 GAT_SORT_X) */ grp_id,count(*) from app.dpc_q_range_a group by grp_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Function(2:47~2:52) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:61~2:78) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_030_behavior_review]
+sql:
+-- HINT_017_X_MERGE
+explain select /*+ DPC(1 X_MERGE) */ id from app.dpc_q_range_a order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PERFORMANCE": [
+    {
+      "subject": "Table(2:45~2:62) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_031_behavior_review]
+sql:
+-- API_001_PARTGROUPDEF
+select partgroupdef('APP','DPC_Q_PG_RANGE') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/partgroupdef/",
+      "action": "CALL",
+      "target": "ResourceGroup(2:26~2:42) /test/1/catalog1/APP/DPC_Q_PG_RANGE/"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_032_behavior_review]
+sql:
+-- API_002_TABLEDEF
+select tabledef('APP','DPC_Q_RANGE_A') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/tabledef/",
+      "action": "CALL",
+      "target": "Table(2:22~2:37) /test/1/catalog1/APP/DPC_Q_RANGE_A/"
+    },
+    {
+      "subject": "View(2:44~2:48) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_033_behavior_review]
+sql:
+-- API_003_EP_COUNT
+call sp_get_ep_count('APP','DPC_Q_RANGE_A');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/sp_get_ep_count/",
+      "action": "CALL",
+      "target": "Table(2:27~2:42) /test/1/catalog1/APP/DPC_Q_RANGE_A/"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_034_behavior_review]
+sql:
+-- API_004_TABLE_USED_PAGES
+select table_used_pages('APP','DPC_Q_RANGE_A') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:23) /test/1/catalog1/schema1/table_used_pages/",
+      "action": "CALL",
+      "target": "Table(2:30~2:45) /test/1/catalog1/APP/DPC_Q_RANGE_A/"
+    },
+    {
+      "subject": "View(2:52~2:56) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_035_behavior_review]
+sql:
+-- API_005_CLEAR_ROWCNT_CACHE
+call sp_clear_tab_rowcnt_cache(null,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/schema1/sp_clear_tab_rowcnt_cache/",
+      "action": "CALL",
+      "target": "Environment(2:5~2:30) /test/1/"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_036_behavior_review]
+sql:
+-- API_006_PHD_ON
+call sp_set_dbg_show('PHD',1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/sp_set_dbg_show/",
+      "action": "CALL",
+      "target": "ConfigKey(2:21~2:26) /test/1/PHD/"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_037_behavior_review]
+sql:
+-- API_007_PHD_OFF
+call sp_set_dbg_show('PHD',0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/sp_set_dbg_show/",
+      "action": "CALL",
+      "target": "ConfigKey(2:21~2:26) /test/1/PHD/"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_038_behavior_review]
+sql:
+-- SYS_001_DPC_NETWORK
+select count(*) from sys.dpc_network;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:36) /test/1/catalog1/sys/dpc_network/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_039_behavior_review]
+sql:
+-- SYS_002_DPC_HOST
+select count(*) from sys.dpc_host;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:33) /test/1/catalog1/sys/dpc_host/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_040_behavior_review]
+sql:
+-- SYS_003_DPC_HOST_ADDR
+select count(*) from sys.dpc_host_addr;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:38) /test/1/catalog1/sys/dpc_host_addr/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_041_behavior_review]
+sql:
+-- SYS_004_DPC_FOLDER
+select count(*) from sys.dpc_folder;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:35) /test/1/catalog1/sys/dpc_folder/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_042_behavior_review]
+sql:
+-- SYS_005_DPC_BP_DOMAIN
+select count(*) from sys.dpc_bp_domain;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:38) /test/1/catalog1/sys/dpc_bp_domain/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_043_behavior_review]
+sql:
+-- SYS_006_DPC_DOMAIN_FOLDER
+select count(*) from sys.dpc_domain_folder;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:42) /test/1/catalog1/sys/dpc_domain_folder/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_044_behavior_review]
+sql:
+-- SYS_007_DPC_FOLDER_INSTANCE
+select count(*) from sys.dpc_folder_instance;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:44) /test/1/catalog1/sys/dpc_folder_instance/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_045_behavior_review]
+sql:
+-- SYS_008_DPC_BP_GROUP
+select count(*) from sys.dpc_bp_group;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:37) /test/1/catalog1/sys/dpc_bp_group/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_046_behavior_review]
+sql:
+-- SYS_009_DPC_BP_RAFT
+select count(*) from sys.dpc_bp_raft;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:36) /test/1/catalog1/sys/dpc_bp_raft/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_047_behavior_review]
+sql:
+-- SYS_010_DPC_INSTANCE
+select count(*) from sys.dpc_instance;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:37) /test/1/catalog1/sys/dpc_instance/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_048_behavior_review]
+sql:
+-- SYS_011_DPC_NET_CONF
+select count(*) from sys.dpc_net_conf;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:37) /test/1/catalog1/sys/dpc_net_conf/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_049_behavior_review]
+sql:
+-- SYS_012_DPC_TABLESPACE
+select count(*) from sys.dpc_tablespace;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:39) /test/1/catalog1/sys/dpc_tablespace/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_050_behavior_review]
+sql:
+-- SYS_013_DPC_HTS
+select count(*) from sys.dpc_hts;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(2:21~2:32) /test/1/catalog1/sys/dpc_hts/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_051_behavior_review]
+sql:
+-- VIEW_014_DPC_STASK_THRD
+select count(*) from sys.v$dpc_stask_thrd;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:41) /test/1/catalog1/sys/v$dpc_stask_thrd/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_052_behavior_review]
+sql:
+-- VIEW_015_RLOG_RAFT_INFO
+select count(*) from sys.v$rlog_raft_info;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:41) /test/1/catalog1/sys/v$rlog_raft_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_053_behavior_review]
+sql:
+-- VIEW_016_SQL_NODE_HISTORY
+select count(*) from sys.v$sql_node_history;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:43) /test/1/catalog1/sys/v$sql_node_history/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_054_behavior_review]
+sql:
+-- VIEW_017_DPC_MP_CFG
+select count(*) from sys.v$dpc_mp_cfg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:37) /test/1/catalog1/sys/v$dpc_mp_cfg/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_055_behavior_review]
+sql:
+-- VIEW_018_DPC_QC_HISTORY
+select count(*) from sys.v$dpc_qc_history;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:41) /test/1/catalog1/sys/v$dpc_qc_history/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_056_behavior_review]
+sql:
+-- VIEW_019_ARCH_STATUS
+select count(*) from sys.v$arch_status;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$arch_status/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_057_behavior_review]
+sql:
+-- VIEW_020_DPC_EGTS_MP_INFO
+select count(*) from sys.v$dpc_egts_mp_info;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:43) /test/1/catalog1/sys/v$dpc_egts_mp_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_058_behavior_review]
+sql:
+-- VIEW_021_DPC_ENET_HISTORY
+select count(*) from sys.v$dpc_enet_history;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:43) /test/1/catalog1/sys/v$dpc_enet_history/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_059_behavior_review]
+sql:
+-- VIEW_022_ARCH_SYS
+select count(*) from sys.v$arch_sys;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:35) /test/1/catalog1/sys/v$arch_sys/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_060_behavior_review]
+sql:
+-- VIEW_023_DM_ARCH_INI
+select count(*) from sys.v$dm_arch_ini;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$dm_arch_ini/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_061_behavior_review]
+sql:
+-- VIEW_024_DPC_ESESS_STMTS
+select count(*) from sys.v$dpc_esess_stmts;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:42) /test/1/catalog1/sys/v$dpc_esess_stmts/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_062_behavior_review]
+sql:
+-- VIEW_025_DPC_EXA_INFO
+select count(*) from sys.v$dpc_exa_info;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:39) /test/1/catalog1/sys/v$dpc_exa_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_063_behavior_review]
+sql:
+-- VIEW_026_DPC_ROT_INFO
+select count(*) from sys.v$dpc_rot_info;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:39) /test/1/catalog1/sys/v$dpc_rot_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_064_behavior_review]
+sql:
+-- VIEW_027_DPC_ESESS
+select count(*) from sys.v$dpc_esess;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:36) /test/1/catalog1/sys/v$dpc_esess/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_065_behavior_review]
+sql:
+-- VIEW_028_DPC_EDCT_RAFT
+select count(*) from sys.v$dpc_edct_raft;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:40) /test/1/catalog1/sys/v$dpc_edct_raft/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_066_behavior_review]
+sql:
+-- VIEW_029_DPC_EDCT_INSTANCE
+select count(*) from sys.v$dpc_edct_instance;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:44) /test/1/catalog1/sys/v$dpc_edct_instance/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_067_behavior_review]
+sql:
+-- VIEW_030_EHTD_GRP
+select count(*) from sys.v$ehtd_grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:35) /test/1/catalog1/sys/v$ehtd_grp/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_068_behavior_review]
+sql:
+-- VIEW_031_TABLE_ROWCNT_CACHE
+select count(*) from sys.v$table_rowcnt_cache;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:45) /test/1/catalog1/sys/v$table_rowcnt_cache/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_069_behavior_review]
+sql:
+-- VIEW_032_DPC_TS_MOVE
+select count(*) from sys.v$dpc_ts_move;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:38) /test/1/catalog1/sys/v$dpc_ts_move/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_070_behavior_review]
+sql:
+-- VIEW_033_DPC_QC_SCHED_HISTORY
+select count(*) from sys.v$dpc_qc_sched_history;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:47) /test/1/catalog1/sys/v$dpc_qc_sched_history/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_071_behavior_review]
+sql:
+-- VIEW_034_GLOBAL_RAFT_INFO
+select count(*) from sys.v$global_raft_info;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:21~2:43) /test/1/catalog1/sys/v$global_raft_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_072_behavior_review]
+sql:
+-- ARITY_001_SELF_EP_EXTRA
+select sf_get_self_ep_seqno(1) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:27) /test/1/catalog1/schema1/sf_get_self_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:36~2:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_073_behavior_review]
+sql:
+-- ARITY_002_EP_SEQNO_MISSING
+select sf_get_ep_seqno() from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:30~2:34) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_074_behavior_review]
+sql:
+-- ARITY_003_EP_COUNT_MISSING
+call sp_get_ep_count('APP');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/sp_get_ep_count/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_075_behavior_review]
+sql:
+-- ARITY_004_TABLE_USED_PAGES_MISSING
+select table_used_pages('APP') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:23) /test/1/catalog1/schema1/table_used_pages/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:36~2:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_076_behavior_review]
+sql:
+-- ARITY_005_PARTGROUPDEF_MISSING
+select partgroupdef('APP') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:19) /test/1/catalog1/schema1/partgroupdef/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:32~2:36) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_077_behavior_review]
+sql:
+-- ARITY_006_TABLEDEF_MISSING
+select tabledef('APP') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:15) /test/1/catalog1/schema1/tabledef/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:28~2:32) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_078_behavior_review]
+sql:
+-- ARITY_007_CLEAR_CACHE_EXTRA
+call sp_clear_tab_rowcnt_cache(null,null,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:30) /test/1/catalog1/schema1/sp_clear_tab_rowcnt_cache/",
+      "action": "CALL",
+      "target": "Environment(2:5~2:30) /test/1/"
+    }
+  ]
+}
+----------
+[split_dql_admin_dameng_dpc_query_atomic_0_079_behavior_review]
+sql:
+-- ARITY_008_DBG_SHOW_MISSING
+call sp_set_dbg_show('PHD');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:20) /test/1/catalog1/schema1/sp_set_dbg_show/",
+      "action": "CALL",
+      "target": "ConfigKey(2:21~2:26) /test/1/PHD/"
+    }
+  ]
+}

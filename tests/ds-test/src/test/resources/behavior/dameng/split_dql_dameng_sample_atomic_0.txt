@@ -1,0 +1,117 @@
+[split_dql_dameng_sample_atomic_0_001]
+sql:
+select count(*) from app.sample_target sample(10+5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/app/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_atomic_0_002]
+sql:
+select count(*) from app.sample_target partition(p1) sample(30) seed(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Partition(1:49~1:51) /test/1/catalog1/app/sample_target/p1/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_atomic_0_003]
+sql:
+select count(*) from app.sample_target sample(30) a join app.sample_other sample block(30) b on a.id=b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/app/sample_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:57~1:73) /test/1/catalog1/app/sample_other/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_atomic_0_004]
+sql:
+select count(*) from (select * from app.sample_target sample(20) seed(2)) s;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:36~1:53) /test/1/catalog1/app/sample_target/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_atomic_0_005]
+sql:
+select id from app.sample_target sample(10) union all select id from app.sample_other sample(10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:32) /test/1/catalog1/app/sample_target/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:69~1:85) /test/1/catalog1/app/sample_other/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_sample_atomic_0_006]
+sql:
+select count(*) from app.sample_target sample(10) block;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:38) /test/1/catalog1/app/sample_target/",
+      "action": "READ"
+    }
+  ]
+}

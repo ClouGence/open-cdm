@@ -1,0 +1,35 @@
+[json_typeof_columns]
+sql:
+select d.id,json_type(d.doc) as json_kind from catalog1.app.json_strict d order by d.id
+expect:
+{"id":["/catalog1/app/json_strict/id/"],"json_kind":["/catalog1/app/json_strict/doc/"]}
+----------
+[json_cast_arrow_columns]
+sql:
+select d.doc::json->'a' as a_value from catalog1.app.json_lax d
+expect:
+{"a_value":["/catalog1/app/json_lax/doc/"]}
+----------
+[json_query_columns]
+sql:
+select json_query(d.doc,'$' with wrapper) as wrapped_doc from catalog1.app.json_unique d
+expect:
+{"wrapped_doc":["/catalog1/app/json_unique/doc/"]}
+----------
+[jsonb_object_agg_columns]
+sql:
+select jsonb_object_agg(cast(d.id as varchar),d.doc) as json_object from catalog1.app.json_strict d
+expect:
+{"json_object":["/catalog1/app/json_strict/id/","/catalog1/app/json_strict/doc/"]}
+----------
+[json_unique_predicate_columns]
+sql:
+select d.id from catalog1.app.json_nonunique d where d.doc is json without unique keys
+expect:
+{"id":["/catalog1/app/json_nonunique/id/"]}
+----------
+[json_not_predicate_columns]
+sql:
+select d.id from catalog1.app.json_long d where d.doc is not json
+expect:
+{"id":["/catalog1/app/json_long/id/"]}

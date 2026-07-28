@@ -1,0 +1,75 @@
+[split_dql_dameng_performance_packages_0_007]
+sql:
+select dbms_sqltune.report_sql_monitor_list(session_id=>-1, top_n_count=>10, type=>'TEXT') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:43) /test/1/catalog1/dbms_sqltune/report_sql_monitor_list/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:96~1:100) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_performance_packages_0_008]
+sql:
+select dbms_sqltune.report_sql_monitor(session_id=>-1, type=>'TEXT') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:38) /test/1/catalog1/dbms_sqltune/report_sql_monitor/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:74~1:78) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_performance_packages_0_009]
+sql:
+select dbms_sqltune.report_tuning_task(task_name=>'CODEX_TUNE_MAIN', type=>'TEXT', level=>'TYPICAL', "SECTION"=>'ALL') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:38) /test/1/catalog1/dbms_sqltune/report_tuning_task/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:124~1:128) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_performance_packages_0_010]
+sql:
+select dbms_sqltune.report_tuning_task('CODEX_TUNE_PROC', level=>'BASIC', "SECTION"=>'SUMMARY') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:38) /test/1/catalog1/dbms_sqltune/report_tuning_task/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:101~1:105) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

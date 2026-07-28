@@ -1,0 +1,44 @@
+[dsc_query_shared_table_resource]
+sql:
+select id,note from app.dsc_q_shared_t order by id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:38) /test/1/catalog1/app/dsc_q_shared_t/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[dsc_query_ep_view_resource]
+sql:
+select * from sys.v$dsc_ep_info
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:31) /test/1/catalog1/sys/v$dsc_ep_info/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[dsc_query_asm_view_resource]
+sql:
+select * from sys.v$asmgroup
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:28) /test/1/catalog1/sys/v$asmgroup/",
+      "action": "READ"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+[partition_name]
+sql:
+SELECT P.ID, P.NOTE FROM APP.T_RANGE PARTITION(P_LT10) P
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "APP",
+      "table": "T_RANGE"
+    }
+  ]
+}
+----------
+[partition_for]
+sql:
+SELECT ID FROM APP.T_RANGE PARTITION FOR(5)
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "APP",
+      "table": "T_RANGE"
+    }
+  ]
+}
+----------
+[subpartition_for]
+sql:
+SELECT ID FROM APP.T_RANGE_LIST SUBPARTITION FOR(5, 'A')
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "APP",
+      "table": "T_RANGE_LIST"
+    }
+  ]
+}
+----------
+[partition_join]
+sql:
+SELECT P.ID FROM APP.T_RANGE PARTITION(P_LT20) P JOIN APP.T_DIM D ON D.KIND=P.KIND
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "APP",
+      "table": "T_RANGE"
+    },
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "APP",
+      "table": "T_DIM"
+    }
+  ]
+}
+----------
+[partition_insert]
+sql:
+INSERT INTO APP.T_RANGE PARTITION(P_LT10)(ID,KIND) VALUES(6,'A')
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbInsertDomain",
+      "sqlType": "INSERT",
+      "auditKind": "DML",
+      "schema": "APP",
+      "table": "T_RANGE"
+    }
+  ]
+}
+----------
+[partition_update]
+sql:
+UPDATE APP.T_RANGE PARTITION(P_LT10) SET NOTE='X' WHERE ID=6
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbUpdateDomain",
+      "sqlType": "UPDATE",
+      "auditKind": "DML",
+      "schema": "APP",
+      "table": "T_RANGE"
+    }
+  ]
+}
+----------
+[partition_delete]
+sql:
+DELETE FROM APP.T_RANGE PARTITION(P_LT10) WHERE ID=6
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbDeleteDomain",
+      "sqlType": "DELETE",
+      "auditKind": "DML",
+      "schema": "APP",
+      "table": "T_RANGE"
+    }
+  ]
+}
+----------
+[partition_merge]
+sql:
+MERGE INTO APP.T_RANGE PARTITION(P_LT10) T USING APP.T_STAGE S ON(T.ID=S.ID) WHEN MATCHED THEN UPDATE SET T.NOTE=S.NOTE
+expect:
+{
+  "contains": [
+    {
+      "class": "RdbUpdateDomain",
+      "sqlType": "MERGE",
+      "auditKind": "DML",
+      "schema": "APP",
+      "table": "T_RANGE"
+    },
+    {
+      "class": "RdbTableDomain",
+      "sqlType": "SELECT",
+      "auditKind": "QUERY",
+      "schema": "APP",
+      "table": "T_STAGE"
+    }
+  ]
+}

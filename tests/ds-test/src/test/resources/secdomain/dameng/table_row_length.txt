@@ -1,0 +1,29 @@
+[tblen_insert]
+sql:
+insert into app.tblen_ps16_varchar values(rpad('x',7975,'0123456789'),1)
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","schema":"app","table":"tblen_ps16_varchar"}]}
+----------
+[tblen_update]
+sql:
+update app.tblen_long_transition set v=rpad('x',32767,'0123456789')
+expect:
+{"contains":[{"class":"RdbUpdateDomain","sqlType":"UPDATE","schema":"app","table":"tblen_long_transition"}]}
+----------
+[tblen_enable]
+sql:
+alter table app.tblen_long_transition enable using long row
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"ALTER_TABLE","schema":"app","table":"tblen_long_transition"}]}
+----------
+[tblen_select]
+sql:
+select lengthb(a),lengthb(b),i from app.tblen_ps16_long
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"SELECT","schema":"app","table":"tblen_ps16_long"}]}
+----------
+[tblen_delete]
+sql:
+delete from app.tblen_long_transition
+expect:
+{"contains":[{"class":"RdbDeleteDomain","sqlType":"DELETE","schema":"app","table":"tblen_long_transition"}]}

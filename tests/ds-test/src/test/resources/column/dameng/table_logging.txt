@@ -1,0 +1,18 @@
+[table_advanced_log_columns]
+sql:
+select op_type, org_rowid, colmap from catalog1.app."TABLE_LOG_STATE$ALOG"
+expect:
+{
+  "op_type": ["/catalog1/app/TABLE_LOG_STATE$ALOG/op_type/"],
+  "org_rowid": ["/catalog1/app/TABLE_LOG_STATE$ALOG/org_rowid/"],
+  "colmap": ["/catalog1/app/TABLE_LOG_STATE$ALOG/colmap/"]
+}
+----------
+[table_advanced_source_columns]
+sql:
+select id, note from catalog1.app.table_log_state
+expect:
+{
+  "id": ["/catalog1/app/table_log_state/id/"],
+  "note": ["/catalog1/app/table_log_state/note/"]
+}

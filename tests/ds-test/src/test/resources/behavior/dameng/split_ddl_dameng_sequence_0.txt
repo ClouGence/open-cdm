@@ -1,0 +1,1746 @@
+[split_ddl_dameng_sequence_0_001]
+sql:
+create table CODEX_DM8_SEQ_VALUES(ID bigint, NOTE varchar(40));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_002]
+sql:
+create sequence CODEX_DM8_SEQ_BASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BASE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_003]
+sql:
+select CODEX_DM8_SEQ_BASE.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:25) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_004]
+sql:
+select CODEX_DM8_SEQ_BASE.currval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:25) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_005]
+sql:
+insert into CODEX_DM8_SEQ_VALUES values(CODEX_DM8_SEQ_BASE.nextval,'BASE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "INSERT",
+      "target": "Sequence(1:40~1:58) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BASE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_006]
+sql:
+select ID,NOTE from CODEX_DM8_SEQ_VALUES order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_007]
+sql:
+alter sequence CODEX_DM8_SEQ_BASE increment by 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BASE/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_008]
+sql:
+select CODEX_DM8_SEQ_BASE.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:25) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_009]
+sql:
+alter sequence CODEX_DM8_SEQ_BASE current value 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BASE/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_010]
+sql:
+select CODEX_DM8_SEQ_BASE.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:25) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BASE/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:39~1:43) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_011]
+sql:
+alter sequence CODEX_DM8_SEQ_BASE rename to CODEX_DM8_SEQ_RENAMED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BASE/",
+      "action": "RENAME",
+      "target": "Sequence(1:44~1:65) /test/1/catalog1/schema1/CODEX_DM8_SEQ_RENAMED/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_012]
+sql:
+select CODEX_DM8_SEQ_RENAMED.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:28) /test/1/catalog1/schema1/CODEX_DM8_SEQ_RENAMED/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_013]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_RENAMED';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_014]
+sql:
+drop sequence CODEX_DM8_SEQ_RENAMED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:35) /test/1/catalog1/schema1/CODEX_DM8_SEQ_RENAMED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_015]
+sql:
+create sequence if not exists CODEX_DM8_SEQ_IFNE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:30~1:48) /test/1/catalog1/schema1/CODEX_DM8_SEQ_IFNE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_016]
+sql:
+create sequence if not exists CODEX_DM8_SEQ_IFNE increment by 9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:30~1:48) /test/1/catalog1/schema1/CODEX_DM8_SEQ_IFNE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_017]
+sql:
+drop sequence if exists CODEX_DM8_SEQ_IFNE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:24~1:42) /test/1/catalog1/schema1/CODEX_DM8_SEQ_IFNE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_018]
+sql:
+drop sequence if exists CODEX_DM8_SEQ_MISSING;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:24~1:45) /test/1/catalog1/schema1/CODEX_DM8_SEQ_MISSING/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_019]
+sql:
+create sequence SYSDBA.CODEX_DM8_SEQ_SCHEMA start with 7 increment by 3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:43) /test/1/catalog1/SYSDBA/CODEX_DM8_SEQ_SCHEMA/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_020]
+sql:
+select SYSDBA.CODEX_DM8_SEQ_SCHEMA.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:34) /test/1/catalog1/SYSDBA/CODEX_DM8_SEQ_SCHEMA/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_021]
+sql:
+drop sequence SYSDBA.CODEX_DM8_SEQ_SCHEMA;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:41) /test/1/catalog1/SYSDBA/CODEX_DM8_SEQ_SCHEMA/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_022]
+sql:
+create sequence "Codex_Dm8_Seq_Mixed" start with 11;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:37) /test/1/catalog1/schema1/Codex_Dm8_Seq_Mixed/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_023]
+sql:
+select "Codex_Dm8_Seq_Mixed".nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:28) /test/1/catalog1/schema1/Codex_Dm8_Seq_Mixed/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_024]
+sql:
+drop sequence "Codex_Dm8_Seq_Mixed";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:35) /test/1/catalog1/schema1/Codex_Dm8_Seq_Mixed/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_025]
+sql:
+create sequence CODEX_DM8_SEQ_INC_POS increment by 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:37) /test/1/catalog1/schema1/CODEX_DM8_SEQ_INC_POS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_026]
+sql:
+select CODEX_DM8_SEQ_INC_POS.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:28) /test/1/catalog1/schema1/CODEX_DM8_SEQ_INC_POS/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_027]
+sql:
+drop sequence CODEX_DM8_SEQ_INC_POS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:35) /test/1/catalog1/schema1/CODEX_DM8_SEQ_INC_POS/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_028]
+sql:
+create sequence CODEX_DM8_SEQ_INC_NEG increment by -10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:37) /test/1/catalog1/schema1/CODEX_DM8_SEQ_INC_NEG/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_029]
+sql:
+select CODEX_DM8_SEQ_INC_NEG.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:28) /test/1/catalog1/schema1/CODEX_DM8_SEQ_INC_NEG/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:42~1:46) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_030]
+sql:
+drop sequence CODEX_DM8_SEQ_INC_NEG;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:35) /test/1/catalog1/schema1/CODEX_DM8_SEQ_INC_NEG/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_031]
+sql:
+create sequence CODEX_DM8_SEQ_START start with 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:35) /test/1/catalog1/schema1/CODEX_DM8_SEQ_START/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_032]
+sql:
+select CODEX_DM8_SEQ_START.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:26) /test/1/catalog1/schema1/CODEX_DM8_SEQ_START/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:40~1:44) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_033]
+sql:
+drop sequence CODEX_DM8_SEQ_START;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_START/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_034]
+sql:
+create sequence CODEX_DM8_SEQ_BOUNDS start with 10 minvalue 5 maxvalue 20 nocycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:36) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BOUNDS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_035]
+sql:
+select CODEX_DM8_SEQ_BOUNDS.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:27) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BOUNDS/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:41~1:45) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_036]
+sql:
+drop sequence CODEX_DM8_SEQ_BOUNDS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_BOUNDS/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_037]
+sql:
+create sequence CODEX_DM8_SEQ_NOBOUNDS start with 10 nominvalue nomaxvalue;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:38) /test/1/catalog1/schema1/CODEX_DM8_SEQ_NOBOUNDS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_038]
+sql:
+select CODEX_DM8_SEQ_NOBOUNDS.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:29) /test/1/catalog1/schema1/CODEX_DM8_SEQ_NOBOUNDS/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_039]
+sql:
+drop sequence CODEX_DM8_SEQ_NOBOUNDS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:36) /test/1/catalog1/schema1/CODEX_DM8_SEQ_NOBOUNDS/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_040]
+sql:
+create sequence CODEX_DM8_SEQ_CYCLE_UP start with 3 increment by 1 minvalue 1 maxvalue 3 cycle nocache;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:38) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_UP/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_041]
+sql:
+select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:29) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_UP/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_042]
+sql:
+select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:29) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_UP/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_043]
+sql:
+select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:29) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_UP/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_044]
+sql:
+select CODEX_DM8_SEQ_CYCLE_UP.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:29) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_UP/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:43~1:47) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_045]
+sql:
+drop sequence CODEX_DM8_SEQ_CYCLE_UP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:36) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_UP/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_046]
+sql:
+create sequence CODEX_DM8_SEQ_CYCLE_DOWN start with -1 increment by -1 minvalue -3 maxvalue -1 cycle nocache;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:40) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_DOWN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_047]
+sql:
+select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:31) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_DOWN/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_048]
+sql:
+select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:31) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_DOWN/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_049]
+sql:
+select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:31) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_DOWN/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_050]
+sql:
+select CODEX_DM8_SEQ_CYCLE_DOWN.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:31) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_DOWN/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:45~1:49) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_051]
+sql:
+drop sequence CODEX_DM8_SEQ_CYCLE_DOWN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:38) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CYCLE_DOWN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_052]
+sql:
+create sequence CODEX_DM8_SEQ_CACHE_MIN cache 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:39) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CACHE_MIN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_053]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_CACHE_MIN';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_054]
+sql:
+drop sequence CODEX_DM8_SEQ_CACHE_MIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:37) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CACHE_MIN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_055]
+sql:
+create sequence CODEX_DM8_SEQ_CACHE_50000 cache 50000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:41) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CACHE_50000/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_056]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_CACHE_50000';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_057]
+sql:
+drop sequence CODEX_DM8_SEQ_CACHE_50000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:39) /test/1/catalog1/schema1/CODEX_DM8_SEQ_CACHE_50000/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_058]
+sql:
+create sequence CODEX_DM8_SEQ_NOCACHE nocache;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:37) /test/1/catalog1/schema1/CODEX_DM8_SEQ_NOCACHE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_059]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_NOCACHE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_060]
+sql:
+drop sequence CODEX_DM8_SEQ_NOCACHE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:35) /test/1/catalog1/schema1/CODEX_DM8_SEQ_NOCACHE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_061]
+sql:
+create sequence CODEX_DM8_SEQ_ORDER order;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:35) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ORDER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_062]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_ORDER';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_063]
+sql:
+drop sequence CODEX_DM8_SEQ_ORDER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ORDER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_064]
+sql:
+create sequence CODEX_DM8_SEQ_NOORDER noorder;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:37) /test/1/catalog1/schema1/CODEX_DM8_SEQ_NOORDER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_065]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_NOORDER';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_066]
+sql:
+drop sequence CODEX_DM8_SEQ_NOORDER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:35) /test/1/catalog1/schema1/CODEX_DM8_SEQ_NOORDER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_067]
+sql:
+create sequence CODEX_DM8_SEQ_GLOBAL global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:36) /test/1/catalog1/schema1/CODEX_DM8_SEQ_GLOBAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_068]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_GLOBAL';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_069]
+sql:
+drop sequence CODEX_DM8_SEQ_GLOBAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_GLOBAL/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_070]
+sql:
+create sequence CODEX_DM8_SEQ_LOCAL local;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:35) /test/1/catalog1/schema1/CODEX_DM8_SEQ_LOCAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_071]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_LOCAL';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_072]
+sql:
+drop sequence CODEX_DM8_SEQ_LOCAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_LOCAL/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_073]
+sql:
+create sequence CODEX_DM8_SEQ_ALTER start with 50 increment by 1 minvalue 1 maxvalue 1000 nocycle cache 10 noorder;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:35) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_074]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER maxvalue 2000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_075]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER minvalue 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_076]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER cache 20;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_077]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER nocache;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_078]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER cycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_079]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER nocycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_080]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER order;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_081]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER noorder;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_082]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER nomaxvalue;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_083]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER nominvalue;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_084]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER current value 300;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:34) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_085]
+sql:
+select CODEX_DM8_SEQ_ALTER.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:26) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:40~1:44) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_086]
+sql:
+select NAME,TYPE$,SUBTYPE$ from SYSOBJECTS where NAME='CODEX_DM8_SEQ_ALTER';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:32~1:42) /test/1/catalog1/schema1/SYSOBJECTS/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_087]
+sql:
+drop sequence CODEX_DM8_SEQ_ALTER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_088]
+sql:
+create sequence SYSDBA.CODEX_DM8_SEQ_RENAME start with 100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:43) /test/1/catalog1/SYSDBA/CODEX_DM8_SEQ_RENAME/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_089]
+sql:
+alter sequence SYSDBA.CODEX_DM8_SEQ_RENAME rename to CODEX_DM8_SEQ_RENAME_DONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "RENAME_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:42) /test/1/catalog1/SYSDBA/CODEX_DM8_SEQ_RENAME/",
+      "action": "RENAME",
+      "target": "Sequence(1:53~1:78) /test/1/catalog1/SYSDBA/CODEX_DM8_SEQ_RENAME_DONE/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_090]
+sql:
+select SYSDBA.CODEX_DM8_SEQ_RENAME_DONE.nextval from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Sequence(1:7~1:39) /test/1/catalog1/SYSDBA/CODEX_DM8_SEQ_RENAME_DONE/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:53~1:57) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_091]
+sql:
+drop sequence SYSDBA.CODEX_DM8_SEQ_RENAME_DONE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:46) /test/1/catalog1/SYSDBA/CODEX_DM8_SEQ_RENAME_DONE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_092]
+sql:
+create sequence CODEX_DM8_SEQ_DML start with 1000 increment by 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:33) /test/1/catalog1/schema1/CODEX_DM8_SEQ_DML/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_093]
+sql:
+insert into CODEX_DM8_SEQ_VALUES values(CODEX_DM8_SEQ_DML.nextval,'DML_ONE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "INSERT",
+      "target": "Sequence(1:40~1:57) /test/1/catalog1/schema1/CODEX_DM8_SEQ_DML/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_094]
+sql:
+insert into CODEX_DM8_SEQ_VALUES select CODEX_DM8_SEQ_DML.nextval,'DML_TWO' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "INSERT",
+      "target": [
+        "Sequence(1:40~1:57) /test/1/catalog1/schema1/CODEX_DM8_SEQ_DML/",
+        "View(1:81~1:85) /test/1/catalog1/schema1/dual/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_095]
+sql:
+select ID,NOTE from CODEX_DM8_SEQ_VALUES where NOTE like 'DML_%' order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_096]
+sql:
+update CODEX_DM8_SEQ_VALUES set ID=CODEX_DM8_SEQ_DML.nextval where NOTE='BASE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:27) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "UPDATE",
+      "target": "Sequence(1:35~1:52) /test/1/catalog1/schema1/CODEX_DM8_SEQ_DML/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_097]
+sql:
+select ID,NOTE from CODEX_DM8_SEQ_VALUES order by ID;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:20~1:40) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_098]
+sql:
+drop sequence CODEX_DM8_SEQ_DML;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:31) /test/1/catalog1/schema1/CODEX_DM8_SEQ_DML/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_099]
+sql:
+delete from CODEX_DM8_SEQ_VALUES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:32) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_100]
+sql:
+drop table CODEX_DM8_SEQ_VALUES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:31) /test/1/catalog1/schema1/CODEX_DM8_SEQ_VALUES/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_101]
+sql:
+create sequence CODEX_DM8_SEQ_ALTER_GLOBAL global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:42) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER_GLOBAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_102]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER_GLOBAL global;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:41) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER_GLOBAL/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_103]
+sql:
+drop sequence CODEX_DM8_SEQ_ALTER_GLOBAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:40) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER_GLOBAL/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_104]
+sql:
+create sequence CODEX_DM8_SEQ_ALTER_LOCAL local;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:41) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER_LOCAL/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_105]
+sql:
+alter sequence CODEX_DM8_SEQ_ALTER_LOCAL local;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_SEQUENCE": [
+    {
+      "subject": "Sequence(1:15~1:40) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER_LOCAL/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_106]
+sql:
+drop sequence CODEX_DM8_SEQ_ALTER_LOCAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:39) /test/1/catalog1/schema1/CODEX_DM8_SEQ_ALTER_LOCAL/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_107]
+sql:
+create sequence CODEX_DM8_SEQ_DROP_RESTRICT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:43) /test/1/catalog1/schema1/CODEX_DM8_SEQ_DROP_RESTRICT/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_108]
+sql:
+drop sequence CODEX_DM8_SEQ_DROP_RESTRICT restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:41) /test/1/catalog1/schema1/CODEX_DM8_SEQ_DROP_RESTRICT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_109]
+sql:
+create sequence CODEX_DM8_SEQ_DROP_CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_SEQUENCE": [
+    {
+      "subject": "Sequence(1:16~1:42) /test/1/catalog1/schema1/CODEX_DM8_SEQ_DROP_CASCADE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_sequence_0_110]
+sql:
+drop sequence CODEX_DM8_SEQ_DROP_CASCADE cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_SEQUENCE": [
+    {
+      "subject": "Sequence(1:14~1:40) /test/1/catalog1/schema1/CODEX_DM8_SEQ_DROP_CASCADE/",
+      "action": "DROP"
+    }
+  ]
+}

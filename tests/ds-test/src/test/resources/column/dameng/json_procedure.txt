@@ -1,0 +1,29 @@
+[create_procedure_has_no_result_columns]
+sql:
+create procedure app.p_dml(p_id int,p_v int) as
+  v int;
+begin
+  select value into v from catalog1.app.proc_data where id=p_id;
+  update catalog1.app.proc_data set value=p_v where id=p_id;
+end p_dml;
+/
+expect:
+{}
+----------
+[alter_procedure_has_no_result_columns]
+sql:
+alter procedure app.p_dml compile cascade debug;
+expect:
+{}
+----------
+[call_procedure_has_no_result_columns]
+sql:
+call app.p_dml(1,2);
+expect:
+{}
+----------
+[drop_procedure_has_no_result_columns]
+sql:
+drop procedure app.p_dml;
+expect:
+{}

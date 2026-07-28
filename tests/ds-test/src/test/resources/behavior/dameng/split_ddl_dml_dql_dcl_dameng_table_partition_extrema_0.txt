@@ -1,0 +1,2370 @@
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_001]
+sql:
+create table part_list_ps4_120(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_list_ps4_120/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_002]
+sql:
+create table part_list_ps4_121(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_list_ps4_121/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_003]
+sql:
+create table part_list_ps8_254(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_list_ps8_254/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_004]
+sql:
+create table part_list_ps8_255(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_list_ps8_255/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_005]
+sql:
+create table part_list_ps16_270(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_list_ps16_270/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_006]
+sql:
+create table part_list_ps16_271(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_list_ps16_271/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_007]
+sql:
+create table part_list_ps16_527(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,451,452,453,454,455,456,457,458,459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496,497,498,499,500,501,502,503,504,505,506,507,508,509,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,525,526,527));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_list_ps16_527/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_008]
+sql:
+create table part_list_ps16_528(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,451,452,453,454,455,456,457,458,459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496,497,498,499,500,501,502,503,504,505,506,507,508,509,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,525,526,527,528));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_list_ps16_528/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_009]
+sql:
+create table part_list_ps32_270(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_list_ps32_270/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_010]
+sql:
+create table part_list_ps32_271(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_list_ps32_271/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_011]
+sql:
+create table part_list_ps32_1074(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,451,452,453,454,455,456,457,458,459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496,497,498,499,500,501,502,503,504,505,506,507,508,509,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,525,526,527,528,529,530,531,532,533,534,535,536,537,538,539,540,541,542,543,544,545,546,547,548,549,550,551,552,553,554,555,556,557,558,559,560,561,562,563,564,565,566,567,568,569,570,571,572,573,574,575,576,577,578,579,580,581,582,583,584,585,586,587,588,589,590,591,592,593,594,595,596,597,598,599,600,601,602,603,604,605,606,607,608,609,610,611,612,613,614,615,616,617,618,619,620,621,622,623,624,625,626,627,628,629,630,631,632,633,634,635,636,637,638,639,640,641,642,643,644,645,646,647,648,649,650,651,652,653,654,655,656,657,658,659,660,661,662,663,664,665,666,667,668,669,670,671,672,673,674,675,676,677,678,679,680,681,682,683,684,685,686,687,688,689,690,691,692,693,694,695,696,697,698,699,700,701,702,703,704,705,706,707,708,709,710,711,712,713,714,715,716,717,718,719,720,721,722,723,724,725,726,727,728,729,730,731,732,733,734,735,736,737,738,739,740,741,742,743,744,745,746,747,748,749,750,751,752,753,754,755,756,757,758,759,760,761,762,763,764,765,766,767,768,769,770,771,772,773,774,775,776,777,778,779,780,781,782,783,784,785,786,787,788,789,790,791,792,793,794,795,796,797,798,799,800,801,802,803,804,805,806,807,808,809,810,811,812,813,814,815,816,817,818,819,820,821,822,823,824,825,826,827,828,829,830,831,832,833,834,835,836,837,838,839,840,841,842,843,844,845,846,847,848,849,850,851,852,853,854,855,856,857,858,859,860,861,862,863,864,865,866,867,868,869,870,871,872,873,874,875,876,877,878,879,880,881,882,883,884,885,886,887,888,889,890,891,892,893,894,895,896,897,898,899,900,901,902,903,904,905,906,907,908,909,910,911,912,913,914,915,916,917,918,919,920,921,922,923,924,925,926,927,928,929,930,931,932,933,934,935,936,937,938,939,940,941,942,943,944,945,946,947,948,949,950,951,952,953,954,955,956,957,958,959,960,961,962,963,964,965,966,967,968,969,970,971,972,973,974,975,976,977,978,979,980,981,982,983,984,985,986,987,988,989,990,991,992,993,994,995,996,997,998,999,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015,1016,1017,1018,1019,1020,1021,1022,1023,1024,1025,1026,1027,1028,1029,1030,1031,1032,1033,1034,1035,1036,1037,1038,1039,1040,1041,1042,1043,1044,1045,1046,1047,1048,1049,1050,1051,1052,1053,1054,1055,1056,1057,1058,1059,1060,1061,1062,1063,1064,1065,1066,1067,1068,1069,1070,1071,1072,1073,1074));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/part_list_ps32_1074/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_012]
+sql:
+create table part_list_ps32_1075(id int) partition by list(id)(partition p values(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,451,452,453,454,455,456,457,458,459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496,497,498,499,500,501,502,503,504,505,506,507,508,509,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,525,526,527,528,529,530,531,532,533,534,535,536,537,538,539,540,541,542,543,544,545,546,547,548,549,550,551,552,553,554,555,556,557,558,559,560,561,562,563,564,565,566,567,568,569,570,571,572,573,574,575,576,577,578,579,580,581,582,583,584,585,586,587,588,589,590,591,592,593,594,595,596,597,598,599,600,601,602,603,604,605,606,607,608,609,610,611,612,613,614,615,616,617,618,619,620,621,622,623,624,625,626,627,628,629,630,631,632,633,634,635,636,637,638,639,640,641,642,643,644,645,646,647,648,649,650,651,652,653,654,655,656,657,658,659,660,661,662,663,664,665,666,667,668,669,670,671,672,673,674,675,676,677,678,679,680,681,682,683,684,685,686,687,688,689,690,691,692,693,694,695,696,697,698,699,700,701,702,703,704,705,706,707,708,709,710,711,712,713,714,715,716,717,718,719,720,721,722,723,724,725,726,727,728,729,730,731,732,733,734,735,736,737,738,739,740,741,742,743,744,745,746,747,748,749,750,751,752,753,754,755,756,757,758,759,760,761,762,763,764,765,766,767,768,769,770,771,772,773,774,775,776,777,778,779,780,781,782,783,784,785,786,787,788,789,790,791,792,793,794,795,796,797,798,799,800,801,802,803,804,805,806,807,808,809,810,811,812,813,814,815,816,817,818,819,820,821,822,823,824,825,826,827,828,829,830,831,832,833,834,835,836,837,838,839,840,841,842,843,844,845,846,847,848,849,850,851,852,853,854,855,856,857,858,859,860,861,862,863,864,865,866,867,868,869,870,871,872,873,874,875,876,877,878,879,880,881,882,883,884,885,886,887,888,889,890,891,892,893,894,895,896,897,898,899,900,901,902,903,904,905,906,907,908,909,910,911,912,913,914,915,916,917,918,919,920,921,922,923,924,925,926,927,928,929,930,931,932,933,934,935,936,937,938,939,940,941,942,943,944,945,946,947,948,949,950,951,952,953,954,955,956,957,958,959,960,961,962,963,964,965,966,967,968,969,970,971,972,973,974,975,976,977,978,979,980,981,982,983,984,985,986,987,988,989,990,991,992,993,994,995,996,997,998,999,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015,1016,1017,1018,1019,1020,1021,1022,1023,1024,1025,1026,1027,1028,1029,1030,1031,1032,1033,1034,1035,1036,1037,1038,1039,1040,1041,1042,1043,1044,1045,1046,1047,1048,1049,1050,1051,1052,1053,1054,1055,1056,1057,1058,1059,1060,1061,1062,1063,1064,1065,1066,1067,1068,1069,1070,1071,1072,1073,1074,1075));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/part_list_ps32_1075/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_013]
+sql:
+create table part_range_key_1(c1 int) partition by range(c1)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_range_key_1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_014]
+sql:
+create table part_hash_key_1(c1 int) partition by hash(c1) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_hash_key_1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_015]
+sql:
+create table part_range_key_2(c1 int,c2 int) partition by range(c1,c2)(partition p values less than(maxvalue,maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_range_key_2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_016]
+sql:
+create table part_hash_key_2(c1 int,c2 int) partition by hash(c1,c2) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_hash_key_2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_017]
+sql:
+create table part_range_key_8(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int) partition by range(c1,c2,c3,c4,c5,c6,c7,c8)(partition p values less than(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_range_key_8/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_018]
+sql:
+create table part_hash_key_8(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int) partition by hash(c1,c2,c3,c4,c5,c6,c7,c8) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_hash_key_8/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_019]
+sql:
+create table part_range_key_15(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int) partition by range(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)(partition p values less than(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_range_key_15/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_020]
+sql:
+create table part_hash_key_15(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int) partition by hash(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_hash_key_15/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_021]
+sql:
+create table part_range_key_16(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int) partition by range(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16)(partition p values less than(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_range_key_16/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_022]
+sql:
+create table part_hash_key_16(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int) partition by hash(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_hash_key_16/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_023]
+sql:
+create table part_range_key_17(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int) partition by range(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17)(partition p values less than(maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue,maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_range_key_17/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_024]
+sql:
+create table part_hash_key_17(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int,c10 int,c11 int,c12 int,c13 int,c14 int,c15 int,c16 int,c17 int) partition by hash(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_hash_key_17/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_025]
+sql:
+create table part_list_key_1(c1 int) partition by list(c1)(partition p values(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_list_key_1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_026]
+sql:
+create table part_list_key_2(c1 int,c2 int) partition by list(c1,c2)(partition p values(1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_list_key_2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_027]
+sql:
+create table part_level_1(c1 int) partition by range(c1)(partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_level_1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_028]
+sql:
+create table part_level_2(c1 int,c2 int) partition by range(c1) subpartition by range(c2) subpartition template(subpartition s2 values less than(maxvalue)) (partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_level_2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_029]
+sql:
+create table part_level_3(c1 int,c2 int,c3 int) partition by range(c1) subpartition by range(c2) subpartition template(subpartition s2 values less than(maxvalue)), subpartition by range(c3) subpartition template(subpartition s3 values less than(maxvalue)) (partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_level_3/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_030]
+sql:
+create table part_level_4(c1 int,c2 int,c3 int,c4 int) partition by range(c1) subpartition by range(c2) subpartition template(subpartition s2 values less than(maxvalue)), subpartition by range(c3) subpartition template(subpartition s3 values less than(maxvalue)), subpartition by range(c4) subpartition template(subpartition s4 values less than(maxvalue)) (partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_level_4/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_031]
+sql:
+create table part_level_5(c1 int,c2 int,c3 int,c4 int,c5 int) partition by range(c1) subpartition by range(c2) subpartition template(subpartition s2 values less than(maxvalue)), subpartition by range(c3) subpartition template(subpartition s3 values less than(maxvalue)), subpartition by range(c4) subpartition template(subpartition s4 values less than(maxvalue)), subpartition by range(c5) subpartition template(subpartition s5 values less than(maxvalue)) (partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_level_5/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_032]
+sql:
+create table part_level_6(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int) partition by range(c1) subpartition by range(c2) subpartition template(subpartition s2 values less than(maxvalue)), subpartition by range(c3) subpartition template(subpartition s3 values less than(maxvalue)), subpartition by range(c4) subpartition template(subpartition s4 values less than(maxvalue)), subpartition by range(c5) subpartition template(subpartition s5 values less than(maxvalue)), subpartition by range(c6) subpartition template(subpartition s6 values less than(maxvalue)) (partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_level_6/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_033]
+sql:
+create table part_level_7(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int) partition by range(c1) subpartition by range(c2) subpartition template(subpartition s2 values less than(maxvalue)), subpartition by range(c3) subpartition template(subpartition s3 values less than(maxvalue)), subpartition by range(c4) subpartition template(subpartition s4 values less than(maxvalue)), subpartition by range(c5) subpartition template(subpartition s5 values less than(maxvalue)), subpartition by range(c6) subpartition template(subpartition s6 values less than(maxvalue)), subpartition by range(c7) subpartition template(subpartition s7 values less than(maxvalue)) (partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_level_7/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_034]
+sql:
+create table part_level_8(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int) partition by range(c1) subpartition by range(c2) subpartition template(subpartition s2 values less than(maxvalue)), subpartition by range(c3) subpartition template(subpartition s3 values less than(maxvalue)), subpartition by range(c4) subpartition template(subpartition s4 values less than(maxvalue)), subpartition by range(c5) subpartition template(subpartition s5 values less than(maxvalue)), subpartition by range(c6) subpartition template(subpartition s6 values less than(maxvalue)), subpartition by range(c7) subpartition template(subpartition s7 values less than(maxvalue)), subpartition by range(c8) subpartition template(subpartition s8 values less than(maxvalue)) (partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_level_8/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_035]
+sql:
+create table part_level_9(c1 int,c2 int,c3 int,c4 int,c5 int,c6 int,c7 int,c8 int,c9 int) partition by range(c1) subpartition by range(c2) subpartition template(subpartition s2 values less than(maxvalue)), subpartition by range(c3) subpartition template(subpartition s3 values less than(maxvalue)), subpartition by range(c4) subpartition template(subpartition s4 values less than(maxvalue)), subpartition by range(c5) subpartition template(subpartition s5 values less than(maxvalue)), subpartition by range(c6) subpartition template(subpartition s6 values less than(maxvalue)), subpartition by range(c7) subpartition template(subpartition s7 values less than(maxvalue)), subpartition by range(c8) subpartition template(subpartition s8 values less than(maxvalue)), subpartition by range(c9) subpartition template(subpartition s9 values less than(maxvalue)) (partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_level_9/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_036]
+sql:
+create table part_count_1(id int) partition by hash(id) partitions 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_count_1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_037]
+sql:
+create table part_count_2(id int) partition by hash(id) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/part_count_2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_038]
+sql:
+create table part_count_1024(id int) partition by hash(id) partitions 1024;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_count_1024/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_039]
+sql:
+create table part_count_65534(id int) partition by hash(id) partitions 65534;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_count_65534/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_040]
+sql:
+create table part_count_65535(id int) partition by hash(id) partitions 65535;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_count_65535/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_041]
+sql:
+create table part_count_65536(id int) partition by hash(id) partitions 65536;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_count_65536/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_042]
+sql:
+create table CPN(id int) partition by range(id)(partition PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/CPN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_043]
+sql:
+create table CPN(id int) partition by range(id)(partition PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:16) /test/1/catalog1/schema1/CPN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_044]
+sql:
+create table part_type_char(c char) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_type_char/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_045]
+sql:
+create table part_type_character(c character) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/part_type_character/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_046]
+sql:
+create table part_type_varchar(c varchar(20)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_type_varchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_047]
+sql:
+create table part_type_varchar2(c varchar2(20)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_type_varchar2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_048]
+sql:
+create table part_type_nchar(c nchar(10)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_type_nchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_049]
+sql:
+create table part_type_national_char(c national char(10)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/part_type_national_char/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_050]
+sql:
+create table part_type_char_vary(c character varying(20)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/part_type_char_vary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_051]
+sql:
+create table part_type_nchar_vary(c nchar varying(20)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:33) /test/1/catalog1/schema1/part_type_nchar_vary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_052]
+sql:
+create table part_type_national_vary(c national character varying(20)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/part_type_national_vary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_053]
+sql:
+create table part_type_numeric(c numeric) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_type_numeric/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_054]
+sql:
+create table part_type_decimal(c decimal) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_type_decimal/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_055]
+sql:
+create table part_type_dec(c dec) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/part_type_dec/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_056]
+sql:
+create table part_type_number(c number) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_type_number/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_057]
+sql:
+create table part_type_integer(c integer) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_type_integer/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_058]
+sql:
+create table part_type_int(c int) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/part_type_int/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_059]
+sql:
+create table part_type_bigint(c bigint) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_type_bigint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_060]
+sql:
+create table part_type_tinyint(c tinyint) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_type_tinyint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_061]
+sql:
+create table part_type_byte(c byte) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_type_byte/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_062]
+sql:
+create table part_type_smallint(c smallint) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_type_smallint/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_063]
+sql:
+create table part_type_float(c float) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_type_float/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_064]
+sql:
+create table part_type_double(c double) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_type_double/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_065]
+sql:
+create table part_type_real(c real) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_type_real/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_066]
+sql:
+create table part_type_double_precision(c double precision) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:39) /test/1/catalog1/schema1/part_type_double_precision/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_067]
+sql:
+create table part_type_date(c date) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_type_date/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_068]
+sql:
+create table part_type_time(c time) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_type_time/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_069]
+sql:
+create table part_type_timestamp(c timestamp) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/part_type_timestamp/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_070]
+sql:
+create table part_type_datetime(c datetime) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_type_datetime/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_071]
+sql:
+create table part_type_time_tz(c time with time zone) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_type_time_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_072]
+sql:
+create table part_type_timestamp_tz(c timestamp with time zone) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/part_type_timestamp_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_073]
+sql:
+create table part_type_datetime_tz(c datetime with time zone) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/part_type_datetime_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_074]
+sql:
+create table part_type_rowid(c rowid) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_type_rowid/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_075]
+sql:
+create table part_type_bit(c bit) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/part_type_bit/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_076]
+sql:
+create table part_type_timestamp_local_tz(c timestamp with local time zone) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:41) /test/1/catalog1/schema1/part_type_timestamp_local_tz/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_077]
+sql:
+create table part_type_binary(c binary(10)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/part_type_binary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_078]
+sql:
+create table part_type_varbinary(c varbinary(10)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/part_type_varbinary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_079]
+sql:
+create table part_type_raw(c raw(10)) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/part_type_raw/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_080]
+sql:
+create table part_type_interval_ym(c interval year to month) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/part_type_interval_ym/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_081]
+sql:
+create table part_type_interval_ds(c interval day to second) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/part_type_interval_ds/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_082]
+sql:
+create table part_type_text(c text) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_type_text/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_083]
+sql:
+create table part_type_long(c long) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_type_long/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_084]
+sql:
+create table part_type_longvarchar(c longvarchar) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/part_type_longvarchar/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_085]
+sql:
+create table part_type_image(c image) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_type_image/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_086]
+sql:
+create table part_type_longvarbinary(c longvarbinary) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:36) /test/1/catalog1/schema1/part_type_longvarbinary/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_087]
+sql:
+create table part_type_blob(c blob) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_type_blob/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_088]
+sql:
+create table part_type_clob(c clob) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_type_clob/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_089]
+sql:
+create table part_type_bfile(c bfile) partition by range(c)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/part_type_bfile/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_090]
+sql:
+create table part_hpm_0(id int) storage(hashpartmap(0)) partition by hash(id) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/part_hpm_0/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_091]
+sql:
+alter table part_hpm_0 add partition h3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/part_hpm_0/",
+      "action": "ALTER",
+      "target": "Partition(1:37~1:39) /test/1/catalog1/schema1/part_hpm_0/h3/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_092]
+sql:
+create table part_hpm_1(id int) storage(hashpartmap(1)) partition by hash(id) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/part_hpm_1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_093]
+sql:
+alter table part_hpm_1 add partition h3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/part_hpm_1/",
+      "action": "ALTER",
+      "target": "Partition(1:37~1:39) /test/1/catalog1/schema1/part_hpm_1/h3/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_094]
+sql:
+create table part_hpm_2(id int) storage(hashpartmap(2)) partition by hash(id) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/part_hpm_2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_095]
+sql:
+alter table part_hpm_2 add partition h3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/part_hpm_2/",
+      "action": "ALTER",
+      "target": "Partition(1:37~1:39) /test/1/catalog1/schema1/part_hpm_2/h3/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_096]
+sql:
+create table part_hpm_3(id int) storage(hashpartmap(3)) partition by hash(id) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/part_hpm_3/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_097]
+sql:
+alter table part_hpm_3 add partition h3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:22) /test/1/catalog1/schema1/part_hpm_3/",
+      "action": "ALTER",
+      "target": "Partition(1:37~1:39) /test/1/catalog1/schema1/part_hpm_3/h3/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_098]
+sql:
+create table part_hpm_4(id int) storage(hashpartmap(4)) partition by hash(id) partitions 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:23) /test/1/catalog1/schema1/part_hpm_4/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_099]
+sql:
+create table part_interval_num(id int) partition by range(id) interval(10)(partition p0 values less than(10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_interval_num/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_100]
+sql:
+insert into part_interval_num values(35);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/part_interval_num/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_101]
+sql:
+select count(*) from user_tab_partitions where table_name='PART_INTERVAL_NUM';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:40) /test/1/catalog1/schema1/user_tab_partitions/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_102]
+sql:
+alter table part_interval_num add partition p100 values less than(100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/part_interval_num/",
+      "action": "ALTER",
+      "target": "Partition(1:44~1:48) /test/1/catalog1/schema1/part_interval_num/p100/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_103]
+sql:
+alter table part_interval_num drop partition p0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/part_interval_num/",
+      "action": "ALTER",
+      "target": "Partition(1:45~1:47) /test/1/catalog1/schema1/part_interval_num/p0/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_104]
+sql:
+create table part_interval_max(id int) partition by range(id) interval(10)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_interval_max/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_105]
+sql:
+create table part_interval_multi(a int,b int) partition by range(a,b) interval(10)(partition p values less than(10,10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:32) /test/1/catalog1/schema1/part_interval_multi/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_106]
+sql:
+create table part_interval_sub(a int,b int) partition by range(a) interval(10) subpartition by range(b)(partition p values less than(10)(subpartition s values less than(maxvalue)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/part_interval_sub/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_107]
+sql:
+create table part_interval_date(d date) partition by range(d) interval(numtodsinterval(1,'DAY'))(partition p values less than(date '2026-01-01'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_interval_date/",
+      "action": "CREATE"
+    },
+    {
+      "subject": "Function(1:71~1:86) /test/1/catalog1/schema1/numtodsinterval/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_108]
+sql:
+create table part_interval_char(c varchar(20)) partition by range(c) interval(1)(partition p values less than('m'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/part_interval_char/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_109]
+sql:
+alter table part_interval_num lock partitions;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/part_interval_num/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_110]
+sql:
+alter table part_interval_num lock root;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:29) /test/1/catalog1/schema1/part_interval_num/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_111]
+sql:
+create table part_row_move(id int) partition by range(id)(partition p10 values less than(10),partition pmax values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/part_row_move/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_112]
+sql:
+insert into part_row_move values(5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/part_row_move/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_113]
+sql:
+update part_row_move set id=15 where id=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/part_row_move/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_114]
+sql:
+alter table part_row_move enable row movement;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/part_row_move/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_115]
+sql:
+update part_row_move set id=15 where id=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/part_row_move/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_116]
+sql:
+alter table part_row_move disable row movement;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:25) /test/1/catalog1/schema1/part_row_move/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_117]
+sql:
+update part_row_move set id=5 where id=15;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:20) /test/1/catalog1/schema1/part_row_move/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_118]
+sql:
+create table part_lock_fine(id int) partition by range(id)(partition p10 values less than(10),partition p20 values less than(20),partition pmax values less than(maxvalue)) lock partitions;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_lock_fine/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_119]
+sql:
+alter table part_lock_fine split partition p20 at(15) into(partition p15,partition p20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/part_lock_fine/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:43~1:46) /test/1/catalog1/schema1/part_lock_fine/p20/",
+        "Partition(1:69~1:72) /test/1/catalog1/schema1/part_lock_fine/p15/",
+        "Partition(1:83~1:86) /test/1/catalog1/schema1/part_lock_fine/p20/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_120]
+sql:
+alter table part_lock_fine lock root;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/part_lock_fine/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_121]
+sql:
+alter table part_lock_fine lock partitions;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/part_lock_fine/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_122]
+sql:
+create table part_pk_local(a int,b int,primary key(a,b)) partition by range(a)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/schema1/part_pk_local/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_123]
+sql:
+create table part_pk_global(a int,b int,primary key(b)) partition by range(a)(partition p values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/part_pk_global/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_124]
+sql:
+select table_name,index_name,partitioned from user_indexes where table_name in('PART_PK_LOCAL','PART_PK_GLOBAL') order by table_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:46~1:58) /test/1/catalog1/schema1/user_indexes/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_125]
+sql:
+create table app.part_access(id int,note varchar(20)) partition by range(id)(partition p10 values less than(10),partition pmax values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/part_access/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_126]
+sql:
+insert into app.part_access partition(p10)(id,note) values(1,'p10');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Partition(1:38~1:41) /test/1/catalog1/app/part_access/p10/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_127]
+sql:
+select id,note from app.part_access partition(p10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(1:46~1:49) /test/1/catalog1/app/part_access/p10/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_128]
+sql:
+select id,note from app.part_access partition for(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Partition(1:36~1:52) /test/1/catalog1/app/part_access/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_129]
+sql:
+update app.part_access partition(p10) set note='updated' where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Partition(1:33~1:36) /test/1/catalog1/app/part_access/p10/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_130]
+sql:
+delete from app.part_access partition(p10) where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Partition(1:38~1:41) /test/1/catalog1/app/part_access/p10/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_131]
+sql:
+alter table app.part_access split partition pmax at(20) into(partition p20,partition pmax);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/part_access/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:44~1:48) /test/1/catalog1/app/part_access/pmax/",
+        "Partition(1:71~1:74) /test/1/catalog1/app/part_access/p20/",
+        "Partition(1:85~1:89) /test/1/catalog1/app/part_access/pmax/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_132]
+sql:
+alter table app.part_access merge partitions p20,pmax into partition pmax;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/part_access/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:45~1:48) /test/1/catalog1/app/part_access/p20/",
+        "Partition(1:49~1:53) /test/1/catalog1/app/part_access/pmax/",
+        "Partition(1:69~1:73) /test/1/catalog1/app/part_access/pmax/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_133]
+sql:
+alter table app.part_access rename partition p10 to p10_new;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Partition(1:45~1:48) /test/1/catalog1/app/part_access/p10/",
+      "action": "RENAME",
+      "target": "Partition(1:52~1:59) /test/1/catalog1/app/part_access/p10_new/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_134]
+sql:
+alter table app.part_access truncate partition p10_new reuse storage;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:27) /test/1/catalog1/app/part_access/",
+      "action": "ALTER",
+      "target": "Partition(1:47~1:54) /test/1/catalog1/app/part_access/p10_new/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_135]
+sql:
+truncate table app.part_access partition(p10_new) reuse storage;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "TRUNCATE_TABLE": [
+    {
+      "subject": "Table(1:15~1:30) /test/1/catalog1/app/part_access/",
+      "action": "ALTER",
+      "target": "Partition(1:41~1:48) /test/1/catalog1/app/part_access/p10_new/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_136]
+sql:
+drop table app.part_access purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/app/part_access/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_137]
+sql:
+create user part_priv_owner identified by "Dm8PartPrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:27) /test/1/part_priv_owner/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_138]
+sql:
+create user part_priv_object identified by "Dm8PartPrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:28) /test/1/part_priv_object/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_139]
+sql:
+create user part_priv_none identified by "Dm8PartPrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:26) /test/1/part_priv_none/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_140]
+sql:
+create user part_priv_dba identified by "Dm8PartPrivilege2026";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:25) /test/1/part_priv_dba/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_141]
+sql:
+grant create table to part_priv_owner;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:13~1:18) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:22~1:37) /test/1/part_priv_owner/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_142]
+sql:
+grant dba to part_priv_dba;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:26) /test/1/part_priv_dba/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_143]
+sql:
+create table part_priv_owner.pt(id int) partition by range(id)(partition p10 values less than(10),partition pmax values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/part_priv_owner/pt/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_144]
+sql:
+alter table part_priv_owner.pt split partition pmax at(20) into(partition p20,partition pmax);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/part_priv_owner/pt/",
+      "action": "ALTER",
+      "target": [
+        "Partition(1:47~1:51) /test/1/catalog1/part_priv_owner/pt/pmax/",
+        "Partition(1:74~1:77) /test/1/catalog1/part_priv_owner/pt/p20/",
+        "Partition(1:88~1:92) /test/1/catalog1/part_priv_owner/pt/pmax/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_145]
+sql:
+grant alter on table part_priv_owner.pt to part_priv_object;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:21~1:39) /test/1/catalog1/part_priv_owner/pt/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:43~1:59) /test/1/part_priv_object/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_146]
+sql:
+alter table part_priv_owner.pt rename partition p20 to p20_object;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Partition(1:48~1:51) /test/1/catalog1/part_priv_owner/pt/p20/",
+      "action": "RENAME",
+      "target": "Partition(1:55~1:65) /test/1/catalog1/part_priv_owner/pt/p20_object/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_147]
+sql:
+alter table part_priv_owner.pt rename partition p20_object to p20_dba;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Partition(1:48~1:58) /test/1/catalog1/part_priv_owner/pt/p20_object/",
+      "action": "RENAME",
+      "target": "Partition(1:62~1:69) /test/1/catalog1/part_priv_owner/pt/p20_dba/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_148]
+sql:
+alter table part_priv_owner.pt rename partition p20_dba to p20_none;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Partition(1:48~1:55) /test/1/catalog1/part_priv_owner/pt/p20_dba/",
+      "action": "RENAME",
+      "target": "Partition(1:59~1:67) /test/1/catalog1/part_priv_owner/pt/p20_none/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_149]
+sql:
+revoke alter on table part_priv_owner.pt from part_priv_object;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Table(1:22~1:40) /test/1/catalog1/part_priv_owner/pt/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:46~1:62) /test/1/part_priv_object/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_150]
+sql:
+alter table part_priv_owner.pt rename partition p20_dba to p20_revoked;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TABLE": [
+    {
+      "subject": "Partition(1:48~1:55) /test/1/catalog1/part_priv_owner/pt/p20_dba/",
+      "action": "RENAME",
+      "target": "Partition(1:59~1:70) /test/1/catalog1/part_priv_owner/pt/p20_revoked/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_151]
+sql:
+grant alter any table to part_priv_none;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Table(1:16~1:21) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:25~1:39) /test/1/part_priv_none/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_152]
+sql:
+drop user part_priv_owner cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:25) /test/1/part_priv_owner/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_153]
+sql:
+drop user part_priv_object cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:26) /test/1/part_priv_object/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_154]
+sql:
+drop user part_priv_none cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:24) /test/1/part_priv_none/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_dcl_dameng_table_partition_extrema_0_155]
+sql:
+drop user part_priv_dba cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:23) /test/1/part_priv_dba/",
+      "action": "DROP"
+    }
+  ]
+}

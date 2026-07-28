@@ -14,5 +14,6 @@ package com.clougence.sql.common.registry;
 public enum RegisteredResourceType {
     TABLE,
     FUNCTION,
-    PROCEDURE
+    PROCEDURE,
+    TYPE
 }

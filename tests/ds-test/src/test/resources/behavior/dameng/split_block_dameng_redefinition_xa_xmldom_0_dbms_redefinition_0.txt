@@ -1,0 +1,312 @@
+[split_block_dameng_redefinition_xa_xmldom_0_001]
+sql:
+begin dbms_redefinition.can_redef_table('SYSDBA', 'CODEX_REDEF_MAIN', dbms_redefinition.cons_use_pk); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:39) /test/1/catalog1/dbms_redefinition/can_redef_table/",
+      "action": "CALL",
+      "target": "Table(1:50~1:68) /test/1/catalog1/SYSDBA/CODEX_REDEF_MAIN/"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_002]
+sql:
+begin dbms_redefinition.start_redef_table(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_MAIN', int_table=>'CODEX_REDEF_MAIN_INT', col_mapping=>'ID AS ID, CATEGORY AS CATEGORY, AMOUNT AS AMOUNT, NOTE AS NOTE', options_flag=>dbms_redefinition.cons_use_pk, refresh_dep_mviews=>'N'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:41) /test/1/catalog1/dbms_redefinition/start_redef_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:71~1:89) /test/1/catalog1/SYSDBA/CODEX_REDEF_MAIN/",
+        "Table(1:102~1:124) /test/1/catalog1/SYSDBA/CODEX_REDEF_MAIN_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_003]
+sql:
+begin dbms_redefinition.sync_interim_table('SYSDBA', 'CODEX_REDEF_MAIN', 'CODEX_REDEF_MAIN_INT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:42) /test/1/catalog1/dbms_redefinition/sync_interim_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:53~1:71) /test/1/catalog1/SYSDBA/CODEX_REDEF_MAIN/",
+        "Table(1:73~1:95) /test/1/catalog1/SYSDBA/CODEX_REDEF_MAIN_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_004]
+sql:
+declare n_err int; begin dbms_redefinition.copy_table_dependents(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_MAIN', int_table=>'CODEX_REDEF_MAIN_INT', copy_indexes=>1, copy_triggers=>false, copy_constraints=>true, copy_privileges=>true, ignore_errors=>false, num_errors=>n_err, copy_statistics=>true, copy_mvlog=>false); merge into CODEX_DM8_PKG_CTL t using (select 'REDEF_COPY_ERRORS' label, n_err number_value from dual) s on (t.label=s.label) when matched then update set t.number_value=s.number_value when not matched then insert(label, number_value) values(s.label, s.number_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:25~1:64) /test/1/catalog1/dbms_redefinition/copy_table_dependents/",
+      "action": "CALL",
+      "target": [
+        "Table(1:94~1:112) /test/1/catalog1/SYSDBA/CODEX_REDEF_MAIN/",
+        "Table(1:125~1:147) /test/1/catalog1/SYSDBA/CODEX_REDEF_MAIN_INT/"
+      ]
+    },
+    {
+      "subject": "Table(1:330~1:347) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "MERGE",
+      "target": "View(1:415~1:419) /test/1/catalog1/schema1/dual/"
+    },
+    {
+      "subject": "View(1:415~1:419) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_005]
+sql:
+declare rid varchar(128); begin select cast(max(redefinition_id) as varchar(128)) into rid from dba_redefinition_status where base_table_name='CODEX_REDEF_MAIN'; dbms_redefinition.set_param(rid, 'REFRESH_DEP_MVIEWS', '0'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:44~1:47) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:96~1:119) /test/1/catalog1/schema1/dba_redefinition_status/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:162~1:189) /test/1/catalog1/dbms_redefinition/set_param/",
+      "action": "CALL",
+      "target": [
+        "Table(1:190~1:193) /test/1/catalog1/",
+        "ConfigKey(1:195~1:215) /test/1/REFRESH_DEP_MVIEWS/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_006]
+sql:
+begin dbms_redefinition.finish_redef_table('SYSDBA', 'CODEX_REDEF_MAIN', 'CODEX_REDEF_MAIN_INT', dml_lock_timeout=>30); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:42) /test/1/catalog1/dbms_redefinition/finish_redef_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:53~1:71) /test/1/catalog1/SYSDBA/CODEX_REDEF_MAIN/",
+        "Table(1:73~1:95) /test/1/catalog1/SYSDBA/CODEX_REDEF_MAIN_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_007]
+sql:
+begin dbms_redefinition.can_redef_table('SYSDBA', 'CODEX_REDEF_ABORT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:39) /test/1/catalog1/dbms_redefinition/can_redef_table/",
+      "action": "CALL",
+      "target": "Table(1:50~1:69) /test/1/catalog1/SYSDBA/CODEX_REDEF_ABORT/"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_008]
+sql:
+begin dbms_redefinition.start_redef_table('SYSDBA', 'CODEX_REDEF_ABORT', 'CODEX_REDEF_ABORT_INT', 'ID AS ID, PAYLOAD AS PAYLOAD'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:41) /test/1/catalog1/dbms_redefinition/start_redef_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:52~1:71) /test/1/catalog1/SYSDBA/CODEX_REDEF_ABORT/",
+        "Table(1:73~1:96) /test/1/catalog1/SYSDBA/CODEX_REDEF_ABORT_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_009]
+sql:
+begin dbms_redefinition.sync_interim_table(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_ABORT', int_table=>'CODEX_REDEF_ABORT_INT', continue_after_errors=>false); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:42) /test/1/catalog1/dbms_redefinition/sync_interim_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:72~1:91) /test/1/catalog1/SYSDBA/CODEX_REDEF_ABORT/",
+        "Table(1:104~1:127) /test/1/catalog1/SYSDBA/CODEX_REDEF_ABORT_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_010]
+sql:
+begin dbms_redefinition.abort_redef_table('SYSDBA', 'CODEX_REDEF_ABORT', 'CODEX_REDEF_ABORT_INT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:41) /test/1/catalog1/dbms_redefinition/abort_redef_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:52~1:71) /test/1/catalog1/SYSDBA/CODEX_REDEF_ABORT/",
+        "Table(1:73~1:96) /test/1/catalog1/SYSDBA/CODEX_REDEF_ABORT_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_011]
+sql:
+begin dbms_redefinition.can_redef_table('SYSDBA', 'CODEX_REDEF_ROWID', dbms_redefinition.cons_use_rowid); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:39) /test/1/catalog1/dbms_redefinition/can_redef_table/",
+      "action": "CALL",
+      "target": "Table(1:50~1:69) /test/1/catalog1/SYSDBA/CODEX_REDEF_ROWID/"
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_012]
+sql:
+begin dbms_redefinition.start_redef_table(uname=>'SYSDBA', orig_table=>'CODEX_REDEF_ROWID', int_table=>'CODEX_REDEF_ROWID_INT', options_flag=>dbms_redefinition.cons_use_rowid); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:41) /test/1/catalog1/dbms_redefinition/start_redef_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:71~1:90) /test/1/catalog1/SYSDBA/CODEX_REDEF_ROWID/",
+        "Table(1:103~1:126) /test/1/catalog1/SYSDBA/CODEX_REDEF_ROWID_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_013]
+sql:
+begin dbms_redefinition.sync_interim_table('SYSDBA', 'CODEX_REDEF_ROWID', 'CODEX_REDEF_ROWID_INT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:42) /test/1/catalog1/dbms_redefinition/sync_interim_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:53~1:72) /test/1/catalog1/SYSDBA/CODEX_REDEF_ROWID/",
+        "Table(1:74~1:97) /test/1/catalog1/SYSDBA/CODEX_REDEF_ROWID_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_014]
+sql:
+begin dbms_redefinition.finish_redef_table('SYSDBA', 'CODEX_REDEF_ROWID', 'CODEX_REDEF_ROWID_INT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:42) /test/1/catalog1/dbms_redefinition/finish_redef_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:53~1:72) /test/1/catalog1/SYSDBA/CODEX_REDEF_ROWID/",
+        "Table(1:74~1:97) /test/1/catalog1/SYSDBA/CODEX_REDEF_ROWID_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_015]
+sql:
+begin dbms_redefinition.start_redef_table('SYSDBA', 'CODEX_REDEF_REDUNDANT', 'CODEX_REDEF_REDUNDANT_INT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:41) /test/1/catalog1/dbms_redefinition/start_redef_table/",
+      "action": "CALL",
+      "target": [
+        "Table(1:52~1:75) /test/1/catalog1/SYSDBA/CODEX_REDEF_REDUNDANT/",
+        "Table(1:77~1:104) /test/1/catalog1/SYSDBA/CODEX_REDEF_REDUNDANT_INT/"
+      ]
+    }
+  ]
+}
+----------
+[split_block_dameng_redefinition_xa_xmldom_0_017]
+sql:
+declare rid int; begin select number_value into rid from CODEX_DM8_PKG_CTL where label='REDEF_REDUNDANT_ID'; dbms_redefinition.delete_redundant_record(rid); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:57~1:74) /test/1/catalog1/schema1/CODEX_DM8_PKG_CTL/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:109~1:150) /test/1/catalog1/dbms_redefinition/delete_redundant_record/",
+      "action": "CALL",
+      "target": "Table(1:151~1:154) /test/1/catalog1/"
+    }
+  ]
+}

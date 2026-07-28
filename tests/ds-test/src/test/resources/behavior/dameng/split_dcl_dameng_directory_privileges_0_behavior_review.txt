@@ -1,0 +1,939 @@
+[split_dcl_dameng_directory_privileges_0_behavior_review_001]
+sql:
+drop user if exists CODEX_DM8_DIR_ADMIN cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:39) /test/1/CODEX_DM8_DIR_ADMIN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_002]
+sql:
+drop user if exists CODEX_DM8_DIR_READER cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:40) /test/1/CODEX_DM8_DIR_READER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_003]
+sql:
+drop user if exists CODEX_DM8_DIR_DELEGATE cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:42) /test/1/CODEX_DM8_DIR_DELEGATE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_004]
+sql:
+drop user if exists CODEX_DM8_DIR_DENIED cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:40) /test/1/CODEX_DM8_DIR_DENIED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_005]
+sql:
+create user CODEX_DM8_DIR_ADMIN identified by Dm8DirAdmin2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/CODEX_DM8_DIR_ADMIN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_006]
+sql:
+create user CODEX_DM8_DIR_READER identified by Dm8DirReader2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:32) /test/1/CODEX_DM8_DIR_READER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_007]
+sql:
+create user CODEX_DM8_DIR_DELEGATE identified by Dm8DirDelegate2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:34) /test/1/CODEX_DM8_DIR_DELEGATE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_008]
+sql:
+create user CODEX_DM8_DIR_DENIED identified by Dm8DirDenied2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:32) /test/1/CODEX_DM8_DIR_DENIED/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_009]
+sql:
+grant DBA to CODEX_DM8_DIR_ADMIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/DBA/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:32) /test/1/CODEX_DM8_DIR_ADMIN/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_010]
+sql:
+grant RESOURCE to CODEX_DM8_DIR_READER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:14) /test/1/RESOURCE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:18~1:38) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_011]
+sql:
+grant RESOURCE to CODEX_DM8_DIR_DELEGATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:14) /test/1/RESOURCE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:18~1:40) /test/1/CODEX_DM8_DIR_DELEGATE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_012]
+sql:
+grant RESOURCE to CODEX_DM8_DIR_DENIED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:14) /test/1/RESOURCE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:18~1:38) /test/1/CODEX_DM8_DIR_DENIED/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_013]
+sql:
+create directory CODEX_DM8_DIR_PRIV_MAIN as '/tmp/codex_dm8_directory_priv_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:40) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_MAIN/",
+      "action": "CONFIGURE",
+      "target": "File(1:44~1:84) /test/1/tmp/codex_dm8_directory_priv_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_014]
+sql:
+grant read, write on directory CODEX_DM8_DIR_PRIV_MAIN to CODEX_DM8_DIR_READER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "ConfigKey(1:31~1:54) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_MAIN/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:58~1:78) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_015]
+sql:
+create directory CODEX_DM8_DIR_PRIV_DELEGATE as '/tmp/codex_dm8_directory_priv_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:44) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DELEGATE/",
+      "action": "CONFIGURE",
+      "target": "File(1:48~1:88) /test/1/tmp/codex_dm8_directory_priv_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_016]
+sql:
+grant read on directory CODEX_DM8_DIR_PRIV_DELEGATE to CODEX_DM8_DIR_READER with grant option;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "ConfigKey(1:24~1:51) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DELEGATE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:55~1:75) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_017]
+sql:
+create directory CODEX_DM8_DIR_PRIV_DENIED as '/tmp/codex_dm8_directory_priv_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:42) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DENIED/",
+      "action": "CONFIGURE",
+      "target": "File(1:46~1:86) /test/1/tmp/codex_dm8_directory_priv_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_018]
+sql:
+create directory CODEX_DM8_DIR_PRIV_REPLACE as '/tmp/codex_dm8_directory_priv_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:43) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_REPLACE/",
+      "action": "CONFIGURE",
+      "target": "File(1:47~1:87) /test/1/tmp/codex_dm8_directory_priv_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_019]
+sql:
+grant read on directory CODEX_DM8_DIR_PRIV_REPLACE to CODEX_DM8_DIR_READER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "ConfigKey(1:24~1:50) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_REPLACE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:54~1:74) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_020]
+sql:
+create or replace directory CODEX_DM8_DIR_PRIV_REPLACE as '/tmp/codex_dm8_directory_priv_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:28~1:54) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_REPLACE/",
+      "action": "CONFIGURE",
+      "target": "File(1:58~1:98) /test/1/tmp/codex_dm8_directory_priv_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_021]
+sql:
+create directory CODEX_DM8_DIR_PRIV_PUBLIC as '/tmp/codex_dm8_directory_priv_20260722';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:17~1:42) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_PUBLIC/",
+      "action": "CONFIGURE",
+      "target": "File(1:46~1:86) /test/1/tmp/codex_dm8_directory_priv_20260722/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_022]
+sql:
+grant read on directory CODEX_DM8_DIR_PRIV_DELEGATE to CODEX_DM8_DIR_DELEGATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "ConfigKey(1:24~1:51) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DELEGATE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:55~1:77) /test/1/CODEX_DM8_DIR_DELEGATE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_023]
+sql:
+create external table DIR_READER_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_MAIN location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:36) /test/1/catalog1/schema1/DIR_READER_EXT/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:32~2:55) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_MAIN/",
+        "File(2:66~2:76) /test/1/CODEX_DM8_DIR_PRIV_MAIN/data.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_024]
+sql:
+select count(*), sum(amount) from DIR_READER_EXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:48) /test/1/catalog1/schema1/DIR_READER_EXT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_025]
+sql:
+drop table DIR_READER_EXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/DIR_READER_EXT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_026]
+sql:
+create external table DIR_READER_REPLACE_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_REPLACE location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:44) /test/1/catalog1/schema1/DIR_READER_REPLACE_EXT/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:32~2:58) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_REPLACE/",
+        "File(2:69~2:79) /test/1/CODEX_DM8_DIR_PRIV_REPLACE/data.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_027]
+sql:
+drop table DIR_READER_REPLACE_EXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:33) /test/1/catalog1/schema1/DIR_READER_REPLACE_EXT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_028]
+sql:
+create external table DIR_DENIED_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_DENIED location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:36) /test/1/catalog1/schema1/DIR_DENIED_EXT/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:32~2:57) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DENIED/",
+        "File(2:68~2:78) /test/1/CODEX_DM8_DIR_PRIV_DENIED/data.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_029]
+sql:
+create external table DIR_DELEGATE_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_DELEGATE location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:38) /test/1/catalog1/schema1/DIR_DELEGATE_EXT/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:32~2:59) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DELEGATE/",
+        "File(2:70~2:80) /test/1/CODEX_DM8_DIR_PRIV_DELEGATE/data.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_030]
+sql:
+select count(*) from DIR_DELEGATE_EXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:21~1:37) /test/1/catalog1/schema1/DIR_DELEGATE_EXT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_031]
+sql:
+grant write on directory CODEX_DM8_DIR_PRIV_DELEGATE to CODEX_DM8_DIR_DELEGATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "ConfigKey(1:25~1:52) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DELEGATE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:56~1:78) /test/1/CODEX_DM8_DIR_DELEGATE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_032]
+sql:
+grant read, write on directory CODEX_DM8_DIR_PRIV_PUBLIC to public;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "ConfigKey(1:31~1:56) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_PUBLIC/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:60~1:66) /test/1/public/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_033]
+sql:
+select count(*), sum(amount) from DIR_DELEGATE_EXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:50) /test/1/catalog1/schema1/DIR_DELEGATE_EXT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_034]
+sql:
+drop table DIR_DELEGATE_EXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/DIR_DELEGATE_EXT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_035]
+sql:
+create external table DIR_PUBLIC_EXT(id int, label varchar(20), amount decimal(10,2))
+from datafile default directory CODEX_DM8_DIR_PRIV_PUBLIC location ('data.csv')
+parms(fields delimited by '|', records delimited by 0x0a, character_code 'UTF-8');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:22~1:36) /test/1/catalog1/schema1/DIR_PUBLIC_EXT/",
+      "action": "CREATE",
+      "target": [
+        "ConfigKey(2:32~2:57) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_PUBLIC/",
+        "File(2:68~2:78) /test/1/CODEX_DM8_DIR_PRIV_PUBLIC/data.csv/"
+      ]
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_036]
+sql:
+select count(*), sum(amount) from DIR_PUBLIC_EXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:34~1:48) /test/1/catalog1/schema1/DIR_PUBLIC_EXT/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_037]
+sql:
+drop table DIR_PUBLIC_EXT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/DIR_PUBLIC_EXT/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_038]
+sql:
+revoke read, write on directory CODEX_DM8_DIR_PRIV_MAIN from CODEX_DM8_DIR_READER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "ConfigKey(1:32~1:55) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_MAIN/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:61~1:81) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_039]
+sql:
+revoke read on directory CODEX_DM8_DIR_PRIV_DELEGATE from CODEX_DM8_DIR_READER cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "ConfigKey(1:25~1:52) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DELEGATE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:58~1:78) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_040]
+sql:
+revoke write on directory CODEX_DM8_DIR_PRIV_DELEGATE from CODEX_DM8_DIR_DELEGATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "ConfigKey(1:26~1:53) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DELEGATE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:59~1:81) /test/1/CODEX_DM8_DIR_DELEGATE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_041]
+sql:
+revoke read on directory CODEX_DM8_DIR_PRIV_REPLACE from CODEX_DM8_DIR_READER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "ConfigKey(1:25~1:51) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_REPLACE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:57~1:77) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_042]
+sql:
+revoke read, write on directory CODEX_DM8_DIR_PRIV_PUBLIC from public;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "ConfigKey(1:32~1:57) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_PUBLIC/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:63~1:69) /test/1/public/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_043]
+sql:
+drop directory CODEX_DM8_DIR_PRIV_MAIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:38) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_MAIN/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_044]
+sql:
+drop directory CODEX_DM8_DIR_PRIV_DELEGATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:42) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DELEGATE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_045]
+sql:
+drop directory CODEX_DM8_DIR_PRIV_DENIED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:40) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_DENIED/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_046]
+sql:
+drop directory CODEX_DM8_DIR_PRIV_REPLACE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:41) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_REPLACE/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_047]
+sql:
+drop directory CODEX_DM8_DIR_PRIV_PUBLIC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SYSTEM_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:15~1:40) /test/1/catalog1/schema1/CODEX_DM8_DIR_PRIV_PUBLIC/",
+      "action": "CONFIGURE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_048]
+sql:
+grant create any directory to CODEX_DM8_DIR_READER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "ConfigKey(1:17~1:26) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:30~1:50) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_049]
+sql:
+grant drop any directory to CODEX_DM8_DIR_READER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "ConfigKey(1:15~1:24) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:28~1:48) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_050]
+sql:
+revoke DBA from CODEX_DM8_DIR_ADMIN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:10) /test/1/DBA/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:16~1:35) /test/1/CODEX_DM8_DIR_ADMIN/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_051]
+sql:
+revoke RESOURCE from CODEX_DM8_DIR_READER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:15) /test/1/RESOURCE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:21~1:41) /test/1/CODEX_DM8_DIR_READER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_052]
+sql:
+revoke RESOURCE from CODEX_DM8_DIR_DELEGATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:15) /test/1/RESOURCE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:21~1:43) /test/1/CODEX_DM8_DIR_DELEGATE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_053]
+sql:
+revoke RESOURCE from CODEX_DM8_DIR_DENIED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:15) /test/1/RESOURCE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:21~1:41) /test/1/CODEX_DM8_DIR_DENIED/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_054]
+sql:
+drop user CODEX_DM8_DIR_ADMIN cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:29) /test/1/CODEX_DM8_DIR_ADMIN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_055]
+sql:
+drop user CODEX_DM8_DIR_READER cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:30) /test/1/CODEX_DM8_DIR_READER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_056]
+sql:
+drop user CODEX_DM8_DIR_DELEGATE cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:32) /test/1/CODEX_DM8_DIR_DELEGATE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_directory_privileges_0_behavior_review_057]
+sql:
+drop user CODEX_DM8_DIR_DENIED cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:30) /test/1/CODEX_DM8_DIR_DENIED/",
+      "action": "DROP"
+    }
+  ]
+}

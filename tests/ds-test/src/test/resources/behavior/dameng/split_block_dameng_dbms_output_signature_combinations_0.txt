@@ -1,0 +1,835 @@
+[split_block_dameng_dbms_output_signature_combinations_0_001]
+sql:
+-- FUNC-0664 DISABLE zero argument without parentheses
+begin DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:25) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_002]
+sql:
+-- FUNC-0664 DISABLE zero argument with parentheses
+begin DBMS_OUTPUT.DISABLE(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:25) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_003]
+sql:
+-- FUNC-0665 ENABLE default buffer size
+begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:24) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:26~2:45) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_004]
+sql:
+-- FUNC-0665 ENABLE full positional documented minimum
+begin DBMS_OUTPUT.ENABLE(2000); DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:24) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:32~2:51) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_005]
+sql:
+-- FUNC-0665 ENABLE named documented maximum
+begin DBMS_OUTPUT.ENABLE(BUFFER_SIZE=>1000000); DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:24) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:48~2:67) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_006]
+sql:
+-- FUNC-0665 ENABLE Pack29 clamps below documented minimum
+begin DBMS_OUTPUT.ENABLE(0); DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:24) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:29~2:48) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_007]
+sql:
+-- FUNC-0665 ENABLE Pack29 clamps above documented maximum
+begin DBMS_OUTPUT.ENABLE(1000001); DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:24) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:35~2:54) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_008]
+sql:
+-- FUNC-0665 ENABLE NULL buffer size
+begin DBMS_OUTPUT.ENABLE(NULL); DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:24) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:32~2:51) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_009]
+sql:
+-- FUNC-0671 PUT_LINE and FUNC-0666 GET_LINE positional lifecycle
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('LINE_POSITIONAL'); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or line_value<>'LINE_POSITIONAL' then raise_application_error(-20001,'line mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:79~2:99) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:120~2:140) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:224~2:247) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:281~2:300) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_010]
+sql:
+-- FUNC-0671 PUT_LINE and FUNC-0666 GET_LINE named reordered
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE(STR=>'LINE_NAMED'); DBMS_OUTPUT.GET_LINE(STATUS=>status_value,LINE=>line_value); if status_value<>0 or line_value<>'LINE_NAMED' then raise_application_error(-20002,'named line mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:79~2:99) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:120~2:140) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:233~2:256) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:296~2:315) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_011]
+sql:
+-- FUNC-0670 PUT fragments with FUNC-0669 NEW_LINE
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT('FRAGMENT_'); DBMS_OUTPUT.PUT(STR=>'JOIN'); DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or line_value<>'FRAGMENT_JOIN' then raise_application_error(-20003,'fragment mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:79~2:94) /test/1/catalog1/DBMS_OUTPUT/PUT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:109~2:124) /test/1/catalog1/DBMS_OUTPUT/PUT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:139~2:159) /test/1/catalog1/DBMS_OUTPUT/NEW_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:161~2:181) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:263~2:286) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:324~2:343) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_012]
+sql:
+-- FUNC-0670 PUT NULL with explicit NEW_LINE
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT(NULL); DBMS_OUTPUT.NEW_LINE(); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20004,'null fragment status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:79~2:94) /test/1/catalog1/DBMS_OUTPUT/PUT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:102~2:122) /test/1/catalog1/DBMS_OUTPUT/NEW_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:126~2:146) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:197~2:220) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:270~2:289) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_013]
+sql:
+-- FUNC-0671 PUT_LINE NULL
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE(NULL); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20005,'null line status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:79~2:99) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:107~2:127) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:178~2:201) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:247~2:266) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_014]
+sql:
+-- FUNC-0669 NEW_LINE creates an empty line
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20006,'empty line status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:79~2:99) /test/1/catalog1/DBMS_OUTPUT/NEW_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:101~2:121) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:172~2:195) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:242~2:261) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_015]
+sql:
+-- FUNC-0666 GET_LINE empty buffer returns status one
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20007,'empty status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:79~2:99) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:150~2:173) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:215~2:234) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_016]
+sql:
+-- FUNC-0668 GET_LINES DBMSOUTPUT_LINESARRAY positional
+declare lines_value SYS.DBMSOUTPUT_LINESARRAY; count_value int:=2; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('ARRAY_1'); DBMS_OUTPUT.PUT_LINE('ARRAY_2'); DBMS_OUTPUT.PUT_LINE('ARRAY_3'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>2 or lines_value(1)<>'ARRAY_1' or lines_value(2)<>'ARRAY_2' then raise_application_error(-20008,'array mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/SYS/DBMSOUTPUT_LINESARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:73~2:91) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:93~2:113) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:126~2:146) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:159~2:179) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:192~2:213) /test/1/catalog1/DBMS_OUTPUT/GET_LINES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:321~2:344) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:379~2:398) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_017]
+sql:
+-- FUNC-0667 GET_LINES CHARARR positional
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=2; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('CHARARR_1'); DBMS_OUTPUT.PUT_LINE('CHARARR_2'); DBMS_OUTPUT.PUT_LINE('CHARARR_3'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>2 or lines_value(1)<>'CHARARR_1' or lines_value(2)<>'CHARARR_2' then raise_application_error(-20009,'chararr mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:39) /test/1/catalog1/DBMS_OUTPUT/CHARARR/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:67~2:85) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:87~2:107) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:122~2:142) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:157~2:177) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:192~2:213) /test/1/catalog1/DBMS_OUTPUT/GET_LINES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:325~2:348) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:385~2:404) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_018]
+sql:
+-- FUNC-0668 GET_LINES DBMSOUTPUT_LINESARRAY named reordered
+declare lines_value SYS.DBMSOUTPUT_LINESARRAY; count_value int:=1; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('ARRAY_NAMED'); DBMS_OUTPUT.GET_LINES(NUMLINES=>count_value,LINES=>lines_value); if count_value<>1 or lines_value(1)<>'ARRAY_NAMED' then raise_application_error(-20010,'named array mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/SYS/DBMSOUTPUT_LINESARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:73~2:91) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:93~2:113) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:130~2:151) /test/1/catalog1/DBMS_OUTPUT/GET_LINES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:251~2:274) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:315~2:334) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_019]
+sql:
+-- FUNC-0667 GET_LINES CHARARR named reordered
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=1; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('CHARARR_NAMED'); DBMS_OUTPUT.GET_LINES(NUMLINES=>count_value,LINES=>lines_value); if count_value<>1 or lines_value(1)<>'CHARARR_NAMED' then raise_application_error(-20011,'named chararr mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:39) /test/1/catalog1/DBMS_OUTPUT/CHARARR/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:67~2:85) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:87~2:107) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:126~2:147) /test/1/catalog1/DBMS_OUTPUT/GET_LINES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:249~2:272) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:315~2:334) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_020]
+sql:
+-- GET_LINES zero requested rows
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=0; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('UNREAD'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>0 then raise_application_error(-20012,'zero count mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:39) /test/1/catalog1/DBMS_OUTPUT/CHARARR/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:67~2:85) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:87~2:107) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:119~2:140) /test/1/catalog1/DBMS_OUTPUT/GET_LINES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:190~2:213) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:253~2:272) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_021]
+sql:
+-- GET_LINES request larger than available
+declare lines_value SYS.DBMSOUTPUT_LINESARRAY; count_value int:=5; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('ONLY_ONE'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>1 or lines_value(1)<>'ONLY_ONE' then raise_application_error(-20013,'available count mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:45) /test/1/catalog1/SYS/DBMSOUTPUT_LINESARRAY/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:73~2:91) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:93~2:113) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:127~2:148) /test/1/catalog1/DBMS_OUTPUT/GET_LINES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:228~2:251) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:296~2:315) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_022]
+sql:
+-- PUT_LINE documented maximum 32767 byte line
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE(1000000); DBMS_OUTPUT.PUT_LINE(rpad('X',32767,'X')); DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or lengthb(line_value)<>32767 then raise_application_error(-20014,'maximum line mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:88~2:108) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:109~2:113) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:131~2:151) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:232~2:255) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:297~2:316) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:200~2:207) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_023]
+sql:
+-- DISABLE clears pending buffered lines
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('TO_CLEAR'); DBMS_OUTPUT.DISABLE; DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20015,'disable clear mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:79~2:99) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:113~2:132) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:134~2:152) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:154~2:174) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:225~2:248) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:291~2:310) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_024]
+sql:
+-- PUT empty string and NEW_LINE
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT(''); DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>1 then raise_application_error(-20016,'empty string status mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:79~2:94) /test/1/catalog1/DBMS_OUTPUT/PUT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:100~2:120) /test/1/catalog1/DBMS_OUTPUT/NEW_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:122~2:142) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:193~2:216) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:265~2:284) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_025]
+sql:
+-- PUT fragments beyond line limit are truncated by Pack29
+declare line_value varchar(32767); status_value int; begin DBMS_OUTPUT.ENABLE(1000000); DBMS_OUTPUT.PUT(rpad('X',32767,'X')); DBMS_OUTPUT.PUT('Y'); DBMS_OUTPUT.NEW_LINE; DBMS_OUTPUT.GET_LINE(line_value,status_value); if status_value<>0 or lengthb(line_value)<>32768 then raise_application_error(-20017,'fragment extension mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:59~2:77) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:88~2:103) /test/1/catalog1/DBMS_OUTPUT/PUT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:104~2:108) /test/1/catalog1/schema1/rpad/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:126~2:141) /test/1/catalog1/DBMS_OUTPUT/PUT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:148~2:168) /test/1/catalog1/DBMS_OUTPUT/NEW_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:170~2:190) /test/1/catalog1/DBMS_OUTPUT/GET_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:271~2:294) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:342~2:361) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:239~2:246) /test/1/catalog1/schema1/lengthb/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_026]
+sql:
+-- GET_LINES negative requested row count Pack29 result
+declare lines_value DBMS_OUTPUT.CHARARR; count_value int:=-1; begin DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('UNREAD'); DBMS_OUTPUT.GET_LINES(lines_value,count_value); if count_value<>0 then raise_application_error(-20018,'negative count mismatch'); end if; DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:20~2:39) /test/1/catalog1/DBMS_OUTPUT/CHARARR/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(2:68~2:86) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:88~2:108) /test/1/catalog1/DBMS_OUTPUT/PUT_LINE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:120~2:141) /test/1/catalog1/DBMS_OUTPUT/GET_LINES/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:191~2:214) /test/1/catalog1/schema1/raise_application_error/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:258~2:277) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_output_signature_combinations_0_027]
+sql:
+-- ENABLE negative buffer size uses documented lower clamp
+begin DBMS_OUTPUT.ENABLE(-1); DBMS_OUTPUT.DISABLE; end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:6~2:24) /test/1/catalog1/DBMS_OUTPUT/ENABLE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(2:30~2:49) /test/1/catalog1/DBMS_OUTPUT/DISABLE/",
+      "action": "CALL"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+[block_dameng_system_audit_xplan_ddl_0_txt_002]
+sql:
+begin
+  dbms_xplan.display_planhist('select C2 from CODEX_DM8_XPLAN_T where C1=1;');
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:2~2:29) /test/1/catalog1/dbms_xplan/display_planhist/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_system_audit_xplan_ddl_0_txt_003]
+sql:
+declare
+  plan_hash int;
+begin
+  select min(plan_hash_value) into plan_hash
+  from sysplanhist
+  where upper(sql_str) like '%CODEX_DM8_XPLAN_T%';
+  dbms_xplan.display_planhist(plan_hash);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(4:9~4:12) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(6:8~6:13) /test/1/catalog1/schema1/upper/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(5:7~5:18) /test/1/catalog1/schema1/sysplanhist/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(7:2~7:29) /test/1/catalog1/dbms_xplan/display_planhist/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[block_dameng_system_audit_xplan_ddl_0_txt_004]
+sql:
+begin
+  dbms_xplan.clear_planhist(null, sysdate + 1);
+end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(2:2~2:27) /test/1/catalog1/dbms_xplan/clear_planhist/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:34~2:41) /test/1/catalog1/schema1/sysdate/",
+      "action": "CALL"
+    }
+  ]
+}
+

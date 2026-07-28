@@ -1,0 +1,121 @@
+[split_dql_dameng_encryption_packages_0_001]
+sql:
+select dbms_obfuscation_toolkit.md5('DM123456');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:35) /test/1/catalog1/dbms_obfuscation_toolkit/md5/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_0_002]
+sql:
+select dbms_obfuscation_toolkit.md5(cast('74696765727469676572746967657274' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:35) /test/1/catalog1/dbms_obfuscation_toolkit/md5/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_0_003]
+sql:
+select dbms_obfuscation_toolkit.desdecrypt(dbms_obfuscation_toolkit.desencrypt('DM123456', 'PASSWORD'), 'PASSWORD');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:42) /test/1/catalog1/dbms_obfuscation_toolkit/desdecrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:78) /test/1/catalog1/dbms_obfuscation_toolkit/desencrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_0_004]
+sql:
+select dbms_obfuscation_toolkit.desdecrypt(dbms_obfuscation_toolkit.desencrypt(cast('444D313233343536' as varbinary(128)), cast('50415353574F5244' as varbinary(128))), cast('50415353574F5244' as varbinary(128)));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:42) /test/1/catalog1/dbms_obfuscation_toolkit/desdecrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:43~1:78) /test/1/catalog1/dbms_obfuscation_toolkit/desencrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_0_005]
+sql:
+select dbms_obfuscation_toolkit.des3decrypt(dbms_obfuscation_toolkit.des3encrypt('DM123456DM123456', 'PASSWORDPASSWORD', 0, null), 'PASSWORDPASSWORD', 0, null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:43) /test/1/catalog1/dbms_obfuscation_toolkit/des3decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:80) /test/1/catalog1/dbms_obfuscation_toolkit/des3encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_0_006]
+sql:
+select dbms_obfuscation_toolkit.des3decrypt(dbms_obfuscation_toolkit.des3encrypt(cast('444D313233343536444D313233343536' as varbinary(128)), cast('50415353574F524450415353574F5244' as varbinary(128)), 0, null), cast('50415353574F524450415353574F5244' as varbinary(128)), 0, null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:43) /test/1/catalog1/dbms_obfuscation_toolkit/des3decrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:44~1:80) /test/1/catalog1/dbms_obfuscation_toolkit/des3encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_encryption_packages_0_028]
+sql:
+select dbms_obfuscation_toolkit.des3encrypt('DM123456DM123456', 'PASSWORDPASSWORDPASSWORD', 1, null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:43) /test/1/catalog1/dbms_obfuscation_toolkit/des3encrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+

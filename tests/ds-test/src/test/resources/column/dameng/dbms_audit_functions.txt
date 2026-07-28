@@ -1,0 +1,11 @@
+[dbms_audit_literal_filters_have_no_static_lineage]
+sql:
+begin
+  DBMS_AUDIT.ADD_AUDFILE('/audit/A.log');
+  DBMS_AUDIT.END_AUD();
+  DBMS_AUDIT.REMOVE_AUDFILE('/audit/A.log');
+  DBMS_AUDIT.START_AUD(sysdate-1,sysdate+1,'SYSDBA','',1);
+  DBMS_AUDIT.START_AUD();
+end;
+expect:
+{}

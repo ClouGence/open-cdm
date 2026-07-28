@@ -1,0 +1,28 @@
+[dbms_debug_procedure_and_function_blocks_no_static_lineage]
+sql:
+declare a int; b int;
+begin
+  DBMS_DEBUG.PROBE_VERSION(a,b);
+  DBMS_DEBUG.DEBUG_ON();
+  DBMS_DEBUG.DEBUG_OFF();
+  DBMS_DEBUG.ATTACH_SESSION('CODEX_DEBUG_20260724',0);
+  DBMS_DEBUG.DETACH_SESSION();
+end;
+declare
+  program DBMS_DEBUG.PROGRAM_INFO;
+  runtime DBMS_DEBUG.RUNTIME_INFO;
+  bp int;
+  rc int;
+begin
+  rc:=DBMS_DEBUG.SET_BREAKPOINT(program,1,bp,0,0);
+  rc:=DBMS_DEBUG."CONTINUE"(runtime,0,NULL);
+  rc:=DBMS_DEBUG.GET_RUNTIME_INFO(0,runtime);
+end;
+expect:
+{}
+----------
+[dbms_debug_initialize_output_expression]
+sql:
+select DBMS_DEBUG.INITIALIZE('CODEX_DEBUG_20260724') from dual
+expect:
+{"DBMS_DEBUG.INITIALIZE('CODEX_DEBUG_20260724')":[]}

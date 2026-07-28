@@ -1,0 +1,46 @@
+[tablespace_dictionary_columns]
+sql:
+select t.tablespace_name, t.status, t.contents from catalog1.sys.dba_tablespaces t
+expect:
+{
+  "tablespace_name" : [ "/catalog1/sys/dba_tablespaces/tablespace_name/" ],
+  "status" : [ "/catalog1/sys/dba_tablespaces/status/" ],
+  "contents" : [ "/catalog1/sys/dba_tablespaces/contents/" ]
+}
+----------
+[datafile_dictionary_columns]
+sql:
+select d.tablespace_name, d.file_name, d.bytes, d.autoextensible, d.maxbytes, d.increment_by from catalog1.sys.dba_data_files d
+expect:
+{
+  "tablespace_name" : [ "/catalog1/sys/dba_data_files/tablespace_name/" ],
+  "file_name" : [ "/catalog1/sys/dba_data_files/file_name/" ],
+  "bytes" : [ "/catalog1/sys/dba_data_files/bytes/" ],
+  "autoextensible" : [ "/catalog1/sys/dba_data_files/autoextensible/" ],
+  "maxbytes" : [ "/catalog1/sys/dba_data_files/maxbytes/" ],
+  "increment_by" : [ "/catalog1/sys/dba_data_files/increment_by/" ]
+}
+----------
+[dynamic_tablespace_columns]
+sql:
+select t.id, t.name, t.status$ from catalog1.sys.v$tablespace t
+expect:
+{
+  "id" : [ "/catalog1/sys/v$tablespace/id/" ],
+  "name" : [ "/catalog1/sys/v$tablespace/name/" ],
+  "status$" : [ "/catalog1/sys/v$tablespace/status$/" ]
+}
+----------
+[dynamic_datafile_columns]
+sql:
+select d.path, d.status$, d.total_size, d.auto_extend, d.next_size, d.max_size, d.mirror_path from catalog1.sys.v$datafile d
+expect:
+{
+  "path" : [ "/catalog1/sys/v$datafile/path/" ],
+  "status$" : [ "/catalog1/sys/v$datafile/status$/" ],
+  "total_size" : [ "/catalog1/sys/v$datafile/total_size/" ],
+  "auto_extend" : [ "/catalog1/sys/v$datafile/auto_extend/" ],
+  "next_size" : [ "/catalog1/sys/v$datafile/next_size/" ],
+  "max_size" : [ "/catalog1/sys/v$datafile/max_size/" ],
+  "mirror_path" : [ "/catalog1/sys/v$datafile/mirror_path/" ]
+}

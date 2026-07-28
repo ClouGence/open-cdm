@@ -1,0 +1,16 @@
+[dbms_session_argument_columns]
+sql:
+select NAMESPACE_VALUE, CLIENT_ID, ATTRIBUTE_VALUE, CONTEXT_VALUE,
+       USERNAME_VALUE, UNIQUE_ID, DBLINK_NAME, SESSION_IDENTIFIER
+from catalog1.app.dbms_session_payload
+expect:
+{
+  "NAMESPACE_VALUE": ["/catalog1/app/dbms_session_payload/NAMESPACE_VALUE/"],
+  "CLIENT_ID": ["/catalog1/app/dbms_session_payload/CLIENT_ID/"],
+  "ATTRIBUTE_VALUE": ["/catalog1/app/dbms_session_payload/ATTRIBUTE_VALUE/"],
+  "CONTEXT_VALUE": ["/catalog1/app/dbms_session_payload/CONTEXT_VALUE/"],
+  "USERNAME_VALUE": ["/catalog1/app/dbms_session_payload/USERNAME_VALUE/"],
+  "UNIQUE_ID": ["/catalog1/app/dbms_session_payload/UNIQUE_ID/"],
+  "DBLINK_NAME": ["/catalog1/app/dbms_session_payload/DBLINK_NAME/"],
+  "SESSION_IDENTIFIER": ["/catalog1/app/dbms_session_payload/SESSION_IDENTIFIER/"]
+}

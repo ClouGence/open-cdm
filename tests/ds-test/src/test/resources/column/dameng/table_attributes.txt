@@ -1,0 +1,31 @@
+[table_attribute_ddl_has_no_lineage]
+sql:
+create table app.orders(id int cluster primary key, note varchar(20)) parallel 2;
+alter table app.orders modify note default 'N' not null;
+comment on table app.orders is 'orders';
+comment on column app.orders.note is 'note';
+drop table app.orders purge
+expect:
+{}
+----------
+[ctas_attribute_lineage]
+sql:
+create table app.orders_archive tablespace main parallel 2 add logic log
+  as select o.id, o.amount from catalog1.app.orders o
+expect:
+{
+  "id": ["/catalog1/app/orders/id/"],
+  "amount": ["/catalog1/app/orders/amount/"]
+}
+----------
+[table_comment_dictionary_columns]
+sql:
+select c.table_name, c.column_name, c.comments
+  from catalog1.sys.user_col_comments c
+expect:
+{
+  "table_name": ["/catalog1/sys/user_col_comments/table_name/"],
+  "column_name": ["/catalog1/sys/user_col_comments/column_name/"],
+  "comments": ["/catalog1/sys/user_col_comments/comments/"]
+}
+

@@ -1,0 +1,19 @@
+[dbms_xa_package_calls_no_static_lineage]
+sql:
+declare
+  r int;
+  a DBMS_XA_XID_ARRAY;
+  x DBMS_XA_XID:=DBMS_XA_XID(1);
+begin
+  r:=DBMS_XA.XA_COMMIT(x,FALSE);
+  r:=DBMS_XA.XA_END(x,DBMS_XA.TMSUCCESS);
+  r:=DBMS_XA.XA_FORGET(x);
+  r:=DBMS_XA.XA_GETLASTOER();
+  r:=DBMS_XA.XA_PREPARE(x);
+  a:=DBMS_XA.XA_RECOVER();
+  r:=DBMS_XA.XA_ROLLBACK(x);
+  r:=DBMS_XA.XA_SETTIMEOUT(60);
+  r:=DBMS_XA.XA_START(x,DBMS_XA.TMNOFLAGS);
+end;
+expect:
+{}

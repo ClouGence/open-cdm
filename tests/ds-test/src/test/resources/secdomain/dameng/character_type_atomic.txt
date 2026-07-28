@@ -1,0 +1,13 @@
+[ddl]
+sql:
+create table app.char_t(id int,c_char char(4),c_varchar varchar(12));
+create view app.char_v as select id,c_char,c_varchar from app.char_t
+expect:
+{"contains":[{"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"char_t"},{"class":"RdbViewDomain","sqlType":"CREATE_VIEW","auditKind":"CREATE","schema":"app","view":"char_v"},{"class":"RdbTableDomain","sqlType":"SELECT","auditKind":"QUERY","schema":"app","table":"char_t"}]}
+----------
+[dml]
+sql:
+insert into app.char_t values(1,'A','alpha');
+update app.char_t set c_varchar=upper(c_varchar) where id=1;delete from app.char_t where id=1
+expect:
+{"contains":[{"class":"RdbInsertDomain","sqlType":"INSERT","auditKind":"DML","schema":"app","table":"char_t"},{"class":"RdbUpdateDomain","sqlType":"UPDATE","auditKind":"DML","schema":"app","table":"char_t"},{"class":"RdbDeleteDomain","sqlType":"DELETE","auditKind":"DML","schema":"app","table":"char_t"}]}

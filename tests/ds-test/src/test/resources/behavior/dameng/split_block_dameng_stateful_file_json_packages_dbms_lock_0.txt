@@ -1,0 +1,136 @@
+[split_block_dameng_stateful_file_json_packages_dbms_lock_0_001]
+sql:
+call dbms_lock.sleep(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:20) /test/1/catalog1/dbms_lock/sleep/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_dbms_lock_0_002]
+sql:
+call dbms_lock.sleep(0.01);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:5~1:20) /test/1/catalog1/dbms_lock/sleep/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_dbms_lock_0_003]
+sql:
+declare ret int; begin ret := dbms_lock.request(901009, 4, 0, false); ret := dbms_lock.convert2(901009, 6, 0); ret := dbms_lock.release(901009); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:30~1:47) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:77~1:95) /test/1/catalog1/dbms_lock/convert2/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:118~1:135) /test/1/catalog1/dbms_lock/release/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_dbms_lock_0_004]
+sql:
+declare hdl varchar(128); ret int; begin dbms_lock.allocate_unique('CODEX_DM8_LOCK_010', hdl, 1); ret := dbms_lock.request(hdl, 4, 0, false); ret := dbms_lock.release(hdl); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:41~1:66) /test/1/catalog1/dbms_lock/allocate_unique/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:105~1:122) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:149~1:166) /test/1/catalog1/dbms_lock/release/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_dbms_lock_0_005]
+sql:
+declare hdl varchar(128); ret int; begin dbms_lock.allocate_unique('CODEX_DM8_LOCK_011', hdl); ret := dbms_lock.request(hdl, 2, 0, true); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:41~1:66) /test/1/catalog1/dbms_lock/allocate_unique/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:102~1:119) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_dbms_lock_0_006]
+sql:
+declare ret int; begin ret := dbms_lock.request(901012); ret := dbms_lock.release(901012); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:30~1:47) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:64~1:81) /test/1/catalog1/dbms_lock/release/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_dbms_lock_0_007]
+sql:
+declare ret int; begin ret := dbms_lock.request(901013, 4, 0, false); ret := dbms_lock."CONVERT"(901013, 5, 0); ret := dbms_lock.release(901013); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:30~1:47) /test/1/catalog1/dbms_lock/request/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:77~1:96) /test/1/catalog1/dbms_lock/CONVERT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:119~1:136) /test/1/catalog1/dbms_lock/release/",
+      "action": "CALL"
+    }
+  ]
+}

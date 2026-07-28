@@ -1,0 +1,65 @@
+[split_block_dameng_network_packages_utl_mail_0_001]
+sql:
+begin utl_mail.init('host.docker.internal', 18025, 'sender@dm8.local', 'dm8-password'); utl_mail.send('sender@dm8.local', 'receiver@dm8.local', subject => 'DM8_MAIL_TEXT', message => 'DM8_MAIL_TEXT_BODY'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:19) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:88~1:101) /test/1/catalog1/utl_mail/send/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_mail_0_002]
+sql:
+declare attachment_value blob; begin dbms_lob.createtemporary(attachment_value, true); dbms_lob.writeappend(attachment_value, 4, cast('434F4445' as varbinary(16))); utl_mail.init('host.docker.internal', 18025, 'sender@dm8.local', 'dm8-password'); utl_mail.send_attach_raw('sender@dm8.local', 'receiver@dm8.local', subject => 'DM8_MAIL_ATTACHMENT', message => 'DM8_MAIL_ATTACHMENT_BODY', attachment => attachment_value, att_inline => false, att_filename => 'codex.bin'); dbms_lob.freetemporary(attachment_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:37~1:61) /test/1/catalog1/dbms_lob/createtemporary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:87~1:107) /test/1/catalog1/dbms_lob/writeappend/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:165~1:178) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:247~1:271) /test/1/catalog1/utl_mail/send_attach_raw/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:470~1:492) /test/1/catalog1/dbms_lob/freetemporary/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_network_packages_utl_mail_0_003]
+sql:
+begin utl_mail.init('host.docker.internal', 18025, 'sender@dm8.local', 'dm8-password'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:19) /test/1/catalog1/utl_mail/init/",
+      "action": "CALL"
+    }
+  ]
+}
+

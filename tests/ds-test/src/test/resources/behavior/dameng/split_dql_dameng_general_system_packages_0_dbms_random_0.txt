@@ -1,0 +1,224 @@
+[split_dql_dameng_general_system_packages_0_001]
+sql:
+select dbms_random.random_normal();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/dbms_random/random_normal/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_002]
+sql:
+select dbms_random.random();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/dbms_random/random/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_003]
+sql:
+select dbms_random.random_string('U', 12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/dbms_random/random_string/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_004]
+sql:
+select dbms_random.random_string('l', 12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/dbms_random/random_string/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_005]
+sql:
+select dbms_random.random_string('A', 12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/dbms_random/random_string/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_006]
+sql:
+select dbms_random.random_string('x', 12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/dbms_random/random_string/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_007]
+sql:
+select dbms_random.random_string('P', 12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/dbms_random/random_string/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_008]
+sql:
+select dbms_random.random_string('?', 12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/dbms_random/random_string/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_009]
+sql:
+select dbms_random.string('U', 8);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/dbms_random/string/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_010]
+sql:
+select dbms_random.value();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_random/value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_011]
+sql:
+select dbms_random.value(10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_random/value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_012]
+sql:
+select dbms_random.value(10, 100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_random/value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_013]
+sql:
+select dbms_random.value(100, 10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_random/value/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_064]
+sql:
+select dbms_random.random_string('X', 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/dbms_random/random_string/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_general_system_packages_0_065]
+sql:
+select dbms_random.value(-100, -10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/dbms_random/value/",
+      "action": "CALL"
+    }
+  ]
+}

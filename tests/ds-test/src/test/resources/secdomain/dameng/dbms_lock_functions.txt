@@ -1,0 +1,32 @@
+[dbms_lock_procedure_domains]
+sql:
+declare
+  h varchar(128);
+begin
+  dbms_lock.allocate_unique('N',h,1);
+  dbms_lock.sleep(0);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_lock"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"dbms_lock"}
+  ]
+}
+----------
+[dbms_lock_function_expressions_no_domain]
+sql:
+declare
+  h varchar(128); r int;
+begin
+  r:=dbms_lock.request(921001,4,0,false);
+  r:=dbms_lock.request(h,4,0,false);
+  r:=dbms_lock."CONVERT"(921001,4,0);
+  r:=dbms_lock."CONVERT"(h,4,0);
+  r:=dbms_lock.convert2(921001,4,0);
+  r:=dbms_lock.convert2(h,4,0);
+  r:=dbms_lock.release(921001);
+  r:=dbms_lock.release(h);
+end;
+expect:
+{"size":0}

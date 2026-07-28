@@ -1,0 +1,64 @@
+[dpc_query_cross_bp_join_columns]
+sql:
+select a.id as a_id,a.note,b.note as b_note
+from catalog1.app.dpc_q_range_a a join catalog1.app.dpc_q_range_b b on a.id=b.id
+expect:
+{
+  "a_id" : [ "/catalog1/app/dpc_q_range_a/id/" ],
+  "note" : [ "/catalog1/app/dpc_q_range_a/note/" ],
+  "b_note" : [ "/catalog1/app/dpc_q_range_b/note/" ]
+}
+----------
+[dpc_query_route_columns]
+sql:
+select id,sf_get_ep_seqno(rowid) as ep_no
+from catalog1.app.dpc_q_range_a order by id
+expect:
+{
+  "id" : [ "/catalog1/app/dpc_q_range_a/id/" ],
+  "ep_no" : [ "/catalog1/app/dpc_q_range_a/rowid/" ]
+}
+----------
+[dpc_query_hash_group_columns]
+sql:
+select sf_get_ep_seqno(rowid) as ep_no,count(*) as row_count
+from catalog1.app.dpc_q_hash group by sf_get_ep_seqno(rowid)
+expect:
+{
+  "ep_no" : [ "/catalog1/app/dpc_q_hash/rowid/" ],
+  "row_count" : [ ]
+}
+----------
+[dpc_query_instance_view_columns]
+sql:
+select name,dpc_mode,sys_status,status
+from catalog1.sys.dpc_instance order by raft_id
+expect:
+{
+  "name" : [ "/catalog1/sys/dpc_instance/name/" ],
+  "dpc_mode" : [ "/catalog1/sys/dpc_instance/dpc_mode/" ],
+  "sys_status" : [ "/catalog1/sys/dpc_instance/sys_status/" ],
+  "status" : [ "/catalog1/sys/dpc_instance/status/" ]
+}
+----------
+[dpc_query_tablespace_view_columns]
+sql:
+select ts_id,name,raft_id
+from catalog1.sys.dpc_tablespace order by name
+expect:
+{
+  "ts_id" : [ "/catalog1/sys/dpc_tablespace/ts_id/" ],
+  "name" : [ "/catalog1/sys/dpc_tablespace/name/" ],
+  "raft_id" : [ "/catalog1/sys/dpc_tablespace/raft_id/" ]
+}
+----------
+[dpc_query_monitor_view_columns]
+sql:
+select mpp_exec_id,stmt_id,sql_text
+from catalog1.sys.v$dpc_qc_history order by begin_time
+expect:
+{
+  "mpp_exec_id" : [ "/catalog1/sys/v$dpc_qc_history/mpp_exec_id/" ],
+  "stmt_id" : [ "/catalog1/sys/v$dpc_qc_history/stmt_id/" ],
+  "sql_text" : [ "/catalog1/sys/v$dpc_qc_history/sql_text/" ]
+}

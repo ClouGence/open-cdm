@@ -1,0 +1,48 @@
+[create_external_function]
+sql:
+create function app.c_add(a int,b int) return int
+external '/opt/libdm8_external.so' "dm8_c_add" using c;
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:25) /test/1/catalog1/app/c_add/",
+      "action" : "CREATE",
+      "target": "File(2:9~2:34) /test/1/opt/libdm8_external.so/"
+    }
+  ]
+}
+----------
+[create_library]
+sql:
+create library app.c_lib as '/opt/libdm8_external.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_LIBRARY": [
+    {
+      "subject": "Library(1:15~1:24) /test/1/catalog1/app/c_lib/",
+      "action" : "CREATE",
+      "target": "File(1:28~1:53) /test/1/opt/libdm8_external.so/"
+    }
+  ]
+}
+----------
+[drop_library]
+sql:
+drop library if exists app.c_lib;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_LIBRARY": [
+    {
+      "subject": "Library(1:23~1:32) /test/1/catalog1/app/c_lib/",
+      "action" : "DROP"
+    }
+  ]
+}

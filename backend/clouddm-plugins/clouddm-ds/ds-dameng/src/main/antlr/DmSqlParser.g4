@@ -33,7 +33,7 @@ statementBlock
     : SEMI+
     | SLASH SEMI*
     | statement statementTerminator+
-    | statement {_input.LA(1) == EOF}?
+    | statement {isEndOfInputAhead()}?
     ;
 
 statementTerminator
@@ -181,7 +181,7 @@ tablePrimary
     | jsonCollectionTableExpression tableAlias? derivedColumnList?
     | tableCollectionExpression tableAlias?
     | arrayTableExpression tableAlias?
-    | {_input.LA(1) != ARRAY}?
+    | {isTokenNotAhead(ARRAY)}?
       qualifiedName tableIndexClause? tableColumnProjection? partitionExtensionClause* sampleClause? tablePivotClause* (flashbackQueryClause | flashbackVersionQueryClause)? tableAlias? derivedColumnList?
     | LPAREN selectStatement RPAREN tablePivotClause* (flashbackQueryClause | flashbackVersionQueryClause)? tableAlias? derivedColumnList?
     | LPAREN tableSource (COMMA tableSource)* RPAREN tableAlias?
@@ -259,7 +259,7 @@ tableCollectionExpression
     ;
 
 arrayTableExpression
-    : ARRAY (newArrayExpression | {_input.LA(1) != NEW}? expression)
+    : ARRAY (newArrayExpression | {isTokenNotAhead(NEW)}? expression)
     ;
 
 tableIndexClause
@@ -356,12 +356,12 @@ unpivotAlias
     ;
 
 tableAlias
-    : AS {_input.LA(1) != OF}? aliasIdentifier
+    : AS {isTokenNotAhead(OF)}? aliasIdentifier
     | {isBareTableAliasAhead()}? aliasIdentifier
     ;
 
 aliasIdentifier
-    : {_input.LA(1) != BINARY}? identifier
+    : {isTokenNotAhead(BINARY)}? identifier
     ;
 
 derivedColumnList
@@ -505,7 +505,7 @@ groupingSetExpressionList
     ;
 
 groupingSetExpression
-    : {_input.LA(1) != ROLLUP && _input.LA(1) != CUBE}? expression
+    : {isTokenNotAhead(ROLLUP, CUBE)}? expression
     ;
 
 groupByItemSet
@@ -558,7 +558,7 @@ fetchClause
     ;
 
 fetchCountClause
-    : {_input.LA(1) != PERCENT_KEYWORD}? expression PERCENT_KEYWORD?
+    : {isTokenNotAhead(PERCENT_KEYWORD)}? expression PERCENT_KEYWORD?
     ;
 
 forUpdateClause
@@ -2273,8 +2273,8 @@ typeMethodReturnClause
     ;
 
 constructorReturnClause
-    : RETURN {getCurrentToken().getText().equalsIgnoreCase("self")}? identifier
-      AS {getCurrentToken().getText().equalsIgnoreCase("result")}? identifier
+    : RETURN {isKeywordAhead("self")}? identifier
+      AS {isKeywordAhead("result")}? identifier
     ;
 
 typeCreateOption
@@ -2606,7 +2606,7 @@ cacheClause
     ;
 
 tablespaceEncryptClause
-    : ENCRYPT WITH identifier (BY (WRAPPED tablespacePassword | {_input.LA(1) != WRAPPED}? tablespacePassword))?
+    : ENCRYPT WITH identifier (BY (WRAPPED tablespacePassword | {isTokenNotAhead(WRAPPED)}? tablespacePassword))?
     ;
 
 tablespacePassword
@@ -3378,7 +3378,7 @@ dropTarget
     | TRIGGER ifExists? qualifiedName dropOption*
     | PUBLIC? SYNONYM ifExists? synonymName=qualifiedName dropOption*
     | PACKAGE BODY ifExists? qualifiedName (RESTRICT | CASCADE)?
-    | PACKAGE {_input.LA(1) != BODY}? ifExists? qualifiedName (RESTRICT | CASCADE)?
+    | PACKAGE {isTokenNotAhead(BODY)}? ifExists? qualifiedName (RESTRICT | CASCADE)?
     | TABLESPACE ifExists? qualifiedName
     | PUBLIC? LINK ifExists? qualifiedName (RESTRICT | CASCADE)?
     | DIRECTORY ifExists? qualifiedName (RESTRICT | CASCADE)?
@@ -3533,7 +3533,7 @@ grantee
 callStatement
     : CALL qualifiedName (LPAREN routineArgumentList? RPAREN)?
     | EXEC qualifiedName routineArgumentList?
-    | EXECUTE {_input.LA(1) != IMMEDIATE}? qualifiedName routineArgumentList?
+    | EXECUTE {isTokenNotAhead(IMMEDIATE)}? qualifiedName routineArgumentList?
     ;
 
 lockTableStatement
@@ -3585,7 +3585,7 @@ configAssignment
 sessionConfigAssignment
     : {isKeywordAhead("CASE_SENSITIVE")}? configKey EQ DEFAULT
     | {isKeywordAhead("NLS_SORT")}? configKey EQ BINARY
-    | {_input.LA(1) == STRING}? configKey EQ expression
+    | {isTokenAhead(STRING)}? configKey EQ expression
     | {
         isKeywordAhead("ALTER_TABLE_OPT")
         || isKeywordAhead("CASE_SENSITIVE")
@@ -4006,7 +4006,7 @@ assignmentTargetSuffix
     ;
 
 executeImmediateStatement
-    : EXECUTE IMMEDIATE {_input.LA(1) != SEMI && _input.LA(1) != SLASH && _input.LA(1) != EOF}? expression
+    : EXECUTE IMMEDIATE {isStatementContentAhead()}? expression
       dynamicIntoClause? dynamicUsingClause? dynamicReturningClause?
     ;
 
@@ -4395,7 +4395,7 @@ primaryExpression
     | specialFunctionCall
     | functionCall
     | CURRENT_USER
-    | {_input.LA(1) != BINARY}? qualifiedName
+    | {isTokenNotAhead(BINARY)}? qualifiedName
     | CASE expression? caseWhen+ caseElse? END
     | LPAREN selectStatement RPAREN
     | LPAREN expression RPAREN intervalQualifier
@@ -4415,7 +4415,7 @@ caseElse
     ;
 
 functionCall
-    : {_input.LA(1) != XMLPARSE && _input.LA(1) != BINARY}?
+    : {isTokenNotAhead(XMLPARSE, BINARY)}?
       name=functionName LPAREN functionArguments[$name.text]? RPAREN
       ({isKeepFunction($name.text)}? keepClause)?
       ({isWithinGroupFunction($name.text)}? withinGroupClause)?
@@ -4477,7 +4477,7 @@ specialFunctionCall
     ;
 
 convertFunction
-    : {getCurrentToken().getText().equalsIgnoreCase("convert")}? identifier LPAREN dataType COMMA expression (COMMA expression)? RPAREN
+    : {isKeywordAhead("convert")}? identifier LPAREN dataType COMMA expression (COMMA expression)? RPAREN
     ;
 
 xmlElementFunction
@@ -4790,10 +4790,10 @@ jdbcEscapeExpression
     ;
 
 jdbcEscapeTag
-    : {getCurrentToken().getText().equalsIgnoreCase("fn")}? identifier
-    | {getCurrentToken().getText().equalsIgnoreCase("d")}? identifier
-    | {getCurrentToken().getText().equalsIgnoreCase("t")}? identifier
-    | {getCurrentToken().getText().equalsIgnoreCase("ts")}? identifier
+    : {isKeywordAhead("fn")}? identifier
+    | {isKeywordAhead("d")}? identifier
+    | {isKeywordAhead("t")}? identifier
+    | {isKeywordAhead("ts")}? identifier
     ;
 
 intervalQualifier

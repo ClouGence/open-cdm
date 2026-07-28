@@ -1,0 +1,1776 @@
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_001_behavior_review]
+sql:
+create table app.json_types(
+ id int primary key,j json default '{}',jb jsonb default '{}' not null,
+ v varchar2(32767) check(v is json(strict) with unique keys),
+ c clob check(c is json(lax) without unique keys),
+ t text check(t is json),l longvarchar check(l is json)) storage(using long row);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/json_types/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_002_behavior_review]
+sql:
+comment on table app.json_types is 'JSON type matrix';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_TABLE": [
+    {
+      "subject": "Table(1:17~1:31) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_003_behavior_review]
+sql:
+comment on column app.json_types.j is 'text preserving JSON';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_004_behavior_review]
+sql:
+comment on column app.json_types.jb is 'normalized JSONB';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_005_behavior_review]
+sql:
+comment on column app.json_types.v is 'strict unique JSON';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_006_behavior_review]
+sql:
+comment on column app.json_types.c is 'lax nonunique JSON';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_007_behavior_review]
+sql:
+comment on column app.json_types.t is 'TEXT JSON';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_008_behavior_review]
+sql:
+comment on column app.json_types.l is 'LONGVARCHAR JSON';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "COMMENT_COLUMN": [
+    {
+      "subject": "Table(1:18~1:32) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_009_behavior_review]
+sql:
+alter table app.json_types add j_alt json default 'null';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_010_behavior_review]
+sql:
+alter table app.json_types add jb_alt jsonb default '[]';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_011_behavior_review]
+sql:
+alter table app.json_types add v_alt varchar(100)
+ check(v_alt is json(lax) without unique keys);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_012_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(1,'"达梦\\t\\u0041"','"达梦\\t\\u0041"');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_013_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(2,'0','0');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_014_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(3,'-0','-0');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_015_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(4,'-123.456E+78','-123.456E+78');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_016_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(5,'1.7976931348623157E308','1.7976931348623157E308');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_017_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(6,'1E309','1E309');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_018_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(7,'true','true');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_019_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(8,'false','false');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_020_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(9,'null','null');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_021_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(10,'{}','{}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_022_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(11,'{"a":{"b":[1,true,null,"x"]}}','{"a":{"b":[1,true,null,"x"]}}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_023_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(12,'[]','[]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_024_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(13,'["",0,true,false,null,{},[],[1]]','["",0,true,false,null,{},[],[1]]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_025_behavior_review]
+sql:
+insert into app.json_types(id,jb) values(20,'{}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_026_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(
+ 21,'{"z":0,"a":1,"a":2}','{"z":0,"a":1,"a":2}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_027_behavior_review]
+sql:
+insert into app.json_types(id,c,t,l) values(
+ 22,'{"a":1,"a":2}','{"carrier":"TEXT"}','{"carrier":"LONGVARCHAR"}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_028_behavior_review]
+sql:
+insert into app.json_types(id,v) values(
+ 23,'"VARCHAR2 JSON"');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_029_behavior_review]
+sql:
+update app.json_types set j='{"updated":true}',
+ jb='{"updated":true}' where id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UPDATE": [
+    {
+      "subject": "Table(1:7~1:21) /test/1/catalog1/app/json_types/",
+      "action": "UPDATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_030_behavior_review]
+sql:
+merge into app.json_types t using(select 1 id from dual)s on(t.id=s.id)
+ when matched then update set t.j='{"merged":true}',t.jb='{"merged":true}';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/app/json_types/",
+      "action": "MERGE",
+      "target": "View(1:51~1:55) /test/1/catalog1/schema1/dual/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_031_behavior_review]
+sql:
+delete from app.json_types where id=23;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DELETE": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "DELETE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_032_behavior_review]
+sql:
+select cast('"达梦\\t\\u0041"' as json),cast('"达梦\\t\\u0041"' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:75~1:79) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_033_behavior_review]
+sql:
+select cast('0' as json),cast('0' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_034_behavior_review]
+sql:
+select cast('-0' as json),cast('-0' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_035_behavior_review]
+sql:
+select cast('-123.456E+78' as json),cast('-123.456E+78' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:71~1:75) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_036_behavior_review]
+sql:
+select cast('1.7976931348623157E308' as json),cast('1.7976931348623157E308' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:91~1:95) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_037_behavior_review]
+sql:
+select cast('1E309' as json),cast('1E309' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:57~1:61) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_038_behavior_review]
+sql:
+select cast('true' as json),cast('true' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_039_behavior_review]
+sql:
+select cast('false' as json),cast('false' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:57~1:61) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_040_behavior_review]
+sql:
+select cast('null' as json),cast('null' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_041_behavior_review]
+sql:
+select cast('{}' as json),cast('{}' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_042_behavior_review]
+sql:
+select cast('{"a":{"b":[1,true,null,"x"]}}' as json),cast('{"a":{"b":[1,true,null,"x"]}}' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:105~1:109) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_043_behavior_review]
+sql:
+select cast('[]' as json),cast('[]' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:51~1:55) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_044_behavior_review]
+sql:
+select cast('["",0,true,false,null,{},[],[1]]' as json),cast('["",0,true,false,null,{},[],[1]]' as jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:111~1:115) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_045_behavior_review]
+sql:
+select jsonb_typeof('"s"'),jsonb_typeof('1'),jsonb_typeof('true'),
+ jsonb_typeof('null'),jsonb_typeof('{}'),jsonb_typeof('[]') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:19) /test/1/catalog1/schema1/jsonb_typeof/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:39) /test/1/catalog1/schema1/jsonb_typeof/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:45~1:57) /test/1/catalog1/schema1/jsonb_typeof/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1~2:13) /test/1/catalog1/schema1/jsonb_typeof/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:22~2:34) /test/1/catalog1/schema1/jsonb_typeof/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:41~2:53) /test/1/catalog1/schema1/jsonb_typeof/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_046_behavior_review]
+sql:
+select j,jb from app.json_types where id=21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:31) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_047_behavior_review]
+sql:
+select j->'a',jb->'a' from app.json_types where id=21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:8~1:10) /test/1/catalog1/schema1/->/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Operator(1:16~1:18) /test/1/catalog1/schema1/->/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:27~1:41) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_048_behavior_review]
+sql:
+select j->>0,jb->>0 from app.json_types where id=13;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:8~1:11) /test/1/catalog1/schema1/->>/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Operator(1:15~1:18) /test/1/catalog1/schema1/->>/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:25~1:39) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_049_behavior_review]
+sql:
+select j->'$.a.b',j->>'$.a.b[3]' from app.json_types where id=11;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:8~1:10) /test/1/catalog1/schema1/->/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Operator(1:19~1:22) /test/1/catalog1/schema1/->>/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:38~1:52) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_050_behavior_review]
+sql:
+select jb-'a' from app.json_types where id=21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:19~1:33) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_051_behavior_review]
+sql:
+select '[1,2,3]'::jsonb-1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:23~1:24) /test/1/catalog1/schema1/-/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_052_behavior_review]
+sql:
+select '[1,2,3]'::jsonb-'a' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:23~1:24) /test/1/catalog1/schema1/-/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:33~1:37) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_053_behavior_review]
+sql:
+select jb @> '{"a":2}'::jsonb from app.json_types where id=21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:10~1:12) /test/1/catalog1/schema1/@>/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:35~1:49) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_054_behavior_review]
+sql:
+select * from jsonb_object_keys('{"b":2,"a":1,"a":3}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:31) /test/1/catalog1/schema1/jsonb_object_keys/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_055_behavior_review]
+sql:
+select * from jsonb_each(
+ '{"s":"x","n":1,"b":true,"z":null,"o":{},"a":[]}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:24) /test/1/catalog1/schema1/jsonb_each/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_056_behavior_review]
+sql:
+select * from jsonb_array_elements(
+ '["x",1,true,null,{},[]]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:14~1:34) /test/1/catalog1/schema1/jsonb_array_elements/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_057_behavior_review]
+sql:
+select jsonb_build_object(
+ 's','x','n',1,'b',true,'z',null,'o','{}'::jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/jsonb_build_object/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:55~2:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_058_behavior_review]
+sql:
+select jsonb_build_array(
+ 'x',1,true,null,'{}'::jsonb,'[]'::jsonb) from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/jsonb_build_array/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_059_behavior_review]
+sql:
+select jsonb_strip_nulls(
+ '{"a":null,"b":[null,{"c":null,"d":1}]}') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/jsonb_strip_nulls/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:48~2:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_060_behavior_review]
+sql:
+select jsonb_agg(id) from app.json_types;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/jsonb_agg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:26~1:40) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_061_behavior_review]
+sql:
+select jsonb_object_agg(cast(id as varchar),j) from app.json_types;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:23) /test/1/catalog1/schema1/jsonb_object_agg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:52~1:66) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_062_behavior_review]
+sql:
+select json_value(j,'$.a.b[0]' returning number) from app.json_types;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:54~1:68) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_063_behavior_review]
+sql:
+select json_query(j,'$.a.b' with wrapper) from app.json_types;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/json_query/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:47~1:61) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_064_behavior_review]
+sql:
+select jt.* from json_table(
+ '[{"n":1},{"n":2}]','$[*]' columns(n number path '$.n'))jt order by n;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:17~1:27) /test/1/catalog1/schema1/json_table/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_065_behavior_review]
+sql:
+select table_name,column_name,format,data_type
+ from user_json_columns order by table_name,column_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:6~2:23) /test/1/catalog1/schema1/user_json_columns/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_066_behavior_review]
+sql:
+select case when 'invalid' is not json then 1 else 0 end,
+ case when null is json then 1 else 0 end from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_067_behavior_review]
+sql:
+select distinct j from app.json_types;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:23~1:37) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_068_behavior_review]
+sql:
+select jb from app.json_types order by jb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:15~1:29) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_069_behavior_review]
+sql:
+select min(jb) from app.json_types;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:20~1:34) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_070_behavior_review]
+sql:
+create view app.json_types_v as
+ select id,j,jb,j->'a' as a from app.json_types;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_VIEW": [
+    {
+      "subject": "View(1:12~1:28) /test/1/catalog1/app/json_types_v/",
+      "action": "CREATE",
+      "target": "Table(2:33~2:47) /test/1/catalog1/app/json_types/"
+    },
+    {
+      "subject": "Operator(2:17~2:19) /test/1/catalog1/schema1/->/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_071_behavior_review]
+sql:
+select id,a from app.json_types_v where id=21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:17~1:33) /test/1/catalog1/app/json_types_v/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_072_behavior_review]
+sql:
+create function app.json_identity(p json) return json
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:33) /test/1/catalog1/app/json_identity/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_073_behavior_review]
+sql:
+create function app.jsonb_identity(p jsonb) return jsonb
+as begin return p;end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_PROG_OBJ": [
+    {
+      "subject": "Function(1:16~1:34) /test/1/catalog1/app/jsonb_identity/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_074_behavior_review]
+sql:
+select app.json_identity('{"a":1}'),
+ app.jsonb_identity('{"a":1}') from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/app/json_identity/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:1~2:19) /test/1/catalog1/app/jsonb_identity/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:36~2:40) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_075_behavior_review]
+sql:
+declare j json;jb jsonb;begin
+ j:='{"a":1,"a":2}';jb:='{"a":1,"a":2}';
+ insert into app.json_types(id,j,jb) values(99,j,jb);end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(3:13~3:27) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_076_behavior_review]
+sql:
+create type app.json_static_array as array json[2];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:33) /test/1/catalog1/app/json_static_array/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_077_behavior_review]
+sql:
+create type app.jsonb_static_array as array jsonb[2];
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:12~1:34) /test/1/catalog1/app/jsonb_static_array/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_078_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(101,'{"a":','{}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_079_behavior_review]
+sql:
+insert into app.json_types(id,j,jb) values(102,'{}','{"a":');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_080_behavior_review]
+sql:
+insert into app.json_types(id,jb) values(103,null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_081_behavior_review]
+sql:
+insert into app.json_types(id,v) values(104,'TRUE');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_082_behavior_review]
+sql:
+insert into app.json_types(id,v) values(105,'01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_083_behavior_review]
+sql:
+insert into app.json_types(id,v) values(106,'[1,]');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_084_behavior_review]
+sql:
+insert into app.json_types(id,v) values(107,'{"a":1,"a":2}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_085_behavior_review]
+sql:
+insert into app.json_types(id,c) values(108,'{a:1,}');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_086_behavior_review]
+sql:
+insert into app.json_types(id,c) values(109,'0x10');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_087_behavior_review]
+sql:
+create table app.json_unique(c json unique);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/app/json_unique/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_088_behavior_review]
+sql:
+create table app.jsonb_unique(c jsonb unique);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/app/jsonb_unique/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_089_behavior_review]
+sql:
+create table app.json_pk(c json primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:24) /test/1/catalog1/app/json_pk/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_090_behavior_review]
+sql:
+create table app.jsonb_pk(c jsonb primary key);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/app/jsonb_pk/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_091_behavior_review]
+sql:
+create index app.idx_json on app.json_types(j);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:25) /test/1/catalog1/app/idx_json/",
+      "action": "CREATE",
+      "target": "Table(1:29~1:43) /test/1/catalog1/app/json_types/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_092_behavior_review]
+sql:
+create index app.idx_jsonb on app.json_types(jb);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_INDEX": [
+    {
+      "subject": "Index(1:13~1:26) /test/1/catalog1/app/idx_jsonb/",
+      "action": "CREATE",
+      "target": "Table(1:30~1:44) /test/1/catalog1/app/json_types/"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_093_behavior_review]
+sql:
+create table app.json_part(c json,v int)
+ partition by range(c)(partition p0 values less than('{"m":0}'),
+ partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:26) /test/1/catalog1/app/json_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_094_behavior_review]
+sql:
+create table app.jsonb_part(c jsonb,v int)
+ partition by range(c)(partition p0 values less than('{"m":0}'),
+ partition p1 values less than(maxvalue));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/app/jsonb_part/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_095_behavior_review]
+sql:
+select j,count(*) from app.json_types group by j;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:9~1:14) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:23~1:37) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_096_behavior_review]
+sql:
+select * from app.json_types where j=jb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:28) /test/1/catalog1/app/json_types/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_097_behavior_review]
+sql:
+alter table app.json_types modify j jsonb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_098_behavior_review]
+sql:
+alter table app.json_types modify jb json;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/app/json_types/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_099_behavior_review]
+sql:
+select '{"a":1}'::json->'a' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:22~1:24) /test/1/catalog1/schema1/->/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:33~1:37) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_100_behavior_review]
+sql:
+select '{"a":1}'::json->'$.a' from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:22~1:24) /test/1/catalog1/schema1/->/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:35~1:39) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_101_behavior_review]
+sql:
+select '{"a":1}'::jsonb-1 from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:23~1:24) /test/1/catalog1/schema1/-/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:31~1:35) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_102_behavior_review]
+sql:
+select '{"a":1}'::jsonb @> '{"a":1}'::json from dual;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Operator(1:24~1:26) /test/1/catalog1/schema1/@>/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:48~1:52) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_103_behavior_review]
+sql:
+drop type app.json_static_array;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:31) /test/1/catalog1/app/json_static_array/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_104_behavior_review]
+sql:
+drop type app.jsonb_static_array;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:10~1:32) /test/1/catalog1/app/jsonb_static_array/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_105_behavior_review]
+sql:
+drop function app.json_identity;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:31) /test/1/catalog1/app/json_identity/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_106_behavior_review]
+sql:
+drop function app.jsonb_identity;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_PROG_OBJ": [
+    {
+      "subject": "Function(1:14~1:32) /test/1/catalog1/app/jsonb_identity/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_107_behavior_review]
+sql:
+drop view app.json_types_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_VIEW": [
+    {
+      "subject": "View(1:10~1:26) /test/1/catalog1/app/json_types_v/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dml_dql_block_dameng_json_type_atomic_0_108_behavior_review]
+sql:
+drop table app.json_types;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/app/json_types/",
+      "action": "DROP"
+    }
+  ]
+}

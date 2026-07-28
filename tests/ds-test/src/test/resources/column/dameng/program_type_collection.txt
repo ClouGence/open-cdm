@@ -1,0 +1,5 @@
+[program_type_column]
+sql:
+select t.id,t.v from catalog1.app.index_column_compat t
+expect:
+{"id":["/catalog1/app/index_column_compat/id/"],"v":["/catalog1/app/index_column_compat/v/"]}

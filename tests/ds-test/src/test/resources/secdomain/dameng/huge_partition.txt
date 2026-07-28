@@ -1,0 +1,51 @@
+[create_huge_partition]
+sql:
+create huge table app.huge_part(id int, category int, note varchar(40))
+partition by range(id)(partition p10 values less than(10), partition pmax values less than(maxvalue))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"huge_part"}
+  ]
+}
+----------
+[alter_huge_partition]
+sql:
+alter table app.huge_part split partition pmax at(20) into(partition p20, partition pmax2)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"huge_part"}
+  ]
+}
+----------
+[exchange_huge_partition]
+sql:
+alter table app.huge_part exchange partition p10 with table app.huge_part_exchange
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"huge_part"},
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"huge_part_exchange"}
+  ]
+}
+----------
+[insert_huge_partition]
+sql:
+insert into app.huge_part partition(p10)(id, category, note) values(1, 1, 'one')
+expect:
+{
+  "contains": [
+    {"class":"RdbInsertDomain", "sqlType":"INSERT", "schema":"app", "table":"huge_part"}
+  ]
+}
+----------
+[select_huge_subpartition]
+sql:
+select p.id, p.note from app.huge_part subpartition for(1, 1) p
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"huge_part"}
+  ]
+}

@@ -1,0 +1,910 @@
+[split_block_dameng_dbms_pipe_signature_combinations_0_002_dbms_pipe_review]
+sql:
+-- FUNC-0673 NEXT_ITEM_TYPE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin ret:=DBMS_PIPE.NEXT_ITEM_TYPE(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(11:11~11:35) /test/1/catalog1/DBMS_PIPE/NEXT_ITEM_TYPE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_003_dbms_pipe_review]
+sql:
+-- FUNC-0674 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>'TEXT'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:28) /test/1/catalog1/DBMS_PIPE/PACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_004_dbms_pipe_review]
+sql:
+-- FUNC-0675 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(1 AS INT)); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:28) /test/1/catalog1/DBMS_PIPE/PACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_005_dbms_pipe_review]
+sql:
+-- FUNC-0676 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(2 AS BIGINT)); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:28) /test/1/catalog1/DBMS_PIPE/PACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_006_dbms_pipe_review]
+sql:
+-- FUNC-0677 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(3.5 AS DOUBLE)); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:28) /test/1/catalog1/DBMS_PIPE/PACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_007_dbms_pipe_review]
+sql:
+-- FUNC-0678 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST(4.5 AS NUMBER)); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:28) /test/1/catalog1/DBMS_PIPE/PACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_008_dbms_pipe_review]
+sql:
+-- FUNC-0679 PACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE(ITEM=>CAST('2026-07-27' AS DATE)); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:28) /test/1/catalog1/DBMS_PIPE/PACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_009_dbms_pipe_review]
+sql:
+-- FUNC-0680 PACK_MESSAGE_ROWID
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.PACK_MESSAGE_ROWID(ITEM=>rid); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:34) /test/1/catalog1/DBMS_PIPE/PACK_MESSAGE_ROWID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_013_dbms_pipe_review]
+sql:
+-- FUNC-0684 RESET_BUFFER
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.RESET_BUFFER(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:28) /test/1/catalog1/DBMS_PIPE/RESET_BUFFER/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_015_dbms_pipe_review]
+sql:
+-- FUNC-0686 UNIQUE_SESSION_NAME
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin text_value:=DBMS_PIPE.UNIQUE_SESSION_NAME(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(11:18~11:47) /test/1/catalog1/DBMS_PIPE/UNIQUE_SESSION_NAME/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_016_dbms_pipe_review]
+sql:
+-- FUNC-0687 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>text_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:30) /test/1/catalog1/DBMS_PIPE/UNPACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_017_dbms_pipe_review]
+sql:
+-- FUNC-0688 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>int_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:30) /test/1/catalog1/DBMS_PIPE/UNPACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_018_dbms_pipe_review]
+sql:
+-- FUNC-0689 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>bigint_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:30) /test/1/catalog1/DBMS_PIPE/UNPACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_019_dbms_pipe_review]
+sql:
+-- FUNC-0690 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>double_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:30) /test/1/catalog1/DBMS_PIPE/UNPACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_020_dbms_pipe_review]
+sql:
+-- FUNC-0691 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>number_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:30) /test/1/catalog1/DBMS_PIPE/UNPACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_021_dbms_pipe_review]
+sql:
+-- FUNC-0692 UNPACK_MESSAGE
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE(ITEM=>date_value); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:30) /test/1/catalog1/DBMS_PIPE/UNPACK_MESSAGE/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_pipe_signature_combinations_0_022_dbms_pipe_review]
+sql:
+-- FUNC-0693 UNPACK_MESSAGE_ROWID
+declare
+  ret int;
+  text_value varchar2(128);
+  int_value int;
+  bigint_value bigint;
+  double_value double;
+  number_value number;
+  date_value date;
+  rid rowid;
+begin DBMS_PIPE.UNPACK_MESSAGE_ROWID(ITEM=>rid); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(11:6~11:36) /test/1/catalog1/DBMS_PIPE/UNPACK_MESSAGE_ROWID/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_008_dbms_pipe_review]
+sql:
+declare ret int; begin ret := dbms_pipe.create_pipe('CODEX_DM8_PIPE_019'); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_019'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Function(1:30~1:51) /test/1/catalog1/dbms_pipe/create_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:52~1:72) /test/1/CODEX_DM8_PIPE_019/"
+    },
+    {
+      "subject": "Function(1:82~1:103) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:104~1:124) /test/1/CODEX_DM8_PIPE_019/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_009_dbms_pipe_review]
+sql:
+begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('CODEX'); dbms_pipe.reset_buffer(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:32~1:54) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:65~1:87) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_010_dbms_pipe_review]
+sql:
+begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(22 as int)); dbms_pipe.pack_message(cast(23 as bigint)); dbms_pipe.pack_message(cast(24.5 as double)); dbms_pipe.reset_buffer(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:32~1:54) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:73~1:95) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:117~1:139) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:163~1:185) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_011_dbms_pipe_review]
+sql:
+begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(25.5 as number)); dbms_pipe.pack_message(cast('2026-07-22' as date)); dbms_pipe.reset_buffer(); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:6~1:28) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:32~1:54) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:78~1:100) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:130~1:152) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_012_dbms_pipe_review]
+sql:
+declare ret int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('PIPE_024'); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_024', 0, 8192); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_024'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:23~1:45) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:49~1:71) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:92~1:114) /test/1/catalog1/dbms_pipe/send_message/",
+      "action": "CALL",
+      "target": "Pipe(1:115~1:135) /test/1/CODEX_DM8_PIPE_024/"
+    },
+    {
+      "subject": "Function(1:154~1:175) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:176~1:196) /test/1/CODEX_DM8_PIPE_024/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_013_dbms_pipe_review]
+sql:
+declare ret int; value varchar(128); begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('PIPE_026'); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_026', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_026', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_026'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:43~1:65) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:69~1:91) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:220~1:244) /test/1/catalog1/dbms_pipe/unpack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:112~1:134) /test/1/catalog1/dbms_pipe/send_message/",
+      "action": "CALL",
+      "target": "Pipe(1:135~1:155) /test/1/CODEX_DM8_PIPE_026/"
+    },
+    {
+      "subject": "Function(1:168~1:193) /test/1/catalog1/dbms_pipe/receive_message/",
+      "action": "CALL",
+      "target": "Pipe(1:194~1:214) /test/1/CODEX_DM8_PIPE_026/"
+    },
+    {
+      "subject": "Function(1:260~1:281) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:282~1:302) /test/1/CODEX_DM8_PIPE_026/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_014_dbms_pipe_review]
+sql:
+declare ret int; value int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(27 as int)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_027', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_027', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_027'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:34~1:56) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:60~1:82) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:216~1:240) /test/1/catalog1/dbms_pipe/unpack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:108~1:130) /test/1/catalog1/dbms_pipe/send_message/",
+      "action": "CALL",
+      "target": "Pipe(1:131~1:151) /test/1/CODEX_DM8_PIPE_027/"
+    },
+    {
+      "subject": "Function(1:164~1:189) /test/1/catalog1/dbms_pipe/receive_message/",
+      "action": "CALL",
+      "target": "Pipe(1:190~1:210) /test/1/CODEX_DM8_PIPE_027/"
+    },
+    {
+      "subject": "Function(1:256~1:277) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:278~1:298) /test/1/CODEX_DM8_PIPE_027/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_015_dbms_pipe_review]
+sql:
+declare ret int; value bigint; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(28 as bigint)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_028', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_028', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_028'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:37~1:59) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:63~1:85) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:222~1:246) /test/1/catalog1/dbms_pipe/unpack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:114~1:136) /test/1/catalog1/dbms_pipe/send_message/",
+      "action": "CALL",
+      "target": "Pipe(1:137~1:157) /test/1/CODEX_DM8_PIPE_028/"
+    },
+    {
+      "subject": "Function(1:170~1:195) /test/1/catalog1/dbms_pipe/receive_message/",
+      "action": "CALL",
+      "target": "Pipe(1:196~1:216) /test/1/CODEX_DM8_PIPE_028/"
+    },
+    {
+      "subject": "Function(1:262~1:283) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:284~1:304) /test/1/CODEX_DM8_PIPE_028/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_016_dbms_pipe_review]
+sql:
+declare ret int; value double; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(29.5 as double)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_029', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_029', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_029'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:37~1:59) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:63~1:85) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:224~1:248) /test/1/catalog1/dbms_pipe/unpack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:116~1:138) /test/1/catalog1/dbms_pipe/send_message/",
+      "action": "CALL",
+      "target": "Pipe(1:139~1:159) /test/1/CODEX_DM8_PIPE_029/"
+    },
+    {
+      "subject": "Function(1:172~1:197) /test/1/catalog1/dbms_pipe/receive_message/",
+      "action": "CALL",
+      "target": "Pipe(1:198~1:218) /test/1/CODEX_DM8_PIPE_029/"
+    },
+    {
+      "subject": "Function(1:264~1:285) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:286~1:306) /test/1/CODEX_DM8_PIPE_029/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_017_dbms_pipe_review]
+sql:
+declare ret int; value number; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast(30.5 as number)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_030', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_030', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_030'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:37~1:59) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:63~1:85) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:224~1:248) /test/1/catalog1/dbms_pipe/unpack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:116~1:138) /test/1/catalog1/dbms_pipe/send_message/",
+      "action": "CALL",
+      "target": "Pipe(1:139~1:159) /test/1/CODEX_DM8_PIPE_030/"
+    },
+    {
+      "subject": "Function(1:172~1:197) /test/1/catalog1/dbms_pipe/receive_message/",
+      "action": "CALL",
+      "target": "Pipe(1:198~1:218) /test/1/CODEX_DM8_PIPE_030/"
+    },
+    {
+      "subject": "Function(1:264~1:285) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:286~1:306) /test/1/CODEX_DM8_PIPE_030/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_018_dbms_pipe_review]
+sql:
+declare ret int; value date; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message(cast('2026-07-22' as date)); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_031', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_031', 0); dbms_pipe.unpack_message(value); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_031'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:35~1:57) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:61~1:83) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:228~1:252) /test/1/catalog1/dbms_pipe/unpack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:120~1:142) /test/1/catalog1/dbms_pipe/send_message/",
+      "action": "CALL",
+      "target": "Pipe(1:143~1:163) /test/1/CODEX_DM8_PIPE_031/"
+    },
+    {
+      "subject": "Function(1:176~1:201) /test/1/catalog1/dbms_pipe/receive_message/",
+      "action": "CALL",
+      "target": "Pipe(1:202~1:222) /test/1/CODEX_DM8_PIPE_031/"
+    },
+    {
+      "subject": "Function(1:268~1:289) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:290~1:310) /test/1/CODEX_DM8_PIPE_031/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_019_dbms_pipe_review]
+sql:
+declare ret int; item_type int; begin dbms_pipe.reset_buffer(); dbms_pipe.pack_message('PIPE_033'); ret := dbms_pipe.send_message('CODEX_DM8_PIPE_033', 0); ret := dbms_pipe.receive_message('CODEX_DM8_PIPE_033', 0); item_type := dbms_pipe.next_item_type(); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_033'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:38~1:60) /test/1/catalog1/dbms_pipe/reset_buffer/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:64~1:86) /test/1/catalog1/dbms_pipe/pack_message/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:107~1:129) /test/1/catalog1/dbms_pipe/send_message/",
+      "action": "CALL",
+      "target": "Pipe(1:130~1:150) /test/1/CODEX_DM8_PIPE_033/"
+    },
+    {
+      "subject": "Function(1:163~1:188) /test/1/catalog1/dbms_pipe/receive_message/",
+      "action": "CALL",
+      "target": "Pipe(1:189~1:209) /test/1/CODEX_DM8_PIPE_033/"
+    },
+    {
+      "subject": "Function(1:228~1:252) /test/1/catalog1/dbms_pipe/next_item_type/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:263~1:284) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:285~1:305) /test/1/CODEX_DM8_PIPE_033/"
+    }
+  ]
+}
+----------
+[split_block_dameng_stateful_file_json_packages_0_020_dbms_pipe_review]
+sql:
+declare ret int; begin ret := dbms_pipe.create_pipe('CODEX_DM8_PIPE_034', 16384, true); dbms_pipe.purge('CODEX_DM8_PIPE_034'); ret := dbms_pipe.remove_pipe('CODEX_DM8_PIPE_034'); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:88~1:103) /test/1/catalog1/dbms_pipe/purge/",
+      "action": "CALL",
+      "target": "Pipe(1:104~1:124) /test/1/CODEX_DM8_PIPE_034/"
+    },
+    {
+      "subject": "Function(1:30~1:51) /test/1/catalog1/dbms_pipe/create_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:52~1:72) /test/1/CODEX_DM8_PIPE_034/"
+    },
+    {
+      "subject": "Function(1:134~1:155) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:156~1:176) /test/1/CODEX_DM8_PIPE_034/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_0_009_dbms_pipe_review]
+sql:
+select dbms_pipe.unique_session_name();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:36) /test/1/catalog1/dbms_pipe/unique_session_name/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_0_010_dbms_pipe_review]
+sql:
+select dbms_pipe.create_pipe('CODEX_DM8_PIPE_017', 8192, false);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_pipe/create_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:29~1:49) /test/1/CODEX_DM8_PIPE_017/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_0_011_dbms_pipe_review]
+sql:
+select dbms_pipe.remove_pipe('CODEX_DM8_PIPE_017');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:28) /test/1/catalog1/dbms_pipe/remove_pipe/",
+      "action": "CALL",
+      "target": "Pipe(1:29~1:49) /test/1/CODEX_DM8_PIPE_017/"
+    }
+  ]
+}
+----------
+[split_dql_dameng_stateful_file_json_packages_0_012_dbms_pipe_review]
+sql:
+select dbms_pipe.receive_message('CODEX_DM8_PIPE_025', 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:32) /test/1/catalog1/dbms_pipe/receive_message/",
+      "action": "CALL",
+      "target": "Pipe(1:33~1:53) /test/1/CODEX_DM8_PIPE_025/"
+    }
+  ]
+}

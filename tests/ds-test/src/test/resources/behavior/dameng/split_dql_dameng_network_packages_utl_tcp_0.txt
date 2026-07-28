@@ -1,0 +1,10 @@
+[split_dql_dameng_network_packages_utl_tcp_0_001]
+sql:
+select utl_tcp.crlf;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": []
+}
+

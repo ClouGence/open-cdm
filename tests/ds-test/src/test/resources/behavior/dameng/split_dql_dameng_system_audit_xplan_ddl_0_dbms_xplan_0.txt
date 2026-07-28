@@ -1,0 +1,18 @@
+[dql_dameng_system_audit_xplan_ddl_0_txt_002]
+sql:
+select object_name, object_type, status
+from dba_objects
+where object_name in ('DBMS_SYSTEM', 'DBMS_XPLAN', 'DBMS_DDL', 'DBMS_SQL')
+order by object_name, object_type;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(2:5~2:16) /test/1/catalog1/schema1/dba_objects/",
+      "action": "READ"
+    }
+  ]
+}
+

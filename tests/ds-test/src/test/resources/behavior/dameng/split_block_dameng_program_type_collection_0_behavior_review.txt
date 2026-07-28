@@ -1,0 +1,293 @@
+[split_block_dameng_program_type_collection_0_001_behavior_review]
+sql:
+DECLARE V_NAME TYPE_BASE.NAME%TYPE; BEGIN SELECT NAME INTO V_NAME FROM TYPE_BASE WHERE ID=1; PRINT V_NAME; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:71~1:80) /test/1/catalog1/schema1/TYPE_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_002_behavior_review]
+sql:
+DECLARE V_ROW TYPE_BASE%ROWTYPE; BEGIN SELECT * INTO V_ROW FROM TYPE_BASE WHERE ID=1; PRINT V_ROW.ID; PRINT V_ROW.NAME; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:64~1:73) /test/1/catalog1/schema1/TYPE_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_003_behavior_review]
+sql:
+DECLARE V_REC REC_SQL; BEGIN V_REC.ID=1; V_REC.NAME='REC'; PRINT V_REC.NAME; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:14~1:21) /test/1/catalog1/schema1/REC_SQL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_004_behavior_review]
+sql:
+DECLARE A STATIC_MIN; BEGIN A[1]=10; PRINT A[1]; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:20) /test/1/catalog1/schema1/STATIC_MIN/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_005_behavior_review]
+sql:
+DECLARE A STATIC_MAX; BEGIN A[1]=1; A[65534]=65534; PRINT A[1]+A[65534]; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:20) /test/1/catalog1/schema1/STATIC_MAX/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_006_behavior_review]
+sql:
+DECLARE A STATIC_MULTI; BEGIN A[1][1]='A'; A[2][3]='F'; PRINT A[1][1]||A[2][3]; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:22) /test/1/catalog1/schema1/STATIC_MULTI/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_007_behavior_review]
+sql:
+DECLARE A DYNAMIC_ONE; BEGIN A=NEW INT[1]; A[1]=11; PRINT A[1]; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:21) /test/1/catalog1/schema1/DYNAMIC_ONE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_008_behavior_review]
+sql:
+DECLARE A DYNAMIC_MULTI; BEGIN A=NEW VARCHAR2[2][]; A[1]=NEW VARCHAR2[2]; A[2]=NEW VARCHAR2[2]; A[2][2]='D'; PRINT A[2][2]; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:23) /test/1/catalog1/schema1/DYNAMIC_MULTI/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_009_behavior_review]
+sql:
+DECLARE A DYNAMIC_MULTI; BEGIN A=NEW VARCHAR2[2,3]; A[1][1]='A'; A[2][3]='Z'; PRINT A[1][1]||A[2][3]; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:23) /test/1/catalog1/schema1/DYNAMIC_MULTI/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_010_behavior_review]
+sql:
+DECLARE V VARRAY_MIN; BEGIN V=VARRAY_MIN(1); PRINT V.COUNT; PRINT V.LIMIT; PRINT V.FIRST; PRINT V.LAST; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:20) /test/1/catalog1/schema1/VARRAY_MIN/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:30~1:40) /test/1/catalog1/schema1/VARRAY_MIN/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_011_behavior_review]
+sql:
+DECLARE V NESTED_INT; BEGIN V=NESTED_INT(1,3,5); V.EXTEND(2); V[4]=7; V[5]=9; V.DELETE(2); PRINT V.COUNT; PRINT V.FIRST; PRINT V.LAST; PRINT V.NEXT(1); PRINT V.PRIOR(5); V.TRIM(1); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:20) /test/1/catalog1/schema1/NESTED_INT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:51~1:57) /test/1/catalog1/NESTED_INT/EXTEND/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:80~1:86) /test/1/catalog1/NESTED_INT/DELETE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:172~1:176) /test/1/catalog1/NESTED_INT/TRIM/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:40) /test/1/catalog1/schema1/NESTED_INT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:143~1:147) /test/1/catalog1/NESTED_INT/NEXT/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:160~1:165) /test/1/catalog1/NESTED_INT/PRIOR/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_012_behavior_review]
+sql:
+DECLARE V NESTED_INT; BEGIN V=NESTED_INT(1,3,5); IF 3 MEMBER OF V THEN PRINT 'MEMBER'; END IF; IF 2 NOT MEMBER OF V THEN PRINT 'NOT_MEMBER'; END IF; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:20) /test/1/catalog1/schema1/NESTED_INT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:30~1:40) /test/1/catalog1/schema1/NESTED_INT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_013_behavior_review]
+sql:
+DECLARE V INDEX_INT; K INT; BEGIN V(1)='A'; V(3)='C'; K=V.FIRST; PRINT V(K); K=V.NEXT(K); PRINT V(K); V.DELETE(1,2); PRINT V.COUNT; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:19) /test/1/catalog1/schema1/INDEX_INT/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(1:104~1:110) /test/1/catalog1/INDEX_INT/DELETE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:81~1:85) /test/1/catalog1/INDEX_INT/NEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_014_behavior_review]
+sql:
+DECLARE V INDEX_VARCHAR_MAX; K VARCHAR2(1024); BEGIN V('A')=1; V('Z')=26; K=V.FIRST; PRINT V(K); K=V.NEXT(K); PRINT V(K); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:27) /test/1/catalog1/schema1/INDEX_VARCHAR_MAX/",
+      "action": "READ"
+    },
+    {
+      "subject": "Function(1:101~1:105) /test/1/catalog1/INDEX_VARCHAR_MAX/NEXT/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_015_behavior_review]
+sql:
+DECLARE SUBTYPE COUNTER IS NUMBER(5) NOT NULL; V COUNTER=99999; BEGIN PRINT V; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": []
+}
+----------
+[split_block_dameng_program_type_collection_0_016_behavior_review]
+sql:
+DECLARE C CURSOR; V_NAME TYPE_BASE.NAME%TYPE; BEGIN OPEN C FOR SELECT NAME FROM TYPE_BASE WHERE ID=1; FETCH C INTO V_NAME; PRINT V_NAME; CLOSE C; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Table(1:80~1:89) /test/1/catalog1/schema1/TYPE_BASE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_block_dameng_program_type_collection_0_017_behavior_review]
+sql:
+DECLARE V INDEX_VARCHAR_OVER; BEGIN V('A')=1; PRINT V('A'); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(1:10~1:28) /test/1/catalog1/schema1/INDEX_VARCHAR_OVER/",
+      "action": "READ"
+    }
+  ]
+}

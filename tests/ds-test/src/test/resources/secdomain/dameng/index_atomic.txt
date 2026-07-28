@@ -1,0 +1,71 @@
+[create_basic]
+sql:
+create index idx_employee_name on app.employee(name)
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ADD_INDEX","auditKind":"CREATE","schema":"app","name":"idx_employee_name","tableSchema":"app","tableName":"employee"}]}
+----------
+[create_unique]
+sql:
+create unique index app.idx_employee_code on app.employee(code)
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ADD_INDEX","auditKind":"CREATE","schema":"app","name":"idx_employee_code","tableSchema":"app","tableName":"employee"}]}
+----------
+[create_function]
+sql:
+create index idx_employee_upper on app.employee(upper(name))
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ADD_INDEX","auditKind":"CREATE","schema":"app","name":"idx_employee_upper","tableSchema":"app","tableName":"employee"}]}
+----------
+[create_bitmap]
+sql:
+create bitmap index idx_sales_status on app.sales(status)
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ADD_INDEX","auditKind":"CREATE","schema":"app","name":"idx_sales_status","tableSchema":"app","tableName":"sales"}]}
+----------
+[create_array]
+sql:
+create array index idx_employee_tags on app.employee(tags)
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ADD_INDEX","auditKind":"CREATE","schema":"app","name":"idx_employee_tags","tableSchema":"app","tableName":"employee"}]}
+----------
+[create_context]
+sql:
+create context index ft_employee_bio on app.employee(bio) lexer english_lexer
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ADD_INDEX","auditKind":"CREATE","schema":"app","name":"ft_employee_bio","tableSchema":"app","tableName":"employee"}]}
+----------
+[create_spatial]
+sql:
+create spatial index idx_geo on app.place(geom)
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ADD_INDEX","auditKind":"CREATE","schema":"app","name":"idx_geo","tableSchema":"app","tableName":"place"}]}
+----------
+[create_dpc_global]
+sql:
+create index idx_dpc_global on app.dpc_idx_t(code,note) global partition by range(code)(partition ip1 values less than(2) storage(on dpc_ts1),partition ip2 values less than(maxvalue) storage(on dpc_ts2))
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ADD_INDEX","auditKind":"CREATE","schema":"app","name":"idx_dpc_global","tableSchema":"app","tableName":"dpc_idx_t"}]}
+----------
+[alter]
+sql:
+alter index app.idx_employee_name rebuild share
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ALTER_INDEX","auditKind":"ALTER","schema":"app","name":"idx_employee_name"}]}
+----------
+[alter_context]
+sql:
+alter context index app.ft_employee_bio on app.employee increment online
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"ALTER_INDEX","auditKind":"ALTER","schema":"app","name":"ft_employee_bio","tableSchema":"app","tableName":"employee"}]}
+----------
+[drop]
+sql:
+drop index app.idx_employee_name
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"DROP_INDEX","auditKind":"DROP","schema":"app","name":"idx_employee_name"}]}
+----------
+[drop_context]
+sql:
+drop context index app.ft_employee_bio on app.employee
+expect:
+{"contains":[{"class":"RdbIndexDomain","sqlType":"DROP_INDEX","auditKind":"DROP","schema":"app","name":"ft_employee_bio","tableSchema":"app","tableName":"employee"}]}

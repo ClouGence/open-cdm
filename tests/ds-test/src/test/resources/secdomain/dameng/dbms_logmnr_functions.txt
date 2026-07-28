@@ -1,0 +1,29 @@
+[dbms_logmnr_public_routine_domains]
+sql:
+begin
+  DBMS_LOGMNR.ADD_LOGFILE('/archive/A.log',DBMS_LOGMNR."NEW",0);
+  DBMS_LOGMNR.END_LOGMNR();
+  DBMS_LOGMNR.REMOVE_LOGFILE('/archive/A.log');
+  DBMS_LOGMNR.START_LOGMNR(options=>2128);
+end;
+expect:
+{
+  "contains": [
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_LOGMNR"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_LOGMNR"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_LOGMNR"},
+    {"class":"RdbCallDomain", "sqlType":"CALL_PROG_OBJ", "auditKind":"CALL", "schema":"DBMS_LOGMNR"}
+  ]
+}
+----------
+[dbms_logmnr_function_expressions_no_domain]
+sql:
+declare
+  n int;
+  s varchar(100);
+begin
+  n:=DBMS_LOGMNR.COLUMN_PRESENT(0,'APP.T.C');
+  s:=DBMS_LOGMNR.MINE_VALUE(0,'APP.T.C');
+end;
+expect:
+{"size":0}

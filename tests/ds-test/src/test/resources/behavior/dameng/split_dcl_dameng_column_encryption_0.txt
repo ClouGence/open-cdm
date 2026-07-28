@@ -1,0 +1,91 @@
+[split_dcl_dameng_column_encryption_0_001]
+sql:
+create user CODEX_ENC_USER1 identified by CodexEnc1_2026 encrypt by StorageKey1_2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:27) /test/1/CODEX_ENC_USER1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_column_encryption_0_002]
+sql:
+create user CODEX_ENC_USER2 identified by CodexEnc2_2026 encrypt by StorageKey2_2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:27) /test/1/CODEX_ENC_USER2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_column_encryption_0_003]
+sql:
+grant dba to CODEX_ENC_USER1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:28) /test/1/CODEX_ENC_USER1/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_column_encryption_0_004]
+sql:
+grant dba to CODEX_ENC_USER2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/dba/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:28) /test/1/CODEX_ENC_USER2/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_column_encryption_0_005]
+sql:
+drop user CODEX_ENC_USER1 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:25) /test/1/CODEX_ENC_USER1/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_column_encryption_0_006]
+sql:
+drop user CODEX_ENC_USER2 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:25) /test/1/CODEX_ENC_USER2/",
+      "action": "DROP"
+    }
+  ]
+}

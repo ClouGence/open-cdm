@@ -1,0 +1,12 @@
+[dbms_alert_argument_columns]
+sql:
+select ALERT_NAME, ALERT_MESSAGE, ALERT_STATUS, ALERT_TIMEOUT, SENSITIVITY
+from catalog1.app.dbms_alert_payload
+expect:
+{
+  "ALERT_NAME": ["/catalog1/app/dbms_alert_payload/ALERT_NAME/"],
+  "ALERT_MESSAGE": ["/catalog1/app/dbms_alert_payload/ALERT_MESSAGE/"],
+  "ALERT_STATUS": ["/catalog1/app/dbms_alert_payload/ALERT_STATUS/"],
+  "ALERT_TIMEOUT": ["/catalog1/app/dbms_alert_payload/ALERT_TIMEOUT/"],
+  "SENSITIVITY": ["/catalog1/app/dbms_alert_payload/SENSITIVITY/"]
+}

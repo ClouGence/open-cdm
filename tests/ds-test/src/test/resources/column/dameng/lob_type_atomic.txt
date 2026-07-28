@@ -1,0 +1,13 @@
+[functions]
+sql:
+select dbms_lob.getlength(t.c_clob) as clob_length,
+lengthb(t.c_blob) as blob_length from catalog1.app.lob_t t
+expect:
+{"clob_length":["/catalog1/app/lob_t/c_clob/"],"blob_length":["/catalog1/app/lob_t/c_blob/"]}
+----------
+[comparison]
+sql:
+select case when t.c_text='TEXT' then 1 else 0 end as text_match
+from catalog1.app.lob_t t
+expect:
+{"text_match":["/catalog1/app/lob_t/c_text/"]}

@@ -1,0 +1,15 @@
+[split_dql_dameng_dbms_flashback_signature_combinations_0_001]
+sql:
+-- FUNC-0326 GET_SYSTEM_CHANGE_NUMBER select zero argument
+select DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:46) /test/1/catalog1/DBMS_FLASHBACK/GET_SYSTEM_CHANGE_NUMBER/",
+      "action": "CALL"
+    }
+  ]
+}

@@ -1,0 +1,348 @@
+[split_dql_dameng_nontransparent_encryption_0_001_behavior_review]
+sql:
+select cyt_name from v$ciphers where cyt_id = 514;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:21~1:30) /test/1/catalog1/schema1/v$ciphers/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_002_behavior_review]
+sql:
+select cfalgorithmsencrypt('CODEX_TEXT', 514, 'CodexKey20260722');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/cfalgorithmsencrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_003_behavior_review]
+sql:
+select cfalgorithmsdecrypt(cfalgorithmsencrypt('CODEX_TEXT', 514, 'CodexKey20260722'), 514, 'CodexKey20260722');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/cfalgorithmsdecrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:46) /test/1/catalog1/schema1/cfalgorithmsencrypt/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_004_behavior_review]
+sql:
+select sf_encrypt_binary(0x12345678EF, 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/sf_encrypt_binary/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_005_behavior_review]
+sql:
+select sf_decrypt_to_binary(sf_encrypt_binary(0x12345678EF, 514, 'CodexKey20260722', null), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:27) /test/1/catalog1/schema1/sf_decrypt_to_binary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:45) /test/1/catalog1/schema1/sf_encrypt_binary/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_006_behavior_review]
+sql:
+select sf_encrypt_char('CODEX_CHAR', 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/sf_encrypt_char/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_007_behavior_review]
+sql:
+select sf_decrypt_to_char(sf_encrypt_char('CODEX_CHAR', 514, 'CodexKey20260722', null), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/sf_decrypt_to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:41) /test/1/catalog1/schema1/sf_encrypt_char/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_008_behavior_review]
+sql:
+select sf_encrypt_date(cast('2026-07-22' as date), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/sf_encrypt_date/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_009_behavior_review]
+sql:
+select sf_decrypt_to_date(sf_encrypt_date(cast('2026-07-22' as date), 514, 'CodexKey20260722', null), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/sf_decrypt_to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:41) /test/1/catalog1/schema1/sf_encrypt_date/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_010_behavior_review]
+sql:
+select sf_encrypt_datetime(cast('2026-07-22 12:34:56' as datetime), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/sf_encrypt_datetime/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_011_behavior_review]
+sql:
+select sf_decrypt_to_datetime(sf_encrypt_datetime(cast('2026-07-22 12:34:56' as datetime), 514, 'CodexKey20260722', null), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:29) /test/1/catalog1/schema1/sf_decrypt_to_datetime/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:49) /test/1/catalog1/schema1/sf_encrypt_datetime/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_012_behavior_review]
+sql:
+select sf_encrypt_dec(cast('3.1415900000' as dec(15,10)), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:21) /test/1/catalog1/schema1/sf_encrypt_dec/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_013_behavior_review]
+sql:
+select sf_decrypt_to_dec(sf_encrypt_dec(cast('3.1415900000' as dec(15,10)), 514, 'CodexKey20260722', null), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:24) /test/1/catalog1/schema1/sf_decrypt_to_dec/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:25~1:39) /test/1/catalog1/schema1/sf_encrypt_dec/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_014_behavior_review]
+sql:
+select sf_encrypt_time(cast('12:34:56' as time), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/sf_encrypt_time/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_015_behavior_review]
+sql:
+select sf_decrypt_to_time(sf_encrypt_time(cast('12:34:56' as time), 514, 'CodexKey20260722', null), 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/sf_decrypt_to_time/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:26~1:41) /test/1/catalog1/schema1/sf_encrypt_time/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_016_behavior_review]
+sql:
+select sf_get_cipher_name(514);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/sf_get_cipher_name/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_017_behavior_review]
+sql:
+select cfalgorithmsencrypt(null, 514, 'CodexKey20260722'), sf_encrypt_char(null, 514, 'CodexKey20260722', null);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/cfalgorithmsencrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:59~1:74) /test/1/catalog1/schema1/sf_encrypt_char/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_018_behavior_review]
+sql:
+select cfalgorithmsdecrypt(C_TEXT, 514, 'CodexKey20260722'), sf_decrypt_to_binary(C_BIN, 514, 'CodexKey20260722', null), sf_decrypt_to_char(C_CHAR, 514, 'CodexKey20260722', null), sf_decrypt_to_date(C_DATE, 514, 'CodexKey20260722', null), sf_decrypt_to_datetime(C_DATETIME, 514, 'CodexKey20260722', null), sf_decrypt_to_dec(C_DEC, 514, 'CodexKey20260722', null), sf_decrypt_to_time(C_TIME, 514, 'CodexKey20260722', null) from CODEX_DM8_CRYPTO_DATA where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:26) /test/1/catalog1/schema1/cfalgorithmsdecrypt/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:81) /test/1/catalog1/schema1/sf_decrypt_to_binary/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:121~1:139) /test/1/catalog1/schema1/sf_decrypt_to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:180~1:198) /test/1/catalog1/schema1/sf_decrypt_to_date/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:239~1:261) /test/1/catalog1/schema1/sf_decrypt_to_datetime/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:306~1:323) /test/1/catalog1/schema1/sf_decrypt_to_dec/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:363~1:381) /test/1/catalog1/schema1/sf_decrypt_to_time/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:426~1:447) /test/1/catalog1/schema1/CODEX_DM8_CRYPTO_DATA/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_nontransparent_encryption_0_019_behavior_review]
+sql:
+select sf_decrypt_to_char(C_CHAR, 514, 'CodexKey20260722', null) from CODEX_DM8_CRYPTO_DATA where ID = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:25) /test/1/catalog1/schema1/sf_decrypt_to_char/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:70~1:91) /test/1/catalog1/schema1/CODEX_DM8_CRYPTO_DATA/",
+      "action": "READ"
+    }
+  ]
+}

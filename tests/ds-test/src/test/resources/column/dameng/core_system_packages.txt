@@ -1,0 +1,347 @@
+[core_system_package_lob_length]
+sql:
+select dbms_lob.getlength(c) as lob_length from catalog1.app.documents
+expect:
+{
+  "lob_length" : [ "/catalog1/app/documents/c/" ]
+}
+----------
+[core_system_package_lob_substr]
+sql:
+select dbms_lob.substr(c, 10, 1) as lob_text from catalog1.app.documents
+expect:
+{
+  "lob_text" : [ "/catalog1/app/documents/c/" ]
+}
+----------
+[core_system_package_lob_compare]
+sql:
+select dbms_lob.compare(c, previous_c) as compare_result from catalog1.app.documents
+expect:
+{
+  "compare_result" : [ "/catalog1/app/documents/c/", "/catalog1/app/documents/previous_c/" ]
+}
+----------
+[core_system_package_clear_context_columns]
+sql:
+begin dbms_session.clear_context('CODEX_DM8_CTX_133'); end;
+expect:
+{}
+----------
+[core_system_package_bind_variable_varchar_columns]
+sql:
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', 'ABC', 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+expect:
+{}
+----------
+[core_system_package_bind_variable_varbinary_columns]
+sql:
+declare cursor_no int; execute_value int; value varbinary(16) := '4142'; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+expect:
+{}
+----------
+[numeric_function_constant_columns]
+sql:
+select abs(-1),acos(0),asin(0),atan(1),atan2(1,2),bitand(7,3),ceil(1.2),ceiling(1.2),cos(0),cosh(0),cot(1),degrees(1),exp(1),floor(1.2),great(1,2),greatest(1,2,3),least(1,2,3),ln(2),log(2),log(2,8),log10(10),mod(7,3),nanvl(1,2),pi(),power(2,3),power2(2,3),radians(180),rand(),rand(314),remainder(11,4),round(1.25),round(1.25,1),round(1.25,1,1),sign(-1),sin(0),sinh(0),sqrt(4),tan(0),tanh(0),to_binary_double(1),to_binary_float(1),to_char(1.2),to_char(1.2,'9D9'),to_number('1.2'),to_number('1.2','9D9'),trunc(1.2),trunc(1.2,1),truncate(1.2),truncate(1.2,1)
+expect:
+{
+  "abs(-1)": [],
+  "acos(0)": [],
+  "asin(0)": [],
+  "atan(1)": [],
+  "atan2(1,2)": [],
+  "bitand(7,3)": [],
+  "ceil(1.2)": [],
+  "ceiling(1.2)": [],
+  "cos(0)": [],
+  "cosh(0)": [],
+  "cot(1)": [],
+  "degrees(1)": [],
+  "exp(1)": [],
+  "floor(1.2)": [],
+  "great(1,2)": [],
+  "greatest(1,2,3)": [],
+  "least(1,2,3)": [],
+  "ln(2)": [],
+  "log(2)": [],
+  "log(2,8)": [],
+  "log10(10)": [],
+  "mod(7,3)": [],
+  "nanvl(1,2)": [],
+  "pi()": [],
+  "power(2,3)": [],
+  "power2(2,3)": [],
+  "radians(180)": [],
+  "rand()": [],
+  "rand(314)": [],
+  "remainder(11,4)": [],
+  "round(1.25)": [],
+  "round(1.25,1)": [],
+  "round(1.25,1,1)": [],
+  "sign(-1)": [],
+  "sin(0)": [],
+  "sinh(0)": [],
+  "sqrt(4)": [],
+  "tan(0)": [],
+  "tanh(0)": [],
+  "to_binary_double(1)": [],
+  "to_binary_float(1)": [],
+  "to_char(1.2)": [],
+  "to_char(1.2,'9D9')": [],
+  "to_number('1.2')": [],
+  "to_number('1.2','9D9')": [],
+  "trunc(1.2)": [],
+  "trunc(1.2,1)": [],
+  "truncate(1.2)": [],
+  "truncate(1.2,1)": []
+}
+----------
+[numeric_online_function_constant_columns]
+sql:
+select conv(10,10,2),format(1234.567,2),found_rows()
+expect:
+{
+  "conv(10,10,2)": [],
+  "format(1234.567,2)": [],
+  "found_rows()": []
+}
+----------
+[regexp_function_constant_columns]
+sql:
+select regexp_count('abc','a'),regexp_count('abc','a',1,'c'),regexp_like('abc','a'),regexp_like('abc','a','c'),regexp_instr('abcabc','bc'),regexp_instr('abcabc','bc',1,2,1,'c',0),regexp_substr('abcabc','bc'),regexp_substr('abcabc','bc',1,2,'c',0),regexp_replace('abcabc','bc'),regexp_replace('abcabc','bc','XY',1,0,'c')
+expect:
+{
+  "regexp_count('abc','a')": [],
+  "regexp_count('abc','a',1,'c')": [],
+  "regexp_like('abc','a')": [],
+  "regexp_like('abc','a','c')": [],
+  "regexp_instr('abcabc','bc')": [],
+  "regexp_instr('abcabc','bc',1,2,1,'c',0)": [],
+  "regexp_substr('abcabc','bc')": [],
+  "regexp_substr('abcabc','bc',1,2,'c',0)": [],
+  "regexp_replace('abcabc','bc')": [],
+  "regexp_replace('abcabc','bc','XY',1,0,'c')": []
+}
+----------
+[string_position_function_constant_columns]
+sql:
+select instr('abcabc','bc'),instrb('abcabc','bc',1,2),instrc('abcabc','bc',1,2),locate('bc','abcabc',3),position('bc' in 'abcabc'),substr('abcdef',2,3),substring('abcdef' from 2 for 3),mid('abcdef',2,3),substrb('abcdef',2,3),substrbb(0x31323334,2,2),substring_index('a.b.c','.',1),left('abcdef',3),leftstr('abcdef',3),right('abcdef',3),rightstr('abcdef',3)
+expect:
+{
+  "instr('abcabc','bc')": [],
+  "instrb('abcabc','bc',1,2)": [],
+  "instrc('abcabc','bc',1,2)": [],
+  "locate('bc','abcabc',3)": [],
+  "position('bc'in'abcabc')": [],
+  "substr('abcdef',2,3)": [],
+  "substring('abcdef'from2for3)": [],
+  "mid('abcdef',2,3)": [],
+  "substrb('abcdef',2,3)": [],
+  "substrbb(0x31323334,2,2)": [],
+  "substring_index('a.b.c','.',1)": [],
+  "left('abcdef',3)": [],
+  "leftstr('abcdef',3)": [],
+  "right('abcdef',3)": [],
+  "rightstr('abcdef',3)": []
+}
+----------
+[string_transform_function_constant_columns]
+sql:
+select initcap('hELLO'),lcase('ABC'),lower('ABC'),nls_lower('ABC','NLS_SORT=BINARY'),nls_upper('abc','NLS_SORT=BINARY'),ucase('abc'),upper('abc'),lpad('abc',5,'x'),rpad('abc',5,'x'),ltrim('xyabc','xy'),rtrim('abcxy','xy'),trim(both 'x' from 'xxabcxx'),repeat('ab',2),repeatstr('ab',2),replicate('ab',2),reverse('abcd'),space(3)
+expect:
+{
+  "initcap('hELLO')": [],
+  "lcase('ABC')": [],
+  "lower('ABC')": [],
+  "nls_lower('ABC','NLS_SORT=BINARY')": [],
+  "nls_upper('abc','NLS_SORT=BINARY')": [],
+  "ucase('abc')": [],
+  "upper('abc')": [],
+  "lpad('abc',5,'x')": [],
+  "rpad('abc',5,'x')": [],
+  "ltrim('xyabc','xy')": [],
+  "rtrim('abcxy','xy')": [],
+  "trim(both'x'from'xxabcxx')": [],
+  "repeat('ab',2)": [],
+  "repeatstr('ab',2)": [],
+  "replicate('ab',2)": [],
+  "reverse('abcd')": [],
+  "space(3)": []
+}
+----------
+[string_code_length_function_constant_columns]
+sql:
+select ascii('A'),asciistr('ABC'),bit_length('ABC'),char(65),char_length('ABC '),character_length('ABC '),chr(65),compose('ABC'),isnull(null),len('ABC '),length('ABC '),length2('ABC '),length4('ABC '),lengthc('ABC '),nchr(65),octet_length('ABC'),to_char('ABC'),to_multi_byte('ABC'),to_single_byte('ABC'),unistr('\0041')
+expect:
+{
+  "ascii('A')": [],
+  "asciistr('ABC')": [],
+  "bit_length('ABC')": [],
+  "char(65)": [],
+  "char_length('ABC ')": [],
+  "character_length('ABC ')": [],
+  "chr(65)": [],
+  "compose('ABC')": [],
+  "isnull(null)": [],
+  "len('ABC ')": [],
+  "length('ABC ')": [],
+  "length2('ABC ')": [],
+  "length4('ABC ')": [],
+  "lengthc('ABC ')": [],
+  "nchr(65)": [],
+  "octet_length('ABC')": [],
+  "to_char('ABC')": [],
+  "to_multi_byte('ABC')": [],
+  "to_single_byte('ABC')": [],
+  "unistr('\\0041')": []
+}
+----------
+[string_edit_compare_function_constant_columns]
+sql:
+select concat('a','b'),concat_ws(',','a','b'),difference('she','he'),find_in_set('b','a,b,c'),great('a','b'),greatest('a','b','c'),ins('abc',1,1,'x'),insert('abc',1,1,'x'),insstr('abc',1,1,'x'),overlay('abc' placing 'x' from 1),replace('abc','a','x'),soundex('hello'),strposdec('abc'),strposdec('abc',2),strposinc('abc'),strposinc('abc',2),stuff('abc',1,1,'x'),translate('abc','a','x'),trunc('12.34','1')
+expect:
+{
+  "concat('a','b')": [],
+  "concat_ws(',','a','b')": [],
+  "difference('she','he')": [],
+  "find_in_set('b','a,b,c')": [],
+  "great('a','b')": [],
+  "greatest('a','b','c')": [],
+  "ins('abc',1,1,'x')": [],
+  "insert('abc',1,1,'x')": [],
+  "insstr('abc',1,1,'x')": [],
+  "overlay('abc'placing'x'from1)": [],
+  "replace('abc','a','x')": [],
+  "soundex('hello')": [],
+  "strposdec('abc')": [],
+  "strposdec('abc',2)": [],
+  "strposinc('abc')": [],
+  "strposinc('abc',2)": [],
+  "stuff('abc',1,1,'x')": [],
+  "translate('abc','a','x')": [],
+  "trunc('12.34','1')": []
+}
+----------
+[string_remaining_function_constant_columns]
+sql:
+select blob_equal(0x01,0x01),date('2020-01-02'),empty_blob(),empty_clob(),from_base64('YWJj'),nlssort('abc'),str_to_date('2020-01-02','%Y-%m-%d'),string_to_array('a,b',','),text_equal('a','a'),to_base64('abc')
+expect:
+{
+  "blob_equal(0x01,0x01)": [],
+  "date('2020-01-02')": [],
+  "empty_blob()": [],
+  "empty_clob()": [],
+  "from_base64('YWJj')": [],
+  "nlssort('abc')": [],
+  "str_to_date('2020-01-02','%Y-%m-%d')": [],
+  "string_to_array('a,b',',')": [],
+  "text_equal('a','a')": [],
+  "to_base64('abc')": []
+}
+----------
+[null_function_constant_columns]
+sql:
+select coalesce(null,1),ifnull(null,1),isnull(null,1),nullif(1,2),nvl(null,1),null_equ(1,1)
+expect:
+{
+  "coalesce(null,1)": [],
+  "ifnull(null,1)": [],
+  "isnull(null,1)": [],
+  "nullif(1,2)": [],
+  "nvl(null,1)": [],
+  "null_equ(1,1)": []
+}
+----------
+[conversion_function_constant_columns]
+sql:
+select bintochar(0x616263),cast(1 as varchar(8)),chartobin('abc'),convert(varchar(8),1),convert('abc','utf8'),hex('abc'),hextoraw('abcd'),rawtohex(0xabcd),to_blob(0xabcd),translate('123' using nchar_cs),treat(codex_treat_child(1,2) as codex_treat_base),unhex('616263')
+expect:
+{
+  "bintochar(0x616263)": [],
+  "cast(1asvarchar(8))": [],
+  "chartobin('abc')": [],
+  "convert(varchar(8),1)": [],
+  "convert('abc','utf8')": [],
+  "hex('abc')": [],
+  "hextoraw('abcd')": [],
+  "rawtohex(0xabcd)": [],
+  "to_blob(0xabcd)": [],
+  "translate('123'usingnchar_cs)": [],
+  "treat(codex_treat_child(1,2)ascodex_treat_base)": [],
+  "unhex('616263')": []
+}
+----------
+[datetime_component_function_constant_columns]
+sql:
+select day(date '2024-02-29'),dayname(date '2023-01-01'),dayofmonth(date '2024-02-29'),dayofweek(date '2023-01-01'),dayofyear(date '2024-12-31'),hour(time '20:10:16'),minute(time '20:10:16'),month(date '2022-11-12'),monthname(date '2022-11-12'),quarter(date '2023-12-31'),second(time '08:10:25.300'),week(date '2024-12-31'),week(date '2024-12-31',7),weekday(date '2023-01-01'),year(date '2024-02-29'),extract(year from date '2024-02-29')
+expect:
+{
+  "day(date'2024-02-29')": [],
+  "dayname(date'2023-01-01')": [],
+  "dayofmonth(date'2024-02-29')": [],
+  "dayofweek(date'2023-01-01')": [],
+  "dayofyear(date'2024-12-31')": [],
+  "hour(time'20:10:16')": [],
+  "minute(time'20:10:16')": [],
+  "month(date'2022-11-12')": [],
+  "monthname(date'2022-11-12')": [],
+  "quarter(date'2023-12-31')": [],
+  "second(time'08:10:25.300')": [],
+  "week(date'2024-12-31')": [],
+  "week(date'2024-12-31',7)": [],
+  "weekday(date'2023-01-01')": [],
+  "year(date'2024-02-29')": [],
+  "extract(yearfromdate'2024-02-29')": []
+}
+----------
+[datetime_arithmetic_between_function_constant_columns]
+sql:
+select add_days(date '2024-02-28',1),add_months(date '2023-01-31',1),add_weeks(date '2024-01-01',1),days_between(date '2024-02-01',date '2024-01-01'),months_between(date '2024-02-29',date '2024-01-31'),weeks_between(date '2024-01-15',date '2024-01-01'),years_between(date '2025-01-01',date '2024-01-01')
+expect:
+{
+  "add_days(date'2024-02-28',1)": [],
+  "add_months(date'2023-01-31',1)": [],
+  "add_weeks(date'2024-01-01',1)": [],
+  "days_between(date'2024-02-01',date'2024-01-01')": [],
+  "months_between(date'2024-02-29',date'2024-01-31')": [],
+  "weeks_between(date'2024-01-15',date'2024-01-01')": [],
+  "years_between(date'2025-01-01',date'2024-01-01')": []
+}
+----------
+[current_datetime_timezone_function_constant_columns]
+sql:
+select curdate(),current_date(),curtime(),current_time(),localtime(),current_timestamp(),getdate(),localtimestamp(),now(),sysdate(),systimestamp(),sessiontimezone,dbtimezone
+expect:
+{
+  "curdate()": [],
+  "current_date()": [],
+  "curtime()": [],
+  "current_time()": [],
+  "localtime()": [],
+  "current_timestamp()": [],
+  "getdate()": [],
+  "localtimestamp()": [],
+  "now()": [],
+  "sysdate()": [],
+  "systimestamp()": [],
+  "sessiontimezone": [],
+  "dbtimezone": []
+}
+----------
+[current_datetime_timezone_named_columns]
+sql:
+select t.sessiontimezone,t.dbtimezone from catalog1.app.timezone_named_columns t
+expect:
+{
+  "sessiontimezone": ["/catalog1/app/timezone_named_columns/sessiontimezone/"],
+  "dbtimezone": ["/catalog1/app/timezone_named_columns/dbtimezone/"]
+}
+----------
+[current_datetime_timezone_quoted_columns]
+sql:
+select "SESSIONTIMEZONE","DBTIMEZONE" from catalog1.app.timezone_named_columns
+expect:
+{
+  "SESSIONTIMEZONE": ["/catalog1/app/timezone_named_columns/SESSIONTIMEZONE/"],
+  "DBTIMEZONE": ["/catalog1/app/timezone_named_columns/DBTIMEZONE/"]
+}

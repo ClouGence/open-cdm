@@ -1,0 +1,1669 @@
+[split_dql_dameng_aggregate_window_0_001_behavior_review]
+sql:
+select count(*) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:56~1:60) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:94~1:98) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:132~1:136) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_002_behavior_review]
+sql:
+select count(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:58~1:62) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:96~1:100) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:134~1:138) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_003_behavior_review]
+sql:
+select count(distinct grp) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:67~1:71) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:105~1:109) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:143~1:147) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_004_behavior_review]
+sql:
+select sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:56~1:60) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:94~1:98) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:132~1:136) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_005_behavior_review]
+sql:
+select sum(distinct val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:65~1:69) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:103~1:107) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:141~1:145) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_006_behavior_review]
+sql:
+select avg(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/avg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:56~1:60) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:94~1:98) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:132~1:136) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_007_behavior_review]
+sql:
+select min(val), max(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:10) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:17~1:20) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:66~1:70) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:104~1:108) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:142~1:146) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_008_behavior_review]
+sql:
+select variance(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/variance/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:99~1:103) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_009_behavior_review]
+sql:
+select var_pop(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/var_pop/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:60~1:64) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:98~1:102) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:136~1:140) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_010_behavior_review]
+sql:
+select var_samp(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/var_samp/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:99~1:103) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_011_behavior_review]
+sql:
+select stddev(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/stddev/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:59~1:63) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:97~1:101) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:135~1:139) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_012_behavior_review]
+sql:
+select stddev_pop(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/stddev_pop/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:63~1:67) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:101~1:105) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:139~1:143) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_013_behavior_review]
+sql:
+select stddev_samp(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/stddev_samp/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:64~1:68) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:102~1:106) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:140~1:144) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_014_behavior_review]
+sql:
+select median(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:13) /test/1/catalog1/schema1/median/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:59~1:63) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:97~1:101) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:135~1:139) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_015_behavior_review]
+sql:
+select regr_count(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/regr_count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:67~1:71) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:105~1:109) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:143~1:147) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_016_behavior_review]
+sql:
+select regr_avgx(val, id), regr_avgy(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/regr_avgx/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:36) /test/1/catalog1/schema1/regr_avgy/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:86~1:90) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:124~1:128) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:162~1:166) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_017_behavior_review]
+sql:
+select regr_slope(val, id), regr_intercept(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/regr_slope/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:28~1:42) /test/1/catalog1/schema1/regr_intercept/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:92~1:96) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:130~1:134) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:168~1:172) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_018_behavior_review]
+sql:
+select covar_pop(val, id), covar_samp(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:16) /test/1/catalog1/schema1/covar_pop/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:37) /test/1/catalog1/schema1/covar_samp/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:125~1:129) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:163~1:167) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_019_behavior_review]
+sql:
+select corr(val, id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:11) /test/1/catalog1/schema1/corr/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:99~1:103) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_020_behavior_review]
+sql:
+select listagg(grp, ',') within group (order by id) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:14) /test/1/catalog1/schema1/listagg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:92~1:96) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:130~1:134) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:168~1:172) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_021_behavior_review]
+sql:
+select grp, count(*) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:17) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:99~1:103) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_022_behavior_review]
+sql:
+select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp having sum(val) >= 30;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:15) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:165~1:168) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:99~1:103) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_023_behavior_review]
+sql:
+select grp, min(val), max(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp order by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:15) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:22~1:25) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:71~1:75) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:109~1:113) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:147~1:151) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_024_behavior_review]
+sql:
+select grp, count(distinct val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:17) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:72~1:76) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:110~1:114) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:148~1:152) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_025_behavior_review]
+sql:
+select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by rollup(grp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:15) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:99~1:103) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_026_behavior_review]
+sql:
+select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by cube(grp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:15) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:99~1:103) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_027_behavior_review]
+sql:
+select grouping(grp), grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by rollup(grp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/grouping/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:27~1:30) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:76~1:80) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:114~1:118) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:152~1:156) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_028_behavior_review]
+sql:
+select grouping_id(grp), grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by cube(grp);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:18) /test/1/catalog1/schema1/grouping_id/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:30~1:33) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:79~1:83) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:117~1:121) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:155~1:159) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_029_behavior_review]
+sql:
+select grp, sum(val) from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t group by grouping sets ((grp), ());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:12~1:15) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:99~1:103) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_030_behavior_review]
+sql:
+select id, row_number() over (order by id) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/row_number/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:86~1:90) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:124~1:128) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:162~1:166) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_031_behavior_review]
+sql:
+select id, rank() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:15) /test/1/catalog1/schema1/rank/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:81~1:85) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:119~1:123) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:157~1:161) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_032_behavior_review]
+sql:
+select id, dense_rank() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/dense_rank/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:125~1:129) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:163~1:167) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_033_behavior_review]
+sql:
+select id, percent_rank() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:23) /test/1/catalog1/schema1/percent_rank/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:127~1:131) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:165~1:169) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_034_behavior_review]
+sql:
+select id, cume_dist() over (order by val) rn from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:20) /test/1/catalog1/schema1/cume_dist/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:86~1:90) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:124~1:128) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:162~1:166) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_035_behavior_review]
+sql:
+select id, ntile(2) over (order by id) bucket from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:16) /test/1/catalog1/schema1/ntile/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:86~1:90) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:124~1:128) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:162~1:166) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_036_behavior_review]
+sql:
+select id, lag(val) over (order by id) previous_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/lag/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:92~1:96) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:130~1:134) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:168~1:172) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_037_behavior_review]
+sql:
+select id, lag(val, 2, 0) over (order by id) previous_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/lag/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:98~1:102) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:136~1:140) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:174~1:178) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_038_behavior_review]
+sql:
+select id, lead(val) over (order by id) next_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:15) /test/1/catalog1/schema1/lead/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:89~1:93) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:127~1:131) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:165~1:169) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_039_behavior_review]
+sql:
+select id, lead(val, 2, 0) over (order by id) next_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:15) /test/1/catalog1/schema1/lead/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:95~1:99) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:133~1:137) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:171~1:175) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_040_behavior_review]
+sql:
+select id, first_value(val) over (order by id) first_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:22) /test/1/catalog1/schema1/first_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:97~1:101) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:135~1:139) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:173~1:177) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_041_behavior_review]
+sql:
+select id, last_value(val) over (order by id rows between unbounded preceding and unbounded following) last_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:21) /test/1/catalog1/schema1/last_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:152~1:156) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:190~1:194) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:228~1:232) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_042_behavior_review]
+sql:
+select id, nth_value(val, 2) over (order by id rows between unbounded preceding and unbounded following) second_val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:20) /test/1/catalog1/schema1/nth_value/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:156~1:160) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:194~1:198) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:232~1:236) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_043_behavior_review]
+sql:
+select id, ratio_to_report(val) over () ratio_value from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:26) /test/1/catalog1/schema1/ratio_to_report/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:92~1:96) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:130~1:134) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:168~1:172) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_044_behavior_review]
+sql:
+select id, sum(val) over () total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:74~1:78) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:112~1:116) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:150~1:154) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_045_behavior_review]
+sql:
+select id, sum(val) over (partition by grp) group_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:96~1:100) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:134~1:138) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:172~1:176) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_046_behavior_review]
+sql:
+select id, avg(val) over (partition by grp) group_avg from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/avg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:94~1:98) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:132~1:136) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:170~1:174) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_047_behavior_review]
+sql:
+select id, min(val) over (partition by grp) group_min from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/min/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:94~1:98) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:132~1:136) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:170~1:174) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_048_behavior_review]
+sql:
+select id, max(val) over (partition by grp) group_max from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/max/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:94~1:98) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:132~1:136) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:170~1:174) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_049_behavior_review]
+sql:
+select id, count(*) over (partition by grp) group_count from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:16) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:96~1:100) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:134~1:138) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:172~1:176) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_050_behavior_review]
+sql:
+select id, sum(val) over (order by id rows unbounded preceding) running_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:118~1:122) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:156~1:160) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:194~1:198) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_051_behavior_review]
+sql:
+select id, sum(val) over (order by id rows between 1 preceding and current row) moving_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:133~1:137) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:171~1:175) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:209~1:213) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_052_behavior_review]
+sql:
+select id, avg(val) over (order by id rows between current row and 1 following) moving_avg from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/avg/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:131~1:135) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:169~1:173) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:207~1:211) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_053_behavior_review]
+sql:
+select id, sum(val) over (order by id range between unbounded preceding and current row) range_total from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:11~1:14) /test/1/catalog1/schema1/sum/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:141~1:145) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:179~1:183) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:217~1:221) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_054_behavior_review]
+sql:
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:125~1:129) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_055_behavior_review]
+sql:
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by id desc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:125~1:129) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_056_behavior_review]
+sql:
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by grp asc, val desc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:125~1:129) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_057_behavior_review]
+sql:
+select id, val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by 2 desc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:93~1:97) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:131~1:135) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_058_behavior_review]
+sql:
+select top 1 * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:55~1:59) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:93~1:97) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:131~1:135) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_059_behavior_review]
+sql:
+select top 2 id, val from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:61~1:65) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:99~1:103) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:137~1:141) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_060_behavior_review]
+sql:
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t limit 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:125~1:129) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_061_behavior_review]
+sql:
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t limit 1, 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:125~1:129) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_aggregate_window_0_062_behavior_review]
+sql:
+select * from (select 1 id, 'A' grp, 10 val from dual union all select 2, 'A', 20 from dual union all select 3, 'B', 30 from dual) t limit 2 offset 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:49~1:53) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:87~1:91) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    },
+    {
+      "subject": "View(1:125~1:129) /test/1/catalog1/schema1/dual/",
+      "action": "READ"
+    }
+  ]
+}

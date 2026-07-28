@@ -1,0 +1,139 @@
+[split_admin_dameng_dpc_0_001]
+sql:
+SP_TS_GROUP_CREATE('CODEX_DPC_TSG', 'Codex DPC tablespace group');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/SP_TS_GROUP_CREATE/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:19~1:34) /test/1/CODEX_DPC_TSG/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_0_002]
+sql:
+SP_TS_GROUP_ADD_TS('CODEX_DPC_TSG', 'CODEX_DPC_TS1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/SP_TS_GROUP_ADD_TS/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:19~1:34) /test/1/CODEX_DPC_TSG/",
+        "Tablespace(1:36~1:51) /test/1/CODEX_DPC_TS1/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_0_003]
+sql:
+SP_TS_GROUP_ADD_TS('CODEX_DPC_TSG', 'CODEX_DPC_TS2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:18) /test/1/catalog1/schema1/SP_TS_GROUP_ADD_TS/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:19~1:34) /test/1/CODEX_DPC_TSG/",
+        "Tablespace(1:36~1:51) /test/1/CODEX_DPC_TS2/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_0_004]
+sql:
+SP_GET_ALL_TS_BY_TSGROUP('CODEX_DPC_TSG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:24) /test/1/catalog1/schema1/SP_GET_ALL_TS_BY_TSGROUP/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:25~1:40) /test/1/CODEX_DPC_TSG/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_0_005]
+sql:
+SP_CLEAR_TAB_ROWCNT_CACHE(NULL, NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:25) /test/1/catalog1/schema1/SP_CLEAR_TAB_ROWCNT_CACHE/",
+      "action": "CALL",
+      "target": "Environment(1:0~1:25) /test/1/"
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_0_006]
+sql:
+SP_TS_GROUP_REMOVE_TS('CODEX_DPC_TSG', 'CODEX_DPC_TS2');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:21) /test/1/catalog1/schema1/SP_TS_GROUP_REMOVE_TS/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:22~1:37) /test/1/CODEX_DPC_TSG/",
+        "Tablespace(1:39~1:54) /test/1/CODEX_DPC_TS2/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_0_007]
+sql:
+SP_TS_GROUP_REMOVE_TS('CODEX_DPC_TSG', 'CODEX_DPC_TS1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:21) /test/1/catalog1/schema1/SP_TS_GROUP_REMOVE_TS/",
+      "action": "CALL",
+      "target": [
+        "ResourceGroup(1:22~1:37) /test/1/CODEX_DPC_TSG/",
+        "Tablespace(1:39~1:54) /test/1/CODEX_DPC_TS1/"
+      ]
+    }
+  ]
+}
+----------
+[split_admin_dameng_dpc_0_008]
+sql:
+SP_TS_GROUP_DROP('CODEX_DPC_TSG');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(1:0~1:16) /test/1/catalog1/schema1/SP_TS_GROUP_DROP/",
+      "action": "CALL",
+      "target": "ResourceGroup(1:17~1:32) /test/1/CODEX_DPC_TSG/"
+    }
+  ]
+}

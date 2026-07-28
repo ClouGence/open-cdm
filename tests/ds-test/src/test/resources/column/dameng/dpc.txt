@@ -1,0 +1,55 @@
+[dpc_range_routing_columns]
+sql:
+select id, note, sf_get_ep_seqno(rowid) as ep_seqno
+from catalog1.app.dpc_range order by id
+expect:
+{
+  "id" : [ "/catalog1/app/dpc_range/id/" ],
+  "note" : [ "/catalog1/app/dpc_range/note/" ],
+  "ep_seqno" : [ "/catalog1/app/dpc_range/rowid/" ]
+}
+----------
+[dpc_hash_group_columns]
+sql:
+select sf_get_ep_seqno(rowid) as ep_seqno, count(*) as row_count
+from catalog1.app.dpc_hash group by sf_get_ep_seqno(rowid) order by ep_seqno
+expect:
+{
+  "ep_seqno" : [ "/catalog1/app/dpc_hash/rowid/" ],
+  "row_count" : [ ]
+}
+----------
+[dpc_cross_bp_join_columns]
+sql:
+select r.id, r.note, n.note as normal_note
+from catalog1.app.dpc_range r join catalog1.app.dpc_normal n on n.id=1
+order by r.id
+expect:
+{
+  "id" : [ "/catalog1/app/dpc_range/id/" ],
+  "note" : [ "/catalog1/app/dpc_range/note/" ],
+  "normal_note" : [ "/catalog1/app/dpc_normal/note/" ]
+}
+----------
+[dpc_instance_view_columns]
+sql:
+select name, dpc_mode, sys_status, status
+from catalog1.sys.dpc_instance order by raft_id
+expect:
+{
+  "name" : [ "/catalog1/sys/dpc_instance/name/" ],
+  "dpc_mode" : [ "/catalog1/sys/dpc_instance/dpc_mode/" ],
+  "sys_status" : [ "/catalog1/sys/dpc_instance/sys_status/" ],
+  "status" : [ "/catalog1/sys/dpc_instance/status/" ]
+}
+----------
+[dpc_tablespace_view_columns]
+sql:
+select ts_id, name, raft_id
+from catalog1.sys.dpc_tablespace where name like 'DPC_%' order by name
+expect:
+{
+  "ts_id" : [ "/catalog1/sys/dpc_tablespace/ts_id/" ],
+  "name" : [ "/catalog1/sys/dpc_tablespace/name/" ],
+  "raft_id" : [ "/catalog1/sys/dpc_tablespace/raft_id/" ]
+}

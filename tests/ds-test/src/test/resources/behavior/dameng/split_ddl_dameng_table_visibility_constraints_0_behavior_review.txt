@@ -1,0 +1,902 @@
+[split_ddl_dameng_table_visibility_constraints_0_001_behavior_review]
+sql:
+create user table_vis_u1 identified by "Dm8Visible2026" encrypt by "Dm8VisibleKeyU1";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:24) /test/1/table_vis_u1/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_002_behavior_review]
+sql:
+create user table_vis_u2 identified by "Dm8Visible2026" encrypt by "Dm8VisibleKeyU2";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:24) /test/1/table_vis_u2/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_003_behavior_review]
+sql:
+create user table_vis_u3 identified by "Dm8Visible2026" encrypt by "Dm8VisibleKeyU3";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:24) /test/1/table_vis_u3/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_004_behavior_review]
+sql:
+create table table_vis_data(id int, secret varchar(40) encrypt manual user(table_vis_u1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_005_behavior_review]
+sql:
+grant select,insert,update on table_vis_data to table_vis_u1,table_vis_u2,table_vis_u3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "SchemaObject(1:30~1:44) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "GRANT",
+      "target": [
+        "UserOrRole(1:48~1:60) /test/1/table_vis_u1/",
+        "UserOrRole(1:61~1:73) /test/1/table_vis_u2/",
+        "UserOrRole(1:74~1:86) /test/1/table_vis_u3/"
+      ]
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_006_behavior_review]
+sql:
+insert into table_vis_data values(1,'U1_BEFORE_ADD');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_007_behavior_review]
+sql:
+select id,secret from table_vis_data order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:36) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_008_behavior_review]
+sql:
+alter table table_vis_data alter column secret add user(table_vis_u2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_009_behavior_review]
+sql:
+select tabledef('SYSDBA','TABLE_VIS_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/tabledef/",
+      "action": "CALL",
+      "target": "Table(1:25~1:41) /test/1/catalog1/SYSDBA/TABLE_VIS_DATA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_010_behavior_review]
+sql:
+select id,secret from table_vis_data order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:36) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_011_behavior_review]
+sql:
+insert into table_vis_data values(2,'U2_AFTER_ADD');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_012_behavior_review]
+sql:
+alter table table_vis_data alter column secret drop user(table_vis_u1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_013_behavior_review]
+sql:
+select id,secret from table_vis_data order by id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:36) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_014_behavior_review]
+sql:
+alter table table_vis_data alter column secret drop user(table_vis_u1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_015_behavior_review]
+sql:
+alter table table_vis_data alter column secret add user(table_vis_u2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_016_behavior_review]
+sql:
+alter table table_vis_data alter column secret add user(table_vis_missing);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_017_behavior_review]
+sql:
+alter table table_vis_data alter column secret add user(table_vis_u1,table_vis_u3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_018_behavior_review]
+sql:
+select tabledef('SYSDBA','TABLE_VIS_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/tabledef/",
+      "action": "CALL",
+      "target": "Table(1:25~1:41) /test/1/catalog1/SYSDBA/TABLE_VIS_DATA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_019_behavior_review]
+sql:
+alter table table_vis_data alter column secret drop user(table_vis_u1,table_vis_u2,table_vis_u3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_020_behavior_review]
+sql:
+select tabledef('SYSDBA','TABLE_VIS_DATA');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:15) /test/1/catalog1/schema1/tabledef/",
+      "action": "CALL",
+      "target": "Table(1:25~1:41) /test/1/catalog1/SYSDBA/TABLE_VIS_DATA/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_021_behavior_review]
+sql:
+alter table table_vis_data alter column id add user(table_vis_u1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:26) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_022_behavior_review]
+sql:
+create table table_vis_transparent(id int, secret varchar(20) encrypt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:34) /test/1/catalog1/schema1/table_vis_transparent/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_023_behavior_review]
+sql:
+alter table table_vis_transparent alter column secret add user(table_vis_u1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_COLUMN": [
+    {
+      "subject": "Table(1:12~1:33) /test/1/catalog1/schema1/table_vis_transparent/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_024_behavior_review]
+sql:
+drop table table_vis_transparent purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:32) /test/1/catalog1/schema1/table_vis_transparent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_025_behavior_review]
+sql:
+drop table table_vis_data purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:25) /test/1/catalog1/schema1/table_vis_data/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_026_behavior_review]
+sql:
+drop user table_vis_u1 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:22) /test/1/table_vis_u1/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_027_behavior_review]
+sql:
+drop user table_vis_u2 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:22) /test/1/table_vis_u2/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_028_behavior_review]
+sql:
+drop user table_vis_u3 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:22) /test/1/table_vis_u3/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_029_behavior_review]
+sql:
+create table table_cons_keep(id int constraint table_cons_keep_uq unique);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/table_cons_keep/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_030_behavior_review]
+sql:
+alter table table_cons_keep drop constraint table_cons_keep_uq keep index;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:44~1:62) /test/1/catalog1/schema1/table_cons_keep_uq/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_031_behavior_review]
+sql:
+drop table table_cons_keep purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/table_cons_keep/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_032_behavior_review]
+sql:
+create table table_cons_drop(id int constraint table_cons_drop_uq unique);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:28) /test/1/catalog1/schema1/table_cons_drop/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_033_behavior_review]
+sql:
+alter table table_cons_drop drop constraint table_cons_drop_uq drop index;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:44~1:62) /test/1/catalog1/schema1/table_cons_drop_uq/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_034_behavior_review]
+sql:
+select count(*) from user_indexes where table_name='TABLE_CONS_DROP' and uniqueness='UNIQUE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:33) /test/1/catalog1/schema1/user_indexes/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_035_behavior_review]
+sql:
+drop table table_cons_drop purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:26) /test/1/catalog1/schema1/table_cons_drop/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_036_behavior_review]
+sql:
+create table table_cons_default(id int constraint table_cons_default_uq unique);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/table_cons_default/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_037_behavior_review]
+sql:
+alter table table_cons_default drop constraint table_cons_default_uq;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:47~1:68) /test/1/catalog1/schema1/table_cons_default_uq/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_038_behavior_review]
+sql:
+drop table table_cons_default purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/table_cons_default/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_039_behavior_review]
+sql:
+create table table_cons_parent(id int constraint table_cons_parent_uq unique);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:30) /test/1/catalog1/schema1/table_cons_parent/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_040_behavior_review]
+sql:
+create table table_cons_child(id int constraint table_cons_child_fk references table_cons_parent(id));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/table_cons_child/",
+      "action": "CREATE",
+      "target": "Table(1:79~1:96) /test/1/catalog1/schema1/table_cons_parent/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_041_behavior_review]
+sql:
+alter table table_cons_parent drop constraint table_cons_parent_uq restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:46~1:66) /test/1/catalog1/schema1/table_cons_parent_uq/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_042_behavior_review]
+sql:
+alter table table_cons_parent drop constraint table_cons_parent_uq cascade drop index;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:46~1:66) /test/1/catalog1/schema1/table_cons_parent_uq/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_043_behavior_review]
+sql:
+select count(*) from user_constraints where constraint_name in('TABLE_CONS_PARENT_UQ','TABLE_CONS_CHILD_FK');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:12) /test/1/catalog1/schema1/count/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(1:21~1:37) /test/1/catalog1/schema1/user_constraints/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_044_behavior_review]
+sql:
+drop table table_cons_child purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/table_cons_child/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_045_behavior_review]
+sql:
+drop table table_cons_parent purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:28) /test/1/catalog1/schema1/table_cons_parent/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_046_behavior_review]
+sql:
+create table table_cons_check(id int constraint table_cons_check_ck check(id>0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/table_cons_check/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_047_behavior_review]
+sql:
+alter table table_cons_check drop constraint table_cons_check_ck keep index;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:45~1:64) /test/1/catalog1/schema1/table_cons_check_ck/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_048_behavior_review]
+sql:
+drop table table_cons_check purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/table_cons_check/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_049_behavior_review]
+sql:
+create table table_cons_state(id int);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:29) /test/1/catalog1/schema1/table_cons_state/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_050_behavior_review]
+sql:
+insert into table_cons_state values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/table_cons_state/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_051_behavior_review]
+sql:
+insert into table_cons_state values(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:28) /test/1/catalog1/schema1/table_cons_state/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_052_behavior_review]
+sql:
+alter table table_cons_state add constraint table_cons_state_uq unique(id) novalidate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADD_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:44~1:63) /test/1/catalog1/schema1/table_cons_state_uq/",
+      "action": "CREATE",
+      "target": "Table(1:12~1:28) /test/1/catalog1/schema1/table_cons_state/"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_053_behavior_review]
+sql:
+select status,validated from user_constraints where constraint_name='TABLE_CONS_STATE_UQ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:29~1:45) /test/1/catalog1/schema1/user_constraints/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_054_behavior_review]
+sql:
+alter table table_cons_state disable constraint table_cons_state_uq novalidate cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:48~1:67) /test/1/catalog1/schema1/table_cons_state_uq/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_055_behavior_review]
+sql:
+alter table table_cons_state modify constraint table_cons_state_uq enable novalidate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:47~1:66) /test/1/catalog1/schema1/table_cons_state_uq/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_056_behavior_review]
+sql:
+alter table table_cons_state modify constraint table_cons_state_uq disable validate cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:47~1:66) /test/1/catalog1/schema1/table_cons_state_uq/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_057_behavior_review]
+sql:
+alter table table_cons_state modify constraint table_cons_state_uq to check(id>0) novalidate;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_CONSTRAINT": [
+    {
+      "subject": "Constraint(1:47~1:66) /test/1/catalog1/schema1/table_cons_state_uq/",
+      "action": "ALTER"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_058_behavior_review]
+sql:
+select constraint_type,status,validated from user_constraints where constraint_name='TABLE_CONS_STATE_UQ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:45~1:61) /test/1/catalog1/schema1/user_constraints/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_table_visibility_constraints_0_059_behavior_review]
+sql:
+drop table table_cons_state purge;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:27) /test/1/catalog1/schema1/table_cons_state/",
+      "action": "DROP"
+    }
+  ]
+}

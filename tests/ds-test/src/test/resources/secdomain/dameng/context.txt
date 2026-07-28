@@ -1,0 +1,70 @@
+[create_context]
+sql:
+create context codex_ctx using app.context_pkg
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
+  ]
+}
+----------
+[create_or_replace_context]
+sql:
+create or replace context if not exists codex_ctx using app.replacement_context_pkg
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
+  ]
+}
+----------
+[drop_context]
+sql:
+drop context if exists SYS.codex_ctx
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
+  ]
+}
+----------
+[drop_context_unqualified_uses_sys_owner]
+sql:
+drop context if exists codex_ctx
+expect:
+{
+  "contains": [
+    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
+  ]
+}
+----------
+[grant_context_system_privileges]
+sql:
+grant create any context, drop any context, grant any context to context_admin
+expect:
+{
+  "contains": [
+    {"class":"RdbGrantDomain", "sqlType":"GRANT", "auditKind":"ALTER", "name":"context_admin"}
+  ]
+}
+----------
+[revoke_context_system_privileges]
+sql:
+revoke create any context, drop any context, grant any context from context_admin
+expect:
+{
+  "contains": [
+    {"class":"RdbRevokeDomain", "sqlType":"REVOKE", "auditKind":"ALTER", "name":"context_admin"}
+  ]
+}
+----------
+[context_filter_keeps_table_domain]
+sql:
+select id from app.context_data
+where tenant = sys_context('CODEX_CTX', 'TENANT')
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"context_data"}
+  ]
+}

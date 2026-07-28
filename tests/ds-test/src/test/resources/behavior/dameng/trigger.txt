@@ -1,0 +1,101 @@
+[create_table_trigger]
+sql:
+create trigger app.tr_row after insert on app.target begin null;end;
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:15~1:25) /test/1/catalog1/app/tr_row/",
+      "action": "CREATE",
+      "target": "Table(1:42~1:52) /test/1/catalog1/app/target/"
+    }
+  ]
+}
+----------
+[create_view_trigger]
+sql:
+create trigger app.tr_view instead of insert on app.target_view for each row begin null;end;
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:15~1:26) /test/1/catalog1/app/tr_view/",
+      "action" : "CREATE",
+      "target": "View(1:48~1:63) /test/1/catalog1/app/target_view/"
+    }
+  ]
+}
+----------
+[create_event_trigger]
+sql:
+create trigger app.tr_event after create on database begin null;end;
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:15~1:27) /test/1/catalog1/app/tr_event/",
+      "action": "CREATE",
+      "target": "Catalog(1:44~1:52) /test/1/catalog1/"
+    }
+  ]
+}
+----------
+[create_trigger_with_body_insert]
+sql:
+create trigger app.tr_body after insert on app.target begin insert into app.audit_log values(1);end;
+/
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TRIGGER": [
+    {
+      "subject": "Trigger(1:15~1:26) /test/1/catalog1/app/tr_body/",
+      "action" : "CREATE",
+      "target": "Table(1:43~1:53) /test/1/catalog1/app/target/"
+    },
+    {
+      "subject": "Table(1:72~1:85) /test/1/catalog1/app/audit_log/",
+      "action" : "INSERT"
+    }
+  ]
+}
+----------
+[alter_trigger]
+sql:
+alter trigger app.tr_row compile debug;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ALTER_TRIGGER": [
+    {
+      "subject": "Trigger(1:14~1:24) /test/1/catalog1/app/tr_row/",
+      "action" : "ALTER"
+    }
+  ]
+}
+----------
+[drop_trigger]
+sql:
+drop trigger app.tr_row;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TRIGGER": [
+    {
+      "subject": "Trigger(1:13~1:23) /test/1/catalog1/app/tr_row/",
+      "action" : "DROP"
+    }
+  ]
+}

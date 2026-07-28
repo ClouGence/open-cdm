@@ -43,6 +43,14 @@ public class RdbBehaviorObjectFactory {
     }
 
     public BehaviorObject object(TargetType type, ParserRuleContext context, List<String> names) {
+        return object(type, context.getStart(), context.getStop(), names);
+    }
+
+    public BehaviorObject object(TargetType type, Token nameToken, List<String> names) {
+        return object(type, nameToken, nameToken, names);
+    }
+
+    public BehaviorObject object(TargetType type, Token start, Token stop, List<String> names) {
         if (names.isEmpty()) {
             return null;
         }
@@ -64,11 +72,88 @@ public class RdbBehaviorObjectFactory {
             path.addAll(names);
         }
 
-        Token start = context.getStart();
-        Token stop = context.getStop();
         BehaviorObject object = new BehaviorObject();
-        object.setTargetType(type);
-        object.setResourcePath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
+        object.setObjectType(type);
+        object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
+        object.setStartLine(line(start));
+        object.setStartColumn(column(start));
+        object.setEndLine(line(stop));
+        object.setEndColumn(column(stop) + stop.getText().length());
+        return object;
+    }
+
+    public BehaviorObject instanceObject(TargetType type, ParserRuleContext context, String name) {
+        return instanceObject(type, context.getStart(), context.getStop(), name);
+    }
+
+    public BehaviorObject instanceObject(TargetType type, ParserRuleContext context) {
+        List<String> path = new ArrayList<>();
+        addLevelPath(path, UmiTypes.Instance);
+
+        BehaviorObject object = new BehaviorObject();
+        object.setObjectType(type);
+        object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
+        object.setStartLine(line(context.getStart()));
+        object.setStartColumn(column(context.getStart()));
+        object.setEndLine(line(context.getStop()));
+        object.setEndColumn(column(context.getStop()) + context.getStop().getText().length());
+        return object;
+    }
+
+    public BehaviorObject instanceObject(TargetType type, Token token) {
+        List<String> path = new ArrayList<>();
+        addLevelPath(path, UmiTypes.Instance);
+
+        BehaviorObject object = new BehaviorObject();
+        object.setObjectType(type);
+        object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
+        object.setStartLine(line(token));
+        object.setStartColumn(column(token));
+        object.setEndLine(line(token));
+        object.setEndColumn(column(token) + token.getText().length());
+        return object;
+    }
+
+    public BehaviorObject unnamedObject(TargetType type, ParserRuleContext context, UmiTypes ancestorLevel) {
+        return unnamedObject(type, context.getStart(), context.getStop(), ancestorLevel);
+    }
+
+    public BehaviorObject unnamedObject(TargetType type, Token token, UmiTypes ancestorLevel) {
+        return unnamedObject(type, token, token, ancestorLevel);
+    }
+
+    private BehaviorObject unnamedObject(TargetType type, Token start, Token stop, UmiTypes ancestorLevel) {
+        List<String> path = new ArrayList<>();
+        addLevelPath(path, UmiTypes.Instance);
+        if (ancestorLevel == UmiTypes.Catalog || ancestorLevel == UmiTypes.Schema) {
+            addLevel(path, UmiTypes.Catalog);
+        }
+        if (ancestorLevel == UmiTypes.Schema) {
+            addLevel(path, UmiTypes.Schema);
+        }
+
+        BehaviorObject object = new BehaviorObject();
+        object.setObjectType(type);
+        object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
+        object.setStartLine(line(start));
+        object.setStartColumn(column(start));
+        object.setEndLine(line(stop));
+        object.setEndColumn(column(stop) + stop.getText().length());
+        return object;
+    }
+
+    public BehaviorObject instanceObject(TargetType type, Token nameToken, String name) {
+        return instanceObject(type, nameToken, nameToken, name);
+    }
+
+    public BehaviorObject instanceObject(TargetType type, Token start, Token stop, String name) {
+        List<String> path = new ArrayList<>();
+        addLevelPath(path, UmiTypes.Instance);
+        path.add(name);
+
+        BehaviorObject object = new BehaviorObject();
+        object.setObjectType(type);
+        object.setObjectPath("/" + String.join("/", path) + "/");
         object.setStartLine(line(start));
         object.setStartColumn(column(start));
         object.setEndLine(line(stop));

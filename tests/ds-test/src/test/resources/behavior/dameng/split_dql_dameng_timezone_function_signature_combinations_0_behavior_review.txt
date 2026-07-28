@@ -1,0 +1,1075 @@
+[split_dql_dameng_timezone_function_signature_combinations_0_001_behavior_review]
+sql:
+-- FROM_TZ_ZERO
+SELECT FROM_TZ(TIMESTAMP '2024-01-01 12:34:56.123456','+00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_002_behavior_review]
+sql:
+-- FROM_TZ_FRACTION_OFFSET
+SELECT FROM_TZ(TIMESTAMP '2024-01-01 12:34:56.123456','+05:30') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_003_behavior_review]
+sql:
+-- FROM_TZ_MINIMUM_OFFSET
+SELECT FROM_TZ(TIMESTAMP '2024-01-01 12:34:56','-12:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_004_behavior_review]
+sql:
+-- FROM_TZ_MAXIMUM_OFFSET
+SELECT FROM_TZ(TIMESTAMP '2024-01-01 12:34:56','+14:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:62~2:66) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_005_behavior_review]
+sql:
+-- FROM_TZ_DATE
+SELECT FROM_TZ(DATE '2024-02-29','+08:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:48~2:52) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_006_behavior_review]
+sql:
+-- FROM_TZ_DATETIME
+SELECT FROM_TZ(DATETIME '2024-02-29 12:34:56','+08:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:61~2:65) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_007_behavior_review]
+sql:
+-- FROM_TZ_COMPACT_STRING
+SELECT FROM_TZ('20091101','ASIA/HONG_KONG') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:49~2:53) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_008_behavior_review]
+sql:
+-- FROM_TZ_DEFAULT_DATETIME_STRING
+SELECT FROM_TZ('20091101 09:10:21','+09:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:50~2:54) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_009_behavior_review]
+sql:
+-- FROM_TZ_NULL_TIMESTAMP
+SELECT FROM_TZ(NULL,'+08:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_010_behavior_review]
+sql:
+-- FROM_TZ_NULL_TIMEZONE
+SELECT FROM_TZ(TIMESTAMP '2024-01-01 12:00:00',NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:58~2:62) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_011_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_ASIA_HONG_KONG
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Asia/Hong_kong') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_012_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_US_EASTERN
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','US/Eastern') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_013_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_ASIA_CHONGQING
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Asia/Chongqing') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:70~2:74) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_014_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_ETC_GMT_8
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Etc/GMT-8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_015_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_ASIA_URUMQI
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Asia/Urumqi') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_016_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_ASIA_TAIPEI
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Asia/Taipei') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_017_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_ASIA_MACAO
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Asia/Macao') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:66~2:70) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_018_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_ASIA_KASHGAR
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Asia/Kashgar') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_019_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_ASIA_HARBIN
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Asia/Harbin') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:67~2:71) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_020_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_SINGAPORE
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Singapore') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:65~2:69) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_021_behavior_review]
+sql:
+-- FROM_TZ_PUBLIC_NAME_PRC
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','PRC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:59~2:63) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_022_behavior_review]
+sql:
+-- FROM_TZ_PACK29_EXTRA_EUROPE_LONDON
+SELECT FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Europe/London') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:14) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:69~2:73) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_023_behavior_review]
+sql:
+-- TZ_OFFSET_ZERO
+SELECT TZ_OFFSET('+00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:32~2:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_024_behavior_review]
+sql:
+-- TZ_OFFSET_SHORT_HOUR
+SELECT TZ_OFFSET('+8:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:31~2:35) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_025_behavior_review]
+sql:
+-- TZ_OFFSET_FRACTION
+SELECT TZ_OFFSET('+05:30') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:32~2:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_026_behavior_review]
+sql:
+-- TZ_OFFSET_MINIMUM
+SELECT TZ_OFFSET('-12:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:32~2:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_027_behavior_review]
+sql:
+-- TZ_OFFSET_MAXIMUM
+SELECT TZ_OFFSET('+14:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:32~2:36) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_028_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_ASIA_HONG_KONG
+SELECT TZ_OFFSET('Asia/Hong_kong') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_029_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_US_EASTERN
+SELECT TZ_OFFSET('US/Eastern') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:36~2:40) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_030_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_ASIA_CHONGQING
+SELECT TZ_OFFSET('Asia/Chongqing') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:40~2:44) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_031_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_ETC_GMT_8
+SELECT TZ_OFFSET('Etc/GMT-8') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_032_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_ASIA_URUMQI
+SELECT TZ_OFFSET('Asia/Urumqi') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:37~2:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_033_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_ASIA_TAIPEI
+SELECT TZ_OFFSET('Asia/Taipei') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:37~2:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_034_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_ASIA_MACAO
+SELECT TZ_OFFSET('Asia/Macao') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:36~2:40) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_035_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_ASIA_KASHGAR
+SELECT TZ_OFFSET('Asia/Kashgar') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:38~2:42) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_036_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_ASIA_HARBIN
+SELECT TZ_OFFSET('Asia/Harbin') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:37~2:41) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_037_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_SINGAPORE
+SELECT TZ_OFFSET('Singapore') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:35~2:39) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_038_behavior_review]
+sql:
+-- TZ_OFFSET_PUBLIC_NAME_PRC
+SELECT TZ_OFFSET('PRC') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:29~2:33) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_039_behavior_review]
+sql:
+-- TZ_OFFSET_SESSIONTIMEZONE
+SELECT TZ_OFFSET(SESSIONTIMEZONE) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:17~2:32) /test/1/catalog1/schema1/SESSIONTIMEZONE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_040_behavior_review]
+sql:
+-- TZ_OFFSET_DBTIMEZONE
+SELECT TZ_OFFSET(DBTIMEZONE) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:17~2:27) /test/1/catalog1/schema1/DBTIMEZONE/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:34~2:38) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_041_behavior_review]
+sql:
+-- TZ_OFFSET_NULL
+SELECT TZ_OFFSET(NULL) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:28~2:32) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_042_behavior_review]
+sql:
+-- TZ_OFFSET_EMPTY_STRING
+SELECT TZ_OFFSET('') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:26~2:30) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_043_behavior_review]
+sql:
+-- TZ_OFFSET_PACK29_EXTRA_EUROPE_LONDON
+SELECT TZ_OFFSET('Europe/London') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:16) /test/1/catalog1/schema1/TZ_OFFSET/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:39~2:43) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_044_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_PLUS_EIGHT
+SELECT SYS_EXTRACT_UTC(TIMESTAMP '2024-01-01 12:00:00 +08:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_045_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_MINUS_FIVE_THIRTY
+SELECT SYS_EXTRACT_UTC(TIMESTAMP '2024-01-01 12:00:00 -05:30') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_046_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_MINIMUM_OFFSET
+SELECT SYS_EXTRACT_UTC(TIMESTAMP '2024-01-01 12:00:00 -12:59') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_047_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_MAXIMUM_OFFSET
+SELECT SYS_EXTRACT_UTC(TIMESTAMP '2024-01-01 12:00:00 +14:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:68~2:72) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_048_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_PUBLIC_NAME
+SELECT SYS_EXTRACT_UTC(FROM_TZ(TIMESTAMP '2024-01-01 12:00:00','Asia/Hong_kong')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:23~2:30) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:87~2:91) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_049_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_PACK29_EXTRA_NAME
+SELECT SYS_EXTRACT_UTC(FROM_TZ(TIMESTAMP '2024-07-01 12:00:00','Europe/London')) FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(2:23~2:30) /test/1/catalog1/schema1/FROM_TZ/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:86~2:90) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_050_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_DOCUMENTED_STRING
+SELECT SYS_EXTRACT_UTC('2000-03-28 11:30:00.00 -08:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:61~2:65) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_051_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_NAIVE_TIMESTAMP
+SELECT SYS_EXTRACT_UTC(TIMESTAMP '2024-01-01 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:61~2:65) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_052_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_DATETIME
+SELECT SYS_EXTRACT_UTC(DATETIME '2024-01-01 12:00:00') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:60~2:64) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dql_dameng_timezone_function_signature_combinations_0_053_behavior_review]
+sql:
+-- SYS_EXTRACT_UTC_DATE
+SELECT SYS_EXTRACT_UTC(DATE '2024-01-01') FROM DUAL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/SYS_EXTRACT_UTC/",
+      "action": "CALL"
+    },
+    {
+      "subject": "View(2:47~2:51) /test/1/catalog1/schema1/DUAL/",
+      "action": "READ"
+    }
+  ]
+}

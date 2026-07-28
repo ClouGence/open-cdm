@@ -6,6 +6,7 @@
 package com.clougence.clouddm.ds.dameng.sql;
 
 import com.clougence.clouddm.ds.dameng.i18n.DmSqlI18nKeys;
+import com.clougence.clouddm.ds.dameng.sql.analysis.sysobj.DmSysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -18,5 +19,6 @@ public class DmSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(DmSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new DmSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new DmSysObjectRegistrySpi());
     }
 }

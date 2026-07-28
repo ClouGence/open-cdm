@@ -1,0 +1,177 @@
+[split_block_dameng_dbms_aq_signature_combinations_0_001]
+sql:
+-- FUNC-0252 DBMS_AQ.DEQUEUE ADT
+declare d DBMS_AQ.DEQUEUE_OPTIONS_T; p DBMS_AQ.MESSAGE_PROPERTIES_T;
+payload CODEX_AQ_SIG_MSG; id varbinary(16);
+begin DBMS_AQ.DEQUEUE('SYSDBA.Q',d,p,payload,id); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:35) /test/1/catalog1/DBMS_AQ/DEQUEUE_OPTIONS_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(2:39~2:67) /test/1/catalog1/DBMS_AQ/MESSAGE_PROPERTIES_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(3:8~3:24) /test/1/catalog1/schema1/CODEX_AQ_SIG_MSG/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(4:6~4:21) /test/1/catalog1/DBMS_AQ/DEQUEUE/",
+      "action": "CALL",
+      "target": "Queue(4:22~4:32) /test/1/catalog1/SYSDBA/Q/"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_002]
+sql:
+-- FUNC-0253 DBMS_AQ.ENQUEUE ADT
+declare e DBMS_AQ.ENQUEUE_OPTIONS_T; payload CODEX_AQ_SIG_MSG;
+id varbinary(16);
+begin payload:=CODEX_AQ_SIG_MSG('X');
+DBMS_AQ.ENQUEUE('SYSDBA.Q',e,NULL,payload,id); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:35) /test/1/catalog1/DBMS_AQ/ENQUEUE_OPTIONS_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(2:45~2:61) /test/1/catalog1/schema1/CODEX_AQ_SIG_MSG/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(5:0~5:15) /test/1/catalog1/DBMS_AQ/ENQUEUE/",
+      "action": "CALL",
+      "target": "Queue(5:16~5:26) /test/1/catalog1/SYSDBA/Q/"
+    },
+    {
+      "subject": "Function(4:15~4:31) /test/1/catalog1/schema1/CODEX_AQ_SIG_MSG/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_003]
+sql:
+-- FUNC-0259 DBMS_AQ.REGISTER
+call DBMS_AQ.REGISTER(
+SYS.AQ$_REG_INFO_LIST(SYS.AQ$_REG_INFO(
+'SYSDBA.Q:S',DBMS_AQ.NAMESPACE_AQ,'PLSQL://SYSDBA.CB',HEXTORAW('FF'))),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:21) /test/1/catalog1/DBMS_AQ/REGISTER/",
+      "action": "CALL",
+      "target": "QueueSubscriber(4:0~4:12) /test/1/catalog1/SYSDBA/Q/S/"
+    },
+    {
+      "subject": "Function(3:0~3:21) /test/1/catalog1/SYS/AQ$_REG_INFO_LIST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:22~3:38) /test/1/catalog1/SYS/AQ$_REG_INFO/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:54~4:62) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_004]
+sql:
+-- FUNC-0260 DBMS_AQ.UNREGISTER
+call DBMS_AQ.UNREGISTER(
+SYS.AQ$_REG_INFO_LIST(SYS.AQ$_REG_INFO(
+'SYSDBA.Q:S',DBMS_AQ.NAMESPACE_AQ,'PLSQL://SYSDBA.CB',HEXTORAW('FF'))),1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL_PROG_OBJ": [
+    {
+      "subject": "Procedure(2:5~2:23) /test/1/catalog1/DBMS_AQ/UNREGISTER/",
+      "action": "CALL",
+      "target": "QueueSubscriber(4:0~4:12) /test/1/catalog1/SYSDBA/Q/S/"
+    },
+    {
+      "subject": "Function(3:0~3:21) /test/1/catalog1/SYS/AQ$_REG_INFO_LIST/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(3:22~3:38) /test/1/catalog1/SYS/AQ$_REG_INFO/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(4:54~4:62) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_017]
+sql:
+-- FUNC-1788 DBMS_AQ.ENQUEUE RAW
+declare e DBMS_AQ.ENQUEUE_OPTIONS_T; id varbinary(16);
+begin DBMS_AQ.ENQUEUE('SYSDBA.Q',e,NULL,HEXTORAW('01'),id); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:35) /test/1/catalog1/DBMS_AQ/ENQUEUE_OPTIONS_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(3:6~3:21) /test/1/catalog1/DBMS_AQ/ENQUEUE/",
+      "action": "CALL",
+      "target": "Queue(3:22~3:32) /test/1/catalog1/SYSDBA/Q/"
+    },
+    {
+      "subject": "Function(3:40~3:48) /test/1/catalog1/schema1/HEXTORAW/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_dbms_aq_signature_combinations_0_018]
+sql:
+-- FUNC-1789 DBMS_AQ.DEQUEUE RAW
+declare d DBMS_AQ.DEQUEUE_OPTIONS_T; p DBMS_AQ.MESSAGE_PROPERTIES_T;
+payload varbinary(8188); id varbinary(16);
+begin DBMS_AQ.DEQUEUE('SYSDBA.Q',d,p,payload,id); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Type(2:10~2:35) /test/1/catalog1/DBMS_AQ/DEQUEUE_OPTIONS_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Type(2:39~2:67) /test/1/catalog1/DBMS_AQ/MESSAGE_PROPERTIES_T/",
+      "action": "READ"
+    },
+    {
+      "subject": "Procedure(4:6~4:21) /test/1/catalog1/DBMS_AQ/DEQUEUE/",
+      "action": "CALL",
+      "target": "Queue(4:22~4:32) /test/1/catalog1/SYSDBA/Q/"
+    }
+  ]
+}

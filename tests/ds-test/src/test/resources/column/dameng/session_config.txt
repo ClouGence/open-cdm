@@ -1,0 +1,43 @@
+[config_values_have_no_column_lineage]
+sql:
+alter session set nls_date_format='YYYY-MM-DD';
+alter session set 'HAGR_HASH_SIZE'=2000000;
+expect:
+{}
+----------
+[config_procedure_strings_are_not_sql]
+sql:
+sp_set_para_string_value(0,'COMMIT_WRITE','IMMEDIATE,WAIT');
+sf_set_system_para_value('SORT_BUF_SIZE',10,0,0);
+expect:
+{}
+----------
+[persistent_parameter_values_are_not_column_lineage]
+sql:
+alter system set 'SORT_BUF_SIZE'=23 both;
+alter system set 'BDTA_SIZE'=301 spfile;
+sp_set_para_value(1,'SORT_BUF_SIZE',26);
+expect:
+{}
+----------
+[cross_session_parameter_subquery_column]
+sql:
+sp_set_param_in_session(
+  sessid(),
+  (select sess_seq from sys.v$sessions where sess_id=sessid()),
+  'SORT_BUF_SIZE',
+  28
+)
+expect:
+{}
+----------
+[config_introspection_columns]
+sql:
+select d.para_name,d.para_value,d.sess_value,d.file_value from catalog1.sys.v$dm_ini d where d.para_name='SORT_BUF_SIZE'
+expect:
+{
+  "para_name" : [ "/catalog1/sys/v$dm_ini/para_name/" ],
+  "para_value" : [ "/catalog1/sys/v$dm_ini/para_value/" ],
+  "sess_value" : [ "/catalog1/sys/v$dm_ini/sess_value/" ],
+  "file_value" : [ "/catalog1/sys/v$dm_ini/file_value/" ]
+}

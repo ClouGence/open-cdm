@@ -1,0 +1,42 @@
+[dsc_huge_asm_create]
+sql:
+create huge table app.dsc_huge_asm(id int, payload varchar(64))
+storage(section(1024), with delta) striping 64 high
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"dsc_huge_asm"}
+  ]
+}
+----------
+[dsc_huge_ctas_asm]
+sql:
+create huge table app.dsc_huge_ctas as
+select id, payload from app.dsc_huge_stage striping 32 external
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"dsc_huge_ctas"},
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"dsc_huge_stage"}
+  ]
+}
+----------
+[dsc_huge_failover_update]
+sql:
+update app.dsc_huge_basic set payload='failover-dsc02' where id=1
+expect:
+{
+  "contains": [
+    {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "schema":"app", "table":"dsc_huge_basic"}
+  ]
+}
+----------
+[dsc_huge_read]
+sql:
+select id, payload, rowid from app.dsc_huge_basic
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"dsc_huge_basic"}
+  ]
+}

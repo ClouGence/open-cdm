@@ -1,0 +1,67 @@
+[dpc_query_cross_bp_join_resource]
+sql:
+select a.id,b.id from app.dpc_q_range_a a join app.dpc_q_range_b b on a.id=b.id
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:22~1:39) /test/1/catalog1/app/dpc_q_range_a/",
+      "action": "READ"
+    },
+    {
+      "subject": "Table(1:47~1:64) /test/1/catalog1/app/dpc_q_range_b/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[dpc_query_system_table_resource]
+sql:
+select * from sys.dpc_instance
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:14~1:30) /test/1/catalog1/sys/dpc_instance/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[dpc_query_dynamic_view_resource]
+sql:
+select * from sys.v$dpc_qc_history
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "View(1:14~1:34) /test/1/catalog1/sys/v$dpc_qc_history/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[dpc_query_route_function_resource]
+sql:
+select sf_get_ep_seqno(rowid) as ep_no from app.dpc_q_hash
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Function(1:7~1:22) /test/1/catalog1/schema1/sf_get_ep_seqno/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Table(1:44~1:58) /test/1/catalog1/app/dpc_q_hash/",
+      "action": "READ"
+    }
+  ]
+}

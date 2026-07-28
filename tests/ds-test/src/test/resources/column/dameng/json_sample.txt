@@ -1,0 +1,17 @@
+[json_value_columns]
+sql:
+select d.id, json_value(d.payload, '$.name') as doc_name from catalog1.app.json_docs d
+expect:
+{
+  "id" : [ "/catalog1/app/json_docs/id/" ],
+  "doc_name" : [ "/catalog1/app/json_docs/payload/" ]
+}
+----------
+[sample_columns]
+sql:
+select s.id, s.name from catalog1.app.sample_target sample(20) seed(3) s where s.id > 10
+expect:
+{
+  "id" : [ "/catalog1/app/sample_target/id/" ],
+  "name" : [ "/catalog1/app/sample_target/name/" ]
+}

@@ -1,0 +1,449 @@
+[split_ddl_dameng_role_0_001_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_BASIC_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:41) /test/1/CODEX_DM8_ROLE_BASIC_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_002_behavior_review]
+sql:
+create role if not exists CODEX_DM8_ROLE_BASIC_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:26~1:55) /test/1/CODEX_DM8_ROLE_BASIC_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_003_behavior_review]
+sql:
+create role "Role_Mixed_20260723";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:33) /test/1/Role_Mixed_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_004_behavior_review]
+sql:
+create role RXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:140) /test/1/RXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_005_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_SELECT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:42) /test/1/CODEX_DM8_ROLE_SELECT_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_006_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_DML_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:39) /test/1/CODEX_DM8_ROLE_DML_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_007_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_SYSTEM_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:42) /test/1/CODEX_DM8_ROLE_SYSTEM_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_008_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_PARENT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:42) /test/1/CODEX_DM8_ROLE_PARENT_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_009_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_CHILD_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:41) /test/1/CODEX_DM8_ROLE_CHILD_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_010_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_ADMIN_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:41) /test/1/CODEX_DM8_ROLE_ADMIN_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_011_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_MULTI_A_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:43) /test/1/CODEX_DM8_ROLE_MULTI_A_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_012_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_MULTI_B_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:43) /test/1/CODEX_DM8_ROLE_MULTI_B_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_013_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_DROP_ASSIGNED_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:49) /test/1/CODEX_DM8_ROLE_DROP_ASSIGNED_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_014_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_DROP_ASSIGNED_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:47) /test/1/CODEX_DM8_ROLE_DROP_ASSIGNED_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_015_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_DROP_CASCADE_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:48) /test/1/CODEX_DM8_ROLE_DROP_CASCADE_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_016_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_DROP_CASCADE_20260723 cascade;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:46) /test/1/CODEX_DM8_ROLE_DROP_CASCADE_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_017_behavior_review]
+sql:
+create role CODEX_DM8_ROLE_DROP_RESTRICT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_ROLE": [
+    {
+      "subject": "Role(1:12~1:49) /test/1/CODEX_DM8_ROLE_DROP_RESTRICT_20260723/",
+      "action" : "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_018_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_DROP_RESTRICT_20260723 restrict;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:47) /test/1/CODEX_DM8_ROLE_DROP_RESTRICT_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_019_behavior_review]
+sql:
+drop role if exists CODEX_DM8_ROLE_MISSING_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:20~1:51) /test/1/CODEX_DM8_ROLE_MISSING_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_020_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_BASIC_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:39) /test/1/CODEX_DM8_ROLE_BASIC_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_021_behavior_review]
+sql:
+drop role "Role_Mixed_20260723";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:31) /test/1/Role_Mixed_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_022_behavior_review]
+sql:
+drop role RXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:138) /test/1/RXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_023_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_SELECT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:40) /test/1/CODEX_DM8_ROLE_SELECT_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_024_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_DML_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:37) /test/1/CODEX_DM8_ROLE_DML_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_025_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_SYSTEM_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:40) /test/1/CODEX_DM8_ROLE_SYSTEM_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_026_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_CHILD_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:39) /test/1/CODEX_DM8_ROLE_CHILD_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_027_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_PARENT_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:40) /test/1/CODEX_DM8_ROLE_PARENT_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_028_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_ADMIN_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:39) /test/1/CODEX_DM8_ROLE_ADMIN_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_029_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_MULTI_A_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:41) /test/1/CODEX_DM8_ROLE_MULTI_A_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_role_0_030_behavior_review]
+sql:
+drop role CODEX_DM8_ROLE_MULTI_B_20260723;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_ROLE": [
+    {
+      "subject": "Role(1:10~1:41) /test/1/CODEX_DM8_ROLE_MULTI_B_20260723/",
+      "action" : "DROP"
+    }
+  ]
+}

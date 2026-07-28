@@ -1,0 +1,102 @@
+[backup_database]
+sql:
+backup database full backupset '/opt/dmdbms/data/backup/db_full'
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[backup_table]
+sql:
+backup table app.employee backupset '/opt/dmdbms/data/backup/employee'
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"},
+    {"class":"RdbTableDomain", "sqlType":"ADMIN", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[backup_tablespace]
+sql:
+backup tablespace main full backupset '/opt/dmdbms/data/backup/main'
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"},
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"main"}
+  ]
+}
+----------
+[restore_named_table]
+sql:
+restore table app.employee struct from backupset '/opt/dmdbms/data/backup/employee'
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"},
+    {"class":"RdbTableDomain", "sqlType":"ADMIN", "schema":"app", "table":"employee"}
+  ]
+}
+----------
+[restore_inferred_table]
+sql:
+restore table struct without index from backupset '/opt/dmdbms/data/backup/employee'
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[rman_configuration]
+sql:
+configure default backupdir add '/opt/dmdbms/data/backup'
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[restore_database_to_directory]
+sql:
+restore database to '/opt/dmdbms/data/DAMENG_RESTORE_20260721' with check from backupset '/opt/dmdbms/data/backup/case_021_db_full'
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[recover_database_from_backupset]
+sql:
+recover database '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' from backupset '/opt/dmdbms/data/backup/case_021_db_full'
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[recover_database_update_magic]
+sql:
+recover database '/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini' update db_magic
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}
+----------
+[show_huge_backupset_metadata]
+sql:
+show backupset '/data/backup' info meta
+expect:
+{
+  "contains": [
+    {"class":"RdbObjectDomain", "sqlType":"ADMIN", "name":"DATABASE"}
+  ]
+}

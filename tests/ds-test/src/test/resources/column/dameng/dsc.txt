@@ -1,0 +1,54 @@
+[dsc_shared_columns]
+sql:
+select id, owner_ep, note from catalog1.app.dsc_shared order by id
+expect:
+{
+  "id" : [ "/catalog1/app/dsc_shared/id/" ],
+  "owner_ep" : [ "/catalog1/app/dsc_shared/owner_ep/" ],
+  "note" : [ "/catalog1/app/dsc_shared/note/" ]
+}
+----------
+[dsc_ep_info_columns]
+sql:
+select ep_name, ep_seqno, ep_mode, ep_status
+from catalog1.sys.v$dsc_ep_info order by ep_seqno
+expect:
+{
+  "ep_name" : [ "/catalog1/sys/v$dsc_ep_info/ep_name/" ],
+  "ep_seqno" : [ "/catalog1/sys/v$dsc_ep_info/ep_seqno/" ],
+  "ep_mode" : [ "/catalog1/sys/v$dsc_ep_info/ep_mode/" ],
+  "ep_status" : [ "/catalog1/sys/v$dsc_ep_info/ep_status/" ]
+}
+----------
+[dsc_crash_info_columns]
+sql:
+select ep_seqno, ok_flag, min_first_modified_lsn, crash_lsn
+from catalog1.sys.v$dsc_crash_over_info order by ep_seqno
+expect:
+{
+  "ep_seqno" : [ "/catalog1/sys/v$dsc_crash_over_info/ep_seqno/" ],
+  "ok_flag" : [ "/catalog1/sys/v$dsc_crash_over_info/ok_flag/" ],
+  "min_first_modified_lsn" : [ "/catalog1/sys/v$dsc_crash_over_info/min_first_modified_lsn/" ],
+  "crash_lsn" : [ "/catalog1/sys/v$dsc_crash_over_info/crash_lsn/" ]
+}
+----------
+[dsc_request_columns]
+sql:
+select type, total_request_count, max_request_time
+from catalog1.sys.v$dsc_request_statistic order by type
+expect:
+{
+  "type" : [ "/catalog1/sys/v$dsc_request_statistic/type/" ],
+  "total_request_count" : [ "/catalog1/sys/v$dsc_request_statistic/total_request_count/" ],
+  "max_request_time" : [ "/catalog1/sys/v$dsc_request_statistic/max_request_time/" ]
+}
+----------
+[dsc_gls_columns]
+sql:
+select total_success, total_wait, total_deadlock from catalog1.sys.v$dsc_gls_sys
+expect:
+{
+  "total_success" : [ "/catalog1/sys/v$dsc_gls_sys/total_success/" ],
+  "total_wait" : [ "/catalog1/sys/v$dsc_gls_sys/total_wait/" ],
+  "total_deadlock" : [ "/catalog1/sys/v$dsc_gls_sys/total_deadlock/" ]
+}

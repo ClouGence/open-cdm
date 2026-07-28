@@ -1,0 +1,14 @@
+[split_admin_dameng_rewrite_logmnr_rls_0_001]
+sql:
+alter session set query_rewrite_integrity=trusted;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SESSION_SETTING_WRITE": [
+    {
+      "subject": "ConfigKey(1:18~1:41) /test/1/query_rewrite_integrity/",
+      "action": "CONFIGURE"
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+[split_block_dameng_system_package_signature_combinations_0_004]
+sql:
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(value => 52, name => ':x', c => cursor_no); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:85~1:99) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:138~1:160) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:251~1:272) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:81) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:222~1:238) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_package_signature_combinations_0_005]
+sql:
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(char_size => 10, value => 'ABC', name => ':x', c => cursor_no); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:85~1:99) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:138~1:160) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:271~1:292) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:81) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:242~1:258) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_package_signature_combinations_0_006]
+sql:
+declare cursor_no int; execute_value int; value varchar(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:112~1:126) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:165~1:187) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:263~1:284) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:88~1:108) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:234~1:250) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_package_signature_combinations_0_007]
+sql:
+declare cursor_no int; execute_value int; value varchar(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:112~1:126) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:165~1:187) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:259~1:280) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:88~1:108) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:230~1:246) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_package_signature_combinations_0_008]
+sql:
+declare cursor_no int; execute_value int; value varbinary(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value, 10); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:114~1:128) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:167~1:189) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:265~1:286) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:90~1:110) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:236~1:252) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_package_signature_combinations_0_009]
+sql:
+declare cursor_no int; execute_value int; value varbinary(10) := null; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', value); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:114~1:128) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:167~1:189) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:261~1:282) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:90~1:110) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:232~1:248) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}
+----------
+[split_block_dameng_system_package_signature_combinations_0_010]
+sql:
+declare cursor_no int; execute_value int; begin cursor_no := dbms_sql.open_cursor(); dbms_sql.parse(cursor_no, 'select :x from dual', 0); dbms_sql.bind_variable(cursor_no, ':x', 'ABC', null); execute_value := dbms_sql.execute(cursor_no); dbms_sql.close_cursor(cursor_no); end;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "BLOCK": [
+    {
+      "subject": "Procedure(1:85~1:99) /test/1/catalog1/dbms_sql/parse/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:138~1:160) /test/1/catalog1/dbms_sql/bind_variable/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Procedure(1:238~1:259) /test/1/catalog1/dbms_sql/close_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:61~1:81) /test/1/catalog1/dbms_sql/open_cursor/",
+      "action": "CALL"
+    },
+    {
+      "subject": "Function(1:209~1:225) /test/1/catalog1/dbms_sql/execute/",
+      "action": "CALL"
+    }
+  ]
+}

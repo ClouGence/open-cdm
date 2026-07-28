@@ -1,0 +1,724 @@
+[split_dcl_dameng_domain_privileges_0_behavior_review_001]
+sql:
+DROP USER IF EXISTS CODEX_DM8_DOM_OWNER CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:39) /test/1/CODEX_DM8_DOM_OWNER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_002]
+sql:
+DROP USER IF EXISTS CODEX_DM8_DOM_USAGE CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:39) /test/1/CODEX_DM8_DOM_USAGE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_003]
+sql:
+DROP USER IF EXISTS CODEX_DM8_DOM_ACTOR CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:39) /test/1/CODEX_DM8_DOM_ACTOR/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_004]
+sql:
+DROP USER IF EXISTS CODEX_DM8_DOM_DENIED CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:20~1:40) /test/1/CODEX_DM8_DOM_DENIED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_005]
+sql:
+CREATE USER CODEX_DM8_DOM_OWNER IDENTIFIED BY Dm8DomOwner2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/CODEX_DM8_DOM_OWNER/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_006]
+sql:
+CREATE USER CODEX_DM8_DOM_USAGE IDENTIFIED BY Dm8DomUsage2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/CODEX_DM8_DOM_USAGE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_007]
+sql:
+CREATE USER CODEX_DM8_DOM_ACTOR IDENTIFIED BY Dm8DomActor2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:31) /test/1/CODEX_DM8_DOM_ACTOR/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_008]
+sql:
+CREATE USER CODEX_DM8_DOM_DENIED IDENTIFIED BY Dm8DomDenied2026;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_USER": [
+    {
+      "subject": "User(1:12~1:32) /test/1/CODEX_DM8_DOM_DENIED/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_009]
+sql:
+GRANT CREATE DOMAIN TO CODEX_DM8_DOM_OWNER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:13~1:19) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:23~1:42) /test/1/CODEX_DM8_DOM_OWNER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_010]
+sql:
+GRANT RESOURCE TO CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:14) /test/1/RESOURCE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:18~1:37) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_011]
+sql:
+GRANT RESOURCE TO CODEX_DM8_DOM_DENIED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:14) /test/1/RESOURCE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:18~1:38) /test/1/CODEX_DM8_DOM_DENIED/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_012]
+sql:
+GRANT DBA TO CODEX_DM8_DOM_ACTOR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Role(1:6~1:9) /test/1/DBA/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:13~1:32) /test/1/CODEX_DM8_DOM_ACTOR/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_013]
+sql:
+CREATE DOMAIN OWNER_DOM_OWN INT DEFAULT 1 CHECK(VALUE > 0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:27) /test/1/catalog1/schema1/OWNER_DOM_OWN/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_014]
+sql:
+CREATE DOMAIN OWNER_DOM_DBA_DROP INT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:32) /test/1/catalog1/schema1/OWNER_DOM_DBA_DROP/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_015]
+sql:
+CREATE DOMAIN OWNER_DOM_USAGE INT DEFAULT 2 CHECK(VALUE BETWEEN 1 AND 9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:29) /test/1/catalog1/schema1/OWNER_DOM_USAGE/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_016]
+sql:
+GRANT USAGE ON DOMAIN OWNER_DOM_USAGE TO CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:22~1:37) /test/1/catalog1/schema1/OWNER_DOM_USAGE/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:41~1:60) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_017]
+sql:
+CREATE DOMAIN OWNER_DOM_ANY INT DEFAULT 3 CHECK(VALUE BETWEEN 1 AND 9);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:14~1:27) /test/1/catalog1/schema1/OWNER_DOM_ANY/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_018]
+sql:
+CREATE TABLE DOMAIN_USAGE_TABLE(ID INT, V CODEX_DM8_DOM_OWNER.OWNER_DOM_USAGE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:31) /test/1/catalog1/schema1/DOMAIN_USAGE_TABLE/",
+      "action": "CREATE",
+      "target": "Type(1:42~1:77) /test/1/catalog1/CODEX_DM8_DOM_OWNER/OWNER_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_019]
+sql:
+INSERT INTO DOMAIN_USAGE_TABLE(ID) VALUES(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:30) /test/1/catalog1/schema1/DOMAIN_USAGE_TABLE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_020]
+sql:
+SELECT ID, V FROM DOMAIN_USAGE_TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SELECT": [
+    {
+      "subject": "Table(1:18~1:36) /test/1/catalog1/schema1/DOMAIN_USAGE_TABLE/",
+      "action": "READ"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_021]
+sql:
+DROP TABLE DOMAIN_USAGE_TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:29) /test/1/catalog1/schema1/DOMAIN_USAGE_TABLE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_022]
+sql:
+DROP DOMAIN CODEX_DM8_DOM_OWNER.OWNER_DOM_DBA_DROP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:50) /test/1/catalog1/CODEX_DM8_DOM_OWNER/OWNER_DOM_DBA_DROP/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_023]
+sql:
+CREATE TABLE DOMAIN_ANY_USAGE_TABLE(ID INT, V CODEX_DM8_DOM_OWNER.OWNER_DOM_ANY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/DOMAIN_ANY_USAGE_TABLE/",
+      "action": "CREATE",
+      "target": "Type(1:46~1:79) /test/1/catalog1/CODEX_DM8_DOM_OWNER/OWNER_DOM_ANY/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_024]
+sql:
+INSERT INTO DOMAIN_ANY_USAGE_TABLE(ID) VALUES(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/schema1/DOMAIN_ANY_USAGE_TABLE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_025]
+sql:
+DROP TABLE DOMAIN_ANY_USAGE_TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:33) /test/1/catalog1/schema1/DOMAIN_ANY_USAGE_TABLE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_026]
+sql:
+GRANT USAGE ON DOMAIN CODEX_DM8_DOM_OWNER.OWNER_DOM_ANY TO CODEX_DM8_DOM_DENIED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:22~1:55) /test/1/catalog1/CODEX_DM8_DOM_OWNER/OWNER_DOM_ANY/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:59~1:79) /test/1/CODEX_DM8_DOM_DENIED/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_027]
+sql:
+CREATE TABLE DOMAIN_DELEGATED_TABLE(ID INT, V CODEX_DM8_DOM_OWNER.OWNER_DOM_ANY);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:35) /test/1/catalog1/schema1/DOMAIN_DELEGATED_TABLE/",
+      "action": "CREATE",
+      "target": "Type(1:46~1:79) /test/1/catalog1/CODEX_DM8_DOM_OWNER/OWNER_DOM_ANY/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_028]
+sql:
+INSERT INTO DOMAIN_DELEGATED_TABLE(ID) VALUES(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:12~1:34) /test/1/catalog1/schema1/DOMAIN_DELEGATED_TABLE/",
+      "action": "INSERT"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_029]
+sql:
+DROP TABLE DOMAIN_DELEGATED_TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TABLE": [
+    {
+      "subject": "Table(1:11~1:33) /test/1/catalog1/schema1/DOMAIN_DELEGATED_TABLE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_030]
+sql:
+REVOKE USAGE ON DOMAIN OWNER_DOM_USAGE FROM CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Type(1:23~1:38) /test/1/catalog1/schema1/OWNER_DOM_USAGE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:44~1:63) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_031]
+sql:
+DROP DOMAIN OWNER_DOM_ANY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/OWNER_DOM_ANY/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_032]
+sql:
+DROP DOMAIN OWNER_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:27) /test/1/catalog1/schema1/OWNER_DOM_USAGE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_033]
+sql:
+DROP DOMAIN OWNER_DOM_OWN;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_TYPE": [
+    {
+      "subject": "Type(1:12~1:25) /test/1/catalog1/schema1/OWNER_DOM_OWN/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_034]
+sql:
+REVOKE DBA FROM CODEX_DM8_DOM_ACTOR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:10) /test/1/DBA/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:16~1:35) /test/1/CODEX_DM8_DOM_ACTOR/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_035]
+sql:
+REVOKE RESOURCE FROM CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:15) /test/1/RESOURCE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:21~1:40) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_036]
+sql:
+REVOKE RESOURCE FROM CODEX_DM8_DOM_DENIED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Role(1:7~1:15) /test/1/RESOURCE/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:21~1:41) /test/1/CODEX_DM8_DOM_DENIED/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_037]
+sql:
+REVOKE CREATE DOMAIN FROM CODEX_DM8_DOM_OWNER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Type(1:14~1:20) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:26~1:45) /test/1/CODEX_DM8_DOM_OWNER/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_038]
+sql:
+REVOKE USAGE ANY DOMAIN FROM CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Type(1:17~1:23) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:29~1:48) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_039]
+sql:
+REVOKE GRANT ANY DOMAIN FROM CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "REVOKE": [
+    {
+      "subject": "Type(1:17~1:23) /test/1/",
+      "action": "REVOKE",
+      "target": "UserOrRole(1:29~1:48) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_040]
+sql:
+DROP USER CODEX_DM8_DOM_OWNER CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:29) /test/1/CODEX_DM8_DOM_OWNER/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_041]
+sql:
+DROP USER CODEX_DM8_DOM_USAGE CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:29) /test/1/CODEX_DM8_DOM_USAGE/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_042]
+sql:
+DROP USER CODEX_DM8_DOM_ACTOR CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:29) /test/1/CODEX_DM8_DOM_ACTOR/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_043]
+sql:
+DROP USER CODEX_DM8_DOM_DENIED CASCADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DROP_USER": [
+    {
+      "subject": "User(1:10~1:30) /test/1/CODEX_DM8_DOM_DENIED/",
+      "action": "DROP"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_044]
+sql:
+GRANT CREATE ANY DOMAIN TO CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:17~1:23) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:27~1:46) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_045]
+sql:
+GRANT DROP ANY DOMAIN TO CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:15~1:21) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:25~1:44) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_046]
+sql:
+GRANT USAGE ANY DOMAIN TO CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:16~1:22) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:26~1:45) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}
+----------
+[split_dcl_dameng_domain_privileges_0_behavior_review_047]
+sql:
+GRANT GRANT ANY DOMAIN TO CODEX_DM8_DOM_USAGE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "GRANT": [
+    {
+      "subject": "Type(1:16~1:22) /test/1/",
+      "action": "GRANT",
+      "target": "UserOrRole(1:26~1:45) /test/1/CODEX_DM8_DOM_USAGE/"
+    }
+  ]
+}

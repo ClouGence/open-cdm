@@ -1,0 +1,29 @@
+[database_primary_has_no_result_lineage]
+sql:
+alter database primary
+expect:
+{}
+----------
+[database_standby_has_no_result_lineage]
+sql:
+alter database standby
+expect:
+{}
+----------
+[database_primary_force_has_no_result_lineage]
+sql:
+alter database primary force
+expect:
+{}
+----------
+[database_standby_force_has_no_result_lineage]
+sql:
+alter database standby force
+expect:
+{}
+----------
+[database_normal_force_has_no_result_lineage]
+sql:
+alter database normal force
+expect:
+{}

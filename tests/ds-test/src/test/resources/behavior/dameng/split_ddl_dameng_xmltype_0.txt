@@ -1,0 +1,45 @@
+[split_ddl_dameng_xmltype_0_001]
+sql:
+CREATE TABLE XMLTYPE_DOCS(ID INT PRIMARY KEY, DOC XMLTYPE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:25) /test/1/catalog1/schema1/XMLTYPE_DOCS/",
+      "action": "CREATE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_xmltype_0_002]
+sql:
+CREATE OR REPLACE TYPE XML_HOLDER AS OBJECT(NAME VARCHAR2(20), DOC XMLTYPE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TYPE": [
+    {
+      "subject": "Type(1:23~1:33) /test/1/catalog1/schema1/XML_HOLDER/",
+      "action": "REPLACE"
+    }
+  ]
+}
+----------
+[split_ddl_dameng_xmltype_0_003]
+sql:
+CREATE TABLE XML_HOLDER_TAB(ID INT PRIMARY KEY, VALUE XML_HOLDER);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CREATE_TABLE": [
+    {
+      "subject": "Table(1:13~1:27) /test/1/catalog1/schema1/XML_HOLDER_TAB/",
+      "action": "CREATE",
+      "target": "Type(1:54~1:64) /test/1/catalog1/schema1/XML_HOLDER/"
+    }
+  ]
+}

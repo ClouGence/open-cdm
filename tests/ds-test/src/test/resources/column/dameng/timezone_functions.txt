@@ -1,0 +1,30 @@
+[timezone_public_signatures]
+sql:
+select
+  from_tz(timestamp '2024-01-01 12:00:00','Asia/Hong_kong') as zoned_value,
+  tz_offset(dbtimezone) as offset_value,
+  sys_extract_utc(timestamp '2024-01-01 12:00:00 +08:00') as utc_value
+from dual
+expect:
+{
+  "zoned_value": [],
+  "offset_value": [],
+  "utc_value": []
+}
+----------
+[timezone_column_lineage]
+sql:
+select
+  from_tz(t.created_at,t.timezone_name) as zoned_value,
+  tz_offset(t.timezone_name) as offset_value,
+  sys_extract_utc(t.zoned_at) as utc_value
+from catalog1.app.events t
+expect:
+{
+  "zoned_value": [
+    "/catalog1/app/events/created_at/",
+    "/catalog1/app/events/timezone_name/"
+  ],
+  "offset_value": ["/catalog1/app/events/timezone_name/"],
+  "utc_value": ["/catalog1/app/events/zoned_at/"]
+}

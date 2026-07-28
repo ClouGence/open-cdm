@@ -1,0 +1,52 @@
+[table_local_temporary]
+sql:
+create local temporary table app.table_sem_local(id int) on commit preserve rows
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"table_sem_local"}
+  ]
+}
+----------
+[table_pendant]
+sql:
+create table app.table_sem_pendant(
+  id int references pendant app.table_sem_pendant_parent(id))
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"table_sem_pendant"}
+  ]
+}
+----------
+[table_unique_novalidate]
+sql:
+alter table app.table_sem_nv_unique
+  add constraint table_sem_nv_uq unique(id) novalidate
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"table_sem_nv_unique"}
+  ]
+}
+----------
+[table_fk_novalidate]
+sql:
+alter table app.table_sem_nv_child add constraint table_sem_nv_fk
+  foreign key(id) references app.table_sem_nv_parent(id) novalidate
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "schema":"app", "table":"table_sem_nv_child"}
+  ]
+}
+----------
+[table_tablespace_storage_conflict]
+sql:
+create table app.table_sem_ts_storage(id int) tablespace main storage(on main)
+expect:
+{
+  "contains": [
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"table_sem_ts_storage"}
+  ]
+}
