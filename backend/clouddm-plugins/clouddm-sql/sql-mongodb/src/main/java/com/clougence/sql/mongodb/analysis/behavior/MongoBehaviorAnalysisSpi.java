@@ -116,9 +116,15 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         if (value == null) {
             return;
         }
-        for (String node : StringUtils.toString(value).split("/")) {
-            if (StringUtils.isNotBlank(node)) {
-                nodes.add(node);
+        String path = StringUtils.toString(value);
+        int start = 0;
+        for (int i = 0; i <= path.length(); i++) {
+            if (i == path.length() || path.charAt(i) == '/') {
+                String node = path.substring(start, i);
+                if (StringUtils.isNotBlank(node)) {
+                    nodes.add(node);
+                }
+                start = i + 1;
             }
         }
     }

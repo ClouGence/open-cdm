@@ -16,7 +16,7 @@
 package com.clougence.clouddm.ds.tidb.sql;
 
 import com.clougence.clouddm.ds.tidb.sql.analysis.behavior.TiBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.tidb.sql.analysis.column.TiSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.analysis.lineage.TiLineageAnalysisSpi;
 import com.clougence.clouddm.ds.tidb.sql.analysis.security.TiSecDomainResolveSpi;
 import com.clougence.clouddm.ds.tidb.sql.editor.rewrite.TiRewriteSpi;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBDslProvider;
@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -33,19 +33,19 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class TiSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "TiDB SQL";
+    public static final String        NAME = "TiDB SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public TiSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new TiSplitAnalysisSpi();
         this.secDomainResolveSpi = new TiSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new TiBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new TiSelectColumnAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = new TiLineageAnalysisSpi(metaService);
         this.rewriteSpi = new TiRewriteSpi();
     }
 
@@ -74,8 +74,8 @@ public class TiSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

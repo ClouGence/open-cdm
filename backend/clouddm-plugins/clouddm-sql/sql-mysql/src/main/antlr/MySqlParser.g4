@@ -3118,6 +3118,7 @@ authPlugin
 
 uid
     : simpleId
+    | {isBareCharsetIntroducerIdentifier()}? STRING_CHARSET_NAME
     | BINLOG
     | DOUBLE_QUOTE_ID
     | DOUBLE_QUOTE_AMBIGUOUS
@@ -3569,7 +3570,6 @@ specificFunction
     | (CURTIME | NOW | SYSDATE)
       '(' temporalPrecisionLiteral? ')'                             #simpleFunctionCall
     | DEFAULT '(' fullColumnName ')'                                #defaultFunctionCall
-    | (DATE | TIME | TIMESTAMP) stringLiteral                       #specialTimeCall
     | CONVERT '(' expression separator=',' convertedDataType ')'    #dataTypeFunctionCall
     | CONVERT '(' expression USING charsetName ')'                  #dataTypeFunctionCall
     | CAST '(' expression AS convertedDataType ({atLeast(8, 0)}? ARRAY)? ')'
@@ -3855,6 +3855,7 @@ unaryExpression
 expressionAtom
     : constant                                                      #constantExpressionAtom
     | PARAM_MARKER                                                  #parameterMarkerExpressionAtom
+    | {isTypedTemporalLiteralAhead()}? typedTemporalLiteral         #typedTemporalLiteralExpressionAtom
     | fullColumnName                                                #fullColumnNameExpressionAtom
     | {isFunctionSyntaxAllowedAhead()}? functionCall                #functionCallExpressionAtom
     | expressionAtom COLLATE collationName                          #collateExpressionAtom
@@ -3867,6 +3868,10 @@ expressionAtom
     | LCURLY_BRACKET uid expression RCURLY_BRACKET                  #odbcExpressionAtom
     | INTERVAL expression intervalType                              #intervalExpressionAtom
     | left=fullColumnName jsonOperator right=stringLiteral          #jsonExpressionAtom
+    ;
+
+typedTemporalLiteral
+    : (DATE | TIME | TIMESTAMP) stringLiteral
     ;
 
 unaryOperator

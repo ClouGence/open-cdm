@@ -1,0 +1,69 @@
+[duplicate_result_column_names]
+sql:
+select table1.column1, table2.column1 from table1 join table2 on table1.column1 = table2.column1
+expect:
+[
+  {
+    "column" : "column1",
+    "sources" : [ "/catalog1/schema1/table1/column1/" ]
+  },
+  {
+    "column" : "column1",
+    "sources" : [ "/catalog1/schema1/table2/column1/" ]
+  }
+]
+----------
+[select_all_metadata_order]
+sql:
+select a.*, b.* from table1 a join table2 b on a.column1 = b.column1
+expect:
+[
+  {
+    "column" : "column1",
+    "sources" : [ "/catalog1/schema1/table1/column1/" ]
+  },
+  {
+    "column" : "column2",
+    "sources" : [ "/catalog1/schema1/table1/column2/" ]
+  },
+  {
+    "column" : "column3",
+    "sources" : [ "/catalog1/schema1/table1/column3/" ]
+  },
+  {
+    "column" : "column4",
+    "sources" : [ "/catalog1/schema1/table1/column4/" ]
+  },
+  {
+    "column" : "column5",
+    "sources" : [ "/catalog1/schema1/table1/column5/" ]
+  },
+  {
+    "column" : "column6",
+    "sources" : [ "/catalog1/schema1/table1/column6/" ]
+  },
+  {
+    "column" : "column1",
+    "sources" : [ "/catalog1/schema1/table2/column1/" ]
+  },
+  {
+    "column" : "column2",
+    "sources" : [ "/catalog1/schema1/table2/column2/" ]
+  },
+  {
+    "column" : "column3",
+    "sources" : [ "/catalog1/schema1/table2/column3/" ]
+  },
+  {
+    "column" : "column4",
+    "sources" : [ "/catalog1/schema1/table2/column4/" ]
+  },
+  {
+    "column" : "column5",
+    "sources" : [ "/catalog1/schema1/table2/column5/" ]
+  },
+  {
+    "column" : "column6",
+    "sources" : [ "/catalog1/schema1/table2/column6/" ]
+  }
+]

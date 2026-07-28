@@ -25,10 +25,8 @@ public abstract class MySqlParserBase extends Parser {
     private static final Set<String> SPECIAL_SYNTAX_FUNCTIONS = Set
         .of("ADDDATE", "ASCII", "CHARSET", "COALESCE", "COLLATION", "CONTAINS", "DATABASE", "DATE", "DATE_ADD", "DATE_SUB", "DAY", "FORMAT", "GEOMETRYCOLLECTION", "GET_FORMAT", "HOUR", "IF", "INSERT", "INTERVAL", "LEFT", "LINESTRING", "MICROSECOND", "MINUTE", "MOD", "MONTH", "MULTILINESTRING", "MID", "MULTIPOINT", "MULTIPOLYGON", "POINT", "POLYGON", "POSITION", "QUARTER", "REPEAT", "REPLACE", "REVERSE", "RIGHT", "ROW_COUNT", "SECOND", "SUBDATE", "SUBSTR", "SUBSTRING", "TIME", "TIMESTAMP", "TIMESTAMPADD", "TIMESTAMPDIFF", "TRIM", "TRUNCATE", "USER", "WEEK", "WEIGHT_STRING", "YEAR");
 
-    private static final Set<String> TIMESTAMP_INTERVAL_UNITS = Set.of(
-            "DAY", "HOUR", "MICROSECOND", "MINUTE", "MONTH", "QUARTER", "SECOND", "WEEK", "YEAR",
-            "SQL_TSI_DAY", "SQL_TSI_HOUR", "SQL_TSI_MINUTE", "SQL_TSI_MONTH", "SQL_TSI_QUARTER",
-            "SQL_TSI_SECOND", "SQL_TSI_WEEK", "SQL_TSI_YEAR");
+    private static final Set<String> TIMESTAMP_INTERVAL_UNITS = Set
+        .of("DAY", "HOUR", "MICROSECOND", "MINUTE", "MONTH", "QUARTER", "SECOND", "WEEK", "YEAR", "SQL_TSI_DAY", "SQL_TSI_HOUR", "SQL_TSI_MINUTE", "SQL_TSI_MONTH", "SQL_TSI_QUARTER", "SQL_TSI_SECOND", "SQL_TSI_WEEK", "SQL_TSI_YEAR");
 
     private static final Set<String> DISALLOWED_LABELS_56     = Set
         .of("BACKUP", "CLOSE", "FORMAT", "HOST", "OPEN", "OPTIONS", "OWNER", "PARSER", "PORT", "REMOVE", "RESTORE", "SECURITY", "SERVER", "SOCKET", "SONAME", "UPGRADE", "WRAPPER");
@@ -76,9 +74,7 @@ public abstract class MySqlParserBase extends Parser {
         return exactVersion() >= minimum;
     }
 
-    protected final boolean isSqlModeKnown() {
-        return config.isSqlModeKnown();
-    }
+    protected final boolean isSqlModeKnown() { return config.isSqlModeKnown(); }
 
     protected final boolean isSetVariableAssignmentAllowed(MySqlParser.VariableClauseContext variable) {
         if (config.grammarVersion().atMost(MySqlVersion.MYSQL_5_7)) {
@@ -541,6 +537,16 @@ public abstract class MySqlParserBase extends Parser {
             return argumentCount == 1 || argumentCount == 2;
         }
         return true;
+    }
+
+    protected final boolean isTypedTemporalLiteralAhead() {
+        int tokenType = getInputStream().LA(1);
+        return tokenType == MySqlParser.DATE || tokenType == MySqlParser.TIME || tokenType == MySqlParser.TIMESTAMP;
+    }
+
+    protected final boolean isBareCharsetIntroducerIdentifier() {
+        int nextTokenType = getInputStream().LA(2);
+        return nextTokenType != MySqlParser.STRING_LITERAL && nextTokenType != MySqlParser.DOUBLE_QUOTE_STRING_LITERAL && nextTokenType != MySqlParser.DOUBLE_QUOTE_AMBIGUOUS;
     }
 
     private int functionArgumentCountAhead() {

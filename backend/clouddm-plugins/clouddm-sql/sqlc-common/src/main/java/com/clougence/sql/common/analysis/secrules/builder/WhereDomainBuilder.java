@@ -55,7 +55,8 @@ public class WhereDomainBuilder extends AbstractDomainBuilder {
         if (status == DomainSource.VALUES) {
             return;
         }
-        if (status != DomainSource.COLUMN && status != DomainSource.CONSTANT && status != DomainSource.FUNCTION && status != DomainSource.SELECT) {
+        if (status != DomainSource.COLUMN && status != DomainSource.CONSTANT && status != DomainSource.FUNCTION && status != DomainSource.SELECT
+            && status != DomainSource.VARIABLE) {
             super.handleSubDomain(list, status);
         }
 

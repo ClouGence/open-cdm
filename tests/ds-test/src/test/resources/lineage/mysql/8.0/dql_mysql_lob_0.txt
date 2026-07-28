@@ -1,0 +1,115 @@
+[dql_mysql_lob_0.0001]
+sql:
+SELECT HEX(b),OCTET_LENGTH(mb),CHAR_LENGTH(t),LENGTH(lt)
+FROM lob_family
+WHERE HEX(b) LIKE '41%' AND t LIKE 'text%'
+ORDER BY t,b
+LIMIT 5;
+expect:
+{
+  "HEX(b)" : [ "/catalog1/schema1/lob_family/b/" ],
+  "OCTET_LENGTH(mb)" : [ "/catalog1/schema1/lob_family/mb/" ],
+  "CHAR_LENGTH(t)" : [ "/catalog1/schema1/lob_family/t/" ],
+  "LENGTH(lt)" : [ "/catalog1/schema1/lob_family/lt/" ]
+}
+----------
+[dql_mysql_lob_0.0002]
+sql:
+SELECT t,COUNT(*),MIN(HEX(b)),MAX(CHAR_LENGTH(lt))
+FROM lob_family
+GROUP BY t
+HAVING COUNT(*) >= 1
+ORDER BY t;
+expect:
+{
+  "t" : [ "/catalog1/schema1/lob_family/t/" ],
+  "COUNT(*)" : [ ],
+  "MIN(HEX(b))" : [ "/catalog1/schema1/lob_family/b/" ],
+  "MAX(CHAR_LENGTH(lt))" : [ "/catalog1/schema1/lob_family/lt/" ]
+}
+----------
+[dql_mysql_lob_0.0003]
+sql:
+SELECT outer_lob.t
+FROM lob_family AS outer_lob
+WHERE EXISTS (
+  SELECT 1 FROM lob_family AS inner_lob
+  WHERE inner_lob.b=outer_lob.b AND inner_lob.t=outer_lob.t
+);
+expect:
+{
+  "t" : [ "/catalog1/schema1/lob_family/t/" ]
+}
+----------
+[dql_mysql_lob_0.0004]
+sql:
+SELECT a.t,HEX(b.b)
+FROM lob_family AS a
+JOIN lob_family AS b ON a.b=b.b AND a.t=b.t
+WHERE a.mb IS NOT NULL;
+expect:
+{
+  "t" : [ "/catalog1/schema1/lob_family/t/" ],
+  "HEX(b.b)" : [ "/catalog1/schema1/lob_family/b/" ]
+}
+----------
+[dql_mysql_lob_0.0005]
+sql:
+SELECT CASE WHEN b IS NULL THEN CAST('none' AS CHAR) ELSE HEX(b) END,
+       COALESCE(t,mt,lt),
+       NULLIF(b,X'00')
+FROM lob_family;
+expect:
+{
+  "CASE WHEN b IS NULL THEN CAST('none' AS CHAR) ELSE HEX(b) END" : [ "/catalog1/schema1/lob_family/b/", "/catalog1/schema1/lob_family/b/" ],
+  "COALESCE(t,mt,lt)" : [ "/catalog1/schema1/lob_family/t/", "/catalog1/schema1/lob_family/mt/", "/catalog1/schema1/lob_family/lt/" ],
+  "NULLIF(b,X'00')" : [ "/catalog1/schema1/lob_family/b/" ]
+}
+----------
+[dql_mysql_lob_0.0006]
+sql:
+SELECT t FROM lob_family
+UNION ALL
+SELECT CAST(b AS CHAR CHARACTER SET utf8mb4) FROM lob_family;
+expect:
+{
+  "t" : [ "/catalog1/schema1/lob_family/t/", "/catalog1/schema1/lob_family/b/" ]
+}
+----------
+[dql_mysql_lob_0.0007]
+sql:
+SELECT (SELECT (b <> 1) FROM lob_family LIMIT 1) <> ALL
+       (SELECT 1681007452 FROM lob_family)
+FROM lob_family;
+expect:
+{
+  "(SELECT (b <> 1) FROM lob_family LIMIT 1) <> ALL\n       (SELECT 1681007452 FROM lob_family)" : [ "/catalog1/schema1/lob_family/b/" ]
+}
+----------
+[dql_mysql_lob_0.0008]
+sql:
+WITH lob_cte(b,t) AS (
+  SELECT b,t FROM lob_generated
+  UNION ALL
+  SELECT lb,lt FROM lob_generated
+)
+SELECT HEX(b),t FROM lob_cte WHERE b IS NOT NULL;
+expect:
+{
+  "HEX(b)" : [ "/catalog1/schema1/lob_generated/b/" ],
+  "t" : [ "/catalog1/schema1/lob_generated/t/" ]
+}
+----------
+[dql_mysql_lob_0.0009]
+sql:
+SELECT t,HEX(b),
+       ROW_NUMBER() OVER (PARTITION BY t ORDER BY b) AS rn,
+       FIRST_VALUE(t) OVER (ORDER BY b ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS first_t
+FROM lob_generated;
+expect:
+{
+  "t" : [ "/catalog1/schema1/lob_generated/t/" ],
+  "HEX(b)" : [ "/catalog1/schema1/lob_generated/b/" ],
+  "rn" : [ ],
+  "first_t" : [ "/catalog1/schema1/lob_generated/t/" ]
+}

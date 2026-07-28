@@ -29,7 +29,7 @@ import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.secrules.*;
-import com.clougence.clouddm.sdk.sql.analysis.column.SourceName;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
 import com.clougence.clouddm.sec.rules.domain.special.rdb.RdbValueDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;

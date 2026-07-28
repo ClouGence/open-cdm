@@ -27,6 +27,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.parser.MySqlVersion;
+import com.clougence.sql.mysql.parser.antlr.MySqlParser;
 import com.clougence.sql.mysql.parser.antlr.MySqlParserBaseVisitor;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser.*;
 import com.clougence.utils.StringUtils;
@@ -982,7 +983,11 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             } else {
                 permission = SplitQueryType.SESSION_SETTING_WRITE;
             }
-            addConfigKey(permission, variable);
+            if (variableName(variable).isEmpty()) {
+                addUnnamedResource(permission, TargetType.ConfigKey, true, ctx);
+            } else {
+                addConfigKey(permission, variable);
+            }
             visit(assignment);
         }
         return null;
@@ -1015,6 +1020,40 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             return "";
         }
         return unquoteIdentifier(value.trim()).toLowerCase(Locale.ROOT);
+    }
+
+    private static String removeLeading(String value, char character) {
+        int offset = 0;
+        while (offset < value.length() && value.charAt(offset) == character) {
+            offset++;
+        }
+        return value.substring(offset);
+    }
+
+    private static String removeWhitespace(String value) {
+        StringBuilder normalized = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char current = value.charAt(i);
+            if (!Character.isWhitespace(current)) {
+                normalized.append(current);
+            }
+        }
+        return normalized.toString();
+    }
+
+    private static String stripVariableScope(String value) {
+        String[] scopes = { "PERSIST_ONLY", "PERSIST", "GLOBAL", "SESSION", "LOCAL" };
+        for (String scope : scopes) {
+            if (!value.regionMatches(true, 0, scope, 0, scope.length())) {
+                continue;
+            }
+            int offset = scope.length();
+            if (offset < value.length() && (value.charAt(offset) == '.' || value.charAt(offset) == '=')) {
+                offset++;
+            }
+            return value.substring(offset);
+        }
+        return value;
     }
 
     @Override
@@ -1165,7 +1204,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         } else {
             List<String> parts = new ArrayList<>();
             descendants(level, UidContext.class).forEach(uid -> addPart(parts, name(uid)));
-            descendants(level, DottedIdContext.class).forEach(id -> addPart(parts, name(id).replaceFirst("^\\.", "")));
+            descendants(level, DottedIdContext.class).forEach(id -> addPart(parts, removeLeading(name(id), '.')));
             add(sqlType, targetType, true, level, parts);
         }
     }
@@ -1233,12 +1272,25 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     private void addConfigKey(SplitQueryType permission, VariableClauseContext ctx) {
-        String variable = name(ctx).replaceAll("\\s+", "");
-        while (variable.startsWith("@")) {
-            variable = variable.substring(1);
+        addInstanceResource(permission, TargetType.ConfigKey, true, ctx, variableName(ctx));
+    }
+
+    private String variableName(VariableClauseContext ctx) {
+        if (ctx.LOCAL_ID() != null) {
+            return unquote(removeWhitespace(removeLeading(ctx.LOCAL_ID().getText(), '@')));
         }
-        variable = variable.replaceFirst("(?i)^(GLOBAL|SESSION|LOCAL|PERSIST_ONLY|PERSIST)[.=]?", "");
-        addInstanceResource(permission, TargetType.ConfigKey, true, ctx, unquote(variable));
+        if (ctx.GLOBAL_ID() != null) {
+            return unquote(stripVariableScope(removeWhitespace(removeLeading(ctx.GLOBAL_ID().getText(), '@'))));
+        }
+        if (ctx.uid() == null) {
+            return ctx.CUBE() == null ? "" : name(ctx);
+        }
+        int tokenType = ctx.uid().getStart().getType();
+        if (tokenType == MySqlParser.GLOBAL || tokenType == MySqlParser.LOCAL || tokenType == MySqlParser.SESSION
+            || tokenType == MySqlParser.ID && StringUtils.equalsIgnoreCase(ctx.uid().getText(), "PERSIST_ONLY")) {
+            return "";
+        }
+        return name(ctx.uid());
     }
 
     private void addFile(SplitQueryType sqlType, boolean require, ParserRuleContext ctx) {
@@ -1264,7 +1316,18 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         if (StringUtils.isBlank(path)) {
             return path;
         }
-        return String.join("/", Arrays.stream(path.split("/")).filter(StringUtils::isNotBlank).toList());
+        List<String> nodes = new ArrayList<>();
+        int start = 0;
+        for (int i = 0; i <= path.length(); i++) {
+            if (i == path.length() || path.charAt(i) == '/') {
+                String node = path.substring(start, i);
+                if (StringUtils.isNotBlank(node)) {
+                    nodes.add(node);
+                }
+                start = i + 1;
+            }
+        }
+        return String.join("/", nodes);
     }
 
     protected final void addInstanceResource(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, String name) {
@@ -1339,7 +1402,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         if (token == null || StringUtils.isBlank(variable)) {
             return;
         }
-        String normalized = variable.replaceFirst("^@+", "").replaceFirst("(?i)^(GLOBAL|SESSION|LOCAL)\\.", "");
+        String normalized = stripVariableScope(removeLeading(variable, '@'));
         List<String> nodes = new ArrayList<>();
         addPart(nodes, unquote(normalized));
         addWithNodes(sqlType, TargetType.ConfigKey, true, token, nodes);

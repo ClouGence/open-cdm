@@ -16,7 +16,7 @@
 package com.clougence.clouddm.ds.clickhouse.sql;
 
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.behavior.ChBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.clickhouse.sql.analysis.column.ChSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.clickhouse.sql.analysis.lineage.ChLineageAnalysisSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.ChSecDomainResolveSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.editor.rewrite.ChRewriteSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.ChSplitAnalysisSpi;
@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -33,19 +33,19 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class ChSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "ClickHouse SQL";
+    public static final String        NAME = "ClickHouse SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public ChSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new ChSplitAnalysisSpi();
         this.secDomainResolveSpi = new ChSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new ChBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new ChSelectColumnAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = new ChLineageAnalysisSpi(metaService);
         this.rewriteSpi = new ChRewriteSpi();
     }
 
@@ -74,8 +74,8 @@ public class ChSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

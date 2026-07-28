@@ -26,21 +26,11 @@ public final class MetaColConvert {
     private MetaColConvert(){
     }
 
-    public static List<SelectItem> toSelectItems(List<MetaCol> metaCols) {
-        return metaCols.stream().map(MetaColConvert::toSelectItem).collect(Collectors.toList());
+    public static List<SourceName> toSourceNames(List<MetaCol> metaCols) {
+        return metaCols.stream().map(MetaColConvert::toSourceName).collect(Collectors.toList());
     }
 
-    public static SelectItem toSelectItem(MetaCol metaCol) {
-        SelectItem selectItem = new SelectItem();
-
-        RealColumn realColumn = new RealColumn();
-        realColumn.setCatalog(metaCol.getCatalog());
-        realColumn.setSchema(metaCol.getSchema());
-        realColumn.setTable(metaCol.getTable());
-        realColumn.setColumn(metaCol.getColumn());
-
-        selectItem.addRealColumn(realColumn);
-        selectItem.setItemAlias(metaCol.getColumn());
-        return selectItem;
+    public static SourceName toSourceName(MetaCol metaCol) {
+        return new SourceName(metaCol.getCatalog(), metaCol.getSchema(), metaCol.getTable(), metaCol.getColumn());
     }
 }

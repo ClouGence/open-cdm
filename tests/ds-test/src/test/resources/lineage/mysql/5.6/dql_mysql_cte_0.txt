@@ -1,0 +1,17 @@
+[dql_mysql_cte_0.0001]
+sql:
+SELECT FALSE IS NULL IS NULL, TRUE IS NOT NULL IS NOT NULL;
+expect:
+{
+  "FALSE IS NULL IS NULL" : [ ],
+  "TRUE IS NOT NULL IS NOT NULL" : [ ]
+}
+----------
+[dql_mysql_cte_0.0002]
+sql:
+SELECT NOT NOT TRUE, NOT NOT NOT FALSE;
+expect:
+{
+  "NOT NOT TRUE" : [ ],
+  "NOT NOT NOT FALSE" : [ ]
+}

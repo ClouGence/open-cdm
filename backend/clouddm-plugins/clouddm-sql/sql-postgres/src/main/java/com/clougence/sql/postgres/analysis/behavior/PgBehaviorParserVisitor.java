@@ -573,9 +573,14 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
             return;
         }
         if (split) {
-            for (String part : value.split("/")) {
-                if (StringUtils.isNotBlank(part)) {
-                    path.add(part);
+            int start = 0;
+            for (int i = 0; i <= value.length(); i++) {
+                if (i == value.length() || value.charAt(i) == '/') {
+                    String part = value.substring(start, i);
+                    if (StringUtils.isNotBlank(part)) {
+                        path.add(part);
+                    }
+                    start = i + 1;
                 }
             }
         } else {

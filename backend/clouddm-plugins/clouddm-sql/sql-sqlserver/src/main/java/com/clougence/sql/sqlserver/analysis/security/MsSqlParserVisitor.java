@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
@@ -124,8 +125,8 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         MsTableDomain domain = tableDomain(ctx.table_name(), RuleQueryType.CREATE_TABLE, SecQueryKind.CREATE);
         domain.setColumns(new ArrayList<>());
         Map<String, MsColumnDomain> columns = new LinkedHashMap<>();
-        List<RuleDomain> children = tableElementDomains(ctx.column_def_table_constraints(), domain, columns, RuleQueryType.CREATE_TABLE_ADD_COLUMN,
-                RuleQueryType.CREATE_TABLE_ADD_CONSTRAINT);
+        List<RuleDomain> children = tableElementDomains(ctx
+            .column_def_table_constraints(), domain, columns, RuleQueryType.CREATE_TABLE_ADD_COLUMN, RuleQueryType.CREATE_TABLE_ADD_CONSTRAINT);
         add(domain);
         children.forEach(this::add);
         return null;
@@ -138,8 +139,8 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         Map<String, MsColumnDomain> columns = new LinkedHashMap<>();
         List<RuleDomain> children = new ArrayList<>();
         if (ctx.ADD() != null && ctx.column_def_table_constraints() != null) {
-            children.addAll(tableElementDomains(ctx.column_def_table_constraints(), domain, columns, RuleQueryType.ALTER_TABLE_ADD_COLUMN,
-                    RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT));
+            children
+                .addAll(tableElementDomains(ctx.column_def_table_constraints(), domain, columns, RuleQueryType.ALTER_TABLE_ADD_COLUMN, RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT));
         } else if (ctx.ALTER().size() > 1 && ctx.column_definition() != null) {
             MsColumnDomain column = columnDomain(ctx.column_definition(), domain, RuleQueryType.ALTER_TABLE_ALTER_COLUMN, SecQueryKind.ALTER);
             children.add(column);
@@ -151,8 +152,8 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
                 domain.getColumns().remove(column.getColumn());
             }
         } else if (ctx.DROP() != null && ctx.CONSTRAINT() != null && ctx.constraint != null) {
-            RdbConstraintDomain constraint = constraintDomain(domain, RuleQueryType.ALTER_TABLE_DROP_CONSTRAINT, SqlConstraintType.ByName, clean(ctx.constraint),
-                    Collections.emptyList());
+            RdbConstraintDomain constraint = constraintDomain(domain, RuleQueryType.ALTER_TABLE_DROP_CONSTRAINT, SqlConstraintType.ByName, clean(ctx.constraint), Collections
+                .emptyList());
             constraint.setAuditKind(SecQueryKind.DROP);
             children.add(constraint);
         } else if (ctx.ADD() != null && ctx.CONSTRAINT() != null) {
@@ -525,11 +526,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
             domain.setTypeName(dataTypeName(ctx.data_type()));
             domain.setLength(dataTypeLength(ctx.data_type()));
         }
-        String text = compactLower(ctx);
-        domain.setNullable(!text.contains("notnull"));
-        domain.setPrimary(text.contains("primarykey"));
-        domain.setUnique(text.contains("unique"));
-        domain.setForeign(text.contains("foreignkey"));
+        domain.setNullable(true);
         for (SqlServerParser.Column_definition_elementContext element : ctx.column_definition_element()) {
             if (element.constant_expr != null) {
                 domain.setDefaultValue(stripQuote(getText(element.constant_expr)));
@@ -546,6 +543,9 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
             }
             if (constraint.FOREIGN() != null || constraint.foreign_key_options() != null) {
                 domain.setForeign(true);
+            }
+            if (constraint.null_notnull() != null && constraint.null_notnull().NOT() != null) {
+                domain.setNullable(false);
             }
         }
         return domain;
@@ -641,7 +641,7 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         if (ctx.DOUBLE() != null) {
             return "DOUBLE";
         }
-        return stripQuote(getText(ctx).replaceAll("\\(.*", ""));
+        return ctx.getChildCount() == 0 ? null : stripQuote(ctx.getChild(0).getText());
     }
 
     private String dataTypeLength(SqlServerParser.Data_typeContext ctx) {
@@ -677,26 +677,43 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         }
     }
 
-    private boolean isTautology(ParserRuleContext ctx) {
-        String normalized = compactLower(ctx);
-        if ("1=1".equals(normalized) || "'1'='1'".equals(normalized)) {
-            return true;
+    private boolean isTautology(SqlServerParser.Search_conditionContext ctx) {
+        if (ctx == null || !ctx.NOT().isEmpty() || ctx.AND() != null || ctx.OR() != null) {
+            return false;
         }
-        int eq = normalized.indexOf('=');
-        return eq > 0 && normalized.indexOf('=', eq + 1) < 0 && normalized.substring(0, eq).equals(normalized.substring(eq + 1));
+        if (ctx.predicate() != null) {
+            SqlServerParser.PredicateContext predicate = ctx.predicate();
+            return predicate.comparison_operator() != null && predicate.comparison_operator().getStart().getType() == SqlServerParser.EQUAL && predicate.expression().size() == 2
+                   && sameAst(predicate.expression(0), predicate.expression(1));
+        }
+        return ctx.search_condition().size() == 1 && isTautology(ctx.search_condition(0));
+    }
+
+    private boolean sameAst(ParseTree left, ParseTree right) {
+        if (left instanceof TerminalNode leftTerminal && right instanceof TerminalNode rightTerminal) {
+            return leftTerminal.getSymbol().getType() == rightTerminal.getSymbol().getType() && leftTerminal.getText().equalsIgnoreCase(rightTerminal.getText());
+        }
+        if (left == null || right == null || left.getClass() != right.getClass() || left.getChildCount() != right.getChildCount()) {
+            return false;
+        }
+        for (int i = 0; i < left.getChildCount(); i++) {
+            if (!sameAst(left.getChild(i), right.getChild(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void addJoinType(MsSelectDomain domain, SqlServerParser.Join_partContext join) {
-        String text = compactLower(join);
         RdbJoinType type;
-        if (text.contains("crossjoin") || text.contains("crossapply")) {
+        if (join.cross_join() != null || join.apply_() != null && join.apply_().CROSS() != null) {
             type = RdbJoinType.CROSS_JOIN;
-        } else if (text.contains("innerjoin") || text.startsWith("join") || text.contains(" join")) {
-            type = RdbJoinType.INNER_JOIN;
-        } else if (text.contains("leftjoin") || text.contains("leftouterjoin")) {
+        } else if (join.join_on() != null && join.join_on().LEFT() != null) {
             type = RdbJoinType.LEFT_JOIN;
-        } else if (text.contains("rightjoin") || text.contains("rightouterjoin")) {
+        } else if (join.join_on() != null && join.join_on().RIGHT() != null) {
             type = RdbJoinType.RIGHT_JOIN;
+        } else if (join.join_on() != null) {
+            type = RdbJoinType.INNER_JOIN;
         } else {
             type = RdbJoinType.OTHER_JOIN;
         }
@@ -745,15 +762,9 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     }
 
     private List<String> executeArgs(SqlServerParser.Execute_bodyContext body) {
-        String bodyText = getText(body);
-        String procText = getText(body.func_proc_name_server_database_schema());
-        String argsText = bodyText.startsWith(procText) ? bodyText.substring(procText.length()) : bodyText;
-        if (argsText.startsWith("(") && argsText.endsWith(")")) {
-            argsText = argsText.substring(1, argsText.length() - 1);
-        }
         List<String> args = new ArrayList<>();
-        for (String arg : argsText.split(",")) {
-            String cleanArg = stripQuote(arg);
+        for (SqlServerParser.Execute_parameterContext argument : descendants(body.execute_statement_arg(), SqlServerParser.Execute_parameterContext.class)) {
+            String cleanArg = stripQuote(argument.getText());
             if (!cleanArg.isEmpty()) {
                 args.add(cleanArg);
             }
@@ -763,10 +774,6 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
 
     private String getText(ParserRuleContext context) {
         return parser.getTokenStream().getText(context.getStart(), context.getStop());
-    }
-
-    private String compactLower(ParserRuleContext context) {
-        return getText(context).replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
     }
 
     private boolean startsWithAlter(ParserRuleContext ctx) {
@@ -830,8 +837,8 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
         if (text == null) {
             return null;
         }
-        String[] parts = text.split("\\.");
-        return stripQuote(parts[parts.length - 1]);
+        int dot = text.lastIndexOf('.');
+        return stripQuote(dot < 0 ? text : text.substring(dot + 1));
     }
 
     private <T extends ParserRuleContext> T first(ParseTree tree, Class<T> type) {

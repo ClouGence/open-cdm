@@ -1,0 +1,72 @@
+[MyParseColumnFunctionTest.test1]
+sql:
+select test_function(1) from table1
+expect:
+{
+  "test_function(1)" : []
+}
+----------
+[MyParseColumnFunctionTest.test2]
+sql:
+select test_function(column1) from table1
+expect:
+{
+  "test_function(column1)" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnFunctionTest.test3]
+sql:
+select test_function(32)
+expect:
+{
+  "test_function(32)" : []
+}
+----------
+[MyParseColumnFunctionTest.test4]
+sql:
+select cast(column1 as char) as f from table1
+expect:
+{
+  "f" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnFunctionTest.test5]
+sql:
+select f from (select cast(column1 as char) as f from table1)c
+expect:
+{
+  "f" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[MyParseColumnFunctionTest.test6]
+sql:
+select test_func((select column1 from table2)) from table1
+expect:
+{
+  "test_func((select column1 from table2))" : [ "/catalog1/schema1/table2/column1/" ]
+}
+----------
+[MyParseColumnFunctionTest.test7]
+sql:
+select test_func((select test_func1((select column1 from schema2.table1),column1) from table2),column1) from table1
+expect:
+{
+  "test_func((select test_func1((select column1 from schema2.table1),column1) from table2),column1)" : [ "/catalog1/schema2/table1/column1/", "/catalog1/schema1/table2/column1/", "/catalog1/schema1/table1/column1/" ]
+}
+[weight_string_source]
+sql:
+select WEIGHT_STRING(column1) as weighted from table1
+expect:
+{
+  "weighted" : [ "/catalog1/schema1/table1/column1/" ]
+}
+----------
+[straight_join_source]
+sql:
+select table1.column1, table2.column2 from table1 straight_join table2 on table1.column1 = table2.column1
+expect:
+{
+  "column1" : [ "/catalog1/schema1/table1/column1/" ],
+  "column2" : [ "/catalog1/schema1/table2/column2/" ]
+}
+----------

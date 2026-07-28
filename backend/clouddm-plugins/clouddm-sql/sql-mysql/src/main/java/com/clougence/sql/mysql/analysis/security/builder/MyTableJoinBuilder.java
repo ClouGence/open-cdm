@@ -26,15 +26,15 @@ public class MyTableJoinBuilder extends TableJoinBuilder {
 
     public MyTableJoinBuilder(String joinType){
         super(joinType);
-        if ("naturaljoin".equalsIgnoreCase(joinType)) {
+        if ("naturaljoin".equalsIgnoreCase(joinType) || "naturalinnerjoin".equalsIgnoreCase(joinType)) {
             this.joinDomain = new JoinDomain(RdbJoinType.INNER_JOIN);
             this.joinDomain.setOptions(new LinkedHashMap<>());
             this.joinDomain.getOptions().put(MySecDomainOptionKeys.OPT_JOIN_NATURAL, "true");
-        } else if ("naturalleftjoin".equalsIgnoreCase(joinType)) {
+        } else if ("naturalleftjoin".equalsIgnoreCase(joinType) || "naturalleftouterjoin".equalsIgnoreCase(joinType)) {
             this.joinDomain = new JoinDomain(RdbJoinType.LEFT_JOIN);
             this.joinDomain.setOptions(new LinkedHashMap<>());
             this.joinDomain.getOptions().put(MySecDomainOptionKeys.OPT_JOIN_NATURAL, "true");
-        } else if ("naturalrightjoin".equalsIgnoreCase(joinType)) {
+        } else if ("naturalrightjoin".equalsIgnoreCase(joinType) || "naturalrightouterjoin".equalsIgnoreCase(joinType)) {
             this.joinDomain = new JoinDomain(RdbJoinType.RIGHT_JOIN);
             this.joinDomain.setOptions(new LinkedHashMap<>());
             this.joinDomain.getOptions().put(MySecDomainOptionKeys.OPT_JOIN_NATURAL, "true");

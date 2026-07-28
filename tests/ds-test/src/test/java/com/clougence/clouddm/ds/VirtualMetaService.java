@@ -64,7 +64,7 @@ public class VirtualMetaService implements MetaService {
 
             JsonNode columns = JSON.readTree(file.toFile());
             if (!columns.isArray()) {
-                throw new IllegalStateException("Meta file must use SelectItem array format: " + file);
+                throw new IllegalStateException("Meta file must use column array format: " + file);
             }
             objects.add(new VirtualObject(catalog, schema, name, columns(columns, catalog, schema, name)));
         } catch (IOException e) {

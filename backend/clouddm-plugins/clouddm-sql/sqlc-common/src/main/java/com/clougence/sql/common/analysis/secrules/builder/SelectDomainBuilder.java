@@ -191,6 +191,7 @@ public abstract class SelectDomainBuilder<T extends RdbSelectDomain> extends Abs
                     if (joinDomain.getOptions() != null) {
                         selectDomain.getOptions().putAll(joinDomain.getOptions());
                     }
+                    selectDomain.getJoinUsingColumns().addAll(joinDomain.getUsingColumns());
                     selectDomain.getJoinTypes().add(joinDomain.getJoinType());
                     selectDomain.setSimpleSelect(false);
 

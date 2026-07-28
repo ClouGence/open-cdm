@@ -172,7 +172,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     @Override
     public Void visitSpecificFunctionCall(SpecificFunctionCallContext ctx) {
         SpecificFunctionContext function = ctx.specificFunction();
-        if (!(function instanceof CaseFunctionCallContext) && !(function instanceof SpecialTimeCallContext)) {
+        if (!(function instanceof CaseFunctionCallContext)) {
             addFunction(ctx.getStart());
         }
         return visitChildren(ctx);

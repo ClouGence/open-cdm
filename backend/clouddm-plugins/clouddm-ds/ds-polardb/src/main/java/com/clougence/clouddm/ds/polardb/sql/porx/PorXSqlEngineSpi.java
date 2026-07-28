@@ -16,7 +16,7 @@
 package com.clougence.clouddm.ds.polardb.sql.porx;
 
 import com.clougence.clouddm.ds.polardb.sql.porx.analysis.behavior.PorXBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.polardb.sql.porx.analysis.column.PorXSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.polardb.sql.porx.analysis.lineage.PorXLineageAnalysisSpi;
 import com.clougence.clouddm.ds.polardb.sql.porx.analysis.security.PorXSecDomainResolveSpi;
 import com.clougence.clouddm.ds.polardb.sql.porx.editor.rewrite.PorXRewriteSpi;
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -33,19 +33,19 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class PorXSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "PolarDB-X SQL";
+    public static final String        NAME = "PolarDB-X SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public PorXSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new PorXSplitAnalysisSpi();
         this.secDomainResolveSpi = new PorXSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new PorXBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new PorXSelectColumnAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = new PorXLineageAnalysisSpi(metaService);
         this.rewriteSpi = new PorXRewriteSpi();
     }
 
@@ -74,8 +74,8 @@ public class PorXSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

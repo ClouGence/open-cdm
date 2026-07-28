@@ -16,7 +16,7 @@
 package com.clougence.clouddm.ds.ads.sql.ads4my;
 
 import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.behavior.AdsMyBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.column.AdsMySelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.lineage.AdsMyLineageAnalysisSpi;
 import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.security.AdsMySecDomainResolveSpi;
 import com.clougence.clouddm.ds.ads.sql.ads4my.editor.rewrite.AdbRewriteSpi;
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.AdsMyDslProvider;
@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -33,19 +33,19 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class AdsMySqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "AnalyticDB SQL for MySQL";
+    public static final String        NAME = "AnalyticDB SQL for MySQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public AdsMySqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new AdsMySplitAnalysisSpi();
         this.secDomainResolveSpi = new AdsMySecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new AdsMyBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new AdsMySelectColumnAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = new AdsMyLineageAnalysisSpi(metaService);
         this.rewriteSpi = new AdbRewriteSpi();
     }
 
@@ -75,8 +75,8 @@ public class AdsMySqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

@@ -62,11 +62,13 @@ public class RdbSelectDomain extends RdbWhereDomain implements RdbConfigNames {
     private boolean           emptyFrom;
 
     @RuleIgnore
-    private List<QueryItem>   columns      = new ArrayList<>();
+    private List<QueryItem>   columns          = new ArrayList<>();
     @RuleIgnore
-    private List<RuleDomain>  whereDomains = new ArrayList<>();
+    private List<RuleDomain>  whereDomains     = new ArrayList<>();
 
-    private List<RdbJoinType> joinTypes    = new ArrayList<>();
+    private List<RdbJoinType> joinTypes        = new ArrayList<>();
+    @RuleIgnore
+    private Set<String>       joinUsingColumns = new LinkedHashSet<>();
 
     public void addSelect(String select, RdbQuerySelectType selectType) {
         if (select == null || select.isEmpty()) {

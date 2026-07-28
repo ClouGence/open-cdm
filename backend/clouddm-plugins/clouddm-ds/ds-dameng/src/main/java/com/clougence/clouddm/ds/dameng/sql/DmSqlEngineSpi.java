@@ -16,7 +16,7 @@
 package com.clougence.clouddm.ds.dameng.sql;
 
 import com.clougence.clouddm.ds.dameng.sql.analysis.behavior.DmBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.dameng.sql.analysis.column.DmSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.dameng.sql.analysis.lineage.DmLineageAnalysisSpi;
 import com.clougence.clouddm.ds.dameng.sql.analysis.security.DmSecDomainResolveSpi;
 import com.clougence.clouddm.ds.dameng.sql.parser.DmDslProvider;
 import com.clougence.clouddm.ds.dameng.sql.parser.DmSplitAnalysisSpi;
@@ -24,25 +24,25 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 
 public class DmSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "Dameng SQL";
+    public static final String        NAME = "Dameng SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
 
     public DmSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new DmSplitAnalysisSpi();
         this.secDomainResolveSpi = new DmSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new DmBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new DmSelectColumnAnalysisSpi();
+        this.lineageAnalysisSpi = new DmLineageAnalysisSpi();
     }
 
     @Override
@@ -71,8 +71,8 @@ public class DmSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

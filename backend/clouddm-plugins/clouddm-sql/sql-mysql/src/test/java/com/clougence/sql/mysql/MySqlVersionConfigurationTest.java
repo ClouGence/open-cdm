@@ -12,16 +12,16 @@ import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
-import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
+import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.parser.MyDslProvider;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
 import com.clougence.sql.mysql.parser.MySqlParserConfig.Feature;
 import com.clougence.sql.mysql.parser.MySqlVersion;
-import com.clougence.schema.umi.struts.UmiTypes;
 
 public class MySqlVersionConfigurationTest {
 
@@ -53,10 +53,8 @@ public class MySqlVersionConfigurationTest {
         Assertions.assertEquals(MySqlVersion.MYSQL_5_7, provider.version());
         Assertions.assertEquals(50744, provider.exactVersion());
 
-        SqlParserParameters overrideParameters = new SqlParserParameters(Map.of(
-                SqlParserParameters.VERSION, "8.0.22",
-                SqlParserParameters.GRAMMAR_VERSION, "5.7",
-                SqlParserParameters.EXACT_VERSION, "50744"));
+        SqlParserParameters overrideParameters = new SqlParserParameters(
+            Map.of(SqlParserParameters.VERSION, "8.0.22", SqlParserParameters.GRAMMAR_VERSION, "5.7", SqlParserParameters.EXACT_VERSION, "50744"));
         MyDslProvider overrideProvider = (MyDslProvider) engine.dslProvider(overrideParameters);
         Assertions.assertEquals(MySqlVersion.MYSQL_5_7, overrideProvider.version());
         Assertions.assertEquals(50744, overrideProvider.exactVersion());
@@ -96,8 +94,7 @@ public class MySqlVersionConfigurationTest {
     public void engineMapsSqlModeParametersToParserProperties() {
         MySqlEngineSpi engine = new MySqlEngineSpi(null);
 
-        MyDslProvider unknownProvider = (MyDslProvider) engine.dslProvider(
-                SqlParserParameters.ofVersion("8.4.10"));
+        MyDslProvider unknownProvider = (MyDslProvider) engine.dslProvider(SqlParserParameters.ofVersion("8.4.10"));
         Assertions.assertFalse(unknownProvider.config().isSqlModeKnown());
 
         MyDslProvider emptyProvider = (MyDslProvider) engine.dslProvider(parserParameters(""));
@@ -108,13 +105,8 @@ public class MySqlVersionConfigurationTest {
         SqlParserParameters configuredParameters = parserParameters(sqlMode);
         Assertions.assertEquals(sqlMode, configuredParameters.get(SqlParserParameters.SQL_MODE));
         MyDslProvider configuredProvider = (MyDslProvider) engine.dslProvider(configuredParameters);
-        Assertions.assertEquals(
-                java.util.EnumSet.of(
-                        Feature.ANSI_QUOTES,
-                        Feature.PIPES_AS_CONCAT,
-                        Feature.IGNORE_SPACE,
-                        Feature.NO_BACKSLASH_ESCAPES),
-                configuredProvider.config().features());
+        Assertions.assertEquals(java.util.EnumSet.of(Feature.ANSI_QUOTES, Feature.PIPES_AS_CONCAT, Feature.IGNORE_SPACE, Feature.NO_BACKSLASH_ESCAPES), configuredProvider.config()
+            .features());
     }
 
     @Test
@@ -124,36 +116,25 @@ public class MySqlVersionConfigurationTest {
         SqlParserParameters knownEmpty = parserParameters("");
         String sql = "SELECT * FROM \"table1\";";
 
-        Map<UmiTypes, Object> levels = Map.of(
-                UmiTypes.Catalog, "catalog1",
-                UmiTypes.Schema, "schema1");
-        Assertions.assertDoesNotThrow(() -> engine.behaviorAnalysisSpi(ansiQuotes)
-                .analysisBehavior(sql, levels, 0, 0));
-        Assertions.assertThrows(AntlerSyntaxException.class,
-                () -> engine.behaviorAnalysisSpi(knownEmpty).analysisBehavior(sql, levels, 0, 0));
+        Map<UmiTypes, Object> levels = Map.of(UmiTypes.Catalog, "catalog1", UmiTypes.Schema, "schema1");
+        Assertions.assertDoesNotThrow(() -> engine.behaviorAnalysisSpi(ansiQuotes).analysisBehavior(sql, levels, 0, 0));
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.behaviorAnalysisSpi(knownEmpty).analysisBehavior(sql, levels, 0, 0));
 
         CodeInfo codeInfo = CodeInfo.builder().query(sql).baseLine(0).baseColumn(0).build();
         ContextInfo securityContextInfo = ContextInfo.builder().deepParser(false).levelsParam(levels).build();
-        Assertions.assertDoesNotThrow(() -> engine.secDomainResolveSpi(ansiQuotes)
-                .resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.secDomainResolveSpi(knownEmpty)
-                .resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
+        Assertions.assertDoesNotThrow(() -> engine.secDomainResolveSpi(ansiQuotes).resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.secDomainResolveSpi(knownEmpty).resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
 
-        var columnContextInfo = com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo.builder()
-            .levelsParam(levels)
-            .build();
-        Assertions.assertDoesNotThrow(() -> engine.selectColumnAnalysisSpi(ansiQuotes)
-                .parseSelectColumn(sql, columnContextInfo));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.selectColumnAnalysisSpi(knownEmpty)
-                .parseSelectColumn(sql, columnContextInfo));
+        var columnContextInfo = com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext.builder().levelsParam(levels).build();
+        Assertions.assertDoesNotThrow(() -> engine.lineageAnalysisSpi(ansiQuotes).analyze(sql, columnContextInfo));
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.lineageAnalysisSpi(knownEmpty).analyze(sql, columnContextInfo));
 
         QueryRequest request = new QueryRequest();
         request.setQueryBody(sql);
         RewriteContext rewriteContext = new RewriteContext();
         rewriteContext.setFetchLimit(10);
         Assertions.assertTrue(engine.rewriteSpi(ansiQuotes).rewriterQuery(request, rewriteContext).contains("LIMIT 10"));
-        Assertions.assertThrows(AntlerSyntaxException.class,
-                () -> engine.rewriteSpi(knownEmpty).rewriterQuery(request, rewriteContext));
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.rewriteSpi(knownEmpty).rewriterQuery(request, rewriteContext));
     }
 
     private static SqlParserParameters parserParameters(String sqlMode) {

@@ -23,13 +23,13 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.postgres.analysis.behavior.PgBehaviorAnalysisSpi;
-import com.clougence.sql.postgres.analysis.column.PgSelectColumnAnalysisSpi;
+import com.clougence.sql.postgres.analysis.lineage.PgLineageAnalysisSpi;
 import com.clougence.sql.postgres.analysis.security.PgSecDomainResolveSpi;
 import com.clougence.sql.postgres.editor.rewrite.PgRewriteSpi;
 import com.clougence.sql.postgres.parser.PgDslProvider;
@@ -38,15 +38,15 @@ import com.clougence.sql.postgres.parser.PostgresVersion;
 
 /** @author mode */
 public class PgSqlEngineSpi implements SqlEngineSpi {
-    public static final String                         NAME           = "PG SQL";
+    public static final String                     NAME           = "PG SQL";
 
-    private final MetaService                          metaService;
-    private final Map<String, SplitAnalysisSpi>        splitCache     = new ConcurrentHashMap<>();
-    private final Map<String, SecDomainResolveSpi>     secDomainCache = new ConcurrentHashMap<>();
-    private final Map<String, BehaviorAnalysisSpi>     behaviorCache  = new ConcurrentHashMap<>();
-    private final Map<String, SelectColumnAnalysisSpi> selectColCache = new ConcurrentHashMap<>();
-    private final Map<String, RewriteSpi>              rewriteCache   = new ConcurrentHashMap<>();
-    private final Map<String, DslProvider>             dslCache       = new ConcurrentHashMap<>();
+    private final MetaService                      metaService;
+    private final Map<String, SplitAnalysisSpi>    splitCache     = new ConcurrentHashMap<>();
+    private final Map<String, SecDomainResolveSpi> secDomainCache = new ConcurrentHashMap<>();
+    private final Map<String, BehaviorAnalysisSpi> behaviorCache  = new ConcurrentHashMap<>();
+    private final Map<String, LineageAnalysisSpi>  lineageCache   = new ConcurrentHashMap<>();
+    private final Map<String, RewriteSpi>          rewriteCache   = new ConcurrentHashMap<>();
+    private final Map<String, DslProvider>         dslCache       = new ConcurrentHashMap<>();
 
     public PgSqlEngineSpi(MetaService metaService){
         this.metaService = metaService;
@@ -94,10 +94,10 @@ public class PgSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
         SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
         String key = parserKey(parserParameters);
-        return selectColCache.computeIfAbsent(key, value -> new PgSelectColumnAnalysisSpi(metaService, resolveVersion(parserParameters)));
+        return lineageCache.computeIfAbsent(key, value -> new PgLineageAnalysisSpi(metaService, resolveVersion(parserParameters)));
     }
 
     @Override

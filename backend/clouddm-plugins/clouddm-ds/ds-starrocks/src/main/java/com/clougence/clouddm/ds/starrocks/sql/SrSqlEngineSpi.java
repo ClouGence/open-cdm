@@ -16,7 +16,7 @@
 package com.clougence.clouddm.ds.starrocks.sql;
 
 import com.clougence.clouddm.ds.starrocks.sql.analysis.behavior.SrBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.starrocks.sql.analysis.column.SrSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.analysis.lineage.SrLineageAnalysisSpi;
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.SrSecDomainResolveSpi;
 import com.clougence.clouddm.ds.starrocks.sql.editor.rewrite.SrRewriteSpi;
 import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -33,19 +33,19 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class SrSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "StarRocks SQL";
+    public static final String        NAME = "StarRocks SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public SrSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new SrSplitAnalysisSpi();
         this.secDomainResolveSpi = new SrSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new SrBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new SrSelectColumnAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = new SrLineageAnalysisSpi(metaService);
         this.rewriteSpi = new SrRewriteSpi();
     }
 
@@ -74,8 +74,8 @@ public class SrSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

@@ -36,7 +36,14 @@ public enum MyFlushType {
     USER_RESOURCE;
 
     public static MyFlushType valueOfString(String type) {
-        String normalized = type.replace("_", "").replaceAll("\\s+", "").toUpperCase(Locale.ROOT);
+        StringBuilder compact = new StringBuilder(type.length());
+        for (int i = 0; i < type.length(); i++) {
+            char current = type.charAt(i);
+            if (current != '_' && !Character.isWhitespace(current)) {
+                compact.append(current);
+            }
+        }
+        String normalized = compact.toString().toUpperCase(Locale.ROOT);
         if (normalized.startsWith("TABLE")) {
             return TABLES;
         }

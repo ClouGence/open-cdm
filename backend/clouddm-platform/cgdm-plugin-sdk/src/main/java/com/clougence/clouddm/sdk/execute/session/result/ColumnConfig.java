@@ -17,7 +17,7 @@ package com.clougence.clouddm.sdk.execute.session.result;
 
 import java.util.List;
 
-import com.clougence.clouddm.sdk.sql.analysis.column.SourceName;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;

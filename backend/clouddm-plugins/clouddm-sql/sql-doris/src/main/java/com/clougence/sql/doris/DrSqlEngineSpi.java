@@ -19,13 +19,13 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.doris.analysis.behavior.DrBehaviorAnalysisSpi;
-import com.clougence.sql.doris.analysis.column.DrSelectColumnAnalysisSpi;
+import com.clougence.sql.doris.analysis.lineage.DrLineageAnalysisSpi;
 import com.clougence.sql.doris.analysis.security.DrSecDomainResolveSpi;
 import com.clougence.sql.doris.editor.rewrite.DrRewriteSpi;
 import com.clougence.sql.doris.parser.DrDslProvider;
@@ -33,19 +33,19 @@ import com.clougence.sql.doris.parser.DrSplitAnalysisSpi;
 
 /** @author mode */
 public class DrSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "Doris SQL";
+    public static final String        NAME = "Doris SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public DrSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new DrSplitAnalysisSpi();
         this.secDomainResolveSpi = new DrSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new DrBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new DrSelectColumnAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = new DrLineageAnalysisSpi(metaService);
         this.rewriteSpi = new DrRewriteSpi();
     }
 
@@ -75,8 +75,8 @@ public class DrSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

@@ -17,7 +17,7 @@ package com.clougence.clouddm.sdk.sql;
 
 import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -56,7 +56,7 @@ public interface SqlEngineSpi extends Spi {
      *
      * @param parameters parser parameters, or null/empty to use implementation defaults.
      */
-    SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters);
+    LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters);
 
     /**
      * Returns the security-domain resolve SPI, or null if security-domain analysis is not supported.

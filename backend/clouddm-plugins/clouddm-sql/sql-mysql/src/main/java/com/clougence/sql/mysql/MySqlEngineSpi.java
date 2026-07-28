@@ -18,19 +18,20 @@ package com.clougence.sql.mysql;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.mysql.analysis.behavior.MyBehaviorAnalysisSpi;
-import com.clougence.sql.mysql.analysis.column.MySelectColumnAnalysisSpi;
+import com.clougence.sql.mysql.analysis.lineage.MyLineageAnalysisSpi;
 import com.clougence.sql.mysql.analysis.security.MySecDomainResolveSpi;
 import com.clougence.sql.mysql.editor.rewrite.MyRewriteSpi;
 import com.clougence.sql.mysql.parser.MyDslProvider;
@@ -40,15 +41,15 @@ import com.clougence.sql.mysql.parser.MySqlParserConfig.Feature;
 
 /** @author mode */
 public class MySqlEngineSpi implements SqlEngineSpi {
-    public static final String                         NAME           = "MySQL";
+    public static final String                     NAME           = "MySQL";
 
-    private final MetaService                          metaService;
-    private final Map<String, SplitAnalysisSpi>        splitCache     = new ConcurrentHashMap<>();
-    private final Map<String, SecDomainResolveSpi>     secDomainCache = new ConcurrentHashMap<>();
-    private final Map<String, BehaviorAnalysisSpi>     behaviorCache  = new ConcurrentHashMap<>();
-    private final Map<String, SelectColumnAnalysisSpi> selectColCache = new ConcurrentHashMap<>();
-    private final Map<String, RewriteSpi>              rewriteCache   = new ConcurrentHashMap<>();
-    private final Map<String, DslProvider>             dslCache       = new ConcurrentHashMap<>();
+    private final MetaService                      metaService;
+    private final Map<String, SplitAnalysisSpi>    splitCache     = new ConcurrentHashMap<>();
+    private final Map<String, SecDomainResolveSpi> secDomainCache = new ConcurrentHashMap<>();
+    private final Map<String, BehaviorAnalysisSpi> behaviorCache  = new ConcurrentHashMap<>();
+    private final Map<String, LineageAnalysisSpi>  lineageCache   = new ConcurrentHashMap<>();
+    private final Map<String, RewriteSpi>          rewriteCache   = new ConcurrentHashMap<>();
+    private final Map<String, DslProvider>         dslCache       = new ConcurrentHashMap<>();
 
     public MySqlEngineSpi(MetaService metaService){
         this.metaService = metaService;
@@ -77,7 +78,9 @@ public class MySqlEngineSpi implements SqlEngineSpi {
         EnumSet<Feature> features = EnumSet.noneOf(Feature.class);
         String sqlMode = parameters.get(SqlParserParameters.SQL_MODE);
         if (sqlMode != null && !sqlMode.isBlank()) {
-            for (String modeName : sqlMode.split(",")) {
+            StringTokenizer modeNames = new StringTokenizer(sqlMode, ",");
+            while (modeNames.hasMoreTokens()) {
+                String modeName = modeNames.nextToken();
                 String normalized = modeName.trim().toUpperCase(Locale.ROOT);
                 if (switch (normalized) {
                     case "ANSI", "DB2", "MAXDB", "MSSQL", "ORACLE", "POSTGRESQL" -> true;
@@ -131,10 +134,10 @@ public class MySqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
         SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
         String key = parserKey(parserParameters);
-        return selectColCache.computeIfAbsent(key, value -> new MySelectColumnAnalysisSpi(metaService, parserConfig(parserParameters)));
+        return lineageCache.computeIfAbsent(key, value -> new MyLineageAnalysisSpi(metaService, parserConfig(parserParameters)));
     }
 
     @Override

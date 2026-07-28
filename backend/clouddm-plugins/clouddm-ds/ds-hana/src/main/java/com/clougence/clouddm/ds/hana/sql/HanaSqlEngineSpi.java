@@ -20,7 +20,7 @@ import com.clougence.clouddm.ds.hana.sql.parser.HanaSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -28,19 +28,19 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class HanaSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "SAP Hana SQL";
+    public static final String        NAME = "SAP Hana SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public HanaSqlEngineSpi(){
         this.splitAnalysisSpi = new HanaSplitAnalysisSpi();
         this.secDomainResolveSpi = null;
         this.behaviorAnalysisSpi = new HanaBehaviorAnalysisSpi(splitAnalysisSpi);
-        this.selectColumnAnalysisSpi = null;
+        this.lineageAnalysisSpi = null;
         this.rewriteSpi = null;
     }
 
@@ -69,8 +69,8 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

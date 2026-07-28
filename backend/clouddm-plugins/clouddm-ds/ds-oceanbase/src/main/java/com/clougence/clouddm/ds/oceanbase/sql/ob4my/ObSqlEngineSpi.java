@@ -16,7 +16,7 @@
 package com.clougence.clouddm.ds.oceanbase.sql.ob4my;
 
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.behavior.ObMyBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.column.ObSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.lineage.ObLineageAnalysisSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.security.ObSecDomainResolveSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.editor.rewrite.ObRewriteSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.parser.ObMyDslProvider;
@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -33,19 +33,19 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class ObSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "OceanBase SQL for MySQL";
+    public static final String        NAME = "OceanBase SQL for MySQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public ObSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new ObSplitAnalysisSpi();
         this.secDomainResolveSpi = new ObSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new ObMyBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new ObSelectColumnAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = new ObLineageAnalysisSpi(metaService);
         this.rewriteSpi = new ObRewriteSpi();
     }
 
@@ -74,8 +74,8 @@ public class ObSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

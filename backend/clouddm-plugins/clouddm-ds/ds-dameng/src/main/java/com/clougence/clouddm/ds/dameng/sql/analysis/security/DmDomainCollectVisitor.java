@@ -234,7 +234,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             }
         }
         if (ctx.linkName() != null) {
-            objectDomain(NameParts.fromText(ctx.linkName().getText()), action);
+            objectDomain(NameParts.from(ctx.linkName()), action);
         }
         return visitChildren(ctx);
     }
@@ -638,7 +638,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitCallStatement(DmSqlParser.CallStatementContext ctx) {
         callDomain(NameParts.from(ctx.qualifiedName()));
         if (ctx.qualifiedName().linkName() != null) {
-            objectDomain(NameParts.fromText(ctx.qualifiedName().linkName().getText()), RuleQueryType.CALL_PROG_OBJ);
+            objectDomain(NameParts.from(ctx.qualifiedName().linkName()), RuleQueryType.CALL_PROG_OBJ);
         }
         return null;
     }
@@ -650,7 +650,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             if (!"THIS".equalsIgnoreCase(routine) && !"SUPER".equalsIgnoreCase(routine)) {
                 callDomain(NameParts.from(ctx.qualifiedName()));
                 if (ctx.qualifiedName().linkName() != null) {
-                    objectDomain(NameParts.fromText(ctx.qualifiedName().linkName().getText()), RuleQueryType.CALL_PROG_OBJ);
+                    objectDomain(NameParts.from(ctx.qualifiedName().linkName()), RuleQueryType.CALL_PROG_OBJ);
                 }
             }
         } else {
@@ -715,15 +715,11 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             } else if (backup.TABLESPACE() != null) {
                 objectDomain(NameParts.from(backup.qualifiedName()), RuleQueryType.ADMIN);
             }
-        } else if (ctx.restoreStatementTail() != null && ctx.restoreStatementTail().TABLE() != null
-            && ctx.restoreStatementTail().qualifiedName() != null) {
+        } else if (ctx.restoreStatementTail() != null && ctx.restoreStatementTail().TABLE() != null && ctx.restoreStatementTail().qualifiedName() != null) {
             tableDomain(NameParts.from(ctx.restoreStatementTail().qualifiedName()), RuleQueryType.ADMIN);
-        } else if (ctx.restoreStatementTail() != null
-            && ctx.restoreStatementTail().restoreTablespaceTail() != null) {
-            objectDomain(NameParts.from(ctx.restoreStatementTail().restoreTablespaceTail().qualifiedName()),
-                RuleQueryType.ADMIN);
-        } else if (ctx.recoverStatementTail() != null
-            && ctx.recoverStatementTail().TABLESPACE() != null) {
+        } else if (ctx.restoreStatementTail() != null && ctx.restoreStatementTail().restoreTablespaceTail() != null) {
+            objectDomain(NameParts.from(ctx.restoreStatementTail().restoreTablespaceTail().qualifiedName()), RuleQueryType.ADMIN);
+        } else if (ctx.recoverStatementTail() != null && ctx.recoverStatementTail().TABLESPACE() != null) {
             objectDomain(NameParts.from(ctx.recoverStatementTail().qualifiedName()), RuleQueryType.ADMIN);
         }
         return null;
@@ -995,29 +991,18 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     }
 
     private boolean aliasMatches(String alias, DmSqlParser.TableAliasContext ctx) {
-        return ctx != null && alias != null
-            && alias.equalsIgnoreCase(NameParts.clean(ctx.aliasIdentifier().identifier().getText()));
+        return ctx != null && alias != null && alias.equalsIgnoreCase(NameParts.clean(ctx.aliasIdentifier().identifier().getText()));
     }
 
     private NameParts columnTableName(DmSqlParser.QualifiedNameContext ctx) {
-        NameParts name = NameParts.from(ctx);
-        String text = ctx == null ? null : ctx.getText();
-        if (text == null) {
-            return name;
+        if (ctx == null) {
+            return new NameParts(null, null, null);
         }
-        int lastDot = text.lastIndexOf('.');
-        if (lastDot < 0) {
-            return name;
+        List<String> parts = NameParts.dottedParts(ctx.dottedName());
+        if (!parts.isEmpty()) {
+            parts.remove(parts.size() - 1);
         }
-        String tablePath = text.substring(0, lastDot);
-        String[] parts = tablePath.split("\\.");
-        if (parts.length == 1) {
-            return new NameParts(null, null, NameParts.clean(parts[0]));
-        }
-        if (parts.length == 2) {
-            return new NameParts(null, NameParts.clean(parts[0]), NameParts.clean(parts[1]));
-        }
-        return new NameParts(NameParts.clean(parts[parts.length - 3]), NameParts.clean(parts[parts.length - 2]), NameParts.clean(parts[parts.length - 1]));
+        return NameParts.fromParts(parts);
     }
 
     private RdbTableDomain tableDomain(NameParts name, RuleQueryType type) {
@@ -1110,9 +1095,8 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             index = 2;
         } else if ("SF_SET_SYSTEM_PARA_VALUE".equalsIgnoreCase(procedure)) {
             index = args.size() >= 5 ? 1 : 0;
-        } else if (procedure.regionMatches(true, 0, "SP_SET_PARA_", 0, "SP_SET_PARA_".length())
-            || "SP_SET_PARA_VALUE".equalsIgnoreCase(procedure)
-            || "SP_SET_INI_PARA_VALUE".equalsIgnoreCase(procedure)) {
+        } else if (procedure.regionMatches(true, 0, "SP_SET_PARA_", 0, "SP_SET_PARA_".length()) || "SP_SET_PARA_VALUE".equalsIgnoreCase(procedure)
+                   || "SP_SET_INI_PARA_VALUE".equalsIgnoreCase(procedure)) {
             index = args.size() >= 4 ? 2 : 1;
         }
         if (index >= args.size()) {
@@ -1141,8 +1125,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
     private RuleQueryType enclosingAction(ParseTree tree) {
         ParseTree current = tree;
         while (current != null) {
-            if (current instanceof DmSqlParser.InsertStatementContext
-                || current instanceof DmSqlParser.MultiInsertIntoContext) {
+            if (current instanceof DmSqlParser.InsertStatementContext || current instanceof DmSqlParser.MultiInsertIntoContext) {
                 return RuleQueryType.INSERT;
             }
             if (current instanceof DmSqlParser.UpdateStatementContext) {
@@ -1154,8 +1137,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             if (current instanceof DmSqlParser.MergeStatementContext) {
                 return RuleQueryType.MERGE;
             }
-            if (current instanceof DmSqlParser.CallStatementContext
-                || current instanceof DmSqlParser.ProcedureCallStatementContext) {
+            if (current instanceof DmSqlParser.CallStatementContext || current instanceof DmSqlParser.ProcedureCallStatementContext) {
                 return RuleQueryType.CALL_PROG_OBJ;
             }
             if (current instanceof DmSqlParser.SelectStatementContext) {
@@ -1353,6 +1335,30 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             return fromParts(parts);
         }
 
+        private static NameParts from(DmSqlParser.LinkNameContext ctx) {
+            if (ctx == null) {
+                return new NameParts(null, null, null);
+            }
+            List<String> parts = new ArrayList<>();
+            parts.add(clean(ctx.identifier().getText()));
+            if (ctx.dottedNamePart() != null) {
+                parts.add(clean(ctx.dottedNamePart().getText()));
+            }
+            return fromParts(parts);
+        }
+
+        private static List<String> dottedParts(DmSqlParser.DottedNameContext ctx) {
+            List<String> parts = new ArrayList<>();
+            if (ctx == null) {
+                return parts;
+            }
+            parts.add(clean(ctx.identifier().getText()));
+            for (DmSqlParser.DottedNamePartContext partContext : ctx.dottedNamePart()) {
+                parts.add(clean(partContext.getText()));
+            }
+            return parts;
+        }
+
         private static NameParts fromParts(List<String> parts) {
             if (parts.isEmpty()) {
                 return new NameParts(null, null, null);
@@ -1361,14 +1367,6 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             String schema = parts.size() > 1 ? parts.get(parts.size() - 2) : null;
             String catalog = parts.size() > 2 ? parts.get(parts.size() - 3) : null;
             return new NameParts(catalog, schema, name);
-        }
-
-        private static NameParts fromText(String text) {
-            List<String> parts = new ArrayList<>();
-            for (String part : text.split("\\.")) {
-                parts.add(clean(part));
-            }
-            return fromParts(parts);
         }
 
         private static String clean(String text) {

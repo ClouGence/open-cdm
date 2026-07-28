@@ -1,8 +1,5 @@
 package com.clougence.sql.mysql.parser;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /** MySQL grammar compatibility levels supported by the parser. */
 public enum MySqlVersion {
     MYSQL_5_6(5, 6),
@@ -11,8 +8,7 @@ public enum MySqlVersion {
     MYSQL_8_4(8, 4),
     MYSQL_9_7(9, 7);
 
-    public static final MySqlVersion LATEST          = values()[values().length - 1];
-    private static final Pattern     VERSION_PATTERN = Pattern.compile("^(\\d+)\\.(\\d+)(?:\\.(\\d+))?(?:[-+_ ].*)?$");
+    public static final MySqlVersion LATEST = values()[values().length - 1];
 
     /**
      * Parse a version string (e.g. "5.7", "8.0", "8.4", "9.7") to a {@link MySqlVersion}.
@@ -22,16 +18,14 @@ public enum MySqlVersion {
         if (version == null || version.isBlank()) {
             return LATEST;
         }
-        Matcher matcher = VERSION_PATTERN.matcher(version.trim());
-        if (!matcher.matches()) {
+        VersionParts parts = parseParts(version);
+        if (parts == null) {
             return LATEST;
         }
-        int parsedMajor = Integer.parseInt(matcher.group(1));
-        int parsedMinor = Integer.parseInt(matcher.group(2));
         for (MySqlVersion v : values()) {
             int major = v.value / 100;
             int minor = v.value % 100;
-            if (parsedMajor == major && parsedMinor == minor) {
+            if (parts.major() == major && parts.minor() == minor) {
                 return v;
             }
         }
@@ -42,13 +36,13 @@ public enum MySqlVersion {
         if (version == null || version.isBlank()) {
             return LATEST.exactVersion();
         }
-        Matcher matcher = VERSION_PATTERN.matcher(version.trim());
-        if (!matcher.matches()) {
+        VersionParts parts = parseParts(version);
+        if (parts == null) {
             throw new IllegalArgumentException("Invalid MySQL version: " + version);
         }
-        int major = Integer.parseInt(matcher.group(1));
-        int minor = Integer.parseInt(matcher.group(2));
-        int release = matcher.group(3) == null ? 0 : Integer.parseInt(matcher.group(3));
+        int major = parts.major();
+        int minor = parts.minor();
+        int release = parts.release();
         if (major > 99 || minor > 99 || release > 99) {
             throw new IllegalArgumentException("Invalid MySQL version: " + version);
         }
@@ -57,10 +51,64 @@ public enum MySqlVersion {
 
     public static int parseExactVersionCode(String exactVersion) {
         String value = exactVersion == null ? "" : exactVersion.trim();
-        if (!value.matches("\\d{5,6}")) {
+        if (value.length() < 5 || value.length() > 6 || !allDigits(value, 0, value.length())) {
             throw new IllegalArgumentException("Invalid MySQL exact version: " + exactVersion);
         }
         return Integer.parseInt(value);
+    }
+
+    private static VersionParts parseParts(String version) {
+        if (version == null) {
+            return null;
+        }
+        String value = version.trim();
+        int majorEnd = digitEnd(value, 0);
+        if (majorEnd == 0 || majorEnd >= value.length() || value.charAt(majorEnd) != '.') {
+            return null;
+        }
+        int minorStart = majorEnd + 1;
+        int minorEnd = digitEnd(value, minorStart);
+        if (minorEnd == minorStart) {
+            return null;
+        }
+        int release = 0;
+        int suffixStart = minorEnd;
+        if (minorEnd < value.length() && value.charAt(minorEnd) == '.') {
+            int releaseStart = minorEnd + 1;
+            int releaseEnd = digitEnd(value, releaseStart);
+            if (releaseEnd == releaseStart) {
+                return null;
+            }
+            release = Integer.parseInt(value.substring(releaseStart, releaseEnd));
+            suffixStart = releaseEnd;
+        }
+        if (suffixStart < value.length()) {
+            char delimiter = value.charAt(suffixStart);
+            if (delimiter != '-' && delimiter != '+' && delimiter != '_' && !Character.isWhitespace(delimiter)) {
+                return null;
+            }
+        }
+        return new VersionParts(Integer.parseInt(value.substring(0, majorEnd)), Integer.parseInt(value.substring(minorStart, minorEnd)), release);
+    }
+
+    private static int digitEnd(String value, int start) {
+        int offset = start;
+        while (offset < value.length() && Character.isDigit(value.charAt(offset))) {
+            offset++;
+        }
+        return offset;
+    }
+
+    private static boolean allDigits(String value, int start, int end) {
+        for (int i = start; i < end; i++) {
+            if (!Character.isDigit(value.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private record VersionParts(int major, int minor, int release) {
     }
 
     private final int value;

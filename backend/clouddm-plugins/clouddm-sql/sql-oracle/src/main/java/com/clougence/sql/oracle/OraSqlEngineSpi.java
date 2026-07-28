@@ -19,32 +19,32 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.oracle.analysis.behavior.OraBehaviorAnalysisSpi;
-import com.clougence.sql.oracle.analysis.column.OraSelectColumnAnalysisSpi;
+import com.clougence.sql.oracle.analysis.lineage.OraLineageAnalysisSpi;
 import com.clougence.sql.oracle.analysis.security.OraSecDomainResolveSpi;
 import com.clougence.sql.oracle.parser.OraDslProvider;
 import com.clougence.sql.oracle.parser.OraSplitAnalysisSpi;
 
 /** @author mode */
 public class OraSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "Oracle SQL";
+    public static final String        NAME = "Oracle SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public OraSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new OraSplitAnalysisSpi();
         this.secDomainResolveSpi = new OraSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new OraBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new OraSelectColumnAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = new OraLineageAnalysisSpi(metaService);
         this.rewriteSpi = null;
     }
 
@@ -74,8 +74,8 @@ public class OraSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

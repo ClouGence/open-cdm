@@ -17,10 +17,7 @@ package com.clougence.sql.mysql.analysis.security;
 
 import static com.clougence.sql.mysql.parser.antlr.MySqlParser.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.Parser;
@@ -48,8 +45,9 @@ import com.clougence.sql.mysql.parser.antlr.MySqlParserBaseVisitor;
 
 public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
-    protected final MyBuilderFactory builder;
-    protected final Parser           parser;
+    protected final MyBuilderFactory                              builder;
+    protected final Parser                                        parser;
+    private final Deque<Map<String, Window_specificationContext>> namedWindows = new ArrayDeque<>();
 
     public MySqlParserVisitor(MyBuilderFactory builder, Parser parser){
         this.builder = builder;
@@ -107,18 +105,44 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitQuerySpecification(QuerySpecificationContext ctx) {
-        builder.enterSelectDomain();
-        dmVisitChildren(ctx);
-        builder.exitSelectDomain();
+        namedWindows.push(namedWindows(ctx.windowClause()));
+        try {
+            builder.enterSelectDomain();
+            try {
+                dmVisitChildren(ctx);
+            } finally {
+                builder.exitSelectDomain();
+            }
+        } finally {
+            namedWindows.pop();
+        }
         return null;
     }
 
     @Override
     public Void visitQuerySpecificationUnionOperand(QuerySpecificationUnionOperandContext ctx) {
-        builder.enterSelectDomain();
-        dmVisitChildren(ctx);
-        builder.exitSelectDomain();
+        namedWindows.push(namedWindows(ctx.windowClause()));
+        try {
+            builder.enterSelectDomain();
+            try {
+                dmVisitChildren(ctx);
+            } finally {
+                builder.exitSelectDomain();
+            }
+        } finally {
+            namedWindows.pop();
+        }
         return null;
+    }
+
+    private Map<String, Window_specificationContext> namedWindows(WindowClauseContext windowClause) {
+        Map<String, Window_specificationContext> windows = new LinkedHashMap<>();
+        if (windowClause != null) {
+            for (WindowDefinitionContext definition : windowClause.windowDefinition()) {
+                windows.put(getName(definition.uid()), definition.window_specification());
+            }
+        }
+        return windows;
     }
 
     @Override
@@ -202,9 +226,9 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         builder.handleBuildSelectItem(() -> {
             ExpressionAtomContext expressionAtomContext = findExpressionAtomContext(ctx.expression());
             if (expressionAtomContext != null && expressionAtomContext.children.size() > 1) {
-                builder.addAttr(CommonAttribute.VALUE, this.getText((ParserRuleContext) ctx.getChild(0)));
+                builder.addAttr(CommonAttribute.VALUE, this.getText(ctx.expression()));
             } else {
-                String text = this.getText((ParserRuleContext) ctx.getChild(0));
+                String text = this.getText(ctx.expression());
                 if (text.startsWith("'")) {
                     text = text.substring(1, text.length() - 1);
                 }
@@ -229,13 +253,13 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAliasName(AliasNameContext ctx) {
-        builder.addAttr(CommonAttribute.ALIAS, this.getText(ctx));
+        builder.addAttr(CommonAttribute.ALIAS, getName(ctx));
         return null;
     }
 
     @Override
     public Void visitSelectAlias(SelectAliasContext ctx) {
-        builder.addAttr(CommonAttribute.ALIAS, this.getText(ctx));
+        builder.addAttr(CommonAttribute.ALIAS, getName(ctx));
         return null;
     }
 
@@ -250,6 +274,15 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
                 builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.expression()));
                 ctx.expression().accept(this);
             });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitJsonValueFunctionCall(JsonValueFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.JSON_VALUE().getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> ctx.expression().forEach(this::addFunctionArgument));
         });
         return null;
     }
@@ -278,6 +311,32 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
                     builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.sourceExpression));
                     ctx.sourceExpression.accept(this);
                 }
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitWeightFunctionCall(WeightFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.WEIGHT_STRING().getText()), DomainSource.OBJ_NAME);
+            ParserRuleContext argument = ctx.expression() == null ? ctx.stringLiteral() : ctx.expression();
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(argument));
+                argument.accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitPasswordFunctionCall(PasswordFunctionCallContext ctx) {
+        PasswordFunctionClauseContext password = ctx.passwordFunctionClause();
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(password.functionName.getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(password.functionArg()));
+                password.functionArg().accept(this);
             });
         });
         return null;
@@ -386,9 +445,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
                     if (ctx.intervalTypeBase() != null) {
                         String intervalType = getText(ctx.intervalTypeBase());
                         builder.addAttr(CommonAttribute.FUNC_ARG_NAME, intervalType);
-                        RdbColumnDomain intervalTypeDomain = new RdbColumnDomain();
-                        intervalTypeDomain.setColumn(intervalType);
-                        builder.handleDomain(intervalTypeDomain, DomainSource.COLUMN);
+                        builder.handleDomain(new RdbConstantDomain(intervalType), DomainSource.CONSTANT);
                     }
                     expressions.forEach(this::addFunctionArgument);
                 }
@@ -1750,6 +1807,16 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitLegacyOrderByClause(LegacyOrderByClauseContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitProcedureAnalyseClause(ProcedureAnalyseClauseContext ctx) {
+        return null;
+    }
+
+    @Override
     public Void visitIgnore_(Ignore_Context ctx) {
         builder.addAttr(CommonAttribute.IGNORE, true);
         return null;
@@ -1757,6 +1824,13 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitInnerJoin(InnerJoinContext ctx) {
+        visit(ctx.getChild(0));
+        visit(ctx.getChild(1));
+        return null;
+    }
+
+    @Override
+    public Void visitStraightJoin(StraightJoinContext ctx) {
         visit(ctx.getChild(0));
         visit(ctx.getChild(1));
         return null;
@@ -1793,6 +1867,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitInnerJoinType(InnerJoinTypeContext ctx) {
         builder.enterJoin(ctx.getText());
+        builder.addAttr(CommonAttribute.JOIN_USING_COLUMNS, joinUsingColumns(ctx.getParent()));
         builder.exitJoin();
         return null;
     }
@@ -1800,6 +1875,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitOuterJoinType(OuterJoinTypeContext ctx) {
         builder.enterJoin(ctx.getText());
+        builder.addAttr(CommonAttribute.JOIN_USING_COLUMNS, joinUsingColumns(ctx.getParent()));
         builder.exitJoin();
         return null;
     }
@@ -1811,6 +1887,18 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         return null;
     }
 
+    private List<String> joinUsingColumns(ParseTree join) {
+        UidListContext usingColumns = null;
+        if (join instanceof InnerJoinContext innerJoin) {
+            usingColumns = innerJoin.uidList();
+        } else if (join instanceof RightDeepInnerJoinContext rightDeepInnerJoin) {
+            usingColumns = rightDeepInnerJoin.uidList();
+        } else if (join instanceof OuterJoinContext outerJoin) {
+            usingColumns = outerJoin.uidList();
+        }
+        return usingColumns == null ? List.of() : usingColumns.uid().stream().map(this::getName).toList();
+    }
+
     @Override
     public Void visitAtomTableItem(AtomTableItemContext ctx) {
         builder.handleSelectTable(() -> {
@@ -1820,6 +1908,44 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
             }
         });
         return null;
+    }
+
+    @Override
+    public Void visitJsonTableItem(JsonTableItemContext ctx) {
+        JsonTableFunctionContext jsonTable = ctx.jsonTableFunction();
+        builder.handleSelectTable(() -> {
+            builder.handleSelectDomain(() -> addJsonTableColumns(jsonTable.jsonTableColumn(), jsonTable.expression()));
+            if (ctx.aliasName() != null) {
+                ctx.aliasName().accept(this);
+            }
+        });
+        return null;
+    }
+
+    private void addJsonTableColumns(List<JsonTableColumnContext> columns, ExpressionContext sourceExpression) {
+        for (JsonTableColumnContext column : columns) {
+            if (column instanceof JsonTableNestedColumnContext nestedColumn) {
+                addJsonTableColumns(nestedColumn.jsonTableColumn(), sourceExpression);
+                continue;
+            }
+            UidContext columnName = jsonTableColumnName(column);
+            builder.handleBuildSelectItem(() -> {
+                builder.addAttr(CommonAttribute.VALUE, getName(columnName));
+                sourceExpression.accept(this);
+                builder.addAttr(CommonAttribute.ALIAS, getName(columnName));
+            });
+        }
+    }
+
+    private UidContext jsonTableColumnName(JsonTableColumnContext column) {
+        if (column instanceof JsonTableOrdinalityColumnContext ordinalityColumn) {
+            return ordinalityColumn.uid();
+        } else if (column instanceof JsonTablePathColumnContext pathColumn) {
+            return pathColumn.uid();
+        } else if (column instanceof JsonTableExistsColumnContext existsColumn) {
+            return existsColumn.uid();
+        }
+        throw new IllegalArgumentException("JSON_TABLE nested column has no direct name");
     }
 
     @Override
@@ -1843,9 +1969,47 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitSelectIntoVariables(SelectIntoVariablesContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSelectIntoDumpFile(SelectIntoDumpFileContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSelectIntoTextFile(SelectIntoTextFileContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSelectIntoRemoteFile(SelectIntoRemoteFileContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitSelectIntoRemoteParameters(SelectIntoRemoteParametersContext ctx) {
+        return null;
+    }
+
+    @Override
     public Void visitWithSelectExpr(WithSelectExprContext ctx) {
         builder.handleWithSelect(() -> {
-            dmVisitChildren(ctx);
+            ctx.uid().accept(this);
+            if (ctx.uidList() != null) {
+                List<String> columnNames = ctx.uidList().uid().stream().map(this::getName).toList();
+                builder.addAttr(CommonAttribute.CTE_COLUMN_NAMES, columnNames);
+            }
+            if (ctx.withSelectStatement() != null) {
+                ctx.withSelectStatement().accept(this);
+            } else if (ctx.selectStatement() != null) {
+                ctx.selectStatement().accept(this);
+            } else if (ctx.tableStatement() != null) {
+                ctx.tableStatement().accept(this);
+            } else if (ctx.valuesStatement() != null) {
+                ctx.valuesStatement().accept(this);
+            }
         });
         return null;
     }
@@ -3289,6 +3453,31 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitSpatialAggregateFunctionCall(SpatialAggregateFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.addAttr(CommonAttribute.VALUE, getText(ctx.customFunctionName()));
+            builder.handleFunctionArgs(() -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.functionArg()));
+                ctx.functionArg().accept(this);
+            });
+        });
+        return null;
+    }
+
+    @Override
+    public Void visitJsonDualityObjectFunctionCall(JsonDualityObjectFunctionCallContext ctx) {
+        JsonDualityObjectFunctionContext function = ctx.jsonDualityObjectFunction();
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(function.JSON_DUALITY_OBJECT().getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> function.jsonDualityKeyValueList().jsonDualityKeyValue().forEach(keyValue -> {
+                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(keyValue.functionArg()));
+                keyValue.functionArg().accept(this);
+            }));
+        });
+        return null;
+    }
+
+    @Override
     public Void visitNonAggregateFunctionCall(NonAggregateFunctionCallContext ctx) {
         ctx.nonAggregateFunction().accept(this);
         return null;
@@ -3342,6 +3531,11 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitQualifyClause(QualifyClauseContext ctx) {
+        return null;
+    }
+
+    @Override
     public Void visitFunctionArg(FunctionArgContext ctx) {
         builder.addAttr(CommonAttribute.VALUE, this.getText(ctx));
         dmVisitChildren(ctx);
@@ -3363,22 +3557,29 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSpecialTimeCall(SpecialTimeCallContext ctx) {
-        builder.handleCall(() -> {
-            builder.addAttr(CommonAttribute.VALUE, ctx.getChild(0).getText());
-
-            builder.handleFunctionArgs(() -> {
-                builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(ctx.stringLiteral()));
-                ctx.stringLiteral().accept(this);
-            });
+    public Void visitSubqueryTableItem(SubqueryTableItemContext ctx) {
+        builder.handleSelectTable(() -> {
+            ctx.queryExpression().accept(this);
+            if (ctx.aliasName() != null) {
+                ctx.aliasName().accept(this);
+            }
+            if (ctx.uidList() != null) {
+                builder.addAttr(CommonAttribute.DERIVED_COLUMN_NAMES, ctx.uidList().uid().stream().map(this::getName).toList());
+            }
         });
         return null;
     }
 
     @Override
-    public Void visitSubqueryTableItem(SubqueryTableItemContext ctx) {
+    public Void visitLateralTableItem(LateralTableItemContext ctx) {
         builder.handleSelectTable(() -> {
-            dmVisitChildren(ctx);
+            ctx.subqueryStatement().accept(this);
+            if (ctx.aliasName() != null) {
+                ctx.aliasName().accept(this);
+            }
+            if (ctx.uidList() != null) {
+                builder.addAttr(CommonAttribute.DERIVED_COLUMN_NAMES, ctx.uidList().uid().stream().map(this::getName).toList());
+            }
         });
         return null;
     }
@@ -3693,6 +3894,47 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitValuesStatement(ValuesStatementContext ctx) {
+        builder.enterSelectDomain();
+        builder.addAttr(CommonAttribute.UNION, true);
+        for (ExplicitValuesRowContext row : ctx.explicitValuesRow()) {
+            builder.handleSelectDomain(() -> {
+                ExpressionsWithDefaultsContext values = row.expressionsWithDefaults();
+                if (values == null) {
+                    return;
+                }
+                List<ExpressionOrDefaultContext> expressions = values.expressionOrDefault();
+                for (int i = 0; i < expressions.size(); i++) {
+                    ExpressionOrDefaultContext value = expressions.get(i);
+                    String columnName = "column_" + i;
+                    builder.handleBuildSelectItem(() -> {
+                        builder.addAttr(CommonAttribute.VALUE, columnName);
+                        if (value.expression() != null) {
+                            value.expression().accept(this);
+                        }
+                        builder.addAttr(CommonAttribute.ALIAS, columnName);
+                    });
+                }
+            });
+        }
+        builder.exitSelectDomain();
+        return null;
+    }
+
+    @Override
+    public Void visitTableStatement(TableStatementContext ctx) {
+        builder.handleSelectDomain(() -> {
+            builder.handleBuildSelectItem(() -> {
+                RdbColumnDomain column = new RdbColumnDomain();
+                column.setColumn("*");
+                builder.handleDomain(column, DomainSource.COLUMN);
+            });
+            builder.handleSelectFrom(() -> builder.handleSelectTable(() -> ctx.tableName().accept(this)));
+        });
+        return null;
+    }
+
+    @Override
     public Void visitReplaceStatementValue(ReplaceStatementValueContext ctx) {
         builder.handleValues(() -> dmVisitChildren(ctx));
         return null;
@@ -3739,15 +3981,49 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitDefaultFunctionCall(DefaultFunctionCallContext ctx) {
+        builder.handleCall(() -> {
+            builder.handleDomain(new ObjNameDomain(ctx.DEFAULT().getText()), DomainSource.OBJ_NAME);
+            builder.handleFunctionArgs(() -> ctx.fullColumnName().accept(this));
+        });
+        return null;
+    }
+
+    @Override
     public Void visitOverClause(OverClauseContext ctx) {
-        dmVisitChildren(ctx);
+        if (ctx.window_specification() != null) {
+            ctx.window_specification().accept(this);
+        } else if (ctx.uid() != null) {
+            visitNamedWindow(getName(ctx.uid()));
+        }
         return null;
     }
 
     @Override
     public Void visitWindow_specification(Window_specificationContext ctx) {
-        dmVisitChildren(ctx);
+        if (ctx.uid() != null) {
+            visitNamedWindow(getName(ctx.uid()));
+        }
+        ctx.expression().forEach(expression -> expression.accept(this));
+        if (ctx.orderByClause() != null) {
+            ctx.orderByClause().orderByExpression().forEach(order -> order.expression().accept(this));
+        }
         return null;
+    }
+
+    @Override
+    public Void visitWindowClause(WindowClauseContext ctx) {
+        return null;
+    }
+
+    private void visitNamedWindow(String name) {
+        if (namedWindows.isEmpty()) {
+            return;
+        }
+        Window_specificationContext window = namedWindows.peek().get(name);
+        if (window != null) {
+            window.accept(this);
+        }
     }
 
     @Override
@@ -3818,6 +4094,18 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitSoundsLikePredicate(SoundsLikePredicateContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitJsonMemberOfPredicate(JsonMemberOfPredicateContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
     public Void visitExpressionAtomPredicate(ExpressionAtomPredicateContext ctx) {
         dmVisitChildren(ctx);
         return null;
@@ -3831,6 +4119,12 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitNestedExpressionAtom(NestedExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitNestedRowExpressionAtom(NestedRowExpressionAtomContext ctx) {
         dmVisitChildren(ctx);
         return null;
     }
@@ -3878,6 +4172,17 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitParameterMarkerExpressionAtom(ParameterMarkerExpressionAtomContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitTypedTemporalLiteralExpressionAtom(TypedTemporalLiteralExpressionAtomContext ctx) {
+        builder.handleDomain(new RdbConstantDomain(getText(ctx)), DomainSource.CONSTANT);
+        return null;
+    }
+
+    @Override
     public Void visitFunctionCallExpressionAtom(FunctionCallExpressionAtomContext ctx) {
         dmVisitChildren(ctx);
         return null;
@@ -3904,6 +4209,18 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitPrimaryExpressionAtom(PrimaryExpressionAtomContext ctx) {
         ctx.expressionAtom().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitBinaryExpressionAtom(BinaryExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitCollateExpressionAtom(CollateExpressionAtomContext ctx) {
+        dmVisitChildren(ctx);
         return null;
     }
 

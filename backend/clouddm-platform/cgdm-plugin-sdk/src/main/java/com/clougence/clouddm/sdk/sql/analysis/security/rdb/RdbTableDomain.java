@@ -50,6 +50,7 @@ public class RdbTableDomain extends RuleDomain {
     // for select
     private boolean                   virtual;
     private String                    alias;
+    private List<String>              derivedColumnNames;
 
     @RuleIgnore
     private List<RdbColumnDomain>     columnDomains     = new ArrayList<>();

@@ -16,7 +16,7 @@
 package com.clougence.clouddm.ds.maxcompute.sql;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.behavior.McBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.maxcompute.sql.analysis.column.McSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.analysis.lineage.McLineageAnalysisSpi;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.McSecDomainResolveSpi;
 import com.clougence.clouddm.ds.maxcompute.sql.editor.rewrite.McRewriteSpi;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.McSplitAnalysisSpi;
@@ -25,7 +25,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -33,19 +33,19 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class McSqlEngineSpi implements SqlEngineSpi {
-    public static final String            NAME = "MaxCompute SQL";
+    public static final String        NAME = "MaxCompute SQL";
 
-    private final SplitAnalysisSpi        splitAnalysisSpi;
-    private final SecDomainResolveSpi     secDomainResolveSpi;
-    private final BehaviorAnalysisSpi     behaviorAnalysisSpi;
-    private final SelectColumnAnalysisSpi selectColumnAnalysisSpi;
-    private final RewriteSpi              rewriteSpi;
+    private final SplitAnalysisSpi    splitAnalysisSpi;
+    private final SecDomainResolveSpi secDomainResolveSpi;
+    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
+    private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public McSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new McSplitAnalysisSpi();
         this.secDomainResolveSpi = new McSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new McBehaviorAnalysisSpi();
-        this.selectColumnAnalysisSpi = new McSelectColumnAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = new McLineageAnalysisSpi(metaService);
         this.rewriteSpi = new McRewriteSpi();
     }
 
@@ -74,8 +74,8 @@ public class McSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public SelectColumnAnalysisSpi selectColumnAnalysisSpi(SqlParserParameters parameters) {
-        return selectColumnAnalysisSpi;
+    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
+        return lineageAnalysisSpi;
     }
 
     @Override

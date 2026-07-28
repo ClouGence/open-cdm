@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.clougence.clouddm.ds.SqlTestSupport;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.sql.postgres.PgSqlEngineSpi;
-import com.clougence.sql.postgres.analysis.column.PgSelectColumnAnalysisSpi;
+import com.clougence.sql.postgres.analysis.lineage.PgLineageAnalysisSpi;
 import com.clougence.sql.postgres.analysis.security.PgSecDomainResolveSpi;
 import com.clougence.sql.postgres.editor.rewrite.PgRewriteSpi;
 import com.clougence.sql.postgres.parser.PgDslProvider;
@@ -38,7 +38,7 @@ public class PostgresVersionConfigurationTest {
         Assertions.assertEquals(version, ((PgSplitAnalysisSpi) engine.splitAnalysisSpi(parameters)).version());
         Assertions.assertEquals(version, ((PgSecDomainResolveSpi) engine.secDomainResolveSpi(parameters)).version());
         Assertions.assertNotNull(engine.behaviorAnalysisSpi(parameters));
-        Assertions.assertEquals(version, ((PgSelectColumnAnalysisSpi) engine.selectColumnAnalysisSpi(parameters)).version());
+        Assertions.assertEquals(version, ((PgLineageAnalysisSpi) engine.lineageAnalysisSpi(parameters)).version());
         Assertions.assertEquals(version, ((PgRewriteSpi) engine.rewriteSpi(parameters)).version());
     }
 

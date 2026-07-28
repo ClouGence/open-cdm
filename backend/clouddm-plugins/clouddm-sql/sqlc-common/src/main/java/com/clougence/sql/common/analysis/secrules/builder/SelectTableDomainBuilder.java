@@ -36,9 +36,10 @@ import com.clougence.utils.StringUtils;
 
 public class SelectTableDomainBuilder extends AbstractDomainBuilder {
 
-    protected List<String>                nameList       = new ArrayList<>();
-    protected List<Domain>                ruleDomainList = new ArrayList<>();
-    protected     String                        alias;
+    protected List<String>                      nameList       = new ArrayList<>();
+    protected List<Domain>                      ruleDomainList = new ArrayList<>();
+    protected String                            alias;
+    private List<String>                        derivedColumnNames;
     private final Stack<List<WithSelectDomain>> selectStack;
 
     public SelectTableDomainBuilder(Stack<List<WithSelectDomain>> selectStack){
@@ -74,6 +75,8 @@ public class SelectTableDomainBuilder extends AbstractDomainBuilder {
     public void addAttr(Attribute attr, Object value) {
         if (attr == CommonAttribute.ALIAS) {
             this.alias = value.toString();
+        } else if (attr == CommonAttribute.DERIVED_COLUMN_NAMES) {
+            this.derivedColumnNames = (List<String>) value;
         }
     }
 
@@ -108,7 +111,9 @@ public class SelectTableDomainBuilder extends AbstractDomainBuilder {
                 if (domainBy != null) {
                     rdbTableDomain.setVirtual(true);
                     RdbSelectDomain selectDomain = domainBy.getSelectDomain();
-                    selectDomain.setMode(RdbQueryMode.SUB_FROM);
+                    if (selectDomain.getMode() != RdbQueryMode.WITH) {
+                        selectDomain.setMode(RdbQueryMode.SUB_FROM);
+                    }
                     rdbTableDomain.addChild(selectDomain);
                 }
             }
@@ -126,7 +131,9 @@ public class SelectTableDomainBuilder extends AbstractDomainBuilder {
                     if (domainBy != null) {
                         rdbTableDomain.setVirtual(true);
                         RdbSelectDomain selectDomain = domainBy.getSelectDomain();
-                        selectDomain.setMode(RdbQueryMode.SUB_FROM);
+                        if (selectDomain.getMode() != RdbQueryMode.WITH) {
+                            selectDomain.setMode(RdbQueryMode.SUB_FROM);
+                        }
                         rdbTableDomain.addChild(selectDomain);
                     }
                 }
@@ -161,6 +168,7 @@ public class SelectTableDomainBuilder extends AbstractDomainBuilder {
         }
 
         rdbTableDomain.setAlias(alias);
+        rdbTableDomain.setDerivedColumnNames(derivedColumnNames);
         return rdbTableDomain;
     }
 

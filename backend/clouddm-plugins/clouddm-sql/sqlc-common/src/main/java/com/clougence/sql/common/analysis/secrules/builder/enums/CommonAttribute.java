@@ -23,6 +23,10 @@ public enum CommonAttribute implements Attribute {
 
     VALUE,
 
+    CTE_COLUMN_NAMES,
+    DERIVED_COLUMN_NAMES,
+    JOIN_USING_COLUMNS,
+
     // func
     FUNC_ARG_NAME,
 
