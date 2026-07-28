@@ -21,8 +21,6 @@ import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
-import com.clougence.clouddm.sdk.sql.analysis.column.QueryConstraintService;
-import com.clougence.clouddm.sec.rules.domain.func.FuncConstraintUtils;
 import com.clougence.clouddm.sec.rules.execute.checker.SecRulesCheckerServiceProvider;
 import com.clougence.clouddm.sec.rules.execute.sensitive.SecValueProcessServiceProvider;
 
@@ -39,8 +37,6 @@ public class SecRulesPlugin implements DsPlugin, DsFeatureIDs {
 
         dsPlugin.addGlobalService(new SecRulesCheckerServiceProvider(cacheService));
         dsPlugin.addGlobalService(new SecValueProcessServiceProvider(cacheService, configService));
-
-        FuncConstraintUtils.INSTANCE.setConstraintService(dsPlugin.findGlobalService(QueryConstraintService.class));
 
         dsPlugin.addPluginFeature(FUNC_RULE_CHECK_SUPPORT);
     }

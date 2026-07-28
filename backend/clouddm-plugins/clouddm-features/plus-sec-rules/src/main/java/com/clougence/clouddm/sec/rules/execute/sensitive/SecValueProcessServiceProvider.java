@@ -24,11 +24,12 @@ import java.util.stream.Collectors;
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.result.ColumnConfig;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.secrules.*;
-import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.analysis.column.SourceName;
 import com.clougence.clouddm.sec.rules.domain.special.rdb.RdbValueDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -96,32 +97,38 @@ public class SecValueProcessServiceProvider implements ValueProcessService {
         String rowAlgorithm = SenAlgorithm.SEN_ORIGINAL;
 
         SenColValue[] colValues = new SenColValue[colMeta.length];
-        if (CollectionUtils.isNotEmpty(query.getColumnList())) {
-            int i = 0;
-            for (String s : meta.keySet()) {
-                ColMetaData metaData = meta.get(s);
-                colValues[i] = new SenColValue(metaData, rowData.get(i), SenAlgorithm.SEN_ORIGINAL);
+        Map<String, ColumnConfig> resultConfig = query.getColumnList();
+        if (resultConfig == null) {
+            resultConfig = Collections.emptyMap();
+        }
+
+        int i = 0;
+        for (String columnName : meta.keySet()) {
+            ColMetaData metaData = meta.get(columnName);
+            colValues[i] = new SenColValue(metaData, rowData.get(i), SenAlgorithm.SEN_ORIGINAL);
+            ColumnConfig colConfig = resultConfig.get(columnName);
+            boolean usingValueProcess = query.isUsingValueProcess();
+            if (colConfig != null) {
+                usingValueProcess = colConfig.isUsingValueProcess();
+            }
+
+            if (usingValueProcess) {
                 CheckerData checkerData = this.createCheckerData(i, query, conf, colValues[i], flash);
-                List<RealColumn> realColumns = query.getColumnList().get(s);
-                for (RealColumn column : realColumns) {
-                    if (!column.isSkipDesensitization()) {
+                if (colConfig == null || CollectionUtils.isEmpty(colConfig.getSourceNames())) {
+                    rowAlgorithm = doCheck(query, conf, checkerData, allColumns, rowAlgorithm, colValues[i]);
+                } else {
+                    for (SourceName sourceName : colConfig.getSourceNames()) {
                         RuleDomain domain = checkerData.getDomain();
                         RdbValueDomain valueDomain = (RdbValueDomain) domain;
-                        valueDomain.setCatalog(column.getCatalog());
-                        valueDomain.setSchema(column.getSchema());
-                        valueDomain.setTable(column.getTable());
-                        valueDomain.setColumn(column.getColumn());
+                        valueDomain.setCatalog(sourceName.catalog());
+                        valueDomain.setSchema(sourceName.schema());
+                        valueDomain.setTable(sourceName.table());
+                        valueDomain.setColumn(sourceName.column());
                         rowAlgorithm = doCheck(query, conf, checkerData, allColumns, rowAlgorithm, colValues[i]);
                     }
                 }
-                i++;
             }
-        } else {
-            for (int i = 0; i < colMeta.length; i++) {
-                colValues[i] = new SenColValue(colMeta[i], rowData.get(i), SenAlgorithm.SEN_ORIGINAL);
-                CheckerData checkerData = this.createCheckerData(i, query, conf, colValues[i], flash);
-                rowAlgorithm = doCheck(query, conf, checkerData, allColumns, rowAlgorithm, colValues[i]);
-            }
+            i++;
         }
 
         if (!StringUtils.equalsIgnoreCase(rowAlgorithm, SenAlgorithm.SEN_ORIGINAL)) {

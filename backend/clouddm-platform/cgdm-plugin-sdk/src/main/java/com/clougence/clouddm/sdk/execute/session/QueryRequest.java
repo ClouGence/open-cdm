@@ -19,9 +19,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.sdk.execute.session.result.ColumnConfig;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -34,35 +34,35 @@ import lombok.Setter;
 public class QueryRequest implements Cloneable {
 
     // Request
-    private String                        batchId;
-    private String                        queryId;
-    private String                        queryBody;
-    private List<QueryArg>                queryArgs;
-    private Set<SplitQueryType>           queryTypes;
-    private List<BehaviorRelation>        relations;
-    private DataSourceType                queryDsType;
-    private Requester                     requester;
-    private Date                          requestTime;
+    private String                    batchId;
+    private String                    queryId;
+    private String                    queryBody;
+    private List<QueryArg>            queryArgs;
+    private Set<SplitQueryType>       queryTypes;
+    private List<BehaviorRelation>    relations;
+    private DataSourceType            queryDsType;
+    private Requester                 requester;
+    private Date                      requestTime;
 
     // for masking
-    private boolean                       usingValueProcess;
-    private Map<String, List<RealColumn>> columnList;
+    private boolean                   usingValueProcess;
+    private Map<String, ColumnConfig> columnList;
 
     // for env, see  ExecuteVariables
-    private Map<String, String>           variables;
+    private Map<String, String>       variables;
 
     // for execute config
-    private boolean                       useCallable = false;
-    private boolean                       useExplain  = false;
-    private boolean                       useCompile  = false;
+    private boolean                   useCallable = false;
+    private boolean                   useExplain  = false;
+    private boolean                   useCompile  = false;
 
     // for rewrite
-    private boolean                       hasRewrite  = false;
-    private List<String>                  rewriteTag;
-    private String                        originalBody;
+    private boolean                   hasRewrite  = false;
+    private List<String>              rewriteTag;
+    private String                    originalBody;
 
     // Response
-    private QueryResultConf               resultConf;
+    private QueryResultConf           resultConf;
 
     @Override
     public QueryRequest clone() {

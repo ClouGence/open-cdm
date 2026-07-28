@@ -26,11 +26,11 @@ public final class MetaColConvert {
     private MetaColConvert(){
     }
 
-    public static List<SelectItem> toSelectItems(List<MetaCol> metaCols, int tableId) {
-        return metaCols.stream().map(metaCol -> toSelectItem(metaCol, tableId)).collect(Collectors.toList());
+    public static List<SelectItem> toSelectItems(List<MetaCol> metaCols) {
+        return metaCols.stream().map(MetaColConvert::toSelectItem).collect(Collectors.toList());
     }
 
-    public static SelectItem toSelectItem(MetaCol metaCol, int tableId) {
+    public static SelectItem toSelectItem(MetaCol metaCol) {
         SelectItem selectItem = new SelectItem();
 
         RealColumn realColumn = new RealColumn();
@@ -38,7 +38,6 @@ public final class MetaColConvert {
         realColumn.setSchema(metaCol.getSchema());
         realColumn.setTable(metaCol.getTable());
         realColumn.setColumn(metaCol.getColumn());
-        realColumn.setTableId(tableId);
 
         selectItem.addRealColumn(realColumn);
         selectItem.setItemAlias(metaCol.getColumn());

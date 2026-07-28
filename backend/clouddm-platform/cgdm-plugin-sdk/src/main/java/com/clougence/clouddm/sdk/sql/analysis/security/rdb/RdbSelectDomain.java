@@ -19,7 +19,6 @@ import java.util.*;
 
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.detectrule.lang.reflect.RuleIgnore;
 
@@ -61,8 +60,6 @@ public class RdbSelectDomain extends RdbWhereDomain implements RdbConfigNames {
     // for from
     private boolean           selectInFrom;
     private boolean           emptyFrom;
-
-    private List<SelectItem>  selectItems  = new ArrayList<>();
 
     @RuleIgnore
     private List<QueryItem>   columns      = new ArrayList<>();

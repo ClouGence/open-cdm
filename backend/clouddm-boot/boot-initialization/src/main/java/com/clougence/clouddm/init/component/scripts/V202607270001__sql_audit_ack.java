@@ -57,6 +57,8 @@ public class V202607270001__sql_audit_ack extends AbstractUpgradeJavaMigration {
                 """, """
                     alter table dm_approval
                         add behaviors longtext null
+                """, """
+                    drop table if exists dm_exec_query_constraints
                 """);
     }
 }

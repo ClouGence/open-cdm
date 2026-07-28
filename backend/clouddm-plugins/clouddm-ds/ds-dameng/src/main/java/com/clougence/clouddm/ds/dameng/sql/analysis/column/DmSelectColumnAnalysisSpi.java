@@ -15,12 +15,7 @@
  */
 package com.clougence.clouddm.ds.dameng.sql.analysis.column;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -37,18 +32,13 @@ import com.clougence.utils.StringUtils;
 
 public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
 
-    private static final Set<String> NON_COLUMN_NAMES = Set.of(
-        "DBTIMEZONE", "SESSIONTIMEZONE", "LEVEL", "CONNECT_BY_ISLEAF",
-        "CONNECT_BY_ISCYCLE", "ROWNUM");
-    private static final Set<String> DATE_PART_FUNCTIONS = Set.of(
-        "BIGDATEDIFF", "DATEADD", "DATEDIFF", "DATEPART", "TIMESTAMPADD", "TIMESTAMPDIFF");
+    private static final Set<String> NON_COLUMN_NAMES    = Set.of("DBTIMEZONE", "SESSIONTIMEZONE", "LEVEL", "CONNECT_BY_ISLEAF", "CONNECT_BY_ISCYCLE", "ROWNUM");
+    private static final Set<String> DATE_PART_FUNCTIONS = Set.of("BIGDATEDIFF", "DATEADD", "DATEDIFF", "DATEPART", "TIMESTAMPADD", "TIMESTAMPDIFF");
 
     @Override
     public List<SelectItem> parseSelectColumn(String script, ContextInfo contextInfo) {
         List<SelectItem> result = new ArrayList<>();
-        Object catalogLevel = contextInfo == null || contextInfo.getLevelsParam() == null
-            ? null
-            : contextInfo.getLevelsParam().get(UmiTypes.Catalog);
+        Object catalogLevel = contextInfo == null || contextInfo.getLevelsParam() == null ? null : contextInfo.getLevelsParam().get(UmiTypes.Catalog);
         String defaultCatalog = catalogLevel == null ? null : String.valueOf(catalogLevel);
         for (AstSplitScript splitScript : DslHelper.splitDsl(DmDslProvider.INSTANCE, script)) {
             if (!(splitScript.getAstTree() instanceof DmSqlParser.StatementContext statement)) {
@@ -139,7 +129,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
         if (ctx.STAR() != null) {
             item.setItemAlias("*");
             for (NameParts table : tables.values()) {
-                item.addRealColumn(realColumn(table, "*", false));
+                item.addRealColumn(realColumn(table, "*"));
             }
             for (List<SelectItem> items : uniqueDerivedColumns(derived)) {
                 addProjectedColumns(item, items);
@@ -155,7 +145,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
                 addProjectedColumns(item, derivedItems);
                 return item;
             }
-            item.addRealColumn(realColumn(resolveTable(name.name(), tables), "*", false));
+            item.addRealColumn(realColumn(resolveTable(name.name(), tables), "*"));
             return item;
         }
 
@@ -175,33 +165,31 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
         if (directColumn != null) {
             NameParts column = NameParts.from(directColumn);
             item.setTableAlias(column.schema());
-            addColumn(item, column, tables, derived, true);
+            addColumn(item, column, tables, derived);
         } else {
             List<DmSqlParser.QualifiedNameContext> columns = new ArrayList<>();
             collectQualifiedNames(ctx.expression(), columns);
             for (DmSqlParser.QualifiedNameContext columnContext : columns) {
-                addColumn(item, NameParts.from(columnContext), tables, derived, false);
+                addColumn(item, NameParts.from(columnContext), tables, derived);
             }
         }
         return item;
     }
 
-    private void addColumn(SelectItem item, NameParts column, Map<String, NameParts> tables,
-                           Map<String, List<SelectItem>> derived, boolean onlyOneColumn) {
-        String upperName = column.name() == null ? null : column.name().toUpperCase(Locale.ROOT);
-        if (upperName != null && ("NEXTVAL".equals(upperName) || "CURRVAL".equals(upperName))) {
+    private void addColumn(SelectItem item, NameParts column, Map<String, NameParts> tables, Map<String, List<SelectItem>> derived) {
+        if (StringUtils.equalsIgnoreCase(column.name(), "NEXTVAL") || StringUtils.equalsIgnoreCase(column.name(), "CURRVAL")) {
             return;
         }
         if (!addDerivedColumn(item, column, derived)) {
             if (column.catalog() != null) {
                 NameParts attributeTable = findTable(column.catalog(), tables);
                 if (attributeTable != null) {
-                    item.addRealColumn(realColumn(attributeTable, column.schema(), onlyOneColumn));
+                    item.addRealColumn(realColumn(attributeTable, column.schema()));
                     return;
                 }
             }
             NameParts table = resolveColumnTable(column, tables);
-            RealColumn realColumn = realColumn(table, column.name(), onlyOneColumn);
+            RealColumn realColumn = realColumn(table, column.name());
             item.addRealColumn(realColumn);
         }
     }
@@ -221,9 +209,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
             String cteName = NameParts.clean(cteDefinitionContext.identifier().getText());
             List<SelectItem> items = selectStatementItems(cteDefinitionContext.selectStatement(), derived);
             for (SelectItem item : items) {
-                item.getColumns().removeIf(column -> column.getCatalog() == null
-                    && column.getSchema() == null
-                    && cteName.equalsIgnoreCase(column.getTable()));
+                item.getColumns().removeIf(column -> column.getCatalog() == null && column.getSchema() == null && cteName.equalsIgnoreCase(column.getTable()));
             }
             items = applyDerivedColumnAliases(items, cteDefinitionContext.columnNameList());
             putDerived(derived, cteName, items);
@@ -259,7 +245,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
                 List<DmSqlParser.QualifiedNameContext> sourceColumns = new ArrayList<>();
                 collectQualifiedNames(collection.expression(), sourceColumns);
                 for (DmSqlParser.QualifiedNameContext sourceColumn : sourceColumns) {
-                    addColumn(item, NameParts.from(sourceColumn), tables, derived, false);
+                    addColumn(item, NameParts.from(sourceColumn), tables, derived);
                 }
             }
             String alias = tableAlias(ctx.tableAlias());
@@ -271,12 +257,11 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
             }
             List<SelectItem> projected = new ArrayList<>();
             if (ctx.xmlTableExpression().xmlTableColumnsClause() != null) {
-                for (DmSqlParser.XmlTableColumnContext columnContext
-                    : ctx.xmlTableExpression().xmlTableColumnsClause().xmlTableColumn()) {
+                for (DmSqlParser.XmlTableColumnContext columnContext : ctx.xmlTableExpression().xmlTableColumnsClause().xmlTableColumn()) {
                     SelectItem item = new SelectItem();
                     item.setItemAlias(NameParts.clean(columnContext.identifier().getText()));
                     for (DmSqlParser.QualifiedNameContext sourceColumn : sourceColumns) {
-                        addColumn(item, NameParts.from(sourceColumn), tables, derived, false);
+                        addColumn(item, NameParts.from(sourceColumn), tables, derived);
                     }
                     projected.add(item);
                 }
@@ -295,8 +280,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
                 }
                 tables.putIfAbsent(name.name(), name);
                 if (ctx.tableAlias() != null) {
-                    tables.putIfAbsent(
-                        NameParts.clean(ctx.tableAlias().aliasIdentifier().identifier().getText()), name);
+                    tables.putIfAbsent(NameParts.clean(ctx.tableAlias().aliasIdentifier().identifier().getText()), name);
                 }
                 List<SelectItem> pivotItems = applyPivotColumns(ctx, null, tables, derived);
                 if (pivotItems != null) {
@@ -317,8 +301,8 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
         }
     }
 
-    private List<SelectItem> applyPivotColumns(DmSqlParser.TablePrimaryContext ctx, List<SelectItem> sourceItems,
-                                               Map<String, NameParts> tables, Map<String, List<SelectItem>> derived) {
+    private List<SelectItem> applyPivotColumns(DmSqlParser.TablePrimaryContext ctx, List<SelectItem> sourceItems, Map<String, NameParts> tables,
+                                               Map<String, List<SelectItem>> derived) {
         if (ctx.tablePivotClause().isEmpty()) {
             return sourceItems;
         }
@@ -334,8 +318,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
         return items;
     }
 
-    private List<SelectItem> pivotColumns(DmSqlParser.PivotClauseContext ctx, List<SelectItem> sourceItems,
-                                          boolean sourceColumnsKnown, Map<String, NameParts> tables,
+    private List<SelectItem> pivotColumns(DmSqlParser.PivotClauseContext ctx, List<SelectItem> sourceItems, boolean sourceColumnsKnown, Map<String, NameParts> tables,
                                           Map<String, List<SelectItem>> derived) {
         List<NameParts> groupingInputs = qualifiedNames(ctx.pivotForClause());
         List<NameParts> aggregateInputs = new ArrayList<>();
@@ -364,25 +347,21 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
             String valueAlias = pivotValueAlias(inClause);
             for (DmSqlParser.PivotExpressionContext expression : expressions) {
                 SelectItem item = new SelectItem();
-                String aggregateAlias = expression.identifier() == null
-                    ? null
-                    : NameParts.clean(expression.identifier().getText());
+                String aggregateAlias = expression.identifier() == null ? null : NameParts.clean(expression.identifier().getText());
                 if (aggregateAlias == null) {
                     item.setItemAlias(valueAlias);
                 } else {
                     item.setItemAlias(valueAlias + "_" + aggregateAlias);
                 }
                 addSourceColumns(item, groupingInputs, sourceItems, sourceColumnsKnown, tables, derived);
-                addSourceColumns(item, qualifiedNames(expression.functionCall()), sourceItems,
-                    sourceColumnsKnown, tables, derived);
+                addSourceColumns(item, qualifiedNames(expression.functionCall()), sourceItems, sourceColumnsKnown, tables, derived);
                 result.add(item);
             }
         }
         return result;
     }
 
-    private List<SelectItem> unpivotColumns(DmSqlParser.PivotClauseContext ctx, List<SelectItem> sourceItems,
-                                            boolean sourceColumnsKnown, Map<String, NameParts> tables,
+    private List<SelectItem> unpivotColumns(DmSqlParser.PivotClauseContext ctx, List<SelectItem> sourceItems, boolean sourceColumnsKnown, Map<String, NameParts> tables,
                                             Map<String, List<SelectItem>> derived) {
         List<List<NameParts>> inputGroups = new ArrayList<>();
         List<NameParts> allInputs = new ArrayList<>();
@@ -403,8 +382,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
             item.setItemAlias(NameParts.clean(values.get(valueIndex).getText()));
             for (List<NameParts> inputGroup : inputGroups) {
                 if (valueIndex < inputGroup.size()) {
-                    addSourceColumns(item, List.of(inputGroup.get(valueIndex)), sourceItems,
-                        sourceColumnsKnown, tables, derived);
+                    addSourceColumns(item, List.of(inputGroup.get(valueIndex)), sourceItems, sourceColumnsKnown, tables, derived);
                 }
             }
             result.add(item);
@@ -419,8 +397,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
             boolean consumed = false;
             for (List<NameParts> consumedGroup : consumedGroups) {
                 for (NameParts consumedColumn : consumedGroup) {
-                    if (consumedColumn.name() != null
-                        && consumedColumn.name().equalsIgnoreCase(sourceItem.getItemAlias())) {
+                    if (consumedColumn.name() != null && consumedColumn.name().equalsIgnoreCase(sourceItem.getItemAlias())) {
                         consumed = true;
                         break;
                     }
@@ -436,8 +413,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
         return result;
     }
 
-    private void addSourceColumns(SelectItem target, List<NameParts> columns, List<SelectItem> sourceItems,
-                                  boolean sourceColumnsKnown, Map<String, NameParts> tables,
+    private void addSourceColumns(SelectItem target, List<NameParts> columns, List<SelectItem> sourceItems, boolean sourceColumnsKnown, Map<String, NameParts> tables,
                                   Map<String, List<SelectItem>> derived) {
         for (NameParts column : columns) {
             boolean matched = false;
@@ -449,7 +425,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
                 }
             }
             if (!matched && !sourceColumnsKnown) {
-                addColumn(target, column, tables, derived, false);
+                addColumn(target, column, tables, derived);
             }
         }
     }
@@ -514,9 +490,7 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
             return;
         }
         if (tree instanceof DmSqlParser.QualifiedNameContext qualifiedName) {
-            if (isDatePartArgument(qualifiedName)
-                || NON_COLUMN_NAMES.contains(qualifiedName.getText().toUpperCase(Locale.ROOT))
-                    && !qualifiedName.getText().startsWith("\"")) {
+            if (isDatePartArgument(qualifiedName) || NON_COLUMN_NAMES.contains(qualifiedName.getText().toUpperCase(Locale.ROOT)) && !qualifiedName.getText().startsWith("\"")) {
                 return;
             }
             names.add(qualifiedName);
@@ -532,14 +506,12 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
         while (parent != null && !(parent instanceof DmSqlParser.FunctionCallContext)) {
             parent = parent.getParent();
         }
-        if (!(parent instanceof DmSqlParser.FunctionCallContext functionCall)
-            || functionCall.functionArguments() == null
+        if (!(parent instanceof DmSqlParser.FunctionCallContext functionCall) || functionCall.functionArguments() == null
             || functionCall.functionArguments().functionArgument().isEmpty()) {
             return false;
         }
         DmSqlParser.FunctionArgumentContext firstArgument = functionCall.functionArguments().functionArgument(0);
-        return firstArgument.getText().equals(ctx.getText())
-            && DATE_PART_FUNCTIONS.contains(functionCall.functionName().getText().toUpperCase(Locale.ROOT));
+        return firstArgument.getText().equals(ctx.getText()) && DATE_PART_FUNCTIONS.contains(functionCall.functionName().getText().toUpperCase(Locale.ROOT));
     }
 
     private NameParts resolveColumnTable(NameParts column, Map<String, NameParts> tables) {
@@ -585,17 +557,14 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
 
     private void restrictCorrespondingColumns(List<SelectItem> items, List<DmSqlParser.QueryRemainderContext> remainders) {
         for (DmSqlParser.QueryRemainderContext remainder : remainders) {
-            if (remainder.setCorrespondingClause() == null
-                || remainder.setCorrespondingClause().columnNameList() == null) {
+            if (remainder.setCorrespondingClause() == null || remainder.setCorrespondingClause().columnNameList() == null) {
                 continue;
             }
             Set<String> names = new java.util.HashSet<>();
-            for (DmSqlParser.IdentifierContext identifier
-                : remainder.setCorrespondingClause().columnNameList().identifierList().identifier()) {
+            for (DmSqlParser.IdentifierContext identifier : remainder.setCorrespondingClause().columnNameList().identifierList().identifier()) {
                 names.add(NameParts.clean(identifier.getText()).toUpperCase(Locale.ROOT));
             }
-            items.removeIf(item -> item.getItemAlias() == null
-                || !names.contains(item.getItemAlias().toUpperCase(Locale.ROOT)));
+            items.removeIf(item -> item.getItemAlias() == null || !names.contains(item.getItemAlias().toUpperCase(Locale.ROOT)));
             return;
         }
     }
@@ -725,13 +694,12 @@ public class DmSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
         return NameParts.clean(ctx.aliasIdentifier().identifier().getText());
     }
 
-    private RealColumn realColumn(NameParts table, String column, boolean onlyOneColumn) {
+    private RealColumn realColumn(NameParts table, String column) {
         RealColumn realColumn = new RealColumn();
         realColumn.setCatalog(table.catalog());
         realColumn.setSchema(table.schema());
         realColumn.setTable(table.name());
         realColumn.setColumn(column);
-        realColumn.setOnlyOneColumn(onlyOneColumn);
         return realColumn;
     }
 

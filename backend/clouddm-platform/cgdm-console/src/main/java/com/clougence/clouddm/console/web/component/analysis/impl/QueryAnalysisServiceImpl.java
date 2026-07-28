@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.component.analysis.impl;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -43,6 +42,7 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultLimit;
+import com.clougence.clouddm.sdk.execute.session.result.ColumnConfig;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
@@ -52,10 +52,7 @@ import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
-import com.clougence.clouddm.sdk.sql.analysis.column.ContextInfo;
-import com.clougence.clouddm.sdk.sql.analysis.column.RealColumn;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.analysis.column.*;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -274,7 +271,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     private void configMaskingWithoutProvenance(QueryRequest request, SysObjectRegistrySpi sysObjRegistry, String dbVersion, String userUid, long dsId,//
                                                 String currentResourcePath, String instanceResourcePath) {
-        List<DsResPathObj> readPaths = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations(), request.getQueryTypes())
+        List<DsResPathObj> objList = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations(), request.getQueryTypes())
             .stream()
             .filter(b -> !b.skipPermission())
             .filter(b -> BehaviorRelations.authKind(b.action(), b.resource().getObjectType()) == SecDataAuthKind.READ)
@@ -282,7 +279,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             .toList();
 
         //
-        boolean allAuthorized = CollectionUtils.isNotEmpty(readPaths) && readPaths.stream().allMatch(path -> {
+        boolean allAuthorized = CollectionUtils.isNotEmpty(objList) && objList.stream().allMatch(path -> {
             return this.authService.checkResPathWithoutError(AuthDal.ROOT_USER_UID, userUid, dsId, AuthKind.DataSource, path, SecDataAuthLabel.DM_DAUTH_SENSITIVE);
         });
         if (allAuthorized) {
@@ -290,5 +287,33 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         }
     }
 
+    private void configMaskingWithProvenance(QueryRequest request, String userUid, long dsId) {
+        boolean hasEmptyColumnName = request.getColumnList().keySet().stream().anyMatch(StringUtils::isEmpty);
+        if (hasEmptyColumnName) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_SPECIAL_FIELD_NOT_ALIAS.name()));
+        }
 
+        List<SourceName> sourceNames = request.getColumnList().values().stream().map(ColumnConfig::getSourceNames).filter(Objects::nonNull).flatMap(Collection::stream).toList();
+        if (sourceNames.isEmpty()) {
+            return;
+        }
+        List<String> pathList = sourceNames.stream().map(SourceName::toDsResPath).distinct().toList();
+        List<String> skipPaths = this.resAuthService.listAuthByUser(dsId, userUid, AuthKind.DataSource, pathList).stream().map(DmAuthResDO::getResPath).toList();
+
+        for (ColumnConfig config : request.getColumnList().values()) {
+            List<SourceName> configSources = config.getSourceNames();
+            if (CollectionUtils.isNotEmpty(configSources)) {
+                List<SourceName> processSources = configSources.stream().filter(source -> {
+                    return skipPaths.stream().noneMatch(path -> source.toDsResPath().startsWith(path));
+                }).toList();
+                config.setSourceNames(processSources);
+                config.setUsingValueProcess(CollectionUtils.isNotEmpty(processSources));
+            }
+        }
+        if (sourceNames.stream().allMatch(source -> {
+            return skipPaths.stream().anyMatch(path -> source.toDsResPath().startsWith(path));
+        })) {
+            request.setUsingValueProcess(false);
+        }
+    }
 }

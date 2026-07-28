@@ -209,7 +209,7 @@ public abstract class AbstractSelectColumnAnalysisSpi implements SelectColumnAna
                 levels.put(UmiTypes.Schema, tableDomain.getSchema());
             }
             List<MetaCol> metaCols = this.metaService.fetchTableColumns(uid, dsID, levels, tableDomain.getTable());
-            List<SelectItem> selectItems = MetaColConvert.toSelectItems(metaCols, 0);
+            List<SelectItem> selectItems = MetaColConvert.toSelectItems(metaCols);
             for (SelectItem selectItem : selectItems) {
                 if (tableDomain.getAlias() != null) {
                     selectItem.setTableAlias(tableDomain.getAlias());
