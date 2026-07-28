@@ -18,7 +18,6 @@ package com.clougence.sql.common.analysis.lineage;
 import java.util.*;
 
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
-import com.clougence.clouddm.sdk.service.execute.MetaColConvert;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.ColumnLineage;
@@ -257,7 +256,8 @@ public abstract class AbstractLineageAnalysisSpi implements LineageAnalysisSpi {
                 levels.put(UmiTypes.Schema, tableDomain.getSchema());
             }
             List<MetaCol> metaCols = this.metaService.fetchTableColumns(uid, dsID, levels, tableDomain.getTable());
-            List<MutableColumnLineage> selectItems = MetaColConvert.toSourceNames(metaCols).stream().map(sourceName -> {
+            List<MutableColumnLineage> selectItems = metaCols.stream().map(metaCol -> {
+                SourceName sourceName = new SourceName(metaCol.getCatalog(), metaCol.getSchema(), metaCol.getTable(), metaCol.getColumn());
                 MutableColumnLineage item = new MutableColumnLineage();
                 item.getColumns().add(sourceName);
                 item.setItemAlias(sourceName.column());

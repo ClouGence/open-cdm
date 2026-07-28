@@ -52,7 +52,10 @@ import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
-import com.clougence.clouddm.sdk.sql.analysis.column.*;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.ColumnLineage;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -215,13 +218,13 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     private void provenanceColumns(SqlEngineSpi sqlEngine, SqlParserParameters parameters, DataSourceConfig dsConfig, QueryAnalysisOptions options,//
                                    List<QueryRequest> requests) {
-        SelectColumnAnalysisSpi selectColumnSpi = sqlEngine.selectColumnAnalysisSpi(parameters);
-        if (selectColumnSpi == null) {
+        LineageAnalysisSpi lineageSpi = sqlEngine.lineageAnalysisSpi(parameters);
+        if (lineageSpi == null) {
             return;
         }
 
-        ContextInfo contextInfo = ContextInfo.builder()
-            .cuid(options.getCurrentUid())
+        LineageContext lineageContext = LineageContext.builder()
+            .userUID(options.getCurrentUid())
             .dsId(options.getDataSourceId())
             .levelsParam(options.getLevels())
             .deepParser(options.isDeepParser())

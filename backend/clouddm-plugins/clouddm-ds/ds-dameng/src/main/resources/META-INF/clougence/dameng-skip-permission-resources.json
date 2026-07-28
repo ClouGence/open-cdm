@@ -1,0 +1,21 @@
+{
+  "description": "Dameng system resources that skip object-level permission checks.",
+  "notes": ["Every entry is an exact unqualified built-in procedure name.", "Version values are Dameng major-version families."],
+  "entries": [
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_COL_STAT_INIT"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_COL_STAT_DEINIT"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_INDEX_STAT_INIT"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_INDEX_STAT_DEINIT"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_SET_SESSION_READONLY"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_SET_PARAM_IN_SESSION"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_SET_PARA_VALUE"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_SET_INI_PARA_VALUE"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_STAT_ON_TABLE_COLS"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_TAB_COL_STAT_INIT"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_TAB_COL_STAT_DEINIT"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_TAB_INDEX_STAT_INIT"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_TAB_STAT_INIT"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_TAB_STAT_DEINIT"]},
+    {"versions": ["8"], "type": "PROCEDURE", "name": ["SP_TAB_MSTAT_DEINIT"]}
+  ]
+}

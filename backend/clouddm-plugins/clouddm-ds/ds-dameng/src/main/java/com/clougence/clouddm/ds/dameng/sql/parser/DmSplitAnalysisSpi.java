@@ -15,12 +15,7 @@
  */
 package com.clougence.clouddm.ds.dameng.sql.parser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
@@ -28,6 +23,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.dameng.sql.analysis.reference.DmResourceRegistry;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -37,24 +33,7 @@ import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
 
 public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
-    private static final Set<String> BUILTIN_FUNCTIONS = Set.of("""
-        ABS ACOS ADD_DAYS ADD_MONTHS ADD_WEEKS ASCII ASCIISTR ASIN ATAN ATAN2 AVG BIGDATEDIFF BINTOCHAR BITAND BIT_LENGTH BLOB_EQUAL
-        CAST CEIL CEILING CHAR CHARACTER_LENGTH CHAR_LENGTH CHR COALESCE COMPOSE CONCAT CONCAT_WS CONVERT CORR COS COSH COT COUNT COVAR_POP
-        COVAR_SAMP CUME_DIST CURDATE CURRENT_DATE CURRENT_TIME CURRENT_TIMESTAMP CURTIME DATEADD DATEDIFF DATEPART DATE_ADD DATE_FORMAT DATE_PART
-        DATE_SUB DAY DAYNAME DAYOFMONTH DAYOFWEEK DAYOFYEAR DAYS_BETWEEN DBTIMEZONE DECODE DEGREES DENSE_RANK DIFFERENCE DM_HASH EMPTY_BLOB
-        EMPTY_CLOB EXP EXTRACT FIELD FIND_IN_SET FIRST_VALUE FLOOR FROM_TZ FROM_UNIXTIME GETDATE GREAT GREATEST HEXTORAW HOUR IF IFNULL INITCAP
-        INS INSERT INSSTR INSTR INSTRB ISDATE ISNULL ISNUMERIC LAG LAST_DAY LAST_VALUE LCASE LEAD LEAST LEFT LEFTSTR LEN LENGTH LENGTH2 LENGTH4
-        LENGTHB LENGTHC LISTAGG LN LNNVL LOCALTIME LOCALTIMESTAMP LOCATE LOG LOG10 LOWER LPAD LTRIM MAX MEDIAN MIN MINUTE MOD MONTH MONTHNAME
-        MONTHS_BETWEEN NANVL NCHR NEXT_DAY NTH_VALUE NTILE NLSSORT NLS_UPPER NOW NULLIF NULL_EQU NUMTODSINTERVAL NUMTOYMINTERVAL NVL
-        OCTET_LENGTH ORA_HASH OVERLAPS OVERLAY PERCENTILE_CONT PERCENTILE_DISC PERCENT_RANK PI POSITION POWER POWER2 QUARTER RADIANS RAND RANK
-        RATIO_TO_REPORT RAWTOHEX REGEXP_COUNT REGEXP_INSTR REGEXP_LIKE REGEXP_REPLACE REGEXP_SUBSTR REGR_AVGX REGR_AVGY REGR_COUNT REGR_INTERCEPT
-        REGR_R2 REGR_SLOPE REGR_SXX REGR_SXY REGR_SYY REMAINDER REPEAT REPEATSTR REPLACE REPLICATE REVERSE RIGHT RIGHTSTR ROUND ROW_NUMBER RPAD
-        RTRIM SCORE SECOND SEC_TO_TIME SESSIONTIMEZONE SIGN SIN SINH SOUNDEX SPACE SQRT STDDEV STDDEV_POP STDDEV_SAMP STRPOSDEC STRPOSINC STUFF SUBSTR
-        SUBSTRB SUBSTRING SUBSTRING_INDEX SUM SYSDATE SYSTIMESTAMP SYS_EXTRACT_UTC TAN TANH TEXT_EQUAL TIMESTAMPADD TIMESTAMPDIFF TIME_TO_SEC
-        TO_BINARY_DOUBLE TO_BINARY_FLOAT TO_BLOB TO_CHAR TO_DATE TO_DAYS TO_DSINTERVAL TO_MULTI_BYTE TO_NUMBER TO_SINGLE_BYTE TO_TIMESTAMP
-        TO_TIMESTAMP_TZ TO_YMINTERVAL TRANSLATE TRIM TRUNC TRUNCATE TZ_OFFSET UCASE UNHEX UNISTR UNIX_TIMESTAMP UPPER VARIANCE VAR_POP VAR_SAMP
-        SUPER THIS WEEK WEEKDAY WEEKS_BETWEEN WIDTH_BUCKET YEAR YEARS_BETWEEN
-        """.trim().split("\\s+"));
+    private final DmResourceRegistry resources = DmResourceRegistry.instance();
 
     @Override
     protected DslProvider dslProvider() {
@@ -80,8 +59,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         return types;
     }
 
-    private void collectAdditionalTypes(ParseTree root, ParseTree tree, Set<SplitQueryType> types,
-                                        boolean viewDefinition, boolean programDefinition) {
+    private void collectAdditionalTypes(ParseTree root, ParseTree tree, Set<SplitQueryType> types, boolean viewDefinition, boolean programDefinition) {
         if (tree != root && isDefinitionExecutionBody(tree, viewDefinition, programDefinition)) {
             return;
         }
@@ -101,8 +79,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (!programDefinition) {
             return false;
         }
-        return tree instanceof DmSqlParser.RoutineDefinitionContext
-            || tree instanceof DmSqlParser.TriggerCreateTailContext;
+        return tree instanceof DmSqlParser.RoutineDefinitionContext || tree instanceof DmSqlParser.TriggerCreateTailContext;
     }
 
     @Override
@@ -116,17 +93,12 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof DmSqlParser.FunctionCallContext ctx && isUserFunction(ctx)) {
             return SplitQueryType.CALL_PROG_OBJ;
         }
-        if (tree instanceof DmSqlParser.ColumnDefinitionContext
-            || tree instanceof DmSqlParser.CtasColumnDefinitionContext
+        if (tree instanceof DmSqlParser.ColumnDefinitionContext || tree instanceof DmSqlParser.CtasColumnDefinitionContext
             || tree instanceof DmSqlParser.HugeColumnDefinitionContext) {
             return isCreateOrAddDefinition(tree) ? SplitQueryType.ADD_COLUMN : null;
         }
-        if (tree instanceof DmSqlParser.TableConstraintContext
-            || tree instanceof DmSqlParser.CtasTableConstraintContext
-            || tree instanceof DmSqlParser.HugeTableConstraintContext
-            || tree instanceof DmSqlParser.UniqueSpecContext
-            || tree instanceof DmSqlParser.ReferenceConstraintContext
-            || isCheckConstraint(tree)) {
+        if (tree instanceof DmSqlParser.TableConstraintContext || tree instanceof DmSqlParser.CtasTableConstraintContext || tree instanceof DmSqlParser.HugeTableConstraintContext
+            || tree instanceof DmSqlParser.UniqueSpecContext || tree instanceof DmSqlParser.ReferenceConstraintContext || isCheckConstraint(tree)) {
             return isConstraintDefinition(tree) ? SplitQueryType.ADD_CONSTRAINT : null;
         }
         if (isColumnComment(tree)) {
@@ -182,8 +154,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
                 return SplitQueryType.ALTER_COLUMN;
             }
         }
-        if ((action.ENABLE() != null || action.DISABLE() != null)
-            && action.CONSTRAINT() != null) {
+        if ((action.ENABLE() != null || action.DISABLE() != null) && action.CONSTRAINT() != null) {
             return SplitQueryType.ALTER_CONSTRAINT;
         }
         if (action.TRUNCATE() != null && action.alterPartitionTruncateTarget() != null) {
@@ -197,20 +168,12 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     private boolean isUserFunction(DmSqlParser.FunctionCallContext context) {
         String name = context.name.getText();
-        if (name.indexOf('.') >= 0) {
-            return true;
-        }
-        if (name.length() >= 2 && name.charAt(0) == '"' && name.charAt(name.length() - 1) == '"') {
-            name = name.substring(1, name.length() - 1);
-        }
-        return !BUILTIN_FUNCTIONS.contains(name.toUpperCase(Locale.ROOT));
+        return resources.isUserDefinedFunction(name, name.indexOf('.') >= 0);
     }
 
     private boolean isColumnComment(ParseTree tree) {
-        if (!(tree instanceof DmSqlParser.ColumnAttributeContext
-            || tree instanceof DmSqlParser.ColumnTailClauseContext
-            || tree instanceof DmSqlParser.CtasColumnAttributeContext
-            || tree instanceof DmSqlParser.HugeColumnAttributeContext)) {
+        if (!(tree instanceof DmSqlParser.ColumnAttributeContext || tree instanceof DmSqlParser.ColumnTailClauseContext || tree instanceof DmSqlParser.CtasColumnAttributeContext
+              || tree instanceof DmSqlParser.HugeColumnAttributeContext)) {
             return false;
         }
         return tree.getChildCount() > 0 && "COMMENT".equalsIgnoreCase(tree.getChild(0).getText());
@@ -263,8 +226,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             }
         }
 
-        DmSqlParser.ClassBodyInitializerContext initializer =
-            findContext(context, DmSqlParser.ClassBodyInitializerContext.class);
+        DmSqlParser.ClassBodyInitializerContext initializer = findContext(context, DmSqlParser.ClassBodyInitializerContext.class);
         if (initializer != null) {
             return directProgramChildren(initializer, tokens);
         }
@@ -330,15 +292,13 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             types.add(SplitQueryType.PROGRAM_CONTROL);
         } else if (context instanceof DmSqlParser.ExecuteImmediateStatementContext) {
             types.add(SplitQueryType.UNSAFE);
-        } else if (context instanceof DmSqlParser.OpenCursorStatementContext
-            || context instanceof DmSqlParser.FetchCursorStatementContext
-            || context instanceof DmSqlParser.CloseCursorStatementContext) {
+        } else if (context instanceof DmSqlParser.OpenCursorStatementContext || context instanceof DmSqlParser.FetchCursorStatementContext
+                   || context instanceof DmSqlParser.CloseCursorStatementContext) {
             types.add(SplitQueryType.SELECT);
             types.add(SplitQueryType.PROGRAM_CONTROL);
         } else if (context instanceof DmSqlParser.AssignmentStatementContext assignment) {
             DmSqlParser.TriggerPseudoRecordTargetContext target = assignment.assignmentTarget().triggerPseudoRecordTarget();
-            types.add(target != null && target.BIND_VARIABLE().getText().equalsIgnoreCase(":new")
-                ? SplitQueryType.UPDATE : SplitQueryType.PROGRAM_CONTROL);
+            types.add(target != null && target.BIND_VARIABLE().getText().equalsIgnoreCase(":new") ? SplitQueryType.UPDATE : SplitQueryType.PROGRAM_CONTROL);
             collectExpressionTypes(context, types);
         } else if (context instanceof DmSqlParser.BlockSqlStatementContext) {
             String script = tokens.getText(context.getStart(), context.getStop());
@@ -392,32 +352,20 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     private boolean isProgramBoundary(ParserRuleContext context) {
-        return context instanceof DmSqlParser.SqlBlockStatementContext
-            || context instanceof DmSqlParser.CStyleBlockStatementContext
-            || context instanceof DmSqlParser.BlockSqlStatementContext
-            || context instanceof DmSqlParser.BlockDeclarationContext
-            || context instanceof DmSqlParser.AssignmentStatementContext
-            || context instanceof DmSqlParser.ExecuteImmediateStatementContext
-            || context instanceof DmSqlParser.OpenCursorStatementContext
-            || context instanceof DmSqlParser.FetchCursorStatementContext
-            || context instanceof DmSqlParser.CloseCursorStatementContext
-            || isProgramControl(context);
+        return context instanceof DmSqlParser.SqlBlockStatementContext || context instanceof DmSqlParser.CStyleBlockStatementContext
+               || context instanceof DmSqlParser.BlockSqlStatementContext || context instanceof DmSqlParser.BlockDeclarationContext
+               || context instanceof DmSqlParser.AssignmentStatementContext || context instanceof DmSqlParser.ExecuteImmediateStatementContext
+               || context instanceof DmSqlParser.OpenCursorStatementContext || context instanceof DmSqlParser.FetchCursorStatementContext
+               || context instanceof DmSqlParser.CloseCursorStatementContext || isProgramControl(context);
     }
 
     private boolean isProgramControl(ParserRuleContext context) {
-        return context instanceof DmSqlParser.IfStatementContext
-            || context instanceof DmSqlParser.LoopStatementContext
-            || context instanceof DmSqlParser.RepeatStatementContext
-            || context instanceof DmSqlParser.CaseControlStatementContext
-            || context instanceof DmSqlParser.GotoStatementContext
-            || context instanceof DmSqlParser.ExitStatementContext
-            || context instanceof DmSqlParser.ContinueStatementContext
-            || context instanceof DmSqlParser.NullStatementContext
-            || context instanceof DmSqlParser.ForallStatementContext
-            || context instanceof DmSqlParser.RaiseStatementContext
-            || context instanceof DmSqlParser.ReturnStatementContext
-            || context instanceof DmSqlParser.PrintStatementContext
-            || context instanceof DmSqlParser.PipeRowStatementContext;
+        return context instanceof DmSqlParser.IfStatementContext || context instanceof DmSqlParser.LoopStatementContext || context instanceof DmSqlParser.RepeatStatementContext
+               || context instanceof DmSqlParser.CaseControlStatementContext || context instanceof DmSqlParser.GotoStatementContext
+               || context instanceof DmSqlParser.ExitStatementContext || context instanceof DmSqlParser.ContinueStatementContext
+               || context instanceof DmSqlParser.NullStatementContext || context instanceof DmSqlParser.ForallStatementContext
+               || context instanceof DmSqlParser.RaiseStatementContext || context instanceof DmSqlParser.ReturnStatementContext
+               || context instanceof DmSqlParser.PrintStatementContext || context instanceof DmSqlParser.PipeRowStatementContext;
     }
 
     private void collectExpressionTypes(ParseTree tree, Set<SplitQueryType> types) {
