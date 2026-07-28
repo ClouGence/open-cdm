@@ -15,12 +15,6 @@
  */
 package com.clougence.clouddm.console.web.component.whitelist.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.springframework.stereotype.Service;
-
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -30,14 +24,18 @@ import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Service
 public class WhiteListServiceForFull implements WhiteListService, DsFeatureIDs, UnifiedPostConstruct {
 
-    private final AtomicBoolean      inited          = new AtomicBoolean();
+    private final AtomicBoolean inited = new AtomicBoolean();
     private final Map<String, Range> userConfigRange = new HashMap<>();
 
     @Override
@@ -45,10 +43,10 @@ public class WhiteListServiceForFull implements WhiteListService, DsFeatureIDs, 
         if (this.inited.compareAndSet(false, true)) {
             // config check
             this.userConfigRange.put(RootUserConfig.Fields.defaultColumnDisplayChars, new Range(10, 500));
-            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxRecordCount, new Range(-1, 1000000));
-            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxResultSetMegaByte, new Range(-1, 200));
-            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxColumnMegaByte, new Range(-1, 16));
-            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxElementMegaByte, new Range(-1, 16));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxRecordCount, new Range(1, 1000000));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxResultSetMegaByte, new Range(4, 1024));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxColumnMegaByte, new Range(1, 16));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxElementMegaByte, new Range(1, 16));
 
         }
     }
@@ -132,7 +130,7 @@ public class WhiteListServiceForFull implements WhiteListService, DsFeatureIDs, 
         Range range = this.userConfigRange.get(configKey);
         try {
             long value = Long.parseLong(configValue.trim());
-            return value < range.getMin() || value > range.getMax();
+            return range.getMin() <= value && value <= range.getMax();
         } catch (NumberFormatException e) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SYS_CONFIG_NEED_NUMBER_ERROR.name(), configKey, configValue));
         }

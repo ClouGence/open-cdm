@@ -18,9 +18,10 @@ package com.clougence.clouddm.console.web.component.config;
 import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
 import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * User config definition derived from {@code UserConfigDef}.
@@ -31,15 +32,20 @@ import lombok.Setter;
 @Setter
 public class UserConfigKvDef {
 
-    private String            uid;
-    private String            configName;
-    private String            configValue;
-    private String            defaultValue;
-    private String            valueRange;
-    private boolean           readOnly;
+    private String uid;
+    private String configName;
+    private String configValue;
+    private String defaultValue;
+    private String valueRange;
+    private long minValue;
+    private long maxValue;
+    private List<String> allowedValues;
+    private boolean required;
+    private Class<?> valueType;
+    private boolean readOnly;
     private UserConfigTagType userConfigTagType;
-    private ConfBelong        confBelong;
-    private ConfigValType     confValType;
-    private boolean           secret;
-    private String            descKey;
+    private ConfBelong confBelong;
+    private ConfigValType confValType;
+    private boolean secret;
+    private String descKey;
 }
