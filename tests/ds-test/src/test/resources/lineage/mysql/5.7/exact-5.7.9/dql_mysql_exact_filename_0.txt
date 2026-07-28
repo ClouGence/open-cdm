@@ -3,7 +3,7 @@ sql:
 SELECT _filename'abcd';
 expect:
 {
-  "'abcd'" : [ ]
+  "_filename'abcd'" : [ ]
 }
 ----------
 [dql_mysql_exact_filename_0.0002]

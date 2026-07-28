@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.clougence.clouddm.ds.TextCaseSupport;
 import com.clougence.clouddm.ds.lineage.SingleDataSourceLineageTextTest;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
 
 public final class MySqlLegacyLineageTextTest extends SingleDataSourceLineageTextTest {
 
@@ -17,7 +18,11 @@ public final class MySqlLegacyLineageTextTest extends SingleDataSourceLineageTex
 
     @Override
     protected List<String> fixtureResources() {
-        return TextCaseSupport.resourceFiles(RESOURCE_DIRECTORY,
-                path -> !path.substring(RESOURCE_PREFIX.length()).contains("/"));
+        return TextCaseSupport.resourceFiles(RESOURCE_DIRECTORY, path -> !path.substring(RESOURCE_PREFIX.length()).contains("/"));
+    }
+
+    @Override
+    protected String sourcePath(SourceName sourceName) {
+        return sourceName.toLocatedDsResPath();
     }
 }

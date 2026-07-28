@@ -1218,7 +1218,6 @@ expect:
       "selectValue": [],
       "selectInFrom": false,
       "emptyFrom": false,
-      "selectItems": [],
       "joinTypes": [],
       "hasLimit": true
     }
@@ -1294,7 +1293,6 @@ expect:
       "selectValue": [],
       "selectInFrom": false,
       "emptyFrom": false,
-      "selectItems": [],
       "joinTypes": [],
       "hasLimit": true
     }
@@ -1408,7 +1406,6 @@ expect:
       "selectValue": [],
       "selectInFrom": false,
       "emptyFrom": false,
-      "selectItems": [],
       "joinTypes": [],
       "hasLimit": false
     }
@@ -1446,7 +1443,6 @@ expect:
       "selectValue": [],
       "selectInFrom": false,
       "emptyFrom": false,
-      "selectItems": [],
       "joinTypes": [],
       "hasLimit": true
     }
@@ -1502,7 +1498,6 @@ expect:
       "selectValue": [],
       "selectInFrom": false,
       "emptyFrom": false,
-      "selectItems": [],
       "joinTypes": [],
       "hasLimit": true
     }

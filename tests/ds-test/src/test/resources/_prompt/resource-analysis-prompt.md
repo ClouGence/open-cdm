@@ -240,7 +240,7 @@ MySQL 只能作为 SQL 语料和方言工具的参考：
 
 当一条 SQL 同时包含多个独立动作时，必须输出多个 relation。例如 routine 创建动作、body 内的 INSERT、READ、CALL 必须分别表达，不能用外层 CREATE 把 body 行为全部包成一个关系。
 
-`BehaviorAction.authKind` 是现有 CloudDM 粗粒度鉴权类别，不是数据库原生权限。不得因为某数据库要求 ALTER+DROP 或 CREATE+INSERT，就在行为 visitor 中伪造权限计划；行为 visitor 只报告真实行为关系，权限解释属于后续鉴权层。
+`BehaviorRequest.requiredAuthKind` 是根据拆分后的单个资源行为解析出的 CloudDM 粗粒度鉴权类别，不是数据库原生权限。不得因为某数据库要求 ALTER+DROP 或 CREATE+INSERT，就在行为 visitor 中伪造权限计划；行为 visitor 只报告真实行为关系，权限解释属于后续鉴权层。
 
 ### BehaviorObject
 

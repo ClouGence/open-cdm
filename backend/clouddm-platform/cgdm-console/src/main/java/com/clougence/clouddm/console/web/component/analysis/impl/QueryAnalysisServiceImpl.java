@@ -52,8 +52,8 @@ import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.ColumnLineage;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
@@ -144,8 +144,8 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             rewriteRequests(sqlEngine, parameters, requests);
         }
         analysisResources(sqlEngine, parameters, safeLevels, scripts, requests);
-        if (options.isEnabled(QueryAnalysisFeature.PROVENANCE)) {
-            provenanceColumns(sqlEngine, parameters, dsConfig, options, requests);
+        if (options.isEnabled(QueryAnalysisFeature.LINEAGE)) {
+            lineageColumns(sqlEngine, parameters, dsConfig, options, requests);
         }
         if (options.isEnabled(QueryAnalysisFeature.MASKING)) {
             configMasking(sqlEngine, parameters, options, requests);
@@ -196,6 +196,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         if (behaviorSpi == null) {
             throw new IllegalStateException(sqlEngine + " does not support BehaviorAnalysisSpi.");
         }
+
         for (int i = 0; i < requests.size(); i++) {
             QueryRequest request = requests.get(i);
             SplitScript script = scripts.get(i);
@@ -216,8 +217,8 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         }
     }
 
-    private void provenanceColumns(SqlEngineSpi sqlEngine, SqlParserParameters parameters, DataSourceConfig dsConfig, QueryAnalysisOptions options,//
-                                   List<QueryRequest> requests) {
+    private void lineageColumns(SqlEngineSpi sqlEngine, SqlParserParameters parameters, DataSourceConfig dsConfig,//
+                                QueryAnalysisOptions options, List<QueryRequest> requests) {
         LineageAnalysisSpi lineageSpi = sqlEngine.lineageAnalysisSpi(parameters);
         if (lineageSpi == null) {
             return;
@@ -227,18 +228,24 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             .userUID(options.getCurrentUid())
             .dsId(options.getDataSourceId())
             .levelsParam(options.getLevels())
-            .deepParser(options.isDeepParser())
-            .dataSourceConfig(dsConfig)
+            .dsConfig(dsConfig)
             .build();
         for (QueryRequest request : requests) {
             if (request.hasQueryType(SplitQueryType.SELECT)) {
-                List<SelectItem> selectItems = selectColumnSpi.parseSelectColumn(request.getQueryBody(), contextInfo);
-                Set<String> aliases = new HashSet<>();
-                if (selectItems.stream().anyMatch(item -> !aliases.add(item.getItemAlias()))) {
-                    throw new ErrorMessageException(DmI18nUtils.getMessage(//
-                            I18nDmMsgKeys.CONSOLE_QUERY_FORBID_SELECT_COLUMN_SAME_NAME.name()));
+                List<LineageColumn> lineageCols = lineageSpi.analyze(request.getQueryBody(), lineageContext);
+                Set<String> columnNames = new HashSet<>();
+                if (lineageCols.stream().anyMatch(c -> !columnNames.add(c.column()))) {
+                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_FORBID_SELECT_COLUMN_SAME_NAME.name()));
                 }
-                request.setColumnList(selectItems.stream().collect(Collectors.toMap(SelectItem::getItemAlias, SelectItem::getColumns)));
+
+                Map<String, ColumnConfig> columnList = new LinkedHashMap<>();
+                for (LineageColumn lineage : lineageCols) {
+                    ColumnConfig config = new ColumnConfig();
+                    config.setSourceNames(lineage.sources());
+
+                    columnList.put(lineage.column(), config);
+                }
+                request.setColumnList(columnList);
             }
         }
     }
@@ -274,12 +281,11 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     private void configMaskingWithoutProvenance(QueryRequest request, SysObjectRegistrySpi sysObjRegistry, String dbVersion, String userUid, long dsId,//
                                                 String currentResourcePath, String instanceResourcePath) {
-        List<DsResPathObj> objList = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations(), request.getQueryTypes())
-            .stream()
-            .filter(b -> !b.skipPermission())
-            .filter(b -> BehaviorRelations.authKind(b.action(), b.resource().getObjectType()) == SecDataAuthKind.READ)
-            .map(b -> new DsResPathObj(BehaviorRelations.resourcePath(b.resource(), currentResourcePath, instanceResourcePath)))
-            .toList();
+        List<DsResPathObj> objList = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations(), request.getQueryTypes()).stream().filter(b -> {
+            return b.authKind() == SecDataAuthKind.READ;
+        }).map(b -> {
+            return new DsResPathObj(BehaviorRelations.resourcePath(b.resource(), currentResourcePath, instanceResourcePath));
+        }).toList();
 
         //
         boolean allAuthorized = CollectionUtils.isNotEmpty(objList) && objList.stream().allMatch(path -> {

@@ -18,6 +18,6 @@ package com.clougence.clouddm.console.web.component.analysis;
 public enum QueryAnalysisFeature {
 
     REWRITE,
-    PROVENANCE,
+    LINEAGE,
     MASKING,
 }

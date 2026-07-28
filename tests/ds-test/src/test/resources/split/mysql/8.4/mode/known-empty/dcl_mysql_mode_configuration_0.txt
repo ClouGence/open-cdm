@@ -30,4 +30,4 @@ SET sql_mode=@saved_mode;
 ----------
 [SESSION_VARIABLE_RW] SET @saved_mode=@@sql_mode;
 ----------
-[SESSION_SETTING_WRITE] SET sql_mode=@saved_mode;
+[SESSION_SETTING_WRITE|SESSION_VARIABLE_RW] SET sql_mode=@saved_mode;

@@ -21,6 +21,8 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import com.clougence.clouddm.ds.SqlTestSupport;
 import com.clougence.clouddm.ds.TextCaseSupport;
@@ -28,16 +30,17 @@ import com.clougence.clouddm.ds.behavior.BehaviorTextTest;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 
+@Execution(ExecutionMode.CONCURRENT)
 public final class RedisBehaviorTextTest {
 
     @TestFactory
     public Stream<DynamicTest> behaviorScripts() {
-        BehaviorAnalysisSpi spi = SqlTestSupport.sqlEngine("redis").behaviorAnalysisSpi(SqlParserParameters.empty());
+        ThreadLocal<BehaviorAnalysisSpi> spi = ThreadLocal.withInitial(() -> SqlTestSupport.sqlEngine("redis").behaviorAnalysisSpi(SqlParserParameters.empty()));
         List<DynamicTest> tests = new ArrayList<>();
         for (String resourcePath : TextCaseSupport.resourceFiles("behavior/redis")) {
             for (BehaviorTextTest.TestCase testCase : BehaviorTextTest.loadCases(resourcePath)) {
                 tests.add(DynamicTest.dynamicTest(testCase.displayName(), () -> {
-                    BehaviorTextTest.assertStrictCase(resourcePath, testCase, spi, null);
+                    BehaviorTextTest.assertStrictCase(resourcePath, testCase, spi.get(), null);
                 }));
             }
         }

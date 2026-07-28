@@ -196,8 +196,8 @@ sql:
 SELECT DEFAULT(a), DEFAULT(b) FROM default_function_t;
 expect:
 {
-  "DEFAULT(a)" : [ "/catalog1/schema1/default_function_t/a/" ],
-  "DEFAULT(b)" : [ "/catalog1/schema1/default_function_t/b/" ]
+  "DEFAULT(a)" : [ "(1:15~1:16) /catalog1/schema1/default_function_t/a/" ],
+  "DEFAULT(b)" : [ "(1:27~1:28) /catalog1/schema1/default_function_t/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0016]
@@ -205,8 +205,8 @@ sql:
 SELECT i1, EXTRACT(HOUR FROM TIMEDIFF(NOW(), d1)) FROM t1;
 expect:
 {
-  "i1" : [ "/catalog1/schema1/t1/i1/" ],
-  "EXTRACT(HOUR FROM TIMEDIFF(NOW(), d1))" : [ "/catalog1/schema1/t1/d1/" ]
+  "i1" : [ "(1:7~1:9) /catalog1/schema1/t1/i1/" ],
+  "EXTRACT(HOUR FROM TIMEDIFF(NOW(), d1))" : [ "(1:45~1:47) /catalog1/schema1/t1/d1/" ]
 }
 ----------
 [dql_mysql_functions_0.0017]
@@ -243,9 +243,9 @@ sql:
 SELECT 'a' = AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', NULL), 'a' = AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', REPEAT('a', 16)), 'a' = AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', REPEAT('a', 100)), TO_BASE64(AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', 'a'));
 expect:
 {
-  "a' = AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', NULL" : [ ],
-  "a' = AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', REPEAT('a', 16)" : [ ],
-  "a' = AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', REPEAT('a', 100)" : [ ],
+  "'a' = AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', NULL)" : [ ],
+  "'a' = AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', REPEAT('a', 16))" : [ ],
+  "'a' = AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', REPEAT('a', 100))" : [ ],
   "TO_BASE64(AES_DECRYPT(AES_ENCRYPT('a', 'a'), 'a', 'a'))" : [ ]
 }
 ----------
@@ -353,7 +353,7 @@ sql:
 SELECT 'a' = AES_DECRYPT(AES_ENCRYPT('a', @aes_key1, @aes_iva), @aes_key1, @aes_iva);
 expect:
 {
-  "a' = AES_DECRYPT(AES_ENCRYPT('a', @aes_key1, @aes_iva), @aes_key1, @aes_iva" : [ ]
+  "'a' = AES_DECRYPT(AES_ENCRYPT('a', @aes_key1, @aes_iva), @aes_key1, @aes_iva)" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0031]
@@ -361,9 +361,9 @@ sql:
 SELECT 'a' = AES_DECRYPT(AES_ENCRYPT('a', @aes_key1, @aes_iva), @aes_key1, @aes_ivb), 'a' = AES_DECRYPT(AES_ENCRYPT('a', @aes_key1, @aes_iva), @aes_key2, @aes_iva), 'a' = AES_DECRYPT(AES_ENCRYPT('b', @aes_key1, @aes_iva), @aes_key1, @aes_iva);
 expect:
 {
-  "a' = AES_DECRYPT(AES_ENCRYPT('a', @aes_key1, @aes_iva), @aes_key1, @aes_ivb" : [ ],
-  "a' = AES_DECRYPT(AES_ENCRYPT('a', @aes_key1, @aes_iva), @aes_key2, @aes_iva" : [ ],
-  "a' = AES_DECRYPT(AES_ENCRYPT('b', @aes_key1, @aes_iva), @aes_key1, @aes_iva" : [ ]
+  "'a' = AES_DECRYPT(AES_ENCRYPT('a', @aes_key1, @aes_iva), @aes_key1, @aes_ivb)" : [ ],
+  "'a' = AES_DECRYPT(AES_ENCRYPT('a', @aes_key1, @aes_iva), @aes_key2, @aes_iva)" : [ ],
+  "'a' = AES_DECRYPT(AES_ENCRYPT('b', @aes_key1, @aes_iva), @aes_key1, @aes_iva)" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0032]
@@ -379,9 +379,9 @@ sql:
 SELECT SUM(a = AES_DECRYPT(b256, @aes_key1, @aes_iva)), SUM(a = AES_DECRYPT(b256, 'b', @aes_iva)), SUM(a = AES_DECRYPT(b256, @aes_key1, @aes_ivb)) FROM aes_feedback_modes;
 expect:
 {
-  "SUM(a = AES_DECRYPT(b256, @aes_key1, @aes_iva))" : [ "/catalog1/schema1/aes_feedback_modes/a/", "/catalog1/schema1/aes_feedback_modes/b256/" ],
-  "SUM(a = AES_DECRYPT(b256, 'b', @aes_iva))" : [ "/catalog1/schema1/aes_feedback_modes/a/", "/catalog1/schema1/aes_feedback_modes/b256/" ],
-  "SUM(a = AES_DECRYPT(b256, @aes_key1, @aes_ivb))" : [ "/catalog1/schema1/aes_feedback_modes/a/", "/catalog1/schema1/aes_feedback_modes/b256/" ]
+  "SUM(a = AES_DECRYPT(b256, @aes_key1, @aes_iva))" : [ "(1:11~1:12) /catalog1/schema1/aes_feedback_modes/a/", "(1:27~1:31) /catalog1/schema1/aes_feedback_modes/b256/" ],
+  "SUM(a = AES_DECRYPT(b256, 'b', @aes_iva))" : [ "(1:60~1:61) /catalog1/schema1/aes_feedback_modes/a/", "(1:76~1:80) /catalog1/schema1/aes_feedback_modes/b256/" ],
+  "SUM(a = AES_DECRYPT(b256, @aes_key1, @aes_ivb))" : [ "(1:103~1:104) /catalog1/schema1/aes_feedback_modes/a/", "(1:119~1:123) /catalog1/schema1/aes_feedback_modes/b256/" ]
 }
 ----------
 [dql_mysql_functions_0.0034]
@@ -389,10 +389,10 @@ sql:
 SELECT SUM(a = AES_DECRYPT(b192, @aes_key1, @aes_iva)), SUM(a = AES_DECRYPT(b192, @aes_key2, @aes_iva)), SUM(a = AES_DECRYPT(b128, @aes_key1, @aes_iva)), SUM(a = AES_DECRYPT(b128, @aes_key2, @aes_ivb)) FROM aes_feedback_modes;
 expect:
 {
-  "SUM(a = AES_DECRYPT(b192, @aes_key1, @aes_iva))" : [ "/catalog1/schema1/aes_feedback_modes/a/", "/catalog1/schema1/aes_feedback_modes/b192/" ],
-  "SUM(a = AES_DECRYPT(b192, @aes_key2, @aes_iva))" : [ "/catalog1/schema1/aes_feedback_modes/a/", "/catalog1/schema1/aes_feedback_modes/b192/" ],
-  "SUM(a = AES_DECRYPT(b128, @aes_key1, @aes_iva))" : [ "/catalog1/schema1/aes_feedback_modes/a/", "/catalog1/schema1/aes_feedback_modes/b128/" ],
-  "SUM(a = AES_DECRYPT(b128, @aes_key2, @aes_ivb))" : [ "/catalog1/schema1/aes_feedback_modes/a/", "/catalog1/schema1/aes_feedback_modes/b128/" ]
+  "SUM(a = AES_DECRYPT(b192, @aes_key1, @aes_iva))" : [ "(1:11~1:12) /catalog1/schema1/aes_feedback_modes/a/", "(1:27~1:31) /catalog1/schema1/aes_feedback_modes/b192/" ],
+  "SUM(a = AES_DECRYPT(b192, @aes_key2, @aes_iva))" : [ "(1:60~1:61) /catalog1/schema1/aes_feedback_modes/a/", "(1:76~1:80) /catalog1/schema1/aes_feedback_modes/b192/" ],
+  "SUM(a = AES_DECRYPT(b128, @aes_key1, @aes_iva))" : [ "(1:109~1:110) /catalog1/schema1/aes_feedback_modes/a/", "(1:125~1:129) /catalog1/schema1/aes_feedback_modes/b128/" ],
+  "SUM(a = AES_DECRYPT(b128, @aes_key2, @aes_ivb))" : [ "(1:158~1:159) /catalog1/schema1/aes_feedback_modes/a/", "(1:174~1:178) /catalog1/schema1/aes_feedback_modes/b128/" ]
 }
 ----------
 [dql_mysql_functions_0.0035]
@@ -429,8 +429,8 @@ sql:
 SELECT 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'hkdf', 10001), 'my_key_string', '', 'hkdf', 10001), 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'hkdf', 10001, 2000), 'my_key_string', '', 'hkdf', 10001, 2000);
 expect:
 {
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'hkdf', 10001), 'my_key_string', '', 'hkdf', 10001" : [ ],
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'hkdf', 10001, 2000), 'my_key_string', '', 'hkdf', 10001, 2000" : [ ]
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'hkdf', 10001), 'my_key_string', '', 'hkdf', 10001)" : [ ],
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'hkdf', 10001, 2000), 'my_key_string', '', 'hkdf', 10001, 2000)" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0039]
@@ -446,9 +446,9 @@ sql:
 SELECT 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'hkdf'), 'my_key_string', @aes_kdf_iv, 'hkdf'), 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt'), 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt'), 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt', 'info'), 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt', 'info');
 expect:
 {
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'hkdf'), 'my_key_string', @aes_kdf_iv, 'hkdf'" : [ ],
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt'), 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt'" : [ ],
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt', 'info'), 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt', 'info'" : [ ]
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'hkdf'), 'my_key_string', @aes_kdf_iv, 'hkdf')" : [ ],
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt'), 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt')" : [ ],
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt', 'info'), 'my_key_string', @aes_kdf_iv, 'hkdf', 'salt', 'info')" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0041]
@@ -486,8 +486,8 @@ sql:
 SELECT 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'pbkdf2_hmac', 4000, '10001'), 'my_key_string', '', 'pbkdf2_hmac', 4000, '10001'), 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'pbkdf2_hmac', 4000, 10001), 'my_key_string', '', 'pbkdf2_hmac', 4000, 10001);
 expect:
 {
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'pbkdf2_hmac', 4000, '10001'), 'my_key_string', '', 'pbkdf2_hmac', 4000, '10001'" : [ ],
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'pbkdf2_hmac', 4000, 10001), 'my_key_string', '', 'pbkdf2_hmac', 4000, 10001" : [ ]
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'pbkdf2_hmac', 4000, '10001'), 'my_key_string', '', 'pbkdf2_hmac', 4000, '10001')" : [ ],
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', '', 'pbkdf2_hmac', 4000, 10001), 'my_key_string', '', 'pbkdf2_hmac', 4000, 10001)" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0045]
@@ -552,9 +552,9 @@ sql:
 SELECT 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac'), 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac'), 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt'), 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt'), 'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt', '10001'), 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt', '10001');
 expect:
 {
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac'), 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac'" : [ ],
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt'), 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt'" : [ ],
-  "my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt', '10001'), 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt', '10001'" : [ ]
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac'), 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac')" : [ ],
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt'), 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt')" : [ ],
+  "'my_text' = AES_DECRYPT(AES_ENCRYPT('my_text', 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt', '10001'), 'my_key_string', @aes_kdf_iv, 'pbkdf2_hmac', 'salt', '10001')" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0053]
@@ -596,7 +596,7 @@ sql:
 SELECT AES_DECRYPT(cipher, @aes_misc_key, @aes_misc_iv) = @aes_misc_plain FROM aes_misc_cipher;
 expect:
 {
-  "AES_DECRYPT(cipher, @aes_misc_key, @aes_misc_iv) = @aes_misc_plain" : [ "/catalog1/schema1/aes_misc_cipher/cipher/" ]
+  "AES_DECRYPT(cipher, @aes_misc_key, @aes_misc_iv) = @aes_misc_plain" : [ "(1:19~1:25) /catalog1/schema1/aes_misc_cipher/cipher/" ]
 }
 ----------
 [dql_mysql_functions_0.0058]
@@ -604,7 +604,7 @@ sql:
 SELECT COALESCE(AES_DECRYPT(cipher, @aes_misc_key, @aes_misc_iv) = @aes_misc_plain, 0) FROM aes_misc_cipher;
 expect:
 {
-  "COALESCE(AES_DECRYPT(cipher, @aes_misc_key, @aes_misc_iv) = @aes_misc_plain, 0)" : [ "/catalog1/schema1/aes_misc_cipher/cipher/" ]
+  "COALESCE(AES_DECRYPT(cipher, @aes_misc_key, @aes_misc_iv) = @aes_misc_plain, 0)" : [ "(1:28~1:34) /catalog1/schema1/aes_misc_cipher/cipher/" ]
 }
 ----------
 [dql_mysql_functions_0.0059]
@@ -676,7 +676,7 @@ sql:
 SELECT TO_BASE64(cipher) FROM aes_cipher_keys ORDER BY cipher;
 expect:
 {
-  "TO_BASE64(cipher)" : [ "/catalog1/schema1/aes_cipher_keys/cipher/" ]
+  "TO_BASE64(cipher)" : [ "(1:17~1:23) /catalog1/schema1/aes_cipher_keys/cipher/" ]
 }
 ----------
 [dql_mysql_functions_0.0068]
@@ -692,8 +692,8 @@ sql:
 SELECT SUM(a = AES_DECRYPT(b256, 'a')), SUM(a = AES_DECRYPT(b256, 'b')) FROM aes_ecb_modes;
 expect:
 {
-  "SUM(a = AES_DECRYPT(b256, 'a'))" : [ "/catalog1/schema1/aes_ecb_modes/a/", "/catalog1/schema1/aes_ecb_modes/b256/" ],
-  "SUM(a = AES_DECRYPT(b256, 'b'))" : [ "/catalog1/schema1/aes_ecb_modes/a/", "/catalog1/schema1/aes_ecb_modes/b256/" ]
+  "SUM(a = AES_DECRYPT(b256, 'a'))" : [ "(1:11~1:12) /catalog1/schema1/aes_ecb_modes/a/", "(1:27~1:31) /catalog1/schema1/aes_ecb_modes/b256/" ],
+  "SUM(a = AES_DECRYPT(b256, 'b'))" : [ "(1:44~1:45) /catalog1/schema1/aes_ecb_modes/a/", "(1:60~1:64) /catalog1/schema1/aes_ecb_modes/b256/" ]
 }
 ----------
 [dql_mysql_functions_0.0070]
@@ -701,8 +701,8 @@ sql:
 SELECT SUM(a = AES_DECRYPT(b192, 'a')), SUM(a = AES_DECRYPT(b192, 'b')) FROM aes_ecb_modes;
 expect:
 {
-  "SUM(a = AES_DECRYPT(b192, 'a'))" : [ "/catalog1/schema1/aes_ecb_modes/a/", "/catalog1/schema1/aes_ecb_modes/b192/" ],
-  "SUM(a = AES_DECRYPT(b192, 'b'))" : [ "/catalog1/schema1/aes_ecb_modes/a/", "/catalog1/schema1/aes_ecb_modes/b192/" ]
+  "SUM(a = AES_DECRYPT(b192, 'a'))" : [ "(1:11~1:12) /catalog1/schema1/aes_ecb_modes/a/", "(1:27~1:31) /catalog1/schema1/aes_ecb_modes/b192/" ],
+  "SUM(a = AES_DECRYPT(b192, 'b'))" : [ "(1:44~1:45) /catalog1/schema1/aes_ecb_modes/a/", "(1:60~1:64) /catalog1/schema1/aes_ecb_modes/b192/" ]
 }
 ----------
 [dql_mysql_functions_0.0071]
@@ -710,8 +710,8 @@ sql:
 SELECT SUM(a = AES_DECRYPT(b128, 'a')), SUM(a = AES_DECRYPT(b128, 'b')) FROM aes_ecb_modes;
 expect:
 {
-  "SUM(a = AES_DECRYPT(b128, 'a'))" : [ "/catalog1/schema1/aes_ecb_modes/a/", "/catalog1/schema1/aes_ecb_modes/b128/" ],
-  "SUM(a = AES_DECRYPT(b128, 'b'))" : [ "/catalog1/schema1/aes_ecb_modes/a/", "/catalog1/schema1/aes_ecb_modes/b128/" ]
+  "SUM(a = AES_DECRYPT(b128, 'a'))" : [ "(1:11~1:12) /catalog1/schema1/aes_ecb_modes/a/", "(1:27~1:31) /catalog1/schema1/aes_ecb_modes/b128/" ],
+  "SUM(a = AES_DECRYPT(b128, 'b'))" : [ "(1:44~1:45) /catalog1/schema1/aes_ecb_modes/a/", "(1:60~1:64) /catalog1/schema1/aes_ecb_modes/b128/" ]
 }
 ----------
 [dql_mysql_functions_0.0072]
@@ -719,13 +719,13 @@ sql:
 SELECT HEX(vbin1 & vbin2), HEX(vbin1 | vbin2), HEX(vbin1 ^ vbin2), HEX(~vbin1), HEX(vbin1 << 3), HEX(vbin2 >> 3), BIT_COUNT(vbin1) FROM bitwise_native_t WHERE id = 1;
 expect:
 {
-  "HEX(vbin1 & vbin2)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/", "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "HEX(vbin1 | vbin2)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/", "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "HEX(vbin1 ^ vbin2)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/", "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "HEX(~vbin1)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/" ],
-  "HEX(vbin1 << 3)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/" ],
-  "HEX(vbin2 >> 3)" : [ "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "BIT_COUNT(vbin1)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/" ]
+  "HEX(vbin1 & vbin2)" : [ "(1:11~1:16) /catalog1/schema1/bitwise_native_t/vbin1/", "(1:19~1:24) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "HEX(vbin1 | vbin2)" : [ "(1:31~1:36) /catalog1/schema1/bitwise_native_t/vbin1/", "(1:39~1:44) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "HEX(vbin1 ^ vbin2)" : [ "(1:51~1:56) /catalog1/schema1/bitwise_native_t/vbin1/", "(1:59~1:64) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "HEX(~vbin1)" : [ "(1:72~1:77) /catalog1/schema1/bitwise_native_t/vbin1/" ],
+  "HEX(vbin1 << 3)" : [ "(1:84~1:89) /catalog1/schema1/bitwise_native_t/vbin1/" ],
+  "HEX(vbin2 >> 3)" : [ "(1:101~1:106) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "BIT_COUNT(vbin1)" : [ "(1:124~1:129) /catalog1/schema1/bitwise_native_t/vbin1/" ]
 }
 ----------
 [dql_mysql_functions_0.0073]
@@ -733,12 +733,12 @@ sql:
 SELECT HEX(vbin1 & vbin2), HEX(vbin1 | vbin2), HEX(vbin1 ^ vbin2), HEX(vbin1 << 3), HEX(vbin2 >> 3), HEX(~vbin1) FROM bitwise_native_t WHERE id = 2;
 expect:
 {
-  "HEX(vbin1 & vbin2)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/", "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "HEX(vbin1 | vbin2)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/", "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "HEX(vbin1 ^ vbin2)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/", "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "HEX(vbin1 << 3)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/" ],
-  "HEX(vbin2 >> 3)" : [ "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "HEX(~vbin1)" : [ "/catalog1/schema1/bitwise_native_t/vbin1/" ]
+  "HEX(vbin1 & vbin2)" : [ "(1:11~1:16) /catalog1/schema1/bitwise_native_t/vbin1/", "(1:19~1:24) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "HEX(vbin1 | vbin2)" : [ "(1:31~1:36) /catalog1/schema1/bitwise_native_t/vbin1/", "(1:39~1:44) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "HEX(vbin1 ^ vbin2)" : [ "(1:51~1:56) /catalog1/schema1/bitwise_native_t/vbin1/", "(1:59~1:64) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "HEX(vbin1 << 3)" : [ "(1:71~1:76) /catalog1/schema1/bitwise_native_t/vbin1/" ],
+  "HEX(vbin2 >> 3)" : [ "(1:88~1:93) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "HEX(~vbin1)" : [ "(1:106~1:111) /catalog1/schema1/bitwise_native_t/vbin1/" ]
 }
 ----------
 [dql_mysql_functions_0.0074]
@@ -746,9 +746,9 @@ sql:
 SELECT HEX(CAST(vbin1 AS UNSIGNED) & CAST(vbin2 AS UNSIGNED)), HEX(CAST(vbin1 AS UNSIGNED) | CAST(vbin2 AS UNSIGNED)), HEX(CAST(vbin1 AS UNSIGNED) ^ CAST(vbin2 AS UNSIGNED)) FROM bitwise_native_t WHERE id = 1;
 expect:
 {
-  "HEX(CAST(vbin1 AS UNSIGNED) & CAST(vbin2 AS UNSIGNED))" : [ "/catalog1/schema1/bitwise_native_t/vbin1/", "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "HEX(CAST(vbin1 AS UNSIGNED) | CAST(vbin2 AS UNSIGNED))" : [ "/catalog1/schema1/bitwise_native_t/vbin1/", "/catalog1/schema1/bitwise_native_t/vbin2/" ],
-  "HEX(CAST(vbin1 AS UNSIGNED) ^ CAST(vbin2 AS UNSIGNED))" : [ "/catalog1/schema1/bitwise_native_t/vbin1/", "/catalog1/schema1/bitwise_native_t/vbin2/" ]
+  "HEX(CAST(vbin1 AS UNSIGNED) & CAST(vbin2 AS UNSIGNED))" : [ "(1:16~1:21) /catalog1/schema1/bitwise_native_t/vbin1/", "(1:42~1:47) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "HEX(CAST(vbin1 AS UNSIGNED) | CAST(vbin2 AS UNSIGNED))" : [ "(1:72~1:77) /catalog1/schema1/bitwise_native_t/vbin1/", "(1:98~1:103) /catalog1/schema1/bitwise_native_t/vbin2/" ],
+  "HEX(CAST(vbin1 AS UNSIGNED) ^ CAST(vbin2 AS UNSIGNED))" : [ "(1:128~1:133) /catalog1/schema1/bitwise_native_t/vbin1/", "(1:154~1:159) /catalog1/schema1/bitwise_native_t/vbin2/" ]
 }
 ----------
 [dql_mysql_functions_0.0075]
@@ -756,9 +756,9 @@ sql:
 SELECT id, HEX(start), HEX(`end`) FROM bitwise_native_networks WHERE INET6_ATON('2c0f:fff0:1234:5678:9101:1123::') & start = INET6_ATON('2c0f:fff0::');
 expect:
 {
-  "id" : [ "/catalog1/schema1/bitwise_native_networks/id/" ],
-  "HEX(start)" : [ "/catalog1/schema1/bitwise_native_networks/start/" ],
-  "HEX(`end`)" : [ "/catalog1/schema1/bitwise_native_networks/end/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/bitwise_native_networks/id/" ],
+  "HEX(start)" : [ "(1:15~1:20) /catalog1/schema1/bitwise_native_networks/start/" ],
+  "HEX(`end`)" : [ "(1:27~1:32) /catalog1/schema1/bitwise_native_networks/end/" ]
 }
 ----------
 [dql_mysql_functions_0.0076]
@@ -766,9 +766,9 @@ sql:
 SELECT SQL_BUFFER_RESULT HEX(BIT_AND(a)), HEX(BIT_OR(a)), HEX(BIT_XOR(a)) FROM bitwise_native_aggr WHERE gid = 1;
 expect:
 {
-  "HEX(BIT_AND(a))" : [ "/catalog1/schema1/bitwise_native_aggr/a/" ],
-  "HEX(BIT_OR(a))" : [ "/catalog1/schema1/bitwise_native_aggr/a/" ],
-  "HEX(BIT_XOR(a))" : [ "/catalog1/schema1/bitwise_native_aggr/a/" ]
+  "HEX(BIT_AND(a))" : [ "(1:37~1:38) /catalog1/schema1/bitwise_native_aggr/a/" ],
+  "HEX(BIT_OR(a))" : [ "(1:53~1:54) /catalog1/schema1/bitwise_native_aggr/a/" ],
+  "HEX(BIT_XOR(a))" : [ "(1:70~1:71) /catalog1/schema1/bitwise_native_aggr/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0077]
@@ -776,10 +776,10 @@ sql:
 SELECT gid, CONCAT('M', BIT_OR(i)), 1.0 * BIT_OR(i), 0x30 << BIT_AND(i) FROM bitwise_native_aggr GROUP BY gid;
 expect:
 {
-  "gid" : [ "/catalog1/schema1/bitwise_native_aggr/gid/" ],
-  "CONCAT('M', BIT_OR(i))" : [ "/catalog1/schema1/bitwise_native_aggr/i/" ],
-  "1.0 * BIT_OR(i)" : [ "/catalog1/schema1/bitwise_native_aggr/i/" ],
-  "0x30 << BIT_AND(i)" : [ "/catalog1/schema1/bitwise_native_aggr/i/" ]
+  "gid" : [ "(1:7~1:10) /catalog1/schema1/bitwise_native_aggr/gid/" ],
+  "CONCAT('M', BIT_OR(i))" : [ "(1:31~1:32) /catalog1/schema1/bitwise_native_aggr/i/" ],
+  "1.0 * BIT_OR(i)" : [ "(1:49~1:50) /catalog1/schema1/bitwise_native_aggr/i/" ],
+  "0x30 << BIT_AND(i)" : [ "(1:69~1:70) /catalog1/schema1/bitwise_native_aggr/i/" ]
 }
 ----------
 [dql_mysql_functions_0.0078]
@@ -787,7 +787,7 @@ sql:
 SELECT BIT_COUNT(BIT_AND(CAST(b AS BINARY(500)))) FROM bitwise_native_aggr GROUP BY b;
 expect:
 {
-  "BIT_COUNT(BIT_AND(CAST(b AS BINARY(500))))" : [ "/catalog1/schema1/bitwise_native_aggr/b/" ]
+  "BIT_COUNT(BIT_AND(CAST(b AS BINARY(500))))" : [ "(1:30~1:31) /catalog1/schema1/bitwise_native_aggr/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0079]
@@ -795,8 +795,8 @@ sql:
 SELECT gid, BIT_OR(a) FROM bitwise_native_aggr WHERE gid = 2 GROUP BY gid;
 expect:
 {
-  "gid" : [ "/catalog1/schema1/bitwise_native_aggr/gid/" ],
-  "BIT_OR(a)" : [ "/catalog1/schema1/bitwise_native_aggr/a/" ]
+  "gid" : [ "(1:7~1:10) /catalog1/schema1/bitwise_native_aggr/gid/" ],
+  "BIT_OR(a)" : [ "(1:19~1:20) /catalog1/schema1/bitwise_native_aggr/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0080]
@@ -804,7 +804,7 @@ sql:
 SELECT BIT_COUNT(a & b) FROM bitwise_native_huge;
 expect:
 {
-  "BIT_COUNT(a & b)" : [ "/catalog1/schema1/bitwise_native_huge/a/", "/catalog1/schema1/bitwise_native_huge/b/" ]
+  "BIT_COUNT(a & b)" : [ "(1:17~1:18) /catalog1/schema1/bitwise_native_huge/a/", "(1:21~1:22) /catalog1/schema1/bitwise_native_huge/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0081]
@@ -833,7 +833,7 @@ sql:
 SELECT (SELECT vbin1 & X'00000000000000FF' FROM bitwise_native_t WHERE id = 1);
 expect:
 {
-  "(SELECT vbin1 & X'00000000000000FF' FROM bitwise_native_t WHERE id = 1)" : [ ]
+  "(SELECT vbin1 & X'00000000000000FF' FROM bitwise_native_t WHERE id = 1)" : [ "(1:15~1:20) /catalog1/schema1/bitwise_native_t/vbin1/" ]
 }
 ----------
 [dql_mysql_functions_0.0084]
@@ -841,7 +841,7 @@ sql:
 SELECT c1 < (c0 & c0) AND c0 = -1 FROM bitwise_native_precedence;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/bitwise_native_precedence/c1/", "/catalog1/schema1/bitwise_native_precedence/c0/", "/catalog1/schema1/bitwise_native_precedence/c0/", "/catalog1/schema1/bitwise_native_precedence/c0/" ]
+  "c1 < (c0 & c0) AND c0 = -1" : [ "(1:7~1:9) /catalog1/schema1/bitwise_native_precedence/c1/", "(1:13~1:15) /catalog1/schema1/bitwise_native_precedence/c0/", "(1:18~1:20) /catalog1/schema1/bitwise_native_precedence/c0/", "(1:26~1:28) /catalog1/schema1/bitwise_native_precedence/c0/" ]
 }
 ----------
 [dql_mysql_functions_0.0085]
@@ -860,9 +860,9 @@ sql:
 SELECT BIT_AND(i), BIT_OR(i), BIT_XOR(i) FROM bitwise_native_aggr WHERE gid = 99;
 expect:
 {
-  "BIT_AND(i)" : [ "/catalog1/schema1/bitwise_native_aggr/i/" ],
-  "BIT_OR(i)" : [ "/catalog1/schema1/bitwise_native_aggr/i/" ],
-  "BIT_XOR(i)" : [ "/catalog1/schema1/bitwise_native_aggr/i/" ]
+  "BIT_AND(i)" : [ "(1:15~1:16) /catalog1/schema1/bitwise_native_aggr/i/" ],
+  "BIT_OR(i)" : [ "(1:26~1:27) /catalog1/schema1/bitwise_native_aggr/i/" ],
+  "BIT_XOR(i)" : [ "(1:38~1:39) /catalog1/schema1/bitwise_native_aggr/i/" ]
 }
 ----------
 [dql_mysql_functions_0.0088]
@@ -886,7 +886,7 @@ sql:
 SELECT UNCOMPRESS(a) FROM compress_columns_t;
 expect:
 {
-  "UNCOMPRESS(a)" : [ "/catalog1/schema1/compress_columns_t/a/" ]
+  "UNCOMPRESS(a)" : [ "(1:18~1:19) /catalog1/schema1/compress_columns_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0092]
@@ -894,7 +894,7 @@ sql:
 SELECT UNCOMPRESS(b) FROM compress_columns_t;
 expect:
 {
-  "UNCOMPRESS(b)" : [ "/catalog1/schema1/compress_columns_t/b/" ]
+  "UNCOMPRESS(b)" : [ "(1:18~1:19) /catalog1/schema1/compress_columns_t/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0093]
@@ -902,7 +902,7 @@ sql:
 SELECT LENGTH(UNCOMPRESS(a)) FROM compress_blob_t;
 expect:
 {
-  "LENGTH(UNCOMPRESS(a))" : [ "/catalog1/schema1/compress_blob_t/a/" ]
+  "LENGTH(UNCOMPRESS(a))" : [ "(1:25~1:26) /catalog1/schema1/compress_blob_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0094]
@@ -910,24 +910,28 @@ sql:
 SELECT UNCOMPRESS(a),UNCOMPRESSED_LENGTH(a) FROM compress_null_t;
 expect:
 {
-  "UNCOMPRESS(a)" : [ "/catalog1/schema1/compress_null_t/a/" ],
-  "UNCOMPRESSED_LENGTH(a)" : [ "/catalog1/schema1/compress_null_t/a/" ]
+  "UNCOMPRESS(a)" : [ "(1:18~1:19) /catalog1/schema1/compress_null_t/a/" ],
+  "UNCOMPRESSED_LENGTH(a)" : [ "(1:41~1:42) /catalog1/schema1/compress_null_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0095]
 sql:
 SELECT COMPRESS(a),COMPRESS(a) FROM compress_repeat_t;
 expect:
-{
-  "COMPRESS(a)" : [ "/catalog1/schema1/compress_repeat_t/a/", "/catalog1/schema1/compress_repeat_t/a/" ]
-}
+[ {
+  "sources" : [ "(1:16~1:17) /catalog1/schema1/compress_repeat_t/a/" ],
+  "column" : "COMPRESS(a)"
+}, {
+  "sources" : [ "(1:28~1:29) /catalog1/schema1/compress_repeat_t/a/" ],
+  "column" : "COMPRESS(a)"
+} ]
 ----------
 [dql_mysql_functions_0.0096]
 sql:
 SELECT COMPRESS(a) IS NULL FROM compress_repeat_t;
 expect:
 {
-  "COMPRESS(a) IS NULL" : [ "/catalog1/schema1/compress_repeat_t/a/" ]
+  "COMPRESS(a) IS NULL" : [ "(1:16~1:17) /catalog1/schema1/compress_repeat_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0098]
@@ -935,7 +939,7 @@ sql:
 SELECT * FROM compress_varchar_t WHERE UNCOMPRESS(a) IS NULL;
 expect:
 {
-  "a" : [ "/catalog1/schema1/compress_varchar_t/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/compress_varchar_t/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0100]
@@ -943,8 +947,8 @@ sql:
 SELECT *,UNCOMPRESS(a) FROM compress_varchar_t;
 expect:
 {
-  "a" : [ "/catalog1/schema1/compress_varchar_t/a/" ],
-  "UNCOMPRESS(a)" : [ "/catalog1/schema1/compress_varchar_t/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/compress_varchar_t/a/" ],
+  "UNCOMPRESS(a)" : [ "(1:20~1:21) /catalog1/schema1/compress_varchar_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0101]
@@ -952,9 +956,9 @@ sql:
 SELECT *,UNCOMPRESS(a),UNCOMPRESS(a) IS NULL FROM compress_varchar_t;
 expect:
 {
-  "a" : [ "/catalog1/schema1/compress_varchar_t/a/" ],
-  "UNCOMPRESS(a)" : [ "/catalog1/schema1/compress_varchar_t/a/" ],
-  "UNCOMPRESS(a) IS NULL" : [ "/catalog1/schema1/compress_varchar_t/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/compress_varchar_t/a/" ],
+  "UNCOMPRESS(a)" : [ "(1:20~1:21) /catalog1/schema1/compress_varchar_t/a/" ],
+  "UNCOMPRESS(a) IS NULL" : [ "(1:34~1:35) /catalog1/schema1/compress_varchar_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0102]
@@ -962,8 +966,8 @@ sql:
 SELECT UNCOMPRESS(c1),UNCOMPRESSED_LENGTH(c1) FROM compress_int_t;
 expect:
 {
-  "UNCOMPRESS(c1)" : [ "/catalog1/schema1/compress_int_t/c1/" ],
-  "UNCOMPRESSED_LENGTH(c1)" : [ "/catalog1/schema1/compress_int_t/c1/" ]
+  "UNCOMPRESS(c1)" : [ "(1:18~1:20) /catalog1/schema1/compress_int_t/c1/" ],
+  "UNCOMPRESSED_LENGTH(c1)" : [ "(1:42~1:44) /catalog1/schema1/compress_int_t/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0104]
@@ -987,9 +991,9 @@ sql:
 SELECT number,alpha,CONCAT_WS('<---->',number,alpha) AS new_value FROM codex_func_concat.base_t GROUP BY number;
 expect:
 {
-  "number" : [ "/catalog1/codex_func_concat/base_t/number/" ],
-  "alpha" : [ "/catalog1/codex_func_concat/base_t/alpha/" ],
-  "new_value" : [ "/catalog1/codex_func_concat/base_t/number/", "/catalog1/codex_func_concat/base_t/alpha/" ]
+  "number" : [ "(1:7~1:13) /catalog1/codex_func_concat/base_t/number/" ],
+  "alpha" : [ "(1:14~1:19) /catalog1/codex_func_concat/base_t/alpha/" ],
+  "new_value" : [ "(1:39~1:45) /catalog1/codex_func_concat/base_t/number/", "(1:46~1:51) /catalog1/codex_func_concat/base_t/alpha/" ]
 }
 ----------
 [dql_mysql_functions_0.0107]
@@ -997,7 +1001,7 @@ sql:
 SELECT CONCAT_WS('<------------------>',number,alpha) AS new_value FROM codex_func_concat.base_t GROUP BY new_value LIMIT 1;
 expect:
 {
-  "new_value" : [ "/catalog1/codex_func_concat/base_t/number/", "/catalog1/codex_func_concat/base_t/alpha/" ]
+  "new_value" : [ "(1:40~1:46) /catalog1/codex_func_concat/base_t/number/", "(1:47~1:52) /catalog1/codex_func_concat/base_t/alpha/" ]
 }
 ----------
 [dql_mysql_functions_0.0108]
@@ -1005,9 +1009,9 @@ sql:
 SELECT number,alpha,CONCAT_WS('-',number,alpha,alpha,alpha,alpha,alpha,alpha,alpha) AS new_value FROM codex_func_concat.base_t GROUP BY new_value LIMIT 1;
 expect:
 {
-  "number" : [ "/catalog1/codex_func_concat/base_t/number/" ],
-  "alpha" : [ "/catalog1/codex_func_concat/base_t/alpha/" ],
-  "new_value" : [ "/catalog1/codex_func_concat/base_t/number/", "/catalog1/codex_func_concat/base_t/alpha/", "/catalog1/codex_func_concat/base_t/alpha/", "/catalog1/codex_func_concat/base_t/alpha/", "/catalog1/codex_func_concat/base_t/alpha/", "/catalog1/codex_func_concat/base_t/alpha/", "/catalog1/codex_func_concat/base_t/alpha/", "/catalog1/codex_func_concat/base_t/alpha/" ]
+  "number" : [ "(1:7~1:13) /catalog1/codex_func_concat/base_t/number/" ],
+  "alpha" : [ "(1:14~1:19) /catalog1/codex_func_concat/base_t/alpha/" ],
+  "new_value" : [ "(1:34~1:40) /catalog1/codex_func_concat/base_t/number/", "(1:41~1:46) /catalog1/codex_func_concat/base_t/alpha/", "(1:47~1:52) /catalog1/codex_func_concat/base_t/alpha/", "(1:53~1:58) /catalog1/codex_func_concat/base_t/alpha/", "(1:59~1:64) /catalog1/codex_func_concat/base_t/alpha/", "(1:65~1:70) /catalog1/codex_func_concat/base_t/alpha/", "(1:71~1:76) /catalog1/codex_func_concat/base_t/alpha/", "(1:77~1:82) /catalog1/codex_func_concat/base_t/alpha/" ]
 }
 ----------
 [dql_mysql_functions_0.0109]
@@ -1015,10 +1019,7 @@ sql:
 SELECT * FROM codex_func_concat.mixed_t WHERE CONCAT(a,c,b,d)='AAAA2003-03-011051';
 expect:
 {
-  "a" : [ "/catalog1/codex_func_concat/mixed_t/a/" ],
-  "c" : [ "/catalog1/codex_func_concat/mixed_t/c/" ],
-  "b" : [ "/catalog1/codex_func_concat/mixed_t/b/" ],
-  "d" : [ "/catalog1/codex_func_concat/mixed_t/d/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_concat/mixed_t/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0110]
@@ -1026,7 +1027,7 @@ sql:
 SELECT 'a' UNION SELECT CONCAT('a',-4);
 expect:
 {
-  "a" : [ ]
+  "'a'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0111]
@@ -1034,7 +1035,7 @@ sql:
 SELECT 'a' UNION SELECT CONCAT('a',-4.5);
 expect:
 {
-  "a" : [ ]
+  "'a'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0112]
@@ -1042,7 +1043,7 @@ sql:
 SELECT 'a' UNION SELECT CONCAT('a',-(4+1));
 expect:
 {
-  "a" : [ ]
+  "'a'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0113]
@@ -1050,7 +1051,7 @@ sql:
 SELECT 'a' UNION SELECT CONCAT('a',4-5);
 expect:
 {
-  "a" : [ ]
+  "'a'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0114]
@@ -1058,7 +1059,7 @@ sql:
 SELECT 'a' UNION SELECT CONCAT('a',-'3');
 expect:
 {
-  "a" : [ ]
+  "'a'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0115]
@@ -1066,7 +1067,7 @@ sql:
 SELECT 'a' UNION SELECT CONCAT('a',-CONCAT('3',4));
 expect:
 {
-  "a" : [ ]
+  "'a'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0116]
@@ -1074,7 +1075,7 @@ sql:
 SELECT 'a' UNION SELECT CONCAT('a',-0);
 expect:
 {
-  "a" : [ ]
+  "'a'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0117]
@@ -1082,7 +1083,7 @@ sql:
 SELECT 'a' UNION SELECT CONCAT('a',-0.0);
 expect:
 {
-  "a" : [ ]
+  "'a'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0118]
@@ -1090,7 +1091,7 @@ sql:
 SELECT 'a' UNION SELECT CONCAT('a',-0.0000);
 expect:
 {
-  "a" : [ ]
+  "'a'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0119]
@@ -1106,7 +1107,7 @@ sql:
 SELECT CONCAT(f1,2) AS a FROM codex_func_concat.union_t UNION SELECT 'x' AS a FROM codex_func_concat.union_t;
 expect:
 {
-  "a" : [ "/catalog1/codex_func_concat/union_t/f1/" ]
+  "a" : [ "(1:14~1:16) /catalog1/codex_func_concat/union_t/f1/" ]
 }
 ----------
 [dql_mysql_functions_0.0121]
@@ -1114,8 +1115,7 @@ sql:
 SELECT * FROM codex_func_concat.regexp_t WHERE CONCAT(c1,' ',c2) REGEXP 'First.*';
 expect:
 {
-  "c1" : [ "/catalog1/codex_func_concat/regexp_t/c1/" ],
-  "c2" : [ "/catalog1/codex_func_concat/regexp_t/c2/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_concat/regexp_t/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0122]
@@ -1123,8 +1123,8 @@ sql:
 SELECT CONCAT('gui_',t2.a),t1.d FROM codex_func_concat.join_t2 AS t2 LEFT JOIN codex_func_concat.join_t1 AS t1 ON t1.a=CONCAT('gui_',t2.a) AND t1.b='a' AND t1.c='b';
 expect:
 {
-  "CONCAT('gui_',t2.a)" : [ "/catalog1/codex_func_concat/join_t2/a/" ],
-  "d" : [ "/catalog1/codex_func_concat/join_t1/d/" ]
+  "CONCAT('gui_',t2.a)" : [ "(1:21~1:25) /catalog1/codex_func_concat/join_t2/a/" ],
+  "d" : [ "(1:27~1:31) /catalog1/codex_func_concat/join_t1/d/" ]
 }
 ----------
 [dql_mysql_functions_0.0124]
@@ -1132,8 +1132,8 @@ sql:
 SELECT visitor_id,MAX(ts) AS mts FROM codex_func_date_add.history_t GROUP BY visitor_id HAVING mts<DATE_SUB(NOW(),INTERVAL 3 MONTH);
 expect:
 {
-  "visitor_id" : [ "/catalog1/codex_func_date_add/history_t/visitor_id/" ],
-  "mts" : [ "/catalog1/codex_func_date_add/history_t/ts/" ]
+  "visitor_id" : [ "(1:7~1:17) /catalog1/codex_func_date_add/history_t/visitor_id/" ],
+  "mts" : [ "(1:22~1:24) /catalog1/codex_func_date_add/history_t/ts/" ]
 }
 ----------
 [dql_mysql_functions_0.0125]
@@ -1141,8 +1141,8 @@ sql:
 SELECT visitor_id,MAX(ts) AS mts FROM codex_func_date_add.history_t GROUP BY visitor_id HAVING DATE_ADD(mts,INTERVAL 3 MONTH)<NOW();
 expect:
 {
-  "visitor_id" : [ "/catalog1/codex_func_date_add/history_t/visitor_id/" ],
-  "mts" : [ "/catalog1/codex_func_date_add/history_t/ts/" ]
+  "visitor_id" : [ "(1:7~1:17) /catalog1/codex_func_date_add/history_t/visitor_id/" ],
+  "mts" : [ "(1:22~1:24) /catalog1/codex_func_date_add/history_t/ts/" ]
 }
 ----------
 [dql_mysql_functions_0.0126]
@@ -1182,7 +1182,7 @@ sql:
 SELECT '2007-01-01'+INTERVAL a DAY FROM codex_func_date_add.source_t;
 expect:
 {
-  "2007-01-01'+INTERVAL a DA" : [ "/catalog1/codex_func_date_add/source_t/a/" ]
+  "'2007-01-01'+INTERVAL a DAY" : [ "(1:29~1:30) /catalog1/codex_func_date_add/source_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0131]
@@ -1190,7 +1190,7 @@ sql:
 SELECT b+INTERVAL a DAY FROM codex_func_date_add.source_t;
 expect:
 {
-  "b" : [ "/catalog1/codex_func_date_add/source_t/b/", "/catalog1/codex_func_date_add/source_t/a/" ]
+  "b+INTERVAL a DAY" : [ "(1:7~1:8) /catalog1/codex_func_date_add/source_t/b/", "(1:18~1:19) /catalog1/codex_func_date_add/source_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0132]
@@ -1343,7 +1343,7 @@ sql:
 SELECT COALESCE(ADDTIME(t,DATE(d)),'00:00:00') AS c1 FROM codex_func_date_add.time_t;
 expect:
 {
-  "c1" : [ "/catalog1/codex_func_date_add/time_t/t/", "/catalog1/codex_func_date_add/time_t/d/" ]
+  "c1" : [ "(1:24~1:25) /catalog1/codex_func_date_add/time_t/t/", "(1:31~1:32) /catalog1/codex_func_date_add/time_t/d/" ]
 }
 ----------
 [dql_mysql_functions_0.0151]
@@ -1399,7 +1399,7 @@ sql:
 SELECT * FROM t1 WHERE str <> DEFAULT(str);
 expect:
 {
-  "str" : [ "/catalog1/schema1/t1/str/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0161]
@@ -1407,7 +1407,7 @@ sql:
 SELECT s, 32 AS mi FROM t1 GROUP BY s HAVING DEFAULT(mi) IS NULL;
 expect:
 {
-  "s" : [ "/catalog1/schema1/t1/s/" ],
+  "s" : [ "(1:7~1:8) /catalog1/schema1/t1/s/" ],
   "mi" : [ ]
 }
 ----------
@@ -1506,7 +1506,7 @@ SELECT GROUP_CONCAT(NULL),GROUP_CONCAT(a,NULL) FROM t1;
 expect:
 {
   "GROUP_CONCAT(NULL)" : [ ],
-  "GROUP_CONCAT(a,NULL)" : [ "/catalog1/schema1/t1/a/" ]
+  "GROUP_CONCAT(a,NULL)" : [ "(1:39~1:40) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0172]
@@ -1514,7 +1514,7 @@ sql:
 SELECT GROUP_CONCAT(c ORDER BY (SELECT c FROM t2 WHERE t2.a=t1.a LIMIT 1)) AS grp FROM t1;
 expect:
 {
-  "grp" : [ "/catalog1/schema1/t1/c/" ]
+  "grp" : [ "(1:20~1:21) /catalog1/schema1/t1/c/", "(1:39~1:40) /catalog1/schema1/t2/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0173]
@@ -1522,8 +1522,8 @@ sql:
 SELECT t1.a,GROUP_CONCAT(c ORDER BY (SELECT MID(GROUP_CONCAT(c ORDER BY a),1,5) FROM t2 WHERE t2.a=t1.a)) AS grp FROM t1 GROUP BY 1;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ],
-  "grp" : [ "/catalog1/schema1/t1/c/" ]
+  "a" : [ "(1:7~1:11) /catalog1/schema1/t1/a/" ],
+  "grp" : [ "(1:25~1:26) /catalog1/schema1/t1/c/", "(1:61~1:62) /catalog1/schema1/t2/c/", "(1:72~1:73) /catalog1/schema1/t2/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0174]
@@ -1531,9 +1531,9 @@ sql:
 SELECT a,c,(SELECT GROUP_CONCAT(c ORDER BY a) FROM t2 WHERE a=t1.a) AS grp FROM t1 ORDER BY grp;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ],
-  "c" : [ "/catalog1/schema1/t1/c/" ],
-  "grp" : [ "/catalog1/schema1/t2/c/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "c" : [ "(1:9~1:10) /catalog1/schema1/t1/c/" ],
+  "grp" : [ "(1:32~1:33) /catalog1/schema1/t2/c/", "(1:43~1:44) /catalog1/schema1/t2/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0175]
@@ -1541,8 +1541,8 @@ sql:
 SELECT GROUP_CONCAT(a),x FROM (SELECT a,GROUP_CONCAT(b) AS x FROM t1 GROUP BY a) AS s GROUP BY x;
 expect:
 {
-  "GROUP_CONCAT(a)" : [ "/catalog1/schema1/t1/a/" ],
-  "x" : [ "/catalog1/schema1/t1/b/" ]
+  "GROUP_CONCAT(a)" : [ "(1:38~1:39) /catalog1/schema1/t1/a/" ],
+  "x" : [ "(1:53~1:54) /catalog1/schema1/t1/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0176]
@@ -1550,7 +1550,7 @@ sql:
 SELECT GROUP_CONCAT(DISTINCT a,b ORDER BY b,a) FROM t1;
 expect:
 {
-  "GROUP_CONCAT(DISTINCT a,b ORDER BY b,a)" : [ "/catalog1/schema1/t1/a/", "/catalog1/schema1/t1/b/" ]
+  "GROUP_CONCAT(DISTINCT a,b ORDER BY b,a)" : [ "(1:29~1:30) /catalog1/schema1/t1/a/", "(1:31~1:32) /catalog1/schema1/t1/b/", "(1:42~1:43) /catalog1/schema1/t1/b/", "(1:44~1:45) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0177]
@@ -1558,7 +1558,7 @@ sql:
 SELECT GROUP_CONCAT(a) AS gc FROM t1 HAVING gc IS NOT NULL;
 expect:
 {
-  "gc" : [ "/catalog1/schema1/t1/a/" ]
+  "gc" : [ "(1:20~1:21) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0179]
@@ -1566,11 +1566,11 @@ sql:
 SELECT GREATEST(a,b),GREATEST(a,c),GREATEST(a,d),GREATEST(a,e),GREATEST(a,f) FROM func_test_type_mix;
 expect:
 {
-  "GREATEST(a,b)" : [ "/catalog1/schema1/func_test_type_mix/a/", "/catalog1/schema1/func_test_type_mix/b/" ],
-  "GREATEST(a,c)" : [ "/catalog1/schema1/func_test_type_mix/a/", "/catalog1/schema1/func_test_type_mix/c/" ],
-  "GREATEST(a,d)" : [ "/catalog1/schema1/func_test_type_mix/a/", "/catalog1/schema1/func_test_type_mix/d/" ],
-  "GREATEST(a,e)" : [ "/catalog1/schema1/func_test_type_mix/a/", "/catalog1/schema1/func_test_type_mix/e/" ],
-  "GREATEST(a,f)" : [ "/catalog1/schema1/func_test_type_mix/a/", "/catalog1/schema1/func_test_type_mix/f/" ]
+  "GREATEST(a,b)" : [ "(1:16~1:17) /catalog1/schema1/func_test_type_mix/a/", "(1:18~1:19) /catalog1/schema1/func_test_type_mix/b/" ],
+  "GREATEST(a,c)" : [ "(1:30~1:31) /catalog1/schema1/func_test_type_mix/a/", "(1:32~1:33) /catalog1/schema1/func_test_type_mix/c/" ],
+  "GREATEST(a,d)" : [ "(1:44~1:45) /catalog1/schema1/func_test_type_mix/a/", "(1:46~1:47) /catalog1/schema1/func_test_type_mix/d/" ],
+  "GREATEST(a,e)" : [ "(1:58~1:59) /catalog1/schema1/func_test_type_mix/a/", "(1:60~1:61) /catalog1/schema1/func_test_type_mix/e/" ],
+  "GREATEST(a,f)" : [ "(1:72~1:73) /catalog1/schema1/func_test_type_mix/a/", "(1:74~1:75) /catalog1/schema1/func_test_type_mix/f/" ]
 }
 ----------
 [dql_mysql_functions_0.0180]
@@ -1626,7 +1626,7 @@ sql:
 SELECT IF(u=1,BINARY st,st) AS s FROM case_t ORDER BY s;
 expect:
 {
-  "s" : [ "/catalog1/schema1/case_t/u/", "/catalog1/schema1/case_t/st/", "/catalog1/schema1/case_t/st/" ]
+  "s" : [ "(1:10~1:11) /catalog1/schema1/case_t/u/", "(1:21~1:23) /catalog1/schema1/case_t/st/", "(1:24~1:26) /catalog1/schema1/case_t/st/" ]
 }
 ----------
 [dql_mysql_functions_0.0185]
@@ -1634,7 +1634,7 @@ sql:
 SELECT IF(u=1,st,BINARY st) AS s FROM case_t WHERE st LIKE '%a%' ORDER BY s;
 expect:
 {
-  "s" : [ "/catalog1/schema1/case_t/u/", "/catalog1/schema1/case_t/st/", "/catalog1/schema1/case_t/st/" ]
+  "s" : [ "(1:10~1:11) /catalog1/schema1/case_t/u/", "(1:14~1:16) /catalog1/schema1/case_t/st/", "(1:24~1:26) /catalog1/schema1/case_t/st/" ]
 }
 ----------
 [dql_mysql_functions_0.0188]
@@ -1642,7 +1642,7 @@ sql:
 SELECT SUM(IF(num IS NULL,0.00,num)) FROM num_t;
 expect:
 {
-  "SUM(IF(num IS NULL,0.00,num))" : [ "/catalog1/schema1/num_t/num/", "/catalog1/schema1/num_t/num/" ]
+  "SUM(IF(num IS NULL,0.00,num))" : [ "(1:14~1:17) /catalog1/schema1/num_t/num/", "(1:31~1:34) /catalog1/schema1/num_t/num/" ]
 }
 ----------
 [dql_mysql_functions_0.0189]
@@ -1650,8 +1650,8 @@ sql:
 SELECT MIN(IF(y-x>5,y,NULL)),MAX(IF(y-x>5,y,NULL)) FROM xy_t;
 expect:
 {
-  "MIN(IF(y-x>5,y,NULL))" : [ "/catalog1/schema1/xy_t/y/", "/catalog1/schema1/xy_t/x/", "/catalog1/schema1/xy_t/y/" ],
-  "MAX(IF(y-x>5,y,NULL))" : [ "/catalog1/schema1/xy_t/y/", "/catalog1/schema1/xy_t/x/", "/catalog1/schema1/xy_t/y/" ]
+  "MIN(IF(y-x>5,y,NULL))" : [ "(1:14~1:15) /catalog1/schema1/xy_t/y/", "(1:16~1:17) /catalog1/schema1/xy_t/x/", "(1:20~1:21) /catalog1/schema1/xy_t/y/" ],
+  "MAX(IF(y-x>5,y,NULL))" : [ "(1:36~1:37) /catalog1/schema1/xy_t/y/", "(1:38~1:39) /catalog1/schema1/xy_t/x/", "(1:42~1:43) /catalog1/schema1/xy_t/y/" ]
 }
 ----------
 [dql_mysql_functions_0.0190]
@@ -1659,7 +1659,7 @@ sql:
 SELECT IF(1>2,a,AVG(a)) FROM agg_t;
 expect:
 {
-  "IF(1>2,a,AVG(a))" : [ "/catalog1/schema1/agg_t/a/", "/catalog1/schema1/agg_t/a/" ]
+  "IF(1>2,a,AVG(a))" : [ "(1:14~1:15) /catalog1/schema1/agg_t/a/", "(1:20~1:21) /catalog1/schema1/agg_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0191]
@@ -1667,9 +1667,9 @@ sql:
 SELECT id,IF(date IS NULL,'-',FROM_UNIXTIME(date,'%d-%m-%Y')) AS date_ord,text FROM date_order_t ORDER BY date_ord ASC;
 expect:
 {
-  "id" : [ "/catalog1/schema1/date_order_t/id/" ],
-  "date_ord" : [ "/catalog1/schema1/date_order_t/date/", "/catalog1/schema1/date_order_t/date/" ],
-  "text" : [ "/catalog1/schema1/date_order_t/text/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/date_order_t/id/" ],
+  "date_ord" : [ "(1:13~1:17) /catalog1/schema1/date_order_t/date/", "(1:44~1:48) /catalog1/schema1/date_order_t/date/" ],
+  "text" : [ "(1:74~1:78) /catalog1/schema1/date_order_t/text/" ]
 }
 ----------
 [dql_mysql_functions_0.0192]
@@ -1677,8 +1677,8 @@ sql:
 SELECT a,NULLIF(a,'') FROM char_t WHERE NULLIF(a,'') IS NULL;
 expect:
 {
-  "a" : [ "/catalog1/schema1/char_t/a/" ],
-  "NULLIF(a,'')" : [ "/catalog1/schema1/char_t/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/char_t/a/" ],
+  "NULLIF(a,'')" : [ "(1:16~1:17) /catalog1/schema1/char_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0193]
@@ -1686,9 +1686,9 @@ sql:
 SELECT f1,f2,IF(f1,40.0,5.00) FROM decimal_group_t GROUP BY f1 ORDER BY f2;
 expect:
 {
-  "f1" : [ "/catalog1/schema1/decimal_group_t/f1/" ],
-  "f2" : [ "/catalog1/schema1/decimal_group_t/f2/" ],
-  "IF(f1,40.0,5.00)" : [ "/catalog1/schema1/decimal_group_t/f1/" ]
+  "f1" : [ "(1:7~1:9) /catalog1/schema1/decimal_group_t/f1/" ],
+  "f2" : [ "(1:10~1:12) /catalog1/schema1/decimal_group_t/f2/" ],
+  "IF(f1,40.0,5.00)" : [ "(1:16~1:18) /catalog1/schema1/decimal_group_t/f1/" ]
 }
 ----------
 [dql_mysql_functions_0.0194]
@@ -1696,8 +1696,8 @@ sql:
 SELECT nested_t.a,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,0))))))))))))))))))))))))))))))+1 FROM nested_t;
 expect:
 {
-  "a" : [ "/catalog1/schema1/nested_t/a/" ],
-  "IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,0))))))))))))))))))))))))))))))+1" : [ "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/", "/catalog1/schema1/nested_t/a/" ]
+  "a" : [ "(1:7~1:17) /catalog1/schema1/nested_t/a/" ],
+  "IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,IF(ROUND(nested_t.a,2)=1,2,0))))))))))))))))))))))))))))))+1" : [ "(1:27~1:37) /catalog1/schema1/nested_t/a/", "(1:54~1:64) /catalog1/schema1/nested_t/a/", "(1:81~1:91) /catalog1/schema1/nested_t/a/", "(1:108~1:118) /catalog1/schema1/nested_t/a/", "(1:135~1:145) /catalog1/schema1/nested_t/a/", "(1:162~1:172) /catalog1/schema1/nested_t/a/", "(1:189~1:199) /catalog1/schema1/nested_t/a/", "(1:216~1:226) /catalog1/schema1/nested_t/a/", "(1:243~1:253) /catalog1/schema1/nested_t/a/", "(1:270~1:280) /catalog1/schema1/nested_t/a/", "(1:297~1:307) /catalog1/schema1/nested_t/a/", "(1:324~1:334) /catalog1/schema1/nested_t/a/", "(1:351~1:361) /catalog1/schema1/nested_t/a/", "(1:378~1:388) /catalog1/schema1/nested_t/a/", "(1:405~1:415) /catalog1/schema1/nested_t/a/", "(1:432~1:442) /catalog1/schema1/nested_t/a/", "(1:459~1:469) /catalog1/schema1/nested_t/a/", "(1:486~1:496) /catalog1/schema1/nested_t/a/", "(1:513~1:523) /catalog1/schema1/nested_t/a/", "(1:540~1:550) /catalog1/schema1/nested_t/a/", "(1:567~1:577) /catalog1/schema1/nested_t/a/", "(1:594~1:604) /catalog1/schema1/nested_t/a/", "(1:621~1:631) /catalog1/schema1/nested_t/a/", "(1:648~1:658) /catalog1/schema1/nested_t/a/", "(1:675~1:685) /catalog1/schema1/nested_t/a/", "(1:702~1:712) /catalog1/schema1/nested_t/a/", "(1:729~1:739) /catalog1/schema1/nested_t/a/", "(1:756~1:766) /catalog1/schema1/nested_t/a/", "(1:783~1:793) /catalog1/schema1/nested_t/a/", "(1:810~1:820) /catalog1/schema1/nested_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0195]
@@ -1705,7 +1705,7 @@ sql:
 SELECT * FROM (SELECT MAX(IF(1,CAST(c AS UNSIGNED),0)) FROM longtext_t) AS te;
 expect:
 {
-  "MAX(IF(1,CAST(c AS UNSIGNED),0))" : [ "/catalog1/schema1/longtext_t/c/" ]
+  "MAX(IF(1,CAST(c AS UNSIGNED),0))" : [ "(1:36~1:37) /catalog1/schema1/longtext_t/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0196]
@@ -1713,7 +1713,7 @@ sql:
 SELECT * FROM (SELECT MAX(IFNULL(CAST(c AS UNSIGNED),0)) FROM longtext_t) AS te;
 expect:
 {
-  "MAX(IFNULL(CAST(c AS UNSIGNED),0))" : [ "/catalog1/schema1/longtext_t/c/" ]
+  "MAX(IFNULL(CAST(c AS UNSIGNED),0))" : [ "(1:38~1:39) /catalog1/schema1/longtext_t/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0197]
@@ -1721,7 +1721,7 @@ sql:
 SELECT IF(b,(SELECT a FROM blob_t LIMIT 1),b) AS c FROM blob_t GROUP BY c;
 expect:
 {
-  "c" : [ "/catalog1/schema1/blob_t/b/", "/catalog1/schema1/blob_t/a/", "/catalog1/schema1/blob_t/b/" ]
+  "c" : [ "(1:10~1:11) /catalog1/schema1/blob_t/b/", "(1:20~1:21) /catalog1/schema1/blob_t/a/", "(1:43~1:44) /catalog1/schema1/blob_t/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0198]
@@ -1769,9 +1769,9 @@ sql:
 SELECT g.calc_var,g.if_var,g.case_var FROM (SELECT unq_id,IF(var_fld>5000,(1/var_fld),5000) AS calc_var,IF(var_fld>5000,(00001/var_fld),5000) AS if_var,CASE var_fld>5000 WHEN TRUE THEN (1/var_fld) ELSE 5000 END AS case_var FROM grid_t) AS g JOIN grid_detail_t AS d USING (unq_id) ORDER BY 1;
 expect:
 {
-  "calc_var" : [ "/catalog1/schema1/grid_t/var_fld/", "/catalog1/schema1/grid_t/var_fld/" ],
-  "if_var" : [ "/catalog1/schema1/grid_t/var_fld/", "/catalog1/schema1/grid_t/var_fld/" ],
-  "case_var" : [ "/catalog1/schema1/grid_t/var_fld/", "/catalog1/schema1/grid_t/var_fld/" ]
+  "calc_var" : [ "(1:61~1:68) /catalog1/schema1/grid_t/var_fld/", "(1:77~1:84) /catalog1/schema1/grid_t/var_fld/" ],
+  "if_var" : [ "(1:107~1:114) /catalog1/schema1/grid_t/var_fld/", "(1:127~1:134) /catalog1/schema1/grid_t/var_fld/" ],
+  "case_var" : [ "(1:157~1:164) /catalog1/schema1/grid_t/var_fld/", "(1:188~1:195) /catalog1/schema1/grid_t/var_fld/" ]
 }
 ----------
 [dql_mysql_functions_0.0207]
@@ -1803,7 +1803,7 @@ sql:
 SELECT AVG(NULLIF(y,10)) FROM year_t;
 expect:
 {
-  "AVG(NULLIF(y,10))" : [ "/catalog1/schema1/year_t/y/" ]
+  "AVG(NULLIF(y,10))" : [ "(1:18~1:19) /catalog1/schema1/year_t/y/" ]
 }
 ----------
 [dql_mysql_functions_0.0214]
@@ -1811,7 +1811,7 @@ sql:
 SELECT NULLIF(COALESCE(x,NULL),0) FROM enum_t EXCEPT SELECT 1;
 expect:
 {
-  "NULLIF(COALESCE(x,NULL),0)" : [ "/catalog1/schema1/enum_t/x/" ]
+  "NULLIF(COALESCE(x,NULL),0)" : [ "(1:23~1:24) /catalog1/schema1/enum_t/x/" ]
 }
 ----------
 [dql_mysql_functions_0.0215]
@@ -1819,7 +1819,7 @@ sql:
 SELECT COALESCE(IF(x,NULL,NULL),x) FROM enum_t EXCEPT SELECT 1;
 expect:
 {
-  "COALESCE(IF(x,NULL,NULL),x)" : [ "/catalog1/schema1/enum_t/x/", "/catalog1/schema1/enum_t/x/" ]
+  "COALESCE(IF(x,NULL,NULL),x)" : [ "(1:19~1:20) /catalog1/schema1/enum_t/x/", "(1:32~1:33) /catalog1/schema1/enum_t/x/" ]
 }
 ----------
 [dql_mysql_functions_0.0216]
@@ -1827,7 +1827,7 @@ sql:
 SELECT COALESCE(CASE WHEN x THEN NULL ELSE NULL END,x) FROM enum_t EXCEPT SELECT 1;
 expect:
 {
-  "COALESCE(CASE WHEN x THEN NULL ELSE NULL END,x)" : [ "/catalog1/schema1/enum_t/x/", "/catalog1/schema1/enum_t/x/" ]
+  "COALESCE(CASE WHEN x THEN NULL ELSE NULL END,x)" : [ "(1:26~1:27) /catalog1/schema1/enum_t/x/", "(1:52~1:53) /catalog1/schema1/enum_t/x/" ]
 }
 ----------
 [dql_mysql_functions_0.0217]
@@ -1835,7 +1835,7 @@ sql:
 SELECT COALESCE(COALESCE(NULL,NULL),x) FROM enum_t EXCEPT SELECT 1;
 expect:
 {
-  "COALESCE(COALESCE(NULL,NULL),x)" : [ "/catalog1/schema1/enum_t/x/" ]
+  "COALESCE(COALESCE(NULL,NULL),x)" : [ "(1:36~1:37) /catalog1/schema1/enum_t/x/" ]
 }
 ----------
 [dql_mysql_functions_0.0218]
@@ -1858,10 +1858,10 @@ sql:
 SELECT 1 IN (a,b,c),3 IN (a,b,c),10 IN (a,b,c),NULL IN (a,b,c) FROM codex_func_in.int3;
 expect:
 {
-  "1 IN (a,b,c)" : [ "/catalog1/codex_func_in/int3/a/", "/catalog1/codex_func_in/int3/b/", "/catalog1/codex_func_in/int3/c/" ],
-  "3 IN (a,b,c)" : [ "/catalog1/codex_func_in/int3/a/", "/catalog1/codex_func_in/int3/b/", "/catalog1/codex_func_in/int3/c/" ],
-  "10 IN (a,b,c)" : [ "/catalog1/codex_func_in/int3/a/", "/catalog1/codex_func_in/int3/b/", "/catalog1/codex_func_in/int3/c/" ],
-  "NULL IN (a,b,c)" : [ "/catalog1/codex_func_in/int3/a/", "/catalog1/codex_func_in/int3/b/", "/catalog1/codex_func_in/int3/c/" ]
+  "1 IN (a,b,c)" : [ "(1:13~1:14) /catalog1/codex_func_in/int3/a/", "(1:15~1:16) /catalog1/codex_func_in/int3/b/", "(1:17~1:18) /catalog1/codex_func_in/int3/c/" ],
+  "3 IN (a,b,c)" : [ "(1:26~1:27) /catalog1/codex_func_in/int3/a/", "(1:28~1:29) /catalog1/codex_func_in/int3/b/", "(1:30~1:31) /catalog1/codex_func_in/int3/c/" ],
+  "10 IN (a,b,c)" : [ "(1:40~1:41) /catalog1/codex_func_in/int3/a/", "(1:42~1:43) /catalog1/codex_func_in/int3/b/", "(1:44~1:45) /catalog1/codex_func_in/int3/c/" ],
+  "NULL IN (a,b,c)" : [ "(1:56~1:57) /catalog1/codex_func_in/int3/a/", "(1:58~1:59) /catalog1/codex_func_in/int3/b/", "(1:60~1:61) /catalog1/codex_func_in/int3/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0220]
@@ -1869,9 +1869,9 @@ sql:
 SELECT 1.5 IN (a,b,c),3.5 IN (a,b,c),10.5 IN (a,b,c) FROM codex_func_in.float3;
 expect:
 {
-  "1.5 IN (a,b,c)" : [ "/catalog1/codex_func_in/float3/a/", "/catalog1/codex_func_in/float3/b/", "/catalog1/codex_func_in/float3/c/" ],
-  "3.5 IN (a,b,c)" : [ "/catalog1/codex_func_in/float3/a/", "/catalog1/codex_func_in/float3/b/", "/catalog1/codex_func_in/float3/c/" ],
-  "10.5 IN (a,b,c)" : [ "/catalog1/codex_func_in/float3/a/", "/catalog1/codex_func_in/float3/b/", "/catalog1/codex_func_in/float3/c/" ]
+  "1.5 IN (a,b,c)" : [ "(1:15~1:16) /catalog1/codex_func_in/float3/a/", "(1:17~1:18) /catalog1/codex_func_in/float3/b/", "(1:19~1:20) /catalog1/codex_func_in/float3/c/" ],
+  "3.5 IN (a,b,c)" : [ "(1:30~1:31) /catalog1/codex_func_in/float3/a/", "(1:32~1:33) /catalog1/codex_func_in/float3/b/", "(1:34~1:35) /catalog1/codex_func_in/float3/c/" ],
+  "10.5 IN (a,b,c)" : [ "(1:46~1:47) /catalog1/codex_func_in/float3/a/", "(1:48~1:49) /catalog1/codex_func_in/float3/b/", "(1:50~1:51) /catalog1/codex_func_in/float3/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0221]
@@ -1879,9 +1879,9 @@ sql:
 SELECT 'A' IN (a,b,c),'EFD' IN (a,b,c),'XSFGGHF' IN (a,b,c) FROM codex_func_in.varchar3;
 expect:
 {
-  "A' IN (a,b,c" : [ "/catalog1/codex_func_in/varchar3/a/", "/catalog1/codex_func_in/varchar3/b/", "/catalog1/codex_func_in/varchar3/c/" ],
-  "EFD' IN (a,b,c" : [ "/catalog1/codex_func_in/varchar3/a/", "/catalog1/codex_func_in/varchar3/b/", "/catalog1/codex_func_in/varchar3/c/" ],
-  "XSFGGHF' IN (a,b,c" : [ "/catalog1/codex_func_in/varchar3/a/", "/catalog1/codex_func_in/varchar3/b/", "/catalog1/codex_func_in/varchar3/c/" ]
+  "'A' IN (a,b,c)" : [ "(1:15~1:16) /catalog1/codex_func_in/varchar3/a/", "(1:17~1:18) /catalog1/codex_func_in/varchar3/b/", "(1:19~1:20) /catalog1/codex_func_in/varchar3/c/" ],
+  "'EFD' IN (a,b,c)" : [ "(1:32~1:33) /catalog1/codex_func_in/varchar3/a/", "(1:34~1:35) /catalog1/codex_func_in/varchar3/b/", "(1:36~1:37) /catalog1/codex_func_in/varchar3/c/" ],
+  "'XSFGGHF' IN (a,b,c)" : [ "(1:53~1:54) /catalog1/codex_func_in/varchar3/a/", "(1:55~1:56) /catalog1/codex_func_in/varchar3/b/", "(1:57~1:58) /catalog1/codex_func_in/varchar3/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0222]
@@ -1889,7 +1889,7 @@ sql:
 SELECT * FROM codex_func_in.nullable_field WHERE field IN (NULL);
 expect:
 {
-  "field" : [ "/catalog1/codex_func_in/nullable_field/field/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_in/nullable_field/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0223]
@@ -1897,7 +1897,7 @@ sql:
 SELECT * FROM codex_func_in.nullable_field WHERE field NOT IN (NULL);
 expect:
 {
-  "field" : [ "/catalog1/codex_func_in/nullable_field/field/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_in/nullable_field/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0224]
@@ -1905,7 +1905,7 @@ sql:
 SELECT '1.0' IN (1,2),1 IN ('1.0',2),1 IN (1,'2.0'),1 IN ('1.0',2.0),1 IN (1.0,'2.0'),1 IN ('1.1',2.0);
 expect:
 {
-  "1.0' IN (1,2" : [ ],
+  "'1.0' IN (1,2)" : [ ],
   "1 IN ('1.0',2)" : [ ],
   "1 IN (1,'2.0')" : [ ],
   "1 IN ('1.0',2.0)" : [ ],
@@ -1926,7 +1926,7 @@ sql:
 SELECT some_id FROM codex_func_in.unsigned_small WHERE some_id NOT IN (-4,-1,3423534,2342342);
 expect:
 {
-  "some_id" : [ "/catalog1/codex_func_in/unsigned_small/some_id/" ]
+  "some_id" : [ "(1:7~1:14) /catalog1/codex_func_in/unsigned_small/some_id/" ]
 }
 ----------
 [dql_mysql_functions_0.0231]
@@ -1934,25 +1934,39 @@ sql:
 SELECT some_id FROM codex_func_in.unsigned_small WHERE some_id NOT IN ('-1','0');
 expect:
 {
-  "some_id" : [ "/catalog1/codex_func_in/unsigned_small/some_id/" ]
+  "some_id" : [ "(1:7~1:14) /catalog1/codex_func_in/unsigned_small/some_id/" ]
 }
 ----------
 [dql_mysql_functions_0.0232]
 sql:
 SELECT STRAIGHT_JOIN * FROM codex_func_in.j3 JOIN codex_func_in.j1 ON j3.a=j1.a JOIN codex_func_in.j2 ON j3.a=j2.a JOIN codex_func_in.j4 WHERE j4.a IN (j1.b,j2.b);
 expect:
-{
-  "id" : [ "/catalog1/codex_func_in/j3/id/" ],
-  "b" : [ "/catalog1/codex_func_in/j1/b/", "/catalog1/codex_func_in/j2/b/" ],
-  "a" : [ "/catalog1/codex_func_in/j4/a/" ]
-}
+[ {
+  "sources" : [ "(1:21~1:22) /catalog1/codex_func_in/j3/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:21~1:22) /catalog1/codex_func_in/j1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:21~1:22) /catalog1/codex_func_in/j1/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:21~1:22) /catalog1/codex_func_in/j2/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:21~1:22) /catalog1/codex_func_in/j2/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:21~1:22) /catalog1/codex_func_in/j4/a/" ],
+  "column" : "a"
+} ]
 ----------
 [dql_mysql_functions_0.0233]
 sql:
 SELECT STRAIGHT_JOIN (SELECT SUM(j4.a) FROM codex_func_in.j4 WHERE j4.a IN (j1.b,j2.b)) FROM codex_func_in.j3,codex_func_in.j1,codex_func_in.j2 WHERE j3.a=j1.a AND j3.a=j2.a;
 expect:
 {
-  "(SELECT SUM(j4.a) FROM codex_func_in.j4 WHERE j4.a IN (j1.b,j2.b))" : [ "/catalog1/codex_func_in/j4/a/" ]
+  "(SELECT SUM(j4.a) FROM codex_func_in.j4 WHERE j4.a IN (j1.b,j2.b))" : [ "(1:33~1:37) /catalog1/codex_func_in/j4/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0234]
@@ -1960,7 +1974,7 @@ sql:
 SELECT * FROM codex_func_in.ubig WHERE a=-1 OR a=-2;
 expect:
 {
-  "a" : [ "/catalog1/codex_func_in/ubig/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_in/ubig/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0235]
@@ -1968,7 +1982,7 @@ sql:
 SELECT * FROM codex_func_in.ubig WHERE a IN (-1,-2);
 expect:
 {
-  "a" : [ "/catalog1/codex_func_in/ubig/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_in/ubig/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0236]
@@ -1976,7 +1990,7 @@ sql:
 SELECT HEX(a) FROM codex_func_in.ubig WHERE a IN (CAST(0xBB3C3E98175D33C8 AS UNSIGNED),42);
 expect:
 {
-  "HEX(a)" : [ "/catalog1/codex_func_in/ubig/a/" ]
+  "HEX(a)" : [ "(1:11~1:12) /catalog1/codex_func_in/ubig/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0237]
@@ -1984,7 +1998,7 @@ sql:
 SELECT HEX(a) FROM codex_func_in.ubig WHERE a IN (CAST(0xBB3C3E98175D33C8 AS UNSIGNED),CAST(0x7fffffffffffffff AS UNSIGNED),CAST(0x8000000000000000 AS UNSIGNED),CAST(0x8000000000000400 AS UNSIGNED),CAST(0x8000000000000401 AS UNSIGNED),42);
 expect:
 {
-  "HEX(a)" : [ "/catalog1/codex_func_in/ubig/a/" ]
+  "HEX(a)" : [ "(1:11~1:12) /catalog1/codex_func_in/ubig/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0238]
@@ -1992,7 +2006,7 @@ sql:
 SELECT HEX(a) FROM codex_func_in.ubig WHERE a IN (0x7ffffffffffffffe,0x7fffffffffffffff,'abc');
 expect:
 {
-  "HEX(a)" : [ "/catalog1/codex_func_in/ubig/a/" ]
+  "HEX(a)" : [ "(1:11~1:12) /catalog1/codex_func_in/ubig/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0239]
@@ -2000,7 +2014,7 @@ sql:
 SELECT * FROM codex_func_in.date_t WHERE a IN ('1972-02-06','19772-07-29');
 expect:
 {
-  "a" : [ "/catalog1/codex_func_in/date_t/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_in/date_t/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0240]
@@ -2008,7 +2022,7 @@ sql:
 SELECT id FROM codex_func_in.id_t WHERE id IN (4564,(SELECT IF(1=0,1,1/0)));
 expect:
 {
-  "id" : [ "/catalog1/codex_func_in/id_t/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/codex_func_in/id_t/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0241]
@@ -2016,7 +2030,7 @@ sql:
 SELECT f1 FROM codex_func_in.mixed_char WHERE f1 IN ('a',1);
 expect:
 {
-  "f1" : [ "/catalog1/codex_func_in/mixed_char/f1/" ]
+  "f1" : [ "(1:7~1:9) /catalog1/codex_func_in/mixed_char/f1/" ]
 }
 ----------
 [dql_mysql_functions_0.0243]
@@ -2024,7 +2038,7 @@ sql:
 SELECT f2 FROM codex_func_in.mixed_int WHERE f2 IN ('a',2);
 expect:
 {
-  "f2" : [ "/catalog1/codex_func_in/mixed_int/f2/" ]
+  "f2" : [ "(1:7~1:9) /catalog1/codex_func_in/mixed_int/f2/" ]
 }
 ----------
 [dql_mysql_functions_0.0245]
@@ -2032,7 +2046,7 @@ sql:
 SELECT a FROM codex_func_in.time_t WHERE a NOT IN (a,a,a) GROUP BY a;
 expect:
 {
-  "a" : [ "/catalog1/codex_func_in/time_t/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/codex_func_in/time_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0246]
@@ -2040,7 +2054,7 @@ sql:
 SELECT * FROM codex_func_in.empty_id WHERE NOT id IN (SELECT NULL UNION ALL SELECT 1);
 expect:
 {
-  "id" : [ "/catalog1/codex_func_in/empty_id/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_in/empty_id/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0247]
@@ -2048,7 +2062,7 @@ sql:
 SELECT * FROM codex_func_in.empty_id WHERE NOT id IN (NULL,1);
 expect:
 {
-  "id" : [ "/catalog1/codex_func_in/empty_id/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_in/empty_id/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0248]
@@ -2056,7 +2070,7 @@ sql:
 SELECT CASE AVG(c0) WHEN c1*c2 THEN 1 END FROM codex_func_in.case_t;
 expect:
 {
-  "CASE AVG(c0) WHEN c1*c2 THEN 1 END" : [ "/catalog1/codex_func_in/case_t/c0/", "/catalog1/codex_func_in/case_t/c1/", "/catalog1/codex_func_in/case_t/c2/" ]
+  "CASE AVG(c0) WHEN c1*c2 THEN 1 END" : [ "(1:16~1:18) /catalog1/codex_func_in/case_t/c0/", "(1:25~1:27) /catalog1/codex_func_in/case_t/c1/", "(1:28~1:30) /catalog1/codex_func_in/case_t/c2/" ]
 }
 ----------
 [dql_mysql_functions_0.0249]
@@ -2064,7 +2078,7 @@ sql:
 SELECT CASE c1*c2 WHEN SUM(c0) THEN 1 WHEN AVG(c0) THEN 2 END FROM codex_func_in.case_t;
 expect:
 {
-  "CASE c1*c2 WHEN SUM(c0) THEN 1 WHEN AVG(c0) THEN 2 END" : [ "/catalog1/codex_func_in/case_t/c1/", "/catalog1/codex_func_in/case_t/c2/", "/catalog1/codex_func_in/case_t/c0/", "/catalog1/codex_func_in/case_t/c0/" ]
+  "CASE c1*c2 WHEN SUM(c0) THEN 1 WHEN AVG(c0) THEN 2 END" : [ "(1:12~1:14) /catalog1/codex_func_in/case_t/c1/", "(1:15~1:17) /catalog1/codex_func_in/case_t/c2/", "(1:27~1:29) /catalog1/codex_func_in/case_t/c0/", "(1:47~1:49) /catalog1/codex_func_in/case_t/c0/" ]
 }
 ----------
 [dql_mysql_functions_0.0250]
@@ -2072,8 +2086,8 @@ sql:
 SELECT CASE c1 WHEN c1+1 THEN 1 END,ABS(AVG(c0)) FROM codex_func_in.case_t;
 expect:
 {
-  "CASE c1 WHEN c1+1 THEN 1 END" : [ "/catalog1/codex_func_in/case_t/c1/", "/catalog1/codex_func_in/case_t/c1/" ],
-  "ABS(AVG(c0))" : [ "/catalog1/codex_func_in/case_t/c0/" ]
+  "CASE c1 WHEN c1+1 THEN 1 END" : [ "(1:12~1:14) /catalog1/codex_func_in/case_t/c1/", "(1:20~1:22) /catalog1/codex_func_in/case_t/c1/" ],
+  "ABS(AVG(c0))" : [ "(1:44~1:46) /catalog1/codex_func_in/case_t/c0/" ]
 }
 ----------
 [dql_mysql_functions_0.0251]
@@ -2081,7 +2095,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM codex_func_in.agg_t GROUP BY a HAVING a IN (AVG(1),1+a);
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/codex_func_in/agg_t/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/codex_func_in/agg_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0252]
@@ -2089,7 +2103,7 @@ sql:
 SELECT SUM(DISTINCT b) FROM codex_func_in.agg_t GROUP BY b HAVING b IN (AVG(1),1+b);
 expect:
 {
-  "SUM(DISTINCT b)" : [ "/catalog1/codex_func_in/agg_t/b/" ]
+  "SUM(DISTINCT b)" : [ "(1:20~1:21) /catalog1/codex_func_in/agg_t/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0253]
@@ -2097,7 +2111,7 @@ sql:
 SELECT SUM(DISTINCT c) FROM codex_func_in.agg_t GROUP BY c HAVING c IN (AVG(1),1+c);
 expect:
 {
-  "SUM(DISTINCT c)" : [ "/catalog1/codex_func_in/agg_t/c/" ]
+  "SUM(DISTINCT c)" : [ "(1:20~1:21) /catalog1/codex_func_in/agg_t/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0254]
@@ -2105,7 +2119,7 @@ sql:
 SELECT SUM(DISTINCT d) FROM codex_func_in.agg_t GROUP BY d HAVING d IN (AVG(1),1+d);
 expect:
 {
-  "SUM(DISTINCT d)" : [ "/catalog1/codex_func_in/agg_t/d/" ]
+  "SUM(DISTINCT d)" : [ "(1:20~1:21) /catalog1/codex_func_in/agg_t/d/" ]
 }
 ----------
 [dql_mysql_functions_0.0255]
@@ -2113,7 +2127,7 @@ sql:
 SELECT SUM(DISTINCT e) FROM codex_func_in.agg_t GROUP BY e HAVING e IN (AVG(1),1+e);
 expect:
 {
-  "SUM(DISTINCT e)" : [ "/catalog1/codex_func_in/agg_t/e/" ]
+  "SUM(DISTINCT e)" : [ "(1:20~1:21) /catalog1/codex_func_in/agg_t/e/" ]
 }
 ----------
 [dql_mysql_functions_0.0256]
@@ -2121,7 +2135,7 @@ sql:
 SELECT SUM(DISTINCT e) FROM codex_func_in.agg_t GROUP BY b,c,d HAVING (b,c,d) IN ((AVG(1),1+c,1+d),(AVG(1),2+c,2+d));
 expect:
 {
-  "SUM(DISTINCT e)" : [ "/catalog1/codex_func_in/agg_t/e/" ]
+  "SUM(DISTINCT e)" : [ "(1:20~1:21) /catalog1/codex_func_in/agg_t/e/" ]
 }
 ----------
 [dql_mysql_functions_0.0267]
@@ -2129,7 +2143,7 @@ sql:
 SELECT a IN (a,a) FROM codex_func_in.rollup_t GROUP BY a WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/codex_func_in/rollup_t/a/", "/catalog1/codex_func_in/rollup_t/a/", "/catalog1/codex_func_in/rollup_t/a/" ]
+  "a IN (a,a)" : [ "(1:7~1:8) /catalog1/codex_func_in/rollup_t/a/", "(1:13~1:14) /catalog1/codex_func_in/rollup_t/a/", "(1:15~1:16) /catalog1/codex_func_in/rollup_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0268]
@@ -2137,7 +2151,7 @@ sql:
 SELECT CASE a WHEN a THEN a END FROM codex_func_in.rollup_t GROUP BY a WITH ROLLUP;
 expect:
 {
-  "CASE a WHEN a THEN a END" : [ "/catalog1/codex_func_in/rollup_t/a/", "/catalog1/codex_func_in/rollup_t/a/", "/catalog1/codex_func_in/rollup_t/a/" ]
+  "CASE a WHEN a THEN a END" : [ "(1:12~1:13) /catalog1/codex_func_in/rollup_t/a/", "(1:19~1:20) /catalog1/codex_func_in/rollup_t/a/", "(1:26~1:27) /catalog1/codex_func_in/rollup_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0269]
@@ -2145,8 +2159,8 @@ sql:
 SELECT * FROM codex_func_in.null_outer AS o WHERE o.i NOT IN (SELECT i FROM codex_func_in.null_subq AS s WHERE s.pk=o.pk);
 expect:
 {
-  "i" : [ "/catalog1/codex_func_in/null_outer/i/" ],
-  "pk" : [ "/catalog1/codex_func_in/null_outer/pk/" ]
+  "i" : [ "(1:7~1:8) /catalog1/codex_func_in/null_outer/i/" ],
+  "pk" : [ "(1:7~1:8) /catalog1/codex_func_in/null_outer/pk/" ]
 }
 ----------
 [dql_mysql_functions_0.0270]
@@ -2154,8 +2168,8 @@ sql:
 SELECT * FROM codex_func_in.null_outer AS o WHERE o.i IN (SELECT i FROM codex_func_in.null_subq AS s WHERE s.pk=o.pk) IS UNKNOWN;
 expect:
 {
-  "i" : [ "/catalog1/codex_func_in/null_outer/i/" ],
-  "pk" : [ "/catalog1/codex_func_in/null_outer/pk/" ]
+  "i" : [ "(1:7~1:8) /catalog1/codex_func_in/null_outer/i/" ],
+  "pk" : [ "(1:7~1:8) /catalog1/codex_func_in/null_outer/pk/" ]
 }
 ----------
 [dql_mysql_functions_0.0271]
@@ -2163,7 +2177,7 @@ sql:
 SELECT * FROM codex_func_in.null_outer AS o WHERE NULL NOT IN (SELECT i FROM codex_func_in.null_subq AS s WHERE s.pk=o.pk);
 expect:
 {
-  "pk" : [ "/catalog1/codex_func_in/null_outer/pk/" ]
+  "pk" : [ "(1:7~1:8) /catalog1/codex_func_in/null_outer/pk/" ]
 }
 ----------
 [dql_mysql_functions_0.0272]
@@ -2171,7 +2185,7 @@ sql:
 SELECT * FROM codex_func_in.null_outer AS o WHERE NULL IN (SELECT i FROM codex_func_in.null_subq AS s WHERE s.pk=o.pk) IS UNKNOWN;
 expect:
 {
-  "pk" : [ "/catalog1/codex_func_in/null_outer/pk/" ]
+  "pk" : [ "(1:7~1:8) /catalog1/codex_func_in/null_outer/pk/" ]
 }
 ----------
 [dql_mysql_functions_0.0273]
@@ -2179,7 +2193,7 @@ sql:
 SELECT * FROM codex_func_in.null_outer AS o WHERE 1+NULL NOT IN (SELECT i FROM codex_func_in.null_subq AS s WHERE s.pk=o.pk);
 expect:
 {
-  "pk" : [ "/catalog1/codex_func_in/null_outer/pk/" ]
+  "pk" : [ "(1:7~1:8) /catalog1/codex_func_in/null_outer/pk/" ]
 }
 ----------
 [dql_mysql_functions_0.0274]
@@ -2187,7 +2201,7 @@ sql:
 (SELECT MAX(f1) FROM codex_func_in.year_t) UNION (SELECT MAX(f1) FROM codex_func_in.year_t);
 expect:
 {
-  "MAX(f1)" : [ "/catalog1/codex_func_in/year_t/f1/", "/catalog1/codex_func_in/year_t/f1/" ]
+  "MAX(f1)" : [ "(1:12~1:14) /catalog1/codex_func_in/year_t/f1/", "(1:61~1:63) /catalog1/codex_func_in/year_t/f1/" ]
 }
 ----------
 [dql_mysql_functions_0.0275]
@@ -2203,7 +2217,7 @@ sql:
 SELECT i8 FROM t1 WHERE d IN (DATE'2020-01-01',DATE'2020-02-02') AND t IN (TIME'01:01:01',TIME'02:02:02') AND dt IN (TIMESTAMP'2020-01-01 01:01:01',TIMESTAMP'2020-02-02 02:02:02');
 expect:
 {
-  "i8" : [ "/catalog1/schema1/t1/i8/" ]
+  "i8" : [ "(1:7~1:9) /catalog1/schema1/t1/i8/" ]
 }
 ----------
 [dql_mysql_functions_0.0277]
@@ -2211,7 +2225,7 @@ sql:
 SELECT i8 FROM t1 WHERE j IN (CAST('{"i":1,"s":"1"}' AS JSON),CAST('{"i":2,"s":"2"}' AS JSON));
 expect:
 {
-  "i8" : [ "/catalog1/schema1/t1/i8/" ]
+  "i8" : [ "(1:7~1:9) /catalog1/schema1/t1/i8/" ]
 }
 ----------
 [dql_mysql_functions_0.0278]
@@ -2219,7 +2233,7 @@ sql:
 SELECT i8 FROM t1 WHERE ji IN (1,2) AND js IN ('1','2');
 expect:
 {
-  "i8" : [ "/catalog1/schema1/t1/i8/" ]
+  "i8" : [ "(1:7~1:9) /catalog1/schema1/t1/i8/" ]
 }
 ----------
 [dql_mysql_functions_0.0279]
@@ -2227,7 +2241,7 @@ sql:
 SELECT i8 FROM t1 WHERE (i8,dc,vc) IN ((1,1.1,'1'),(2,2.2,'2'));
 expect:
 {
-  "i8" : [ "/catalog1/schema1/t1/i8/" ]
+  "i8" : [ "(1:7~1:9) /catalog1/schema1/t1/i8/" ]
 }
 ----------
 [dql_mysql_functions_0.0289]
@@ -2235,7 +2249,7 @@ sql:
 SELECT * FROM t1 WHERE ISNULL(TO_DAYS(mydate));
 expect:
 {
-  "mydate" : [ "/catalog1/schema1/t1/mydate/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0290]
@@ -2251,32 +2265,58 @@ sql:
 SELECT t1.id FROM t1 WHERE id IS NOT NULL AND id IS NULL;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t1/id/" ]
+  "id" : [ "(1:7~1:12) /catalog1/schema1/t1/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0292]
 sql:
 SELECT * FROM t3 LEFT JOIN (t2 outr2 JOIN t2 outr JOIN t1) ON (outr.pk = t3.pk) AND (t1.col_int_key = t3.pk) AND ISNULL(t1.col_date_key) AND (outr2.pk <> t3.pk);
 expect:
-{
-  "id" : [ "/catalog1/schema1/t3/id/", "/catalog1/schema1/t2/id/", "/catalog1/schema1/t2/id/", "/catalog1/schema1/t1/id/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t3/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t2/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t2/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/col_int_key/" ],
+  "column" : "col_int_key"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/col_date_key/" ],
+  "column" : "col_date_key"
+} ]
 ----------
 [dql_mysql_functions_0.0293]
 sql:
 SELECT * FROM t3 JOIN (t2 outr2 JOIN t2 outr JOIN t1) ON (outr.pk = t3.pk) AND (t1.col_int_key = t3.pk) AND ISNULL(t1.col_date_key) AND (outr2.pk <> t3.pk);
 expect:
-{
-  "id" : [ "/catalog1/schema1/t3/id/", "/catalog1/schema1/t2/id/", "/catalog1/schema1/t2/id/", "/catalog1/schema1/t1/id/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t3/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t2/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t2/pk/" ],
+  "column" : "pk"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/col_int_key/" ],
+  "column" : "col_int_key"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/t1/col_date_key/" ],
+  "column" : "col_date_key"
+} ]
 ----------
 [dql_mysql_functions_0.0294]
 sql:
 SELECT * FROM t3, t1 WHERE NOT (t1.col_date_key IS NULL);
 expect:
 {
-  "id" : [ "/catalog1/schema1/t3/id/" ],
-  "col_date_key" : [ "/catalog1/schema1/t1/col_date_key/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t3/id/" ],
+  "col_date_key" : [ "(1:7~1:8) /catalog1/schema1/t1/col_date_key/" ]
 }
 ----------
 [dql_mysql_functions_0.0295]
@@ -2284,8 +2324,8 @@ sql:
 SELECT * FROM t3, t1 WHERE (t1.col_date_key IS NULL) IS TRUE;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t3/id/" ],
-  "col_date_key" : [ "/catalog1/schema1/t1/col_date_key/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t3/id/" ],
+  "col_date_key" : [ "(1:7~1:8) /catalog1/schema1/t1/col_date_key/" ]
 }
 ----------
 [dql_mysql_functions_0.0296]
@@ -2301,7 +2341,7 @@ sql:
 SELECT t1.x IS NULL = t2.x AS col FROM t AS t1, t AS t2 ORDER BY col;
 expect:
 {
-  "col" : [ "/catalog1/schema1/t/x/", "/catalog1/schema1/t/x/" ]
+  "col" : [ "(1:7~1:11) /catalog1/schema1/t/x/", "(1:22~1:26) /catalog1/schema1/t/x/" ]
 }
 ----------
 [dql_mysql_functions_0.0299]
@@ -2309,7 +2349,7 @@ sql:
 SELECT * FROM t_dt WHERE dt LIKE '2019-06-1%';
 expect:
 {
-  "dt" : [ "/catalog1/schema1/t_dt/dt/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t_dt/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0300]
@@ -2325,7 +2365,7 @@ sql:
 SELECT '' LIKE '1' ESCAPE COUNT(1);
 expect:
 {
-  "' LIKE '1' ESCAPE COUNT(1" : [ ]
+  "'' LIKE '1' ESCAPE COUNT(1)" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0302]
@@ -2333,7 +2373,7 @@ sql:
 SELECT 'a%b' LIKE 'ax%b' ESCAPE (SELECT x FROM t_escape LIMIT 1);
 expect:
 {
-  "a%b' LIKE 'ax%b' ESCAPE (SELECT x FROM t_escape LIMIT 1" : [ ]
+  "'a%b' LIKE 'ax%b' ESCAPE (SELECT x FROM t_escape LIMIT 1)" : [ "(1:40~1:41) /catalog1/schema1/t_escape/x/" ]
 }
 ----------
 [dql_mysql_functions_0.0303]
@@ -2341,7 +2381,7 @@ sql:
 SELECT 'a%b' LIKE 'ax%b' ESCAPE (SELECT x, x FROM t_escape LIMIT 1);
 expect:
 {
-  "a%b' LIKE 'ax%b' ESCAPE (SELECT x, x FROM t_escape LIMIT 1" : [ ]
+  "'a%b' LIKE 'ax%b' ESCAPE (SELECT x, x FROM t_escape LIMIT 1)" : [ "(1:40~1:41) /catalog1/schema1/t_escape/x/", "(1:43~1:44) /catalog1/schema1/t_escape/x/" ]
 }
 ----------
 [dql_mysql_functions_0.0304]
@@ -2349,7 +2389,7 @@ sql:
 SELECT 'a%b' LIKE 'ax%b' ESCAPE ('x', 'y');
 expect:
 {
-  "a%b' LIKE 'ax%b' ESCAPE ('x', 'y'" : [ ]
+  "'a%b' LIKE 'ax%b' ESCAPE ('x', 'y')" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0305]
@@ -2357,7 +2397,7 @@ sql:
 SELECT 'a%b' LIKE 'ax%b' ESCAPE x FROM t_escape;
 expect:
 {
-  "a%b' LIKE 'ax%b' ESCAPE " : [ "/catalog1/schema1/t_escape/x/" ]
+  "'a%b' LIKE 'ax%b' ESCAPE x" : [ "(1:32~1:33) /catalog1/schema1/t_escape/x/" ]
 }
 ----------
 [dql_mysql_functions_0.0306]
@@ -2365,7 +2405,7 @@ sql:
 SELECT * FROM t_idx WHERE y LIKE 'abc%%' ESCAPE (SELECT 'c' FROM t_escape LIMIT 1) ORDER BY y;
 expect:
 {
-  "y" : [ "/catalog1/schema1/t_idx/y/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t_idx/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0307]
@@ -2397,7 +2437,7 @@ sql:
 SELECT 'aa' LIKE CONVERT('%a' USING big5);
 expect:
 {
-  "aa' LIKE CONVERT('%a' USING big5" : [ ]
+  "'aa' LIKE CONVERT('%a' USING big5)" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0311]
@@ -2413,7 +2453,7 @@ sql:
 SELECT (EXISTS (SELECT * FROM DUAL WHERE '520:33:32.77' < (c1 - INTERVAL 1 MONTH))) LIKE c1 FROM t_int;
 expect:
 {
-  "(EXISTS (SELECT * FROM DUAL WHERE '520:33:32.77' < (c1 - INTERVAL 1 MONTH))) LIKE c1" : [ "/catalog1/schema1/DUAL/c1/", "/catalog1/schema1/t_int/c1/" ]
+  "(EXISTS (SELECT * FROM DUAL WHERE '520:33:32.77' < (c1 - INTERVAL 1 MONTH))) LIKE c1" : [ "(1:23~1:24) /catalog1/schema1/DUAL/id/", "(1:89~1:91) /catalog1/schema1/t_int/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0313]
@@ -2421,7 +2461,7 @@ sql:
 SELECT c1 LIKE c1 ESCAPE 1 FROM t_text;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/t_text/c1/", "/catalog1/schema1/t_text/c1/" ]
+  "c1 LIKE c1 ESCAPE 1" : [ "(1:7~1:9) /catalog1/schema1/t_text/c1/", "(1:15~1:17) /catalog1/schema1/t_text/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0315]
@@ -2454,7 +2494,7 @@ sql:
 SELECT RAND(`rand`) FROM math_rand_context;
 expect:
 {
-  "RAND(`rand`)" : [ "/catalog1/schema1/math_rand_context/rand/" ]
+  "RAND(`rand`)" : [ "(1:12~1:18) /catalog1/schema1/math_rand_context/rand/" ]
 }
 ----------
 [dql_mysql_functions_0.0318]
@@ -2462,7 +2502,7 @@ sql:
 SELECT FORMAT(value, id + 6) FROM math_decimal_context ORDER BY ABS(value);
 expect:
 {
-  "FORMAT(value, id + 6)" : [ "/catalog1/schema1/math_decimal_context/value/", "/catalog1/schema1/math_decimal_context/id/" ]
+  "FORMAT(value, id + 6)" : [ "(1:14~1:19) /catalog1/schema1/math_decimal_context/value/", "(1:21~1:23) /catalog1/schema1/math_decimal_context/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0319]
@@ -2470,7 +2510,7 @@ sql:
 SELECT url FROM math_time_context ORDER BY ABS(TIMEDIFF(ts,0));
 expect:
 {
-  "url" : [ "/catalog1/schema1/math_time_context/url/" ]
+  "url" : [ "(1:7~1:10) /catalog1/schema1/math_time_context/url/" ]
 }
 ----------
 [dql_mysql_functions_0.0320]
@@ -2508,11 +2548,11 @@ sql:
 SELECT ts DIV 900, text_value DIV 900, bit_value DIV 900, blob_value DIV 2, set_value DIV 2 FROM math_div_context;
 expect:
 {
-  "ts" : [ "/catalog1/schema1/math_div_context/ts/" ],
-  "text_value" : [ "/catalog1/schema1/math_div_context/text_value/" ],
-  "bit_value" : [ "/catalog1/schema1/math_div_context/bit_value/" ],
-  "blob_value" : [ "/catalog1/schema1/math_div_context/blob_value/" ],
-  "set_value" : [ "/catalog1/schema1/math_div_context/set_value/" ]
+  "ts DIV 900" : [ "(1:7~1:9) /catalog1/schema1/math_div_context/ts/" ],
+  "text_value DIV 900" : [ "(1:19~1:29) /catalog1/schema1/math_div_context/text_value/" ],
+  "bit_value DIV 900" : [ "(1:39~1:48) /catalog1/schema1/math_div_context/bit_value/" ],
+  "blob_value DIV 2" : [ "(1:58~1:68) /catalog1/schema1/math_div_context/blob_value/" ],
+  "set_value DIV 2" : [ "(1:76~1:85) /catalog1/schema1/math_div_context/set_value/" ]
 }
 ----------
 [dql_mysql_functions_0.0324]
@@ -2528,7 +2568,7 @@ sql:
 SELECT ROUND(decimal_value, decimal_value) FROM math_round_context GROUP BY 1;
 expect:
 {
-  "ROUND(decimal_value, decimal_value)" : [ "/catalog1/schema1/math_round_context/decimal_value/", "/catalog1/schema1/math_round_context/decimal_value/" ]
+  "ROUND(decimal_value, decimal_value)" : [ "(1:13~1:26) /catalog1/schema1/math_round_context/decimal_value/", "(1:28~1:41) /catalog1/schema1/math_round_context/decimal_value/" ]
 }
 ----------
 [dql_mysql_functions_0.0326]
@@ -2554,7 +2594,7 @@ sql:
 SELECT CRC32(SUM(a)) FROM math_crc_context;
 expect:
 {
-  "CRC32(SUM(a))" : [ "/catalog1/schema1/math_crc_context/a/" ]
+  "CRC32(SUM(a))" : [ "(1:17~1:18) /catalog1/schema1/math_crc_context/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0330]
@@ -2562,9 +2602,9 @@ sql:
 SELECT a,b,CRC32(CONCAT(a,b)) FROM math_crc_context GROUP BY a,b HAVING CRC32(MAX(a)) > 0 ORDER BY CRC32(CONCAT(a,b));
 expect:
 {
-  "a" : [ "/catalog1/schema1/math_crc_context/a/" ],
-  "b" : [ "/catalog1/schema1/math_crc_context/b/" ],
-  "CRC32(CONCAT(a,b))" : [ "/catalog1/schema1/math_crc_context/a/", "/catalog1/schema1/math_crc_context/b/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/math_crc_context/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/schema1/math_crc_context/b/" ],
+  "CRC32(CONCAT(a,b))" : [ "(1:24~1:25) /catalog1/schema1/math_crc_context/a/", "(1:26~1:27) /catalog1/schema1/math_crc_context/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0331]
@@ -2633,7 +2673,7 @@ sql:
 SELECT BENCHMARK(2,(SELECT AVG(a) FROM misc_numbers));
 expect:
 {
-  "BENCHMARK(2,(SELECT AVG(a) FROM misc_numbers))" : [ ]
+  "BENCHMARK(2,(SELECT AVG(a) FROM misc_numbers))" : [ "(1:31~1:32) /catalog1/schema1/misc_numbers/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0340]
@@ -2652,7 +2692,7 @@ sql:
 SELECT NAME_CONST('flag',1.5) * MAX(a) FROM misc_numbers;
 expect:
 {
-  "NAME_CONST('flag',1.5) * MAX(a)" : [ "/catalog1/schema1/misc_numbers/a/" ]
+  "NAME_CONST('flag',1.5) * MAX(a)" : [ "(1:36~1:37) /catalog1/schema1/misc_numbers/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0342]
@@ -2660,7 +2700,7 @@ sql:
 SELECT NAME_CONST(dynamic_name,2) FROM (SELECT a AS dynamic_name FROM misc_numbers) AS names_source;
 expect:
 {
-  "NAME_CONST(dynamic_name,2)" : [ "/catalog1/schema1/misc_numbers/a/" ]
+  "NAME_CONST(dynamic_name,2)" : [ "(1:47~1:48) /catalog1/schema1/misc_numbers/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0343]
@@ -2668,7 +2708,7 @@ sql:
 SELECT MIN(a) FROM misc_numbers GROUP BY INET_NTOA(-a);
 expect:
 {
-  "MIN(a)" : [ "/catalog1/schema1/misc_numbers/a/" ]
+  "MIN(a)" : [ "(1:11~1:12) /catalog1/schema1/misc_numbers/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0344]
@@ -2684,7 +2724,7 @@ sql:
 SELECT DISTINCT LEAST(a,(SELECT b FROM misc_blob LIMIT 1)) FROM misc_blob UNION SELECT 1;
 expect:
 {
-  "LEAST(a,(SELECT b FROM misc_blob LIMIT 1))" : [ "/catalog1/schema1/misc_blob/a/", "/catalog1/schema1/misc_blob/b/" ]
+  "LEAST(a,(SELECT b FROM misc_blob LIMIT 1))" : [ "(1:22~1:23) /catalog1/schema1/misc_blob/a/", "(1:32~1:33) /catalog1/schema1/misc_blob/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0346]
@@ -2692,7 +2732,7 @@ sql:
 SELECT COALESCE(a)=COALESCE(b) FROM misc_set;
 expect:
 {
-  "COALESCE(a)=COALESCE(b)" : [ "/catalog1/schema1/misc_set/a/", "/catalog1/schema1/misc_set/b/" ]
+  "COALESCE(a)=COALESCE(b)" : [ "(1:16~1:17) /catalog1/schema1/misc_set/a/", "(1:28~1:29) /catalog1/schema1/misc_set/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0347]
@@ -2725,7 +2765,7 @@ sql:
 SELECT * FROM misc_date WHERE c0 NOT IN (FROM_UNIXTIME(71),'2026-02-19 00:00:00');
 expect:
 {
-  "c0" : [ "/catalog1/schema1/misc_date/c0/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/misc_date/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0355]
@@ -2733,7 +2773,7 @@ sql:
 SELECT * FROM misc_time WHERE c0 IN (FROM_UNIXTIME(71),'2026-02-19 11:12:13');
 expect:
 {
-  "c0" : [ "/catalog1/schema1/misc_time/c0/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/misc_time/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0356]
@@ -2741,7 +2781,7 @@ sql:
 SELECT * FROM misc_decimal WHERE (NOT IFNULL(c0,c0)) AND 0.1 IN (c0);
 expect:
 {
-  "c0" : [ "/catalog1/schema1/misc_decimal/c0/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/misc_decimal/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0357]
@@ -2749,7 +2789,7 @@ sql:
 SELECT IFNULL(l.c0,1) IN (l.c0) FROM misc_right_left AS l RIGHT JOIN misc_right_right AS r ON 0.5=l.c0;
 expect:
 {
-  "IFNULL(l.c0,1) IN (l.c0)" : [ "/catalog1/schema1/misc_right_left/c0/", "/catalog1/schema1/misc_right_left/c0/" ]
+  "IFNULL(l.c0,1) IN (l.c0)" : [ "(1:14~1:18) /catalog1/schema1/misc_right_left/c0/", "(1:26~1:30) /catalog1/schema1/misc_right_left/c0/" ]
 }
 ----------
 [dql_mysql_functions_0.0358]
@@ -2757,8 +2797,7 @@ sql:
 SELECT * FROM misc_datetime WHERE my_id NOT IN ('3544-04-19',c0);
 expect:
 {
-  "my_id" : [ "/catalog1/schema1/misc_datetime/my_id/" ],
-  "c0" : [ "/catalog1/schema1/misc_datetime/c0/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/misc_datetime/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0359]
@@ -2798,18 +2837,26 @@ expect:
 sql:
 SELECT l.a,r.a,r.b,BIT_COUNT(r.b) FROM op_left AS l LEFT JOIN op_right AS r ON l.a=r.a;
 expect:
-{
-  "a" : [ "/catalog1/schema1/op_left/a/", "/catalog1/schema1/op_right/a/" ],
-  "b" : [ "/catalog1/schema1/op_right/b/" ],
-  "BIT_COUNT(r.b)" : [ "/catalog1/schema1/op_right/b/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:10) /catalog1/schema1/op_left/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:11~1:14) /catalog1/schema1/op_right/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:15~1:18) /catalog1/schema1/op_right/b/" ],
+  "column" : "b"
+}, {
+  "sources" : [ "(1:29~1:32) /catalog1/schema1/op_right/b/" ],
+  "column" : "BIT_COUNT(r.b)"
+} ]
 ----------
 [dql_mysql_functions_0.0369]
 sql:
 SELECT (f1 LIKE NULL) FROM prefix_blob;
 expect:
 {
-  "f1" : [ "/catalog1/schema1/prefix_blob/f1/" ]
+  "(f1 LIKE NULL)" : [ "(1:8~1:10) /catalog1/schema1/prefix_blob/f1/" ]
 }
 ----------
 [dql_mysql_functions_0.0370]
@@ -2849,7 +2896,7 @@ sql:
 SELECT * FROM codex_func_rand.outer_t WHERE i IN (SELECT FLOOR(RAND(0)*2) FROM codex_func_rand.outer_t);
 expect:
 {
-  "i" : [ "/catalog1/codex_func_rand/outer_t/i/" ]
+  "id" : [ "(1:7~1:8) /catalog1/codex_func_rand/outer_t/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0382]
@@ -2865,7 +2912,7 @@ sql:
 SELECT 'this is a test' REGEXP ('is a test');
 expect:
 {
-  "this is a test' REGEXP ('is a test'" : [ ]
+  "'this is a test' REGEXP ('is a test')" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0384]
@@ -2881,7 +2928,7 @@ sql:
 SELECT '' REGEXP BINARY NULL;
 expect:
 {
-  "' REGEXP BINARY NUL" : [ ]
+  "'' REGEXP BINARY NULL" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0387]
@@ -2889,7 +2936,7 @@ sql:
 SELECT '1' RLIKE RPAD('1', 10000, '(');
 expect:
 {
-  "1' RLIKE RPAD('1', 10000, '('" : [ ]
+  "'1' RLIKE RPAD('1', 10000, '(')" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0388]
@@ -2904,9 +2951,13 @@ expect:
 sql:
 SELECT STRAIGHT_JOIN * FROM rb_select AS t2 RIGHT JOIN rb_select AS t1 ON t1.f1=t1.f1 WHERE 1=rb_fail();
 expect:
-{
-  "id" : [ "/catalog1/schema1/rb_select/id/", "/catalog1/schema1/rb_select/id/" ]
-}
+[ {
+  "sources" : [ "(1:21~1:22) /catalog1/schema1/rb_select/f1/" ],
+  "column" : "f1"
+}, {
+  "sources" : [ "(1:21~1:22) /catalog1/schema1/rb_select/f1/" ],
+  "column" : "f1"
+} ]
 ----------
 [dql_mysql_functions_0.0390]
 sql:
@@ -2921,7 +2972,7 @@ sql:
 SELECT * FROM rb_func_view;
 expect:
 {
-  "id" : [ "/catalog1/schema1/rb_func_view/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/rb_func_view/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0392]
@@ -2929,7 +2980,7 @@ sql:
 SELECT * FROM rb_select ORDER BY f1,rb_fail();
 expect:
 {
-  "id" : [ "/catalog1/schema1/rb_select/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/rb_select/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0393]
@@ -3249,14 +3300,14 @@ sql:
 SELECT FROM_BASE64(TO_BASE64(int_value)), FROM_BASE64(TO_BASE64(float_value)), FROM_BASE64(TO_BASE64(decimal_value)), FROM_BASE64(TO_BASE64(enum_value)), FROM_BASE64(TO_BASE64(set_value)), FROM_BASE64(TO_BASE64(time_value)), FROM_BASE64(TO_BASE64(date_value)), FROM_BASE64(TO_BASE64(datetime_value)) FROM base64_types;
 expect:
 {
-  "FROM_BASE64(TO_BASE64(int_value))" : [ "/catalog1/schema1/base64_types/int_value/" ],
-  "FROM_BASE64(TO_BASE64(float_value))" : [ "/catalog1/schema1/base64_types/float_value/" ],
-  "FROM_BASE64(TO_BASE64(decimal_value))" : [ "/catalog1/schema1/base64_types/decimal_value/" ],
-  "FROM_BASE64(TO_BASE64(enum_value))" : [ "/catalog1/schema1/base64_types/enum_value/" ],
-  "FROM_BASE64(TO_BASE64(set_value))" : [ "/catalog1/schema1/base64_types/set_value/" ],
-  "FROM_BASE64(TO_BASE64(time_value))" : [ "/catalog1/schema1/base64_types/time_value/" ],
-  "FROM_BASE64(TO_BASE64(date_value))" : [ "/catalog1/schema1/base64_types/date_value/" ],
-  "FROM_BASE64(TO_BASE64(datetime_value))" : [ "/catalog1/schema1/base64_types/datetime_value/" ]
+  "FROM_BASE64(TO_BASE64(int_value))" : [ "(1:29~1:38) /catalog1/schema1/base64_types/int_value/" ],
+  "FROM_BASE64(TO_BASE64(float_value))" : [ "(1:64~1:75) /catalog1/schema1/base64_types/float_value/" ],
+  "FROM_BASE64(TO_BASE64(decimal_value))" : [ "(1:101~1:114) /catalog1/schema1/base64_types/decimal_value/" ],
+  "FROM_BASE64(TO_BASE64(enum_value))" : [ "(1:140~1:150) /catalog1/schema1/base64_types/enum_value/" ],
+  "FROM_BASE64(TO_BASE64(set_value))" : [ "(1:176~1:185) /catalog1/schema1/base64_types/set_value/" ],
+  "FROM_BASE64(TO_BASE64(time_value))" : [ "(1:211~1:221) /catalog1/schema1/base64_types/time_value/" ],
+  "FROM_BASE64(TO_BASE64(date_value))" : [ "(1:247~1:257) /catalog1/schema1/base64_types/date_value/" ],
+  "FROM_BASE64(TO_BASE64(datetime_value))" : [ "(1:283~1:297) /catalog1/schema1/base64_types/datetime_value/" ]
 }
 ----------
 [dql_mysql_functions_0.0430]
@@ -3264,8 +3315,8 @@ sql:
 SELECT TO_BASE64(binary_value), HEX(binary_value) FROM base64_binary_values ORDER BY binary_value;
 expect:
 {
-  "TO_BASE64(binary_value)" : [ "/catalog1/schema1/base64_binary_values/binary_value/" ],
-  "HEX(binary_value)" : [ "/catalog1/schema1/base64_binary_values/binary_value/" ]
+  "TO_BASE64(binary_value)" : [ "(1:17~1:29) /catalog1/schema1/base64_binary_values/binary_value/" ],
+  "HEX(binary_value)" : [ "(1:36~1:48) /catalog1/schema1/base64_binary_values/binary_value/" ]
 }
 ----------
 [dql_mysql_functions_0.0431]
@@ -3273,7 +3324,7 @@ sql:
 SELECT HEX(decoded_value) FROM (SELECT FROM_BASE64(TO_BASE64(binary_value)) AS decoded_value FROM base64_binary_values) AS decoded_rows;
 expect:
 {
-  "HEX(decoded_value)" : [ "/catalog1/schema1/base64_binary_values/binary_value/" ]
+  "HEX(decoded_value)" : [ "(1:61~1:73) /catalog1/schema1/base64_binary_values/binary_value/" ]
 }
 ----------
 [dql_mysql_functions_0.0432]
@@ -3321,10 +3372,10 @@ sql:
 SELECT RPAD(id,11,_utf8mb4 x'E4B8ADE69687') AS rpad_id,LPAD(id,11,_utf8mb4 x'E4B8ADE69687') AS lpad_id,RPAD(c1,11,_utf8mb4 x'E4B8ADE69687') AS rpad_c1,LPAD(c1,11,_utf8mb4 x'E4B8ADE69687') AS lpad_c1 FROM t_pad;
 expect:
 {
-  "rpad_id" : [ "/catalog1/schema1/t_pad/id/" ],
-  "lpad_id" : [ "/catalog1/schema1/t_pad/id/" ],
-  "rpad_c1" : [ "/catalog1/schema1/t_pad/c1/" ],
-  "lpad_c1" : [ "/catalog1/schema1/t_pad/c1/" ]
+  "rpad_id" : [ "(1:12~1:14) /catalog1/schema1/t_pad/id/" ],
+  "lpad_id" : [ "(1:60~1:62) /catalog1/schema1/t_pad/id/" ],
+  "rpad_c1" : [ "(1:108~1:110) /catalog1/schema1/t_pad/c1/" ],
+  "lpad_c1" : [ "(1:156~1:158) /catalog1/schema1/t_pad/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0447]
@@ -3348,7 +3399,7 @@ sql:
 SELECT * FROM oct_values ORDER BY OCT(a);
 expect:
 {
-  "id" : [ "/catalog1/schema1/oct_values/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/oct_values/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0455]
@@ -3356,7 +3407,7 @@ sql:
 SELECT FORMAT(d,2) FROM decimal_values;
 expect:
 {
-  "FORMAT(d,2)" : [ "/catalog1/schema1/decimal_values/d/" ]
+  "FORMAT(d,2)" : [ "(1:14~1:15) /catalog1/schema1/decimal_values/d/" ]
 }
 ----------
 [dql_mysql_functions_0.0456]
@@ -3364,8 +3415,8 @@ sql:
 SELECT c,SUBSTRING_INDEX(LCASE(c),@q:=',',-1) AS result_value FROM comma_values;
 expect:
 {
-  "c" : [ "/catalog1/schema1/comma_values/c/" ],
-  "result_value" : [ "/catalog1/schema1/comma_values/c/" ]
+  "c" : [ "(1:7~1:8) /catalog1/schema1/comma_values/c/" ],
+  "result_value" : [ "(1:31~1:32) /catalog1/schema1/comma_values/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0457]
@@ -3405,7 +3456,7 @@ sql:
 SELECT '18383815659218730760'+0;
 expect:
 {
-  "18383815659218730760'+" : [ ]
+  "'18383815659218730760'+0" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0462]
@@ -3413,8 +3464,7 @@ sql:
 SELECT * FROM hash_values WHERE f1='test' AND (f2=MD5('test') OR f2=MD5('TEST'));
 expect:
 {
-  "f1" : [ "/catalog1/schema1/hash_values/f1/" ],
-  "f2" : [ "/catalog1/schema1/hash_values/f2/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/hash_values/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0463]
@@ -3422,8 +3472,7 @@ sql:
 SELECT * FROM hash_values WHERE f1='test' AND (f2=SHA('test') OR f2=SHA('TEST'));
 expect:
 {
-  "f1" : [ "/catalog1/schema1/hash_values/f1/" ],
-  "f2" : [ "/catalog1/schema1/hash_values/f2/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/hash_values/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0464]
@@ -3431,8 +3480,8 @@ sql:
 SELECT ASCII(code),code FROM code_values WHERE code='A12';
 expect:
 {
-  "ASCII(code)" : [ "/catalog1/schema1/code_values/code/" ],
-  "code" : [ "/catalog1/schema1/code_values/code/" ]
+  "ASCII(code)" : [ "(1:13~1:17) /catalog1/schema1/code_values/code/" ],
+  "code" : [ "(1:19~1:23) /catalog1/schema1/code_values/code/" ]
 }
 ----------
 [dql_mysql_functions_0.0465]
@@ -3440,8 +3489,8 @@ sql:
 SELECT ASCII(code),code FROM code_values WHERE code='A12' AND ASCII(code)=65;
 expect:
 {
-  "ASCII(code)" : [ "/catalog1/schema1/code_values/code/" ],
-  "code" : [ "/catalog1/schema1/code_values/code/" ]
+  "ASCII(code)" : [ "(1:13~1:17) /catalog1/schema1/code_values/code/" ],
+  "code" : [ "(1:19~1:23) /catalog1/schema1/code_values/code/" ]
 }
 ----------
 [dql_mysql_functions_0.0466]
@@ -3449,8 +3498,8 @@ sql:
 SELECT LENGTH(code),code FROM code_values WHERE code='A12';
 expect:
 {
-  "LENGTH(code)" : [ "/catalog1/schema1/code_values/code/" ],
-  "code" : [ "/catalog1/schema1/code_values/code/" ]
+  "LENGTH(code)" : [ "(1:14~1:18) /catalog1/schema1/code_values/code/" ],
+  "code" : [ "(1:20~1:24) /catalog1/schema1/code_values/code/" ]
 }
 ----------
 [dql_mysql_functions_0.0467]
@@ -3458,8 +3507,8 @@ sql:
 SELECT LENGTH(code),code FROM code_values WHERE code='A12' AND LENGTH(code)=5;
 expect:
 {
-  "LENGTH(code)" : [ "/catalog1/schema1/code_values/code/" ],
-  "code" : [ "/catalog1/schema1/code_values/code/" ]
+  "LENGTH(code)" : [ "(1:14~1:18) /catalog1/schema1/code_values/code/" ],
+  "code" : [ "(1:20~1:24) /catalog1/schema1/code_values/code/" ]
 }
 ----------
 [dql_mysql_functions_0.0469]
@@ -3560,7 +3609,7 @@ sql:
 SELECT SUBSTRING(CONCAT(str_concat_a.str,str_concat_b.str),1,15) AS name FROM str_concat_a,str_concat_b WHERE str_concat_b.id=str_concat_a.id ORDER BY name;
 expect:
 {
-  "name" : [ "/catalog1/schema1/str_concat_a/str/", "/catalog1/schema1/str_concat_b/str/" ]
+  "name" : [ "(1:24~1:40) /catalog1/schema1/str_concat_a/str/", "(1:41~1:57) /catalog1/schema1/str_concat_b/str/" ]
 }
 ----------
 [dql_mysql_functions_0.0481]
@@ -3632,8 +3681,8 @@ sql:
 SELECT str_aes.id,AES_DECRYPT(str,'bar') FROM str_aes,str_ids WHERE str_aes.id=str_ids.id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/str_aes/id/" ],
-  "AES_DECRYPT(str,'bar')" : [ "/catalog1/schema1/str_aes/str/" ]
+  "id" : [ "(1:7~1:17) /catalog1/schema1/str_aes/id/" ],
+  "AES_DECRYPT(str,'bar')" : [ "(1:30~1:33) /catalog1/schema1/str_aes/str/" ]
 }
 ----------
 [dql_mysql_functions_0.0492]
@@ -3641,8 +3690,8 @@ sql:
 SELECT str_aes.id,AES_DECRYPT(str,'bar') FROM str_aes,str_ids WHERE str_aes.id=str_ids.id ORDER BY str_aes.id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/str_aes/id/" ],
-  "AES_DECRYPT(str,'bar')" : [ "/catalog1/schema1/str_aes/str/" ]
+  "id" : [ "(1:7~1:17) /catalog1/schema1/str_aes/id/" ],
+  "AES_DECRYPT(str,'bar')" : [ "(1:30~1:33) /catalog1/schema1/str_aes/str/" ]
 }
 ----------
 [dql_mysql_functions_0.0493]
@@ -3668,21 +3717,25 @@ expect:
 sql:
 SELECT * FROM str_key,num_key WHERE num=str;
 expect:
-{
-  "num" : [ "/catalog1/schema1/str_key/num/" ],
-  "str" : [ "/catalog1/schema1/str_key/str/" ],
-  "id" : [ "/catalog1/schema1/num_key/id/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/str_key/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/num_key/id/" ],
+  "column" : "id"
+} ]
 ----------
 [dql_mysql_functions_0.0496]
 sql:
 SELECT * FROM str_key,num_key WHERE num=SUBSTRING(str FROM 1 FOR 6);
 expect:
-{
-  "num" : [ "/catalog1/schema1/str_key/num/" ],
-  "str" : [ "/catalog1/schema1/str_key/str/" ],
-  "id" : [ "/catalog1/schema1/num_key/id/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/str_key/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/num_key/id/" ],
+  "column" : "id"
+} ]
 ----------
 [dql_mysql_functions_0.0497]
 sql:
@@ -3725,7 +3778,7 @@ sql:
 SELECT LPAD(i,7,' ') AS padded_value FROM pad_int;
 expect:
 {
-  "padded_value" : [ "/catalog1/schema1/pad_int/i/" ]
+  "padded_value" : [ "(1:12~1:13) /catalog1/schema1/pad_int/i/" ]
 }
 ----------
 [dql_mysql_functions_0.0502]
@@ -3733,7 +3786,7 @@ sql:
 SELECT RPAD(i,7,' ') AS padded_value FROM pad_int;
 expect:
 {
-  "padded_value" : [ "/catalog1/schema1/pad_int/i/" ]
+  "padded_value" : [ "(1:12~1:13) /catalog1/schema1/pad_int/i/" ]
 }
 ----------
 [dql_mysql_functions_0.0503]
@@ -3758,7 +3811,7 @@ SELECT COUNT(*),CONCAT(x,'x') FROM (SELECT * FROM t_concat) AS tt;
 expect:
 {
   "COUNT(*)" : [ ],
-  "CONCAT(x,'x')" : [ "/catalog1/schema1/t_concat/x/" ]
+  "CONCAT(x,'x')" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0507]
@@ -3822,8 +3875,8 @@ sql:
 SELECT node.id, CONCAT_WS('->', grandparent.title, parent.title, node.title) AS path_value FROM str_tree AS node LEFT JOIN str_tree AS parent ON node.parent_id = parent.id LEFT JOIN str_tree AS grandparent ON parent.parent_id = grandparent.id WHERE CONCAT_WS('->', grandparent.title, parent.title, node.title) LIKE '%Toys%';
 expect:
 {
-  "id" : [ "/catalog1/schema1/str_tree/id/" ],
-  "path_value" : [ "/catalog1/schema1/str_tree/title/", "/catalog1/schema1/str_tree/title/", "/catalog1/schema1/str_tree/title/" ]
+  "id" : [ "(1:7~1:14) /catalog1/schema1/str_tree/id/" ],
+  "path_value" : [ "(1:32~1:49) /catalog1/schema1/str_tree/title/", "(1:51~1:63) /catalog1/schema1/str_tree/title/", "(1:65~1:75) /catalog1/schema1/str_tree/title/" ]
 }
 ----------
 [dql_mysql_functions_0.0515]
@@ -3831,13 +3884,13 @@ sql:
 SELECT * FROM (SELECT value_text, SUBSTRING(value_text,1), SUBSTRING(value_text,-1), SUBSTRING(value_text,-2), SUBSTRING(value_text,-3), SUBSTRING(value_text,-4), SUBSTRING(value_text,-5) FROM str_values) AS substring_rows;
 expect:
 {
-  "value_text" : [ "/catalog1/schema1/str_values/value_text/" ],
-  "SUBSTRING(value_text,1)" : [ "/catalog1/schema1/str_values/value_text/" ],
-  "SUBSTRING(value_text,-1)" : [ "/catalog1/schema1/str_values/value_text/" ],
-  "SUBSTRING(value_text,-2)" : [ "/catalog1/schema1/str_values/value_text/" ],
-  "SUBSTRING(value_text,-3)" : [ "/catalog1/schema1/str_values/value_text/" ],
-  "SUBSTRING(value_text,-4)" : [ "/catalog1/schema1/str_values/value_text/" ],
-  "SUBSTRING(value_text,-5)" : [ "/catalog1/schema1/str_values/value_text/" ]
+  "value_text" : [ "(1:22~1:32) /catalog1/schema1/str_values/value_text/" ],
+  "SUBSTRING(value_text,1)" : [ "(1:44~1:54) /catalog1/schema1/str_values/value_text/" ],
+  "SUBSTRING(value_text,-1)" : [ "(1:69~1:79) /catalog1/schema1/str_values/value_text/" ],
+  "SUBSTRING(value_text,-2)" : [ "(1:95~1:105) /catalog1/schema1/str_values/value_text/" ],
+  "SUBSTRING(value_text,-3)" : [ "(1:121~1:131) /catalog1/schema1/str_values/value_text/" ],
+  "SUBSTRING(value_text,-4)" : [ "(1:147~1:157) /catalog1/schema1/str_values/value_text/" ],
+  "SUBSTRING(value_text,-5)" : [ "(1:173~1:183) /catalog1/schema1/str_values/value_text/" ]
 }
 ----------
 [dql_mysql_functions_0.0516]
@@ -3845,8 +3898,8 @@ sql:
 SELECT value_text, CONCAT(value_text,' ',value_text) AS combined_value FROM str_values HAVING LEFT(combined_value, LENGTH(combined_value) - INSTR(REVERSE(combined_value),' ')) = value_text;
 expect:
 {
-  "value_text" : [ "/catalog1/schema1/str_values/value_text/" ],
-  "combined_value" : [ "/catalog1/schema1/str_values/value_text/", "/catalog1/schema1/str_values/value_text/" ]
+  "value_text" : [ "(1:7~1:17) /catalog1/schema1/str_values/value_text/" ],
+  "combined_value" : [ "(1:26~1:36) /catalog1/schema1/str_values/value_text/", "(1:41~1:51) /catalog1/schema1/str_values/value_text/" ]
 }
 ----------
 [dql_mysql_functions_0.0517]
@@ -3855,7 +3908,7 @@ SELECT COUNT(*) AS total, LEFT(value_text,10) AS grouped_value FROM str_values G
 expect:
 {
   "total" : [ ],
-  "grouped_value" : [ "/catalog1/schema1/str_values/value_text/" ]
+  "grouped_value" : [ "(1:31~1:41) /catalog1/schema1/str_values/value_text/" ]
 }
 ----------
 [dql_mysql_functions_0.0518]
@@ -3863,7 +3916,7 @@ sql:
 SELECT SUBSTRING(value_text,1,1) FROM str_values GROUP BY 1;
 expect:
 {
-  "SUBSTRING(value_text,1,1)" : [ "/catalog1/schema1/str_values/value_text/" ]
+  "SUBSTRING(value_text,1,1)" : [ "(1:17~1:27) /catalog1/schema1/str_values/value_text/" ]
 }
 ----------
 [dql_mysql_functions_0.0519]
@@ -3871,8 +3924,8 @@ sql:
 SELECT * FROM str_join_left INNER JOIN str_join_right ON str_join_left.code = str_join_right.id WHERE str_join_right.id = 'a12' AND (LENGTH(code) = 5 OR code < 'a00');
 expect:
 {
-  "code" : [ "/catalog1/schema1/str_join_left/code/" ],
-  "id" : [ "/catalog1/schema1/str_join_right/id/" ]
+  "code" : [ "(1:7~1:8) /catalog1/schema1/str_join_left/code/" ],
+  "id" : [ "(1:7~1:8) /catalog1/schema1/str_join_right/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0520]
@@ -3880,7 +3933,7 @@ sql:
 SELECT CRC32(value_text), COUNT(*) FROM str_crc GROUP BY 1 ORDER BY 1;
 expect:
 {
-  "CRC32(value_text)" : [ "/catalog1/schema1/str_crc/value_text/" ],
+  "CRC32(value_text)" : [ "(1:13~1:23) /catalog1/schema1/str_crc/value_text/" ],
   "COUNT(*)" : [ ]
 }
 ----------
@@ -3889,7 +3942,7 @@ sql:
 SELECT * FROM (SELECT CRC32(value_text) AS crc_value FROM str_crc) AS crc_rows;
 expect:
 {
-  "crc_value" : [ "/catalog1/schema1/str_crc/value_text/" ]
+  "crc_value" : [ "(1:28~1:38) /catalog1/schema1/str_crc/value_text/" ]
 }
 ----------
 [dql_mysql_functions_0.0522]
@@ -3914,7 +3967,7 @@ SELECT COUNT(*), CONCAT(value_text, 'x') FROM (SELECT * FROM str_values) AS deri
 expect:
 {
   "COUNT(*)" : [ ],
-  "CONCAT(value_text, 'x')" : [ "/catalog1/schema1/str_values/value_text/" ]
+  "CONCAT(value_text, 'x')" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0526]
@@ -3922,7 +3975,7 @@ sql:
 SELECT CONCAT_WS(REPEAT(CONCAT(char_value COLLATE latin1_swedish_ci), -1330441018), CONCAT_WS('', CONCAT(HEX(STRCMP('9', char_value))), (datetime_value - INTERVAL -1941528800 DAY_MINUTE))) AS field1 FROM str_rollup GROUP BY field1 WITH ROLLUP;
 expect:
 {
-  "field1" : [ "/catalog1/schema1/str_rollup/char_value/", "/catalog1/schema1/str_rollup/char_value/", "/catalog1/schema1/str_rollup/datetime_value/" ]
+  "field1" : [ "(1:31~1:41) /catalog1/schema1/str_rollup/char_value/", "(1:121~1:131) /catalog1/schema1/str_rollup/char_value/", "(1:137~1:151) /catalog1/schema1/str_rollup/datetime_value/" ]
 }
 ----------
 [dql_mysql_functions_0.0527]
@@ -3930,7 +3983,7 @@ sql:
 SELECT IFNULL(name, CAST(str_nullable_left.id AS CHAR(38))) LIKE 'Vision Operations' FROM str_nullable_left LEFT JOIN str_nullable_right ON TRUE;
 expect:
 {
-  "IFNULL(name, CAST(str_nullable_left.id AS CHAR(38))) LIKE 'Vision Operations'" : [ "/catalog1/schema1/str_nullable_left/name/", "/catalog1/schema1/str_nullable_left/id/" ]
+  "IFNULL(name, CAST(str_nullable_left.id AS CHAR(38))) LIKE 'Vision Operations'" : [ "(1:14~1:18) /catalog1/schema1/str_nullable_left/name/", "(1:25~1:45) /catalog1/schema1/str_nullable_left/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0528]
@@ -3938,7 +3991,7 @@ sql:
 SELECT HEX(LPAD('',42,REPLACE(COMPRESS(42),c1,''))) FROM t1;
 expect:
 {
-  "HEX(LPAD('',42,REPLACE(COMPRESS(42),c1,'')))" : [ "/catalog1/schema1/t1/c1/" ]
+  "HEX(LPAD('',42,REPLACE(COMPRESS(42),c1,'')))" : [ "(1:43~1:45) /catalog1/schema1/t1/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0529]
@@ -3946,7 +3999,7 @@ sql:
 SELECT HEX(LPAD('',42,SUBSTRING_INDEX(COMPRESS(42),c1,1))) FROM t1;
 expect:
 {
-  "HEX(LPAD('',42,SUBSTRING_INDEX(COMPRESS(42),c1,1)))" : [ "/catalog1/schema1/t1/c1/" ]
+  "HEX(LPAD('',42,SUBSTRING_INDEX(COMPRESS(42),c1,1)))" : [ "(1:51~1:53) /catalog1/schema1/t1/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0530]
@@ -3954,7 +4007,7 @@ sql:
 SELECT LPAD('',42,REPLACE(AES_ENCRYPT(c1,'key'),c1,'')) FROM t1;
 expect:
 {
-  "LPAD('',42,REPLACE(AES_ENCRYPT(c1,'key'),c1,''))" : [ "/catalog1/schema1/t1/c1/", "/catalog1/schema1/t1/c1/" ]
+  "LPAD('',42,REPLACE(AES_ENCRYPT(c1,'key'),c1,''))" : [ "(1:38~1:40) /catalog1/schema1/t1/c1/", "(1:48~1:50) /catalog1/schema1/t1/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0531]
@@ -3962,7 +4015,7 @@ sql:
 SELECT LPAD('',42,REPLACE(MD5(c1),c1,'')) FROM t1;
 expect:
 {
-  "LPAD('',42,REPLACE(MD5(c1),c1,''))" : [ "/catalog1/schema1/t1/c1/", "/catalog1/schema1/t1/c1/" ]
+  "LPAD('',42,REPLACE(MD5(c1),c1,''))" : [ "(1:30~1:32) /catalog1/schema1/t1/c1/", "(1:34~1:36) /catalog1/schema1/t1/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0532]
@@ -3970,7 +4023,7 @@ sql:
 SELECT HEX(LPAD('',42,TRIM(BOTH c1 FROM x'ff'))) FROM t1;
 expect:
 {
-  "HEX(LPAD('',42,TRIM(BOTH c1 FROM x'ff')))" : [ "/catalog1/schema1/t1/c1/", "/catalog1/schema1/t1/c1/" ]
+  "HEX(LPAD('',42,TRIM(BOTH c1 FROM x'ff')))" : [ "(1:32~1:34) /catalog1/schema1/t1/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0533]
@@ -3978,7 +4031,7 @@ sql:
 SELECT HEX(LPAD('',42,REPLACE(x'ffff',c1,''))) FROM t1;
 expect:
 {
-  "HEX(LPAD('',42,REPLACE(x'ffff',c1,'')))" : [ "/catalog1/schema1/t1/c1/" ]
+  "HEX(LPAD('',42,REPLACE(x'ffff',c1,'')))" : [ "(1:38~1:40) /catalog1/schema1/t1/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0534]
@@ -3986,7 +4039,7 @@ sql:
 SELECT HEX(LPAD('',42,TRIM(x'ffff' FROM c1))) FROM t1;
 expect:
 {
-  "HEX(LPAD('',42,TRIM(x'ffff' FROM c1)))" : [ ]
+  "HEX(LPAD('',42,TRIM(x'ffff' FROM c1)))" : [ "(1:40~1:42) /catalog1/schema1/t1/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0535]
@@ -3994,7 +4047,7 @@ sql:
 SELECT LPAD('',42,REPLACE(c1,'las',x'ff')) FROM t1;
 expect:
 {
-  "LPAD('',42,REPLACE(c1,'las',x'ff'))" : [ "/catalog1/schema1/t1/c1/" ]
+  "LPAD('',42,REPLACE(c1,'las',x'ff'))" : [ "(1:26~1:28) /catalog1/schema1/t1/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0536]
@@ -4002,7 +4055,7 @@ sql:
 SELECT LPAD('',42,REPLACE(c1,x'ff','las')) FROM t1;
 expect:
 {
-  "LPAD('',42,REPLACE(c1,x'ff','las'))" : [ "/catalog1/schema1/t1/c1/" ]
+  "LPAD('',42,REPLACE(c1,x'ff','las'))" : [ "(1:26~1:28) /catalog1/schema1/t1/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0537]
@@ -4187,8 +4240,8 @@ sql:
 SELECT DISTINCT i,ELT(j,'345','34') FROM t_elt;
 expect:
 {
-  "i" : [ "/catalog1/schema1/t_elt/i/" ],
-  "ELT(j,'345','34')" : [ "/catalog1/schema1/t_elt/j/" ]
+  "i" : [ "(1:16~1:17) /catalog1/schema1/t_elt/i/" ],
+  "ELT(j,'345','34')" : [ "(1:22~1:23) /catalog1/schema1/t_elt/j/" ]
 }
 ----------
 [dql_mysql_functions_0.0561]
@@ -4196,11 +4249,11 @@ sql:
 SELECT a,QUOTE(a),ISNULL(QUOTE(a)),QUOTE(a) IS NULL,IFNULL(QUOTE(a),'n') FROM t_quote;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t_quote/a/" ],
-  "QUOTE(a)" : [ "/catalog1/schema1/t_quote/a/" ],
-  "ISNULL(QUOTE(a))" : [ "/catalog1/schema1/t_quote/a/" ],
-  "QUOTE(a) IS NULL" : [ "/catalog1/schema1/t_quote/a/" ],
-  "IFNULL(QUOTE(a),'n')" : [ "/catalog1/schema1/t_quote/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t_quote/a/" ],
+  "QUOTE(a)" : [ "(1:15~1:16) /catalog1/schema1/t_quote/a/" ],
+  "ISNULL(QUOTE(a))" : [ "(1:31~1:32) /catalog1/schema1/t_quote/a/" ],
+  "QUOTE(a) IS NULL" : [ "(1:41~1:42) /catalog1/schema1/t_quote/a/" ],
+  "IFNULL(QUOTE(a),'n')" : [ "(1:65~1:66) /catalog1/schema1/t_quote/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0562]
@@ -5832,7 +5885,7 @@ sql:
 SELECT country FROM country_values WHERE TRIM(LEADING 'A' FROM country)='ustralia';
 expect:
 {
-  "country" : [ "/catalog1/schema1/country_values/country/" ]
+  "country" : [ "(1:7~1:14) /catalog1/schema1/country_values/country/" ]
 }
 ----------
 [dql_mysql_functions_0.0767]
@@ -5840,7 +5893,7 @@ sql:
 SELECT country FROM country_values WHERE TRIM(TRAILING 'a' FROM country)='Australi';
 expect:
 {
-  "country" : [ "/catalog1/schema1/country_values/country/" ]
+  "country" : [ "(1:7~1:14) /catalog1/schema1/country_values/country/" ]
 }
 ----------
 [dql_mysql_functions_0.0768]
@@ -5848,7 +5901,7 @@ sql:
 SELECT country FROM country_values WHERE TRIM(LEADING 'A' FROM country)='ustralia' AND TRIM(TRAILING 'a' FROM country)='Australi';
 expect:
 {
-  "country" : [ "/catalog1/schema1/country_values/country/" ]
+  "country" : [ "(1:7~1:14) /catalog1/schema1/country_values/country/" ]
 }
 ----------
 [dql_mysql_functions_0.0769]
@@ -5856,7 +5909,7 @@ sql:
 SELECT c1<=REPEAT(SUBSTR(UPPER('Rdlpikti'),1,2),8) FROM repeat_compare;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/repeat_compare/c1/" ]
+  "c1<=REPEAT(SUBSTR(UPPER('Rdlpikti'),1,2),8)" : [ "(1:7~1:9) /catalog1/schema1/repeat_compare/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0770]
@@ -5864,7 +5917,7 @@ sql:
 SELECT * FROM repeat_compare WHERE c1<=REPEAT(SUBSTR(UPPER('Rdlpikti'),1,2),8);
 expect:
 {
-  "c1" : [ "/catalog1/schema1/repeat_compare/c1/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/repeat_compare/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0771]
@@ -5968,9 +6021,9 @@ sql:
 SELECT REPEAT('#',tire) AS repeated,REPEAT('#',tire % 999) AS modulo_repeated,tire FROM t_repeat;
 expect:
 {
-  "repeated" : [ "/catalog1/schema1/t_repeat/tire/" ],
-  "modulo_repeated" : [ "/catalog1/schema1/t_repeat/tire/" ],
-  "tire" : [ "/catalog1/schema1/t_repeat/tire/" ]
+  "repeated" : [ "(1:18~1:22) /catalog1/schema1/t_repeat/tire/" ],
+  "modulo_repeated" : [ "(1:47~1:51) /catalog1/schema1/t_repeat/tire/" ],
+  "tire" : [ "(1:78~1:82) /catalog1/schema1/t_repeat/tire/" ]
 }
 ----------
 [dql_mysql_functions_0.0784]
@@ -6130,8 +6183,8 @@ sql:
 SELECT id,LOCATE(a,p) FROM t_locate;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t_locate/id/" ],
-  "LOCATE(a,p)" : [ "/catalog1/schema1/t_locate/a/", "/catalog1/schema1/t_locate/p/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t_locate/id/" ],
+  "LOCATE(a,p)" : [ "(1:17~1:18) /catalog1/schema1/t_locate/a/", "(1:19~1:20) /catalog1/schema1/t_locate/p/" ]
 }
 ----------
 [dql_mysql_functions_0.0807]
@@ -6139,8 +6192,8 @@ sql:
 SELECT id,LOCATE(a,p) IS NULL FROM t_locate;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t_locate/id/" ],
-  "LOCATE(a,p) IS NULL" : [ "/catalog1/schema1/t_locate/a/", "/catalog1/schema1/t_locate/p/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t_locate/id/" ],
+  "LOCATE(a,p) IS NULL" : [ "(1:17~1:18) /catalog1/schema1/t_locate/a/", "(1:19~1:20) /catalog1/schema1/t_locate/p/" ]
 }
 ----------
 [dql_mysql_functions_0.0808]
@@ -6148,8 +6201,8 @@ sql:
 SELECT id,ISNULL(LOCATE(a,p)) FROM t_locate;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t_locate/id/" ],
-  "ISNULL(LOCATE(a,p))" : [ "/catalog1/schema1/t_locate/a/", "/catalog1/schema1/t_locate/p/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t_locate/id/" ],
+  "ISNULL(LOCATE(a,p))" : [ "(1:24~1:25) /catalog1/schema1/t_locate/a/", "(1:26~1:27) /catalog1/schema1/t_locate/p/" ]
 }
 ----------
 [dql_mysql_functions_0.0809]
@@ -6157,8 +6210,8 @@ sql:
 SELECT id,LOCATE(a,p) <=> NULL FROM t_locate;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t_locate/id/" ],
-  "LOCATE(a,p) <=> NULL" : [ "/catalog1/schema1/t_locate/a/", "/catalog1/schema1/t_locate/p/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t_locate/id/" ],
+  "LOCATE(a,p) <=> NULL" : [ "(1:17~1:18) /catalog1/schema1/t_locate/a/", "(1:19~1:20) /catalog1/schema1/t_locate/p/" ]
 }
 ----------
 [dql_mysql_functions_0.0810]
@@ -6166,7 +6219,7 @@ sql:
 SELECT id FROM t_locate WHERE LOCATE(a,p) IS NULL;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t_locate/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t_locate/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0811]
@@ -6174,7 +6227,7 @@ sql:
 SELECT id FROM t_locate WHERE LOCATE(a,p) <=> NULL;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t_locate/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t_locate/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0812]
@@ -6206,7 +6259,7 @@ sql:
 SELECT SUBSTR(a,1,len) FROM t_substr;
 expect:
 {
-  "SUBSTR(a,1,len)" : [ "/catalog1/schema1/t_substr/a/", "/catalog1/schema1/t_substr/len/" ]
+  "SUBSTR(a,1,len)" : [ "(1:14~1:15) /catalog1/schema1/t_substr/a/", "(1:18~1:21) /catalog1/schema1/t_substr/len/" ]
 }
 ----------
 [dql_mysql_functions_0.0816]
@@ -6214,7 +6267,7 @@ sql:
 SELECT FORMAT(a,2) FROM t_format;
 expect:
 {
-  "FORMAT(a,2)" : [ "/catalog1/schema1/t_format/a/" ]
+  "FORMAT(a,2)" : [ "(1:14~1:15) /catalog1/schema1/t_format/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0817]
@@ -6222,8 +6275,8 @@ sql:
 SELECT DATE_FORMAT(c,GET_FORMAT(DATE,'eur')) AS date_value,CONCAT(UPPER(aa),', ',aa) AS concat_value FROM t_date;
 expect:
 {
-  "date_value" : [ "/catalog1/schema1/t_date/c/" ],
-  "concat_value" : [ "/catalog1/schema1/t_date/aa/", "/catalog1/schema1/t_date/aa/" ]
+  "date_value" : [ "(1:19~1:20) /catalog1/schema1/t_date/c/" ],
+  "concat_value" : [ "(1:72~1:74) /catalog1/schema1/t_date/aa/", "(1:81~1:83) /catalog1/schema1/t_date/aa/" ]
 }
 ----------
 [dql_mysql_functions_0.0818]
@@ -6231,7 +6284,7 @@ sql:
 SELECT LOAD_FILE(a) FROM t_load;
 expect:
 {
-  "LOAD_FILE(a)" : [ "/catalog1/schema1/t_load/a/" ]
+  "LOAD_FILE(a)" : [ "(1:17~1:18) /catalog1/schema1/t_load/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0819]
@@ -6239,7 +6292,7 @@ sql:
 SELECT CONCAT_WS('_',(SELECT t_concat2.f2 FROM t_concat2),t_concat1.f2) AS concat_name FROM t_concat1;
 expect:
 {
-  "concat_name" : [ "/catalog1/schema1/t_concat2/f2/", "/catalog1/schema1/t_concat1/f2/" ]
+  "concat_name" : [ "(1:29~1:41) /catalog1/schema1/t_concat2/f2/", "(1:58~1:70) /catalog1/schema1/t_concat1/f2/" ]
 }
 ----------
 [dql_mysql_functions_0.0820]
@@ -6255,7 +6308,7 @@ sql:
 SELECT '1' IN ('1',SUBSTRING(-9223372036854775809,1));
 expect:
 {
-  "1' IN ('1',SUBSTRING(-9223372036854775809,1)" : [ ]
+  "'1' IN ('1',SUBSTRING(-9223372036854775809,1))" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0822]
@@ -6351,8 +6404,8 @@ sql:
 SELECT fmt,FORMAT(12345678901234567890.123,3,fmt) FROM t_locale ORDER BY fmt;
 expect:
 {
-  "fmt" : [ "/catalog1/schema1/t_locale/fmt/" ],
-  "FORMAT(12345678901234567890.123,3,fmt)" : [ "/catalog1/schema1/t_locale/fmt/" ]
+  "fmt" : [ "(1:7~1:10) /catalog1/schema1/t_locale/fmt/" ],
+  "FORMAT(12345678901234567890.123,3,fmt)" : [ "(1:45~1:48) /catalog1/schema1/t_locale/fmt/" ]
 }
 ----------
 [dql_mysql_functions_0.0834]
@@ -6360,7 +6413,7 @@ sql:
 SELECT '2005-01-01' - 100;
 expect:
 {
-  "2005-01-01' - 10" : [ ]
+  "'2005-01-01' - 100" : [ ]
 }
 ----------
 [dql_mysql_functions_0.0835]
@@ -6376,7 +6429,7 @@ sql:
 SELECT UNHEX(x) FROM t_long;
 expect:
 {
-  "UNHEX(x)" : [ "/catalog1/schema1/t_long/x/" ]
+  "UNHEX(x)" : [ "(1:13~1:14) /catalog1/schema1/t_long/x/" ]
 }
 ----------
 [dql_mysql_functions_0.0838]
@@ -6384,7 +6437,7 @@ sql:
 SELECT CONCAT(a, x'ff') FROM t_char;
 expect:
 {
-  "CONCAT(a, x'ff')" : [ "/catalog1/schema1/t_char/a/" ]
+  "CONCAT(a, x'ff')" : [ "(1:14~1:15) /catalog1/schema1/t_char/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0839]
@@ -6392,7 +6445,7 @@ sql:
 SELECT CONCAT_WS(',', a, x'ff') FROM t_char;
 expect:
 {
-  "CONCAT_WS(',', a, x'ff')" : [ "/catalog1/schema1/t_char/a/" ]
+  "CONCAT_WS(',', a, x'ff')" : [ "(1:22~1:23) /catalog1/schema1/t_char/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0840]
@@ -6400,7 +6453,7 @@ sql:
 SELECT CONCAT_WS(x'ff', a, a) FROM t_char;
 expect:
 {
-  "CONCAT_WS(x'ff', a, a)" : [ "/catalog1/schema1/t_char/a/", "/catalog1/schema1/t_char/a/" ]
+  "CONCAT_WS(x'ff', a, a)" : [ "(1:24~1:25) /catalog1/schema1/t_char/a/", "(1:27~1:28) /catalog1/schema1/t_char/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0841]
@@ -6408,7 +6461,7 @@ sql:
 SELECT INSERT(a, 1, 1, x'ff') FROM t_char;
 expect:
 {
-  "INSERT(a, 1, 1, x'ff')" : [ "/catalog1/schema1/t_char/a/" ]
+  "INSERT(a, 1, 1, x'ff')" : [ "(1:14~1:15) /catalog1/schema1/t_char/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0842]
@@ -6416,7 +6469,7 @@ sql:
 SELECT EXPORT_SET(7, a, b, x'ff', 4) FROM t_export;
 expect:
 {
-  "EXPORT_SET(7, a, b, x'ff', 4)" : [ "/catalog1/schema1/t_export/a/", "/catalog1/schema1/t_export/b/" ]
+  "EXPORT_SET(7, a, b, x'ff', 4)" : [ "(1:21~1:22) /catalog1/schema1/t_export/a/", "(1:24~1:25) /catalog1/schema1/t_export/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0843]
@@ -6424,7 +6477,7 @@ sql:
 SELECT EXPORT_SET(7, a, x'ff', b, 4) FROM t_export;
 expect:
 {
-  "EXPORT_SET(7, a, x'ff', b, 4)" : [ "/catalog1/schema1/t_export/a/", "/catalog1/schema1/t_export/b/" ]
+  "EXPORT_SET(7, a, x'ff', b, 4)" : [ "(1:21~1:22) /catalog1/schema1/t_export/a/", "(1:31~1:32) /catalog1/schema1/t_export/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0844]
@@ -6432,7 +6485,7 @@ sql:
 SELECT MAKE_SET(7, a, b, x'ff') FROM t_export;
 expect:
 {
-  "MAKE_SET(7, a, b, x'ff')" : [ "/catalog1/schema1/t_export/a/", "/catalog1/schema1/t_export/b/" ]
+  "MAKE_SET(7, a, b, x'ff')" : [ "(1:19~1:20) /catalog1/schema1/t_export/a/", "(1:22~1:23) /catalog1/schema1/t_export/b/" ]
 }
 ----------
 [dql_mysql_functions_0.0845]
@@ -6464,7 +6517,7 @@ sql:
 SELECT CASE (AES_ENCRYPT(0, c1)) WHEN '1234556789' THEN -1535639552 WHEN (CONVERT(c1 USING utf16)) THEN c1 END FROM codex_func_str_tail.t_case;
 expect:
 {
-  "CASE (AES_ENCRYPT(0, c1)) WHEN '1234556789' THEN -1535639552 WHEN (CONVERT(c1 USING utf16)) THEN c1 END" : [ "/catalog1/codex_func_str_tail/t_case/c1/", "/catalog1/codex_func_str_tail/t_case/c1/", "/catalog1/codex_func_str_tail/t_case/c1/" ]
+  "CASE (AES_ENCRYPT(0, c1)) WHEN '1234556789' THEN -1535639552 WHEN (CONVERT(c1 USING utf16)) THEN c1 END" : [ "(1:28~1:30) /catalog1/codex_func_str_tail/t_case/c1/", "(1:82~1:84) /catalog1/codex_func_str_tail/t_case/c1/", "(1:104~1:106) /catalog1/codex_func_str_tail/t_case/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0859]
@@ -6472,7 +6525,7 @@ sql:
 SELECT pk FROM codex_func_str_tail.v_order ORDER BY "cant" IN ((FORMAT(LAST_INSERT_ID(pk), 42)));
 expect:
 {
-  "pk" : [ "/catalog1/codex_func_str_tail/v_order/pk/" ]
+  "pk" : [ "(1:7~1:9) /catalog1/codex_func_str_tail/v_order/pk/" ]
 }
 ----------
 [dql_mysql_functions_0.0860]
@@ -6488,7 +6541,7 @@ sql:
 SELECT LPAD(a, ASCII(RANDOM_BYTES(1)) - 10, 'abc') FROM codex_func_str_tail.t_random;
 expect:
 {
-  "LPAD(a, ASCII(RANDOM_BYTES(1)) - 10, 'abc')" : [ "/catalog1/codex_func_str_tail/t_random/a/" ]
+  "LPAD(a, ASCII(RANDOM_BYTES(1)) - 10, 'abc')" : [ "(1:12~1:13) /catalog1/codex_func_str_tail/t_random/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0862]
@@ -6568,9 +6621,9 @@ sql:
 SELECT CONCAT('"',CONCAT_WS('";"',title,prio,category_id,program_id,bugdesc,created,modified+0,bugstatus,submitter),'"'),CONCAT('"',CONCAT_WS('";"',title,prio,category_id,program_id,bugstatus,submitter),'"'),CONCAT_WS('";"',title,prio,category_id,program_id,bugdesc,created,modified+0,bugstatus,submitter) FROM str_myisam_concat;
 expect:
 {
-  "CONCAT('\"',CONCAT_WS('\";\"',title,prio,category_id,program_id,bugdesc,created,modified+0,bugstatus,submitter),'\"')" : [ "/catalog1/schema1/str_myisam_concat/title/", "/catalog1/schema1/str_myisam_concat/prio/", "/catalog1/schema1/str_myisam_concat/category_id/", "/catalog1/schema1/str_myisam_concat/program_id/", "/catalog1/schema1/str_myisam_concat/bugdesc/", "/catalog1/schema1/str_myisam_concat/created/", "/catalog1/schema1/str_myisam_concat/modified/", "/catalog1/schema1/str_myisam_concat/bugstatus/", "/catalog1/schema1/str_myisam_concat/submitter/" ],
-  "CONCAT('\"',CONCAT_WS('\";\"',title,prio,category_id,program_id,bugstatus,submitter),'\"')" : [ "/catalog1/schema1/str_myisam_concat/title/", "/catalog1/schema1/str_myisam_concat/prio/", "/catalog1/schema1/str_myisam_concat/category_id/", "/catalog1/schema1/str_myisam_concat/program_id/", "/catalog1/schema1/str_myisam_concat/bugstatus/", "/catalog1/schema1/str_myisam_concat/submitter/" ],
-  "CONCAT_WS('\";\"',title,prio,category_id,program_id,bugdesc,created,modified+0,bugstatus,submitter)" : [ "/catalog1/schema1/str_myisam_concat/title/", "/catalog1/schema1/str_myisam_concat/prio/", "/catalog1/schema1/str_myisam_concat/category_id/", "/catalog1/schema1/str_myisam_concat/program_id/", "/catalog1/schema1/str_myisam_concat/bugdesc/", "/catalog1/schema1/str_myisam_concat/created/", "/catalog1/schema1/str_myisam_concat/modified/", "/catalog1/schema1/str_myisam_concat/bugstatus/", "/catalog1/schema1/str_myisam_concat/submitter/" ]
+  "CONCAT('\"',CONCAT_WS('\";\"',title,prio,category_id,program_id,bugdesc,created,modified+0,bugstatus,submitter),'\"')" : [ "(1:34~1:39) /catalog1/schema1/str_myisam_concat/title/", "(1:40~1:44) /catalog1/schema1/str_myisam_concat/prio/", "(1:45~1:56) /catalog1/schema1/str_myisam_concat/category_id/", "(1:57~1:67) /catalog1/schema1/str_myisam_concat/program_id/", "(1:68~1:75) /catalog1/schema1/str_myisam_concat/bugdesc/", "(1:76~1:83) /catalog1/schema1/str_myisam_concat/created/", "(1:84~1:92) /catalog1/schema1/str_myisam_concat/modified/", "(1:95~1:104) /catalog1/schema1/str_myisam_concat/bugstatus/", "(1:105~1:114) /catalog1/schema1/str_myisam_concat/submitter/" ],
+  "CONCAT('\"',CONCAT_WS('\";\"',title,prio,category_id,program_id,bugstatus,submitter),'\"')" : [ "(1:148~1:153) /catalog1/schema1/str_myisam_concat/title/", "(1:154~1:158) /catalog1/schema1/str_myisam_concat/prio/", "(1:159~1:170) /catalog1/schema1/str_myisam_concat/category_id/", "(1:171~1:181) /catalog1/schema1/str_myisam_concat/program_id/", "(1:182~1:191) /catalog1/schema1/str_myisam_concat/bugstatus/", "(1:192~1:201) /catalog1/schema1/str_myisam_concat/submitter/" ],
+  "CONCAT_WS('\";\"',title,prio,category_id,program_id,bugdesc,created,modified+0,bugstatus,submitter)" : [ "(1:224~1:229) /catalog1/schema1/str_myisam_concat/title/", "(1:230~1:234) /catalog1/schema1/str_myisam_concat/prio/", "(1:235~1:246) /catalog1/schema1/str_myisam_concat/category_id/", "(1:247~1:257) /catalog1/schema1/str_myisam_concat/program_id/", "(1:258~1:265) /catalog1/schema1/str_myisam_concat/bugdesc/", "(1:266~1:273) /catalog1/schema1/str_myisam_concat/created/", "(1:274~1:282) /catalog1/schema1/str_myisam_concat/modified/", "(1:285~1:294) /catalog1/schema1/str_myisam_concat/bugstatus/", "(1:295~1:304) /catalog1/schema1/str_myisam_concat/submitter/" ]
 }
 ----------
 [dql_mysql_functions_0.0872]
@@ -6578,8 +6631,8 @@ sql:
 SELECT bugdesc,REPLACE(bugdesc,'xxxxxxxxxxxxxxxxxxxx','bbbbbbbbbbbbbbbbbbbb') FROM str_myisam_concat GROUP BY bugdesc;
 expect:
 {
-  "bugdesc" : [ "/catalog1/schema1/str_myisam_concat/bugdesc/" ],
-  "REPLACE(bugdesc,'xxxxxxxxxxxxxxxxxxxx','bbbbbbbbbbbbbbbbbbbb')" : [ "/catalog1/schema1/str_myisam_concat/bugdesc/" ]
+  "bugdesc" : [ "(1:7~1:14) /catalog1/schema1/str_myisam_concat/bugdesc/" ],
+  "REPLACE(bugdesc,'xxxxxxxxxxxxxxxxxxxx','bbbbbbbbbbbbbbbbbbbb')" : [ "(1:23~1:30) /catalog1/schema1/str_myisam_concat/bugdesc/" ]
 }
 ----------
 [dql_mysql_functions_0.0873]
@@ -6595,7 +6648,7 @@ sql:
 SELECT ELT(status_wnio,data_podp) FROM str_myisam_elt GROUP BY wid;
 expect:
 {
-  "ELT(status_wnio,data_podp)" : [ "/catalog1/schema1/str_myisam_elt/status_wnio/", "/catalog1/schema1/str_myisam_elt/data_podp/" ]
+  "ELT(status_wnio,data_podp)" : [ "(1:11~1:22) /catalog1/schema1/str_myisam_elt/status_wnio/", "(1:23~1:32) /catalog1/schema1/str_myisam_elt/data_podp/" ]
 }
 ----------
 [dql_mysql_functions_0.0875]
@@ -6603,7 +6656,7 @@ sql:
 SELECT CONCAT('</a>',RPAD('',55-LENGTH(title),'.')) FROM str_myisam_rpad;
 expect:
 {
-  "CONCAT('</a>',RPAD('',55-LENGTH(title),'.'))" : [ "/catalog1/schema1/str_myisam_rpad/title/" ]
+  "CONCAT('</a>',RPAD('',55-LENGTH(title),'.'))" : [ "(1:39~1:44) /catalog1/schema1/str_myisam_rpad/title/" ]
 }
 ----------
 [dql_mysql_functions_0.0883]
@@ -6810,7 +6863,7 @@ sql:
 SELECT DISTINCT SUBSTR(c1,1,2147483647) FROM str_extreme;
 expect:
 {
-  "SUBSTR(c1,1,2147483647)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "SUBSTR(c1,1,2147483647)" : [ "(1:23~1:25) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0907]
@@ -6818,7 +6871,7 @@ sql:
 SELECT DISTINCT SUBSTR(c1,1,2147483648) FROM str_extreme;
 expect:
 {
-  "SUBSTR(c1,1,2147483648)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "SUBSTR(c1,1,2147483648)" : [ "(1:23~1:25) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0908]
@@ -6826,7 +6879,7 @@ sql:
 SELECT DISTINCT SUBSTR(c1,-1,2147483648) FROM str_extreme;
 expect:
 {
-  "SUBSTR(c1,-1,2147483648)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "SUBSTR(c1,-1,2147483648)" : [ "(1:23~1:25) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0909]
@@ -6834,7 +6887,7 @@ sql:
 SELECT DISTINCT SUBSTR(c1,-2147483647,2147483648) FROM str_extreme;
 expect:
 {
-  "SUBSTR(c1,-2147483647,2147483648)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "SUBSTR(c1,-2147483647,2147483648)" : [ "(1:23~1:25) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0910]
@@ -6842,7 +6895,7 @@ sql:
 SELECT DISTINCT SUBSTR(c1,9223372036854775807,23) FROM str_extreme;
 expect:
 {
-  "SUBSTR(c1,9223372036854775807,23)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "SUBSTR(c1,9223372036854775807,23)" : [ "(1:23~1:25) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0911]
@@ -6850,7 +6903,7 @@ sql:
 SELECT DISTINCT LEFT(c1,3) FROM str_extreme;
 expect:
 {
-  "LEFT(c1,3)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "LEFT(c1,3)" : [ "(1:21~1:23) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0912]
@@ -6858,7 +6911,7 @@ sql:
 SELECT DISTINCT LEFT(c1,2147483647) FROM str_extreme;
 expect:
 {
-  "LEFT(c1,2147483647)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "LEFT(c1,2147483647)" : [ "(1:21~1:23) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0913]
@@ -6866,7 +6919,7 @@ sql:
 SELECT DISTINCT LEFT(c1,2147483648) FROM str_extreme;
 expect:
 {
-  "LEFT(c1,2147483648)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "LEFT(c1,2147483648)" : [ "(1:21~1:23) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0914]
@@ -6874,7 +6927,7 @@ sql:
 SELECT DISTINCT RIGHT(c1,3) FROM str_extreme;
 expect:
 {
-  "RIGHT(c1,3)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "RIGHT(c1,3)" : [ "(1:22~1:24) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0915]
@@ -6882,7 +6935,7 @@ sql:
 SELECT DISTINCT RIGHT(c1,2147483647) FROM str_extreme;
 expect:
 {
-  "RIGHT(c1,2147483647)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "RIGHT(c1,2147483647)" : [ "(1:22~1:24) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0916]
@@ -6890,7 +6943,7 @@ sql:
 SELECT DISTINCT RIGHT(c1,2147483648) FROM str_extreme;
 expect:
 {
-  "RIGHT(c1,2147483648)" : [ "/catalog1/schema1/str_extreme/c1/" ]
+  "RIGHT(c1,2147483648)" : [ "(1:22~1:24) /catalog1/schema1/str_extreme/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.0917]
@@ -7018,7 +7071,7 @@ sql:
 SELECT SPACE(i) FROM str_unsigned;
 expect:
 {
-  "SPACE(i)" : [ "/catalog1/schema1/str_unsigned/i/" ]
+  "SPACE(i)" : [ "(1:13~1:14) /catalog1/schema1/str_unsigned/i/" ]
 }
 ----------
 [dql_mysql_functions_0.0933]
@@ -7026,8 +7079,8 @@ sql:
 SELECT fmt,FORMAT(12345678901234567890.123,0,fmt) FROM t_locale ORDER BY fmt;
 expect:
 {
-  "fmt" : [ "/catalog1/schema1/t_locale/fmt/" ],
-  "FORMAT(12345678901234567890.123,0,fmt)" : [ "/catalog1/schema1/t_locale/fmt/" ]
+  "fmt" : [ "(1:7~1:10) /catalog1/schema1/t_locale/fmt/" ],
+  "FORMAT(12345678901234567890.123,0,fmt)" : [ "(1:45~1:48) /catalog1/schema1/t_locale/fmt/" ]
 }
 ----------
 [dql_mysql_functions_0.0934]
@@ -7035,8 +7088,8 @@ sql:
 SELECT fmt,FORMAT(12345678901234567890,3,fmt) FROM t_locale ORDER BY fmt;
 expect:
 {
-  "fmt" : [ "/catalog1/schema1/t_locale/fmt/" ],
-  "FORMAT(12345678901234567890,3,fmt)" : [ "/catalog1/schema1/t_locale/fmt/" ]
+  "fmt" : [ "(1:7~1:10) /catalog1/schema1/t_locale/fmt/" ],
+  "FORMAT(12345678901234567890,3,fmt)" : [ "(1:41~1:44) /catalog1/schema1/t_locale/fmt/" ]
 }
 ----------
 [dql_mysql_functions_0.0935]
@@ -7044,8 +7097,8 @@ sql:
 SELECT fmt,FORMAT(-12345678901234567890,3,fmt) FROM t_locale ORDER BY fmt;
 expect:
 {
-  "fmt" : [ "/catalog1/schema1/t_locale/fmt/" ],
-  "FORMAT(-12345678901234567890,3,fmt)" : [ "/catalog1/schema1/t_locale/fmt/" ]
+  "fmt" : [ "(1:7~1:10) /catalog1/schema1/t_locale/fmt/" ],
+  "FORMAT(-12345678901234567890,3,fmt)" : [ "(1:42~1:45) /catalog1/schema1/t_locale/fmt/" ]
 }
 ----------
 [dql_mysql_functions_0.0936]
@@ -7053,8 +7106,8 @@ sql:
 SELECT fmt,FORMAT(-02345678901234567890,3,fmt) FROM t_locale ORDER BY fmt;
 expect:
 {
-  "fmt" : [ "/catalog1/schema1/t_locale/fmt/" ],
-  "FORMAT(-02345678901234567890,3,fmt)" : [ "/catalog1/schema1/t_locale/fmt/" ]
+  "fmt" : [ "(1:7~1:10) /catalog1/schema1/t_locale/fmt/" ],
+  "FORMAT(-02345678901234567890,3,fmt)" : [ "(1:42~1:45) /catalog1/schema1/t_locale/fmt/" ]
 }
 ----------
 [dql_mysql_functions_0.0937]
@@ -7062,8 +7115,8 @@ sql:
 SELECT fmt,FORMAT(-00345678901234567890,3,fmt) FROM t_locale ORDER BY fmt;
 expect:
 {
-  "fmt" : [ "/catalog1/schema1/t_locale/fmt/" ],
-  "FORMAT(-00345678901234567890,3,fmt)" : [ "/catalog1/schema1/t_locale/fmt/" ]
+  "fmt" : [ "(1:7~1:10) /catalog1/schema1/t_locale/fmt/" ],
+  "FORMAT(-00345678901234567890,3,fmt)" : [ "(1:42~1:45) /catalog1/schema1/t_locale/fmt/" ]
 }
 ----------
 [dql_mysql_functions_0.0938]
@@ -7071,8 +7124,8 @@ sql:
 SELECT fmt,FORMAT(-00045678901234567890,3,fmt) FROM t_locale ORDER BY fmt;
 expect:
 {
-  "fmt" : [ "/catalog1/schema1/t_locale/fmt/" ],
-  "FORMAT(-00045678901234567890,3,fmt)" : [ "/catalog1/schema1/t_locale/fmt/" ]
+  "fmt" : [ "(1:7~1:10) /catalog1/schema1/t_locale/fmt/" ],
+  "FORMAT(-00045678901234567890,3,fmt)" : [ "(1:42~1:45) /catalog1/schema1/t_locale/fmt/" ]
 }
 ----------
 [dql_mysql_functions_0.0939]
@@ -7234,8 +7287,8 @@ sql:
 SELECT i,SUBSTRING_INDEX(c,'.',-2) FROM t_sub WHERE i=1;
 expect:
 {
-  "i" : [ "/catalog1/schema1/t_sub/i/" ],
-  "SUBSTRING_INDEX(c,'.',-2)" : [ "/catalog1/schema1/t_sub/c/" ]
+  "i" : [ "(1:7~1:8) /catalog1/schema1/t_sub/i/" ],
+  "SUBSTRING_INDEX(c,'.',-2)" : [ "(1:25~1:26) /catalog1/schema1/t_sub/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0963]
@@ -7243,7 +7296,7 @@ sql:
 SELECT * FROM t_coll WHERE a=MD5('a');
 expect:
 {
-  "a" : [ "/catalog1/schema1/t_coll/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t_coll/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0964]
@@ -7251,7 +7304,7 @@ sql:
 SELECT * FROM t_coll WHERE a=HEX('a');
 expect:
 {
-  "a" : [ "/catalog1/schema1/t_coll/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t_coll/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0965]
@@ -7259,7 +7312,7 @@ sql:
 SELECT * FROM t_coll WHERE a=TO_BASE64('a');
 expect:
 {
-  "a" : [ "/catalog1/schema1/t_coll/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t_coll/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0966]
@@ -7267,11 +7320,11 @@ sql:
 SELECT t_str.a AS str,LENGTH(t_str.a) AS str_length,t_pos.a AS pos,t_pos.a+10 AS length,INSERT(t_str.a,t_pos.a,t_pos.a+10,'1234567') AS 'insert' FROM t_str,t_pos;
 expect:
 {
-  "str" : [ "/catalog1/schema1/t_str/a/" ],
-  "str_length" : [ "/catalog1/schema1/t_str/a/" ],
-  "pos" : [ "/catalog1/schema1/t_pos/a/" ],
-  "length" : [ "/catalog1/schema1/t_pos/a/" ],
-  "'insert'" : [ "/catalog1/schema1/t_str/a/", "/catalog1/schema1/t_pos/a/", "/catalog1/schema1/t_pos/a/" ]
+  "str" : [ "(1:7~1:14) /catalog1/schema1/t_str/a/" ],
+  "str_length" : [ "(1:29~1:36) /catalog1/schema1/t_str/a/" ],
+  "pos" : [ "(1:52~1:59) /catalog1/schema1/t_pos/a/" ],
+  "length" : [ "(1:67~1:74) /catalog1/schema1/t_pos/a/" ],
+  "insert" : [ "(1:95~1:102) /catalog1/schema1/t_str/a/", "(1:103~1:110) /catalog1/schema1/t_pos/a/", "(1:111~1:118) /catalog1/schema1/t_pos/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0967]
@@ -7279,8 +7332,8 @@ sql:
 SELECT id,INSERT(':',1,0,d) FROM t_secret;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t_secret/id/" ],
-  "INSERT(':',1,0,d)" : [ "/catalog1/schema1/t_secret/d/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t_secret/id/" ],
+  "INSERT(':',1,0,d)" : [ "(1:25~1:26) /catalog1/schema1/t_secret/d/" ]
 }
 ----------
 [dql_mysql_functions_0.0968]
@@ -7288,8 +7341,8 @@ sql:
 SELECT id,INSERT(0x3a,1,0,d) FROM t_secret;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t_secret/id/" ],
-  "INSERT(0x3a,1,0,d)" : [ "/catalog1/schema1/t_secret/d/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t_secret/id/" ],
+  "INSERT(0x3a,1,0,d)" : [ "(1:26~1:27) /catalog1/schema1/t_secret/d/" ]
 }
 ----------
 [dql_mysql_functions_0.0969]
@@ -7345,7 +7398,7 @@ sql:
 SELECT RPAD(c, 4, 'x') FROM t_pad;
 expect:
 {
-  "RPAD(c, 4, 'x')" : [ "/catalog1/schema1/t_pad/c/" ]
+  "RPAD(c, 4, 'x')" : [ "(1:12~1:13) /catalog1/schema1/t_pad/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0977]
@@ -7353,7 +7406,7 @@ sql:
 SELECT RPAD(c, 3, 'x') FROM t_pad;
 expect:
 {
-  "RPAD(c, 3, 'x')" : [ "/catalog1/schema1/t_pad/c/" ]
+  "RPAD(c, 3, 'x')" : [ "(1:12~1:13) /catalog1/schema1/t_pad/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0978]
@@ -7361,7 +7414,7 @@ sql:
 SELECT LPAD(c, 4, 'x') FROM t_pad;
 expect:
 {
-  "LPAD(c, 4, 'x')" : [ "/catalog1/schema1/t_pad/c/" ]
+  "LPAD(c, 4, 'x')" : [ "(1:12~1:13) /catalog1/schema1/t_pad/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0979]
@@ -7369,7 +7422,7 @@ sql:
 SELECT LPAD(c, 3, 'x') FROM t_pad;
 expect:
 {
-  "LPAD(c, 3, 'x')" : [ "/catalog1/schema1/t_pad/c/" ]
+  "LPAD(c, 3, 'x')" : [ "(1:12~1:13) /catalog1/schema1/t_pad/c/" ]
 }
 ----------
 [dql_mysql_functions_0.0980]
@@ -7377,8 +7430,8 @@ sql:
 SELECT a, CONVERT(a USING latin1) FROM codex_func_str_modern.t_char ORDER BY CONVERT(a USING utf8mb4);
 expect:
 {
-  "a" : [ "/catalog1/codex_func_str_modern/t_char/a/" ],
-  "CONVERT(a USING latin1)" : [ "/catalog1/codex_func_str_modern/t_char/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/codex_func_str_modern/t_char/a/" ],
+  "CONVERT(a USING latin1)" : [ "(1:18~1:19) /catalog1/codex_func_str_modern/t_char/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0981]
@@ -7386,7 +7439,7 @@ sql:
 SELECT a FROM codex_func_str_modern.t_char ORDER BY CONVERT(a USING utf8mb4);
 expect:
 {
-  "a" : [ "/catalog1/codex_func_str_modern/t_char/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/codex_func_str_modern/t_char/a/" ]
 }
 ----------
 [dql_mysql_functions_0.0982]
@@ -7426,8 +7479,8 @@ sql:
 SELECT SUBSTRING(f1,4,1),SUBSTRING(f1,-4,1) FROM t_sub_tmp;
 expect:
 {
-  "SUBSTRING(f1,4,1)" : [ "/catalog1/schema1/t_sub_tmp/f1/" ],
-  "SUBSTRING(f1,-4,1)" : [ "/catalog1/schema1/t_sub_tmp/f1/" ]
+  "SUBSTRING(f1,4,1)" : [ "(1:17~1:19) /catalog1/schema1/t_sub_tmp/f1/" ],
+  "SUBSTRING(f1,-4,1)" : [ "(1:35~1:37) /catalog1/schema1/t_sub_tmp/f1/" ]
 }
 ----------
 [dql_mysql_functions_0.0988]
@@ -7435,7 +7488,7 @@ sql:
 SELECT * FROM (SELECT * FROM str_crc_view) AS crc_view_rows;
 expect:
 {
-  "id" : [ "/catalog1/schema1/str_crc_view/id/" ]
+  "id" : [ "(1:22~1:23) /catalog1/schema1/str_crc_view/id/" ]
 }
 ----------
 [dql_mysql_functions_0.0989]
@@ -7443,7 +7496,7 @@ sql:
 SELECT HEX(char_value) FROM str_char_ctas;
 expect:
 {
-  "HEX(char_value)" : [ "/catalog1/schema1/str_char_ctas/char_value/" ]
+  "HEX(char_value)" : [ "(1:11~1:21) /catalog1/schema1/str_char_ctas/char_value/" ]
 }
 ----------
 [dql_mysql_functions_0.0990]
@@ -7451,7 +7504,7 @@ sql:
 SELECT HEX(char_value) FROM str_char_view;
 expect:
 {
-  "HEX(char_value)" : [ "/catalog1/schema1/str_char_view/char_value/" ]
+  "HEX(char_value)" : [ "(1:11~1:21) /catalog1/schema1/str_char_view/char_value/" ]
 }
 ----------
 [dql_mysql_functions_0.0991]
@@ -7664,7 +7717,7 @@ sql:
 SELECT pk FROM t_temporal WHERE CONCAT_WS('string', CONCAT(CONCAT('08:50:27', cd COLLATE utf8mb4_turkish_ci), LOWER(ct))) <> 'xyz';
 expect:
 {
-  "pk" : [ "/catalog1/schema1/t_temporal/pk/" ]
+  "pk" : [ "(1:7~1:9) /catalog1/schema1/t_temporal/pk/" ]
 }
 ----------
 [dql_mysql_functions_0.1017]
@@ -7672,7 +7725,7 @@ sql:
 SELECT IF(a, 1, 0) FROM t_src;
 expect:
 {
-  "IF(a, 1, 0)" : [ "/catalog1/schema1/t_src/a/" ]
+  "IF(a, 1, 0)" : [ "(1:10~1:11) /catalog1/schema1/t_src/a/" ]
 }
 ----------
 [dql_mysql_functions_0.1018]
@@ -7680,7 +7733,7 @@ sql:
 SELECT IF(a <> 0, 1, 0) FROM t_src;
 expect:
 {
-  "IF(a <> 0, 1, 0)" : [ "/catalog1/schema1/t_src/a/" ]
+  "IF(a <> 0, 1, 0)" : [ "(1:10~1:11) /catalog1/schema1/t_src/a/" ]
 }
 ----------
 [dql_mysql_functions_0.1019]
@@ -7688,7 +7741,7 @@ sql:
 SELECT a | 2147483647 FROM t_src;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t_src/a/" ]
+  "a | 2147483647" : [ "(1:7~1:8) /catalog1/schema1/t_src/a/" ]
 }
 ----------
 [dql_mysql_functions_0.1020]
@@ -7696,7 +7749,7 @@ sql:
 SELECT CAST(a AS DECIMAL) FROM t_src;
 expect:
 {
-  "CAST(a AS DECIMAL)" : [ "/catalog1/schema1/t_src/a/" ]
+  "CAST(a AS DECIMAL)" : [ "(1:12~1:13) /catalog1/schema1/t_src/a/" ]
 }
 ----------
 [dql_mysql_functions_0.1021]
@@ -7704,7 +7757,7 @@ sql:
 SELECT * FROM t_utf32 WHERE LOCATE('Q', f1, 1) BETWEEN 'a' AND 'b';
 expect:
 {
-  "f1" : [ "/catalog1/schema1/t_utf32/f1/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t_utf32/id/" ]
 }
 ----------
 [dql_mysql_functions_0.1023]
@@ -7753,8 +7806,8 @@ sql:
 SELECT CONCAT(USER(),'--',a),CONCAT(DATABASE(),'--',a) FROM split_func_system.source_t;
 expect:
 {
-  "CONCAT(USER(),'--',a)" : [ "/catalog1/split_func_system/source_t/a/" ],
-  "CONCAT(DATABASE(),'--',a)" : [ "/catalog1/split_func_system/source_t/a/" ]
+  "CONCAT(USER(),'--',a)" : [ "(1:26~1:27) /catalog1/split_func_system/source_t/a/" ],
+  "CONCAT(DATABASE(),'--',a)" : [ "(1:52~1:53) /catalog1/split_func_system/source_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.1028]
@@ -7762,7 +7815,7 @@ sql:
 SELECT * FROM split_func_system.source_t WHERE a=VERSION() OR a=DATABASE() OR a=USER();
 expect:
 {
-  "a" : [ "/catalog1/split_func_system/source_t/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/split_func_system/source_t/id/" ]
 }
 ----------
 [dql_mysql_functions_0.1029]
@@ -7770,7 +7823,7 @@ sql:
 SELECT LEFT(CONCAT(a,VERSION()),1) FROM split_func_system.source_t;
 expect:
 {
-  "LEFT(CONCAT(a,VERSION()),1)" : [ "/catalog1/split_func_system/source_t/a/" ]
+  "LEFT(CONCAT(a,VERSION()),1)" : [ "(1:19~1:20) /catalog1/split_func_system/source_t/a/" ]
 }
 ----------
 [dql_mysql_functions_0.1030]
@@ -7794,7 +7847,7 @@ sql:
 SELECT GREATEST(d,d) FROM func_test_nullable_self WHERE k=2;
 expect:
 {
-  "GREATEST(d,d)" : [ "/catalog1/schema1/func_test_nullable_self/d/", "/catalog1/schema1/func_test_nullable_self/d/" ]
+  "GREATEST(d,d)" : [ "(1:16~1:17) /catalog1/schema1/func_test_nullable_self/d/", "(1:18~1:19) /catalog1/schema1/func_test_nullable_self/d/" ]
 }
 ----------
 [dql_mysql_functions_0.1033]
@@ -7802,8 +7855,7 @@ sql:
 SELECT * FROM func_test_not_between WHERE a NOT BETWEEN 1 AND 2 AND b NOT BETWEEN 3 AND 4;
 expect:
 {
-  "a" : [ "/catalog1/schema1/func_test_not_between/a/" ],
-  "b" : [ "/catalog1/schema1/func_test_not_between/b/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/func_test_not_between/id/" ]
 }
 ----------
 [dql_mysql_functions_0.1034]
@@ -7838,8 +7890,7 @@ sql:
 SELECT * FROM func_test_unsigned_pair WHERE GREATEST(c1,c2)=42 AND c2=1;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/func_test_unsigned_pair/c1/" ],
-  "c2" : [ "/catalog1/schema1/func_test_unsigned_pair/c2/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/func_test_unsigned_pair/id/" ]
 }
 ----------
 [dql_mysql_functions_0.1038]
@@ -7855,10 +7906,10 @@ sql:
 SELECT LEAST(set_col,NULL),LEAST(NULL,set_col),LEAST(set_col,set_col),LEAST(set_col,enum_col) FROM func_test_enum UNION SELECT 1,2,3,4;
 expect:
 {
-  "LEAST(set_col,NULL)" : [ "/catalog1/schema1/func_test_enum/set_col/" ],
-  "LEAST(NULL,set_col)" : [ "/catalog1/schema1/func_test_enum/set_col/" ],
-  "LEAST(set_col,set_col)" : [ "/catalog1/schema1/func_test_enum/set_col/", "/catalog1/schema1/func_test_enum/set_col/" ],
-  "LEAST(set_col,enum_col)" : [ "/catalog1/schema1/func_test_enum/set_col/", "/catalog1/schema1/func_test_enum/enum_col/" ]
+  "LEAST(set_col,NULL)" : [ "(1:13~1:20) /catalog1/schema1/func_test_enum/set_col/" ],
+  "LEAST(NULL,set_col)" : [ "(1:38~1:45) /catalog1/schema1/func_test_enum/set_col/" ],
+  "LEAST(set_col,set_col)" : [ "(1:53~1:60) /catalog1/schema1/func_test_enum/set_col/", "(1:61~1:68) /catalog1/schema1/func_test_enum/set_col/" ],
+  "LEAST(set_col,enum_col)" : [ "(1:76~1:83) /catalog1/schema1/func_test_enum/set_col/", "(1:84~1:92) /catalog1/schema1/func_test_enum/enum_col/" ]
 }
 ----------
 [dql_mysql_functions_0.1040]
@@ -7866,10 +7917,10 @@ sql:
 SELECT GREATEST(enum_col,NULL),GREATEST(NULL,enum_col),GREATEST(enum_col,enum_col),GREATEST(enum_col,set_col) FROM func_test_enum UNION SELECT 1,2,3,4;
 expect:
 {
-  "GREATEST(enum_col,NULL)" : [ "/catalog1/schema1/func_test_enum/enum_col/" ],
-  "GREATEST(NULL,enum_col)" : [ "/catalog1/schema1/func_test_enum/enum_col/" ],
-  "GREATEST(enum_col,enum_col)" : [ "/catalog1/schema1/func_test_enum/enum_col/", "/catalog1/schema1/func_test_enum/enum_col/" ],
-  "GREATEST(enum_col,set_col)" : [ "/catalog1/schema1/func_test_enum/enum_col/", "/catalog1/schema1/func_test_enum/set_col/" ]
+  "GREATEST(enum_col,NULL)" : [ "(1:16~1:24) /catalog1/schema1/func_test_enum/enum_col/" ],
+  "GREATEST(NULL,enum_col)" : [ "(1:45~1:53) /catalog1/schema1/func_test_enum/enum_col/" ],
+  "GREATEST(enum_col,enum_col)" : [ "(1:64~1:72) /catalog1/schema1/func_test_enum/enum_col/", "(1:73~1:81) /catalog1/schema1/func_test_enum/enum_col/" ],
+  "GREATEST(enum_col,set_col)" : [ "(1:92~1:100) /catalog1/schema1/func_test_enum/enum_col/", "(1:101~1:108) /catalog1/schema1/func_test_enum/set_col/" ]
 }
 ----------
 [dql_mysql_functions_0.1041]
@@ -7877,7 +7928,7 @@ sql:
 SELECT GREATEST(_utf8mb4 'a',a) FROM func_test_charset;
 expect:
 {
-  "GREATEST(_utf8mb4 'a',a)" : [ "/catalog1/schema1/func_test_charset/a/" ]
+  "GREATEST(_utf8mb4 'a',a)" : [ "(1:29~1:30) /catalog1/schema1/func_test_charset/a/" ]
 }
 ----------
 [dql_mysql_functions_0.1042]
@@ -7885,7 +7936,7 @@ sql:
 SELECT GREATEST(dt.a,func_test_charset.a) FROM func_test_charset,(SELECT _utf8mb4 'a') AS dt(a);
 expect:
 {
-  "GREATEST(dt.a,func_test_charset.a)" : [ "/catalog1/schema1/func_test_charset/a/" ]
+  "GREATEST(dt.a,func_test_charset.a)" : [ "(1:21~1:40) /catalog1/schema1/func_test_charset/a/" ]
 }
 ----------
 [dql_mysql_functions_0.1043]
@@ -7893,7 +7944,7 @@ sql:
 SELECT id FROM func_test_unsigned WHERE LEAST(id,id) AND -1=id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/func_test_unsigned/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/func_test_unsigned/id/" ]
 }
 ----------
 [dql_mysql_functions_0.1044]
@@ -7901,7 +7952,7 @@ sql:
 SELECT FROM_UNIXTIME(GREATEST(d,t,y)) FROM func_test_temporal;
 expect:
 {
-  "FROM_UNIXTIME(GREATEST(d,t,y))" : [ "/catalog1/schema1/func_test_temporal/d/", "/catalog1/schema1/func_test_temporal/t/", "/catalog1/schema1/func_test_temporal/y/" ]
+  "FROM_UNIXTIME(GREATEST(d,t,y))" : [ "(1:30~1:31) /catalog1/schema1/func_test_temporal/d/", "(1:32~1:33) /catalog1/schema1/func_test_temporal/t/", "(1:34~1:35) /catalog1/schema1/func_test_temporal/y/" ]
 }
 ----------
 [dql_mysql_functions_0.1049]
@@ -7909,7 +7960,7 @@ sql:
 SELECT GREATEST(F4,F1) FROM func_test_temporal_mix;
 expect:
 {
-  "GREATEST(F4,F1)" : [ "/catalog1/schema1/func_test_temporal_mix/F4/", "/catalog1/schema1/func_test_temporal_mix/F1/" ]
+  "GREATEST(F4,F1)" : [ "(1:16~1:18) /catalog1/schema1/func_test_temporal_mix/F4/", "(1:19~1:21) /catalog1/schema1/func_test_temporal_mix/F1/" ]
 }
 ----------
 [dql_mysql_functions_0.1050]
@@ -7917,7 +7968,7 @@ sql:
 SELECT GREATEST(F1,F4) FROM func_test_temporal_mix;
 expect:
 {
-  "GREATEST(F1,F4)" : [ "/catalog1/schema1/func_test_temporal_mix/F1/", "/catalog1/schema1/func_test_temporal_mix/F4/" ]
+  "GREATEST(F1,F4)" : [ "(1:16~1:18) /catalog1/schema1/func_test_temporal_mix/F1/", "(1:19~1:21) /catalog1/schema1/func_test_temporal_mix/F4/" ]
 }
 ----------
 [dql_mysql_functions_0.1051]
@@ -7925,7 +7976,7 @@ sql:
 SELECT GREATEST(F1,F4,F3) FROM func_test_temporal_mix;
 expect:
 {
-  "GREATEST(F1,F4,F3)" : [ "/catalog1/schema1/func_test_temporal_mix/F1/", "/catalog1/schema1/func_test_temporal_mix/F4/", "/catalog1/schema1/func_test_temporal_mix/F3/" ]
+  "GREATEST(F1,F4,F3)" : [ "(1:16~1:18) /catalog1/schema1/func_test_temporal_mix/F1/", "(1:19~1:21) /catalog1/schema1/func_test_temporal_mix/F4/", "(1:22~1:24) /catalog1/schema1/func_test_temporal_mix/F3/" ]
 }
 ----------
 [dql_mysql_functions_0.1052]
@@ -7933,7 +7984,7 @@ sql:
 SELECT GREATEST(F3,F4,F1) FROM func_test_temporal_mix;
 expect:
 {
-  "GREATEST(F3,F4,F1)" : [ "/catalog1/schema1/func_test_temporal_mix/F3/", "/catalog1/schema1/func_test_temporal_mix/F4/", "/catalog1/schema1/func_test_temporal_mix/F1/" ]
+  "GREATEST(F3,F4,F1)" : [ "(1:16~1:18) /catalog1/schema1/func_test_temporal_mix/F3/", "(1:19~1:21) /catalog1/schema1/func_test_temporal_mix/F4/", "(1:22~1:24) /catalog1/schema1/func_test_temporal_mix/F1/" ]
 }
 ----------
 [dql_mysql_functions_0.1053]
@@ -7941,7 +7992,7 @@ sql:
 SELECT GREATEST(F1,F4,F2) FROM func_test_temporal_mix;
 expect:
 {
-  "GREATEST(F1,F4,F2)" : [ "/catalog1/schema1/func_test_temporal_mix/F1/", "/catalog1/schema1/func_test_temporal_mix/F4/", "/catalog1/schema1/func_test_temporal_mix/F2/" ]
+  "GREATEST(F1,F4,F2)" : [ "(1:16~1:18) /catalog1/schema1/func_test_temporal_mix/F1/", "(1:19~1:21) /catalog1/schema1/func_test_temporal_mix/F4/", "(1:22~1:24) /catalog1/schema1/func_test_temporal_mix/F2/" ]
 }
 ----------
 [dql_mysql_functions_0.1054]
@@ -7949,7 +8000,7 @@ sql:
 SELECT CONVERT(LEAST(c1,CASE (COT(c2)) WHEN c1 THEN c2 ELSE 0 END),SIGNED) FROM func_test_convert_mix;
 expect:
 {
-  "CONVERT(LEAST(c1,CASE (COT(c2)) WHEN c1 THEN c2 ELSE 0 END),SIGNED)" : [ "/catalog1/schema1/func_test_convert_mix/c1/", "/catalog1/schema1/func_test_convert_mix/c2/", "/catalog1/schema1/func_test_convert_mix/c1/", "/catalog1/schema1/func_test_convert_mix/c2/" ]
+  "CONVERT(LEAST(c1,CASE (COT(c2)) WHEN c1 THEN c2 ELSE 0 END),SIGNED)" : [ "(1:21~1:23) /catalog1/schema1/func_test_convert_mix/c1/", "(1:34~1:36) /catalog1/schema1/func_test_convert_mix/c2/", "(1:44~1:46) /catalog1/schema1/func_test_convert_mix/c1/", "(1:52~1:54) /catalog1/schema1/func_test_convert_mix/c2/" ]
 }
 ----------
 [dql_mysql_functions_0.1055]
@@ -7957,7 +8008,7 @@ sql:
 SELECT STD(c1 % '2006-08-23 21:41:12.036166') FROM func_test_std_mix GROUP BY BIN_TO_UUID(c1),CAST(LEAST(c1,CONVERT(c1,UNSIGNED)) AS DECIMAL);
 expect:
 {
-  "STD(c1 % '2006-08-23 21:41:12.036166')" : [ "/catalog1/schema1/func_test_std_mix/c1/" ]
+  "STD(c1 % '2006-08-23 21:41:12.036166')" : [ "(1:11~1:13) /catalog1/schema1/func_test_std_mix/c1/" ]
 }
 ----------
 [dql_mysql_functions_0.1056]
@@ -8032,7 +8083,7 @@ sql:
 SELECT DATEDIFF('2031-08-06',TIMEDIFF(SUBTIME(t,'12:59:38'),'1994-01-14')) AS nested_diff FROM nested_time_source;
 expect:
 {
-  "nested_diff" : [ "/catalog1/schema1/nested_time_source/t/" ]
+  "nested_diff" : [ "(1:46~1:47) /catalog1/schema1/nested_time_source/t/" ]
 }
 ----------
 [dql_mysql_functions_0.1065]
@@ -8040,7 +8091,7 @@ sql:
 SELECT * FROM time_membership_source WHERE t IN (FROM_UNIXTIME(2120220672,'%Y-%m-%d'),TIMESTAMP('2003-10-18',TIMESTAMPADD(QUARTER,1,'2003-03-07')));
 expect:
 {
-  "t" : [ "/catalog1/schema1/time_membership_source/t/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/time_membership_source/id/" ]
 }
 ----------
 [dql_mysql_functions_0.1066]
@@ -8143,8 +8194,8 @@ sql:
 SELECT a,FROM_UNIXTIME(a) FROM decimal_source;
 expect:
 {
-  "a" : [ "/catalog1/schema1/decimal_source/a/" ],
-  "FROM_UNIXTIME(a)" : [ "/catalog1/schema1/decimal_source/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/decimal_source/a/" ],
+  "FROM_UNIXTIME(a)" : [ "(1:23~1:24) /catalog1/schema1/decimal_source/a/" ]
 }
 ----------
 [dql_mysql_functions_0.1078]
@@ -8173,8 +8224,8 @@ sql:
 SELECT f1,f2-f3 FROM timestamp_source;
 expect:
 {
-  "f1" : [ "/catalog1/schema1/timestamp_source/f1/" ],
-  "f2" : [ "/catalog1/schema1/timestamp_source/f2/", "/catalog1/schema1/timestamp_source/f3/" ]
+  "f1" : [ "(1:7~1:9) /catalog1/schema1/timestamp_source/f1/" ],
+  "f2-f3" : [ "(1:10~1:12) /catalog1/schema1/timestamp_source/f2/", "(1:13~1:15) /catalog1/schema1/timestamp_source/f3/" ]
 }
 ----------
 [dql_mysql_functions_0.1081]
@@ -8315,9 +8366,9 @@ sql:
 SELECT BIN_TO_UUID(id), BIN_TO_UUID(id, TRUE), UUID_TO_BIN(BIN_TO_UUID(id)) = id FROM uuid_binary_rows;
 expect:
 {
-  "BIN_TO_UUID(id)" : [ "/catalog1/schema1/uuid_binary_rows/id/" ],
-  "BIN_TO_UUID(id, TRUE)" : [ "/catalog1/schema1/uuid_binary_rows/id/" ],
-  "UUID_TO_BIN(BIN_TO_UUID(id)) = id" : [ "/catalog1/schema1/uuid_binary_rows/id/", "/catalog1/schema1/uuid_binary_rows/id/" ]
+  "BIN_TO_UUID(id)" : [ "(1:19~1:21) /catalog1/schema1/uuid_binary_rows/id/" ],
+  "BIN_TO_UUID(id, TRUE)" : [ "(1:36~1:38) /catalog1/schema1/uuid_binary_rows/id/" ],
+  "UUID_TO_BIN(BIN_TO_UUID(id)) = id" : [ "(1:71~1:73) /catalog1/schema1/uuid_binary_rows/id/", "(1:78~1:80) /catalog1/schema1/uuid_binary_rows/id/" ]
 }
 ----------
 [dql_mysql_functions_0.1097]
@@ -8325,11 +8376,11 @@ sql:
 SELECT BIN_TO_UUID(bin_value), BIN_TO_UUID(varbin_value), BIN_TO_UUID(tinyblob_value), BIN_TO_UUID(tinytext_value), BIN_TO_UUID(blob_value) FROM uuid_storage_types;
 expect:
 {
-  "BIN_TO_UUID(bin_value)" : [ "/catalog1/schema1/uuid_storage_types/bin_value/" ],
-  "BIN_TO_UUID(varbin_value)" : [ "/catalog1/schema1/uuid_storage_types/varbin_value/" ],
-  "BIN_TO_UUID(tinyblob_value)" : [ "/catalog1/schema1/uuid_storage_types/tinyblob_value/" ],
-  "BIN_TO_UUID(tinytext_value)" : [ "/catalog1/schema1/uuid_storage_types/tinytext_value/" ],
-  "BIN_TO_UUID(blob_value)" : [ "/catalog1/schema1/uuid_storage_types/blob_value/" ]
+  "BIN_TO_UUID(bin_value)" : [ "(1:19~1:28) /catalog1/schema1/uuid_storage_types/bin_value/" ],
+  "BIN_TO_UUID(varbin_value)" : [ "(1:43~1:55) /catalog1/schema1/uuid_storage_types/varbin_value/" ],
+  "BIN_TO_UUID(tinyblob_value)" : [ "(1:70~1:84) /catalog1/schema1/uuid_storage_types/tinyblob_value/" ],
+  "BIN_TO_UUID(tinytext_value)" : [ "(1:99~1:113) /catalog1/schema1/uuid_storage_types/tinytext_value/" ],
+  "BIN_TO_UUID(blob_value)" : [ "(1:128~1:138) /catalog1/schema1/uuid_storage_types/blob_value/" ]
 }
 ----------
 [dql_mysql_functions_0.1099]
@@ -8337,8 +8388,8 @@ sql:
 SELECT uuid_text, HEX(uuid_binary) FROM uuid_text_generated WHERE uuid_binary = X'12345679123456781234567812345678';
 expect:
 {
-  "uuid_text" : [ "/catalog1/schema1/uuid_text_generated/uuid_text/" ],
-  "HEX(uuid_binary)" : [ "/catalog1/schema1/uuid_text_generated/uuid_binary/" ]
+  "uuid_text" : [ "(1:7~1:16) /catalog1/schema1/uuid_text_generated/uuid_text/" ],
+  "HEX(uuid_binary)" : [ "(1:22~1:33) /catalog1/schema1/uuid_text_generated/uuid_binary/" ]
 }
 ----------
 [dql_mysql_functions_0.1101]
@@ -8346,8 +8397,8 @@ sql:
 SELECT HEX(uuid_binary), uuid_text FROM uuid_binary_generated WHERE uuid_text = '12345679-1234-5678-1234-567812345678';
 expect:
 {
-  "HEX(uuid_binary)" : [ "/catalog1/schema1/uuid_binary_generated/uuid_binary/" ],
-  "uuid_text" : [ "/catalog1/schema1/uuid_binary_generated/uuid_text/" ]
+  "HEX(uuid_binary)" : [ "(1:11~1:22) /catalog1/schema1/uuid_binary_generated/uuid_binary/" ],
+  "uuid_text" : [ "(1:25~1:34) /catalog1/schema1/uuid_binary_generated/uuid_text/" ]
 }
 ----------
 [dql_mysql_functions_0.1102]
@@ -8355,7 +8406,7 @@ sql:
 SELECT COUNT(DISTINCT v) FROM uuid_replace_ctas;
 expect:
 {
-  "COUNT(DISTINCT v)" : [ "/catalog1/schema1/uuid_replace_ctas/v/" ]
+  "COUNT(DISTINCT v)" : [ "(1:22~1:23) /catalog1/schema1/uuid_replace_ctas/v/" ]
 }
 ----------
 [dql_mysql_functions_0.1103]
@@ -8424,7 +8475,7 @@ sql:
 SELECT HEX(WEIGHT_STRING(value_text)) FROM weight_source ORDER BY value_text;
 expect:
 {
-  "HEX(WEIGHT_STRING(value_text))" : [ "/catalog1/schema1/weight_source/value_text/" ]
+  "HEX(WEIGHT_STRING(value_text))" : [ "(1:25~1:35) /catalog1/schema1/weight_source/value_text/" ]
 }
 ----------
 [dql_mysql_functions_0.1112]
@@ -8432,7 +8483,7 @@ sql:
 SELECT DISTINCT HEX(WEIGHT_STRING(value_text)) FROM weight_source;
 expect:
 {
-  "HEX(WEIGHT_STRING(value_text))" : [ "/catalog1/schema1/weight_source/value_text/" ]
+  "HEX(WEIGHT_STRING(value_text))" : [ "(1:34~1:44) /catalog1/schema1/weight_source/value_text/" ]
 }
 ----------
 [dql_mysql_functions_0.1113]
@@ -8560,7 +8611,7 @@ sql:
 SELECT 'a' LIKE 'a' ESCAPE '!!';
 expect:
 {
-  "a' LIKE 'a' ESCAPE '!!" : [ ]
+  "'a' LIKE 'a' ESCAPE '!!'" : [ ]
 }
 ----------
 [dql_mysql_functions_0.1129]
@@ -9488,10 +9539,19 @@ expect:
 sql:
 SELECT GET_LOCK('split_recursive_lock',0), GET_LOCK('split_recursive_lock',0), RELEASE_LOCK('split_recursive_lock'), RELEASE_LOCK('split_recursive_lock');
 expect:
-{
-  "GET_LOCK('split_recursive_lock',0)" : [ ],
-  "RELEASE_LOCK('split_recursive_lock')" : [ ]
-}
+[ {
+  "sources" : [ ],
+  "column" : "GET_LOCK('split_recursive_lock',0)"
+}, {
+  "sources" : [ ],
+  "column" : "GET_LOCK('split_recursive_lock',0)"
+}, {
+  "sources" : [ ],
+  "column" : "RELEASE_LOCK('split_recursive_lock')"
+}, {
+  "sources" : [ ],
+  "column" : "RELEASE_LOCK('split_recursive_lock')"
+} ]
 ----------
 [dql_mysql_functions_0.1225]
 sql:
@@ -10249,10 +10309,10 @@ sql:
 SELECT id, name, age, height FROM f7_t1 WHERE ETAG(id, age) > '13647057490375175604';
 expect:
 {
-  "id" : [ "/catalog1/schema1/f7_t1/id/" ],
-  "name" : [ "/catalog1/schema1/f7_t1/name/" ],
-  "age" : [ "/catalog1/schema1/f7_t1/age/" ],
-  "height" : [ "/catalog1/schema1/f7_t1/height/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/f7_t1/id/" ],
+  "name" : [ "(1:11~1:15) /catalog1/schema1/f7_t1/name/" ],
+  "age" : [ "(1:17~1:20) /catalog1/schema1/f7_t1/age/" ],
+  "height" : [ "(1:22~1:28) /catalog1/schema1/f7_t1/height/" ]
 }
 ----------
 [dql_mysql_functions_0.1296]
@@ -10260,10 +10320,10 @@ sql:
 SELECT department, COUNT(*), AVG(salary), ETAG(department, FORMAT(AVG(salary), 2)) FROM f8_employees GROUP BY department HAVING AVG(salary) > 50000;
 expect:
 {
-  "department" : [ "/catalog1/schema1/f8_employees/department/" ],
+  "department" : [ "(1:7~1:17) /catalog1/schema1/f8_employees/department/" ],
   "COUNT(*)" : [ ],
-  "AVG(salary)" : [ "/catalog1/schema1/f8_employees/salary/" ],
-  "ETAG(department, FORMAT(AVG(salary), 2))" : [ "/catalog1/schema1/f8_employees/department/", "/catalog1/schema1/f8_employees/salary/" ]
+  "AVG(salary)" : [ "(1:33~1:39) /catalog1/schema1/f8_employees/salary/" ],
+  "ETAG(department, FORMAT(AVG(salary), 2))" : [ "(1:47~1:57) /catalog1/schema1/f8_employees/department/", "(1:70~1:76) /catalog1/schema1/f8_employees/salary/" ]
 }
 ----------
 [dql_mysql_functions_0.1297]
@@ -10271,8 +10331,8 @@ sql:
 SELECT pk, VECTOR_TO_STRING(v) FROM f9_t;
 expect:
 {
-  "pk" : [ "/catalog1/schema1/f9_t/pk/" ],
-  "VECTOR_TO_STRING(v)" : [ "/catalog1/schema1/f9_t/v/" ]
+  "pk" : [ "(1:7~1:9) /catalog1/schema1/f9_t/pk/" ],
+  "VECTOR_TO_STRING(v)" : [ "(1:28~1:29) /catalog1/schema1/f9_t/v/" ]
 }
 ----------
 [dql_mysql_functions_0.1298]
@@ -10280,8 +10340,8 @@ sql:
 SELECT pk, VECTOR_DIM(embedding) FROM f12_tb ORDER BY pk;
 expect:
 {
-  "pk" : [ "/catalog1/schema1/f12_tb/pk/" ],
-  "VECTOR_DIM(embedding)" : [ "/catalog1/schema1/f12_tb/embedding/" ]
+  "pk" : [ "(1:7~1:9) /catalog1/schema1/f12_tb/pk/" ],
+  "VECTOR_DIM(embedding)" : [ "(1:22~1:31) /catalog1/schema1/f12_tb/embedding/" ]
 }
 ----------
 [dql_mysql_functions_0.1299]
@@ -10289,7 +10349,7 @@ sql:
 SELECT FROM_VECTOR(embedding) FROM f13_ta;
 expect:
 {
-  "FROM_VECTOR(embedding)" : [ "/catalog1/schema1/f13_ta/embedding/" ]
+  "FROM_VECTOR(embedding)" : [ "(1:19~1:28) /catalog1/schema1/f13_ta/embedding/" ]
 }
 ----------
 [dql_mysql_functions_0.1300]
@@ -10411,7 +10471,7 @@ sql:
 SELECT HIGH_PRIORITY s1 REGEXP s2 FROM t1;
 expect:
 {
-  "s1" : [ "/catalog1/schema1/t1/s1/", "/catalog1/schema1/t1/s2/" ]
+  "s1 REGEXP s2" : [ "(1:21~1:23) /catalog1/schema1/t1/s1/", "(1:31~1:33) /catalog1/schema1/t1/s2/" ]
 }
 ----------
 [dql_mysql_functions_0.1315]
@@ -10652,7 +10712,7 @@ sql:
 SELECT id, set_firewall_mode('fwuser@localhost','RECORDING') FROM split_management_function_probe WHERE id > 0;
 expect:
 {
-  "id" : [ "/catalog1/schema1/split_management_function_probe/id/" ],
+  "id" : [ "(1:7~1:9) /catalog1/schema1/split_management_function_probe/id/" ],
   "set_firewall_mode('fwuser@localhost','RECORDING')" : [ ]
 }
 ----------
@@ -10661,7 +10721,7 @@ sql:
 SELECT id FROM split_management_function_probe WHERE mysql_firewall_flush_status() = 0;
 expect:
 {
-  "id" : [ "/catalog1/schema1/split_management_function_probe/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/split_management_function_probe/id/" ]
 }
 ----------
 [dql_mysql_functions_0.1347]

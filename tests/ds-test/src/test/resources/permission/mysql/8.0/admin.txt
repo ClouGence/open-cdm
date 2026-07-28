@@ -1,0 +1,71 @@
+[create_resource_group]
+sql:
+CREATE RESOURCE GROUP split_rg_a TYPE = USER VCPU 0 THREAD_PRIORITY = 0 ENABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ResourceGroup(1:22~1:32) /test/1/catalog1/schema1/split_rg_a/"
+  ]
+}
+----------
+[system_setting]
+sql:
+SET GLOBAL max_connections = 200;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:26) /test/1/max_connections/"
+  ]
+}
+----------
+[maintain_log]
+sql:
+FLUSH LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:10) /test/1/"
+  ]
+}
+----------
+[data_export]
+sql:
+SELECT * FROM sales.orders INTO OUTFILE '/tmp/orders.csv';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "File(1:40~1:57) /test/1/tmp/orders.csv/"
+  ]
+}
+----------
+[data_import]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:66~1:77) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[admin_performance]
+sql:
+CACHE INDEX utility_audit.myisam_a INDEX (PRIMARY, idx_v) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Index(1:12~1:34) /test/1/catalog1/utility_audit/myisam_a/"
+  ]
+}

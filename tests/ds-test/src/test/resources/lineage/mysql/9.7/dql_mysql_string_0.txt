@@ -6,11 +6,11 @@ WHERE v LIKE 'a%' AND c BETWEEN 'a' AND 'z'
 ORDER BY BINARY v;
 expect:
 {
-  "LENGTH(v)" : [ "/catalog1/schema1/str_lifecycle/v/" ],
-  "CHAR_LENGTH(v)" : [ "/catalog1/schema1/str_lifecycle/v/" ],
-  "OCTET_LENGTH(v)" : [ "/catalog1/schema1/str_lifecycle/v/" ],
-  "HEX(fixed_binary)" : [ "/catalog1/schema1/str_lifecycle/fixed_binary/" ],
-  "HEX(variable_binary)" : [ "/catalog1/schema1/str_lifecycle/variable_binary/" ]
+  "LENGTH(v)" : [ "(1:14~1:15) /catalog1/schema1/str_lifecycle/v/" ],
+  "CHAR_LENGTH(v)" : [ "(1:30~1:31) /catalog1/schema1/str_lifecycle/v/" ],
+  "OCTET_LENGTH(v)" : [ "(1:47~1:48) /catalog1/schema1/str_lifecycle/v/" ],
+  "HEX(fixed_binary)" : [ "(1:55~1:67) /catalog1/schema1/str_lifecycle/fixed_binary/" ],
+  "HEX(variable_binary)" : [ "(1:74~1:89) /catalog1/schema1/str_lifecycle/variable_binary/" ]
 }
 ----------
 [dql_mysql_string_0.0002]
@@ -23,9 +23,9 @@ ORDER BY v
 LIMIT 5;
 expect:
 {
-  "v" : [ "/catalog1/schema1/str_lifecycle/v/" ],
+  "v" : [ "(1:7~1:8) /catalog1/schema1/str_lifecycle/v/" ],
   "COUNT(*)" : [ ],
-  "MIN(HEX(variable_binary))" : [ "/catalog1/schema1/str_lifecycle/variable_binary/" ]
+  "MIN(HEX(variable_binary))" : [ "(1:28~1:43) /catalog1/schema1/str_lifecycle/variable_binary/" ]
 }
 ----------
 [dql_mysql_string_0.0003]
@@ -38,7 +38,7 @@ WHERE EXISTS (
 );
 expect:
 {
-  "v" : [ "/catalog1/schema1/str_lifecycle/v/" ]
+  "v" : [ "(1:7~1:10) /catalog1/schema1/str_lifecycle/v/" ]
 }
 ----------
 [dql_mysql_string_0.0004]
@@ -50,7 +50,7 @@ JOIN str_bars AS b ON b.parent_id=p.id
 WHERE b.parent_id=X'93222796CABA43CA979F5C96EB6898B7';
 expect:
 {
-  "text" : [ "/catalog1/schema1/str_foos/text/" ]
+  "text" : [ "(1:7~1:13) /catalog1/schema1/str_foos/text/" ]
 }
 ----------
 [dql_mysql_string_0.0005]
@@ -85,10 +85,10 @@ WITH str_cte(c,v,b,vb) AS (
 SELECT c,v,HEX(b),HEX(vb) FROM str_cte WHERE vb IS NOT NULL;
 expect:
 {
-  "c" : [ "/catalog1/schema1/str_generated/c/" ],
-  "v" : [ "/catalog1/schema1/str_generated/v/" ],
-  "HEX(b)" : [ "/catalog1/schema1/str_generated/b/" ],
-  "HEX(vb)" : [ "/catalog1/schema1/str_generated/vb/" ]
+  "c" : [ "(2:9~2:10) /catalog1/schema1/str_generated/c/", "(4:9~4:11) /catalog1/schema1/str_generated/gc/" ],
+  "v" : [ "(2:11~2:12) /catalog1/schema1/str_generated/v/", "(4:12~4:14) /catalog1/schema1/str_generated/gv/" ],
+  "HEX(b)" : [ "(2:13~2:14) /catalog1/schema1/str_generated/b/", "(4:15~4:17) /catalog1/schema1/str_generated/gb/" ],
+  "HEX(vb)" : [ "(2:15~2:17) /catalog1/schema1/str_generated/vb/", "(4:18~4:21) /catalog1/schema1/str_generated/gvb/" ]
 }
 ----------
 [dql_mysql_string_0.0008]
@@ -99,8 +99,8 @@ SELECT v, HEX(vb),
 FROM str_generated;
 expect:
 {
-  "v" : [ "/catalog1/schema1/str_generated/v/" ],
-  "HEX(vb)" : [ "/catalog1/schema1/str_generated/vb/" ],
-  "rn" : [ ],
-  "first_c" : [ "/catalog1/schema1/str_generated/c/" ]
+  "v" : [ "(1:7~1:8) /catalog1/schema1/str_generated/v/" ],
+  "HEX(vb)" : [ "(1:14~1:16) /catalog1/schema1/str_generated/vb/" ],
+  "rn" : [ "(2:39~2:41) /catalog1/schema1/str_generated/vb/", "(1:7~1:8) /catalog1/schema1/str_generated/v/" ],
+  "first_c" : [ "(3:19~3:20) /catalog1/schema1/str_generated/c/", "(3:37~3:38) /catalog1/schema1/str_generated/b/" ]
 }

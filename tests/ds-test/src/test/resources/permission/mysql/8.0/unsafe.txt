@@ -1,0 +1,11 @@
+[unsafe_prepare]
+sql:
+PREPARE ps_select FROM 'SELECT 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_select/"
+  ]
+}

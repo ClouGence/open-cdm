@@ -57,9 +57,7 @@ import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -133,9 +131,9 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
 
     @Override
     public QueryRelationAuthResult checkQueryRelationAuth(String puid, String uid, DsLevels levels, List<QueryRequest> requests) {
-        List<BehaviorRelation> deniedRelations = new ArrayList<>();
+        List<BehaviorRequest> deniedRequests = new ArrayList<>();
         if (CollectionUtils.isEmpty(requests)) {
-            return new QueryRelationAuthResult(deniedRelations);
+            return new QueryRelationAuthResult(deniedRequests);
         }
 
         DmDsDO dsDO = levels.dsDO();
@@ -145,34 +143,21 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         String currentResourcePath = DmDsUtils.currentResourcePath(levels.levelsParam());
         String instanceResourcePath = DmDsUtils.instanceResourcePath(levels.levelsParam());
         for (QueryRequest request : requests) {
-            List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations(), request.getQueryTypes())
-                .stream()
-                .filter(b -> !b.skipPermission())
-                .toList();
-
+            List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations(), request.getQueryTypes());
             for (BehaviorRequest behavior : behaviors) {
-                BehaviorAction action = behavior.action();
-                BehaviorObject object = behavior.resource();
+                if (behavior.authKind() == null) {
+                    continue;
+                }
 
-                String authLabel = BehaviorRelations.authKind(action, object.getObjectType()).getAuthLabel();
+                BehaviorObject object = behavior.resource();
                 String resourcePath = BehaviorRelations.resourcePath(object, currentResourcePath, instanceResourcePath);
+                String authLabel = behavior.authKind().getAuthLabel();
                 if (!this.checkResPathWithoutError(puid, uid, dsId, AuthKind.DataSource, () -> resourcePath, authLabel)) {
-                    BehaviorObject deniedObject = new BehaviorObject();
-                    deniedObject.setObjectType(object.getObjectType());
-                    deniedObject.setObjectPath(resourcePath);
-                    deniedObject.setObjectName(object.getObjectName());
-                    deniedObject.setStartLine(object.getStartLine());
-                    deniedObject.setStartColumn(object.getStartColumn());
-                    deniedObject.setEndLine(object.getEndLine());
-                    deniedObject.setEndColumn(object.getEndColumn());
-                    BehaviorRelation deniedRelation = new BehaviorRelation();
-                    deniedRelation.setAction(action);
-                    deniedRelation.setSubject(deniedObject);
-                    deniedRelations.add(deniedRelation);
+                    deniedRequests.add(behavior);
                 }
             }
         }
-        return new QueryRelationAuthResult(deniedRelations);
+        return new QueryRelationAuthResult(deniedRequests);
     }
 
     @Override

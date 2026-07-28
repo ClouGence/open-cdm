@@ -3,19 +3,29 @@ sql:
 SELECT * FROM t WHERE t.`$id` = 0 OR `$id2` = 0 OR b$$lit$$ = 0;
 expect:
 {
-  "$id" : [ "/catalog1/schema1/t/$id/" ],
-  "$id2" : [ "/catalog1/schema1/t/$id2/" ],
-  "b$$lit$$" : [ "/catalog1/schema1/t/b$$lit$$/" ]
+  "$id" : [ "(1:7~1:8) /catalog1/schema1/t/$id/" ]
 }
 ----------
 [dql_mysql_language_0.0002]
 sql:
 SELECT 8.0 $p, 8.4$p, .0$p, 8.$p, 8.p;
 expect:
-{
-  "$p" : [ ],
-  "p" : [ ]
-}
+[ {
+  "sources" : [ ],
+  "column" : "$p"
+}, {
+  "sources" : [ ],
+  "column" : "$p"
+}, {
+  "sources" : [ ],
+  "column" : "$p"
+}, {
+  "sources" : [ ],
+  "column" : "$p"
+}, {
+  "sources" : [ ],
+  "column" : "p"
+} ]
 ----------
 [dql_mysql_language_0.0003]
 sql:
@@ -30,7 +40,7 @@ sql:
 SELECT (SELECT 1 c WHERE 1 GROUP BY 1 HAVING 1 ORDER BY COUNT(1)) AS 'null is not expected';
 expect:
 {
-  "'null is not expected'" : [ ]
+  "null is not expected" : [ ]
 }
 ----------
 [dql_mysql_language_0.0005]
@@ -202,8 +212,8 @@ sql:
 SELECT t1.f1,COUNT(DISTINCT t2.f2),COUNT(DISTINCT 1,NULL) FROM t1 LEFT JOIN t2 ON t1.f1=t2.f1 GROUP BY t1.f1;
 expect:
 {
-  "f1" : [ "/catalog1/schema1/t1/f1/" ],
-  "COUNT(DISTINCT t2.f2)" : [ "/catalog1/schema1/t2/f2/" ],
+  "f1" : [ "(1:7~1:12) /catalog1/schema1/t1/f1/" ],
+  "COUNT(DISTINCT t2.f2)" : [ "(1:28~1:33) /catalog1/schema1/t2/f2/" ],
   "COUNT(DISTINCT 1,NULL)" : [ ]
 }
 ----------
@@ -649,7 +659,7 @@ sql:
 SELECT id FROM articles WHERE MATCH(title,body) AGAINST(@q IN BOOLEAN MODE);
 expect:
 {
-  "id" : [ "/catalog1/schema1/articles/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/articles/id/" ]
 }
 ----------
 [dql_mysql_language_0.0082]
@@ -705,7 +715,7 @@ sql:
 SELECT c1 = b0 FROM str_collation_values;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/b0/" ]
+  "c1 = b0" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c1/", "(1:12~1:14) /catalog1/schema1/str_collation_values/b0/" ]
 }
 ----------
 [dql_mysql_language_0.0089]
@@ -713,7 +723,7 @@ sql:
 SELECT CONCAT(c1, b0) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, b0)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/b0/" ]
+  "CONCAT(c1, b0)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/b0/" ]
 }
 ----------
 [dql_mysql_language_0.0090]
@@ -721,7 +731,7 @@ sql:
 SELECT c1 = c0 FROM str_collation_values;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c0/" ]
+  "c1 = c0" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c1/", "(1:12~1:14) /catalog1/schema1/str_collation_values/c0/" ]
 }
 ----------
 [dql_mysql_language_0.0091]
@@ -729,7 +739,7 @@ sql:
 SELECT CONCAT(c1, c0) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, c0)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c0/" ]
+  "CONCAT(c1, c0)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c0/" ]
 }
 ----------
 [dql_mysql_language_0.0092]
@@ -737,7 +747,7 @@ sql:
 SELECT c1 = c2 FROM str_collation_values;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/" ]
+  "c1 = c2" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c1/", "(1:12~1:14) /catalog1/schema1/str_collation_values/c2/" ]
 }
 ----------
 [dql_mysql_language_0.0093]
@@ -745,8 +755,8 @@ sql:
 SELECT CONCAT(c1, c2), COERCIBILITY(CONCAT(c1,c2)) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, c2)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/" ],
-  "COERCIBILITY(CONCAT(c1,c2))" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/" ]
+  "CONCAT(c1, c2)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c2/" ],
+  "COERCIBILITY(CONCAT(c1,c2))" : [ "(1:43~1:45) /catalog1/schema1/str_collation_values/c1/", "(1:46~1:48) /catalog1/schema1/str_collation_values/c2/" ]
 }
 ----------
 [dql_mysql_language_0.0094]
@@ -754,7 +764,7 @@ sql:
 SELECT c1 = c3 FROM str_collation_values;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c3/" ]
+  "c1 = c3" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c1/", "(1:12~1:14) /catalog1/schema1/str_collation_values/c3/" ]
 }
 ----------
 [dql_mysql_language_0.0095]
@@ -762,7 +772,7 @@ sql:
 SELECT CONCAT(c1, c3) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, c3)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c3/" ]
+  "CONCAT(c1, c3)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c3/" ]
 }
 ----------
 [dql_mysql_language_0.0096]
@@ -770,7 +780,7 @@ sql:
 SELECT c1 = c4 FROM str_collation_values;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c4/" ]
+  "c1 = c4" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c1/", "(1:12~1:14) /catalog1/schema1/str_collation_values/c4/" ]
 }
 ----------
 [dql_mysql_language_0.0097]
@@ -778,7 +788,7 @@ sql:
 SELECT CONCAT(c1, c4) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, c4)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c4/" ]
+  "CONCAT(c1, c4)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c4/" ]
 }
 ----------
 [dql_mysql_language_0.0098]
@@ -786,7 +796,7 @@ sql:
 SELECT c1 = c5 FROM str_collation_values;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c5/" ]
+  "c1 = c5" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c1/", "(1:12~1:14) /catalog1/schema1/str_collation_values/c5/" ]
 }
 ----------
 [dql_mysql_language_0.0099]
@@ -794,7 +804,7 @@ sql:
 SELECT CONCAT(c1, c5) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, c5)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c5/" ]
+  "CONCAT(c1, c5)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c5/" ]
 }
 ----------
 [dql_mysql_language_0.0100]
@@ -802,7 +812,7 @@ sql:
 SELECT c1 = c6 FROM str_collation_values;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c6/" ]
+  "c1 = c6" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c1/", "(1:12~1:14) /catalog1/schema1/str_collation_values/c6/" ]
 }
 ----------
 [dql_mysql_language_0.0101]
@@ -810,7 +820,7 @@ sql:
 SELECT CONCAT(c1, c6) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, c6)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c6/" ]
+  "CONCAT(c1, c6)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c6/" ]
 }
 ----------
 [dql_mysql_language_0.0102]
@@ -818,7 +828,7 @@ sql:
 SELECT c1 = c7 FROM str_collation_values;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c7/" ]
+  "c1 = c7" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c1/", "(1:12~1:14) /catalog1/schema1/str_collation_values/c7/" ]
 }
 ----------
 [dql_mysql_language_0.0103]
@@ -826,7 +836,7 @@ sql:
 SELECT CONCAT(c1, c7) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, c7)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c7/" ]
+  "CONCAT(c1, c7)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c7/" ]
 }
 ----------
 [dql_mysql_language_0.0104]
@@ -834,7 +844,7 @@ sql:
 SELECT c1 = c8 FROM str_collation_values;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c8/" ]
+  "c1 = c8" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c1/", "(1:12~1:14) /catalog1/schema1/str_collation_values/c8/" ]
 }
 ----------
 [dql_mysql_language_0.0105]
@@ -842,7 +852,7 @@ sql:
 SELECT CONCAT(c1, c8) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, c8)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c8/" ]
+  "CONCAT(c1, c8)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c8/" ]
 }
 ----------
 [dql_mysql_language_0.0106]
@@ -850,7 +860,7 @@ sql:
 SELECT c7 = c8 FROM str_collation_values;
 expect:
 {
-  "c7" : [ "/catalog1/schema1/str_collation_values/c7/", "/catalog1/schema1/str_collation_values/c8/" ]
+  "c7 = c8" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c7/", "(1:12~1:14) /catalog1/schema1/str_collation_values/c8/" ]
 }
 ----------
 [dql_mysql_language_0.0107]
@@ -858,7 +868,7 @@ sql:
 SELECT CONCAT(c7, c8) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c7, c8)" : [ "/catalog1/schema1/str_collation_values/c7/", "/catalog1/schema1/str_collation_values/c8/" ]
+  "CONCAT(c7, c8)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c7/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c8/" ]
 }
 ----------
 [dql_mysql_language_0.0108]
@@ -906,7 +916,7 @@ sql:
 SELECT c3 = CONCAT(c1, c2) FROM str_collation_values;
 expect:
 {
-  "c3" : [ "/catalog1/schema1/str_collation_values/c3/", "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/" ]
+  "c3 = CONCAT(c1, c2)" : [ "(1:7~1:9) /catalog1/schema1/str_collation_values/c3/", "(1:19~1:21) /catalog1/schema1/str_collation_values/c1/", "(1:23~1:25) /catalog1/schema1/str_collation_values/c2/" ]
 }
 ----------
 [dql_mysql_language_0.0114]
@@ -914,7 +924,7 @@ sql:
 SELECT GREATEST(c3, CONCAT(c1, c2)) FROM str_collation_values;
 expect:
 {
-  "GREATEST(c3, CONCAT(c1, c2))" : [ "/catalog1/schema1/str_collation_values/c3/", "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/" ]
+  "GREATEST(c3, CONCAT(c1, c2))" : [ "(1:16~1:18) /catalog1/schema1/str_collation_values/c3/", "(1:27~1:29) /catalog1/schema1/str_collation_values/c1/", "(1:31~1:33) /catalog1/schema1/str_collation_values/c2/" ]
 }
 ----------
 [dql_mysql_language_0.0115]
@@ -922,7 +932,7 @@ sql:
 SELECT COERCIBILITY(CONCAT(c1, c2)) FROM str_collation_values;
 expect:
 {
-  "COERCIBILITY(CONCAT(c1, c2))" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/" ]
+  "COERCIBILITY(CONCAT(c1, c2))" : [ "(1:27~1:29) /catalog1/schema1/str_collation_values/c1/", "(1:31~1:33) /catalog1/schema1/str_collation_values/c2/" ]
 }
 ----------
 [dql_mysql_language_0.0116]
@@ -930,7 +940,7 @@ sql:
 SELECT CONCAT(c1, c2) = CONCAT(c1, c2) FROM str_collation_values;
 expect:
 {
-  "CONCAT(c1, c2) = CONCAT(c1, c2)" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/", "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/" ]
+  "CONCAT(c1, c2) = CONCAT(c1, c2)" : [ "(1:14~1:16) /catalog1/schema1/str_collation_values/c1/", "(1:18~1:20) /catalog1/schema1/str_collation_values/c2/", "(1:31~1:33) /catalog1/schema1/str_collation_values/c1/", "(1:35~1:37) /catalog1/schema1/str_collation_values/c2/" ]
 }
 ----------
 [dql_mysql_language_0.0117]
@@ -938,7 +948,7 @@ sql:
 SELECT CONCAT(CONCAT(c1, c2), CONCAT(c1, c2)) FROM str_collation_values;
 expect:
 {
-  "CONCAT(CONCAT(c1, c2), CONCAT(c1, c2))" : [ "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/", "/catalog1/schema1/str_collation_values/c1/", "/catalog1/schema1/str_collation_values/c2/" ]
+  "CONCAT(CONCAT(c1, c2), CONCAT(c1, c2))" : [ "(1:21~1:23) /catalog1/schema1/str_collation_values/c1/", "(1:25~1:27) /catalog1/schema1/str_collation_values/c2/", "(1:37~1:39) /catalog1/schema1/str_collation_values/c1/", "(1:41~1:43) /catalog1/schema1/str_collation_values/c2/" ]
 }
 ----------
 [dql_mysql_language_0.0118]
@@ -1340,9 +1350,9 @@ sql:
 SELECT CHARSET(a),COLLATION(a),COERCIBILITY(a) FROM str_nullable;
 expect:
 {
-  "CHARSET(a)" : [ "/catalog1/schema1/str_nullable/a/" ],
-  "COLLATION(a)" : [ "/catalog1/schema1/str_nullable/a/" ],
-  "COERCIBILITY(a)" : [ "/catalog1/schema1/str_nullable/a/" ]
+  "CHARSET(a)" : [ "(1:15~1:16) /catalog1/schema1/str_nullable/a/" ],
+  "COLLATION(a)" : [ "(1:28~1:29) /catalog1/schema1/str_nullable/a/" ],
+  "COERCIBILITY(a)" : [ "(1:44~1:45) /catalog1/schema1/str_nullable/a/" ]
 }
 ----------
 [dql_mysql_language_0.0162]
@@ -1359,28 +1369,55 @@ expect:
 sql:
 SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE COLLATION(str_right.i)=_utf8'binary' ORDER BY str_left.i,str_right.i;
 expect:
-{
-  "id" : [ "/catalog1/schema1/str_left/id/" ],
-  "i" : [ "/catalog1/schema1/str_right/i/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:17) /catalog1/schema1/str_left/j/" ],
+  "column" : "j"
+}, {
+  "sources" : [ "(1:7~1:17) /catalog1/schema1/str_left/i/" ],
+  "column" : "i"
+}, {
+  "sources" : [ "(1:18~1:29) /catalog1/schema1/str_right/j/" ],
+  "column" : "j"
+}, {
+  "sources" : [ "(1:18~1:29) /catalog1/schema1/str_right/i/" ],
+  "column" : "i"
+} ]
 ----------
 [dql_mysql_language_0.0164]
 sql:
 SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE CHARSET(str_right.i)=_utf8'binary' ORDER BY str_left.i,str_right.i;
 expect:
-{
-  "id" : [ "/catalog1/schema1/str_left/id/" ],
-  "i" : [ "/catalog1/schema1/str_right/i/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:17) /catalog1/schema1/str_left/j/" ],
+  "column" : "j"
+}, {
+  "sources" : [ "(1:7~1:17) /catalog1/schema1/str_left/i/" ],
+  "column" : "i"
+}, {
+  "sources" : [ "(1:18~1:29) /catalog1/schema1/str_right/j/" ],
+  "column" : "j"
+}, {
+  "sources" : [ "(1:18~1:29) /catalog1/schema1/str_right/i/" ],
+  "column" : "i"
+} ]
 ----------
 [dql_mysql_language_0.0165]
 sql:
 SELECT str_left.*,str_right.* FROM str_left LEFT JOIN str_right ON str_left.j=str_right.j WHERE COERCIBILITY(str_right.i)=5 ORDER BY str_left.i,str_right.i;
 expect:
-{
-  "id" : [ "/catalog1/schema1/str_left/id/" ],
-  "i" : [ "/catalog1/schema1/str_right/i/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:17) /catalog1/schema1/str_left/j/" ],
+  "column" : "j"
+}, {
+  "sources" : [ "(1:7~1:17) /catalog1/schema1/str_left/i/" ],
+  "column" : "i"
+}, {
+  "sources" : [ "(1:18~1:29) /catalog1/schema1/str_right/j/" ],
+  "column" : "j"
+}, {
+  "sources" : [ "(1:18~1:29) /catalog1/schema1/str_right/i/" ],
+  "column" : "i"
+} ]
 ----------
 [dql_mysql_language_0.0166]
 sql:
@@ -1459,7 +1496,7 @@ sql:
 SELECT * FROM customer_demographics WHERE CEILING(customer_demographics.cd_purchase_estimate) BETWEEN '2037' AND (-71 * (-1552207807 * 440370369)) COLLATE utf8mb4_et_0900_as_cs;
 expect:
 {
-  "cd_purchase_estimate" : [ "/catalog1/schema1/customer_demographics/cd_purchase_estimate/" ]
+  "cd_purchase_estimate" : [ "(1:7~1:8) /catalog1/schema1/customer_demographics/cd_purchase_estimate/" ]
 }
 ----------
 [dql_mysql_language_0.0176]
@@ -1467,8 +1504,8 @@ sql:
 SELECT CONCAT(jahr,'-',monat,'-',tag,' ',zeit) AS date_value,UNIX_TIMESTAMP(CONCAT(jahr,'-',monat,'-',tag,' ',zeit)) AS unix_value FROM timestamp_source;
 expect:
 {
-  "date_value" : [ "/catalog1/schema1/timestamp_source/jahr/", "/catalog1/schema1/timestamp_source/monat/", "/catalog1/schema1/timestamp_source/tag/", "/catalog1/schema1/timestamp_source/zeit/" ],
-  "unix_value" : [ "/catalog1/schema1/timestamp_source/jahr/", "/catalog1/schema1/timestamp_source/monat/", "/catalog1/schema1/timestamp_source/tag/", "/catalog1/schema1/timestamp_source/zeit/" ]
+  "date_value" : [ "(1:14~1:18) /catalog1/schema1/timestamp_source/jahr/", "(1:23~1:28) /catalog1/schema1/timestamp_source/monat/", "(1:33~1:36) /catalog1/schema1/timestamp_source/tag/", "(1:41~1:45) /catalog1/schema1/timestamp_source/zeit/" ],
+  "unix_value" : [ "(1:83~1:87) /catalog1/schema1/timestamp_source/jahr/", "(1:92~1:97) /catalog1/schema1/timestamp_source/monat/", "(1:102~1:105) /catalog1/schema1/timestamp_source/tag/", "(1:110~1:114) /catalog1/schema1/timestamp_source/zeit/" ]
 }
 ----------
 [dql_mysql_language_0.0177]
@@ -1484,8 +1521,8 @@ sql:
 SELECT `order`.select, `order` . `a-b` FROM split_identifiers . `order`;
 expect:
 {
-  "order" : [ "/catalog1/split_identifiers/order/order/" ],
-  "a-b" : [ "/catalog1/split_identifiers/order/a-b/" ]
+  "select" : [ ],
+  "`order` . `a-b`" : [ ]
 }
 ----------
 [dql_mysql_language_0.0179]
@@ -1493,7 +1530,7 @@ sql:
 SELECT 1table . 1column FROM split_identifiers . 1table;
 expect:
 {
-  "1column" : [ "/catalog1/split_identifiers/1table/1column/" ]
+  "1table . 1column" : [ ]
 }
 ----------
 [dql_mysql_language_0.0180]
@@ -1575,17 +1612,17 @@ sql:
 SELECT '\0', '\'', '\"', '\b', '\n', '\r', '\t', '\Z', '\\', '\%', '\_';
 expect:
 {
-  "\\0" : [ ],
-  "\\'" : [ ],
-  "\\\"" : [ ],
-  "\\b" : [ ],
-  "\\n" : [ ],
-  "\\r" : [ ],
-  "\\t" : [ ],
-  "\\Z" : [ ],
-  "\\\\" : [ ],
-  "\\%" : [ ],
-  "\\_" : [ ]
+  "'\\0'" : [ ],
+  "'\\''" : [ ],
+  "'\\\"'" : [ ],
+  "'\\b'" : [ ],
+  "'\\n'" : [ ],
+  "'\\r'" : [ ],
+  "'\\t'" : [ ],
+  "'\\Z'" : [ ],
+  "'\\\\'" : [ ],
+  "'\\%'" : [ ],
+  "'\\_'" : [ ]
 }
 ----------
 [dql_mysql_language_0.0189]
@@ -1630,9 +1667,9 @@ expect:
   "_utf8mb4'text'" : [ ],
   "_binary'bin'" : [ ],
   "_binary X'41'" : [ ],
-  "adjacent' ' string" : [ ],
-  "a''b" : [ ],
-  "a\\\\nb" : [ ],
+  "'adjacent' ' string'" : [ ],
+  "'a''b'" : [ ],
+  "'a\\\\nb'" : [ ],
   "\"double\"" : [ ],
   "TRUE" : [ ],
   "FALSE" : [ ],
@@ -1698,7 +1735,7 @@ sql:
 SELECT .t1.i FROM t1;
 expect:
 {
-  "i" : [ "/catalog1/schema1/t1/i/" ]
+  ".t1.i" : [ "(1:7~1:12) /catalog1/schema1/t1/i/" ]
 }
 ----------
 [dql_mysql_language_0.0200]
@@ -1706,7 +1743,7 @@ sql:
 SELECT * FROM full;
 expect:
 {
-  "id" : [ "/catalog1/schema1/full/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/full/id/" ]
 }
 ----------
 [dql_mysql_language_0.0201]
@@ -1714,7 +1751,7 @@ sql:
 SELECT * FROM full AS full;
 expect:
 {
-  "id" : [ "/catalog1/schema1/full/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/full/id/" ]
 }
 ----------
 [dql_mysql_language_0.0202]
@@ -1722,7 +1759,7 @@ sql:
 SELECT * FROM `full` full;
 expect:
 {
-  "id" : [ "/catalog1/schema1/full/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/full/id/" ]
 }
 ----------
 [dql_mysql_language_0.0203]
@@ -1827,7 +1864,7 @@ sql:
 SELECT * FROM interval_t WHERE a = INTERVAL(3,2,1) + 1;
 expect:
 {
-  "a" : [ "/catalog1/schema1/interval_t/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/interval_t/id/" ]
 }
 ----------
 [dql_mysql_language_0.0216]
@@ -2656,23 +2693,32 @@ sql:
 SELECT t1.* FROM t1 AS t0, { OJ t2 INNER JOIN t1 ON (t1.a1=t2.a1) } WHERE t0.a3=2;
 expect:
 {
-  "a3" : [ "/catalog1/schema1/t1/a3/" ]
+  "a1" : [ "(1:7~1:11) /catalog1/schema1/t1/a1/" ],
+  "a3" : [ "(1:7~1:11) /catalog1/schema1/t1/a3/" ]
 }
 ----------
 [dql_mysql_language_0.0307]
 sql:
 SELECT t1.*,t2.* FROM { OJ ((t1 INNER JOIN t2 ON (t1.a1=t2.a2)) LEFT OUTER JOIN t3 ON t3.a3=t2.a1)};
 expect:
-{
-  "id" : [ "/catalog1/schema1/t1/id/", "/catalog1/schema1/t2/id/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/schema1/t1/a1/" ],
+  "column" : "a1"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/schema1/t2/a2/" ],
+  "column" : "a2"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/schema1/t2/a1/" ],
+  "column" : "a1"
+} ]
 ----------
 [dql_mysql_language_0.0308]
 sql:
 SELECT t1.*,t2.* FROM { OJ ((t1 LEFT OUTER JOIN t2 ON t1.a3=t2.a2) INNER JOIN t3 ON (t3.a1=t2.a2))};
 expect:
 {
-  "id" : [ "/catalog1/schema1/t1/id/", "/catalog1/schema1/t2/id/" ]
+  "a3" : [ "(1:7~1:11) /catalog1/schema1/t1/a3/" ],
+  "a2" : [ "(1:12~1:16) /catalog1/schema1/t2/a2/" ]
 }
 ----------
 [dql_mysql_language_0.0309]
@@ -2680,7 +2726,9 @@ sql:
 SELECT t1.*,t2.* FROM { OJ (t1 LEFT OUTER JOIN t2 ON t1.a1=t2.a2) CROSS JOIN t3 ON (t3.a2=t2.a3)};
 expect:
 {
-  "id" : [ "/catalog1/schema1/t1/id/", "/catalog1/schema1/t2/id/" ]
+  "a1" : [ "(1:7~1:11) /catalog1/schema1/t1/a1/" ],
+  "a2" : [ "(1:12~1:16) /catalog1/schema1/t2/a2/" ],
+  "a3" : [ "(1:12~1:16) /catalog1/schema1/t2/a3/" ]
 }
 ----------
 [dql_mysql_language_0.0310]
@@ -2688,7 +2736,7 @@ sql:
 SELECT {fn CONCAT(a1,a2)} FROM t1;
 expect:
 {
-  "{fn CONCAT(a1,a2)}" : [ "/catalog1/schema1/t1/a1/", "/catalog1/schema1/t1/a2/" ]
+  "{fn CONCAT(a1,a2)}" : [ "(1:18~1:20) /catalog1/schema1/t1/a1/", "(1:21~1:23) /catalog1/schema1/t1/a2/" ]
 }
 ----------
 [dql_mysql_language_0.0311]
@@ -2696,8 +2744,8 @@ sql:
 SELECT a1, a4 FROM t2 WHERE a4 LIKE {fn UCASE('1789-07-14')};
 expect:
 {
-  "a1" : [ "/catalog1/schema1/t2/a1/" ],
-  "a4" : [ "/catalog1/schema1/t2/a4/" ]
+  "a1" : [ "(1:7~1:9) /catalog1/schema1/t2/a1/" ],
+  "a4" : [ "(1:11~1:13) /catalog1/schema1/t2/a4/" ]
 }
 ----------
 [dql_mysql_language_0.0312]
@@ -2729,23 +2777,27 @@ sql:
 SELECT `*` FROM star_t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/star_t/id/" ]
+  "*" : [ "(1:7~1:10) /catalog1/schema1/star_t/*/" ]
 }
 ----------
 [dql_mysql_language_0.0316]
 sql:
 SELECT star_t.`*`, star_t.* FROM star_t;
 expect:
-{
-  "id" : [ "/catalog1/schema1/star_t/id/", "/catalog1/schema1/star_t/id/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:17) /catalog1/schema1/star_t/*/" ],
+  "column" : "*"
+}, {
+  "sources" : [ "(1:19~1:27) /catalog1/schema1/star_t/*/" ],
+  "column" : "*"
+} ]
 ----------
 [dql_mysql_language_0.0317]
 sql:
 SELECT split_parser_identifier.star_t.`*`, split_parser_identifier.star_t.* FROM star_t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/star_t/id/", "/catalog1/schema1/star_t/id/" ]
+  "*" : [ ]
 }
 ----------
 [dql_mysql_language_0.0318]
@@ -2786,8 +2838,8 @@ sql:
 SELECT q."from" AS "order", q.`a``b` AS `tick``alias` FROM "select" AS q;
 expect:
 {
-  "order" : [ "/catalog1/schema1/select/from/" ],
-  "tick``alias" : [ "/catalog1/schema1/select/a``b/" ]
+  "order" : [ "(1:7~1:15) /catalog1/schema1/select/from/" ],
+  "tick`alias" : [ "(1:28~1:36) /catalog1/schema1/select/a`b/" ]
 }
 ----------
 [dql_mysql_language_0.0324]
@@ -2889,18 +2941,26 @@ expect:
 sql:
 SELECT @@`sql_mode`, @@GLOBAL.`max_connections`, @@SESSION.`sql_mode`, @@LOCAL.`sql_mode`;
 expect:
-{
-  "@@`sql_mode`" : [ ],
-  "max_connections" : [ ],
-  "sql_mode" : [ ]
-}
+[ {
+  "sources" : [ ],
+  "column" : "@@`sql_mode`"
+}, {
+  "sources" : [ ],
+  "column" : "max_connections"
+}, {
+  "sources" : [ ],
+  "column" : "sql_mode"
+}, {
+  "sources" : [ ],
+  "column" : "sql_mode"
+} ]
 ----------
 [dql_mysql_language_0.0334]
 sql:
 SELECT _filename'abcd';
 expect:
 {
-  "'abcd'" : [ ]
+  "abcd" : [ ]
 }
 ----------
 [dql_mysql_language_0.0335]
@@ -3021,7 +3081,7 @@ sql:
 SELECT `semi;column` FROM `semi;table`;
 expect:
 {
-  "semi;column" : [ "/catalog1/schema1/semi;table/semi;column/" ]
+  "semi;column" : [ "(1:7~1:20) /catalog1/schema1/semi;table/semi;column/" ]
 }
 ----------
 [dql_mysql_language_0.0352]
@@ -3029,7 +3089,7 @@ sql:
 SELECT 1e + 3 FROM split_numid;
 expect:
 {
-  "1e" : [ "/catalog1/schema1/split_numid/1e/" ]
+  "1e + 3" : [ "(1:7~1:9) /catalog1/schema1/split_numid/1e/" ]
 }
 ----------
 [dql_mysql_language_0.0353]
@@ -3056,7 +3116,7 @@ sql:
 SELECT `a``b`();
 expect:
 {
-  "a``b`(" : [ ]
+  "`a``b`()" : [ ]
 }
 ----------
 [dql_mysql_language_0.0356]
@@ -3098,9 +3158,9 @@ sql:
 SELECT HEX(a),STRCMP(a,'a'),STRCMP(a,'a ') FROM padded_char;
 expect:
 {
-  "HEX(a)" : [ "/catalog1/schema1/padded_char/a/" ],
-  "STRCMP(a,'a')" : [ "/catalog1/schema1/padded_char/a/" ],
-  "STRCMP(a,'a ')" : [ "/catalog1/schema1/padded_char/a/" ]
+  "HEX(a)" : [ "(1:11~1:12) /catalog1/schema1/padded_char/a/" ],
+  "STRCMP(a,'a')" : [ "(1:21~1:22) /catalog1/schema1/padded_char/a/" ],
+  "STRCMP(a,'a ')" : [ "(1:35~1:36) /catalog1/schema1/padded_char/a/" ]
 }
 ----------
 [dql_mysql_language_0.0363]
@@ -3108,7 +3168,7 @@ sql:
 SELECT DISTINCT latin1_f COLLATE latin1_german2_ci FROM collation_projection;
 expect:
 {
-  "latin1_f" : [ "/catalog1/schema1/collation_projection/latin1_f/" ]
+  "latin1_f COLLATE latin1_german2_ci" : [ "(1:16~1:24) /catalog1/schema1/collation_projection/latin1_f/" ]
 }
 ----------
 [dql_mysql_language_0.0364]
@@ -3116,7 +3176,7 @@ sql:
 SELECT latin1_f,COUNT(*) FROM collation_projection GROUP BY latin1_f COLLATE latin1_german2_ci ORDER BY latin1_f COLLATE latin1_german2_ci;
 expect:
 {
-  "latin1_f" : [ "/catalog1/schema1/collation_projection/latin1_f/" ],
+  "latin1_f" : [ "(1:7~1:15) /catalog1/schema1/collation_projection/latin1_f/" ],
   "COUNT(*)" : [ ]
 }
 ----------
@@ -3125,7 +3185,7 @@ sql:
 SELECT latin1_f COLLATE latin1_german2_ci AS x FROM collation_projection ORDER BY x,HEX(x);
 expect:
 {
-  "x" : [ "/catalog1/schema1/collation_projection/latin1_f/" ]
+  "x" : [ "(1:7~1:15) /catalog1/schema1/collation_projection/latin1_f/" ]
 }
 ----------
 [dql_mysql_language_0.0366]
@@ -3151,7 +3211,7 @@ sql:
 SELECT 1 AS 'a' ORDER BY `a`, 'a';
 expect:
 {
-  "'a'" : [ ]
+  "a" : [ ]
 }
 ----------
 [dql_mysql_language_0.0369]

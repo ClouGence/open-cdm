@@ -17,11 +17,13 @@ package com.clougence.clouddm.ds.dameng.sql.analysis.lineage;
 
 import java.util.*;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.parser.DmDslProvider;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.ColumnLineage;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
@@ -56,7 +58,7 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
     }
 
     @Override
-    public List<ColumnLineage> analyze(String sql, LineageContext lineageContext) {
+    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
         List<MutableColumnLineage> result = new ArrayList<>();
         Object catalogLevel = lineageContext == null || lineageContext.getLevelsParam() == null ? null : lineageContext.getLevelsParam().get(UmiTypes.Catalog);
         String defaultCatalog = catalogLevel == null ? null : String.valueOf(catalogLevel);
@@ -72,7 +74,7 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
                 collectSelectItems(statement.explainStatement(), result);
             }
         }
-        return result.stream().map(column -> new ColumnLineage(column.getItemAlias(), column.getColumns())).toList();
+        return result.stream().map(column -> new LineageColumn(column.getItemAlias(), column.getColumns())).toList();
     }
 
     private void collectDefinitionSelectItems(ParseTree tree, List<MutableColumnLineage> result, String defaultCatalog) {
@@ -149,7 +151,7 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
         if (ctx.STAR() != null) {
             item.setItemAlias("*");
             for (NameParts table : tables.values()) {
-                item.addSource(realColumn(table, "*"));
+                item.addSource(realColumn(table, "*", ctx));
             }
             for (List<MutableColumnLineage> items : uniqueDerivedColumns(derived)) {
                 addProjectedColumns(item, items);
@@ -165,7 +167,7 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
                 addProjectedColumns(item, derivedItems);
                 return item;
             }
-            item.addSource(realColumn(resolveTable(name.name(), tables), "*"));
+            item.addSource(realColumn(resolveTable(name.name(), tables), "*", ctx.qualifiedName()));
             return item;
         }
 
@@ -185,15 +187,34 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
         if (directColumn != null) {
             NameParts column = NameParts.from(directColumn);
             item.setTableAlias(column.schema());
-            addColumn(item, column, tables, derived);
+            addColumn(item, column, directColumn, tables, derived);
         } else {
             List<DmSqlParser.QualifiedNameContext> columns = new ArrayList<>();
             collectQualifiedNames(ctx.expression(), columns);
             for (DmSqlParser.QualifiedNameContext columnContext : columns) {
-                addColumn(item, NameParts.from(columnContext), tables, derived);
+                addColumn(item, NameParts.from(columnContext), columnContext, tables, derived);
             }
         }
         return item;
+    }
+
+    private void addColumn(MutableColumnLineage item, NameParts column, ParserRuleContext sourceContext, Map<String, NameParts> tables,
+                           Map<String, List<MutableColumnLineage>> derived) {
+        if (StringUtils.equalsIgnoreCase(column.name(), "NEXTVAL") || StringUtils.equalsIgnoreCase(column.name(), "CURRVAL")) {
+            return;
+        }
+        if (!addDerivedColumn(item, column, derived)) {
+            if (column.catalog() != null) {
+                NameParts attributeTable = findTable(column.catalog(), tables);
+                if (attributeTable != null) {
+                    item.addSource(realColumn(attributeTable, column.schema(), sourceContext));
+                    return;
+                }
+            }
+            NameParts table = resolveColumnTable(column, tables);
+            SourceName realColumn = realColumn(table, column.name(), sourceContext);
+            item.addSource(realColumn);
+        }
     }
 
     private void addColumn(MutableColumnLineage item, NameParts column, Map<String, NameParts> tables, Map<String, List<MutableColumnLineage>> derived) {
@@ -204,13 +225,12 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
             if (column.catalog() != null) {
                 NameParts attributeTable = findTable(column.catalog(), tables);
                 if (attributeTable != null) {
-                    item.addSource(realColumn(attributeTable, column.schema()));
+                    item.addSource(new SourceName(attributeTable.catalog(), attributeTable.schema(), attributeTable.name(), column.schema()));
                     return;
                 }
             }
             NameParts table = resolveColumnTable(column, tables);
-            SourceName realColumn = realColumn(table, column.name());
-            item.addSource(realColumn);
+            item.addSource(new SourceName(table.catalog(), table.schema(), table.name(), column.name()));
         }
     }
 
@@ -265,7 +285,7 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
                 List<DmSqlParser.QualifiedNameContext> sourceColumns = new ArrayList<>();
                 collectQualifiedNames(collection.expression(), sourceColumns);
                 for (DmSqlParser.QualifiedNameContext sourceColumn : sourceColumns) {
-                    addColumn(item, NameParts.from(sourceColumn), tables, derived);
+                    addColumn(item, NameParts.from(sourceColumn), sourceColumn, tables, derived);
                 }
             }
             String alias = tableAlias(ctx.tableAlias());
@@ -281,7 +301,7 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
                     MutableColumnLineage item = new MutableColumnLineage();
                     item.setItemAlias(NameParts.clean(columnContext.identifier().getText()));
                     for (DmSqlParser.QualifiedNameContext sourceColumn : sourceColumns) {
-                        addColumn(item, NameParts.from(sourceColumn), tables, derived);
+                        addColumn(item, NameParts.from(sourceColumn), sourceColumn, tables, derived);
                     }
                     projected.add(item);
                 }
@@ -607,7 +627,8 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
                 }
                 String sourceCatalog = column.catalog() == null ? catalog : column.catalog();
                 String sourceSchema = column.schema() == null ? schema : column.schema();
-                return new SourceName(sourceCatalog, sourceSchema, column.table(), column.column());
+                return new SourceName(sourceCatalog, sourceSchema, column.table(), column.column(),//
+                        column.startLine(), column.startColumn(), column.endLine(), column.endColumn());
             });
         }
     }
@@ -711,8 +732,11 @@ public class DmLineageAnalysisSpi implements LineageAnalysisSpi {
         return NameParts.clean(ctx.aliasIdentifier().identifier().getText());
     }
 
-    private SourceName realColumn(NameParts table, String column) {
-        return new SourceName(table.catalog(), table.schema(), table.name(), column);
+    private SourceName realColumn(NameParts table, String column, ParserRuleContext sourceContext) {
+        Token start = sourceContext.getStart();
+        Token stop = sourceContext.getStop();
+        return new SourceName(table.catalog(), table.schema(), table.name(), column,//
+                start.getLine(), start.getCharPositionInLine(), stop.getLine(), stop.getCharPositionInLine() + stop.getText().length());
     }
 
     private record NameParts(String catalog, String schema, String name) {

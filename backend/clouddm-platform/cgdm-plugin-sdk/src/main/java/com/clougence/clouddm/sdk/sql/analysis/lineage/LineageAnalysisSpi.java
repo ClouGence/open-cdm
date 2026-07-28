@@ -26,7 +26,7 @@ public interface LineageAnalysisSpi extends Spi {
      *
      * <p>The returned list follows the order in which result columns appear in the SQL select list. This order must
      * not be used to match columns against an actual result set; consumers must match them by
-     * {@link ColumnLineage#column()}.</p>
+     * {@link LineageColumn#column()}.</p>
      */
-    List<ColumnLineage> analyze(String sql, LineageContext context);
+    List<LineageColumn> analyze(String sql, LineageContext context);
 }

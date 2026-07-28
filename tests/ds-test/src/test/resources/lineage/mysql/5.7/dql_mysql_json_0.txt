@@ -19,7 +19,7 @@ sql:
 SELECT * FROM (SELECT alias2.pk AS field1 FROM split_derived_json57.t1 AS alias1 LEFT OUTER JOIN split_derived_json57.t2 AS alias2 ON JSON_UNQUOTE(JSON_EXTRACT(alias1.col_varchar,'$.varc')) COLLATE utf8mb4_general_ci=alias2.col_date_key GROUP BY JSON_QUOTE(JSON_EXTRACT(field1,'$.intc'))) AS dt;
 expect:
 {
-  "field1" : [ "/catalog1/split_derived_json57/t2/pk/" ]
+  "field1" : [ "(1:22~1:31) /catalog1/split_derived_json57/t2/pk/" ]
 }
 ----------
 [dql_mysql_json_0.0004]
@@ -27,7 +27,7 @@ sql:
 SELECT 'a' LIKE '%' ESCAPE CAST('' AS JSON);
 expect:
 {
-  "a' LIKE '%' ESCAPE CAST('' AS JSON" : [ ]
+  "'a' LIKE '%' ESCAPE CAST('' AS JSON)" : [ ]
 }
 ----------
 [dql_mysql_json_0.0005]
@@ -82,7 +82,7 @@ sql:
 SELECT (SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1) FROM agg_t AS o GROUP BY o.t2;
 expect:
 {
-  "(SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1)" : [ "/catalog1/schema1/agg_t/t1/" ]
+  "(SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1)" : [ "(1:29~1:33) /catalog1/schema1/agg_t/t1/" ]
 }
 ----------
 [dql_mysql_json_0.0009]
@@ -155,8 +155,8 @@ sql:
 SELECT JSON_OBJECTAGG(t.col_int,t.col_int), (SELECT JSON_ARRAYAGG(s.col_int) FROM CC AS s WHERE s.col_int<>t.col_int) AS field5 FROM CC AS t WHERE t.col_int<>ALL(SELECT q.col_int FROM CC AS q STRAIGHT_JOIN C) GROUP BY field5;
 expect:
 {
-  "JSON_OBJECTAGG(t.col_int,t.col_int)" : [ "/catalog1/schema1/CC/col_int/" ],
-  "field5" : [ "/catalog1/schema1/CC/col_int/" ]
+  "JSON_OBJECTAGG(t.col_int,t.col_int)" : [ "(1:22~1:31) /catalog1/schema1/CC/col_int/", "(1:32~1:41) /catalog1/schema1/CC/col_int/" ],
+  "field5" : [ "(1:66~1:75) /catalog1/schema1/CC/col_int/" ]
 }
 ----------
 [dql_mysql_json_0.0018]
@@ -348,7 +348,7 @@ sql:
 SELECT JSON_SCHEMA_VALID(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
 expect:
 {
-  "JSON_SCHEMA_VALID(t2.j,t2.j)" : [ "/catalog1/schema1/schema_t/j/", "/catalog1/schema1/schema_t/j/" ]
+  "JSON_SCHEMA_VALID(t2.j,t2.j)" : [ "(1:59~1:60) /catalog1/schema1/schema_t/j/", "(1:59~1:60) /catalog1/schema1/schema_t/j/" ]
 }
 ----------
 [dql_mysql_json_0.0042]
@@ -356,7 +356,7 @@ sql:
 SELECT JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
 expect:
 {
-  "JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j)" : [ "/catalog1/schema1/schema_t/j/", "/catalog1/schema1/schema_t/j/" ]
+  "JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j)" : [ "(1:71~1:72) /catalog1/schema1/schema_t/j/", "(1:71~1:72) /catalog1/schema1/schema_t/j/" ]
 }
 ----------
 [dql_mysql_json_0.0043]
@@ -388,7 +388,8 @@ sql:
 SELECT j->'$.a', j->>'$.a' FROM json_op;
 expect:
 {
-  "j" : [ "/catalog1/schema1/json_op/j/", "/catalog1/schema1/json_op/j/" ]
+  "j->'$.a'" : [ "(1:7~1:8) /catalog1/schema1/json_op/j/" ],
+  "j->>'$.a'" : [ "(1:17~1:18) /catalog1/schema1/json_op/j/" ]
 }
 ----------
 [dql_mysql_json_0.0047]
@@ -399,11 +400,13 @@ SELECT id,doc,doc->'$.score',doc->>'$.name',
         ORDER BY CAST(doc->>'$.score' AS UNSIGNED),id;
 expect:
 {
-  "id" : [ "/catalog1/split_type_json/json_core/id/" ],
-  "doc" : [ "/catalog1/split_type_json/json_core/doc/", "/catalog1/split_type_json/json_core/doc/", "/catalog1/split_type_json/json_core/doc/" ],
-  "JSON_TYPE(doc)" : [ "/catalog1/split_type_json/json_core/doc/" ],
-  "JSON_DEPTH(doc)" : [ "/catalog1/split_type_json/json_core/doc/" ],
-  "JSON_STORAGE_SIZE(doc)" : [ "/catalog1/split_type_json/json_core/doc/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_type_json/json_core/id/" ],
+  "doc" : [ "(1:10~1:13) /catalog1/split_type_json/json_core/doc/" ],
+  "doc->'$.score'" : [ "(1:14~1:17) /catalog1/split_type_json/json_core/doc/" ],
+  "doc->>'$.name'" : [ "(1:29~1:32) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_TYPE(doc)" : [ "(2:25~2:28) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_DEPTH(doc)" : [ "(2:41~2:44) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_STORAGE_SIZE(doc)" : [ "(2:64~2:67) /catalog1/split_type_json/json_core/doc/" ]
 }
 ----------
 [dql_mysql_json_0.0048]
@@ -416,10 +419,16 @@ SELECT a.id,b.id,a.doc->>'$.name'
         WHERE a.id<b.id
         ORDER BY a.id,b.id;
 expect:
-{
-  "id" : [ "/catalog1/split_type_json/json_core/id/", "/catalog1/split_type_json/json_core/id/" ],
-  "doc" : [ "/catalog1/split_type_json/json_core/doc/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/split_type_json/json_core/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/split_type_json/json_core/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:17~1:22) /catalog1/split_type_json/json_core/doc/" ],
+  "column" : "a.doc->>'$.name'"
+} ]
 ----------
 [dql_mysql_json_0.0049]
 sql:
@@ -434,8 +443,8 @@ SELECT o.id,o.doc
         );
 expect:
 {
-  "id" : [ "/catalog1/split_type_json/json_core/id/" ],
-  "doc" : [ "/catalog1/split_type_json/json_core/doc/" ]
+  "id" : [ "(1:7~1:11) /catalog1/split_type_json/json_core/id/" ],
+  "doc" : [ "(1:12~1:17) /catalog1/split_type_json/json_core/doc/" ]
 }
 ----------
 [dql_mysql_json_0.0050]
@@ -452,10 +461,10 @@ SELECT d.kind,COUNT(*),JSON_ARRAYAGG(d.name_text),
         HAVING MAX(d.score)>=10;
 expect:
 {
-  "kind" : [ "/catalog1/split_type_json/json_core/doc/" ],
+  "kind" : [ "(4:20~4:23) /catalog1/split_type_json/json_core/doc/" ],
   "COUNT(*)" : [ ],
-  "JSON_ARRAYAGG(d.name_text)" : [ "/catalog1/split_type_json/json_core/doc/" ],
-  "JSON_OBJECTAGG(d.id,d.score)" : [ "/catalog1/split_type_json/json_core/id/" ]
+  "JSON_ARRAYAGG(d.name_text)" : [ "(5:17~5:20) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_OBJECTAGG(d.id,d.score)" : [ "(4:17~4:19) /catalog1/split_type_json/json_core/id/", "(6:22~6:25) /catalog1/split_type_json/json_core/doc/" ]
 }
 ----------
 [dql_mysql_json_0.0051]
@@ -469,7 +478,7 @@ SELECT doc FROM split_type_json.json_core WHERE id<3
                );
 expect:
 {
-  "doc" : [ "/catalog1/split_type_json/json_core/doc/" ]
+  "doc" : [ "(1:7~1:10) /catalog1/split_type_json/json_core/doc/", "(5:34~5:37) /catalog1/split_type_json/json_core/doc/" ]
 }
 ----------
 [dql_mysql_json_0.0052]
@@ -518,7 +527,7 @@ SELECT JSON_EXTRACT('{"a":1}', '$.a') AS je, COUNT(DISTINCT a) FROM split_json_r
 expect:
 {
   "je" : [ ],
-  "COUNT(DISTINCT a)" : [ "/catalog1/schema1/split_json_rollup/a/" ]
+  "COUNT(DISTINCT a)" : [ "(1:60~1:61) /catalog1/schema1/split_json_rollup/a/" ]
 }
 ----------
 [dql_mysql_json_0.0058]
@@ -526,8 +535,8 @@ sql:
 SELECT SUM(col_int), col_int FROM split_json_column AS table1 WHERE table1.pk = table1.pk;
 expect:
 {
-  "SUM(col_int)" : [ "/catalog1/schema1/split_json_column/col_int/" ],
-  "col_int" : [ "/catalog1/schema1/split_json_column/col_int/" ]
+  "SUM(col_int)" : [ "(1:11~1:18) /catalog1/schema1/split_json_column/col_int/" ],
+  "col_int" : [ "(1:21~1:28) /catalog1/schema1/split_json_column/col_int/" ]
 }
 ----------
 [dql_mysql_json_0.0059]
@@ -543,7 +552,7 @@ sql:
 SELECT * FROM split_json_prepare WHERE JSON_LENGTH(?, a BETWEEN ? AND ?);
 expect:
 {
-  "a" : [ "/catalog1/schema1/split_json_prepare/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/split_json_prepare/id/" ]
 }
 ----------
 [dql_mysql_json_0.0061]
@@ -575,7 +584,7 @@ sql:
 SELECT JSON_EXTRACT(col_json, ?) FROM t_reuse ORDER BY pk;
 expect:
 {
-  "JSON_EXTRACT(col_json, ?)" : [ "/catalog1/schema1/t_reuse/col_json/" ]
+  "JSON_EXTRACT(col_json, ?)" : [ "(1:20~1:28) /catalog1/schema1/t_reuse/col_json/" ]
 }
 ----------
 [dql_mysql_json_0.0065]
@@ -735,7 +744,7 @@ sql:
 SELECT * FROM t1 WHERE j->'$.int'=?;
 expect:
 {
-  "j" : [ "/catalog1/schema1/t1/j/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
 }
 ----------
 [dql_mysql_json_0.0085]
@@ -743,7 +752,7 @@ sql:
 SELECT * FROM t1 WHERE j->>'$.int'=?;
 expect:
 {
-  "j" : [ "/catalog1/schema1/t1/j/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
 }
 ----------
 [dql_mysql_json_0.0086]

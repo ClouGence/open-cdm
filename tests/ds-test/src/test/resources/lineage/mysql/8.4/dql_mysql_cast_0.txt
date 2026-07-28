@@ -176,8 +176,8 @@ sql:
 SELECT a,CAST(a AS CHAR) FROM t1 ORDER BY CAST(a AS UNSIGNED);
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ],
-  "CAST(a AS CHAR)" : [ "/catalog1/schema1/t1/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS CHAR)" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_cast_0.0023]
@@ -185,8 +185,8 @@ sql:
 SELECT a,CAST(a AS CHAR(3)) FROM t1 ORDER BY CAST(a AS CHAR(2)),a;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ],
-  "CAST(a AS CHAR(3))" : [ "/catalog1/schema1/t1/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS CHAR(3))" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_cast_0.0024]
@@ -194,8 +194,8 @@ sql:
 SELECT a,CAST(a AS UNSIGNED) FROM t1 ORDER BY CAST(a AS CHAR);
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ],
-  "CAST(a AS UNSIGNED)" : [ "/catalog1/schema1/t1/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS UNSIGNED)" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_cast_0.0025]
@@ -203,8 +203,8 @@ sql:
 SELECT a,CAST(a AS CHAR(2)) FROM t1 ORDER BY CAST(a AS CHAR(3)),a;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ],
-  "CAST(a AS CHAR(2))" : [ "/catalog1/schema1/t1/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS CHAR(2))" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_cast_0.0026]
@@ -268,11 +268,11 @@ sql:
 SELECT CAST(v AS DECIMAL),CAST(tt AS DECIMAL),CAST(t AS DECIMAL),CAST(mt AS DECIMAL),CAST(lt AS DECIMAL) FROM t1;
 expect:
 {
-  "CAST(v AS DECIMAL)" : [ "/catalog1/schema1/t1/v/" ],
-  "CAST(tt AS DECIMAL)" : [ "/catalog1/schema1/t1/tt/" ],
-  "CAST(t AS DECIMAL)" : [ "/catalog1/schema1/t1/t/" ],
-  "CAST(mt AS DECIMAL)" : [ "/catalog1/schema1/t1/mt/" ],
-  "CAST(lt AS DECIMAL)" : [ "/catalog1/schema1/t1/lt/" ]
+  "CAST(v AS DECIMAL)" : [ "(1:12~1:13) /catalog1/schema1/t1/v/" ],
+  "CAST(tt AS DECIMAL)" : [ "(1:31~1:33) /catalog1/schema1/t1/tt/" ],
+  "CAST(t AS DECIMAL)" : [ "(1:51~1:52) /catalog1/schema1/t1/t/" ],
+  "CAST(mt AS DECIMAL)" : [ "(1:70~1:72) /catalog1/schema1/t1/mt/" ],
+  "CAST(lt AS DECIMAL)" : [ "(1:90~1:92) /catalog1/schema1/t1/lt/" ]
 }
 ----------
 [dql_mysql_cast_0.0034]
@@ -280,7 +280,7 @@ sql:
 SELECT CAST(DATE(d1) AS SIGNED) FROM t1;
 expect:
 {
-  "CAST(DATE(d1) AS SIGNED)" : [ "/catalog1/schema1/t1/d1/" ]
+  "CAST(DATE(d1) AS SIGNED)" : [ "(1:17~1:19) /catalog1/schema1/t1/d1/" ]
 }
 ----------
 [dql_mysql_cast_0.0035]
@@ -332,7 +332,7 @@ sql:
 SELECT a FROM t1 WHERE CAST(a AS BINARY)=X'62736D697468' AND CAST(a AS BINARY)=X'65736D697468';
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_cast_0.0041]
@@ -340,8 +340,8 @@ sql:
 SELECT f1 AS double_value,CAST(f1 AS SIGNED INT) AS cast_value FROM t1;
 expect:
 {
-  "double_value" : [ "/catalog1/schema1/t1/f1/" ],
-  "cast_value" : [ "/catalog1/schema1/t1/f1/" ]
+  "double_value" : [ "(1:7~1:9) /catalog1/schema1/t1/f1/" ],
+  "cast_value" : [ "(1:31~1:33) /catalog1/schema1/t1/f1/" ]
 }
 ----------
 [dql_mysql_cast_0.0042]
@@ -365,7 +365,7 @@ sql:
 SELECT CAST(s1 AS DECIMAL(7,2)) FROM t1;
 expect:
 {
-  "CAST(s1 AS DECIMAL(7,2))" : [ "/catalog1/schema1/t1/s1/" ]
+  "CAST(s1 AS DECIMAL(7,2))" : [ "(1:12~1:14) /catalog1/schema1/t1/s1/" ]
 }
 ----------
 [dql_mysql_cast_0.0045]
@@ -373,7 +373,7 @@ sql:
 SELECT CAST(c1 AS UNSIGNED) FROM (SELECT c1 FROM enum_source) AS d;
 expect:
 {
-  "CAST(c1 AS UNSIGNED)" : [ "/catalog1/schema1/enum_source/c1/" ]
+  "CAST(c1 AS UNSIGNED)" : [ "(1:41~1:43) /catalog1/schema1/enum_source/c1/" ]
 }
 ----------
 [dql_mysql_cast_0.0046]
@@ -397,7 +397,7 @@ sql:
 SELECT CAST(x<=0x4891f642 AS UNSIGNED) FROM cast_input;
 expect:
 {
-  "CAST(x<=0x4891f642 AS UNSIGNED)" : [ "/catalog1/schema1/cast_input/x/" ]
+  "CAST(x<=0x4891f642 AS UNSIGNED)" : [ "(1:12~1:13) /catalog1/schema1/cast_input/x/" ]
 }
 ----------
 [dql_mysql_cast_0.0049]
@@ -405,7 +405,7 @@ sql:
 SELECT CAST(STRCMP(x,0x4891f642) AS UNSIGNED) FROM cast_input;
 expect:
 {
-  "CAST(STRCMP(x,0x4891f642) AS UNSIGNED)" : [ "/catalog1/schema1/cast_input/x/" ]
+  "CAST(STRCMP(x,0x4891f642) AS UNSIGNED)" : [ "(1:19~1:20) /catalog1/schema1/cast_input/x/" ]
 }
 ----------
 [dql_mysql_cast_0.0050]
@@ -421,7 +421,7 @@ sql:
 SELECT * FROM escape_input WHERE v1 LIKE v1 ESCAPE CONVERT(TRUE,DATETIME(100));
 expect:
 {
-  "v1" : [ "/catalog1/schema1/escape_input/v1/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/escape_input/id/" ]
 }
 ----------
 [dql_mysql_cast_0.0053]
@@ -477,7 +477,7 @@ sql:
 SELECT c1 FROM codex_year_union_source UNION SELECT c2 FROM codex_year_union_source;
 expect:
 {
-  "c1" : [ "/catalog1/schema1/codex_year_union_source/c1/", "/catalog1/schema1/codex_year_union_source/c2/" ]
+  "c1" : [ "(1:7~1:9) /catalog1/schema1/codex_year_union_source/c1/", "(1:52~1:54) /catalog1/schema1/codex_year_union_source/c2/" ]
 }
 ----------
 [dql_mysql_cast_0.0060]
@@ -485,7 +485,7 @@ sql:
 SELECT c2 FROM codex_year_union_source UNION SELECT c1 FROM codex_year_union_source;
 expect:
 {
-  "c2" : [ "/catalog1/schema1/codex_year_union_source/c2/", "/catalog1/schema1/codex_year_union_source/c1/" ]
+  "c2" : [ "(1:7~1:9) /catalog1/schema1/codex_year_union_source/c2/", "(1:52~1:54) /catalog1/schema1/codex_year_union_source/c1/" ]
 }
 ----------
 [dql_mysql_cast_0.0061]
@@ -493,10 +493,10 @@ sql:
 SELECT CAST(a AS DATE),CAST(a AS DATETIME),LEAST(a,DATE'2000-01-01'),GREATEST(a,DATE'2000-01-01') FROM codex_year_source;
 expect:
 {
-  "CAST(a AS DATE)" : [ "/catalog1/schema1/codex_year_source/a/" ],
-  "CAST(a AS DATETIME)" : [ "/catalog1/schema1/codex_year_source/a/" ],
-  "LEAST(a,DATE'2000-01-01')" : [ "/catalog1/schema1/codex_year_source/a/" ],
-  "GREATEST(a,DATE'2000-01-01')" : [ "/catalog1/schema1/codex_year_source/a/" ]
+  "CAST(a AS DATE)" : [ "(1:12~1:13) /catalog1/schema1/codex_year_source/a/" ],
+  "CAST(a AS DATETIME)" : [ "(1:28~1:29) /catalog1/schema1/codex_year_source/a/" ],
+  "LEAST(a,DATE'2000-01-01')" : [ "(1:49~1:50) /catalog1/schema1/codex_year_source/a/" ],
+  "GREATEST(a,DATE'2000-01-01')" : [ "(1:78~1:79) /catalog1/schema1/codex_year_source/a/" ]
 }
 ----------
 [dql_mysql_cast_0.0062]

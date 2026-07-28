@@ -17,18 +17,18 @@ package com.clougence.clouddm.console.web.component.auth.model;
 
 import java.util.List;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
 
 import lombok.Getter;
 
 @Getter
 public class QueryRelationAuthResult {
 
-    private final List<BehaviorRelation> deniedRelations;
+    private final List<BehaviorRequest> deniedRequests;
 
-    public QueryRelationAuthResult(List<BehaviorRelation> deniedRelations){
-        this.deniedRelations = List.copyOf(deniedRelations);
+    public QueryRelationAuthResult(List<BehaviorRequest> deniedRequests){
+        this.deniedRequests = deniedRequests;
     }
 
-    public boolean isPassed() { return this.deniedRelations.isEmpty(); }
+    public boolean isPassed() { return this.deniedRequests.isEmpty(); }
 }

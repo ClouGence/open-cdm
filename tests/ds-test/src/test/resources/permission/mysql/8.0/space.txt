@@ -1,0 +1,11 @@
+[create_database]
+sql:
+CREATE DATABASE reporting;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:16~1:25) /test/1/catalog1/reporting/"
+  ]
+}

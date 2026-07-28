@@ -20,14 +20,15 @@ import java.util.*;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.ColumnLineage;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -310,19 +311,26 @@ public abstract class AbstractLineageAnalysisSpi implements LineageAnalysisSpi {
         }
     }
 
-    protected List<ColumnLineage> toResultColumns(List<MutableColumnLineage> columns) {
+    protected List<LineageColumn> toResultColumns(List<MutableColumnLineage> columns) {
         return this.toResultColumns(columns, null, null);
     }
 
-    protected List<ColumnLineage> toResultColumns(List<MutableColumnLineage> columns, String defaultCatalog, String defaultSchema) {
-        List<ColumnLineage> result = new ArrayList<>();
+    protected List<LineageColumn> toResultColumns(List<MutableColumnLineage> columns, String defaultCatalog, String defaultSchema) {
+        List<LineageColumn> result = new ArrayList<>();
         for (MutableColumnLineage column : columns) {
             List<SourceName> sourceNames = column.getColumns().stream().map(source -> {
                 String catalog = StringUtils.isEmpty(source.catalog()) ? defaultCatalog : source.catalog();
                 String schema = StringUtils.isEmpty(source.schema()) ? defaultSchema : source.schema();
-                return new SourceName(catalog, schema, source.table(), source.column());
+                return new SourceName(catalog,
+                    schema,
+                    source.table(),
+                    source.column(),//
+                    source.startLine(),
+                    source.startColumn(),
+                    source.endLine(),
+                    source.endColumn());
             }).toList();
-            result.add(new ColumnLineage(column.getItemAlias(), sourceNames));
+            result.add(new LineageColumn(column.getItemAlias(), sourceNames));
         }
         return result;
     }

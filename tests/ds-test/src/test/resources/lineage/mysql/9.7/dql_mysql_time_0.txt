@@ -31,9 +31,9 @@ sql:
 SELECT CAST(COALESCE(t6,t5) AS SIGNED),CAST(COALESCE(t6,t5) AS DECIMAL(23,6)),CAST(SUM(TIME_TO_SEC(t6)) AS TIME(6)) FROM time_widths;
 expect:
 {
-  "CAST(COALESCE(t6,t5) AS SIGNED)" : [ "/catalog1/schema1/time_widths/t6/", "/catalog1/schema1/time_widths/t5/" ],
-  "CAST(COALESCE(t6,t5) AS DECIMAL(23,6))" : [ "/catalog1/schema1/time_widths/t6/", "/catalog1/schema1/time_widths/t5/" ],
-  "CAST(SUM(TIME_TO_SEC(t6)) AS TIME(6))" : [ "/catalog1/schema1/time_widths/t6/" ]
+  "CAST(COALESCE(t6,t5) AS SIGNED)" : [ "(1:21~1:23) /catalog1/schema1/time_widths/t6/", "(1:24~1:26) /catalog1/schema1/time_widths/t5/" ],
+  "CAST(COALESCE(t6,t5) AS DECIMAL(23,6))" : [ "(1:53~1:55) /catalog1/schema1/time_widths/t6/", "(1:56~1:58) /catalog1/schema1/time_widths/t5/" ],
+  "CAST(SUM(TIME_TO_SEC(t6)) AS TIME(6))" : [ "(1:99~1:101) /catalog1/schema1/time_widths/t6/" ]
 }
 ----------
 [dql_mysql_time_0.0005]
@@ -51,9 +51,9 @@ sql:
 SELECT t6,TIME_TO_SEC(t6),SEC_TO_TIME(TIME_TO_SEC(t6)) FROM time_widths WHERE t6<=>TIME'19:20:30' OR t6<=>192030 ORDER BY t6;
 expect:
 {
-  "t6" : [ "/catalog1/schema1/time_widths/t6/" ],
-  "TIME_TO_SEC(t6)" : [ "/catalog1/schema1/time_widths/t6/" ],
-  "SEC_TO_TIME(TIME_TO_SEC(t6))" : [ "/catalog1/schema1/time_widths/t6/" ]
+  "t6" : [ "(1:7~1:9) /catalog1/schema1/time_widths/t6/" ],
+  "TIME_TO_SEC(t6)" : [ "(1:22~1:24) /catalog1/schema1/time_widths/t6/" ],
+  "SEC_TO_TIME(TIME_TO_SEC(t6))" : [ "(1:50~1:52) /catalog1/schema1/time_widths/t6/" ]
 }
 ----------
 [dql_mysql_time_0.0007]
@@ -89,16 +89,26 @@ expect:
 sql:
 SELECT * FROM time_widths AS a JOIN time_widths AS b ON a.t6=b.t WHERE a.t6 BETWEEN TIME'-01:02:03.456789' AND TIME'01:02:03.456789';
 expect:
-{
-  "t6" : [ "/catalog1/schema1/time_widths/t6/", "/catalog1/schema1/time_widths/t6/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/time_widths/t6/" ],
+  "column" : "t6"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/time_widths/t/" ],
+  "column" : "t"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/time_widths/t6/" ],
+  "column" : "t6"
+}, {
+  "sources" : [ "(1:7~1:8) /catalog1/schema1/time_widths/t/" ],
+  "column" : "t"
+} ]
 ----------
 [dql_mysql_time_0.0011]
 sql:
 SELECT t6 FROM time_widths UNION ALL SELECT CAST(id AS TIME(6)) FROM time_widths ORDER BY 1;
 expect:
 {
-  "t6" : [ "/catalog1/schema1/time_widths/t6/", "/catalog1/schema1/time_widths/id/" ]
+  "t6" : [ "(1:7~1:9) /catalog1/schema1/time_widths/t6/", "(1:49~1:51) /catalog1/schema1/time_widths/id/" ]
 }
 ----------
 [dql_mysql_time_0.0012]
@@ -106,10 +116,10 @@ sql:
 SELECT id,t6,LAG(t6) OVER (ORDER BY t6) AS previous_time,MAX(t6) OVER (PARTITION BY HOUR(t6)) AS hour_max FROM time_widths;
 expect:
 {
-  "id" : [ "/catalog1/schema1/time_widths/id/" ],
-  "t6" : [ "/catalog1/schema1/time_widths/t6/" ],
-  "previous_time" : [ "/catalog1/schema1/time_widths/t6/" ],
-  "hour_max" : [ "/catalog1/schema1/time_widths/t6/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/time_widths/id/" ],
+  "t6" : [ "(1:10~1:12) /catalog1/schema1/time_widths/t6/" ],
+  "previous_time" : [ "(1:17~1:19) /catalog1/schema1/time_widths/t6/", "(1:10~1:12) /catalog1/schema1/time_widths/t6/" ],
+  "hour_max" : [ "(1:61~1:63) /catalog1/schema1/time_widths/t6/", "(1:10~1:12) /catalog1/schema1/time_widths/t6/" ]
 }
 ----------
 [dql_mysql_time_0.0013]

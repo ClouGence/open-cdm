@@ -101,6 +101,13 @@ public enum SplitQueryType {
     COMMENT_TYPE,
     ADMIN_TYPE,
 
+    // DDL synonym
+    CREATE_SYNONYM,
+    ALTER_SYNONYM,
+    DROP_SYNONYM,
+    RENAME_SYNONYM,
+    COMMENT_SYNONYM,
+
     // DDL programming object (function, procedure, aggregate, operator, and package)
     CREATE_PROG_OBJ,
     ALTER_PROG_OBJ,
@@ -117,25 +124,12 @@ public enum SplitQueryType {
     RENAME_TRIGGER,
     COMMENT_TRIGGER,
 
-    // DDL synonym
-    CREATE_SYNONYM,
-    ALTER_SYNONYM,
-    DROP_SYNONYM,
-    RENAME_SYNONYM,
-    COMMENT_SYNONYM,
-
     // DDL event
     CREATE_EVENT,
     ALTER_EVENT,
     DROP_EVENT,
     RENAME_EVENT,
     COMMENT_EVENT,
-
-    // DDL ResourceGroup
-    CREATE_RESOURCE_GROUP,
-    ALTER_RESOURCE_GROUP,
-    DROP_RESOURCE_GROUP,
-    ADMIN_RESOURCE_GROUP,
 
     // DDL job
     CREATE_JOB,
@@ -144,6 +138,12 @@ public enum SplitQueryType {
     RENAME_JOB,
     COMMENT_JOB,
     ADMIN_JOB,
+
+    // DDL ResourceGroup
+    CREATE_RESOURCE_GROUP,
+    ALTER_RESOURCE_GROUP,
+    DROP_RESOURCE_GROUP,
+    ADMIN_RESOURCE_GROUP,
 
     // Auth user
     CREATE_USER,
@@ -193,7 +193,6 @@ public enum SplitQueryType {
     SESSION_VARIABLE_RW,
     SESSION_SETTING_WRITE,
     SYSTEM_SETTING_WRITE,
-    ADMIN,
 
     // switch env
     SWITCH_CATALOG,
@@ -232,6 +231,7 @@ public enum SplitQueryType {
     ADMIN_PERFORMANCE,
 
     // Other
+    ADMIN,
     UNSAFE,
     UNKNOWN;
 

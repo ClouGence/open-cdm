@@ -829,7 +829,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(8:10~8:14) /test/1/stmt/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     },
     {
       "subject": "ConfigKey(10:8~10:15) /test/1/locale/",
@@ -2993,7 +2993,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:53~1:54) /test/1/s/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -3120,7 +3120,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:53~1:54) /test/1/s/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -3140,7 +3140,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:79~1:80) /test/1/s/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }

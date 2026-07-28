@@ -418,8 +418,11 @@ final class MyBehaviorRelationAssembler {
         if (name.startsWith("RENAME_")) {
             return BehaviorAction.RENAME;
         }
-        if (name.startsWith("ADMIN_") || name.startsWith("MAINTAIN_") || type == SplitQueryType.ADMIN || type == SplitQueryType.UNSAFE) {
+        if (name.startsWith("ADMIN_") || name.startsWith("MAINTAIN_") || type == SplitQueryType.ADMIN) {
             return BehaviorAction.ADMIN;
+        }
+        if (type == SplitQueryType.UNSAFE) {
+            return BehaviorAction.UNSAFE;
         }
         if (name.startsWith("SWITCH_")) {
             return BehaviorAction.SWITCH;

@@ -21,6 +21,8 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import com.clougence.clouddm.ds.SqlTestSupport;
 import com.clougence.clouddm.ds.TextCaseSupport;
@@ -33,6 +35,7 @@ import com.clougence.sql.mysql.MySqlEngineSpi;
 import com.clougence.sql.mysql.analysis.sysobj.MySysObjectRegistrySpi;
 
 /** MySQL behavior fixtures are isolated by parser version. */
+@Execution(ExecutionMode.CONCURRENT)
 public abstract class MySqlBehaviorTextTest {
 
     private final String resourceDirectory;
@@ -45,12 +48,15 @@ public abstract class MySqlBehaviorTextTest {
 
     @TestFactory
     public Stream<DynamicTest> behaviorScripts() {
-        MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
-        BehaviorAnalysisSpi spi = engine.behaviorAnalysisSpi(SqlParserParameters.ofVersion(version));
+        ThreadLocal<BehaviorAnalysisSpi> spi = ThreadLocal.withInitial(() -> {
+            MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
+            BehaviorAnalysisSpi analysisSpi = engine.behaviorAnalysisSpi(SqlParserParameters.ofVersion(version));
+            if (analysisSpi == null) {
+                throw new IllegalStateException("No BehaviorAnalysisSpi for MySQL " + version);
+            }
+            return analysisSpi;
+        });
         MySysObjectRegistrySpi registry = new MySysObjectRegistrySpi();
-        if (spi == null) {
-            throw new IllegalStateException("No BehaviorAnalysisSpi for MySQL " + version);
-        }
 
         List<DynamicTest> tests = new ArrayList<>();
         String fixtureFilter = System.getenv("BEHAVIOR_FIXTURE");
@@ -65,7 +71,7 @@ public abstract class MySqlBehaviorTextTest {
                 }
                 tests.add(DynamicTest.dynamicTest(testCase.displayName(),
                         () -> BehaviorTextTest.assertStrictCase(
-                                resourcePath, testCase, spi, relation -> {
+                                resourcePath, testCase, spi.get(), relation -> {
                                     BehaviorObject object = relation.getSubject();
                                     ObjectName name = object.getObjectName();
                                     return name != null && registry.isPermissionExempt(relation.getAction(), object.getObjectType(),//

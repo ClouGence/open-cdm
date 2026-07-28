@@ -167,7 +167,7 @@ public class AutoExecManagerImpl implements AutoExecManager {
             .dataSourceId(dsDO.getId())
             .levels(levelsParam)
             .deepParser(false)
-            .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.PROVENANCE, QueryAnalysisFeature.MASKING)
+            .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
             .build();
 
         List<DmExecAutoTaskDO> taskList = this.executionDal.autoTaskMapper().queryNeedExecTaskList(job.getId());

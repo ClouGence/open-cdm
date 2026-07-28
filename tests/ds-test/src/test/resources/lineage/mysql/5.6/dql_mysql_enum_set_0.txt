@@ -6,9 +6,12 @@ SELECT id,e_basic,e_basic+0,CAST(e_basic AS UNSIGNED),
         ORDER BY e_basic,id;
 expect:
 {
-  "id" : [ "/catalog1/split_type_enum_set/es_core/id/" ],
-  "e_basic" : [ "/catalog1/split_type_enum_set/es_core/e_basic/", "/catalog1/split_type_enum_set/es_core/e_basic/", "/catalog1/split_type_enum_set/es_core/e_basic/", "/catalog1/split_type_enum_set/es_core/e_basic/" ],
-  "CAST(e_basic AS UNSIGNED)" : [ "/catalog1/split_type_enum_set/es_core/e_basic/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_type_enum_set/es_core/id/" ],
+  "e_basic" : [ "(1:10~1:17) /catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "e_basic+0" : [ "(1:18~1:25) /catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "CAST(e_basic AS UNSIGNED)" : [ "(1:33~1:40) /catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "e_basic='alpha'" : [ "(2:15~2:22) /catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "e_basic=2" : [ "(2:31~2:38) /catalog1/split_type_enum_set/es_core/e_basic/" ]
 }
 ----------
 [dql_mysql_enum_set_0.0003]
@@ -18,8 +21,8 @@ SELECT id,e_basic
         ORDER BY CAST(e_basic AS CHAR),CONCAT(e_basic),id;
 expect:
 {
-  "id" : [ "/catalog1/split_type_enum_set/es_core/id/" ],
-  "e_basic" : [ "/catalog1/split_type_enum_set/es_core/e_basic/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_type_enum_set/es_core/id/" ],
+  "e_basic" : [ "(1:10~1:17) /catalog1/split_type_enum_set/es_core/e_basic/" ]
 }
 ----------
 [dql_mysql_enum_set_0.0004]
@@ -38,9 +41,9 @@ SELECT id,e_basic,s_basic
               );
 expect:
 {
-  "id" : [ "/catalog1/split_type_enum_set/es_core/id/" ],
-  "e_basic" : [ "/catalog1/split_type_enum_set/es_core/e_basic/" ],
-  "s_basic" : [ "/catalog1/split_type_enum_set/es_core/s_basic/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_type_enum_set/es_core/id/" ],
+  "e_basic" : [ "(1:10~1:17) /catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "s_basic" : [ "(1:18~1:25) /catalog1/split_type_enum_set/es_core/s_basic/" ]
 }
 ----------
 [dql_mysql_enum_set_0.0005]
@@ -52,9 +55,14 @@ SELECT id,s_basic,s_basic+0,(s_basic+0 & 1),(s_basic+0 & 4),
         ORDER BY s_basic+0,id;
 expect:
 {
-  "id" : [ "/catalog1/split_type_enum_set/es_core/id/" ],
-  "s_basic" : [ "/catalog1/split_type_enum_set/es_core/s_basic/", "/catalog1/split_type_enum_set/es_core/s_basic/", "/catalog1/split_type_enum_set/es_core/s_basic/", "/catalog1/split_type_enum_set/es_core/s_basic/", "/catalog1/split_type_enum_set/es_core/s_basic/", "/catalog1/split_type_enum_set/es_core/s_basic/" ],
-  "FIND_IN_SET('green',s_basic)" : [ "/catalog1/split_type_enum_set/es_core/s_basic/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_type_enum_set/es_core/id/" ],
+  "s_basic" : [ "(1:10~1:17) /catalog1/split_type_enum_set/es_core/s_basic/" ],
+  "s_basic+0" : [ "(1:18~1:25) /catalog1/split_type_enum_set/es_core/s_basic/" ],
+  "(s_basic+0 & 1)" : [ "(1:29~1:36) /catalog1/split_type_enum_set/es_core/s_basic/" ],
+  "(s_basic+0 & 4)" : [ "(1:45~1:52) /catalog1/split_type_enum_set/es_core/s_basic/" ],
+  "FIND_IN_SET('green',s_basic)" : [ "(2:35~2:42) /catalog1/split_type_enum_set/es_core/s_basic/" ],
+  "s_basic LIKE '%blue%'" : [ "(2:44~2:51) /catalog1/split_type_enum_set/es_core/s_basic/" ],
+  "s_basic='red,blue'" : [ "(3:15~3:22) /catalog1/split_type_enum_set/es_core/s_basic/" ]
 }
 ----------
 [dql_mysql_enum_set_0.0006]
@@ -66,9 +74,9 @@ SELECT e_basic,COUNT(*),BIT_OR(s_basic+0)
         ORDER BY e_basic;
 expect:
 {
-  "e_basic" : [ "/catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "e_basic" : [ "(1:7~1:14) /catalog1/split_type_enum_set/es_core/e_basic/" ],
   "COUNT(*)" : [ ],
-  "BIT_OR(s_basic+0)" : [ "/catalog1/split_type_enum_set/es_core/s_basic/" ]
+  "BIT_OR(s_basic+0)" : [ "(1:31~1:38) /catalog1/split_type_enum_set/es_core/s_basic/" ]
 }
 ----------
 [dql_mysql_enum_set_0.0007]
@@ -80,9 +88,9 @@ SELECT a.id,a.e_basic,b.s_basic
         ORDER BY a.id,b.id;
 expect:
 {
-  "id" : [ "/catalog1/split_type_enum_set/es_core/id/" ],
-  "e_basic" : [ "/catalog1/split_type_enum_set/es_core/e_basic/" ],
-  "s_basic" : [ "/catalog1/split_type_enum_set/es_core/s_basic/" ]
+  "id" : [ "(1:7~1:11) /catalog1/split_type_enum_set/es_core/id/" ],
+  "e_basic" : [ "(1:12~1:21) /catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "s_basic" : [ "(1:22~1:31) /catalog1/split_type_enum_set/es_core/s_basic/" ]
 }
 ----------
 [dql_mysql_enum_set_0.0008]
@@ -96,8 +104,8 @@ SELECT a.id,a.e_basic
         ORDER BY a.id;
 expect:
 {
-  "id" : [ "/catalog1/split_type_enum_set/es_core/id/" ],
-  "e_basic" : [ "/catalog1/split_type_enum_set/es_core/e_basic/" ]
+  "id" : [ "(1:7~1:11) /catalog1/split_type_enum_set/es_core/id/" ],
+  "e_basic" : [ "(1:12~1:21) /catalog1/split_type_enum_set/es_core/e_basic/" ]
 }
 ----------
 [dql_mysql_enum_set_0.0009]
@@ -111,8 +119,8 @@ SELECT d.enum_index,d.set_mask,COUNT(*)
         HAVING BIT_OR(d.set_mask) > 0;
 expect:
 {
-  "enum_index" : [ "/catalog1/split_type_enum_set/es_core/e_basic/" ],
-  "set_mask" : [ "/catalog1/split_type_enum_set/es_core/s_basic/" ],
+  "enum_index" : [ "(3:17~3:24) /catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "set_mask" : [ "(3:41~3:48) /catalog1/split_type_enum_set/es_core/s_basic/" ],
   "COUNT(*)" : [ ]
 }
 ----------
@@ -124,7 +132,7 @@ SELECT e_basic AS v FROM split_type_enum_set.es_core
         ORDER BY v;
 expect:
 {
-  "v" : [ "/catalog1/split_type_enum_set/es_core/e_basic/", "/catalog1/split_type_enum_set/es_core/s_basic/" ]
+  "v" : [ "(1:7~1:14) /catalog1/split_type_enum_set/es_core/e_basic/", "(3:15~3:22) /catalog1/split_type_enum_set/es_core/s_basic/" ]
 }
 ----------
 [dql_mysql_enum_set_0.0011]
@@ -135,9 +143,9 @@ SELECT id,
         FROM split_type_enum_set.es_core;
 expect:
 {
-  "id" : [ "/catalog1/split_type_enum_set/es_core/id/" ],
-  "enum_case" : [ "/catalog1/split_type_enum_set/es_core/e_basic/", "/catalog1/split_type_enum_set/es_core/e_case/", "/catalog1/split_type_enum_set/es_core/e_basic/" ],
-  "set_case" : [ "/catalog1/split_type_enum_set/es_core/s_basic/", "/catalog1/split_type_enum_set/es_core/s_case/", "/catalog1/split_type_enum_set/es_core/s_basic/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_type_enum_set/es_core/id/" ],
+  "enum_case" : [ "(2:20~2:27) /catalog1/split_type_enum_set/es_core/e_basic/", "(2:46~2:52) /catalog1/split_type_enum_set/es_core/e_case/", "(2:58~2:65) /catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "set_case" : [ "(3:43~3:50) /catalog1/split_type_enum_set/es_core/s_basic/", "(3:57~3:63) /catalog1/split_type_enum_set/es_core/s_case/", "(3:69~3:76) /catalog1/split_type_enum_set/es_core/s_basic/" ]
 }
 ----------
 [dql_mysql_enum_set_0.0012]
@@ -147,6 +155,6 @@ SELECT
           (SELECT BIT_OR(s_basic+0) FROM split_type_enum_set.es_core) AS combined_set_mask;
 expect:
 {
-  "max_enum_index" : [ ],
-  "combined_set_mask" : [ ]
+  "max_enum_index" : [ "(2:22~2:29) /catalog1/split_type_enum_set/es_core/e_basic/" ],
+  "combined_set_mask" : [ "(3:25~3:32) /catalog1/split_type_enum_set/es_core/s_basic/" ]
 }

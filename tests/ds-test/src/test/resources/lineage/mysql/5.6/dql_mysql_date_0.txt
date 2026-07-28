@@ -3,8 +3,8 @@ sql:
 SELECT a,CAST(a AS DATE) FROM t1;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ],
-  "CAST(a AS DATE)" : [ "/catalog1/schema1/t1/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/schema1/t1/a/" ],
+  "CAST(a AS DATE)" : [ "(1:14~1:15) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_date_0.0002]

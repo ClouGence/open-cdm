@@ -627,9 +627,9 @@ JOIN spatial_lifecycle AS b
 WHERE a.id<>b.id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/spatial_lifecycle/id/" ],
-  "ST_AsText(a.g)" : [ "/catalog1/schema1/spatial_lifecycle/g/" ],
-  "ST_Distance(a.p,b.p)" : [ "/catalog1/schema1/spatial_lifecycle/p/", "/catalog1/schema1/spatial_lifecycle/p/" ]
+  "id" : [ "(1:7~1:11) /catalog1/schema1/spatial_lifecycle/id/" ],
+  "ST_AsText(a.g)" : [ "(1:22~1:25) /catalog1/schema1/spatial_lifecycle/g/" ],
+  "ST_Distance(a.p,b.p)" : [ "(1:39~1:42) /catalog1/schema1/spatial_lifecycle/p/", "(1:43~1:46) /catalog1/schema1/spatial_lifecycle/p/" ]
 }
 ----------
 [dql_mysql_spatial_0.0063]
@@ -645,8 +645,8 @@ WHERE EXISTS (
 );
 expect:
 {
-  "id" : [ "/catalog1/schema1/spatial_lifecycle/id/" ],
-  "merged_wkt" : [ "/catalog1/schema1/spatial_lifecycle/g/", "/catalog1/schema1/spatial_lifecycle/g/" ]
+  "id" : [ "(1:7~1:11) /catalog1/schema1/spatial_lifecycle/id/" ],
+  "merged_wkt" : [ "(2:34~2:37) /catalog1/schema1/spatial_lifecycle/g/", "(2:38~2:41) /catalog1/schema1/spatial_lifecycle/g/" ]
 }
 ----------
 [dql_mysql_spatial_0.0064]
@@ -661,9 +661,9 @@ HAVING COUNT(*)>=0
 ORDER BY d.kind;
 expect:
 {
-  "kind" : [ "/catalog1/schema1/spatial_lifecycle/g/" ],
+  "kind" : [ "(3:25~3:26) /catalog1/schema1/spatial_lifecycle/g/" ],
   "COUNT(*)" : [ ],
-  "ST_AsText(ST_Collect(d.g))" : [ "/catalog1/schema1/spatial_lifecycle/g/" ]
+  "ST_AsText(ST_Collect(d.g))" : [ "(3:36~3:37) /catalog1/schema1/spatial_lifecycle/g/" ]
 }
 ----------
 [dql_mysql_spatial_0.0065]
@@ -675,10 +675,10 @@ SELECT id,
 FROM spatial_lifecycle;
 expect:
 {
-  "id" : [ "/catalog1/schema1/spatial_lifecycle/id/" ],
-  "ST_AsText(CASE WHEN p IS NULL THEN g ELSE p END)" : [ "/catalog1/schema1/spatial_lifecycle/p/", "/catalog1/schema1/spatial_lifecycle/g/", "/catalog1/schema1/spatial_lifecycle/p/" ],
-  "ST_AsText(COALESCE(p,g))" : [ "/catalog1/schema1/spatial_lifecycle/p/", "/catalog1/schema1/spatial_lifecycle/g/" ],
-  "NULLIF(ST_AsText(g),ST_AsText(p))" : [ "/catalog1/schema1/spatial_lifecycle/g/", "/catalog1/schema1/spatial_lifecycle/p/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/spatial_lifecycle/id/" ],
+  "ST_AsText(CASE WHEN p IS NULL THEN g ELSE p END)" : [ "(2:27~2:28) /catalog1/schema1/spatial_lifecycle/p/", "(2:42~2:43) /catalog1/schema1/spatial_lifecycle/g/", "(2:49~2:50) /catalog1/schema1/spatial_lifecycle/p/" ],
+  "ST_AsText(COALESCE(p,g))" : [ "(3:26~3:27) /catalog1/schema1/spatial_lifecycle/p/", "(3:28~3:29) /catalog1/schema1/spatial_lifecycle/g/" ],
+  "NULLIF(ST_AsText(g),ST_AsText(p))" : [ "(4:24~4:25) /catalog1/schema1/spatial_lifecycle/g/", "(4:37~4:38) /catalog1/schema1/spatial_lifecycle/p/" ]
 }
 ----------
 [dql_mysql_spatial_0.0066]
@@ -689,9 +689,9 @@ SELECT id,g,p FROM spatial_lifecycle WHERE id>=10
 ORDER BY id LIMIT 5;
 expect:
 {
-  "id" : [ "/catalog1/schema1/spatial_lifecycle/id/", "/catalog1/schema1/spatial_lifecycle/id/" ],
-  "g" : [ "/catalog1/schema1/spatial_lifecycle/g/", "/catalog1/schema1/spatial_lifecycle/g/" ],
-  "p" : [ "/catalog1/schema1/spatial_lifecycle/p/", "/catalog1/schema1/spatial_lifecycle/p/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/spatial_lifecycle/id/", "(3:7~3:9) /catalog1/schema1/spatial_lifecycle/id/" ],
+  "g" : [ "(1:10~1:11) /catalog1/schema1/spatial_lifecycle/g/", "(3:10~3:11) /catalog1/schema1/spatial_lifecycle/g/" ],
+  "p" : [ "(1:12~1:13) /catalog1/schema1/spatial_lifecycle/p/", "(3:12~3:13) /catalog1/schema1/spatial_lifecycle/p/" ]
 }
 ----------
 [dql_mysql_spatial_0.0071]
@@ -787,7 +787,7 @@ sql:
 SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(g,'axis-order=lat-long'))) FROM gis_point;
 expect:
 {
-  "ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(g,'axis-order=lat-long')))" : [ "/catalog1/schema1/gis_point/g/" ]
+  "ST_ASTEXT(ST_GEOMFROMWKB(ST_ASWKB(g,'axis-order=lat-long')))" : [ "(1:41~1:42) /catalog1/schema1/gis_point/g/" ]
 }
 ----------
 [dql_mysql_spatial_0.0083]
@@ -867,7 +867,7 @@ sql:
 SELECT ST_ASTEXT(ST_GEOMFROMWKB(ST_ASBINARY(g,'axis-order=srid-defined'))) FROM gis_geometrycollection ORDER BY fid;
 expect:
 {
-  "ST_ASTEXT(ST_GEOMFROMWKB(ST_ASBINARY(g,'axis-order=srid-defined')))" : [ "/catalog1/schema1/gis_geometrycollection/g/" ]
+  "ST_ASTEXT(ST_GEOMFROMWKB(ST_ASBINARY(g,'axis-order=srid-defined')))" : [ "(1:44~1:45) /catalog1/schema1/gis_geometrycollection/g/" ]
 }
 ----------
 [dql_mysql_spatial_0.0093]

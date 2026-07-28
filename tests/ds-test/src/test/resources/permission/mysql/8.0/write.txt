@@ -1,0 +1,11 @@
+[insert_select]
+sql:
+INSERT INTO archive_orders SELECT * FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:26) /test/1/catalog1/schema1/archive_orders/"
+  ]
+}

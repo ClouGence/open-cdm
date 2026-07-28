@@ -1,0 +1,11 @@
+[call_procedure]
+sql:
+CALL refresh_orders();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "CALL": [
+    "Procedure(1:5~1:19) /test/1/catalog1/schema1/refresh_orders/"
+  ]
+}

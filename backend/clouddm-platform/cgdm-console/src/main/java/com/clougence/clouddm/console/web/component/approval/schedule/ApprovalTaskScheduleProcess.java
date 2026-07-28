@@ -148,7 +148,7 @@ public class ApprovalTaskScheduleProcess {
                 .dataSourceId(dsDO.getId())
                 .levels(dsLevels.levelsParam())
                 .deepParser(false)
-                .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.PROVENANCE, QueryAnalysisFeature.MASKING)
+                .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
                 .build();
 
             List<QueryRequest> requests = this.queryAnalysisService.analysisRequests(dsConfig, rawSql, Collections.emptyList(), 1, 0, options);

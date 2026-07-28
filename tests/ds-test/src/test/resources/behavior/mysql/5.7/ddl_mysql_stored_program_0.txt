@@ -860,10 +860,10 @@ expect:
     },
     {
       "subject": "PrepareStatement(8:10~8:14) /test/1/stmt/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     },
     {
-      "subject": "ConfigKey(10:8~10:15) /test/1/e/",
+      "subject": "ConfigKey(10:8~10:15) /test/1/locale/",
       "action" : "READ"
     },
     {
@@ -877,10 +877,6 @@ expect:
     {
       "subject": "Function(11:24~11:39) /test/1/catalog1/schema1/SUBSTRING_INDEX/",
       "action" : "CALL"
-    },
-    {
-      "subject": "ConfigKey(12:23~12:30) /test/1/locale/",
-      "action" : "READ"
     },
     {
       "subject": "Function(13:7~13:13) /test/1/catalog1/schema1/LOCATE/",
@@ -3168,7 +3164,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:53~1:54) /test/1/s/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -3295,7 +3291,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:53~1:54) /test/1/s/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -3315,7 +3311,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:79~1:80) /test/1/s/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }

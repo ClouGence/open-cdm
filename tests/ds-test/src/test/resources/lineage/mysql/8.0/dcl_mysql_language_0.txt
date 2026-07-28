@@ -11,7 +11,7 @@ sql:
 SELECT 'a'||'b';
 expect:
 {
-  "a'||'b" : [ ]
+  "'a'||'b'" : [ ]
 }
 ----------
 [dcl_mysql_language_0.0060]
@@ -19,7 +19,7 @@ sql:
 SELECT 'ab' LIKE 'a' || '%';
 expect:
 {
-  "ab' LIKE 'a' || '%" : [ ]
+  "'ab' LIKE 'a' || '%'" : [ ]
 }
 ----------
 [dcl_mysql_language_0.0061]
@@ -27,7 +27,7 @@ sql:
 SELECT 'ab' NOT LIKE 'a' || '%';
 expect:
 {
-  "ab' NOT LIKE 'a' || '%" : [ ]
+  "'ab' NOT LIKE 'a' || '%'" : [ ]
 }
 ----------
 [dcl_mysql_language_0.0062]
@@ -35,7 +35,7 @@ sql:
 SELECT 'a%' LIKE 'a!' || '%' ESCAPE '!';
 expect:
 {
-  "a%' LIKE 'a!' || '%' ESCAPE '!" : [ ]
+  "'a%' LIKE 'a!' || '%' ESCAPE '!'" : [ ]
 }
 ----------
 [dcl_mysql_language_0.0063]
@@ -43,7 +43,7 @@ sql:
 SELECT 'a%' NOT LIKE 'a!' || '%' ESCAPE '!';
 expect:
 {
-  "a%' NOT LIKE 'a!' || '%' ESCAPE '!" : [ ]
+  "'a%' NOT LIKE 'a!' || '%' ESCAPE '!'" : [ ]
 }
 ----------
 [dcl_mysql_language_0.0064]
@@ -51,7 +51,7 @@ sql:
 SELECT 'a%' LIKE 'a!%' ESCAPE '' || '!';
 expect:
 {
-  "a%' LIKE 'a!%' ESCAPE '' || '!" : [ ]
+  "'a%' LIKE 'a!%' ESCAPE '' || '!'" : [ ]
 }
 ----------
 [dcl_mysql_language_0.0065]
@@ -59,7 +59,7 @@ sql:
 SELECT 'a%' NOT LIKE 'a!%' ESCAPE '' || '!';
 expect:
 {
-  "a%' NOT LIKE 'a!%' ESCAPE '' || '!" : [ ]
+  "'a%' NOT LIKE 'a!%' ESCAPE '' || '!'" : [ ]
 }
 ----------
 [dcl_mysql_language_0.0066]

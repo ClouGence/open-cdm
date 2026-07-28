@@ -3,7 +3,7 @@ sql:
 WITH c AS (TABLE qa_t1) SELECT id FROM c ORDER BY id LIMIT 1;
 expect:
 {
-  "id" : [ "/catalog1/schema1/qa_t1/id/" ]
+  "id" : [ "(1:17~1:22) /catalog1/schema1/qa_t1/id/" ]
 }
 ----------
 [dql_mysql_cte_0.0002]
@@ -20,8 +20,8 @@ sql:
 WITH c1(a, b) AS (SELECT id, grp FROM t), c2 AS (SELECT a, b FROM c1 WHERE EXISTS (SELECT 1 FROM t2 WHERE t2.id = c1.a)) SELECT a, b FROM c2 ORDER BY a;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t/id/" ],
-  "b" : [ "/catalog1/schema1/t/grp/" ]
+  "a" : [ "(1:25~1:27) /catalog1/schema1/t/id/" ],
+  "b" : [ "(1:29~1:32) /catalog1/schema1/t/grp/" ]
 }
 ----------
 [dql_mysql_cte_0.0004]
@@ -45,25 +45,29 @@ sql:
 SELECT id, (WITH c AS (SELECT MAX(id) AS m FROM t2) SELECT m FROM c) AS max_id FROM t ORDER BY id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "max_id" : [ "/catalog1/schema1/t2/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "max_id" : [ "(1:34~1:36) /catalog1/schema1/t2/id/" ]
 }
 ----------
 [dql_mysql_cte_0.0007]
 sql:
 WITH cte AS (SELECT 1 AS n) SELECT outer_cte.n, d.n FROM cte AS outer_cte JOIN (WITH cte AS (SELECT 2 AS n) SELECT n FROM cte) AS d ON TRUE;
 expect:
-{
-  "n" : [ ]
-}
+[ {
+  "sources" : [ ],
+  "column" : "n"
+}, {
+  "sources" : [ ],
+  "column" : "n"
+} ]
 ----------
 [dql_mysql_cte_0.0008]
 sql:
 WITH cte AS (SELECT SUM(c) AS c,SUM(b) AS b,a FROM split_derived_cte80.t1 GROUP BY a) SELECT t2.a,(SELECT MIN(c) FROM cte AS cte2 WHERE t2.d=cte2.b) FROM split_derived_cte80.t2 LEFT JOIN cte AS cte1 ON t2.a=cte1.a LEFT JOIN split_derived_cte80.t2 AS tx ON tx.e=cte1.c;
 expect:
 {
-  "a" : [ "/catalog1/split_derived_cte80/t2/a/" ],
-  "(SELECT MIN(c) FROM cte AS cte2 WHERE t2.d=cte2.b)" : [ "/catalog1/split_derived_cte80/t1/c/" ]
+  "a" : [ "(1:93~1:97) /catalog1/split_derived_cte80/t2/a/" ],
+  "(SELECT MIN(c) FROM cte AS cte2 WHERE t2.d=cte2.b)" : [ "(1:24~1:25) /catalog1/split_derived_cte80/t1/c/" ]
 }
 ----------
 [dql_mysql_cte_0.0009]
@@ -78,16 +82,20 @@ expect:
 sql:
 WITH cte1 AS (SELECT (SELECT a) AS a FROM split_derived_97inc.base_t AS r WHERE a>0 GROUP BY r.a,r.a) SELECT a,a FROM cte1 WHERE cte1.a<=r.a;
 expect:
-{
-  "a" : [ ]
-}
+[ {
+  "sources" : [ "(1:29~1:30) /catalog1/split_derived_97inc/base_t/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:29~1:30) /catalog1/split_derived_97inc/base_t/a/" ],
+  "column" : "a"
+} ]
 ----------
 [dql_mysql_cte_0.0011]
 sql:
 WITH cte AS (SELECT 1) (SELECT * FROM t ORDER BY a DESC LIMIT 3) LIMIT 2;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:31~1:32) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_cte_0.0012]
@@ -145,9 +153,9 @@ sql:
 WITH RECURSIVE employees_extended(id,name,path) AS (SELECT id,name,CAST(id AS CHAR(200)) FROM employees WHERE manager_id IS NULL UNION ALL SELECT s.id,s.name,CONCAT(m.path,',',s.id) FROM employees_extended m STRAIGHT_JOIN employees s ON m.id=s.manager_id) SELECT * FROM employees_extended ORDER BY path;
 expect:
 {
-  "id" : [ "/catalog1/schema1/employees/id/" ],
-  "name" : [ "/catalog1/schema1/employees/name/" ],
-  "path" : [ "/catalog1/schema1/employees/id/" ]
+  "id" : [ "(1:59~1:61) /catalog1/schema1/employees/id/", "(1:146~1:150) /catalog1/schema1/employees/id/" ],
+  "name" : [ "(1:62~1:66) /catalog1/schema1/employees/name/", "(1:151~1:157) /catalog1/schema1/employees/name/" ],
+  "path" : [ "(1:72~1:74) /catalog1/schema1/employees/id/", "(1:176~1:180) /catalog1/schema1/employees/id/" ]
 }
 ----------
 [dql_mysql_cte_0.0019]
@@ -155,9 +163,9 @@ sql:
 WITH RECURSIVE employees_extended(id,name,path) AS (SELECT id,name,CAST(id AS CHAR(200)) FROM employees WHERE manager_id IS NULL UNION ALL SELECT s.id,s.name,CONCAT(m.path,',',s.id) FROM employees_extended m STRAIGHT_JOIN employees s ON m.id=s.manager_id), john_id AS (SELECT id FROM employees WHERE name='John') SELECT e.* FROM employees_extended e,john_id WHERE FIND_IN_SET(john_id.id,path) AND e.id<>john_id.id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/employees/id/" ],
-  "name" : [ "/catalog1/schema1/employees/name/" ],
-  "path" : [ "/catalog1/schema1/employees/id/" ]
+  "id" : [ "(1:59~1:61) /catalog1/schema1/employees/id/", "(1:146~1:150) /catalog1/schema1/employees/id/" ],
+  "name" : [ "(1:62~1:66) /catalog1/schema1/employees/name/", "(1:151~1:157) /catalog1/schema1/employees/name/" ],
+  "path" : [ "(1:72~1:74) /catalog1/schema1/employees/id/", "(1:176~1:180) /catalog1/schema1/employees/id/" ]
 }
 ----------
 [dql_mysql_cte_0.0020]
@@ -173,7 +181,9 @@ sql:
 WITH RECURSIVE qn AS (SELECT * FROM t INTERSECT VALUES ROW(1,1,1) UNION ALL SELECT 1+n, unp1, un+unp1 FROM qn WHERE n<10) SELECT * FROM qn;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ]
+  "n" : [ "(1:29~1:30) /catalog1/schema1/t/n/" ],
+  "unp1" : [ "(1:29~1:30) /catalog1/schema1/t/unp1/" ],
+  "un" : [ "(1:29~1:30) /catalog1/schema1/t/un/", "(1:29~1:30) /catalog1/schema1/t/unp1/" ]
 }
 ----------
 [dql_mysql_cte_0.0022]
@@ -189,16 +199,20 @@ sql:
 SELECT * FROM ((WITH qn AS (SELECT 10*f1 AS f1 FROM t1), qn2 AS (SELECT 3*f1 AS f2 FROM qn) SELECT * FROM qn2)) AS dt WHERE f2>1;
 expect:
 {
-  "f2" : [ "/catalog1/schema1/t1/f1/" ]
+  "f2" : [ "(1:38~1:40) /catalog1/schema1/t1/f1/" ]
 }
 ----------
 [dql_mysql_cte_0.0024]
 sql:
 WITH RECURSIVE inner_ AS (SELECT 123 AS a UNION ALL SELECT 1+a FROM inner_ WHERE a<125), outer_ AS (SELECT * FROM inner_ LIMIT 10) SELECT * FROM outer_,outer_ AS outer1;
 expect:
-{
-  "a" : [ ]
-}
+[ {
+  "sources" : [ ],
+  "column" : "a"
+}, {
+  "sources" : [ ],
+  "column" : "a"
+} ]
 ----------
 [dql_mysql_cte_0.0025]
 sql:
@@ -221,23 +235,27 @@ sql:
 WITH cte AS (SELECT a FROM t1 UNION DISTINCT SELECT a+2 FROM t1 LIMIT 15 OFFSET 1) SELECT * FROM cte LIMIT 2 OFFSET 7;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ]
+  "a" : [ "(1:20~1:21) /catalog1/schema1/t1/a/", "(1:52~1:53) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_cte_0.0028]
 sql:
 WITH cte AS (SELECT a FROM t1 UNION SELECT a+2 FROM t1 LIMIT 10 OFFSET 8) SELECT /*+ NO_BNL() */ * FROM cte AS cte1,cte AS cte2;
 expect:
-{
-  "a" : [ "/catalog1/schema1/t1/a/", "/catalog1/schema1/t1/a/" ]
-}
+[ {
+  "sources" : [ "(1:20~1:21) /catalog1/schema1/t1/a/", "(1:43~1:44) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+}, {
+  "sources" : [ "(1:20~1:21) /catalog1/schema1/t1/a/", "(1:43~1:44) /catalog1/schema1/t1/a/" ],
+  "column" : "a"
+} ]
 ----------
 [dql_mysql_cte_0.0029]
 sql:
 WITH cte AS (SELECT a FROM t1 UNION SELECT a+2 FROM t1 LIMIT 10 OFFSET 8) SELECT /*+ NO_BNL() */ * FROM cte AS cte1,(SELECT 100 AS n UNION SELECT 101) AS dt;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/" ],
+  "a" : [ "(1:20~1:21) /catalog1/schema1/t1/a/", "(1:43~1:44) /catalog1/schema1/t1/a/" ],
   "n" : [ ]
 }
 ----------
@@ -271,11 +289,11 @@ sql:
 WITH RECURSIVE tree AS (SELECT id,leftpar,rightpar,name,CAST(id AS CHAR(200)) path FROM nodes WHERE name='A' UNION ALL SELECT n.*,CONCAT(tree.path,',',n.id) FROM nodes n JOIN tree ON n.id=tree.leftpar UNION ALL SELECT n.*,CONCAT(tree.path,',',n.id) FROM nodes n JOIN tree ON n.id=tree.rightpar) SELECT * FROM tree;
 expect:
 {
-  "id" : [ "/catalog1/schema1/nodes/id/" ],
-  "leftpar" : [ "/catalog1/schema1/nodes/leftpar/" ],
-  "rightpar" : [ "/catalog1/schema1/nodes/rightpar/" ],
-  "name" : [ "/catalog1/schema1/nodes/name/" ],
-  "path" : [ "/catalog1/schema1/nodes/id/" ]
+  "id" : [ "(1:31~1:33) /catalog1/schema1/nodes/id/", "(1:126~1:129) /catalog1/schema1/nodes/id/", "(1:218~1:221) /catalog1/schema1/nodes/id/" ],
+  "leftpar" : [ "(1:34~1:41) /catalog1/schema1/nodes/leftpar/", "(1:126~1:129) /catalog1/schema1/nodes/leftpar/", "(1:218~1:221) /catalog1/schema1/nodes/leftpar/" ],
+  "rightpar" : [ "(1:42~1:50) /catalog1/schema1/nodes/rightpar/", "(1:126~1:129) /catalog1/schema1/nodes/rightpar/", "(1:218~1:221) /catalog1/schema1/nodes/rightpar/" ],
+  "name" : [ "(1:51~1:55) /catalog1/schema1/nodes/name/", "(1:126~1:129) /catalog1/schema1/nodes/name/", "(1:218~1:221) /catalog1/schema1/nodes/name/" ],
+  "path" : [ "(1:61~1:63) /catalog1/schema1/nodes/id/", "(1:151~1:155) /catalog1/schema1/nodes/id/", "(1:243~1:247) /catalog1/schema1/nodes/id/" ]
 }
 ----------
 [dql_mysql_cte_0.0034]
@@ -291,7 +309,7 @@ sql:
 WITH RECURSIVE qn(a) AS (SELECT RANK() OVER (ORDER BY b) FROM t1 UNION SELECT a FROM qn) SELECT * FROM qn;
 expect:
 {
-  "a" : [ ]
+  "a" : [ "(1:54~1:55) /catalog1/schema1/t1/b/" ]
 }
 ----------
 [dql_mysql_cte_0.0036]
@@ -343,7 +361,7 @@ sql:
 WITH RECURSIVE qn AS (SELECT * FROM qn2), qn2 AS (SELECT * FROM qn) SELECT * FROM qn;
 expect:
 {
-  "id" : [ "/catalog1/schema1/qn2/id/" ]
+  "id" : [ "(1:29~1:30) /catalog1/schema1/qn2/id/" ]
 }
 ----------
 [dql_mysql_cte_0.0044]
@@ -351,7 +369,7 @@ sql:
 WITH RECURSIVE qn AS (SELECT 1 FROM qn) SELECT * FROM qn;
 expect:
 {
-  "1" : [ ]
+  "exception" : "IllegalArgumentException"
 }
 ----------
 [dql_mysql_cte_0.0045]
@@ -359,7 +377,7 @@ sql:
 WITH RECURSIVE qn AS (SELECT 1 FROM qn UNION ALL SELECT 1 FROM DUAL) SELECT * FROM qn;
 expect:
 {
-  "1" : [ ]
+  "exception" : "IllegalArgumentException"
 }
 ----------
 [dql_mysql_cte_0.0046]
@@ -367,7 +385,7 @@ sql:
 WITH RECURSIVE qn AS (SELECT b AS a FROM t1 UNION SELECT RANK() OVER (ORDER BY a) FROM qn) SELECT * FROM qn;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/b/" ]
+  "a" : [ "(1:29~1:30) /catalog1/schema1/t1/b/" ]
 }
 ----------
 [dql_mysql_cte_0.0047]
@@ -463,5 +481,5 @@ sql:
 WITH RECURSIVE cte AS (SELECT alias2.col_int2 AS field1 FROM D AS alias1 RIGHT JOIN ((C AS alias2 LEFT JOIN BB AS alias3 ON alias3.pk=alias2.col_int AND alias3.pk=alias2.pk)) ON alias3.col_int<>alias2.col_int2 HAVING field1<=0 UNION SELECT cte.field1 FROM cte) SELECT * FROM cte;
 expect:
 {
-  "field1" : [ "/catalog1/schema1/C/col_int2/" ]
+  "field1" : [ "(1:30~1:45) /catalog1/schema1/C/col_int2/" ]
 }

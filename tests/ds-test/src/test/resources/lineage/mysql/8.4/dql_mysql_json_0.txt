@@ -3,9 +3,9 @@ sql:
 SELECT id, JSON_ARRAYAGG(val) OVER (PARTITION BY grp ORDER BY id ROWS UNBOUNDED PRECEDING) AS values_so_far, JSON_OBJECTAGG(id, val) OVER (PARTITION BY grp ORDER BY id ROWS UNBOUNDED PRECEDING) AS values_by_id FROM t ORDER BY id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "values_so_far" : [ "/catalog1/schema1/t/val/" ],
-  "values_by_id" : [ "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "values_so_far" : [ "(1:25~1:28) /catalog1/schema1/t/val/", "(1:49~1:52) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "values_by_id" : [ "(1:124~1:126) /catalog1/schema1/t/id/", "(1:128~1:131) /catalog1/schema1/t/val/", "(1:152~1:155) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_json_0.0002]
@@ -29,7 +29,7 @@ sql:
 SELECT * FROM (SELECT alias2.pk AS field1 FROM split_derived_json57.t1 AS alias1 LEFT OUTER JOIN split_derived_json57.t2 AS alias2 ON JSON_UNQUOTE(JSON_EXTRACT(alias1.col_varchar,'$.varc')) COLLATE utf8mb4_general_ci=alias2.col_date_key GROUP BY JSON_QUOTE(JSON_EXTRACT(field1,'$.intc'))) AS dt;
 expect:
 {
-  "field1" : [ "/catalog1/split_derived_json57/t2/pk/" ]
+  "field1" : [ "(1:22~1:31) /catalog1/split_derived_json57/t2/pk/" ]
 }
 ----------
 [dql_mysql_json_0.0005]
@@ -37,7 +37,7 @@ sql:
 SELECT 'a' LIKE '%' ESCAPE CAST('' AS JSON);
 expect:
 {
-  "a' LIKE '%' ESCAPE CAST('' AS JSON" : [ ]
+  "'a' LIKE '%' ESCAPE CAST('' AS JSON)" : [ ]
 }
 ----------
 [dql_mysql_json_0.0006]
@@ -172,7 +172,7 @@ sql:
 SELECT (SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1) FROM agg_t AS o GROUP BY o.t2;
 expect:
 {
-  "(SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1)" : [ "/catalog1/schema1/agg_t/t1/" ]
+  "(SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1)" : [ "(1:29~1:33) /catalog1/schema1/agg_t/t1/" ]
 }
 ----------
 [dql_mysql_json_0.0019]
@@ -204,8 +204,8 @@ sql:
 SELECT JSON_OBJECTAGG(t.col_int,t.col_int), (SELECT JSON_ARRAYAGG(s.col_int) FROM CC AS s WHERE s.col_int<>t.col_int) AS field5 FROM CC AS t WHERE t.col_int<>ALL(SELECT q.col_int FROM CC AS q STRAIGHT_JOIN C) GROUP BY field5;
 expect:
 {
-  "JSON_OBJECTAGG(t.col_int,t.col_int)" : [ "/catalog1/schema1/CC/col_int/" ],
-  "field5" : [ "/catalog1/schema1/CC/col_int/" ]
+  "JSON_OBJECTAGG(t.col_int,t.col_int)" : [ "(1:22~1:31) /catalog1/schema1/CC/col_int/", "(1:32~1:41) /catalog1/schema1/CC/col_int/" ],
+  "field5" : [ "(1:66~1:75) /catalog1/schema1/CC/col_int/" ]
 }
 ----------
 [dql_mysql_json_0.0023]
@@ -397,7 +397,7 @@ sql:
 SELECT JSON_SCHEMA_VALID(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
 expect:
 {
-  "JSON_SCHEMA_VALID(t2.j,t2.j)" : [ "/catalog1/schema1/schema_t/j/", "/catalog1/schema1/schema_t/j/" ]
+  "JSON_SCHEMA_VALID(t2.j,t2.j)" : [ "(1:59~1:60) /catalog1/schema1/schema_t/j/", "(1:59~1:60) /catalog1/schema1/schema_t/j/" ]
 }
 ----------
 [dql_mysql_json_0.0047]
@@ -405,7 +405,7 @@ sql:
 SELECT JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
 expect:
 {
-  "JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j)" : [ "/catalog1/schema1/schema_t/j/", "/catalog1/schema1/schema_t/j/" ]
+  "JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j)" : [ "(1:71~1:72) /catalog1/schema1/schema_t/j/", "(1:71~1:72) /catalog1/schema1/schema_t/j/" ]
 }
 ----------
 [dql_mysql_json_0.0048]
@@ -413,7 +413,7 @@ sql:
 SELECT id FROM jt_src WHERE EXISTS (SELECT * FROM JSON_TABLE(jt_src.x, '$[*]' COLUMNS (i INT PATH '$')) AS jt WHERE i=2);
 expect:
 {
-  "id" : [ "/catalog1/schema1/jt_src/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/jt_src/id/" ]
 }
 ----------
 [dql_mysql_json_0.0049]
@@ -569,7 +569,7 @@ sql:
 SELECT tt2.id FROM jt_src AS tt2, JSON_TABLE(tt2.f1, '$' COLUMNS (ord FOR ORDINALITY)) AS tbl STRAIGHT_JOIN jt_src AS tt3 LIMIT 1;
 expect:
 {
-  "id" : [ "/catalog1/schema1/jt_src/id/" ]
+  "id" : [ "(1:7~1:13) /catalog1/schema1/jt_src/id/" ]
 }
 ----------
 [dql_mysql_json_0.0060]
@@ -882,7 +882,8 @@ sql:
 SELECT j->'$.a', j->>'$.a' FROM json_op;
 expect:
 {
-  "j" : [ "/catalog1/schema1/json_op/j/", "/catalog1/schema1/json_op/j/" ]
+  "j->'$.a'" : [ "(1:7~1:8) /catalog1/schema1/json_op/j/" ],
+  "j->>'$.a'" : [ "(1:17~1:18) /catalog1/schema1/json_op/j/" ]
 }
 ----------
 [dql_mysql_json_0.0099]
@@ -890,11 +891,11 @@ sql:
 SELECT j,i,f,JSON_ARRAYAGG(i) OVER w,JSON_ARRAYAGG(f) OVER w FROM split_window_json.t1 WINDOW w AS (ORDER BY j);
 expect:
 {
-  "j" : [ "/catalog1/split_window_json/t1/j/" ],
-  "i" : [ "/catalog1/split_window_json/t1/i/" ],
-  "f" : [ "/catalog1/split_window_json/t1/f/" ],
-  "JSON_ARRAYAGG(i) OVER w" : [ "/catalog1/split_window_json/t1/i/" ],
-  "JSON_ARRAYAGG(f) OVER w" : [ "/catalog1/split_window_json/t1/f/" ]
+  "j" : [ "(1:7~1:8) /catalog1/split_window_json/t1/j/" ],
+  "i" : [ "(1:9~1:10) /catalog1/split_window_json/t1/i/" ],
+  "f" : [ "(1:11~1:12) /catalog1/split_window_json/t1/f/" ],
+  "JSON_ARRAYAGG(i) OVER w" : [ "(1:27~1:28) /catalog1/split_window_json/t1/i/", "(1:7~1:8) /catalog1/split_window_json/t1/j/" ],
+  "JSON_ARRAYAGG(f) OVER w" : [ "(1:51~1:52) /catalog1/split_window_json/t1/f/", "(1:7~1:8) /catalog1/split_window_json/t1/j/" ]
 }
 ----------
 [dql_mysql_json_0.0100]
@@ -902,10 +903,10 @@ sql:
 SELECT i,f,JSON_ARRAYAGG(i) OVER w,JSON_ARRAYAGG(f) OVER w FROM split_window_json.t1 GROUP BY i,f WITH ROLLUP HAVING GROUPING(f)=1 WINDOW w AS (ORDER BY f,i ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING);
 expect:
 {
-  "i" : [ "/catalog1/split_window_json/t1/i/" ],
-  "f" : [ "/catalog1/split_window_json/t1/f/" ],
-  "JSON_ARRAYAGG(i) OVER w" : [ "/catalog1/split_window_json/t1/i/" ],
-  "JSON_ARRAYAGG(f) OVER w" : [ "/catalog1/split_window_json/t1/f/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_json/t1/i/" ],
+  "f" : [ "(1:9~1:10) /catalog1/split_window_json/t1/f/" ],
+  "JSON_ARRAYAGG(i) OVER w" : [ "(1:25~1:26) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/f/", "(1:7~1:8) /catalog1/split_window_json/t1/i/" ],
+  "JSON_ARRAYAGG(f) OVER w" : [ "(1:49~1:50) /catalog1/split_window_json/t1/f/", "(1:9~1:10) /catalog1/split_window_json/t1/f/", "(1:7~1:8) /catalog1/split_window_json/t1/i/" ]
 }
 ----------
 [dql_mysql_json_0.0101]
@@ -913,13 +914,13 @@ sql:
 SELECT i,f,RANK() OVER w,NTH_VALUE(i,3) OVER w,LEAD(f,2) OVER w,LAG(f,2) OVER w,JSON_ARRAYAGG(i) OVER w FROM split_window_json.t1 WINDOW w AS (ORDER BY f);
 expect:
 {
-  "i" : [ "/catalog1/split_window_json/t1/i/" ],
-  "f" : [ "/catalog1/split_window_json/t1/f/" ],
-  "RANK() OVER w" : [ ],
-  "NTH_VALUE(i,3) OVER w" : [ "/catalog1/split_window_json/t1/i/" ],
-  "LEAD(f,2) OVER w" : [ "/catalog1/split_window_json/t1/f/" ],
-  "LAG(f,2) OVER w" : [ "/catalog1/split_window_json/t1/f/" ],
-  "JSON_ARRAYAGG(i) OVER w" : [ "/catalog1/split_window_json/t1/i/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_json/t1/i/" ],
+  "f" : [ "(1:9~1:10) /catalog1/split_window_json/t1/f/" ],
+  "RANK() OVER w" : [ "(1:9~1:10) /catalog1/split_window_json/t1/f/" ],
+  "NTH_VALUE(i,3) OVER w" : [ "(1:35~1:36) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/f/" ],
+  "LEAD(f,2) OVER w" : [ "(1:52~1:53) /catalog1/split_window_json/t1/f/", "(1:9~1:10) /catalog1/split_window_json/t1/f/" ],
+  "LAG(f,2) OVER w" : [ "(1:68~1:69) /catalog1/split_window_json/t1/f/", "(1:9~1:10) /catalog1/split_window_json/t1/f/" ],
+  "JSON_ARRAYAGG(i) OVER w" : [ "(1:94~1:95) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/f/" ]
 }
 ----------
 [dql_mysql_json_0.0102]
@@ -927,10 +928,10 @@ sql:
 SELECT i,f,PERCENT_RANK() OVER w,JSON_ARRAYAGG(i) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY f RANGE BETWEEN 2.1 FOLLOWING AND 4.5 FOLLOWING);
 expect:
 {
-  "i" : [ "/catalog1/split_window_json/t1/i/" ],
-  "f" : [ "/catalog1/split_window_json/t1/f/" ],
-  "PERCENT_RANK() OVER w" : [ ],
-  "JSON_ARRAYAGG(i) OVER w" : [ "/catalog1/split_window_json/t1/i/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_json/t1/i/" ],
+  "f" : [ "(1:9~1:10) /catalog1/split_window_json/t1/f/" ],
+  "PERCENT_RANK() OVER w" : [ "(1:7~1:8) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/f/" ],
+  "JSON_ARRAYAGG(i) OVER w" : [ "(1:47~1:48) /catalog1/split_window_json/t1/i/", "(1:7~1:8) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/f/" ]
 }
 ----------
 [dql_mysql_json_0.0103]
@@ -938,10 +939,10 @@ sql:
 SELECT i,j,JSON_OBJECTAGG(j,f) OVER w,JSON_OBJECTAGG(j,s) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY j);
 expect:
 {
-  "i" : [ "/catalog1/split_window_json/t1/i/" ],
-  "j" : [ "/catalog1/split_window_json/t1/j/" ],
-  "JSON_OBJECTAGG(j,f) OVER w" : [ "/catalog1/split_window_json/t1/j/" ],
-  "JSON_OBJECTAGG(j,s) OVER w" : [ "/catalog1/split_window_json/t1/j/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_json/t1/i/" ],
+  "j" : [ "(1:9~1:10) /catalog1/split_window_json/t1/j/" ],
+  "JSON_OBJECTAGG(j,f) OVER w" : [ "(1:26~1:27) /catalog1/split_window_json/t1/j/", "(1:28~1:29) /catalog1/split_window_json/t1/f/", "(1:7~1:8) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/j/" ],
+  "JSON_OBJECTAGG(j,s) OVER w" : [ "(1:53~1:54) /catalog1/split_window_json/t1/j/", "(1:55~1:56) /catalog1/split_window_json/t1/s/", "(1:7~1:8) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/j/" ]
 }
 ----------
 [dql_mysql_json_0.0104]
@@ -949,8 +950,8 @@ sql:
 SELECT i,JSON_OBJECTAGG(i,f) OVER w FROM split_window_json.t1 GROUP BY i,f WITH ROLLUP HAVING GROUPING(f)=1 WINDOW w AS (ORDER BY f);
 expect:
 {
-  "i" : [ "/catalog1/split_window_json/t1/i/" ],
-  "JSON_OBJECTAGG(i,f) OVER w" : [ "/catalog1/split_window_json/t1/i/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_json/t1/i/" ],
+  "JSON_OBJECTAGG(i,f) OVER w" : [ "(1:24~1:25) /catalog1/split_window_json/t1/i/", "(1:26~1:27) /catalog1/split_window_json/t1/f/", "(1:130~1:131) /catalog1/split_window_json/t1/f/" ]
 }
 ----------
 [dql_mysql_json_0.0105]
@@ -958,14 +959,14 @@ sql:
 SELECT i,j,f,JSON_OBJECTAGG(i,j) OVER w,RANK() OVER w,NTH_VALUE(i,2) OVER w,LEAD(f,1) OVER w,LAG(f,1) OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY i ORDER BY j);
 expect:
 {
-  "i" : [ "/catalog1/split_window_json/t1/i/" ],
-  "j" : [ "/catalog1/split_window_json/t1/j/" ],
-  "f" : [ "/catalog1/split_window_json/t1/f/" ],
-  "JSON_OBJECTAGG(i,j) OVER w" : [ "/catalog1/split_window_json/t1/i/" ],
-  "RANK() OVER w" : [ ],
-  "NTH_VALUE(i,2) OVER w" : [ "/catalog1/split_window_json/t1/i/" ],
-  "LEAD(f,1) OVER w" : [ "/catalog1/split_window_json/t1/f/" ],
-  "LAG(f,1) OVER w" : [ "/catalog1/split_window_json/t1/f/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_json/t1/i/" ],
+  "j" : [ "(1:9~1:10) /catalog1/split_window_json/t1/j/" ],
+  "f" : [ "(1:11~1:12) /catalog1/split_window_json/t1/f/" ],
+  "JSON_OBJECTAGG(i,j) OVER w" : [ "(1:28~1:29) /catalog1/split_window_json/t1/i/", "(1:30~1:31) /catalog1/split_window_json/t1/j/", "(1:7~1:8) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/j/" ],
+  "RANK() OVER w" : [ "(1:7~1:8) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/j/" ],
+  "NTH_VALUE(i,2) OVER w" : [ "(1:64~1:65) /catalog1/split_window_json/t1/i/", "(1:7~1:8) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/j/" ],
+  "LEAD(f,1) OVER w" : [ "(1:81~1:82) /catalog1/split_window_json/t1/f/", "(1:7~1:8) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/j/" ],
+  "LAG(f,1) OVER w" : [ "(1:97~1:98) /catalog1/split_window_json/t1/f/", "(1:7~1:8) /catalog1/split_window_json/t1/i/", "(1:9~1:10) /catalog1/split_window_json/t1/j/" ]
 }
 ----------
 [dql_mysql_json_0.0106]
@@ -973,11 +974,11 @@ sql:
 SELECT i,j,f,JSON_OBJECTAGG(i,j) OVER w,RANK() OVER w FROM split_window_json.t1 WINDOW w AS (PARTITION BY f ORDER BY j ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING);
 expect:
 {
-  "i" : [ "/catalog1/split_window_json/t1/i/" ],
-  "j" : [ "/catalog1/split_window_json/t1/j/" ],
-  "f" : [ "/catalog1/split_window_json/t1/f/" ],
-  "JSON_OBJECTAGG(i,j) OVER w" : [ "/catalog1/split_window_json/t1/i/" ],
-  "RANK() OVER w" : [ ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_json/t1/i/" ],
+  "j" : [ "(1:9~1:10) /catalog1/split_window_json/t1/j/" ],
+  "f" : [ "(1:11~1:12) /catalog1/split_window_json/t1/f/" ],
+  "JSON_OBJECTAGG(i,j) OVER w" : [ "(1:28~1:29) /catalog1/split_window_json/t1/i/", "(1:30~1:31) /catalog1/split_window_json/t1/j/", "(1:11~1:12) /catalog1/split_window_json/t1/f/", "(1:9~1:10) /catalog1/split_window_json/t1/j/" ],
+  "RANK() OVER w" : [ "(1:11~1:12) /catalog1/split_window_json/t1/f/", "(1:9~1:10) /catalog1/split_window_json/t1/j/" ]
 }
 ----------
 [dql_mysql_json_0.0107]
@@ -1003,8 +1004,8 @@ sql:
 SELECT JSON_OBJECTAGG(k,i) OVER (ORDER BY k ROWS CURRENT ROW),JSON_OBJECTAGG(k,i) OVER (ORDER BY i ROWS CURRENT ROW) FROM split_window_json.dup;
 expect:
 {
-  "JSON_OBJECTAGG(k,i) OVER (ORDER BY k ROWS CURRENT ROW)" : [ "/catalog1/split_window_json/dup/k/" ],
-  "JSON_OBJECTAGG(k,i) OVER (ORDER BY i ROWS CURRENT ROW)" : [ "/catalog1/split_window_json/dup/k/" ]
+  "JSON_OBJECTAGG(k,i) OVER (ORDER BY k ROWS CURRENT ROW)" : [ "(1:22~1:23) /catalog1/split_window_json/dup/k/", "(1:24~1:25) /catalog1/split_window_json/dup/i/", "(1:42~1:43) /catalog1/split_window_json/dup/k/" ],
+  "JSON_OBJECTAGG(k,i) OVER (ORDER BY i ROWS CURRENT ROW)" : [ "(1:77~1:78) /catalog1/split_window_json/dup/k/", "(1:79~1:80) /catalog1/split_window_json/dup/i/", "(1:97~1:98) /catalog1/split_window_json/dup/i/" ]
 }
 ----------
 [dql_mysql_json_0.0110]
@@ -1023,11 +1024,13 @@ SELECT id,doc,doc->'$.score',doc->>'$.name',
         ORDER BY CAST(doc->>'$.score' AS UNSIGNED),id;
 expect:
 {
-  "id" : [ "/catalog1/split_type_json/json_core/id/" ],
-  "doc" : [ "/catalog1/split_type_json/json_core/doc/", "/catalog1/split_type_json/json_core/doc/", "/catalog1/split_type_json/json_core/doc/" ],
-  "JSON_TYPE(doc)" : [ "/catalog1/split_type_json/json_core/doc/" ],
-  "JSON_DEPTH(doc)" : [ "/catalog1/split_type_json/json_core/doc/" ],
-  "JSON_STORAGE_SIZE(doc)" : [ "/catalog1/split_type_json/json_core/doc/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_type_json/json_core/id/" ],
+  "doc" : [ "(1:10~1:13) /catalog1/split_type_json/json_core/doc/" ],
+  "doc->'$.score'" : [ "(1:14~1:17) /catalog1/split_type_json/json_core/doc/" ],
+  "doc->>'$.name'" : [ "(1:29~1:32) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_TYPE(doc)" : [ "(2:25~2:28) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_DEPTH(doc)" : [ "(2:41~2:44) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_STORAGE_SIZE(doc)" : [ "(2:64~2:67) /catalog1/split_type_json/json_core/doc/" ]
 }
 ----------
 [dql_mysql_json_0.0112]
@@ -1040,10 +1043,16 @@ SELECT a.id,b.id,a.doc->>'$.name'
         WHERE a.id<b.id
         ORDER BY a.id,b.id;
 expect:
-{
-  "id" : [ "/catalog1/split_type_json/json_core/id/", "/catalog1/split_type_json/json_core/id/" ],
-  "doc" : [ "/catalog1/split_type_json/json_core/doc/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/split_type_json/json_core/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/split_type_json/json_core/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:17~1:22) /catalog1/split_type_json/json_core/doc/" ],
+  "column" : "a.doc->>'$.name'"
+} ]
 ----------
 [dql_mysql_json_0.0113]
 sql:
@@ -1058,8 +1067,8 @@ SELECT o.id,o.doc
         );
 expect:
 {
-  "id" : [ "/catalog1/split_type_json/json_core/id/" ],
-  "doc" : [ "/catalog1/split_type_json/json_core/doc/" ]
+  "id" : [ "(1:7~1:11) /catalog1/split_type_json/json_core/id/" ],
+  "doc" : [ "(1:12~1:17) /catalog1/split_type_json/json_core/doc/" ]
 }
 ----------
 [dql_mysql_json_0.0114]
@@ -1076,10 +1085,10 @@ SELECT d.kind,COUNT(*),JSON_ARRAYAGG(d.name_text),
         HAVING MAX(d.score)>=10;
 expect:
 {
-  "kind" : [ "/catalog1/split_type_json/json_core/doc/" ],
+  "kind" : [ "(4:20~4:23) /catalog1/split_type_json/json_core/doc/" ],
   "COUNT(*)" : [ ],
-  "JSON_ARRAYAGG(d.name_text)" : [ "/catalog1/split_type_json/json_core/doc/" ],
-  "JSON_OBJECTAGG(d.id,d.score)" : [ "/catalog1/split_type_json/json_core/id/" ]
+  "JSON_ARRAYAGG(d.name_text)" : [ "(5:17~5:20) /catalog1/split_type_json/json_core/doc/" ],
+  "JSON_OBJECTAGG(d.id,d.score)" : [ "(4:17~4:19) /catalog1/split_type_json/json_core/id/", "(6:22~6:25) /catalog1/split_type_json/json_core/doc/" ]
 }
 ----------
 [dql_mysql_json_0.0115]
@@ -1093,7 +1102,7 @@ SELECT doc FROM split_type_json.json_core WHERE id<3
                );
 expect:
 {
-  "doc" : [ "/catalog1/split_type_json/json_core/doc/" ]
+  "doc" : [ "(1:7~1:10) /catalog1/split_type_json/json_core/doc/", "(5:34~5:37) /catalog1/split_type_json/json_core/doc/" ]
 }
 ----------
 [dql_mysql_json_0.0116]
@@ -1105,8 +1114,8 @@ SELECT id,doc
            OR JSON_OVERLAPS(doc->'$.zipcodes','[94536,94582]');
 expect:
 {
-  "id" : [ "/catalog1/split_type_json/json_mvi_inline/id/" ],
-  "doc" : [ "/catalog1/split_type_json/json_mvi_inline/doc/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_type_json/json_mvi_inline/id/" ],
+  "doc" : [ "(1:10~1:13) /catalog1/split_type_json/json_mvi_inline/doc/" ]
 }
 ----------
 [dql_mysql_json_0.0117]
@@ -1124,9 +1133,9 @@ SELECT c.id,jt.ord,jt.tag
         ORDER BY c.id,jt.ord;
 expect:
 {
-  "id" : [ "/catalog1/split_type_json/json_core/id/" ],
-  "ord" : [ ],
-  "tag" : [ ]
+  "id" : [ "(1:7~1:11) /catalog1/split_type_json/json_core/id/" ],
+  "ord" : [ "(4:15~4:24) /catalog1/split_type_json/json_core/payload/" ],
+  "tag" : [ "(4:15~4:24) /catalog1/split_type_json/json_core/payload/" ]
 }
 ----------
 [dql_mysql_json_0.0118]
@@ -1152,11 +1161,11 @@ WITH json_scores AS (
         FROM json_scores;
 expect:
 {
-  "id" : [ "/catalog1/split_type_json/json_core/id/" ],
-  "kind" : [ "/catalog1/split_type_json/json_core/doc/" ],
-  "score" : [ "/catalog1/split_type_json/json_core/doc/" ],
-  "rn" : [ ],
-  "running_score" : [ "/catalog1/split_type_json/json_core/doc/" ]
+  "id" : [ "(2:17~2:19) /catalog1/split_type_json/json_core/id/" ],
+  "kind" : [ "(4:19~4:22) /catalog1/split_type_json/json_core/doc/" ],
+  "score" : [ "(7:19~7:22) /catalog1/split_type_json/json_core/doc/" ],
+  "rn" : [ "(4:19~4:22) /catalog1/split_type_json/json_core/doc/", "(7:19~7:22) /catalog1/split_type_json/json_core/doc/", "(2:17~2:19) /catalog1/split_type_json/json_core/id/" ],
+  "running_score" : [ "(7:19~7:22) /catalog1/split_type_json/json_core/doc/", "(4:19~4:22) /catalog1/split_type_json/json_core/doc/", "(2:17~2:19) /catalog1/split_type_json/json_core/id/" ]
 }
 ----------
 [dql_mysql_json_0.0119]
@@ -1235,9 +1244,13 @@ expect:
 sql:
 SELECT * FROM JSON_TABLE('[1]','$[*]' COLUMNS(id FOR ORDINALITY,id FOR ORDINALITY)) AS jt;
 expect:
-{
-  "id" : [ ]
-}
+[ {
+  "sources" : [ ],
+  "column" : "id"
+}, {
+  "sources" : [ ],
+  "column" : "id"
+} ]
 ----------
 [dql_mysql_json_0.0129]
 sql:
@@ -1309,7 +1322,7 @@ SELECT JSON_EXTRACT('{"a":1}', '$.a') AS je, COUNT(DISTINCT a) FROM split_json_r
 expect:
 {
   "je" : [ ],
-  "COUNT(DISTINCT a)" : [ "/catalog1/schema1/split_json_rollup/a/" ]
+  "COUNT(DISTINCT a)" : [ "(1:60~1:61) /catalog1/schema1/split_json_rollup/a/" ]
 }
 ----------
 [dql_mysql_json_0.0138]
@@ -1317,8 +1330,8 @@ sql:
 SELECT SUM(col_int), col_int FROM split_json_column AS table1 WHERE table1.pk = table1.pk;
 expect:
 {
-  "SUM(col_int)" : [ "/catalog1/schema1/split_json_column/col_int/" ],
-  "col_int" : [ "/catalog1/schema1/split_json_column/col_int/" ]
+  "SUM(col_int)" : [ "(1:11~1:18) /catalog1/schema1/split_json_column/col_int/" ],
+  "col_int" : [ "(1:21~1:28) /catalog1/schema1/split_json_column/col_int/" ]
 }
 ----------
 [dql_mysql_json_0.0139]
@@ -1334,7 +1347,7 @@ sql:
 SELECT * FROM split_json_prepare WHERE JSON_LENGTH(?, a BETWEEN ? AND ?);
 expect:
 {
-  "a" : [ "/catalog1/schema1/split_json_prepare/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/split_json_prepare/id/" ]
 }
 ----------
 [dql_mysql_json_0.0141]
@@ -1374,7 +1387,7 @@ sql:
 SELECT JSON_EXTRACT(col_json, ?) FROM t_reuse ORDER BY pk;
 expect:
 {
-  "JSON_EXTRACT(col_json, ?)" : [ "/catalog1/schema1/t_reuse/col_json/" ]
+  "JSON_EXTRACT(col_json, ?)" : [ "(1:20~1:28) /catalog1/schema1/t_reuse/col_json/" ]
 }
 ----------
 [dql_mysql_json_0.0146]
@@ -1534,7 +1547,7 @@ sql:
 SELECT * FROM t1 WHERE ? MEMBER OF (c1->'$');
 expect:
 {
-  "id" : [ "/catalog1/schema1/t1/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
 }
 ----------
 [dql_mysql_json_0.0166]
@@ -1542,7 +1555,7 @@ sql:
 SELECT * FROM t1 WHERE j->'$.int'=?;
 expect:
 {
-  "j" : [ "/catalog1/schema1/t1/j/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
 }
 ----------
 [dql_mysql_json_0.0167]
@@ -1550,7 +1563,7 @@ sql:
 SELECT * FROM t1 WHERE j->>'$.int'=?;
 expect:
 {
-  "j" : [ "/catalog1/schema1/t1/j/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/t1/id/" ]
 }
 ----------
 [dql_mysql_json_0.0168]

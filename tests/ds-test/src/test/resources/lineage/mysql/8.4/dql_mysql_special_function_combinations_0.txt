@@ -103,7 +103,7 @@ sql:
 SELECT MATCH(title) AGAINST(CONCAT('a','b') IN NATURAL LANGUAGE MODE) FROM articles;
 expect:
 {
-  "MATCH(title) AGAINST(CONCAT('a','b') IN NATURAL LANGUAGE MODE)" : [ ]
+  "MATCH(title) AGAINST(CONCAT('a','b') IN NATURAL LANGUAGE MODE)" : [ "(1:13~1:18) /catalog1/schema1/articles/title/" ]
 }
 ----------
 [dql_mysql_special_function_combinations_0.0015]
@@ -111,7 +111,7 @@ sql:
 SELECT id FROM articles WHERE MATCH title,body AGAINST('database');
 expect:
 {
-  "id" : [ "/catalog1/schema1/articles/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/articles/id/" ]
 }
 ----------
 [dql_mysql_special_function_combinations_0.0016]

@@ -1,0 +1,7 @@
+[json_table_column_source]
+sql:
+select jt.value_col from table1 t join JSON_TABLE(t.column1, '$' COLUMNS(value_col varchar(20) PATH '$')) jt
+expect:
+{
+  "value_col" : [ "(1:50~1:59) /catalog1/schema1/table1/column1/" ]
+}

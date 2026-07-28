@@ -3,5 +3,5 @@ sql:
 SELECT * FROM employees;
 expect:
 {
-  "id" : [ "/catalog1/schema1/employees/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/employees/id/" ]
 }

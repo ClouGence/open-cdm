@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import com.clougence.clouddm.ds.SqlTestSupport;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -16,6 +18,7 @@ import com.clougence.sql.postgres.parser.PgDslProvider;
 import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 
+@Execution(ExecutionMode.CONCURRENT)
 public class PostgresVersionConfigurationTest {
 
     @Test

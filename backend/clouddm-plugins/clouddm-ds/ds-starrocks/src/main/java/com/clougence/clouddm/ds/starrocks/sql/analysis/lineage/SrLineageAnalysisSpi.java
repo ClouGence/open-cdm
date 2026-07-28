@@ -24,7 +24,7 @@ import com.clougence.clouddm.ds.starrocks.sql.analysis.security.SrSqlParserVisit
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.builder.SrBuilderFactory;
 import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.ColumnLineage;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.dslpaser.antlr.DslHelper;
@@ -52,7 +52,7 @@ public class SrLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public List<ColumnLineage> analyze(String sql, LineageContext lineageContext) {
+    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
         SrBuilderFactory builder = new SrBuilderFactory(this.metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> this.parserVisitor(builder, parser));
 

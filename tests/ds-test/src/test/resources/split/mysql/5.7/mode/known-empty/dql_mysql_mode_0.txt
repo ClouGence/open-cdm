@@ -21,7 +21,7 @@ SELECT _utf8mb4'a' "b";
 ----------
 [SELECT] SELECT PI(), PI ();
 ----------
-[SELECT] SELECT split_mode_gap.PI(), split_mode_gap.PI ();
+[SELECT|CALL_PROG_OBJ] SELECT split_mode_gap.PI(), split_mode_gap.PI ();
 ----------
 [SELECT] SELECT "a\\b", "a\\\'b", "a""\\b", "a""\\\'b";
 ----------

@@ -93,7 +93,7 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             case CREATE_ROLE, ALTER_ROLE, DROP_ROLE, RENAME_ROLE, SWITCH_ROLE -> TargetType.Role;
             case DATA_IMPORT, DATA_EXPORT -> TargetType.File;
             case ADMIN_TABLE -> TargetType.Table;
-            case ADMIN, ADMIN_PERFORMANCE, PERFORMANCE, METADATA, SESSION_LOCK -> TargetType.Instance;
+            case ADMIN, ADMIN_PERFORMANCE, PERFORMANCE, METADATA, SESSION_LOCK, UNSAFE -> TargetType.Instance;
             default -> null;
         };
     }

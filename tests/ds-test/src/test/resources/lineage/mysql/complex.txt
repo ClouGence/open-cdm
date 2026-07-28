@@ -18,9 +18,9 @@ WHERE s2t1.column6 IN (
 );
 expect:
 {
-  "main_id" : [ "/catalog1/schema1/table1/column1/" ],
-  "max_val" : [ "/catalog1/schema2/table2/column3/" ],
-  "rank_level" : []
+  "main_id" : [ "(2:7~2:19) /catalog1/schema1/table1/column1/" ],
+  "max_val" : [ "(3:19~3:31) /catalog1/schema2/table2/column3/" ],
+  "rank_level" : [ "(6:29~6:41) /catalog1/schema1/table2/column5/" ]
 }
 ----------
 [MyParseColumnComplexTest.test2]
@@ -43,9 +43,9 @@ HAVING total_sum > (
 );
 expect:
 {
-  "category" : [ "/catalog1/schema1/table1/column2/" ],
-  "total_sum" : [ "/catalog1/schema2/table1/column4/" ],
-  "avg_value" : [ "/catalog1/schema1/table2/column5/" ],
+  "category" : [ "(1:7~1:19) /catalog1/schema1/table1/column2/" ],
+  "total_sum" : [ "(2:11~2:23) /catalog1/schema2/table1/column4/" ],
+  "avg_value" : [ "(3:11~3:23) /catalog1/schema1/table2/column5/", "(3:44~3:56) /catalog1/schema1/table1/column2/" ],
   "related_count" : []
 }
 ----------
@@ -84,14 +84,14 @@ ORDER BY
     END DESC;
 expect:
 {
-  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema2/table1/column1/" ],
-  "column2" : [ "/catalog1/schema1/table1/column2/", "/catalog1/schema2/table1/column2/" ],
-  "column3" : [ "/catalog1/schema1/table1/column3/", "/catalog1/schema2/table1/column3/" ],
-  "column4" : [ "/catalog1/schema1/table1/column4/", "/catalog1/schema2/table1/column4/" ],
-  "column5" : [ "/catalog1/schema1/table1/column5/", "/catalog1/schema2/table1/column5/" ],
-  "column6" : [ "/catalog1/schema1/table1/column6/", "/catalog1/schema2/table1/column6/" ],
-  "s2_col1" : [ "/catalog1/schema2/table2/column1/", "/catalog1/schema1/table2/column2/" ],
-  "conflict_alias" : []
+  "column1" : [ "(3:8~3:14) /catalog1/schema1/table1/column1/", "(15:8~15:14) /catalog1/schema2/table1/column1/" ],
+  "column2" : [ "(3:8~3:14) /catalog1/schema1/table1/column2/", "(15:8~15:14) /catalog1/schema2/table1/column2/" ],
+  "column3" : [ "(3:8~3:14) /catalog1/schema1/table1/column3/", "(15:8~15:14) /catalog1/schema2/table1/column3/" ],
+  "column4" : [ "(3:8~3:14) /catalog1/schema1/table1/column4/", "(15:8~15:14) /catalog1/schema2/table1/column4/" ],
+  "column5" : [ "(3:8~3:14) /catalog1/schema1/table1/column5/", "(15:8~15:14) /catalog1/schema2/table1/column5/" ],
+  "column6" : [ "(3:8~3:14) /catalog1/schema1/table1/column6/", "(15:8~15:14) /catalog1/schema2/table1/column6/" ],
+  "s2_col1" : [ "(4:8~4:20) /catalog1/schema2/table2/column1/", "(16:8~16:20) /catalog1/schema1/table2/column2/" ],
+  "conflict_alias" : [ "(5:36~5:48) /catalog1/schema1/table2/column5/", "(17:34~17:46) /catalog1/schema2/table1/column3/", "(17:56~17:68) /catalog1/schema2/table1/column4/" ]
 }
 ----------
 [MyParseColumnComplexTest.test4]
@@ -99,6 +99,6 @@ sql:
 select a.column1,b.column2 from (select * from table1 union select * from table2) a left join (select * from schema2.table1 union select * from schema2.table2) b on a.column1 = b.column1
 expect:
 {
-  "column1" : [ "/catalog1/schema1/table1/column1/", "/catalog1/schema1/table2/column1/" ],
-  "column2" : [ "/catalog1/schema2/table1/column2/", "/catalog1/schema2/table2/column2/" ]
+  "column1" : [ "(1:40~1:41) /catalog1/schema1/table1/column1/", "(1:67~1:68) /catalog1/schema1/table2/column1/" ],
+  "column2" : [ "(1:102~1:103) /catalog1/schema2/table1/column2/", "(1:137~1:138) /catalog1/schema2/table2/column2/" ]
 }

@@ -273,7 +273,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:18) /test/1/ps_no_args/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -468,7 +468,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps_select/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -498,7 +498,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps_select/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     },
     {
       "subject": "ConfigKey(1:24~1:30) /test/1/ps_id/",
@@ -532,7 +532,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps_select/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     },
     {
       "subject": "ConfigKey(1:24~1:30) /test/1/ps_id/",
@@ -551,7 +551,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:19~1:28) /test/1/ps_select/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -585,7 +585,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps_update/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -619,7 +619,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps_update/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     },
     {
       "subject": "ConfigKey(1:24~1:29) /test/1/ps_v/",
@@ -642,7 +642,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:13~1:22) /test/1/ps_update/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -657,7 +657,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps_insert/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -695,7 +695,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps_insert/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     },
     {
       "subject": "ConfigKey(1:24~1:30) /test/1/ps_id/",
@@ -722,7 +722,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:19~1:28) /test/1/ps_insert/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -737,7 +737,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps_delete/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -767,7 +767,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps_delete/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     },
     {
       "subject": "ConfigKey(1:24~1:30) /test/1/ps_id/",
@@ -786,7 +786,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:19~1:28) /test/1/ps_delete/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -820,7 +820,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:8~1:12) /test/1/p_bt/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -839,7 +839,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:8~1:12) /test/1/p_dq/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -854,7 +854,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:20) /test/1/split_dml_s1/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -869,7 +869,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:20) /test/1/split_dml_s2/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -895,7 +895,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps name/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -910,7 +910,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:17) /test/1/ps name/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -925,7 +925,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:19~1:28) /test/1/ps name/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -944,7 +944,7 @@ expect:
     },
     {
       "subject": "PrepareStatement(1:8~1:10) /test/1/p2/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }
@@ -959,7 +959,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:10) /test/1/p3/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     },
     {
       "subject": "ConfigKey(1:17~1:28) /test/1/arg name/",

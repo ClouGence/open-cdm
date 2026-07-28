@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.ColumnLineage;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.clouddm.sdk.sql.analysis.security.column.QueryItem;
 import com.clougence.dslpaser.antlr.DslHelper;
@@ -41,7 +41,7 @@ public class Sql2003LineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public List<ColumnLineage> analyze(String sql, LineageContext lineageContext) {
+    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
         Sql2003DomainCollector collector = new Sql2003DomainCollector();
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> parserVisitor(collector, parser));
         return toResultColumns(analyzeColumns(lineageContext.getUserUID(), lineageContext.getDsId(), lineageContext.getLevelsParam(), collector.build()));

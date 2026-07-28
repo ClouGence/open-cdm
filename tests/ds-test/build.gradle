@@ -5,6 +5,7 @@ plugins {
 dependencies {
     // project
     testImplementation project(':cgdm-plugin-sdk')
+    testImplementation project(':cgdm-console')
     testImplementation project(':cgdm-share-libs')
     testImplementation project(':cg-schema')
     testImplementation project(':plus-sec-rules')
@@ -60,6 +61,16 @@ dependencies {
 
 test {
     useJUnitPlatform()
+
+    def parserTestParallelism = providers.gradleProperty('parserTestParallelism').getOrElse('16')
+    if (!['8', '16'].contains(parserTestParallelism)) {
+        throw new GradleException('parserTestParallelism must be 8 or 16')
+    }
+
+    systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
+    systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'fixed'
+    systemProperty 'junit.jupiter.execution.parallel.config.fixed.parallelism', parserTestParallelism
+    systemProperty 'junit.jupiter.execution.parallel.config.fixed.max-pool-size', parserTestParallelism
 }
 
 description = 's-test'

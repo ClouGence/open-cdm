@@ -7,6 +7,6 @@ SELECT /*!50000 COUNT (1) */;
 ----------
 [SELECT] SELECT PI(), PI ();
 ----------
-[SELECT] SELECT split_mode_gap.PI(), split_mode_gap.PI ();
+[SELECT|CALL_PROG_OBJ] SELECT split_mode_gap.PI(), split_mode_gap.PI ();
 ----------
 [SELECT] SELECT /*!50000 COUNT (1) */;

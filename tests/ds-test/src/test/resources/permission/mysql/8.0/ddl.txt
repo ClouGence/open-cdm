@@ -1,0 +1,48 @@
+[create_table_as_select]
+sql:
+CREATE TABLE report_orders AS SELECT * FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DDL": [
+    "Table(1:13~1:26) /test/1/catalog1/schema1/report_orders/"
+  ]
+}
+----------
+[create_view]
+sql:
+CREATE VIEW order_view AS SELECT * FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DDL": [
+    "View(1:12~1:22) /test/1/catalog1/schema1/order_view/"
+  ]
+}
+----------
+[create_index]
+sql:
+CREATE INDEX idx_t1_name ON t1(name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DDL": [
+    "Index(1:13~1:24) /test/1/catalog1/schema1/idx_t1_name/",
+    "Table(1:28~1:30) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[create_trigger]
+sql:
+CREATE TRIGGER split80.trg_order_follows BEFORE INSERT ON split80.trigger_src FOR EACH ROW FOLLOWS trg_order_base SET NEW.note = 'follows';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "DDL": [
+    "Table(1:58~1:77) /test/1/catalog1/split80/trigger_src/"
+  ]
+}

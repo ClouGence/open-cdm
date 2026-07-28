@@ -101,12 +101,12 @@ public enum RuleQueryType {
     COMMENT_PARTITION(TargetType.Partition, SecDataAuthKind.DDL, SecQueryKind.ALTER),
 
     // DDL view
-    CREATE_VIEW(TargetType.View, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_VIEW(TargetType.View, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_VIEW(TargetType.View, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
-    RENAME_VIEW(TargetType.View, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    COMMENT_VIEW(TargetType.View, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    CREATE_MATERIALIZED_VIEW(TargetType.Materialized, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
+    CREATE_VIEW(TargetType.View, SecDataAuthKind.DDL, SecQueryKind.CREATE),
+    ALTER_VIEW(TargetType.View, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    DROP_VIEW(TargetType.View, SecDataAuthKind.DDL, SecQueryKind.DROP),
+    RENAME_VIEW(TargetType.View, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_VIEW(TargetType.View, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    CREATE_MATERIALIZED_VIEW(TargetType.Materialized, SecDataAuthKind.DDL, SecQueryKind.CREATE),
 
     // another object
     CREATE_OBJECT(TargetType.Unknown, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
@@ -114,59 +114,59 @@ public enum RuleQueryType {
     DROP_OBJECT(TargetType.Unknown, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
 
     // DDL sequence
-    CREATE_SEQUENCE(TargetType.Sequence, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_SEQUENCE(TargetType.Sequence, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_SEQUENCE(TargetType.Sequence, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
-    RENAME_SEQUENCE(TargetType.Sequence, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    COMMENT_SEQUENCE(TargetType.Sequence, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
+    CREATE_SEQUENCE(TargetType.Sequence, SecDataAuthKind.DDL, SecQueryKind.CREATE),
+    ALTER_SEQUENCE(TargetType.Sequence, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    DROP_SEQUENCE(TargetType.Sequence, SecDataAuthKind.DDL, SecQueryKind.DROP),
+    RENAME_SEQUENCE(TargetType.Sequence, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_SEQUENCE(TargetType.Sequence, SecDataAuthKind.DDL, SecQueryKind.ALTER),
 
     // DDL type
-    CREATE_TYPE(TargetType.Type, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_TYPE(TargetType.Type, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_TYPE(TargetType.Type, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
-    RENAME_TYPE(TargetType.Type, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    COMMENT_TYPE(TargetType.Type, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
+    CREATE_TYPE(TargetType.Type, SecDataAuthKind.DDL, SecQueryKind.CREATE),
+    ALTER_TYPE(TargetType.Type, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    DROP_TYPE(TargetType.Type, SecDataAuthKind.DDL, SecQueryKind.DROP),
+    RENAME_TYPE(TargetType.Type, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_TYPE(TargetType.Type, SecDataAuthKind.DDL, SecQueryKind.ALTER),
     ADMIN_TYPE(TargetType.Type, SecDataAuthKind.ADMIN, SecQueryKind.ADMIN),
 
     // DDL programming object
-    CREATE_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
-    RENAME_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    COMMENT_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
+    CREATE_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.PROGRAM, SecQueryKind.CREATE),
+    ALTER_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    DROP_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.PROGRAM, SecQueryKind.DROP),
+    RENAME_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    COMMENT_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
     CALL_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.CALL, SecQueryKind.CALL),
     ADMIN_PROG_OBJ(TargetType.ProgramObject, SecDataAuthKind.ADMIN, SecQueryKind.ADMIN),
 
     // DDL function
-    CREATE_FUNCTION(TargetType.Function, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_FUNCTION(TargetType.Function, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_FUNCTION(TargetType.Function, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
+    CREATE_FUNCTION(TargetType.Function, SecDataAuthKind.PROGRAM, SecQueryKind.CREATE),
+    ALTER_FUNCTION(TargetType.Function, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    DROP_FUNCTION(TargetType.Function, SecDataAuthKind.PROGRAM, SecQueryKind.DROP),
 
     // DDL procedure
-    CREATE_PROCEDURE(TargetType.Procedure, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_PROCEDURE(TargetType.Procedure, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_PROCEDURE(TargetType.Procedure, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
+    CREATE_PROCEDURE(TargetType.Procedure, SecDataAuthKind.PROGRAM, SecQueryKind.CREATE),
+    ALTER_PROCEDURE(TargetType.Procedure, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    DROP_PROCEDURE(TargetType.Procedure, SecDataAuthKind.PROGRAM, SecQueryKind.DROP),
 
     // DDL trigger
-    CREATE_TRIGGER(TargetType.Trigger, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_TRIGGER(TargetType.Trigger, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_TRIGGER(TargetType.Trigger, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
-    RENAME_TRIGGER(TargetType.Trigger, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    COMMENT_TRIGGER(TargetType.Trigger, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
+    CREATE_TRIGGER(TargetType.Trigger, SecDataAuthKind.PROGRAM, SecQueryKind.CREATE),
+    ALTER_TRIGGER(TargetType.Trigger, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    DROP_TRIGGER(TargetType.Trigger, SecDataAuthKind.PROGRAM, SecQueryKind.DROP),
+    RENAME_TRIGGER(TargetType.Trigger, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    COMMENT_TRIGGER(TargetType.Trigger, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
 
     // DDL synonym
-    CREATE_SYNONYM(TargetType.Synonym, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_SYNONYM(TargetType.Synonym, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_SYNONYM(TargetType.Synonym, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
-    RENAME_SYNONYM(TargetType.Synonym, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    COMMENT_SYNONYM(TargetType.Synonym, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
+    CREATE_SYNONYM(TargetType.Synonym, SecDataAuthKind.DDL, SecQueryKind.CREATE),
+    ALTER_SYNONYM(TargetType.Synonym, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    DROP_SYNONYM(TargetType.Synonym, SecDataAuthKind.DDL, SecQueryKind.DROP),
+    RENAME_SYNONYM(TargetType.Synonym, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_SYNONYM(TargetType.Synonym, SecDataAuthKind.DDL, SecQueryKind.ALTER),
 
     // DDL event
-    CREATE_EVENT(TargetType.Event, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_EVENT(TargetType.Event, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_EVENT(TargetType.Event, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
-    RENAME_EVENT(TargetType.Event, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    COMMENT_EVENT(TargetType.Event, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
+    CREATE_EVENT(TargetType.Event, SecDataAuthKind.PROGRAM, SecQueryKind.CREATE),
+    ALTER_EVENT(TargetType.Event, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    DROP_EVENT(TargetType.Event, SecDataAuthKind.PROGRAM, SecQueryKind.DROP),
+    RENAME_EVENT(TargetType.Event, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    COMMENT_EVENT(TargetType.Event, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
 
     // DDL resource group
     CREATE_RESOURCE_GROUP(TargetType.ResourceGroup, SecDataAuthKind.ADMIN, SecQueryKind.CREATE),
@@ -175,11 +175,11 @@ public enum RuleQueryType {
     ADMIN_RESOURCE_GROUP(TargetType.ResourceGroup, SecDataAuthKind.ADMIN, SecQueryKind.ADMIN),
 
     // DDL job
-    CREATE_JOB(TargetType.Job, SecDataAuthKind.ADMIN, SecQueryKind.CREATE),
-    ALTER_JOB(TargetType.Job, SecDataAuthKind.ADMIN, SecQueryKind.ALTER),
-    DROP_JOB(TargetType.Job, SecDataAuthKind.ADMIN, SecQueryKind.DROP),
-    RENAME_JOB(TargetType.Job, SecDataAuthKind.ADMIN, SecQueryKind.ALTER),
-    COMMENT_JOB(TargetType.Job, SecDataAuthKind.ADMIN, SecQueryKind.ALTER),
+    CREATE_JOB(TargetType.Job, SecDataAuthKind.PROGRAM, SecQueryKind.CREATE),
+    ALTER_JOB(TargetType.Job, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    DROP_JOB(TargetType.Job, SecDataAuthKind.PROGRAM, SecQueryKind.DROP),
+    RENAME_JOB(TargetType.Job, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
+    COMMENT_JOB(TargetType.Job, SecDataAuthKind.PROGRAM, SecQueryKind.ALTER),
     ADMIN_JOB(TargetType.Job, SecDataAuthKind.ADMIN, SecQueryKind.ADMIN),
 
     // DCL
@@ -199,10 +199,10 @@ public enum RuleQueryType {
     CONFIG_WRITE(TargetType.ConfigKey, SecDataAuthKind.ADMIN, SecQueryKind.OTHER),
 
     // DDL library
-    CREATE_LIBRARY(TargetType.Library, SecDataAuthKind.OBJECT, SecQueryKind.CREATE),
-    ALTER_LIBRARY(TargetType.Library, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
-    DROP_LIBRARY(TargetType.Library, SecDataAuthKind.OBJECT, SecQueryKind.DROP),
-    COMMENT_LIBRARY(TargetType.Library, SecDataAuthKind.OBJECT, SecQueryKind.ALTER),
+    CREATE_LIBRARY(TargetType.Library, SecDataAuthKind.ADMIN, SecQueryKind.CREATE),
+    ALTER_LIBRARY(TargetType.Library, SecDataAuthKind.ADMIN, SecQueryKind.ALTER),
+    DROP_LIBRARY(TargetType.Library, SecDataAuthKind.ADMIN, SecQueryKind.DROP),
+    COMMENT_LIBRARY(TargetType.Library, SecDataAuthKind.ADMIN, SecQueryKind.ALTER),
 
     // Replication
     CREATE_REPLICATION(TargetType.Replication, SecDataAuthKind.ADMIN, SecQueryKind.CREATE),
@@ -294,7 +294,7 @@ public enum RuleQueryType {
     MYSQL_REPLACE_INTO(TargetType.Insert, SecDataAuthKind.WRITE, SecQueryKind.DML),
     MYSQL_ALTER_TABLE_CONVERT(TargetType.Table, SecDataAuthKind.DDL, SecQueryKind.ALTER),
     REPAIR(TargetType.Table, SecDataAuthKind.DDL, SecQueryKind.ALTER),
-    CREATE_UDF_FUNCTION(TargetType.Function, SecDataAuthKind.ADMIN, SecQueryKind.CREATE),
+    CREATE_UDF_FUNCTION(TargetType.Function, SecDataAuthKind.PROGRAM, SecQueryKind.CREATE),
     INSTALL_PLUGIN(TargetType.Unknown, SecDataAuthKind.ADMIN, SecQueryKind.OTHER),
     UNINSTALL_PLUGIN(TargetType.Unknown, SecDataAuthKind.ADMIN, SecQueryKind.OTHER),
     RESET(TargetType.Unknown, SecDataAuthKind.ADMIN, SecQueryKind.OTHER),

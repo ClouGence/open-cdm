@@ -15,50 +15,39 @@
  */
 package com.clougence.clouddm.sdk.sql.analysis.behavior;
 
-import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
-
-import lombok.Getter;
-
 /**
  * Semantic action between one behavior subject and one or more behavior objects.
  *
- * <p>An action describes what the statement does and maps to an existing coarse-grained CloudDM
- * authorization kind. It does not represent a database-native privilege.</p>
+ * <p>An action only describes what the statement does. Authorization requirements are derived
+ * from both the action and its resource.</p>
  */
-@Getter
 public enum BehaviorAction {
 
-    CREATE(SecDataAuthKind.DDL),
-    ALTER(SecDataAuthKind.DDL),
-    DROP(SecDataAuthKind.DDL),
-    RENAME(SecDataAuthKind.DDL),
+    CREATE,
+    ALTER,
+    DROP,
+    RENAME,
     //
-    READ(SecDataAuthKind.READ),
-    INSERT(SecDataAuthKind.WRITE),
-    UPDATE(SecDataAuthKind.WRITE),
-    DELETE(SecDataAuthKind.WRITE),
-    MERGE(SecDataAuthKind.WRITE),
-    REPLACE(SecDataAuthKind.WRITE),
-    IMPORT(SecDataAuthKind.WRITE),
-    EXPORT(SecDataAuthKind.READ),
+    READ,
+    INSERT,
+    UPDATE,
+    DELETE,
+    MERGE,
+    REPLACE,
+    IMPORT,
+    EXPORT,
     //
-    CALL(SecDataAuthKind.CALL),
+    CALL,
     //
-    GRANT(SecDataAuthKind.ADMIN),
-    REVOKE(SecDataAuthKind.ADMIN),
-    TRANSFER(SecDataAuthKind.ADMIN),
+    GRANT,
+    REVOKE,
+    TRANSFER,
     //
-    COPY(SecDataAuthKind.WRITE),
-    MOVE(SecDataAuthKind.WRITE),
-    LOCK(SecDataAuthKind.OTHER),
-    CONFIGURE(SecDataAuthKind.ADMIN),
-    SWITCH(SecDataAuthKind.READ),
-    ADMIN(SecDataAuthKind.ADMIN),
-    OTHER(SecDataAuthKind.OTHER);
-
-    private final SecDataAuthKind authKind;
-
-    BehaviorAction(SecDataAuthKind authKind){
-        this.authKind = authKind;
-    }
+    COPY,
+    MOVE,
+    LOCK,
+    CONFIGURE,
+    SWITCH,
+    ADMIN,
+    OTHER;
 }

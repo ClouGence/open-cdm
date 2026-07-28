@@ -3,7 +3,7 @@ sql:
 SELECT * FROM analyse_int UNION SELECT * FROM analyse_int PROCEDURE ANALYSE();
 expect:
 {
-  "id" : [ "/catalog1/schema1/analyse_int/id/", "/catalog1/schema1/analyse_int/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/analyse_int/id/", "(1:39~1:40) /catalog1/schema1/analyse_int/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0002]
@@ -11,7 +11,7 @@ sql:
 SELECT * FROM analyse_int PROCEDURE ANALYSE() UNION SELECT * FROM analyse_int;
 expect:
 {
-  "id" : [ "/catalog1/schema1/analyse_int/id/", "/catalog1/schema1/analyse_int/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/analyse_int/id/", "(1:59~1:60) /catalog1/schema1/analyse_int/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0003]
@@ -58,8 +58,8 @@ sql:
 SELECT l.id,ELT(r.val,'one','two') FROM split_func_set_native.t_left AS l JOIN split_func_set_native.t_right AS r ON r.id=l.id ORDER BY l.id;
 expect:
 {
-  "id" : [ "/catalog1/split_func_set_native/t_left/id/" ],
-  "ELT(r.val,'one','two')" : [ "/catalog1/split_func_set_native/t_right/val/" ]
+  "id" : [ "(1:7~1:11) /catalog1/split_func_set_native/t_left/id/" ],
+  "ELT(r.val,'one','two')" : [ "(1:16~1:21) /catalog1/split_func_set_native/t_right/val/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0008]
@@ -67,7 +67,7 @@ sql:
 SELECT FIND_IN_SET(f1,f1) FROM split_func_set_native.t_set,(SELECT FIND_IN_SET(f1,f1) FROM split_func_set_native.t_set) AS d;
 expect:
 {
-  "FIND_IN_SET(f1,f1)" : [ "/catalog1/split_func_set_native/t_set/f1/", "/catalog1/split_func_set_native/t_set/f1/" ]
+  "FIND_IN_SET(f1,f1)" : [ "(1:19~1:21) /catalog1/split_func_set_native/t_set/f1/", "(1:22~1:24) /catalog1/split_func_set_native/t_set/f1/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0009]
@@ -75,7 +75,7 @@ sql:
 SELECT CONVERT(f1 USING latin1) FROM split_func_set_native.t_set;
 expect:
 {
-  "CONVERT(f1 USING latin1)" : [ "/catalog1/split_func_set_native/t_set/f1/" ]
+  "CONVERT(f1 USING latin1)" : [ "(1:15~1:17) /catalog1/split_func_set_native/t_set/f1/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0010]
@@ -83,7 +83,7 @@ sql:
 SELECT * FROM split_func_set_native.t_set WHERE FIND_IN_SET(DAYOFWEEK(CURRENT_DATE()),days) IS UNKNOWN;
 expect:
 {
-  "days" : [ "/catalog1/split_func_set_native/t_set/days/" ]
+  "id" : [ "(1:7~1:8) /catalog1/split_func_set_native/t_set/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0012]
@@ -100,8 +100,8 @@ SELECT 'literal' AS param,FIND_IN_SET('foxtrot',s),s FROM split_func_set_native.
 expect:
 {
   "param" : [ ],
-  "FIND_IN_SET('foxtrot',s)" : [ "/catalog1/split_func_set_native/t_union/s/", "/catalog1/split_func_set_native/t_union/c/", "/catalog1/split_func_set_native/t_union/s/" ],
-  "s" : [ "/catalog1/split_func_set_native/t_union/s/", "/catalog1/split_func_set_native/t_union/s/" ]
+  "FIND_IN_SET('foxtrot',s)" : [ "(1:48~1:49) /catalog1/split_func_set_native/t_union/s/", "(1:122~1:123) /catalog1/split_func_set_native/t_union/c/", "(1:124~1:125) /catalog1/split_func_set_native/t_union/s/" ],
+  "s" : [ "(1:51~1:52) /catalog1/split_func_set_native/t_union/s/", "(1:127~1:128) /catalog1/split_func_set_native/t_union/s/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0014]
@@ -117,7 +117,7 @@ sql:
 (SELECT a FROM t LIMIT 5 OFFSET 4) UNION ALL SELECT a FROM t2 LIMIT 8 OFFSET 1;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t/a/", "/catalog1/schema1/t2/a/" ]
+  "a" : [ "(1:8~1:9) /catalog1/schema1/t/a/", "(1:52~1:53) /catalog1/schema1/t2/a/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0016]
@@ -245,7 +245,7 @@ sql:
 (SELECT /*+ SET_VAR(sort_buffer_size=16M) */ id FROM t1) UNION ALL (SELECT /*+ SET_VAR(sort_buffer_size=32M) */ id FROM t2);
 expect:
 {
-  "id" : [ "/catalog1/schema1/t1/id/", "/catalog1/schema1/t2/id/" ]
+  "id" : [ "(1:45~1:47) /catalog1/schema1/t1/id/", "(1:112~1:114) /catalog1/schema1/t2/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0039]
@@ -317,7 +317,7 @@ sql:
 SELECT id FROM t WHERE id <= 2 UNION DISTINCT SELECT id FROM t2 WHERE id >= 2 ORDER BY id LIMIT 3;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/", "/catalog1/schema1/t2/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/", "(1:53~1:55) /catalog1/schema1/t2/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0049]
@@ -325,7 +325,7 @@ sql:
 SELECT id FROM t WHERE id = 99 UNION ALL SELECT id FROM t2 WHERE id = 1 INTO @set_id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/", "/catalog1/schema1/t2/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/", "(1:48~1:50) /catalog1/schema1/t2/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0050]
@@ -333,7 +333,7 @@ sql:
 (SELECT id FROM t WHERE id = 1 FOR UPDATE) UNION ALL SELECT id FROM t2 WHERE id = 2;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/", "/catalog1/schema1/t2/id/" ]
+  "id" : [ "(1:8~1:10) /catalog1/schema1/t/id/", "(1:60~1:62) /catalog1/schema1/t2/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0051]
@@ -344,7 +344,7 @@ SELECT id FROM split_set_tail.t2
 FOR UPDATE;
 expect:
 {
-  "id" : [ "/catalog1/split_set_tail/t/id/", "/catalog1/split_set_tail/t2/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_set_tail/t/id/", "(3:7~3:9) /catalog1/split_set_tail/t2/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0052]
@@ -355,7 +355,7 @@ SELECT id FROM split_set_tail.t2
 ORDER BY id LIMIT 1 FOR UPDATE;
 expect:
 {
-  "id" : [ "/catalog1/split_set_tail/t/id/", "/catalog1/split_set_tail/t2/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_set_tail/t/id/", "(3:7~3:9) /catalog1/split_set_tail/t2/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0053]
@@ -366,7 +366,7 @@ SELECT id FROM split_set_tail.t2
 ORDER BY id LIMIT 1 INTO @split_set_tail;
 expect:
 {
-  "id" : [ "/catalog1/split_set_tail/t/id/", "/catalog1/split_set_tail/t2/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_set_tail/t/id/", "(3:7~3:9) /catalog1/split_set_tail/t2/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0054]
@@ -391,8 +391,8 @@ sql:
 SELECT id, CASE WHEN id = (SELECT 1 UNION SELECT 1) THEN 'one' ELSE 'other' END AS kind FROM t ORDER BY id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "kind" : [ "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "kind" : [ "(1:21~1:23) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0057]
@@ -400,7 +400,7 @@ sql:
 SELECT id FROM t AS o WHERE EXISTS (SELECT 1 FROM t2 WHERE t2.id = o.id UNION ALL SELECT 1 FROM t AS i WHERE i.grp = o.grp AND i.id < o.id) ORDER BY id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0058]
@@ -408,7 +408,7 @@ sql:
 SELECT id AS first_id FROM t UNION ALL SELECT id AS second_id FROM t2 ORDER BY first_id LIMIT 4;
 expect:
 {
-  "first_id" : [ "/catalog1/schema1/t/id/", "/catalog1/schema1/t2/id/" ]
+  "first_id" : [ "(1:7~1:9) /catalog1/schema1/t/id/", "(1:46~1:48) /catalog1/schema1/t2/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0059]
@@ -489,7 +489,7 @@ SELECT 1 AS src,1 AS a FROM r UNION SELECT 2,a FROM s GROUP BY a WITH ROLLUP ORD
 expect:
 {
   "src" : [ ],
-  "a" : [ "/catalog1/schema1/s/a/" ]
+  "a" : [ "(1:45~1:46) /catalog1/schema1/s/a/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0070]
@@ -497,7 +497,7 @@ sql:
 SELECT * FROM ((SELECT * FROM r LIMIT 1) UNION (SELECT * FROM s LIMIT 1) UNION (SELECT * FROM t LIMIT 1)) AS d;
 expect:
 {
-  "id" : [ "/catalog1/schema1/r/id/", "/catalog1/schema1/s/id/", "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:23~1:24) /catalog1/schema1/r/id/", "(1:55~1:56) /catalog1/schema1/s/id/", "(1:87~1:88) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0071]
@@ -586,7 +586,7 @@ sql:
 SELECT a INTO @v FROM (SELECT a FROM t1 UNION SELECT a FROM t1) alias;
 expect:
 {
-  "a" : [ "/catalog1/schema1/t1/a/", "/catalog1/schema1/t1/a/" ]
+  "a" : [ "(1:30~1:31) /catalog1/schema1/t1/a/", "(1:53~1:54) /catalog1/schema1/t1/a/" ]
 }
 ----------
 [dql_mysql_set_operations_0.0082]
@@ -594,5 +594,5 @@ sql:
 SELECT (SELECT a UNION SELECT a) INTO @v FROM t1;
 expect:
 {
-  "(SELECT a UNION SELECT a)" : [ ]
+  "(SELECT a UNION SELECT a)" : [ "(1:15~1:16) /catalog1/schema1/t1/a/", "(1:30~1:31) /catalog1/schema1/t1/a/" ]
 }

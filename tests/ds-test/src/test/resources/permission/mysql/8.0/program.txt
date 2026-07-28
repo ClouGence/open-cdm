@@ -1,0 +1,47 @@
+[create_function]
+sql:
+CREATE FUNCTION tax_amount(amount DECIMAL(10,2)) RETURNS DECIMAL(10,2) DETERMINISTIC RETURN amount * 0.1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:26) /test/1/catalog1/schema1/tax_amount/"
+  ]
+}
+----------
+[create_procedure]
+sql:
+CREATE PROCEDURE refresh_orders() SELECT COUNT(*) FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:31) /test/1/catalog1/schema1/refresh_orders/"
+  ]
+}
+----------
+[create_trigger]
+sql:
+CREATE TRIGGER split80.trg_order_follows BEFORE INSERT ON split80.trigger_src FOR EACH ROW FOLLOWS trg_order_base SET NEW.note = 'follows';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:40) /test/1/catalog1/split80/trg_order_follows/"
+  ]
+}
+----------
+[create_event]
+sql:
+CREATE EVENT split_event.ev_unit_0 ON SCHEDULE EVERY 1 YEAR DO SET @event_unit_0=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_0/"
+  ]
+}

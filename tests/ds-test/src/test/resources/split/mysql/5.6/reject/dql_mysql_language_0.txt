@@ -28,8 +28,6 @@ SELECT 1 INTO @x FROM DUAL INTO @y;
 (SELECT 3 AS c) ORDER BY c LIMIT 1 INTO @var;
 (SELECT 4) INTO @var;
 SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (@sample_pct);
-SELECT _filename;
-SELECT 1 AS _filename;
 SELECT 1/*!2*/;
 SELECT 1/*!000002*/;
 ------------------------------------------------------------------------------------------
@@ -89,11 +87,6 @@ SELECT 1 FROM x x, x x0, x x1, x x2, x x3, x x4, x x5, x x6, x x7, x x8, x x9, x
 [SELECT|SESSION_VARIABLE_RW] (SELECT 4) INTO @var;
 ----------
 [SELECT] SELECT * FROM split_sample.t TABLESAMPLE SYSTEM (@sample_pct);
-----------
-[SELECT] SELECT _filename;
-----------
-[SELECT] SELECT 1 AS _filename;
-
 ----------
 [SELECT] SELECT 1/*!2*/;
 ----------

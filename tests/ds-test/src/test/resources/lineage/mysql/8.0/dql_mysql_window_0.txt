@@ -12,9 +12,9 @@ sql:
 WITH grouped AS (SELECT grp, SUM(val) AS total FROM t GROUP BY grp), ranked AS (SELECT grp, total, DENSE_RANK() OVER (ORDER BY total DESC) AS rnk FROM grouped) SELECT grp, total, rnk FROM ranked WHERE EXISTS (SELECT 1 FROM t2 WHERE t2.grp = ranked.grp AND t2.val < ranked.total) UNION ALL SELECT 99, 0, 0 ORDER BY grp;
 expect:
 {
-  "grp" : [ "/catalog1/schema1/t/grp/" ],
-  "total" : [ "/catalog1/schema1/t/val/" ],
-  "rnk" : [ ]
+  "grp" : [ "(1:24~1:27) /catalog1/schema1/t/grp/" ],
+  "total" : [ "(1:33~1:36) /catalog1/schema1/t/val/" ],
+  "rnk" : [ "(1:33~1:36) /catalog1/schema1/t/val/" ]
 }
 ----------
 [dql_mysql_window_0.0003]
@@ -22,9 +22,9 @@ sql:
 SELECT grp, SUM(id) AS group_sum, SUM(SUM(id)) OVER (ORDER BY grp ROWS UNBOUNDED PRECEDING) AS cumulative_sum FROM t GROUP BY grp HAVING COUNT(*) > 0 ORDER BY grp;
 expect:
 {
-  "grp" : [ "/catalog1/schema1/t/grp/" ],
-  "group_sum" : [ "/catalog1/schema1/t/id/" ],
-  "cumulative_sum" : [ "/catalog1/schema1/t/id/" ]
+  "grp" : [ "(1:7~1:10) /catalog1/schema1/t/grp/" ],
+  "group_sum" : [ "(1:16~1:18) /catalog1/schema1/t/id/" ],
+  "cumulative_sum" : [ "(1:42~1:44) /catalog1/schema1/t/id/", "(1:7~1:10) /catalog1/schema1/t/grp/" ]
 }
 ----------
 [dql_mysql_window_0.0005]
@@ -56,9 +56,9 @@ sql:
 SELECT a,b,GROUPING(c+c) FROM split_olap_grouping.t GROUP BY a,b,(c+c) WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_grouping/t/a/" ],
-  "b" : [ "/catalog1/split_olap_grouping/t/b/" ],
-  "GROUPING(c+c)" : [ "/catalog1/split_olap_grouping/t/c/", "/catalog1/split_olap_grouping/t/c/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_grouping/t/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/split_olap_grouping/t/b/" ],
+  "GROUPING(c+c)" : [ "(1:20~1:21) /catalog1/split_olap_grouping/t/c/", "(1:22~1:23) /catalog1/split_olap_grouping/t/c/" ]
 }
 ----------
 [dql_mysql_window_0.0009]
@@ -74,9 +74,9 @@ sql:
 SELECT IF(GROUPING(a)=1,'ALL',a),IF(GROUPING(b)=1,'ALL',b),SUM(c) FROM split_olap_grouping.t GROUP BY a,b WITH ROLLUP;
 expect:
 {
-  "IF(GROUPING(a)=1,'ALL',a)" : [ "/catalog1/split_olap_grouping/t/a/", "/catalog1/split_olap_grouping/t/a/" ],
-  "IF(GROUPING(b)=1,'ALL',b)" : [ "/catalog1/split_olap_grouping/t/b/", "/catalog1/split_olap_grouping/t/b/" ],
-  "SUM(c)" : [ "/catalog1/split_olap_grouping/t/c/" ]
+  "IF(GROUPING(a)=1,'ALL',a)" : [ "(1:19~1:20) /catalog1/split_olap_grouping/t/a/", "(1:30~1:31) /catalog1/split_olap_grouping/t/a/" ],
+  "IF(GROUPING(b)=1,'ALL',b)" : [ "(1:45~1:46) /catalog1/split_olap_grouping/t/b/", "(1:56~1:57) /catalog1/split_olap_grouping/t/b/" ],
+  "SUM(c)" : [ "(1:63~1:64) /catalog1/split_olap_grouping/t/c/" ]
 }
 ----------
 [dql_mysql_window_0.0011]
@@ -84,8 +84,8 @@ sql:
 SELECT DISTINCT GROUPING(a),GROUPING(b) FROM split_olap_grouping.t GROUP BY a,b WITH ROLLUP ORDER BY GROUPING(a),GROUPING(b);
 expect:
 {
-  "GROUPING(a)" : [ "/catalog1/split_olap_grouping/t/a/" ],
-  "GROUPING(b)" : [ "/catalog1/split_olap_grouping/t/b/" ]
+  "GROUPING(a)" : [ "(1:25~1:26) /catalog1/split_olap_grouping/t/a/" ],
+  "GROUPING(b)" : [ "(1:37~1:38) /catalog1/split_olap_grouping/t/b/" ]
 }
 ----------
 [dql_mysql_window_0.0012]
@@ -93,8 +93,8 @@ sql:
 SELECT a,b FROM split_olap_grouping.t GROUP BY GROUPING(a),GROUPING(b) WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_grouping/t/a/" ],
-  "b" : [ "/catalog1/split_olap_grouping/t/b/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_grouping/t/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/split_olap_grouping/t/b/" ]
 }
 ----------
 [dql_mysql_window_0.0013]
@@ -102,7 +102,7 @@ sql:
 SELECT a,GROUPING(1) FROM split_olap_grouping.t GROUP BY 1 WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_grouping/t/a/" ],
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_grouping/t/a/" ],
   "GROUPING(1)" : [ ]
 }
 ----------
@@ -111,8 +111,8 @@ sql:
 SELECT a,GROUPING(SUM(a)) FROM split_olap_grouping.t GROUP BY a WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_grouping/t/a/" ],
-  "GROUPING(SUM(a))" : [ "/catalog1/split_olap_grouping/t/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_grouping/t/a/" ],
+  "GROUPING(SUM(a))" : [ "(1:22~1:23) /catalog1/split_olap_grouping/t/a/" ]
 }
 ----------
 [dql_mysql_window_0.0015]
@@ -120,7 +120,7 @@ sql:
 SELECT GROUPING((SELECT MAX(b) FROM split_olap_grouping.t)) FROM split_olap_grouping.t GROUP BY (SELECT MAX(b) FROM split_olap_grouping.t) WITH ROLLUP;
 expect:
 {
-  "GROUPING((SELECT MAX(b) FROM split_olap_grouping.t))" : [ "/catalog1/split_olap_grouping/t/b/" ]
+  "GROUPING((SELECT MAX(b) FROM split_olap_grouping.t))" : [ "(1:28~1:29) /catalog1/split_olap_grouping/t/b/" ]
 }
 ----------
 [dql_mysql_window_0.0016]
@@ -128,10 +128,10 @@ sql:
 WITH qn AS (SELECT a,b,c,GROUPING(a) AS grouping_a FROM split_olap_grouping.t GROUP BY a,b,c WITH ROLLUP) SELECT * FROM qn;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_grouping/t/a/" ],
-  "b" : [ "/catalog1/split_olap_grouping/t/b/" ],
-  "c" : [ "/catalog1/split_olap_grouping/t/c/" ],
-  "grouping_a" : [ "/catalog1/split_olap_grouping/t/a/" ]
+  "a" : [ "(1:19~1:20) /catalog1/split_olap_grouping/t/a/" ],
+  "b" : [ "(1:21~1:22) /catalog1/split_olap_grouping/t/b/" ],
+  "c" : [ "(1:23~1:24) /catalog1/split_olap_grouping/t/c/" ],
+  "grouping_a" : [ "(1:34~1:35) /catalog1/split_olap_grouping/t/a/" ]
 }
 ----------
 [dql_mysql_window_0.0017]
@@ -139,7 +139,7 @@ sql:
 SELECT GROUPING(f1) FROM split_olap_modern.p GROUP BY f1;
 expect:
 {
-  "GROUPING(f1)" : [ "/catalog1/split_olap_modern/p/f1/" ]
+  "GROUPING(f1)" : [ "(1:16~1:18) /catalog1/split_olap_modern/p/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0018]
@@ -147,7 +147,8 @@ sql:
 SELECT f1,f1+GROUPING(f1) FROM split_olap_modern.p GROUP BY f1 HAVING GROUPING(f1)=0 ORDER BY GROUPING(f1);
 expect:
 {
-  "f1" : [ "/catalog1/split_olap_modern/p/f1/", "/catalog1/split_olap_modern/p/f1/", "/catalog1/split_olap_modern/p/f1/" ]
+  "f1" : [ "(1:7~1:9) /catalog1/split_olap_modern/p/f1/" ],
+  "f1+GROUPING(f1)" : [ "(1:10~1:12) /catalog1/split_olap_modern/p/f1/", "(1:22~1:24) /catalog1/split_olap_modern/p/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0019]
@@ -174,8 +175,8 @@ SELECT RELEASE_ALL_LOCKS(),f1,GROUPING(f1) FROM split_olap_modern.p GROUP BY f1 
 expect:
 {
   "RELEASE_ALL_LOCKS()" : [ ],
-  "f1" : [ "/catalog1/split_olap_modern/p/f1/" ],
-  "GROUPING(f1)" : [ "/catalog1/split_olap_modern/p/f1/" ]
+  "f1" : [ "(1:27~1:29) /catalog1/split_olap_modern/p/f1/" ],
+  "GROUPING(f1)" : [ "(1:39~1:41) /catalog1/split_olap_modern/p/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0022]
@@ -183,7 +184,7 @@ sql:
 SELECT SUM(f1) OVER(PARTITION BY GROUPING(f1)) FROM split_olap_modern.p GROUP BY f1;
 expect:
 {
-  "SUM(f1) OVER(PARTITION BY GROUPING(f1))" : [ "/catalog1/split_olap_modern/p/f1/" ]
+  "SUM(f1) OVER(PARTITION BY GROUPING(f1))" : [ "(1:11~1:13) /catalog1/split_olap_modern/p/f1/", "(1:42~1:44) /catalog1/split_olap_modern/p/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0023]
@@ -191,11 +192,11 @@ sql:
 SELECT f1,GROUPING(f1),COUNT(*),COUNT(*) OVER(),COUNT(f1) OVER() FROM split_olap_modern.p GROUP BY f1 WITH ROLLUP ORDER BY f1;
 expect:
 {
-  "f1" : [ "/catalog1/split_olap_modern/p/f1/" ],
-  "GROUPING(f1)" : [ "/catalog1/split_olap_modern/p/f1/" ],
+  "f1" : [ "(1:7~1:9) /catalog1/split_olap_modern/p/f1/" ],
+  "GROUPING(f1)" : [ "(1:19~1:21) /catalog1/split_olap_modern/p/f1/" ],
   "COUNT(*)" : [ ],
   "COUNT(*) OVER()" : [ ],
-  "COUNT(f1) OVER()" : [ "/catalog1/split_olap_modern/p/f1/" ]
+  "COUNT(f1) OVER()" : [ "(1:54~1:56) /catalog1/split_olap_modern/p/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0024]
@@ -203,7 +204,7 @@ sql:
 SELECT GROUPING(r.pk) FROM split_olap_myisam.left_t AS l LEFT JOIN split_olap_myisam.right_t AS r ON 0 GROUP BY r.pk WITH ROLLUP ORDER BY GROUPING(r.pk);
 expect:
 {
-  "GROUPING(r.pk)" : [ "/catalog1/split_olap_myisam/right_t/pk/" ]
+  "GROUPING(r.pk)" : [ "(1:16~1:20) /catalog1/split_olap_myisam/right_t/pk/" ]
 }
 ----------
 [dql_mysql_window_0.0025]
@@ -211,7 +212,7 @@ sql:
 SELECT CONCAT(v.col_varchar_key,1) AS field1 FROM split_olap_myisam.varchar_t AS v RIGHT JOIN split_olap_myisam.one_t AS o ON v.pk=1 GROUP BY field1 WITH ROLLUP HAVING field1>='n' ORDER BY field1;
 expect:
 {
-  "field1" : [ "/catalog1/split_olap_myisam/varchar_t/col_varchar_key/" ]
+  "field1" : [ "(1:14~1:31) /catalog1/split_olap_myisam/varchar_t/col_varchar_key/" ]
 }
 ----------
 [dql_mysql_window_0.0026]
@@ -219,7 +220,7 @@ sql:
 SELECT int_t.col_int*int_t.col_int AS field2 FROM split_olap_myisam.int_t WHERE int_t.col_int<>1 OR int_t.pk GROUP BY field2 WITH ROLLUP HAVING field2<>239 ORDER BY GROUPING(field2);
 expect:
 {
-  "field2" : [ "/catalog1/split_olap_myisam/int_t/col_int/", "/catalog1/split_olap_myisam/int_t/col_int/" ]
+  "field2" : [ "(1:7~1:20) /catalog1/split_olap_myisam/int_t/col_int/", "(1:21~1:34) /catalog1/split_olap_myisam/int_t/col_int/" ]
 }
 ----------
 [dql_mysql_window_0.0027]
@@ -227,9 +228,9 @@ sql:
 SELECT c,a,SUM(c) OVER() FROM split_olap_myisam.t1,split_olap_myisam.t2 GROUP BY c,a WITH ROLLUP;
 expect:
 {
-  "c" : [ "/catalog1/split_olap_myisam/t1/c/" ],
-  "a" : [ "/catalog1/split_olap_myisam/t1/a/" ],
-  "SUM(c) OVER()" : [ "/catalog1/split_olap_myisam/t1/c/" ]
+  "c" : [ "(1:7~1:8) /catalog1/split_olap_myisam/t1/c/" ],
+  "a" : [ "(1:9~1:10) /catalog1/split_olap_myisam/t1/a/" ],
+  "SUM(c) OVER()" : [ "(1:15~1:16) /catalog1/split_olap_myisam/t1/c/" ]
 }
 ----------
 [dql_mysql_window_0.0028]
@@ -237,8 +238,8 @@ sql:
 SELECT product,SUM(profit) FROM split_olap_native_a.sales GROUP BY 1 WITH ROLLUP;
 expect:
 {
-  "product" : [ "/catalog1/split_olap_native_a/sales/product/" ],
-  "SUM(profit)" : [ "/catalog1/split_olap_native_a/sales/profit/" ]
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "SUM(profit)" : [ "(1:19~1:25) /catalog1/split_olap_native_a/sales/profit/" ]
 }
 ----------
 [dql_mysql_window_0.0029]
@@ -246,10 +247,10 @@ sql:
 SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP;
 expect:
 {
-  "product" : [ "/catalog1/split_olap_native_a/sales/product/" ],
-  "country_id" : [ "/catalog1/split_olap_native_a/sales/country_id/" ],
-  "year" : [ "/catalog1/split_olap_native_a/sales/year/" ],
-  "SUM(profit)" : [ "/catalog1/split_olap_native_a/sales/profit/" ]
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "country_id" : [ "(1:15~1:25) /catalog1/split_olap_native_a/sales/country_id/" ],
+  "year" : [ "(1:26~1:30) /catalog1/split_olap_native_a/sales/year/" ],
+  "SUM(profit)" : [ "(1:35~1:41) /catalog1/split_olap_native_a/sales/profit/" ]
 }
 ----------
 [dql_mysql_window_0.0030]
@@ -257,10 +258,10 @@ sql:
 SELECT product,country_id,year,SUM(profit) FROM split_olap_native_a.sales GROUP BY product,country_id,year WITH ROLLUP LIMIT 3,3;
 expect:
 {
-  "product" : [ "/catalog1/split_olap_native_a/sales/product/" ],
-  "country_id" : [ "/catalog1/split_olap_native_a/sales/country_id/" ],
-  "year" : [ "/catalog1/split_olap_native_a/sales/year/" ],
-  "SUM(profit)" : [ "/catalog1/split_olap_native_a/sales/profit/" ]
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "country_id" : [ "(1:15~1:25) /catalog1/split_olap_native_a/sales/country_id/" ],
+  "year" : [ "(1:26~1:30) /catalog1/split_olap_native_a/sales/year/" ],
+  "SUM(profit)" : [ "(1:35~1:41) /catalog1/split_olap_native_a/sales/profit/" ]
 }
 ----------
 [dql_mysql_window_0.0031]
@@ -268,10 +269,10 @@ sql:
 SELECT product,country_id,COUNT(*),COUNT(DISTINCT year) FROM split_olap_native_a.sales GROUP BY product,country_id WITH ROLLUP;
 expect:
 {
-  "product" : [ "/catalog1/split_olap_native_a/sales/product/" ],
-  "country_id" : [ "/catalog1/split_olap_native_a/sales/country_id/" ],
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "country_id" : [ "(1:15~1:25) /catalog1/split_olap_native_a/sales/country_id/" ],
   "COUNT(*)" : [ ],
-  "COUNT(DISTINCT year)" : [ "/catalog1/split_olap_native_a/sales/year/" ]
+  "COUNT(DISTINCT year)" : [ "(1:50~1:54) /catalog1/split_olap_native_a/sales/year/" ]
 }
 ----------
 [dql_mysql_window_0.0032]
@@ -279,10 +280,10 @@ sql:
 SELECT CONCAT(product,':',country_id) AS 'prod',CONCAT(':',year,':') AS 'year',1+1,SUM(profit)/COUNT(*) FROM split_olap_native_a.sales GROUP BY 1,2 WITH ROLLUP;
 expect:
 {
-  "'prod'" : [ "/catalog1/split_olap_native_a/sales/product/", "/catalog1/split_olap_native_a/sales/country_id/" ],
-  "'year'" : [ "/catalog1/split_olap_native_a/sales/year/" ],
+  "prod" : [ "(1:14~1:21) /catalog1/split_olap_native_a/sales/product/", "(1:26~1:36) /catalog1/split_olap_native_a/sales/country_id/" ],
+  "year" : [ "(1:59~1:63) /catalog1/split_olap_native_a/sales/year/" ],
   "1+1" : [ ],
-  "SUM(profit)/COUNT(*)" : [ "/catalog1/split_olap_native_a/sales/profit/" ]
+  "SUM(profit)/COUNT(*)" : [ "(1:87~1:93) /catalog1/split_olap_native_a/sales/profit/" ]
 }
 ----------
 [dql_mysql_window_0.0033]
@@ -290,10 +291,10 @@ sql:
 SELECT product,country,year,SUM(profit) FROM split_olap_native_a.sales,split_olap_native_a.countries WHERE sales.country_id=countries.country_id GROUP BY product,country,year WITH ROLLUP;
 expect:
 {
-  "product" : [ "/catalog1/split_olap_native_a/sales/product/" ],
-  "country" : [ "/catalog1/split_olap_native_a/sales/country/" ],
-  "year" : [ "/catalog1/split_olap_native_a/sales/year/" ],
-  "SUM(profit)" : [ "/catalog1/split_olap_native_a/sales/profit/" ]
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ],
+  "country" : [ "(1:15~1:22) /catalog1/split_olap_native_a/sales/country/" ],
+  "year" : [ "(1:23~1:27) /catalog1/split_olap_native_a/sales/year/" ],
+  "SUM(profit)" : [ "(1:32~1:38) /catalog1/split_olap_native_a/sales/profit/" ]
 }
 ----------
 [dql_mysql_window_0.0034]
@@ -301,26 +302,32 @@ sql:
 SELECT product FROM split_olap_native_a.sales AS outer_sales WHERE EXISTS (SELECT product,country_id,SUM(profit) FROM split_olap_native_a.sales AS inner_sales WHERE outer_sales.product=inner_sales.product GROUP BY product,country_id WITH ROLLUP HAVING SUM(profit)>6000);
 expect:
 {
-  "product" : [ "/catalog1/split_olap_native_a/sales/product/" ]
+  "product" : [ "(1:7~1:14) /catalog1/split_olap_native_a/sales/product/" ]
 }
 ----------
 [dql_mysql_window_0.0035]
 sql:
 SELECT c1.i,c2.i,COUNT(*) FROM split_olap_native_a.c1,split_olap_native_a.c2 GROUP BY c1.i,c2.i WITH ROLLUP;
 expect:
-{
-  "i" : [ "/catalog1/split_olap_native_a/c1/i/", "/catalog1/split_olap_native_a/c2/i/" ],
-  "COUNT(*)" : [ ]
-}
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/split_olap_native_a/c1/i/" ],
+  "column" : "i"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/split_olap_native_a/c2/i/" ],
+  "column" : "i"
+}, {
+  "sources" : [ ],
+  "column" : "COUNT(*)"
+} ]
 ----------
 [dql_mysql_window_0.0036]
 sql:
 SELECT d.dt AS day,COUNT(d.user_id) AS sample,COUNT(next_day.user_id) AS not_cancelled FROM split_olap_native_a.user_day AS d LEFT JOIN split_olap_native_a.user_day AS next_day ON next_day.user_id=d.user_id AND next_day.dt=DATE_ADD(d.dt,INTERVAL 1 DAY) GROUP BY day WITH ROLLUP;
 expect:
 {
-  "day" : [ "/catalog1/split_olap_native_a/user_day/dt/" ],
-  "sample" : [ "/catalog1/split_olap_native_a/user_day/user_id/" ],
-  "not_cancelled" : [ "/catalog1/split_olap_native_a/user_day/user_id/" ]
+  "day" : [ "(1:7~1:11) /catalog1/split_olap_native_a/user_day/dt/" ],
+  "sample" : [ "(1:25~1:34) /catalog1/split_olap_native_a/user_day/user_id/" ],
+  "not_cancelled" : [ "(1:52~1:68) /catalog1/split_olap_native_a/user_day/user_id/" ]
 }
 ----------
 [dql_mysql_window_0.0037]
@@ -328,8 +335,8 @@ sql:
 SELECT SQL_CALC_FOUND_ROWS a,SUM(b) FROM split_olap_native_a.nums GROUP BY a WITH ROLLUP LIMIT 1;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_native_a/nums/a/" ],
-  "SUM(b)" : [ "/catalog1/split_olap_native_a/nums/b/" ]
+  "a" : [ "(1:27~1:28) /catalog1/split_olap_native_a/nums/a/" ],
+  "SUM(b)" : [ "(1:33~1:34) /catalog1/split_olap_native_a/nums/b/" ]
 }
 ----------
 [dql_mysql_window_0.0038]
@@ -337,9 +344,9 @@ sql:
 SELECT a,SUM(a),SUM(a)+1 FROM (SELECT a FROM split_olap_native_a.nums UNION SELECT 2) AS derived_nums GROUP BY a WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_native_a/nums/a/" ],
-  "SUM(a)" : [ "/catalog1/split_olap_native_a/nums/a/" ],
-  "SUM(a)+1" : [ "/catalog1/split_olap_native_a/nums/a/" ]
+  "a" : [ "(1:38~1:39) /catalog1/split_olap_native_a/nums/a/" ],
+  "SUM(a)" : [ "(1:38~1:39) /catalog1/split_olap_native_a/nums/a/" ],
+  "SUM(a)+1" : [ "(1:38~1:39) /catalog1/split_olap_native_a/nums/a/" ]
 }
 ----------
 [dql_mysql_window_0.0039]
@@ -359,8 +366,9 @@ sql:
 SELECT a,a+1,SUM(a) FROM split_olap_native_a.nums GROUP BY a WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_native_a/nums/a/", "/catalog1/split_olap_native_a/nums/a/" ],
-  "SUM(a)" : [ "/catalog1/split_olap_native_a/nums/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_native_a/nums/a/" ],
+  "a+1" : [ "(1:9~1:10) /catalog1/split_olap_native_a/nums/a/" ],
+  "SUM(a)" : [ "(1:17~1:18) /catalog1/split_olap_native_a/nums/a/" ]
 }
 ----------
 [dql_mysql_window_0.0041]
@@ -368,8 +376,8 @@ sql:
 SELECT a,a+1 AS b_alias FROM split_olap_native_a.nums GROUP BY a WITH ROLLUP HAVING b_alias>2;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_native_a/nums/a/" ],
-  "b_alias" : [ "/catalog1/split_olap_native_a/nums/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_native_a/nums/a/" ],
+  "b_alias" : [ "(1:9~1:10) /catalog1/split_olap_native_a/nums/a/" ]
 }
 ----------
 [dql_mysql_window_0.0042]
@@ -377,8 +385,8 @@ sql:
 SELECT IFNULL(a,'TEST'),COALESCE(b,'TEST') FROM split_olap_native_b.nums GROUP BY a,b WITH ROLLUP;
 expect:
 {
-  "IFNULL(a,'TEST')" : [ "/catalog1/split_olap_native_b/nums/a/" ],
-  "COALESCE(b,'TEST')" : [ "/catalog1/split_olap_native_b/nums/b/" ]
+  "IFNULL(a,'TEST')" : [ "(1:14~1:15) /catalog1/split_olap_native_b/nums/a/" ],
+  "COALESCE(b,'TEST')" : [ "(1:33~1:34) /catalog1/split_olap_native_b/nums/b/" ]
 }
 ----------
 [dql_mysql_window_0.0043]
@@ -386,9 +394,9 @@ sql:
 SELECT a,b,a AS c,COUNT(*) AS row_count FROM split_olap_native_b.nums GROUP BY a,b,c WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_native_b/nums/a/" ],
-  "b" : [ "/catalog1/split_olap_native_b/nums/b/" ],
-  "c" : [ "/catalog1/split_olap_native_b/nums/a/" ],
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_native_b/nums/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/split_olap_native_b/nums/b/" ],
+  "c" : [ "(1:11~1:12) /catalog1/split_olap_native_b/nums/a/" ],
   "row_count" : [ ]
 }
 ----------
@@ -397,7 +405,7 @@ sql:
 SELECT COUNT(a) FROM split_olap_native_b.nums GROUP BY NULL WITH ROLLUP;
 expect:
 {
-  "COUNT(a)" : [ "/catalog1/split_olap_native_b/nums/a/" ]
+  "COUNT(a)" : [ "(1:13~1:14) /catalog1/split_olap_native_b/nums/a/" ]
 }
 ----------
 [dql_mysql_window_0.0045]
@@ -413,7 +421,7 @@ sql:
 SELECT f1 FROM split_olap_native_b.dt GROUP BY (SELECT f1 FROM split_olap_native_b.dt HAVING f1<'2012-12-21 00:00:00') WITH ROLLUP;
 expect:
 {
-  "f1" : [ "/catalog1/split_olap_native_b/dt/f1/" ]
+  "f1" : [ "(1:7~1:9) /catalog1/split_olap_native_b/dt/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0047]
@@ -421,7 +429,7 @@ sql:
 SELECT f1 FROM split_olap_native_b.d GROUP BY (SELECT f1 FROM split_olap_native_b.d HAVING f1<'2012-12-21') WITH ROLLUP;
 expect:
 {
-  "f1" : [ "/catalog1/split_olap_native_b/d/f1/" ]
+  "f1" : [ "(1:7~1:9) /catalog1/split_olap_native_b/d/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0048]
@@ -429,7 +437,7 @@ sql:
 SELECT f1 FROM split_olap_native_b.tm GROUP BY (SELECT f1 FROM split_olap_native_b.tm HAVING f1<'12:12:12') WITH ROLLUP;
 expect:
 {
-  "f1" : [ "/catalog1/split_olap_native_b/tm/f1/" ]
+  "f1" : [ "(1:7~1:9) /catalog1/split_olap_native_b/tm/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0049]
@@ -453,7 +461,7 @@ sql:
 SELECT GROUPING(table2.col_time) FROM split_olap_tail.ttime AS table1,split_olap_tail.ttime AS table2 WHERE table2.pk=1 GROUP BY table2.col_time WITH ROLLUP ORDER BY GROUPING(table2.col_time);
 expect:
 {
-  "GROUPING(table2.col_time)" : [ "/catalog1/split_olap_tail/ttime/col_time/" ]
+  "GROUPING(table2.col_time)" : [ "(1:16~1:31) /catalog1/split_olap_tail/ttime/col_time/" ]
 }
 ----------
 [dql_mysql_window_0.0052]
@@ -461,8 +469,8 @@ sql:
 SELECT (a+1) IS NULL,GROUPING(a+1) FROM split_olap_tail.t GROUP BY a+1 WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_tail/t/a/" ],
-  "GROUPING(a+1)" : [ "/catalog1/split_olap_tail/t/a/" ]
+  "(a+1) IS NULL" : [ "(1:8~1:9) /catalog1/split_olap_tail/t/a/" ],
+  "GROUPING(a+1)" : [ "(1:30~1:31) /catalog1/split_olap_tail/t/a/" ]
 }
 ----------
 [dql_mysql_window_0.0053]
@@ -470,7 +478,7 @@ sql:
 SELECT a AS f1,'w' AS f2 FROM split_olap_tail.t GROUP BY f1,f2 WITH ROLLUP HAVING ISNULL(f2);
 expect:
 {
-  "f1" : [ "/catalog1/split_olap_tail/t/a/" ],
+  "f1" : [ "(1:7~1:8) /catalog1/split_olap_tail/t/a/" ],
   "f2" : [ ]
 }
 ----------
@@ -479,8 +487,8 @@ sql:
 SELECT a=3 OR a=3,a AS f1 FROM split_olap_tail.t GROUP BY f1 WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_tail/t/a/", "/catalog1/split_olap_tail/t/a/" ],
-  "f1" : [ "/catalog1/split_olap_tail/t/a/" ]
+  "a=3 OR a=3" : [ "(1:7~1:8) /catalog1/split_olap_tail/t/a/", "(1:14~1:15) /catalog1/split_olap_tail/t/a/" ],
+  "f1" : [ "(1:18~1:19) /catalog1/split_olap_tail/t/a/" ]
 }
 ----------
 [dql_mysql_window_0.0055]
@@ -489,7 +497,7 @@ SELECT DISTINCT COUNT(*),a+b FROM split_olap_tail.t GROUP BY a+b WITH ROLLUP;
 expect:
 {
   "COUNT(*)" : [ ],
-  "a" : [ "/catalog1/split_olap_tail/t/a/", "/catalog1/split_olap_tail/t/b/" ]
+  "a+b" : [ "(1:25~1:26) /catalog1/split_olap_tail/t/a/", "(1:27~1:28) /catalog1/split_olap_tail/t/b/" ]
 }
 ----------
 [dql_mysql_window_0.0056]
@@ -505,7 +513,7 @@ sql:
 SELECT CONCAT(INSTR(a,'w')) FROM split_olap_tail.t GROUP BY a WITH ROLLUP;
 expect:
 {
-  "CONCAT(INSTR(a,'w'))" : [ "/catalog1/split_olap_tail/t/a/" ]
+  "CONCAT(INSTR(a,'w'))" : [ "(1:20~1:21) /catalog1/split_olap_tail/t/a/" ]
 }
 ----------
 [dql_mysql_window_0.0058]
@@ -513,7 +521,7 @@ sql:
 SELECT REPLACE(IF(t2.a=t2.b,_latin1 'a','e'),'d','b') FROM split_olap_tail.tmix,split_olap_tail.tmix AS t2 GROUP BY REPLACE(IF(t2.a=t2.b,_latin1 'a','e'),'d','b') WITH ROLLUP;
 expect:
 {
-  "REPLACE(IF(t2.a=t2.b,_latin1 'a','e'),'d','b')" : [ "/catalog1/split_olap_tail/tmix/a/", "/catalog1/split_olap_tail/tmix/b/" ]
+  "REPLACE(IF(t2.a=t2.b,_latin1 'a','e'),'d','b')" : [ "(1:18~1:22) /catalog1/split_olap_tail/tmix/a/", "(1:23~1:27) /catalog1/split_olap_tail/tmix/b/" ]
 }
 ----------
 [dql_mysql_window_0.0059]
@@ -521,8 +529,8 @@ sql:
 SELECT a,GROUPING(a) AS ga FROM split_olap_tail.tj JOIN split_olap_tail.tj2 USING(b) GROUP BY a WITH ROLLUP HAVING ga=0;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_tail/tj/a/" ],
-  "ga" : [ "/catalog1/split_olap_tail/tj/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_tail/tj/a/" ],
+  "ga" : [ "(1:18~1:19) /catalog1/split_olap_tail/tj/a/" ]
 }
 ----------
 [dql_mysql_window_0.0060]
@@ -530,12 +538,12 @@ sql:
 SELECT DISTINCT a,b,GROUPING(a),GROUPING(b),GROUPING(a+b),GROUPING(a)+GROUPING(b) FROM split_olap_tail.t GROUP BY a,b,a+b WITH ROLLUP ORDER BY a,b,a+b;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_tail/t/a/" ],
-  "b" : [ "/catalog1/split_olap_tail/t/b/" ],
-  "GROUPING(a)" : [ "/catalog1/split_olap_tail/t/a/" ],
-  "GROUPING(b)" : [ "/catalog1/split_olap_tail/t/b/" ],
-  "GROUPING(a+b)" : [ "/catalog1/split_olap_tail/t/a/", "/catalog1/split_olap_tail/t/b/" ],
-  "GROUPING(a)+GROUPING(b)" : [ "/catalog1/split_olap_tail/t/a/", "/catalog1/split_olap_tail/t/b/" ]
+  "a" : [ "(1:16~1:17) /catalog1/split_olap_tail/t/a/" ],
+  "b" : [ "(1:18~1:19) /catalog1/split_olap_tail/t/b/" ],
+  "GROUPING(a)" : [ "(1:29~1:30) /catalog1/split_olap_tail/t/a/" ],
+  "GROUPING(b)" : [ "(1:41~1:42) /catalog1/split_olap_tail/t/b/" ],
+  "GROUPING(a+b)" : [ "(1:53~1:54) /catalog1/split_olap_tail/t/a/", "(1:55~1:56) /catalog1/split_olap_tail/t/b/" ],
+  "GROUPING(a)+GROUPING(b)" : [ "(1:67~1:68) /catalog1/split_olap_tail/t/a/", "(1:79~1:80) /catalog1/split_olap_tail/t/b/" ]
 }
 ----------
 [dql_mysql_window_0.0061]
@@ -543,7 +551,7 @@ sql:
 SELECT a+COUNT(*) OVER() FROM split_olap_tail.t GROUP BY a WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_tail/t/a/" ]
+  "a+COUNT(*) OVER()" : [ "(1:7~1:8) /catalog1/split_olap_tail/t/a/" ]
 }
 ----------
 [dql_mysql_window_0.0062]
@@ -551,10 +559,10 @@ sql:
 SELECT a,b,2*a+b,SUM(a+b) OVER() FROM split_olap_tail.t GROUP BY a,b WITH ROLLUP;
 expect:
 {
-  "a" : [ "/catalog1/split_olap_tail/t/a/" ],
-  "b" : [ "/catalog1/split_olap_tail/t/b/" ],
-  "2*a+b" : [ "/catalog1/split_olap_tail/t/a/", "/catalog1/split_olap_tail/t/b/" ],
-  "SUM(a+b) OVER()" : [ "/catalog1/split_olap_tail/t/a/", "/catalog1/split_olap_tail/t/b/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_olap_tail/t/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/split_olap_tail/t/b/" ],
+  "2*a+b" : [ "(1:13~1:14) /catalog1/split_olap_tail/t/a/", "(1:15~1:16) /catalog1/split_olap_tail/t/b/" ],
+  "SUM(a+b) OVER()" : [ "(1:21~1:22) /catalog1/split_olap_tail/t/a/", "(1:23~1:24) /catalog1/split_olap_tail/t/b/" ]
 }
 ----------
 [dql_mysql_window_0.0063]
@@ -609,8 +617,8 @@ ORDER BY parent_key
 LIMIT 10;
 expect:
 {
-  "parent_key" : [ "/catalog1/split80_recursive/nodes/parent_id/" ],
-  "max_running" : [ ],
+  "parent_key" : [ "(2:12~2:21) /catalog1/split80_recursive/nodes/parent_id/", "(4:14~4:25) /catalog1/split80_recursive/nodes/parent_id/" ],
+  "max_running" : [ "(2:12~2:21) /catalog1/split80_recursive/nodes/parent_id/", "(4:14~4:25) /catalog1/split80_recursive/nodes/parent_id/", "(2:9~2:11) /catalog1/split80_recursive/nodes/id/", "(4:9~4:13) /catalog1/split80_recursive/nodes/id/" ],
   "total_children" : [ ],
   "kind" : [ ]
 }
@@ -620,10 +628,10 @@ sql:
 WITH combined AS (SELECT id,grp,val FROM split_set_window.t WHERE grp=1 UNION ALL SELECT id,grp,val FROM split_set_window.t2 WHERE grp=2) SELECT id,grp,val,SUM(val) OVER (PARTITION BY grp ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running FROM combined ORDER BY grp,id LIMIT 10;
 expect:
 {
-  "id" : [ "/catalog1/split_set_window/t/id/" ],
-  "grp" : [ "/catalog1/split_set_window/t/grp/" ],
-  "val" : [ "/catalog1/split_set_window/t/val/" ],
-  "running" : [ "/catalog1/split_set_window/t/val/" ]
+  "id" : [ "(1:25~1:27) /catalog1/split_set_window/t/id/", "(1:89~1:91) /catalog1/split_set_window/t2/id/" ],
+  "grp" : [ "(1:28~1:31) /catalog1/split_set_window/t/grp/", "(1:92~1:95) /catalog1/split_set_window/t2/grp/" ],
+  "val" : [ "(1:32~1:35) /catalog1/split_set_window/t/val/", "(1:96~1:99) /catalog1/split_set_window/t2/val/" ],
+  "running" : [ "(1:32~1:35) /catalog1/split_set_window/t/val/", "(1:96~1:99) /catalog1/split_set_window/t2/val/", "(1:28~1:31) /catalog1/split_set_window/t/grp/", "(1:92~1:95) /catalog1/split_set_window/t2/grp/", "(1:25~1:27) /catalog1/split_set_window/t/id/", "(1:89~1:91) /catalog1/split_set_window/t2/id/" ]
 }
 ----------
 [dql_mysql_window_0.0067]
@@ -632,8 +640,8 @@ sql:
 expect:
 {
   "src" : [ ],
-  "id" : [ "/catalog1/split_set_window/t/id/", "/catalog1/split_set_window/t2/id/" ],
-  "rn" : [ ]
+  "id" : [ "(1:19~1:21) /catalog1/split_set_window/t/id/", "(1:138~1:140) /catalog1/split_set_window/t2/id/" ],
+  "rn" : [ "(1:54~1:57) /catalog1/split_set_window/t/grp/", "(1:67~1:70) /catalog1/split_set_window/t/val/", "(1:173~1:176) /catalog1/split_set_window/t2/grp/", "(1:186~1:189) /catalog1/split_set_window/t2/val/" ]
 }
 ----------
 [dql_mysql_window_0.0068]
@@ -642,9 +650,9 @@ WITH l AS (SELECT id,ROW_NUMBER() OVER (ORDER BY id) AS rn FROM split_set_window
 expect:
 {
   "src" : [ ],
-  "id" : [ "/catalog1/split_set_window/t/id/" ],
-  "rn" : [ ],
-  "forward_sum" : [ ]
+  "id" : [ "(1:18~1:20) /catalog1/split_set_window/t/id/", "(1:98~1:100) /catalog1/split_set_window/t2/id/" ],
+  "rn" : [ "(1:18~1:20) /catalog1/split_set_window/t/id/", "(1:98~1:100) /catalog1/split_set_window/t2/id/" ],
+  "forward_sum" : [ "(1:18~1:20) /catalog1/split_set_window/t/id/", "(1:98~1:100) /catalog1/split_set_window/t2/id/", "(1:18~1:20) /catalog1/split_set_window/t/id/", "(1:98~1:100) /catalog1/split_set_window/t2/id/" ]
 }
 ----------
 [dql_mysql_window_0.0069]
@@ -653,8 +661,8 @@ sql:
 expect:
 {
   "src" : [ ],
-  "id" : [ "/catalog1/split_set_window/t/id/", "/catalog1/split_set_window/t2/id/" ],
-  "running" : [ "/catalog1/split_set_window/t/val/", "/catalog1/split_set_window/t2/val/" ]
+  "id" : [ "(1:19~1:21) /catalog1/split_set_window/t/id/", "(1:172~1:174) /catalog1/split_set_window/t2/id/" ],
+  "running" : [ "(1:26~1:29) /catalog1/split_set_window/t/val/", "(1:99~1:102) /catalog1/split_set_window/t/grp/", "(1:19~1:21) /catalog1/split_set_window/t/id/", "(1:179~1:182) /catalog1/split_set_window/t2/val/", "(1:253~1:256) /catalog1/split_set_window/t2/grp/", "(1:172~1:174) /catalog1/split_set_window/t2/id/" ]
 }
 ----------
 [dql_mysql_window_0.0070]
@@ -663,8 +671,8 @@ WITH RECURSIVE seq(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM seq WHERE n<3), u A
 expect:
 {
   "src" : [ ],
-  "id" : [ ],
-  "bucket" : [ ]
+  "id" : [ "(1:137~1:139) /catalog1/split_set_window/t/id/" ],
+  "bucket" : [ "(1:137~1:139) /catalog1/split_set_window/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0071]
@@ -672,7 +680,7 @@ sql:
 SELECT lat_t.a FROM split_subquery_bugs_1550.lat_t,LATERAL (SELECT lat_t.a FROM split_subquery_bugs_1550.lat_t AS inner_t LIMIT 1) AS d1 WHERE 1 IN (SELECT a FROM split_subquery_bugs_1550.lat_t) ORDER BY a;
 expect:
 {
-  "a" : [ "/catalog1/split_subquery_bugs_1550/lat_t/a/" ]
+  "a" : [ "(1:7~1:14) /catalog1/split_subquery_bugs_1550/lat_t/a/" ]
 }
 ----------
 [dql_mysql_window_0.0072]
@@ -680,8 +688,8 @@ sql:
 SELECT * FROM (SELECT a,JSON_ARRAYAGG(a) OVER () AS b FROM win_t) AS d1 WHERE (a,b) IN (SELECT a,JSON_ARRAYAGG(a) OVER () AS b FROM win_t);
 expect:
 {
-  "a" : [ "/catalog1/schema1/win_t/a/" ],
-  "b" : [ "/catalog1/schema1/win_t/a/" ]
+  "a" : [ "(1:22~1:23) /catalog1/schema1/win_t/a/" ],
+  "b" : [ "(1:38~1:39) /catalog1/schema1/win_t/a/" ]
 }
 ----------
 [dql_mysql_window_0.0073]
@@ -689,7 +697,7 @@ sql:
 SELECT COUNT(table1.col_datetime) FROM split_subquery_bugs_1220.q1 AS table1 RIGHT JOIN split_subquery_bugs_1220.q1 AS table2 ON table1.col_varchar_key=table2.col_char WHERE table1.col_char_key IN (SELECT sq2_t1.col_real_key FROM split_subquery_bugs_1220.q2 AS sq2_t1 JOIN split_subquery_bugs_1220.q3 AS sq2_t2 JOIN split_subquery_bugs_1220.q1 AS sq2_t3 ON INSTR(sq2_t3.col_tinyint,'K')=sq2_t2.col_varchar ON sq2_t3.col_varchar_key=sq2_t2.col_varchar_key WHERE sq2_t1.col_mediumint IN (SELECT sq1_t1.col_varchar_key FROM split_subquery_bugs_1220.q1 AS sq1_t1 JOIN split_subquery_bugs_1220.q1 AS sq1_t2 ON sq1_t2.col_tinyint_key=table1.col_tinyint_key)) OR RTRIM(table1.col_tinyint_key) IS NOT NULL;
 expect:
 {
-  "COUNT(table1.col_datetime)" : [ "/catalog1/split_subquery_bugs_1220/q1/col_datetime/" ]
+  "COUNT(table1.col_datetime)" : [ "(1:13~1:32) /catalog1/split_subquery_bugs_1220/q1/col_datetime/" ]
 }
 ----------
 [dql_mysql_window_0.0074]
@@ -705,8 +713,8 @@ sql:
 SELECT alias1.col_time_gckey AS field1,alias1.col_datetime_gckey AS field2 FROM split_subquery_bugs_550.ct1 AS alias1,(SELECT DISTINCT sq1_alias2.* FROM split_subquery_bugs_550.ct1 AS sq1_alias1,split_subquery_bugs_550.ct1 AS sq1_alias2) AS alias2,(SELECT sq2_alias1.* FROM split_subquery_bugs_550.ct1 AS sq2_alias1 RIGHT OUTER JOIN split_subquery_bugs_550.ct1 AS sq2_alias2 INNER JOIN split_subquery_bugs_550.ct2 AS sq2_alias3 ON sq2_alias3.col_int_key=sq2_alias2.col_int_key ON sq2_alias3.col_varchar_key=sq2_alias2.col_varchar_key) AS alias3 WHERE alias2.col_int_key=SOME (WITH qn AS (SELECT sq3_alias1.pk FROM split_subquery_bugs_550.ct1 AS sq3_alias1 WHERE sq3_alias1.col_int_key=alias3.pk) SELECT /*+ MERGE(qn) */ * FROM qn);
 expect:
 {
-  "field1" : [ "/catalog1/split_subquery_bugs_550/ct1/col_time_gckey/" ],
-  "field2" : [ "/catalog1/split_subquery_bugs_550/ct1/col_datetime_gckey/" ]
+  "field1" : [ "(1:7~1:28) /catalog1/split_subquery_bugs_550/ct1/col_time_gckey/" ],
+  "field2" : [ "(1:39~1:64) /catalog1/split_subquery_bugs_550/ct1/col_datetime_gckey/" ]
 }
 ----------
 [dql_mysql_window_0.0076]
@@ -714,7 +722,7 @@ sql:
 SELECT DISTINCT * FROM split_subquery_bugs_550.fx ORDER BY UUID_TO_BIN(ST_ISEMPTY(ST_POINTFROMTEXT(ST_ASWKT(NOT EXISTS(SELECT 1 FROM split_subquery_bugs_550.fx WHERE IS_UUID(CAST(SHA(a>>0xA7FE1B22) AS JSON)) WINDOW w1 AS()),'AXIS-ORDER=SRID-DEFINED'),1,'AXIS-ORDER=LONG-LAT')));
 expect:
 {
-  "id" : [ "/catalog1/split_subquery_bugs_550/fx/id/" ]
+  "id" : [ "(1:16~1:17) /catalog1/split_subquery_bugs_550/fx/id/" ]
 }
 ----------
 [dql_mysql_window_0.0077]
@@ -884,16 +892,16 @@ sql:
 SELECT HEX(BIT_OR(i) OVER w),HEX(BIT_OR(b) OVER w),HEX(BIT_OR(lb) OVER w),HEX(BIT_XOR(i) OVER w),HEX(BIT_XOR(b) OVER w),HEX(BIT_XOR(lb) OVER w),HEX(BIT_AND(i) OVER w),HEX(BIT_AND(b) OVER w),HEX(BIT_AND(lb) OVER w),SUM(d) OVER w FROM split_window_bit.t WINDOW w AS (ORDER BY i ROWS 2 PRECEDING);
 expect:
 {
-  "HEX(BIT_OR(i) OVER w)" : [ "/catalog1/split_window_bit/t/i/" ],
-  "HEX(BIT_OR(b) OVER w)" : [ "/catalog1/split_window_bit/t/b/" ],
-  "HEX(BIT_OR(lb) OVER w)" : [ "/catalog1/split_window_bit/t/lb/" ],
-  "HEX(BIT_XOR(i) OVER w)" : [ "/catalog1/split_window_bit/t/i/" ],
-  "HEX(BIT_XOR(b) OVER w)" : [ "/catalog1/split_window_bit/t/b/" ],
-  "HEX(BIT_XOR(lb) OVER w)" : [ "/catalog1/split_window_bit/t/lb/" ],
-  "HEX(BIT_AND(i) OVER w)" : [ "/catalog1/split_window_bit/t/i/" ],
-  "HEX(BIT_AND(b) OVER w)" : [ "/catalog1/split_window_bit/t/b/" ],
-  "HEX(BIT_AND(lb) OVER w)" : [ "/catalog1/split_window_bit/t/lb/" ],
-  "SUM(d) OVER w" : [ "/catalog1/split_window_bit/t/d/" ]
+  "HEX(BIT_OR(i) OVER w)" : [ "(1:18~1:19) /catalog1/split_window_bit/t/i/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ],
+  "HEX(BIT_OR(b) OVER w)" : [ "(1:40~1:41) /catalog1/split_window_bit/t/b/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ],
+  "HEX(BIT_OR(lb) OVER w)" : [ "(1:62~1:64) /catalog1/split_window_bit/t/lb/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ],
+  "HEX(BIT_XOR(i) OVER w)" : [ "(1:86~1:87) /catalog1/split_window_bit/t/i/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ],
+  "HEX(BIT_XOR(b) OVER w)" : [ "(1:109~1:110) /catalog1/split_window_bit/t/b/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ],
+  "HEX(BIT_XOR(lb) OVER w)" : [ "(1:132~1:134) /catalog1/split_window_bit/t/lb/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ],
+  "HEX(BIT_AND(i) OVER w)" : [ "(1:156~1:157) /catalog1/split_window_bit/t/i/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ],
+  "HEX(BIT_AND(b) OVER w)" : [ "(1:179~1:180) /catalog1/split_window_bit/t/b/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ],
+  "HEX(BIT_AND(lb) OVER w)" : [ "(1:202~1:204) /catalog1/split_window_bit/t/lb/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ],
+  "SUM(d) OVER w" : [ "(1:218~1:219) /catalog1/split_window_bit/t/d/", "(1:274~1:275) /catalog1/split_window_bit/t/i/" ]
 }
 ----------
 [dql_mysql_window_0.0094]
@@ -901,8 +909,8 @@ sql:
 SELECT HEX(BIT_AND(b) OVER w),SUM(d) OVER w FROM split_window_bit.t WINDOW w AS (ORDER BY i ROWS 2 PRECEDING);
 expect:
 {
-  "HEX(BIT_AND(b) OVER w)" : [ "/catalog1/split_window_bit/t/b/" ],
-  "SUM(d) OVER w" : [ "/catalog1/split_window_bit/t/d/" ]
+  "HEX(BIT_AND(b) OVER w)" : [ "(1:19~1:20) /catalog1/split_window_bit/t/b/", "(1:90~1:91) /catalog1/split_window_bit/t/i/" ],
+  "SUM(d) OVER w" : [ "(1:34~1:35) /catalog1/split_window_bit/t/d/", "(1:90~1:91) /catalog1/split_window_bit/t/i/" ]
 }
 ----------
 [dql_mysql_window_0.0095]
@@ -910,11 +918,11 @@ sql:
 SELECT c,BIT_AND(c) OVER w,BIT_OR(c) OVER w,BIT_XOR(c) OVER w,SUM(d) OVER w FROM split_window_bit.empty_frame WINDOW w AS (ORDER BY c ROWS BETWEEN 5 PRECEDING AND 3 PRECEDING);
 expect:
 {
-  "c" : [ "/catalog1/split_window_bit/empty_frame/c/" ],
-  "BIT_AND(c) OVER w" : [ "/catalog1/split_window_bit/empty_frame/c/" ],
-  "BIT_OR(c) OVER w" : [ "/catalog1/split_window_bit/empty_frame/c/" ],
-  "BIT_XOR(c) OVER w" : [ "/catalog1/split_window_bit/empty_frame/c/" ],
-  "SUM(d) OVER w" : [ "/catalog1/split_window_bit/empty_frame/d/" ]
+  "c" : [ "(1:7~1:8) /catalog1/split_window_bit/empty_frame/c/" ],
+  "BIT_AND(c) OVER w" : [ "(1:17~1:18) /catalog1/split_window_bit/empty_frame/c/", "(1:7~1:8) /catalog1/split_window_bit/empty_frame/c/" ],
+  "BIT_OR(c) OVER w" : [ "(1:34~1:35) /catalog1/split_window_bit/empty_frame/c/", "(1:7~1:8) /catalog1/split_window_bit/empty_frame/c/" ],
+  "BIT_XOR(c) OVER w" : [ "(1:52~1:53) /catalog1/split_window_bit/empty_frame/c/", "(1:7~1:8) /catalog1/split_window_bit/empty_frame/c/" ],
+  "SUM(d) OVER w" : [ "(1:66~1:67) /catalog1/split_window_bit/empty_frame/d/", "(1:7~1:8) /catalog1/split_window_bit/empty_frame/c/" ]
 }
 ----------
 [dql_mysql_window_0.0096]
@@ -922,10 +930,10 @@ sql:
 SELECT HEX(BIT_OR(b) OVER w),HEX(BIT_AND(b) OVER w),HEX(BIT_XOR(b) OVER w),SUM(d) OVER w FROM split_window_bit.b511 WINDOW w AS (ORDER BY i ROWS BETWEEN 1 PRECEDING AND CURRENT ROW);
 expect:
 {
-  "HEX(BIT_OR(b) OVER w)" : [ "/catalog1/split_window_bit/b511/b/" ],
-  "HEX(BIT_AND(b) OVER w)" : [ "/catalog1/split_window_bit/b511/b/" ],
-  "HEX(BIT_XOR(b) OVER w)" : [ "/catalog1/split_window_bit/b511/b/" ],
-  "SUM(d) OVER w" : [ "/catalog1/split_window_bit/b511/d/" ]
+  "HEX(BIT_OR(b) OVER w)" : [ "(1:18~1:19) /catalog1/split_window_bit/b511/b/", "(1:138~1:139) /catalog1/split_window_bit/b511/i/" ],
+  "HEX(BIT_AND(b) OVER w)" : [ "(1:41~1:42) /catalog1/split_window_bit/b511/b/", "(1:138~1:139) /catalog1/split_window_bit/b511/i/" ],
+  "HEX(BIT_XOR(b) OVER w)" : [ "(1:64~1:65) /catalog1/split_window_bit/b511/b/", "(1:138~1:139) /catalog1/split_window_bit/b511/i/" ],
+  "SUM(d) OVER w" : [ "(1:79~1:80) /catalog1/split_window_bit/b511/d/", "(1:138~1:139) /catalog1/split_window_bit/b511/i/" ]
 }
 ----------
 [dql_mysql_window_0.0097]
@@ -933,10 +941,10 @@ sql:
 SELECT HEX(BIT_OR(b) OVER w),HEX(BIT_AND(b) OVER w),HEX(BIT_XOR(b) OVER w),SUM(d) OVER w FROM split_window_bit.b512 WINDOW w AS (ORDER BY i ROWS BETWEEN 1 PRECEDING AND CURRENT ROW);
 expect:
 {
-  "HEX(BIT_OR(b) OVER w)" : [ "/catalog1/split_window_bit/b512/b/" ],
-  "HEX(BIT_AND(b) OVER w)" : [ "/catalog1/split_window_bit/b512/b/" ],
-  "HEX(BIT_XOR(b) OVER w)" : [ "/catalog1/split_window_bit/b512/b/" ],
-  "SUM(d) OVER w" : [ "/catalog1/split_window_bit/b512/d/" ]
+  "HEX(BIT_OR(b) OVER w)" : [ "(1:18~1:19) /catalog1/split_window_bit/b512/b/", "(1:138~1:139) /catalog1/split_window_bit/b512/i/" ],
+  "HEX(BIT_AND(b) OVER w)" : [ "(1:41~1:42) /catalog1/split_window_bit/b512/b/", "(1:138~1:139) /catalog1/split_window_bit/b512/i/" ],
+  "HEX(BIT_XOR(b) OVER w)" : [ "(1:64~1:65) /catalog1/split_window_bit/b512/b/", "(1:138~1:139) /catalog1/split_window_bit/b512/i/" ],
+  "SUM(d) OVER w" : [ "(1:79~1:80) /catalog1/split_window_bit/b512/d/", "(1:138~1:139) /catalog1/split_window_bit/b512/i/" ]
 }
 ----------
 [dql_mysql_window_0.0098]
@@ -944,10 +952,11 @@ sql:
 SELECT id,id<=6,HEX(b),HEX(BIT_AND(b) OVER w),SUM(d) OVER w FROM split_window_bit.part WINDOW w AS (PARTITION BY id<=6 ORDER BY id ROWS BETWEEN 1 PRECEDING AND CURRENT ROW);
 expect:
 {
-  "id" : [ "/catalog1/split_window_bit/part/id/", "/catalog1/split_window_bit/part/id/" ],
-  "HEX(b)" : [ "/catalog1/split_window_bit/part/b/" ],
-  "HEX(BIT_AND(b) OVER w)" : [ "/catalog1/split_window_bit/part/b/" ],
-  "SUM(d) OVER w" : [ "/catalog1/split_window_bit/part/d/" ]
+  "id" : [ "(1:7~1:9) /catalog1/split_window_bit/part/id/" ],
+  "id<=6" : [ "(1:10~1:12) /catalog1/split_window_bit/part/id/" ],
+  "HEX(b)" : [ "(1:20~1:21) /catalog1/split_window_bit/part/b/" ],
+  "HEX(BIT_AND(b) OVER w)" : [ "(1:35~1:36) /catalog1/split_window_bit/part/b/", "(1:7~1:9) /catalog1/split_window_bit/part/id/", "(1:7~1:9) /catalog1/split_window_bit/part/id/" ],
+  "SUM(d) OVER w" : [ "(1:50~1:51) /catalog1/split_window_bit/part/d/", "(1:7~1:9) /catalog1/split_window_bit/part/id/", "(1:7~1:9) /catalog1/split_window_bit/part/id/" ]
 }
 ----------
 [dql_mysql_window_0.0099]
@@ -955,7 +964,7 @@ sql:
 SELECT a,PERCENT_RANK() OVER w1 FROM split_window_bugs.v_blob GROUP BY b,1 WITH ROLLUP WINDOW w1 AS ();
 expect:
 {
-  "a" : [ "/catalog1/split_window_bugs/v_blob/a/" ],
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/v_blob/a/" ],
   "PERCENT_RANK() OVER w1" : [ ]
 }
 ----------
@@ -964,8 +973,8 @@ sql:
 SELECT doc->'$.txt',LAG(doc->'$.txt') OVER (ORDER BY doc->'$.txt') FROM split_window_bugs.t_json;
 expect:
 {
-  "doc" : [ "/catalog1/split_window_bugs/t_json/doc/" ],
-  "LAG(doc->'$.txt') OVER (ORDER BY doc->'$.txt')" : [ "/catalog1/split_window_bugs/t_json/doc/" ]
+  "doc->'$.txt'" : [ "(1:7~1:10) /catalog1/split_window_bugs/t_json/doc/" ],
+  "LAG(doc->'$.txt') OVER (ORDER BY doc->'$.txt')" : [ "(1:24~1:27) /catalog1/split_window_bugs/t_json/doc/", "(1:53~1:56) /catalog1/split_window_bugs/t_json/doc/" ]
 }
 ----------
 [dql_mysql_window_0.0101]
@@ -973,11 +982,11 @@ sql:
 SELECT FIRST_VALUE(-2605.952148) OVER w,LAST_VALUE(-2605.952148) OVER w,NTH_VALUE(-2605.952148,1) OVER w,LEAD(-2605.952148,1) OVER w,MAX(-2605.952148) OVER w FROM split_window_bugs.t_int WINDOW w AS (PARTITION BY a ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING);
 expect:
 {
-  "FIRST_VALUE(-2605.952148) OVER w" : [ ],
-  "LAST_VALUE(-2605.952148) OVER w" : [ ],
-  "NTH_VALUE(-2605.952148,1) OVER w" : [ ],
-  "LEAD(-2605.952148,1) OVER w" : [ ],
-  "MAX(-2605.952148) OVER w" : [ ]
+  "FIRST_VALUE(-2605.952148) OVER w" : [ "(1:213~1:214) /catalog1/split_window_bugs/t_int/a/" ],
+  "LAST_VALUE(-2605.952148) OVER w" : [ "(1:213~1:214) /catalog1/split_window_bugs/t_int/a/" ],
+  "NTH_VALUE(-2605.952148,1) OVER w" : [ "(1:213~1:214) /catalog1/split_window_bugs/t_int/a/" ],
+  "LEAD(-2605.952148,1) OVER w" : [ "(1:213~1:214) /catalog1/split_window_bugs/t_int/a/" ],
+  "MAX(-2605.952148) OVER w" : [ "(1:213~1:214) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0102]
@@ -1020,7 +1029,7 @@ sql:
 SELECT RANK() OVER w2 FROM split_window_bugs.t_int WINDOW w1 AS (ORDER BY a),w2 AS (w1),w3 AS (w1);
 expect:
 {
-  "RANK() OVER w2" : [ ]
+  "RANK() OVER w2" : [ "(1:74~1:75) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0107]
@@ -1028,7 +1037,7 @@ sql:
 SELECT RANK() OVER w1 FROM split_window_bugs.t_int WINDOW w2 AS (w1),w1 AS (ORDER BY a);
 expect:
 {
-  "RANK() OVER w1" : [ ]
+  "RANK() OVER w1" : [ "(1:85~1:86) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0108]
@@ -1036,8 +1045,8 @@ sql:
 SELECT FIRST_VALUE(c) OVER w,LAST_VALUE(c) OVER w FROM split_window_bugs.t_long WINDOW w AS (ORDER BY c ROWS BETWEEN 3 FOLLOWING AND 5 FOLLOWING);
 expect:
 {
-  "FIRST_VALUE(c) OVER w" : [ "/catalog1/split_window_bugs/t_long/c/" ],
-  "LAST_VALUE(c) OVER w" : [ "/catalog1/split_window_bugs/t_long/c/" ]
+  "FIRST_VALUE(c) OVER w" : [ "(1:19~1:20) /catalog1/split_window_bugs/t_long/c/", "(1:102~1:103) /catalog1/split_window_bugs/t_long/c/" ],
+  "LAST_VALUE(c) OVER w" : [ "(1:40~1:41) /catalog1/split_window_bugs/t_long/c/", "(1:102~1:103) /catalog1/split_window_bugs/t_long/c/" ]
 }
 ----------
 [dql_mysql_window_0.0109]
@@ -1045,7 +1054,7 @@ sql:
 SELECT EXISTS(SELECT a,LAST_VALUE(INET_ATON(1)) OVER () FROM split_window_bugs.t_bit WHERE BIT_OR(1));
 expect:
 {
-  "EXISTS(SELECT a,LAST_VALUE(INET_ATON(1)) OVER () FROM split_window_bugs.t_bit WHERE BIT_OR(1))" : [ ]
+  "EXISTS(SELECT a,LAST_VALUE(INET_ATON(1)) OVER () FROM split_window_bugs.t_bit WHERE BIT_OR(1))" : [ "(1:21~1:22) /catalog1/split_window_bugs/t_bit/a/" ]
 }
 ----------
 [dql_mysql_window_0.0110]
@@ -1053,10 +1062,10 @@ sql:
 SELECT LEAD(f1,1,1) OVER (ORDER BY f1),LAG(f1,1,1) OVER (ORDER BY f1),LAG((f1+3/2-1+5),1,1) OVER (ORDER BY f1),COALESCE(LAG(f1,1,1) OVER (ORDER BY f1)) FROM split_window_bugs.t_gen GROUP BY f1 WITH ROLLUP;
 expect:
 {
-  "LEAD(f1,1,1) OVER (ORDER BY f1)" : [ "/catalog1/split_window_bugs/t_gen/f1/" ],
-  "LAG(f1,1,1) OVER (ORDER BY f1)" : [ "/catalog1/split_window_bugs/t_gen/f1/" ],
-  "LAG((f1+3/2-1+5),1,1) OVER (ORDER BY f1)" : [ "/catalog1/split_window_bugs/t_gen/f1/" ],
-  "COALESCE(LAG(f1,1,1) OVER (ORDER BY f1))" : [ "/catalog1/split_window_bugs/t_gen/f1/" ]
+  "LEAD(f1,1,1) OVER (ORDER BY f1)" : [ "(1:12~1:14) /catalog1/split_window_bugs/t_gen/f1/", "(1:35~1:37) /catalog1/split_window_bugs/t_gen/f1/" ],
+  "LAG(f1,1,1) OVER (ORDER BY f1)" : [ "(1:43~1:45) /catalog1/split_window_bugs/t_gen/f1/", "(1:66~1:68) /catalog1/split_window_bugs/t_gen/f1/" ],
+  "LAG((f1+3/2-1+5),1,1) OVER (ORDER BY f1)" : [ "(1:75~1:77) /catalog1/split_window_bugs/t_gen/f1/", "(1:107~1:109) /catalog1/split_window_bugs/t_gen/f1/" ],
+  "COALESCE(LAG(f1,1,1) OVER (ORDER BY f1))" : [ "(1:124~1:126) /catalog1/split_window_bugs/t_gen/f1/", "(1:147~1:149) /catalog1/split_window_bugs/t_gen/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0111]
@@ -1064,8 +1073,8 @@ sql:
 SELECT b,CUME_DIST() OVER (PARTITION BY b ORDER BY a RANGE BETWEEN CURRENT ROW AND 1 FOLLOWING) FROM split_window_bugs.t_big;
 expect:
 {
-  "b" : [ "/catalog1/split_window_bugs/t_big/b/" ],
-  "CUME_DIST() OVER (PARTITION BY b ORDER BY a RANGE BETWEEN CURRENT ROW AND 1 FOLLOWING)" : [ ]
+  "b" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_big/b/" ],
+  "CUME_DIST() OVER (PARTITION BY b ORDER BY a RANGE BETWEEN CURRENT ROW AND 1 FOLLOWING)" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_big/b/", "(1:51~1:52) /catalog1/split_window_bugs/t_big/a/" ]
 }
 ----------
 [dql_mysql_window_0.0112]
@@ -1073,7 +1082,7 @@ sql:
 SELECT * FROM (SELECT IF(1,WEEKDAY('1'),ROW_NUMBER() OVER (PARTITION BY a)) FROM split_window_bugs.t_int) d;
 expect:
 {
-  "IF(1,WEEKDAY('1'),ROW_NUMBER() OVER (PARTITION BY a))" : [ ]
+  "IF(1,WEEKDAY('1'),ROW_NUMBER() OVER (PARTITION BY a))" : [ "(1:72~1:73) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0113]
@@ -1081,9 +1090,9 @@ sql:
 SELECT a,COUNT(a) OVER w,LAG(1,13) RESPECT NULLS OVER w FROM split_window_bugs.t_small WINDOW w AS (ORDER BY a RANGE BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING);
 expect:
 {
-  "a" : [ "/catalog1/split_window_bugs/t_small/a/" ],
-  "COUNT(a) OVER w" : [ "/catalog1/split_window_bugs/t_small/a/" ],
-  "LAG(1,13) RESPECT NULLS OVER w" : [ ]
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_small/a/" ],
+  "COUNT(a) OVER w" : [ "(1:15~1:16) /catalog1/split_window_bugs/t_small/a/", "(1:7~1:8) /catalog1/split_window_bugs/t_small/a/" ],
+  "LAG(1,13) RESPECT NULLS OVER w" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_small/a/" ]
 }
 ----------
 [dql_mysql_window_0.0114]
@@ -1100,8 +1109,8 @@ sql:
 WITH der AS (SELECT CASE WHEN i IN ('0') THEN i END AS a FROM split_window_bugs.t_i),der1 AS (SELECT ROW_NUMBER() OVER (ORDER BY a),a FROM der) SELECT * FROM der1;
 expect:
 {
-  "ROW_NUMBER() OVER (ORDER BY a)" : [ ],
-  "a" : [ "/catalog1/split_window_bugs/t_i/i/", "/catalog1/split_window_bugs/t_i/i/" ]
+  "ROW_NUMBER() OVER (ORDER BY a)" : [ "(1:30~1:31) /catalog1/split_window_bugs/t_i/i/", "(1:46~1:47) /catalog1/split_window_bugs/t_i/i/" ],
+  "a" : [ "(1:30~1:31) /catalog1/split_window_bugs/t_i/i/", "(1:46~1:47) /catalog1/split_window_bugs/t_i/i/" ]
 }
 ----------
 [dql_mysql_window_0.0116]
@@ -1109,8 +1118,8 @@ sql:
 SELECT i+1 AS b,ROW_NUMBER() OVER (ORDER BY b) FROM split_window_bugs.t_i;
 expect:
 {
-  "b" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "ROW_NUMBER() OVER (ORDER BY b)" : [ ]
+  "b" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_i/i/" ],
+  "ROW_NUMBER() OVER (ORDER BY b)" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_i/i/" ]
 }
 ----------
 [dql_mysql_window_0.0117]
@@ -1119,7 +1128,7 @@ WITH tab(t,company,quote) AS (SELECT 1,'G',40 UNION SELECT 2,'G',60 UNION SELECT
 expect:
 {
   "company" : [ ],
-  "quote" : [ ]
+  "quote-LAG(quote) OVER (PARTITION BY company ORDER BY t)" : [ ]
 }
 ----------
 [dql_mysql_window_0.0118]
@@ -1136,10 +1145,10 @@ sql:
 SELECT a,b,FIRST_VALUE(b) OVER w,LAST_VALUE(a) OVER w FROM split_window_bugs.t_ab WINDOW w AS (ORDER BY a DESC RANGE 3 PRECEDING);
 expect:
 {
-  "a" : [ "/catalog1/split_window_bugs/t_ab/a/" ],
-  "b" : [ "/catalog1/split_window_bugs/t_ab/b/" ],
-  "FIRST_VALUE(b) OVER w" : [ "/catalog1/split_window_bugs/t_ab/b/" ],
-  "LAST_VALUE(a) OVER w" : [ "/catalog1/split_window_bugs/t_ab/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_ab/a/" ],
+  "b" : [ "(1:9~1:10) /catalog1/split_window_bugs/t_ab/b/" ],
+  "FIRST_VALUE(b) OVER w" : [ "(1:23~1:24) /catalog1/split_window_bugs/t_ab/b/", "(1:7~1:8) /catalog1/split_window_bugs/t_ab/a/" ],
+  "LAST_VALUE(a) OVER w" : [ "(1:44~1:45) /catalog1/split_window_bugs/t_ab/a/", "(1:7~1:8) /catalog1/split_window_bugs/t_ab/a/" ]
 }
 ----------
 [dql_mysql_window_0.0120]
@@ -1168,7 +1177,7 @@ sql:
 SELECT ts+INTERVAL(LAST_VALUE(1) OVER ()) SECOND FROM (SELECT TIMESTAMP'2000-01-01 00:00:00' ts) q;
 expect:
 {
-  "ts" : [ ]
+  "ts+INTERVAL(LAST_VALUE(1) OVER ()) SECOND" : [ ]
 }
 ----------
 [dql_mysql_window_0.0123]
@@ -1176,7 +1185,7 @@ sql:
 SELECT i FROM split_window_bugs.t_i outer_t WHERE (i,i) IN (SELECT MAX(i) OVER (),i FROM split_window_bugs.t_i);
 expect:
 {
-  "i" : [ "/catalog1/split_window_bugs/t_i/i/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_i/i/" ]
 }
 ----------
 [dql_mysql_window_0.0124]
@@ -1184,7 +1193,7 @@ sql:
 SELECT CUME_DIST() OVER (ORDER BY t1.i) FROM split_window_bugs.t_i t1 NATURAL JOIN split_window_bugs.t_i t2 NATURAL JOIN split_window_bugs.t_i t3 NATURAL JOIN split_window_bugs.t_i t4 GROUP BY t1.i WITH ROLLUP;
 expect:
 {
-  "CUME_DIST() OVER (ORDER BY t1.i)" : [ ]
+  "CUME_DIST() OVER (ORDER BY t1.i)" : [ "(1:34~1:38) /catalog1/split_window_bugs/t_i/i/" ]
 }
 ----------
 [dql_mysql_window_0.0125]
@@ -1192,7 +1201,7 @@ sql:
 SELECT SUM(i) OVER (ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING) FROM split_window_bugs.t_i GROUP BY i WITH ROLLUP;
 expect:
 {
-  "SUM(i) OVER (ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING)" : [ "/catalog1/split_window_bugs/t_i/i/" ]
+  "SUM(i) OVER (ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING)" : [ "(1:11~1:12) /catalog1/split_window_bugs/t_i/i/" ]
 }
 ----------
 [dql_mysql_window_0.0126]
@@ -1201,8 +1210,8 @@ SELECT DISTINCT 0 AS field1,RANK() OVER (ORDER BY i) AS field2,LAST_VALUE(i) OVE
 expect:
 {
   "field1" : [ ],
-  "field2" : [ ],
-  "field3" : [ "/catalog1/split_window_bugs/t_i/i/" ]
+  "field2" : [ "(1:50~1:51) /catalog1/split_window_bugs/t_i/i/" ],
+  "field3" : [ "(1:74~1:75) /catalog1/split_window_bugs/t_i/i/", "(1:92~1:93) /catalog1/split_window_bugs/t_i/i/" ]
 }
 ----------
 [dql_mysql_window_0.0127]
@@ -1218,8 +1227,8 @@ sql:
 SELECT 0.2*AVG(f1) OVER w,f1 FROM split_window_bugs.j1 JOIN split_window_bugs.j2 ON t1_partkey=t2_partkey WINDOW w AS (PARTITION BY t1_partkey);
 expect:
 {
-  "0.2*AVG(f1) OVER w" : [ "/catalog1/split_window_bugs/j1/f1/" ],
-  "f1" : [ "/catalog1/split_window_bugs/j1/f1/" ]
+  "0.2*AVG(f1) OVER w" : [ "(1:15~1:17) /catalog1/split_window_bugs/j1/f1/", "(1:132~1:142) /catalog1/split_window_bugs/j1/t1_partkey/" ],
+  "f1" : [ "(1:26~1:28) /catalog1/split_window_bugs/j1/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0129]
@@ -1227,7 +1236,7 @@ sql:
 SELECT FIRST_VALUE(f2) OVER (ORDER BY f1 RANGE CURRENT ROW) FROM split_window_bugs.t_set;
 expect:
 {
-  "FIRST_VALUE(f2) OVER (ORDER BY f1 RANGE CURRENT ROW)" : [ "/catalog1/split_window_bugs/t_set/f2/" ]
+  "FIRST_VALUE(f2) OVER (ORDER BY f1 RANGE CURRENT ROW)" : [ "(1:19~1:21) /catalog1/split_window_bugs/t_set/f2/", "(1:38~1:40) /catalog1/split_window_bugs/t_set/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0130]
@@ -1235,8 +1244,8 @@ sql:
 SELECT a,SUM(a) OVER () AS s FROM split_window_bugs.t_int GROUP BY a ORDER BY a,s;
 expect:
 {
-  "a" : [ "/catalog1/split_window_bugs/t_int/a/" ],
-  "s" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_int/a/" ],
+  "s" : [ "(1:13~1:14) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0131]
@@ -1244,7 +1253,7 @@ sql:
 SELECT ROW_NUMBER() OVER (ORDER BY a),COUNT(*) AS m FROM split_window_bugs.t_int GROUP BY a ORDER BY a,m;
 expect:
 {
-  "ROW_NUMBER() OVER (ORDER BY a)" : [ ],
+  "ROW_NUMBER() OVER (ORDER BY a)" : [ "(1:35~1:36) /catalog1/split_window_bugs/t_int/a/" ],
   "m" : [ ]
 }
 ----------
@@ -1253,9 +1262,9 @@ sql:
 SELECT a,SUM(1) OVER (ORDER BY b),SUM(1) OVER (ORDER BY b DESC) FROM split_window_bugs.t_long_b;
 expect:
 {
-  "a" : [ "/catalog1/split_window_bugs/t_long_b/a/" ],
-  "SUM(1) OVER (ORDER BY b)" : [ ],
-  "SUM(1) OVER (ORDER BY b DESC)" : [ ]
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_long_b/a/" ],
+  "SUM(1) OVER (ORDER BY b)" : [ "(1:31~1:32) /catalog1/split_window_bugs/t_long_b/b/" ],
+  "SUM(1) OVER (ORDER BY b DESC)" : [ "(1:56~1:57) /catalog1/split_window_bugs/t_long_b/b/" ]
 }
 ----------
 [dql_mysql_window_0.0133]
@@ -1263,7 +1272,7 @@ sql:
 SELECT MIN(a) AS field1 FROM split_window_bugs.t_lead WHERE b IN (SELECT a FROM split_window_bugs.t_empty) ORDER BY LEAD(a,5,7) OVER (ORDER BY b);
 expect:
 {
-  "field1" : [ "/catalog1/split_window_bugs/t_lead/a/" ]
+  "field1" : [ "(1:11~1:12) /catalog1/split_window_bugs/t_lead/a/" ]
 }
 ----------
 [dql_mysql_window_0.0134]
@@ -1271,9 +1280,9 @@ sql:
 SELECT a,SUM(b)+1 AS cnt,ROW_NUMBER() OVER (ORDER BY SUM(b) DESC) AS rn FROM split_window_bugs.t_double GROUP BY a ORDER BY rn;
 expect:
 {
-  "a" : [ "/catalog1/split_window_bugs/t_double/a/" ],
-  "cnt" : [ "/catalog1/split_window_bugs/t_double/b/" ],
-  "rn" : [ ]
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_double/a/" ],
+  "cnt" : [ "(1:13~1:14) /catalog1/split_window_bugs/t_double/b/" ],
+  "rn" : [ "(1:57~1:58) /catalog1/split_window_bugs/t_double/b/" ]
 }
 ----------
 [dql_mysql_window_0.0135]
@@ -1281,8 +1290,7 @@ sql:
 SELECT i,(SELECT i FROM (SELECT AVG(0) OVER (),i) v2) FROM split_window_bugs.t_i;
 expect:
 {
-  "i" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "(SELECT i FROM (SELECT AVG(0) OVER (),i) v2)" : [ ]
+  "exception" : "IllegalArgumentException"
 }
 ----------
 [dql_mysql_window_0.0136]
@@ -1290,12 +1298,12 @@ sql:
 SELECT f1,f2,f3,FIRST_VALUE(f3) OVER w,LAG(f3) OVER w,NTH_VALUE(f3,4) OVER w FROM split_window_bugs.t_first WINDOW w AS (PARTITION BY f2 ORDER BY f3 ROWS BETWEEN 1 PRECEDING AND 2 FOLLOWING);
 expect:
 {
-  "f1" : [ "/catalog1/split_window_bugs/t_first/f1/" ],
-  "f2" : [ "/catalog1/split_window_bugs/t_first/f2/" ],
-  "f3" : [ "/catalog1/split_window_bugs/t_first/f3/" ],
-  "FIRST_VALUE(f3) OVER w" : [ "/catalog1/split_window_bugs/t_first/f3/" ],
-  "LAG(f3) OVER w" : [ "/catalog1/split_window_bugs/t_first/f3/" ],
-  "NTH_VALUE(f3,4) OVER w" : [ "/catalog1/split_window_bugs/t_first/f3/" ]
+  "f1" : [ "(1:7~1:9) /catalog1/split_window_bugs/t_first/f1/" ],
+  "f2" : [ "(1:10~1:12) /catalog1/split_window_bugs/t_first/f2/" ],
+  "f3" : [ "(1:13~1:15) /catalog1/split_window_bugs/t_first/f3/" ],
+  "FIRST_VALUE(f3) OVER w" : [ "(1:28~1:30) /catalog1/split_window_bugs/t_first/f3/", "(1:10~1:12) /catalog1/split_window_bugs/t_first/f2/", "(1:13~1:15) /catalog1/split_window_bugs/t_first/f3/" ],
+  "LAG(f3) OVER w" : [ "(1:43~1:45) /catalog1/split_window_bugs/t_first/f3/", "(1:10~1:12) /catalog1/split_window_bugs/t_first/f2/", "(1:13~1:15) /catalog1/split_window_bugs/t_first/f3/" ],
+  "NTH_VALUE(f3,4) OVER w" : [ "(1:64~1:66) /catalog1/split_window_bugs/t_first/f3/", "(1:10~1:12) /catalog1/split_window_bugs/t_first/f2/", "(1:13~1:15) /catalog1/split_window_bugs/t_first/f3/" ]
 }
 ----------
 [dql_mysql_window_0.0137]
@@ -1303,10 +1311,10 @@ sql:
 SELECT f1,f2,DENSE_RANK() OVER (ORDER BY f1),RANK() OVER (ORDER BY f1) FROM split_window_bugs.t_dense GROUP BY f1,f2 WITH ROLLUP;
 expect:
 {
-  "f1" : [ "/catalog1/split_window_bugs/t_dense/f1/" ],
-  "f2" : [ "/catalog1/split_window_bugs/t_dense/f2/" ],
-  "DENSE_RANK() OVER (ORDER BY f1)" : [ ],
-  "RANK() OVER (ORDER BY f1)" : [ ]
+  "f1" : [ "(1:7~1:9) /catalog1/split_window_bugs/t_dense/f1/" ],
+  "f2" : [ "(1:10~1:12) /catalog1/split_window_bugs/t_dense/f2/" ],
+  "DENSE_RANK() OVER (ORDER BY f1)" : [ "(1:7~1:9) /catalog1/split_window_bugs/t_dense/f1/" ],
+  "RANK() OVER (ORDER BY f1)" : [ "(1:7~1:9) /catalog1/split_window_bugs/t_dense/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0138]
@@ -1314,14 +1322,14 @@ sql:
 SELECT n,SUM(n) OVER w,COUNT(*) OVER w,AVG(n) OVER w,SUM(n) OVER w/COUNT(*) OVER w,r,SUM(r) OVER w,AVG(r) OVER w FROM split_window_bugs.t_avg WINDOW w AS (ORDER BY n ROWS BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING) ORDER BY n;
 expect:
 {
-  "n" : [ "/catalog1/split_window_bugs/t_avg/n/" ],
-  "SUM(n) OVER w" : [ "/catalog1/split_window_bugs/t_avg/n/" ],
-  "COUNT(*) OVER w" : [ ],
-  "AVG(n) OVER w" : [ "/catalog1/split_window_bugs/t_avg/n/" ],
-  "SUM(n) OVER w/COUNT(*) OVER w" : [ "/catalog1/split_window_bugs/t_avg/n/" ],
-  "r" : [ "/catalog1/split_window_bugs/t_avg/r/" ],
-  "SUM(r) OVER w" : [ "/catalog1/split_window_bugs/t_avg/r/" ],
-  "AVG(r) OVER w" : [ "/catalog1/split_window_bugs/t_avg/r/" ]
+  "n" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_avg/n/" ],
+  "SUM(n) OVER w" : [ "(1:13~1:14) /catalog1/split_window_bugs/t_avg/n/", "(1:7~1:8) /catalog1/split_window_bugs/t_avg/n/" ],
+  "COUNT(*) OVER w" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_avg/n/" ],
+  "AVG(n) OVER w" : [ "(1:43~1:44) /catalog1/split_window_bugs/t_avg/n/", "(1:7~1:8) /catalog1/split_window_bugs/t_avg/n/" ],
+  "SUM(n) OVER w/COUNT(*) OVER w" : [ "(1:57~1:58) /catalog1/split_window_bugs/t_avg/n/", "(1:7~1:8) /catalog1/split_window_bugs/t_avg/n/", "(1:7~1:8) /catalog1/split_window_bugs/t_avg/n/" ],
+  "r" : [ "(1:83~1:84) /catalog1/split_window_bugs/t_avg/r/" ],
+  "SUM(r) OVER w" : [ "(1:89~1:90) /catalog1/split_window_bugs/t_avg/r/", "(1:7~1:8) /catalog1/split_window_bugs/t_avg/n/" ],
+  "AVG(r) OVER w" : [ "(1:103~1:104) /catalog1/split_window_bugs/t_avg/r/", "(1:7~1:8) /catalog1/split_window_bugs/t_avg/n/" ]
 }
 ----------
 [dql_mysql_window_0.0139]
@@ -1329,8 +1337,8 @@ sql:
 SELECT a,PERCENT_RANK() OVER (ORDER BY a) FROM split_window_bugs.t_time;
 expect:
 {
-  "a" : [ "/catalog1/split_window_bugs/t_time/a/" ],
-  "PERCENT_RANK() OVER (ORDER BY a)" : [ ]
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_time/a/" ],
+  "PERCENT_RANK() OVER (ORDER BY a)" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_time/a/" ]
 }
 ----------
 [dql_mysql_window_0.0140]
@@ -1346,7 +1354,7 @@ sql:
 SELECT SUM(a) OVER w FROM split_window_bugs.t_null WINDOW w AS (ORDER BY b ROWS CURRENT ROW) ORDER BY SUM(b) OVER w;
 expect:
 {
-  "SUM(a) OVER w" : [ "/catalog1/split_window_bugs/t_null/a/" ]
+  "SUM(a) OVER w" : [ "(1:11~1:12) /catalog1/split_window_bugs/t_null/a/", "(1:73~1:74) /catalog1/split_window_bugs/t_null/b/" ]
 }
 ----------
 [dql_mysql_window_0.0142]
@@ -1354,7 +1362,7 @@ sql:
 SELECT DISTINCT BIT_XOR(c2) FROM split_window_bugs.t_export WINDOW w1 AS (ORDER BY c2),w2 AS (ORDER BY c3 ROWS UNBOUNDED PRECEDING) ORDER BY EXPORT_SET(c2,c1,SUM(pk) OVER w1,FIRST_VALUE(pk) OVER w2);
 expect:
 {
-  "BIT_XOR(c2)" : [ "/catalog1/split_window_bugs/t_export/c2/" ]
+  "BIT_XOR(c2)" : [ "(1:24~1:26) /catalog1/split_window_bugs/t_export/c2/" ]
 }
 ----------
 [dql_mysql_window_0.0143]
@@ -1362,8 +1370,8 @@ sql:
 SELECT a.i,(LAST_VALUE(a.i) OVER outer_window)=a.i FROM (SELECT LAG(i) OVER inner_window AS i_lag,i FROM split_window_bugs.t_prep WINDOW inner_window AS (ORDER BY i)) a WINDOW outer_window AS (ORDER BY a.i);
 expect:
 {
-  "i" : [ "/catalog1/split_window_bugs/t_prep/i/" ],
-  "(LAST_VALUE(a.i) OVER outer_window)=a.i" : [ "/catalog1/split_window_bugs/t_prep/i/", "/catalog1/split_window_bugs/t_prep/i/" ]
+  "i" : [ "(1:98~1:99) /catalog1/split_window_bugs/t_prep/i/" ],
+  "(LAST_VALUE(a.i) OVER outer_window)=a.i" : [ "(1:98~1:99) /catalog1/split_window_bugs/t_prep/i/", "(1:98~1:99) /catalog1/split_window_bugs/t_prep/i/", "(1:98~1:99) /catalog1/split_window_bugs/t_prep/i/" ]
 }
 ----------
 [dql_mysql_window_0.0144]
@@ -1371,7 +1379,7 @@ sql:
 SELECT (SELECT dt.b FROM (SELECT t2.a,SUM(t1.a*10+t2.a) OVER (ORDER BY IF(t1.a=1,t2.a,-t2.a)) AS b FROM t2) AS dt WHERE dt.a=1) AS subq FROM t1;
 expect:
 {
-  "subq" : [ "/catalog1/schema1/t1/a/", "/catalog1/schema1/t2/a/" ]
+  "exception" : "IllegalArgumentException"
 }
 ----------
 [dql_mysql_window_0.0145]
@@ -1379,8 +1387,8 @@ sql:
 SELECT outr1.col_varchar AS f1,outr2.col_varchar AS f2 FROM split_window_big.c AS outr1 LEFT JOIN split_window_big.e AS outr2 ON (outr1.col_int_key=outr2.col_int_key) WHERE outr1.col_varchar_key!=(SELECT LEAD(innr1.pk,5) OVER () AS y FROM split_window_big.dd AS innr2 LEFT OUTER JOIN split_window_big.dd AS innr1 ON (innr2.col_date<>innr1.col_date_key) WHERE innr1.col_int<5 XOR outr2.col_date IS NULL LIMIT 1);
 expect:
 {
-  "f1" : [ "/catalog1/split_window_big/c/col_varchar/" ],
-  "f2" : [ "/catalog1/split_window_big/e/col_varchar/" ]
+  "f1" : [ "(1:7~1:24) /catalog1/split_window_big/c/col_varchar/" ],
+  "f2" : [ "(1:31~1:48) /catalog1/split_window_big/e/col_varchar/" ]
 }
 ----------
 [dql_mysql_window_0.0146]
@@ -1446,8 +1454,8 @@ sql:
 SELECT DISTINCT SUM(id*2) OVER(),id FROM tb1 GROUP BY id2 ORDER BY (-SUM(id-2));
 expect:
 {
-  "SUM(id*2) OVER()" : [ "/catalog1/schema1/tb1/id/" ],
-  "id" : [ "/catalog1/schema1/tb1/id/" ]
+  "SUM(id*2) OVER()" : [ "(1:20~1:22) /catalog1/schema1/tb1/id/" ],
+  "id" : [ "(1:33~1:35) /catalog1/schema1/tb1/id/" ]
 }
 ----------
 [dql_mysql_window_0.0154]
@@ -1455,7 +1463,7 @@ sql:
 SELECT * FROM split_window_rpl.t2 WHERE c1 IN (SELECT ROW_NUMBER() OVER () FROM DUAL);
 expect:
 {
-  "c1" : [ "/catalog1/split_window_rpl/t2/c1/" ]
+  "id" : [ "(1:7~1:8) /catalog1/split_window_rpl/t2/id/" ]
 }
 ----------
 [dql_mysql_window_0.0188]
@@ -1691,13 +1699,13 @@ sql:
 SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY id), RANK() OVER (ORDER BY grp), DENSE_RANK() OVER (ORDER BY grp), PERCENT_RANK() OVER (ORDER BY id), CUME_DIST() OVER (ORDER BY id), NTILE(2) OVER (ORDER BY id) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "ROW_NUMBER() OVER (PARTITION BY grp ORDER BY id)" : [ ],
-  "RANK() OVER (ORDER BY grp)" : [ ],
-  "DENSE_RANK() OVER (ORDER BY grp)" : [ ],
-  "PERCENT_RANK() OVER (ORDER BY id)" : [ ],
-  "CUME_DIST() OVER (ORDER BY id)" : [ ],
-  "NTILE(2) OVER (ORDER BY id)" : [ ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "ROW_NUMBER() OVER (PARTITION BY grp ORDER BY id)" : [ "(1:43~1:46) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "RANK() OVER (ORDER BY grp)" : [ "(1:83~1:86) /catalog1/schema1/t/grp/" ],
+  "DENSE_RANK() OVER (ORDER BY grp)" : [ "(1:117~1:120) /catalog1/schema1/t/grp/" ],
+  "PERCENT_RANK() OVER (ORDER BY id)" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "CUME_DIST() OVER (ORDER BY id)" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "NTILE(2) OVER (ORDER BY id)" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0215]
@@ -1705,9 +1713,9 @@ sql:
 SELECT id, LAG(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id), LEAD(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "LAG(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id)" : [ "/catalog1/schema1/t/val/" ],
-  "LEAD(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id)" : [ "/catalog1/schema1/t/val/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "LAG(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id)" : [ "(1:15~1:18) /catalog1/schema1/t/val/", "(1:50~1:53) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "LEAD(val, 1, 'none') OVER (PARTITION BY grp ORDER BY id)" : [ "(1:73~1:76) /catalog1/schema1/t/val/", "(1:108~1:111) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0216]
@@ -1715,10 +1723,10 @@ sql:
 SELECT id, FIRST_VALUE(val) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING), LAST_VALUE(val) OVER (ORDER BY id ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING), NTH_VALUE(val, 2) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "FIRST_VALUE(val) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING)" : [ "/catalog1/schema1/t/val/" ],
-  "LAST_VALUE(val) OVER (ORDER BY id ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING)" : [ "/catalog1/schema1/t/val/" ],
-  "NTH_VALUE(val, 2) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)" : [ "/catalog1/schema1/t/val/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "FIRST_VALUE(val) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING)" : [ "(1:23~1:26) /catalog1/schema1/t/val/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "LAST_VALUE(val) OVER (ORDER BY id ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING)" : [ "(1:84~1:87) /catalog1/schema1/t/val/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "NTH_VALUE(val, 2) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)" : [ "(1:168~1:171) /catalog1/schema1/t/val/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0217]
@@ -1726,15 +1734,15 @@ sql:
 SELECT id, SUM(id) OVER (), AVG(id) OVER (), COUNT(*) OVER (), MIN(id) OVER (), MAX(id) OVER (), BIT_AND(id) OVER (), BIT_OR(id) OVER (), BIT_XOR(id) OVER () FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "SUM(id) OVER ()" : [ "/catalog1/schema1/t/id/" ],
-  "AVG(id) OVER ()" : [ "/catalog1/schema1/t/id/" ],
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "SUM(id) OVER ()" : [ "(1:15~1:17) /catalog1/schema1/t/id/" ],
+  "AVG(id) OVER ()" : [ "(1:32~1:34) /catalog1/schema1/t/id/" ],
   "COUNT(*) OVER ()" : [ ],
-  "MIN(id) OVER ()" : [ "/catalog1/schema1/t/id/" ],
-  "MAX(id) OVER ()" : [ "/catalog1/schema1/t/id/" ],
-  "BIT_AND(id) OVER ()" : [ "/catalog1/schema1/t/id/" ],
-  "BIT_OR(id) OVER ()" : [ "/catalog1/schema1/t/id/" ],
-  "BIT_XOR(id) OVER ()" : [ "/catalog1/schema1/t/id/" ]
+  "MIN(id) OVER ()" : [ "(1:67~1:69) /catalog1/schema1/t/id/" ],
+  "MAX(id) OVER ()" : [ "(1:84~1:86) /catalog1/schema1/t/id/" ],
+  "BIT_AND(id) OVER ()" : [ "(1:105~1:107) /catalog1/schema1/t/id/" ],
+  "BIT_OR(id) OVER ()" : [ "(1:125~1:127) /catalog1/schema1/t/id/" ],
+  "BIT_XOR(id) OVER ()" : [ "(1:146~1:148) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0218]
@@ -1742,8 +1750,8 @@ sql:
 SELECT id, SUM(id) OVER w2 FROM t WINDOW w AS (PARTITION BY grp), w2 AS (w ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW);
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "SUM(id) OVER w2" : [ "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "SUM(id) OVER w2" : [ "(1:15~1:17) /catalog1/schema1/t/id/", "(1:60~1:63) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0219]
@@ -1751,8 +1759,8 @@ sql:
 SELECT id, ROW_NUMBER() OVER (PARTITION BY grp, val ORDER BY id) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "ROW_NUMBER() OVER (PARTITION BY grp, val ORDER BY id)" : [ ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "ROW_NUMBER() OVER (PARTITION BY grp, val ORDER BY id)" : [ "(1:43~1:46) /catalog1/schema1/t/grp/", "(1:48~1:51) /catalog1/schema1/t/val/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0220]
@@ -1760,8 +1768,8 @@ sql:
 SELECT id, SUM(id) OVER (ORDER BY id ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "SUM(id) OVER (ORDER BY id ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING)" : [ "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "SUM(id) OVER (ORDER BY id ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING)" : [ "(1:15~1:17) /catalog1/schema1/t/id/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0221]
@@ -1769,8 +1777,8 @@ sql:
 SELECT id, SUM(id) OVER (ORDER BY id RANGE BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "SUM(id) OVER (ORDER BY id RANGE BETWEEN 1 PRECEDING AND 1 FOLLOWING)" : [ "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "SUM(id) OVER (ORDER BY id RANGE BETWEEN 1 PRECEDING AND 1 FOLLOWING)" : [ "(1:15~1:17) /catalog1/schema1/t/id/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0222]
@@ -1778,8 +1786,8 @@ sql:
 SELECT id, NTH_VALUE(val, 1) FROM FIRST RESPECT NULLS OVER (ORDER BY id) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "NTH_VALUE(val, 1) FROM FIRST RESPECT NULLS OVER (ORDER BY id)" : [ "/catalog1/schema1/t/val/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "NTH_VALUE(val, 1) FROM FIRST RESPECT NULLS OVER (ORDER BY id)" : [ "(1:21~1:24) /catalog1/schema1/t/val/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0223]
@@ -1826,7 +1834,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT ROW_NUMBER() OVER ()));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0228]
@@ -1834,7 +1842,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT ROW_NUMBER() OVER ()));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0229]
@@ -1842,7 +1850,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT NTILE(3) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0230]
@@ -1850,7 +1858,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT NTILE(3) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0231]
@@ -1858,7 +1866,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT AVG(1) OVER ()));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0232]
@@ -1866,7 +1874,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT AVG(1) OVER ()));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0233]
@@ -1874,7 +1882,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT SUM(1) OVER ()));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0234]
@@ -1882,7 +1890,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT SUM(1) OVER ()));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0235]
@@ -1890,7 +1898,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT COUNT(1) OVER ()));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0236]
@@ -1898,7 +1906,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT COUNT(1) OVER ()));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0237]
@@ -1906,7 +1914,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT RANK() OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0238]
@@ -1914,7 +1922,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT RANK() OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0239]
@@ -1922,7 +1930,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT DENSE_RANK() OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0240]
@@ -1930,7 +1938,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT DENSE_RANK() OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0241]
@@ -1938,7 +1946,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a-1 IN ((SELECT PERCENT_RANK() OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0242]
@@ -1946,7 +1954,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT PERCENT_RANK() OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0243]
@@ -1954,7 +1962,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT CUME_DIST() OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0244]
@@ -1962,7 +1970,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT CUME_DIST() OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0245]
@@ -1970,7 +1978,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT LEAD(1,0) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0246]
@@ -1978,7 +1986,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT LEAD(1,0) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0247]
@@ -1986,7 +1994,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT NTH_VALUE(1,1) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0248]
@@ -1994,7 +2002,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT NTH_VALUE(1,1) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0249]
@@ -2002,7 +2010,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT FIRST_VALUE(1) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0250]
@@ -2010,7 +2018,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT FIRST_VALUE(1) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0251]
@@ -2018,7 +2026,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a IN ((SELECT LAST_VALUE(1) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0252]
@@ -2026,7 +2034,7 @@ sql:
 SELECT SUM(DISTINCT a) FROM split_window_bugs.t_int GROUP BY a HAVING a+1 IN ((SELECT LAST_VALUE(1) OVER (ORDER BY NULL)));
 expect:
 {
-  "SUM(DISTINCT a)" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "SUM(DISTINCT a)" : [ "(1:20~1:21) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0253]
@@ -2050,7 +2058,7 @@ sql:
 SELECT * FROM split_window_bugs.t_int WHERE a=ALL(SELECT ROW_NUMBER() OVER ()+1 FROM split_window_bugs.t_int);
 expect:
 {
-  "id" : [ "/catalog1/split_window_bugs/t_int/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_int/id/" ]
 }
 ----------
 [dql_mysql_window_0.0255]
@@ -2058,7 +2066,7 @@ sql:
 SELECT * FROM split_window_bugs.t_int WHERE a<>SOME(SELECT ROW_NUMBER() OVER ()+1 FROM split_window_bugs.t_int);
 expect:
 {
-  "id" : [ "/catalog1/split_window_bugs/t_int/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_int/id/" ]
 }
 ----------
 [dql_mysql_window_0.0256]
@@ -2066,7 +2074,7 @@ sql:
 SELECT * FROM split_window_bugs.t_int WHERE a<>ANY(SELECT ROW_NUMBER() OVER ()+1 FROM split_window_bugs.t_int);
 expect:
 {
-  "id" : [ "/catalog1/split_window_bugs/t_int/id/" ]
+  "id" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_int/id/" ]
 }
 ----------
 [dql_mysql_window_0.0257]
@@ -2074,7 +2082,7 @@ sql:
 SELECT * FROM split_window_bugs.t_int upper_t WHERE upper_t.a IN (SELECT ROW_NUMBER() OVER () FROM split_window_bugs.t_int inner_t WHERE inner_t.a>upper_t.a);
 expect:
 {
-  "a" : [ "/catalog1/split_window_bugs/t_int/a/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0258]
@@ -2082,7 +2090,7 @@ sql:
 SELECT * FROM split_window_bugs.t_int upper_t WHERE upper_t.a>ANY(SELECT ROW_NUMBER() OVER () FROM split_window_bugs.t_int inner_t WHERE inner_t.a>upper_t.a);
 expect:
 {
-  "id" : [ "/catalog1/split_window_bugs/t_int/id/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0259]
@@ -2090,7 +2098,7 @@ sql:
 SELECT * FROM split_window_bugs.t_int upper_t WHERE upper_t.a>ALL(SELECT ROW_NUMBER() OVER () FROM split_window_bugs.t_int inner_t WHERE inner_t.a>upper_t.a);
 expect:
 {
-  "id" : [ "/catalog1/split_window_bugs/t_int/id/" ]
+  "a" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_int/a/" ]
 }
 ----------
 [dql_mysql_window_0.0260]
@@ -2098,7 +2106,7 @@ sql:
 SELECT * FROM split_window_bugs.t_i upper_t WHERE i+1 IN (SELECT ROW_NUMBER() OVER ()+upper_t.i FROM split_window_bugs.t_i);
 expect:
 {
-  "i" : [ "/catalog1/split_window_bugs/t_i/i/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_bugs/t_i/i/" ]
 }
 ----------
 [dql_mysql_window_0.0261]
@@ -2106,13 +2114,13 @@ sql:
 SELECT id, LAG(val) OVER w AS lag_default, LAG(val, 2) OVER w AS lag_two, LAG(val, 0) OVER w AS lag_zero, LEAD(val) OVER w AS lead_default, LEAD(val, 2) OVER w AS lead_two, LEAD(val, 0) OVER w AS lead_zero FROM t WINDOW w AS (PARTITION BY grp ORDER BY id) ORDER BY id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "lag_default" : [ "/catalog1/schema1/t/val/" ],
-  "lag_two" : [ "/catalog1/schema1/t/val/" ],
-  "lag_zero" : [ "/catalog1/schema1/t/val/" ],
-  "lead_default" : [ "/catalog1/schema1/t/val/" ],
-  "lead_two" : [ "/catalog1/schema1/t/val/" ],
-  "lead_zero" : [ "/catalog1/schema1/t/val/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "lag_default" : [ "(1:15~1:18) /catalog1/schema1/t/val/", "(1:239~1:242) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "lag_two" : [ "(1:47~1:50) /catalog1/schema1/t/val/", "(1:239~1:242) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "lag_zero" : [ "(1:78~1:81) /catalog1/schema1/t/val/", "(1:239~1:242) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "lead_default" : [ "(1:111~1:114) /catalog1/schema1/t/val/", "(1:239~1:242) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "lead_two" : [ "(1:145~1:148) /catalog1/schema1/t/val/", "(1:239~1:242) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "lead_zero" : [ "(1:178~1:181) /catalog1/schema1/t/val/", "(1:239~1:242) /catalog1/schema1/t/grp/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0262]
@@ -2120,8 +2128,8 @@ sql:
 SELECT SUM(c/d),LEAD(SUM(c/d),1,SUM(c/d)) OVER (ORDER BY a) FROM t GROUP BY a,b;
 expect:
 {
-  "SUM(c/d)" : [ "/catalog1/schema1/t/c/", "/catalog1/schema1/t/d/" ],
-  "LEAD(SUM(c/d),1,SUM(c/d)) OVER (ORDER BY a)" : [ "/catalog1/schema1/t/c/", "/catalog1/schema1/t/d/", "/catalog1/schema1/t/c/", "/catalog1/schema1/t/d/" ]
+  "SUM(c/d)" : [ "(1:11~1:12) /catalog1/schema1/t/c/", "(1:13~1:14) /catalog1/schema1/t/d/" ],
+  "LEAD(SUM(c/d),1,SUM(c/d)) OVER (ORDER BY a)" : [ "(1:25~1:26) /catalog1/schema1/t/c/", "(1:27~1:28) /catalog1/schema1/t/d/", "(1:36~1:37) /catalog1/schema1/t/c/", "(1:38~1:39) /catalog1/schema1/t/d/", "(1:57~1:58) /catalog1/schema1/t/a/" ]
 }
 ----------
 [dql_mysql_window_0.0263]
@@ -2129,76 +2137,76 @@ sql:
 SELECT FIRST_VALUE(i) OVER (ORDER BY i+1) AS wf1,FIRST_VALUE(i) OVER (ORDER BY i+2) AS wf2,FIRST_VALUE(i) OVER (ORDER BY i+3) AS wf3,FIRST_VALUE(i) OVER (ORDER BY i+4) AS wf4,FIRST_VALUE(i) OVER (ORDER BY i+5) AS wf5,FIRST_VALUE(i) OVER (ORDER BY i+6) AS wf6,FIRST_VALUE(i) OVER (ORDER BY i+7) AS wf7,FIRST_VALUE(i) OVER (ORDER BY i+8) AS wf8,FIRST_VALUE(i) OVER (ORDER BY i+9) AS wf9,FIRST_VALUE(i) OVER (ORDER BY i+10) AS wf10,FIRST_VALUE(i) OVER (ORDER BY i+11) AS wf11,FIRST_VALUE(i) OVER (ORDER BY i+12) AS wf12,FIRST_VALUE(i) OVER (ORDER BY i+13) AS wf13,FIRST_VALUE(i) OVER (ORDER BY i+14) AS wf14,FIRST_VALUE(i) OVER (ORDER BY i+15) AS wf15,FIRST_VALUE(i) OVER (ORDER BY i+16) AS wf16,FIRST_VALUE(i) OVER (ORDER BY i+17) AS wf17,FIRST_VALUE(i) OVER (ORDER BY i+18) AS wf18,FIRST_VALUE(i) OVER (ORDER BY i+19) AS wf19,FIRST_VALUE(i) OVER (ORDER BY i+20) AS wf20,FIRST_VALUE(i) OVER (ORDER BY i+21) AS wf21,FIRST_VALUE(i) OVER (ORDER BY i+22) AS wf22,FIRST_VALUE(i) OVER (ORDER BY i+23) AS wf23,FIRST_VALUE(i) OVER (ORDER BY i+24) AS wf24,FIRST_VALUE(i) OVER (ORDER BY i+25) AS wf25,FIRST_VALUE(i) OVER (ORDER BY i+26) AS wf26,FIRST_VALUE(i) OVER (ORDER BY i+27) AS wf27,FIRST_VALUE(i) OVER (ORDER BY i+28) AS wf28,FIRST_VALUE(i) OVER (ORDER BY i+29) AS wf29,FIRST_VALUE(i) OVER (ORDER BY i+30) AS wf30,FIRST_VALUE(i) OVER (ORDER BY i+31) AS wf31,FIRST_VALUE(i) OVER (ORDER BY i+32) AS wf32,FIRST_VALUE(i) OVER (ORDER BY i+33) AS wf33,FIRST_VALUE(i) OVER (ORDER BY i+34) AS wf34,FIRST_VALUE(i) OVER (ORDER BY i+35) AS wf35,FIRST_VALUE(i) OVER (ORDER BY i+36) AS wf36,FIRST_VALUE(i) OVER (ORDER BY i+37) AS wf37,FIRST_VALUE(i) OVER (ORDER BY i+38) AS wf38,FIRST_VALUE(i) OVER (ORDER BY i+39) AS wf39,FIRST_VALUE(i) OVER (ORDER BY i+40) AS wf40,FIRST_VALUE(i) OVER (ORDER BY i+41) AS wf41,FIRST_VALUE(i) OVER (ORDER BY i+42) AS wf42,FIRST_VALUE(i) OVER (ORDER BY i+43) AS wf43,FIRST_VALUE(i) OVER (ORDER BY i+44) AS wf44,FIRST_VALUE(i) OVER (ORDER BY i+45) AS wf45,FIRST_VALUE(i) OVER (ORDER BY i+46) AS wf46,FIRST_VALUE(i) OVER (ORDER BY i+47) AS wf47,FIRST_VALUE(i) OVER (ORDER BY i+48) AS wf48,FIRST_VALUE(i) OVER (ORDER BY i+49) AS wf49,FIRST_VALUE(i) OVER (ORDER BY i+50) AS wf50,FIRST_VALUE(i) OVER (ORDER BY i+51) AS wf51,FIRST_VALUE(i) OVER (ORDER BY i+52) AS wf52,FIRST_VALUE(i) OVER (ORDER BY i+53) AS wf53,FIRST_VALUE(i) OVER (ORDER BY i+54) AS wf54,FIRST_VALUE(i) OVER (ORDER BY i+55) AS wf55,FIRST_VALUE(i) OVER (ORDER BY i+56) AS wf56,FIRST_VALUE(i) OVER (ORDER BY i+57) AS wf57,FIRST_VALUE(i) OVER (ORDER BY i+58) AS wf58,FIRST_VALUE(i) OVER (ORDER BY i+59) AS wf59,FIRST_VALUE(i) OVER (ORDER BY i+60) AS wf60,FIRST_VALUE(i) OVER (ORDER BY i+61) AS wf61,FIRST_VALUE(i) OVER (ORDER BY i+62) AS wf62,FIRST_VALUE(i) OVER (ORDER BY i+63) AS wf63,FIRST_VALUE(i) OVER (ORDER BY i+64) AS wf64,FIRST_VALUE(i) OVER (ORDER BY i+65) AS wf65,FIRST_VALUE(i) OVER (ORDER BY i+66) AS wf66,FIRST_VALUE(i) OVER (ORDER BY i+67) AS wf67,FIRST_VALUE(i) OVER (ORDER BY i+68) AS wf68,FIRST_VALUE(i) OVER (ORDER BY i+69) AS wf69,FIRST_VALUE(i) OVER (ORDER BY i+70) AS wf70 FROM split_window_bugs.t_i;
 expect:
 {
-  "wf1" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf2" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf3" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf4" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf5" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf6" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf7" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf8" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf9" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf10" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf11" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf12" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf13" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf14" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf15" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf16" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf17" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf18" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf19" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf20" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf21" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf22" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf23" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf24" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf25" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf26" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf27" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf28" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf29" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf30" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf31" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf32" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf33" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf34" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf35" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf36" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf37" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf38" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf39" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf40" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf41" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf42" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf43" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf44" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf45" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf46" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf47" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf48" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf49" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf50" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf51" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf52" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf53" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf54" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf55" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf56" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf57" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf58" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf59" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf60" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf61" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf62" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf63" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf64" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf65" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf66" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf67" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf68" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf69" : [ "/catalog1/split_window_bugs/t_i/i/" ],
-  "wf70" : [ "/catalog1/split_window_bugs/t_i/i/" ]
+  "wf1" : [ "(1:19~1:20) /catalog1/split_window_bugs/t_i/i/", "(1:37~1:38) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf2" : [ "(1:61~1:62) /catalog1/split_window_bugs/t_i/i/", "(1:79~1:80) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf3" : [ "(1:103~1:104) /catalog1/split_window_bugs/t_i/i/", "(1:121~1:122) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf4" : [ "(1:145~1:146) /catalog1/split_window_bugs/t_i/i/", "(1:163~1:164) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf5" : [ "(1:187~1:188) /catalog1/split_window_bugs/t_i/i/", "(1:205~1:206) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf6" : [ "(1:229~1:230) /catalog1/split_window_bugs/t_i/i/", "(1:247~1:248) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf7" : [ "(1:271~1:272) /catalog1/split_window_bugs/t_i/i/", "(1:289~1:290) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf8" : [ "(1:313~1:314) /catalog1/split_window_bugs/t_i/i/", "(1:331~1:332) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf9" : [ "(1:355~1:356) /catalog1/split_window_bugs/t_i/i/", "(1:373~1:374) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf10" : [ "(1:397~1:398) /catalog1/split_window_bugs/t_i/i/", "(1:415~1:416) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf11" : [ "(1:441~1:442) /catalog1/split_window_bugs/t_i/i/", "(1:459~1:460) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf12" : [ "(1:485~1:486) /catalog1/split_window_bugs/t_i/i/", "(1:503~1:504) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf13" : [ "(1:529~1:530) /catalog1/split_window_bugs/t_i/i/", "(1:547~1:548) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf14" : [ "(1:573~1:574) /catalog1/split_window_bugs/t_i/i/", "(1:591~1:592) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf15" : [ "(1:617~1:618) /catalog1/split_window_bugs/t_i/i/", "(1:635~1:636) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf16" : [ "(1:661~1:662) /catalog1/split_window_bugs/t_i/i/", "(1:679~1:680) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf17" : [ "(1:705~1:706) /catalog1/split_window_bugs/t_i/i/", "(1:723~1:724) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf18" : [ "(1:749~1:750) /catalog1/split_window_bugs/t_i/i/", "(1:767~1:768) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf19" : [ "(1:793~1:794) /catalog1/split_window_bugs/t_i/i/", "(1:811~1:812) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf20" : [ "(1:837~1:838) /catalog1/split_window_bugs/t_i/i/", "(1:855~1:856) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf21" : [ "(1:881~1:882) /catalog1/split_window_bugs/t_i/i/", "(1:899~1:900) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf22" : [ "(1:925~1:926) /catalog1/split_window_bugs/t_i/i/", "(1:943~1:944) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf23" : [ "(1:969~1:970) /catalog1/split_window_bugs/t_i/i/", "(1:987~1:988) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf24" : [ "(1:1013~1:1014) /catalog1/split_window_bugs/t_i/i/", "(1:1031~1:1032) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf25" : [ "(1:1057~1:1058) /catalog1/split_window_bugs/t_i/i/", "(1:1075~1:1076) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf26" : [ "(1:1101~1:1102) /catalog1/split_window_bugs/t_i/i/", "(1:1119~1:1120) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf27" : [ "(1:1145~1:1146) /catalog1/split_window_bugs/t_i/i/", "(1:1163~1:1164) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf28" : [ "(1:1189~1:1190) /catalog1/split_window_bugs/t_i/i/", "(1:1207~1:1208) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf29" : [ "(1:1233~1:1234) /catalog1/split_window_bugs/t_i/i/", "(1:1251~1:1252) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf30" : [ "(1:1277~1:1278) /catalog1/split_window_bugs/t_i/i/", "(1:1295~1:1296) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf31" : [ "(1:1321~1:1322) /catalog1/split_window_bugs/t_i/i/", "(1:1339~1:1340) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf32" : [ "(1:1365~1:1366) /catalog1/split_window_bugs/t_i/i/", "(1:1383~1:1384) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf33" : [ "(1:1409~1:1410) /catalog1/split_window_bugs/t_i/i/", "(1:1427~1:1428) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf34" : [ "(1:1453~1:1454) /catalog1/split_window_bugs/t_i/i/", "(1:1471~1:1472) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf35" : [ "(1:1497~1:1498) /catalog1/split_window_bugs/t_i/i/", "(1:1515~1:1516) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf36" : [ "(1:1541~1:1542) /catalog1/split_window_bugs/t_i/i/", "(1:1559~1:1560) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf37" : [ "(1:1585~1:1586) /catalog1/split_window_bugs/t_i/i/", "(1:1603~1:1604) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf38" : [ "(1:1629~1:1630) /catalog1/split_window_bugs/t_i/i/", "(1:1647~1:1648) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf39" : [ "(1:1673~1:1674) /catalog1/split_window_bugs/t_i/i/", "(1:1691~1:1692) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf40" : [ "(1:1717~1:1718) /catalog1/split_window_bugs/t_i/i/", "(1:1735~1:1736) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf41" : [ "(1:1761~1:1762) /catalog1/split_window_bugs/t_i/i/", "(1:1779~1:1780) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf42" : [ "(1:1805~1:1806) /catalog1/split_window_bugs/t_i/i/", "(1:1823~1:1824) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf43" : [ "(1:1849~1:1850) /catalog1/split_window_bugs/t_i/i/", "(1:1867~1:1868) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf44" : [ "(1:1893~1:1894) /catalog1/split_window_bugs/t_i/i/", "(1:1911~1:1912) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf45" : [ "(1:1937~1:1938) /catalog1/split_window_bugs/t_i/i/", "(1:1955~1:1956) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf46" : [ "(1:1981~1:1982) /catalog1/split_window_bugs/t_i/i/", "(1:1999~1:2000) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf47" : [ "(1:2025~1:2026) /catalog1/split_window_bugs/t_i/i/", "(1:2043~1:2044) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf48" : [ "(1:2069~1:2070) /catalog1/split_window_bugs/t_i/i/", "(1:2087~1:2088) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf49" : [ "(1:2113~1:2114) /catalog1/split_window_bugs/t_i/i/", "(1:2131~1:2132) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf50" : [ "(1:2157~1:2158) /catalog1/split_window_bugs/t_i/i/", "(1:2175~1:2176) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf51" : [ "(1:2201~1:2202) /catalog1/split_window_bugs/t_i/i/", "(1:2219~1:2220) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf52" : [ "(1:2245~1:2246) /catalog1/split_window_bugs/t_i/i/", "(1:2263~1:2264) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf53" : [ "(1:2289~1:2290) /catalog1/split_window_bugs/t_i/i/", "(1:2307~1:2308) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf54" : [ "(1:2333~1:2334) /catalog1/split_window_bugs/t_i/i/", "(1:2351~1:2352) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf55" : [ "(1:2377~1:2378) /catalog1/split_window_bugs/t_i/i/", "(1:2395~1:2396) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf56" : [ "(1:2421~1:2422) /catalog1/split_window_bugs/t_i/i/", "(1:2439~1:2440) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf57" : [ "(1:2465~1:2466) /catalog1/split_window_bugs/t_i/i/", "(1:2483~1:2484) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf58" : [ "(1:2509~1:2510) /catalog1/split_window_bugs/t_i/i/", "(1:2527~1:2528) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf59" : [ "(1:2553~1:2554) /catalog1/split_window_bugs/t_i/i/", "(1:2571~1:2572) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf60" : [ "(1:2597~1:2598) /catalog1/split_window_bugs/t_i/i/", "(1:2615~1:2616) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf61" : [ "(1:2641~1:2642) /catalog1/split_window_bugs/t_i/i/", "(1:2659~1:2660) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf62" : [ "(1:2685~1:2686) /catalog1/split_window_bugs/t_i/i/", "(1:2703~1:2704) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf63" : [ "(1:2729~1:2730) /catalog1/split_window_bugs/t_i/i/", "(1:2747~1:2748) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf64" : [ "(1:2773~1:2774) /catalog1/split_window_bugs/t_i/i/", "(1:2791~1:2792) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf65" : [ "(1:2817~1:2818) /catalog1/split_window_bugs/t_i/i/", "(1:2835~1:2836) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf66" : [ "(1:2861~1:2862) /catalog1/split_window_bugs/t_i/i/", "(1:2879~1:2880) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf67" : [ "(1:2905~1:2906) /catalog1/split_window_bugs/t_i/i/", "(1:2923~1:2924) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf68" : [ "(1:2949~1:2950) /catalog1/split_window_bugs/t_i/i/", "(1:2967~1:2968) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf69" : [ "(1:2993~1:2994) /catalog1/split_window_bugs/t_i/i/", "(1:3011~1:3012) /catalog1/split_window_bugs/t_i/i/" ],
+  "wf70" : [ "(1:3037~1:3038) /catalog1/split_window_bugs/t_i/i/", "(1:3055~1:3056) /catalog1/split_window_bugs/t_i/i/" ]
 }
 ----------
 [dql_mysql_window_0.0264]
@@ -2206,11 +2214,11 @@ sql:
 SELECT k,GROUP_CONCAT(j ORDER BY j),AVG(DISTINCT j),MIN(k+1) OVER (ORDER BY k DESC ROWS UNBOUNDED PRECEDING),MAX(k+1) OVER (ORDER BY k DESC ROWS UNBOUNDED PRECEDING) FROM split_window_minmax.g GROUP BY k;
 expect:
 {
-  "k" : [ "/catalog1/split_window_minmax/g/k/" ],
-  "GROUP_CONCAT(j ORDER BY j)" : [ "/catalog1/split_window_minmax/g/j/" ],
-  "AVG(DISTINCT j)" : [ "/catalog1/split_window_minmax/g/j/" ],
-  "MIN(k+1) OVER (ORDER BY k DESC ROWS UNBOUNDED PRECEDING)" : [ "/catalog1/split_window_minmax/g/k/" ],
-  "MAX(k+1) OVER (ORDER BY k DESC ROWS UNBOUNDED PRECEDING)" : [ "/catalog1/split_window_minmax/g/k/" ]
+  "k" : [ "(1:7~1:8) /catalog1/split_window_minmax/g/k/" ],
+  "GROUP_CONCAT(j ORDER BY j)" : [ "(1:22~1:23) /catalog1/split_window_minmax/g/j/", "(1:33~1:34) /catalog1/split_window_minmax/g/j/" ],
+  "AVG(DISTINCT j)" : [ "(1:49~1:50) /catalog1/split_window_minmax/g/j/" ],
+  "MIN(k+1) OVER (ORDER BY k DESC ROWS UNBOUNDED PRECEDING)" : [ "(1:56~1:57) /catalog1/split_window_minmax/g/k/", "(1:7~1:8) /catalog1/split_window_minmax/g/k/" ],
+  "MAX(k+1) OVER (ORDER BY k DESC ROWS UNBOUNDED PRECEDING)" : [ "(1:113~1:114) /catalog1/split_window_minmax/g/k/", "(1:7~1:8) /catalog1/split_window_minmax/g/k/" ]
 }
 ----------
 [dql_mysql_window_0.0265]
@@ -2218,11 +2226,11 @@ sql:
 SELECT sex,AVG(id),MIN(AVG(id)) OVER w,MAX(AVG(id)) OVER w,NTILE(2) OVER w FROM split_window_minmax.people GROUP BY sex HAVING sex=(SELECT c FROM split_window_minmax.ss LIMIT 1) OR sex='F' OR sex IS NULL WINDOW w AS (ORDER BY sex ROWS UNBOUNDED PRECEDING) ORDER BY sex DESC;
 expect:
 {
-  "sex" : [ "/catalog1/split_window_minmax/people/sex/" ],
-  "AVG(id)" : [ "/catalog1/split_window_minmax/people/id/" ],
-  "MIN(AVG(id)) OVER w" : [ "/catalog1/split_window_minmax/people/id/" ],
-  "MAX(AVG(id)) OVER w" : [ "/catalog1/split_window_minmax/people/id/" ],
-  "NTILE(2) OVER w" : [ ]
+  "sex" : [ "(1:7~1:10) /catalog1/split_window_minmax/people/sex/" ],
+  "AVG(id)" : [ "(1:15~1:17) /catalog1/split_window_minmax/people/id/" ],
+  "MIN(AVG(id)) OVER w" : [ "(1:27~1:29) /catalog1/split_window_minmax/people/id/", "(1:7~1:10) /catalog1/split_window_minmax/people/sex/" ],
+  "MAX(AVG(id)) OVER w" : [ "(1:47~1:49) /catalog1/split_window_minmax/people/id/", "(1:7~1:10) /catalog1/split_window_minmax/people/sex/" ],
+  "NTILE(2) OVER w" : [ "(1:7~1:10) /catalog1/split_window_minmax/people/sex/" ]
 }
 ----------
 [dql_mysql_window_0.0266]
@@ -2230,10 +2238,10 @@ sql:
 SELECT sex,NTILE(2) OVER w,MIN(ASCII(sex)) OVER w,MAX(ASCII(sex)) OVER w FROM split_window_minmax.people HAVING sex=(SELECT c FROM split_window_minmax.ss LIMIT 1) WINDOW w AS (ORDER BY sex ROWS UNBOUNDED PRECEDING);
 expect:
 {
-  "sex" : [ "/catalog1/split_window_minmax/people/sex/" ],
-  "NTILE(2) OVER w" : [ ],
-  "MIN(ASCII(sex)) OVER w" : [ "/catalog1/split_window_minmax/people/sex/" ],
-  "MAX(ASCII(sex)) OVER w" : [ "/catalog1/split_window_minmax/people/sex/" ]
+  "sex" : [ "(1:7~1:10) /catalog1/split_window_minmax/people/sex/" ],
+  "NTILE(2) OVER w" : [ "(1:7~1:10) /catalog1/split_window_minmax/people/sex/" ],
+  "MIN(ASCII(sex)) OVER w" : [ "(1:37~1:40) /catalog1/split_window_minmax/people/sex/", "(1:7~1:10) /catalog1/split_window_minmax/people/sex/" ],
+  "MAX(ASCII(sex)) OVER w" : [ "(1:60~1:63) /catalog1/split_window_minmax/people/sex/", "(1:7~1:10) /catalog1/split_window_minmax/people/sex/" ]
 }
 ----------
 [dql_mysql_window_0.0267]
@@ -2241,12 +2249,12 @@ sql:
 SELECT t.*,MIN(t.rnk) OVER (ROWS UNBOUNDED PRECEDING),MAX(t.rnk) OVER (ROWS UNBOUNDED PRECEDING) FROM (SELECT p.sex,p.id,d.dt,RANK() OVER w AS rnk FROM split_window_minmax.people p JOIN split_window_minmax.dates d ON p.id=d.user_id WINDOW w AS (PARTITION BY d.dt ORDER BY p.id)) t;
 expect:
 {
-  "sex" : [ "/catalog1/split_window_minmax/people/sex/" ],
-  "id" : [ "/catalog1/split_window_minmax/people/id/" ],
-  "dt" : [ "/catalog1/split_window_minmax/dates/dt/" ],
-  "rnk" : [ ],
-  "MIN(t.rnk) OVER (ROWS UNBOUNDED PRECEDING)" : [ ],
-  "MAX(t.rnk) OVER (ROWS UNBOUNDED PRECEDING)" : [ ]
+  "sex" : [ "(1:110~1:115) /catalog1/split_window_minmax/people/sex/" ],
+  "id" : [ "(1:116~1:120) /catalog1/split_window_minmax/people/id/" ],
+  "dt" : [ "(1:121~1:125) /catalog1/split_window_minmax/dates/dt/" ],
+  "rnk" : [ "(1:258~1:262) /catalog1/split_window_minmax/dates/dt/", "(1:272~1:276) /catalog1/split_window_minmax/people/id/" ],
+  "MIN(t.rnk) OVER (ROWS UNBOUNDED PRECEDING)" : [ "(1:258~1:262) /catalog1/split_window_minmax/dates/dt/", "(1:272~1:276) /catalog1/split_window_minmax/people/id/" ],
+  "MAX(t.rnk) OVER (ROWS UNBOUNDED PRECEDING)" : [ "(1:258~1:262) /catalog1/split_window_minmax/dates/dt/", "(1:272~1:276) /catalog1/split_window_minmax/people/id/" ]
 }
 ----------
 [dql_mysql_window_0.0268]
@@ -2267,10 +2275,10 @@ sql:
 SELECT d,MIN(d) OVER w,MAX(d) OVER w,COUNT(*) OVER w FROM split_window_minmax.doubles WINDOW w AS (ORDER BY d RANGE BETWEEN 2.1 PRECEDING AND 1.1 FOLLOWING);
 expect:
 {
-  "d" : [ "/catalog1/split_window_minmax/doubles/d/" ],
-  "MIN(d) OVER w" : [ "/catalog1/split_window_minmax/doubles/d/" ],
-  "MAX(d) OVER w" : [ "/catalog1/split_window_minmax/doubles/d/" ],
-  "COUNT(*) OVER w" : [ ]
+  "d" : [ "(1:7~1:8) /catalog1/split_window_minmax/doubles/d/" ],
+  "MIN(d) OVER w" : [ "(1:13~1:14) /catalog1/split_window_minmax/doubles/d/", "(1:7~1:8) /catalog1/split_window_minmax/doubles/d/" ],
+  "MAX(d) OVER w" : [ "(1:27~1:28) /catalog1/split_window_minmax/doubles/d/", "(1:7~1:8) /catalog1/split_window_minmax/doubles/d/" ],
+  "COUNT(*) OVER w" : [ "(1:7~1:8) /catalog1/split_window_minmax/doubles/d/" ]
 }
 ----------
 [dql_mysql_window_0.0270]
@@ -2278,10 +2286,10 @@ sql:
 SELECT j,JSON_TYPE(j),MIN(j) OVER (ORDER BY j ROWS 3 PRECEDING),MAX(j) OVER (ORDER BY j ROWS 3 PRECEDING) FROM split_window_minmax.tj;
 expect:
 {
-  "j" : [ "/catalog1/split_window_minmax/tj/j/" ],
-  "JSON_TYPE(j)" : [ "/catalog1/split_window_minmax/tj/j/" ],
-  "MIN(j) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "/catalog1/split_window_minmax/tj/j/" ],
-  "MAX(j) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "/catalog1/split_window_minmax/tj/j/" ]
+  "j" : [ "(1:7~1:8) /catalog1/split_window_minmax/tj/j/" ],
+  "JSON_TYPE(j)" : [ "(1:19~1:20) /catalog1/split_window_minmax/tj/j/" ],
+  "MIN(j) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "(1:26~1:27) /catalog1/split_window_minmax/tj/j/", "(1:7~1:8) /catalog1/split_window_minmax/tj/j/" ],
+  "MAX(j) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "(1:68~1:69) /catalog1/split_window_minmax/tj/j/", "(1:7~1:8) /catalog1/split_window_minmax/tj/j/" ]
 }
 ----------
 [dql_mysql_window_0.0271]
@@ -2289,8 +2297,8 @@ sql:
 SELECT j,JSON_TYPE(MIN(j) OVER (ORDER BY j RANGE 3 PRECEDING)) FROM split_window_minmax.tj;
 expect:
 {
-  "j" : [ "/catalog1/split_window_minmax/tj/j/" ],
-  "JSON_TYPE(MIN(j) OVER (ORDER BY j RANGE 3 PRECEDING))" : [ "/catalog1/split_window_minmax/tj/j/" ]
+  "j" : [ "(1:7~1:8) /catalog1/split_window_minmax/tj/j/" ],
+  "JSON_TYPE(MIN(j) OVER (ORDER BY j RANGE 3 PRECEDING))" : [ "(1:23~1:24) /catalog1/split_window_minmax/tj/j/", "(1:7~1:8) /catalog1/split_window_minmax/tj/j/" ]
 }
 ----------
 [dql_mysql_window_0.0272]
@@ -2298,8 +2306,8 @@ sql:
 SELECT j,MIN(CASE WHEN JSON_TYPE(j)='ARRAY' THEN j->'$[0]' ELSE j END) OVER (ORDER BY j ROWS 3 PRECEDING) FROM split_window_minmax.tj;
 expect:
 {
-  "j" : [ "/catalog1/split_window_minmax/tj/j/" ],
-  "MIN(CASE WHEN JSON_TYPE(j)='ARRAY' THEN j->'$[0]' ELSE j END) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "/catalog1/split_window_minmax/tj/j/", "/catalog1/split_window_minmax/tj/j/", "/catalog1/split_window_minmax/tj/j/" ]
+  "j" : [ "(1:7~1:8) /catalog1/split_window_minmax/tj/j/" ],
+  "MIN(CASE WHEN JSON_TYPE(j)='ARRAY' THEN j->'$[0]' ELSE j END) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "(1:33~1:34) /catalog1/split_window_minmax/tj/j/", "(1:49~1:50) /catalog1/split_window_minmax/tj/j/", "(1:64~1:65) /catalog1/split_window_minmax/tj/j/", "(1:7~1:8) /catalog1/split_window_minmax/tj/j/" ]
 }
 ----------
 [dql_mysql_window_0.0273]
@@ -2307,11 +2315,11 @@ sql:
 SELECT i,MAX(MAX(i)) OVER (),MAX(i) OVER (ORDER BY i),MOD(MAX(i),2),MAX(i) FROM split_window_minmax.tj GROUP BY i;
 expect:
 {
-  "i" : [ "/catalog1/split_window_minmax/tj/i/" ],
-  "MAX(MAX(i)) OVER ()" : [ "/catalog1/split_window_minmax/tj/i/" ],
-  "MAX(i) OVER (ORDER BY i)" : [ "/catalog1/split_window_minmax/tj/i/" ],
-  "MOD(MAX(i),2)" : [ "/catalog1/split_window_minmax/tj/i/" ],
-  "MAX(i)" : [ "/catalog1/split_window_minmax/tj/i/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_minmax/tj/i/" ],
+  "MAX(MAX(i)) OVER ()" : [ "(1:17~1:18) /catalog1/split_window_minmax/tj/i/" ],
+  "MAX(i) OVER (ORDER BY i)" : [ "(1:33~1:34) /catalog1/split_window_minmax/tj/i/", "(1:7~1:8) /catalog1/split_window_minmax/tj/i/" ],
+  "MOD(MAX(i),2)" : [ "(1:62~1:63) /catalog1/split_window_minmax/tj/i/" ],
+  "MAX(i)" : [ "(1:72~1:73) /catalog1/split_window_minmax/tj/i/" ]
 }
 ----------
 [dql_mysql_window_0.0274]
@@ -2319,8 +2327,8 @@ sql:
 SELECT i,MIN(i) OVER (ORDER BY i) FROM split_window_minmax.tj UNION ALL SELECT i,MIN(i) OVER (ORDER BY i) FROM split_window_minmax.tj;
 expect:
 {
-  "i" : [ "/catalog1/split_window_minmax/tj/i/", "/catalog1/split_window_minmax/tj/i/" ],
-  "MIN(i) OVER (ORDER BY i)" : [ "/catalog1/split_window_minmax/tj/i/", "/catalog1/split_window_minmax/tj/i/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_minmax/tj/i/", "(1:79~1:80) /catalog1/split_window_minmax/tj/i/" ],
+  "MIN(i) OVER (ORDER BY i)" : [ "(1:13~1:14) /catalog1/split_window_minmax/tj/i/", "(1:7~1:8) /catalog1/split_window_minmax/tj/i/", "(1:85~1:86) /catalog1/split_window_minmax/tj/i/", "(1:79~1:80) /catalog1/split_window_minmax/tj/i/" ]
 }
 ----------
 [dql_mysql_window_0.0275]
@@ -2328,9 +2336,9 @@ sql:
 SELECT j,CAST(MIN(j) OVER (PARTITION BY i) AS JSON),CAST(MAX(j) OVER () AS JSON) FROM split_window_minmax.tj;
 expect:
 {
-  "j" : [ "/catalog1/split_window_minmax/tj/j/" ],
-  "CAST(MIN(j) OVER (PARTITION BY i) AS JSON)" : [ "/catalog1/split_window_minmax/tj/j/" ],
-  "CAST(MAX(j) OVER () AS JSON)" : [ "/catalog1/split_window_minmax/tj/j/" ]
+  "j" : [ "(1:7~1:8) /catalog1/split_window_minmax/tj/j/" ],
+  "CAST(MIN(j) OVER (PARTITION BY i) AS JSON)" : [ "(1:18~1:19) /catalog1/split_window_minmax/tj/j/", "(1:40~1:41) /catalog1/split_window_minmax/tj/i/" ],
+  "CAST(MAX(j) OVER () AS JSON)" : [ "(1:61~1:62) /catalog1/split_window_minmax/tj/j/" ]
 }
 ----------
 [dql_mysql_window_0.0276]
@@ -2353,7 +2361,7 @@ SELECT ROW_NUMBER() OVER (),BIT_AND(i) FROM split_window_orders.ot WHERE split_w
 expect:
 {
   "ROW_NUMBER() OVER ()" : [ ],
-  "BIT_AND(i)" : [ "/catalog1/split_window_orders/ot/i/" ]
+  "BIT_AND(i)" : [ "(1:36~1:37) /catalog1/split_window_orders/ot/i/" ]
 }
 ----------
 [dql_mysql_window_0.0278]
@@ -2362,7 +2370,7 @@ SELECT ROW_NUMBER() OVER () AS rn,BIT_AND(i) AS x FROM split_window_orders.ot WH
 expect:
 {
   "rn" : [ ],
-  "x" : [ "/catalog1/split_window_orders/ot/i/" ]
+  "x" : [ "(1:42~1:43) /catalog1/split_window_orders/ot/i/" ]
 }
 ----------
 [dql_mysql_window_0.0279]
@@ -2370,8 +2378,8 @@ sql:
 SELECT SUM(BIT_AND(i)) OVER (ORDER BY BIT_AND(i)),BIT_AND(i) FROM split_window_orders.ot WHERE split_window_orders.f(2)<2;
 expect:
 {
-  "SUM(BIT_AND(i)) OVER (ORDER BY BIT_AND(i))" : [ "/catalog1/split_window_orders/ot/i/" ],
-  "BIT_AND(i)" : [ "/catalog1/split_window_orders/ot/i/" ]
+  "SUM(BIT_AND(i)) OVER (ORDER BY BIT_AND(i))" : [ "(1:19~1:20) /catalog1/split_window_orders/ot/i/", "(1:46~1:47) /catalog1/split_window_orders/ot/i/" ],
+  "BIT_AND(i)" : [ "(1:58~1:59) /catalog1/split_window_orders/ot/i/" ]
 }
 ----------
 [dql_mysql_window_0.0280]
@@ -2621,8 +2629,8 @@ sql:
 SELECT id, FIRST_VALUE(val) IGNORE NULLS OVER (ORDER BY id) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "FIRST_VALUE(val) IGNORE NULLS OVER (ORDER BY id)" : [ "/catalog1/schema1/t/val/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "FIRST_VALUE(val) IGNORE NULLS OVER (ORDER BY id)" : [ "(1:23~1:26) /catalog1/schema1/t/val/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0311]
@@ -2630,8 +2638,8 @@ sql:
 SELECT id, NTH_VALUE(val, 1) FROM LAST OVER (ORDER BY id) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "NTH_VALUE(val, 1) FROM LAST OVER (ORDER BY id)" : [ "/catalog1/schema1/t/val/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "NTH_VALUE(val, 1) FROM LAST OVER (ORDER BY id)" : [ "(1:21~1:24) /catalog1/schema1/t/val/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0312]
@@ -2639,8 +2647,8 @@ sql:
 SELECT id, SUM(id) OVER (ORDER BY id GROUPS BETWEEN 1 PRECEDING AND 1 FOLLOWING) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "SUM(id) OVER (ORDER BY id GROUPS BETWEEN 1 PRECEDING AND 1 FOLLOWING)" : [ "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "SUM(id) OVER (ORDER BY id GROUPS BETWEEN 1 PRECEDING AND 1 FOLLOWING)" : [ "(1:15~1:17) /catalog1/schema1/t/id/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0313]
@@ -2648,8 +2656,8 @@ sql:
 SELECT id, SUM(id) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW EXCLUDE CURRENT ROW) FROM t;
 expect:
 {
-  "id" : [ "/catalog1/schema1/t/id/" ],
-  "SUM(id) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW EXCLUDE CURRENT ROW)" : [ "/catalog1/schema1/t/id/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/t/id/" ],
+  "SUM(id) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW EXCLUDE CURRENT ROW)" : [ "(1:15~1:17) /catalog1/schema1/t/id/", "(1:7~1:9) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0314]
@@ -2657,7 +2665,7 @@ sql:
 SELECT SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE GROUP) FROM t;
 expect:
 {
-  "SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE GROUP)" : [ "/catalog1/schema1/t/id/" ]
+  "SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE GROUP)" : [ "(1:11~1:13) /catalog1/schema1/t/id/", "(1:30~1:32) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0315]
@@ -2665,7 +2673,7 @@ sql:
 SELECT SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE TIES) FROM t;
 expect:
 {
-  "SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE TIES)" : [ "/catalog1/schema1/t/id/" ]
+  "SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE TIES)" : [ "(1:11~1:13) /catalog1/schema1/t/id/", "(1:30~1:32) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0316]
@@ -2673,7 +2681,7 @@ sql:
 SELECT SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE NO OTHERS) FROM t;
 expect:
 {
-  "SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE NO OTHERS)" : [ "/catalog1/schema1/t/id/" ]
+  "SUM(id) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING EXCLUDE NO OTHERS)" : [ "(1:11~1:13) /catalog1/schema1/t/id/", "(1:30~1:32) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0317]
@@ -2681,7 +2689,7 @@ sql:
 SELECT COUNT(DISTINCT val) OVER () FROM t;
 expect:
 {
-  "COUNT(DISTINCT val) OVER ()" : [ "/catalog1/schema1/t/val/" ]
+  "COUNT(DISTINCT val) OVER ()" : [ "(1:22~1:25) /catalog1/schema1/t/val/" ]
 }
 ----------
 [dql_mysql_window_0.0318]
@@ -2689,7 +2697,7 @@ sql:
 SELECT SUM(id) OVER (ORDER BY id GROUPS BETWEEN 1 FOLLOWING AND 2 FOLLOWING) FROM t;
 expect:
 {
-  "SUM(id) OVER (ORDER BY id GROUPS BETWEEN 1 FOLLOWING AND 2 FOLLOWING)" : [ "/catalog1/schema1/t/id/" ]
+  "SUM(id) OVER (ORDER BY id GROUPS BETWEEN 1 FOLLOWING AND 2 FOLLOWING)" : [ "(1:11~1:13) /catalog1/schema1/t/id/", "(1:30~1:32) /catalog1/schema1/t/id/" ]
 }
 ----------
 [dql_mysql_window_0.0319]
@@ -2697,7 +2705,7 @@ sql:
 SELECT GROUP_CONCAT(val) OVER () FROM t;
 expect:
 {
-  "GROUP_CONCAT(val) OVER ()" : [ "/catalog1/schema1/t/val/" ]
+  "GROUP_CONCAT(val) OVER ()" : [ "(1:20~1:23) /catalog1/schema1/t/val/" ]
 }
 ----------
 [dql_mysql_window_0.0320]
@@ -2705,7 +2713,7 @@ sql:
 SELECT GROUP_CONCAT(DISTINCT val ORDER BY val DESC SEPARATOR ':') OVER (ORDER BY val) FROM t;
 expect:
 {
-  "GROUP_CONCAT(DISTINCT val ORDER BY val DESC SEPARATOR ':') OVER (ORDER BY val)" : [ "/catalog1/schema1/t/val/" ]
+  "GROUP_CONCAT(DISTINCT val ORDER BY val DESC SEPARATOR ':') OVER (ORDER BY val)" : [ "(1:29~1:32) /catalog1/schema1/t/val/", "(1:42~1:45) /catalog1/schema1/t/val/", "(1:81~1:84) /catalog1/schema1/t/val/" ]
 }
 ----------
 [dql_mysql_window_0.0321]
@@ -2886,11 +2894,11 @@ sql:
 SELECT k,STD(i),SUM(j),STDDEV_SAMP(k) OVER (ROWS UNBOUNDED PRECEDING),VAR_SAMP(k) OVER (ROWS UNBOUNDED PRECEDING) FROM split_window_stats.g GROUP BY k WITH ROLLUP;
 expect:
 {
-  "k" : [ "/catalog1/split_window_stats/g/k/" ],
-  "STD(i)" : [ "/catalog1/split_window_stats/g/i/" ],
-  "SUM(j)" : [ "/catalog1/split_window_stats/g/j/" ],
-  "STDDEV_SAMP(k) OVER (ROWS UNBOUNDED PRECEDING)" : [ "/catalog1/split_window_stats/g/k/" ],
-  "VAR_SAMP(k) OVER (ROWS UNBOUNDED PRECEDING)" : [ "/catalog1/split_window_stats/g/k/" ]
+  "k" : [ "(1:7~1:8) /catalog1/split_window_stats/g/k/" ],
+  "STD(i)" : [ "(1:13~1:14) /catalog1/split_window_stats/g/i/" ],
+  "SUM(j)" : [ "(1:20~1:21) /catalog1/split_window_stats/g/j/" ],
+  "STDDEV_SAMP(k) OVER (ROWS UNBOUNDED PRECEDING)" : [ "(1:35~1:36) /catalog1/split_window_stats/g/k/" ],
+  "VAR_SAMP(k) OVER (ROWS UNBOUNDED PRECEDING)" : [ "(1:79~1:80) /catalog1/split_window_stats/g/k/" ]
 }
 ----------
 [dql_mysql_window_0.0343]
@@ -2898,11 +2906,11 @@ sql:
 SELECT sex,AVG(id),STD(AVG(id)) OVER w,VARIANCE(AVG(id)) OVER w,NTILE(2) OVER w FROM split_window_stats.people GROUP BY sex HAVING sex=(SELECT c FROM split_window_stats.ss LIMIT 1) OR sex='F' OR sex IS NULL WINDOW w AS (ORDER BY sex ROWS UNBOUNDED PRECEDING) ORDER BY sex DESC;
 expect:
 {
-  "sex" : [ "/catalog1/split_window_stats/people/sex/" ],
-  "AVG(id)" : [ "/catalog1/split_window_stats/people/id/" ],
-  "STD(AVG(id)) OVER w" : [ "/catalog1/split_window_stats/people/id/" ],
-  "VARIANCE(AVG(id)) OVER w" : [ "/catalog1/split_window_stats/people/id/" ],
-  "NTILE(2) OVER w" : [ ]
+  "sex" : [ "(1:7~1:10) /catalog1/split_window_stats/people/sex/" ],
+  "AVG(id)" : [ "(1:15~1:17) /catalog1/split_window_stats/people/id/" ],
+  "STD(AVG(id)) OVER w" : [ "(1:27~1:29) /catalog1/split_window_stats/people/id/", "(1:7~1:10) /catalog1/split_window_stats/people/sex/" ],
+  "VARIANCE(AVG(id)) OVER w" : [ "(1:52~1:54) /catalog1/split_window_stats/people/id/", "(1:7~1:10) /catalog1/split_window_stats/people/sex/" ],
+  "NTILE(2) OVER w" : [ "(1:7~1:10) /catalog1/split_window_stats/people/sex/" ]
 }
 ----------
 [dql_mysql_window_0.0344]
@@ -2910,10 +2918,10 @@ sql:
 SELECT sex,NTILE(2) OVER w,STDDEV_POP(ASCII(sex)) OVER w,VARIANCE(ASCII(sex)) OVER w FROM split_window_stats.people HAVING sex=(SELECT c FROM split_window_stats.ss LIMIT 1) WINDOW w AS (ORDER BY sex ROWS UNBOUNDED PRECEDING);
 expect:
 {
-  "sex" : [ "/catalog1/split_window_stats/people/sex/" ],
-  "NTILE(2) OVER w" : [ ],
-  "STDDEV_POP(ASCII(sex)) OVER w" : [ "/catalog1/split_window_stats/people/sex/" ],
-  "VARIANCE(ASCII(sex)) OVER w" : [ "/catalog1/split_window_stats/people/sex/" ]
+  "sex" : [ "(1:7~1:10) /catalog1/split_window_stats/people/sex/" ],
+  "NTILE(2) OVER w" : [ "(1:7~1:10) /catalog1/split_window_stats/people/sex/" ],
+  "STDDEV_POP(ASCII(sex)) OVER w" : [ "(1:44~1:47) /catalog1/split_window_stats/people/sex/", "(1:7~1:10) /catalog1/split_window_stats/people/sex/" ],
+  "VARIANCE(ASCII(sex)) OVER w" : [ "(1:72~1:75) /catalog1/split_window_stats/people/sex/", "(1:7~1:10) /catalog1/split_window_stats/people/sex/" ]
 }
 ----------
 [dql_mysql_window_0.0345]
@@ -2934,12 +2942,12 @@ sql:
 SELECT t.*,STDDEV_POP(t.rnk) OVER (ROWS UNBOUNDED PRECEDING),VARIANCE(t.rnk) OVER (ROWS UNBOUNDED PRECEDING) FROM (SELECT p.sex,p.id,d.dt,RANK() OVER w AS rnk FROM split_window_stats.people p JOIN split_window_stats.dates d ON p.id=d.user_id WINDOW w AS (PARTITION BY d.dt ORDER BY p.id)) t;
 expect:
 {
-  "sex" : [ "/catalog1/split_window_stats/people/sex/" ],
-  "id" : [ "/catalog1/split_window_stats/people/id/" ],
-  "dt" : [ "/catalog1/split_window_stats/dates/dt/" ],
-  "rnk" : [ ],
-  "STDDEV_POP(t.rnk) OVER (ROWS UNBOUNDED PRECEDING)" : [ ],
-  "VARIANCE(t.rnk) OVER (ROWS UNBOUNDED PRECEDING)" : [ ]
+  "sex" : [ "(1:122~1:127) /catalog1/split_window_stats/people/sex/" ],
+  "id" : [ "(1:128~1:132) /catalog1/split_window_stats/people/id/" ],
+  "dt" : [ "(1:133~1:137) /catalog1/split_window_stats/dates/dt/" ],
+  "rnk" : [ "(1:268~1:272) /catalog1/split_window_stats/dates/dt/", "(1:282~1:286) /catalog1/split_window_stats/people/id/" ],
+  "STDDEV_POP(t.rnk) OVER (ROWS UNBOUNDED PRECEDING)" : [ "(1:268~1:272) /catalog1/split_window_stats/dates/dt/", "(1:282~1:286) /catalog1/split_window_stats/people/id/" ],
+  "VARIANCE(t.rnk) OVER (ROWS UNBOUNDED PRECEDING)" : [ "(1:268~1:272) /catalog1/split_window_stats/dates/dt/", "(1:282~1:286) /catalog1/split_window_stats/people/id/" ]
 }
 ----------
 [dql_mysql_window_0.0347]
@@ -2947,10 +2955,10 @@ sql:
 SELECT ROW_NUMBER() OVER w,RANK() OVER w,STD(id) OVER w,VARIANCE(id) OVER w FROM split_window_stats.people WINDOW w AS (PARTITION BY sex ORDER BY id ROWS BETWEEN 1 FOLLOWING AND 2 FOLLOWING);
 expect:
 {
-  "ROW_NUMBER() OVER w" : [ ],
-  "RANK() OVER w" : [ ],
-  "STD(id) OVER w" : [ "/catalog1/split_window_stats/people/id/" ],
-  "VARIANCE(id) OVER w" : [ "/catalog1/split_window_stats/people/id/" ]
+  "ROW_NUMBER() OVER w" : [ "(1:133~1:136) /catalog1/split_window_stats/people/sex/", "(1:146~1:148) /catalog1/split_window_stats/people/id/" ],
+  "RANK() OVER w" : [ "(1:133~1:136) /catalog1/split_window_stats/people/sex/", "(1:146~1:148) /catalog1/split_window_stats/people/id/" ],
+  "STD(id) OVER w" : [ "(1:45~1:47) /catalog1/split_window_stats/people/id/", "(1:133~1:136) /catalog1/split_window_stats/people/sex/", "(1:146~1:148) /catalog1/split_window_stats/people/id/" ],
+  "VARIANCE(id) OVER w" : [ "(1:65~1:67) /catalog1/split_window_stats/people/id/", "(1:133~1:136) /catalog1/split_window_stats/people/sex/", "(1:146~1:148) /catalog1/split_window_stats/people/id/" ]
 }
 ----------
 [dql_mysql_window_0.0348]
@@ -2958,9 +2966,9 @@ sql:
 SELECT user_id,STD(user_id) OVER w,VARIANCE(user_id) OVER w1 FROM split_window_stats.dates WINDOW w AS (ORDER BY user_id),w1 AS (ORDER BY user_id);
 expect:
 {
-  "user_id" : [ "/catalog1/split_window_stats/dates/user_id/" ],
-  "STD(user_id) OVER w" : [ "/catalog1/split_window_stats/dates/user_id/" ],
-  "VARIANCE(user_id) OVER w1" : [ "/catalog1/split_window_stats/dates/user_id/" ]
+  "user_id" : [ "(1:7~1:14) /catalog1/split_window_stats/dates/user_id/" ],
+  "STD(user_id) OVER w" : [ "(1:19~1:26) /catalog1/split_window_stats/dates/user_id/", "(1:7~1:14) /catalog1/split_window_stats/dates/user_id/" ],
+  "VARIANCE(user_id) OVER w1" : [ "(1:44~1:51) /catalog1/split_window_stats/dates/user_id/", "(1:7~1:14) /catalog1/split_window_stats/dates/user_id/" ]
 }
 ----------
 [dql_mysql_window_0.0349]
@@ -2968,11 +2976,11 @@ sql:
 SELECT NTILE(5) OVER w,ROW_NUMBER() OVER w,id,STD(id) OVER w,VARIANCE(id) OVER w FROM split_window_stats.people WINDOW w AS (ORDER BY id DESC RANGE 2 PRECEDING);
 expect:
 {
-  "NTILE(5) OVER w" : [ ],
-  "ROW_NUMBER() OVER w" : [ ],
-  "id" : [ "/catalog1/split_window_stats/people/id/" ],
-  "STD(id) OVER w" : [ "/catalog1/split_window_stats/people/id/" ],
-  "VARIANCE(id) OVER w" : [ "/catalog1/split_window_stats/people/id/" ]
+  "NTILE(5) OVER w" : [ "(1:134~1:136) /catalog1/split_window_stats/people/id/" ],
+  "ROW_NUMBER() OVER w" : [ "(1:134~1:136) /catalog1/split_window_stats/people/id/" ],
+  "id" : [ "(1:43~1:45) /catalog1/split_window_stats/people/id/" ],
+  "STD(id) OVER w" : [ "(1:50~1:52) /catalog1/split_window_stats/people/id/", "(1:43~1:45) /catalog1/split_window_stats/people/id/" ],
+  "VARIANCE(id) OVER w" : [ "(1:70~1:72) /catalog1/split_window_stats/people/id/", "(1:43~1:45) /catalog1/split_window_stats/people/id/" ]
 }
 ----------
 [dql_mysql_window_0.0350]
@@ -2980,10 +2988,10 @@ sql:
 SELECT d,STD(d) OVER w,VARIANCE(d) OVER w,COUNT(*) OVER w FROM split_window_stats.doubles WINDOW w AS (ORDER BY d RANGE BETWEEN 2.1 PRECEDING AND 1.1 FOLLOWING);
 expect:
 {
-  "d" : [ "/catalog1/split_window_stats/doubles/d/" ],
-  "STD(d) OVER w" : [ "/catalog1/split_window_stats/doubles/d/" ],
-  "VARIANCE(d) OVER w" : [ "/catalog1/split_window_stats/doubles/d/" ],
-  "COUNT(*) OVER w" : [ ]
+  "d" : [ "(1:7~1:8) /catalog1/split_window_stats/doubles/d/" ],
+  "STD(d) OVER w" : [ "(1:13~1:14) /catalog1/split_window_stats/doubles/d/", "(1:7~1:8) /catalog1/split_window_stats/doubles/d/" ],
+  "VARIANCE(d) OVER w" : [ "(1:32~1:33) /catalog1/split_window_stats/doubles/d/", "(1:7~1:8) /catalog1/split_window_stats/doubles/d/" ],
+  "COUNT(*) OVER w" : [ "(1:7~1:8) /catalog1/split_window_stats/doubles/d/" ]
 }
 ----------
 [dql_mysql_window_0.0351]
@@ -2991,10 +2999,10 @@ sql:
 SELECT j,JSON_TYPE(j),STD(j) OVER (ORDER BY j ROWS 3 PRECEDING),VARIANCE(j) OVER (ORDER BY j ROWS 3 PRECEDING) FROM split_window_stats.tj;
 expect:
 {
-  "j" : [ "/catalog1/split_window_stats/tj/j/" ],
-  "JSON_TYPE(j)" : [ "/catalog1/split_window_stats/tj/j/" ],
-  "STD(j) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "/catalog1/split_window_stats/tj/j/" ],
-  "VARIANCE(j) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "/catalog1/split_window_stats/tj/j/" ]
+  "j" : [ "(1:7~1:8) /catalog1/split_window_stats/tj/j/" ],
+  "JSON_TYPE(j)" : [ "(1:19~1:20) /catalog1/split_window_stats/tj/j/" ],
+  "STD(j) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "(1:26~1:27) /catalog1/split_window_stats/tj/j/", "(1:7~1:8) /catalog1/split_window_stats/tj/j/" ],
+  "VARIANCE(j) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "(1:73~1:74) /catalog1/split_window_stats/tj/j/", "(1:7~1:8) /catalog1/split_window_stats/tj/j/" ]
 }
 ----------
 [dql_mysql_window_0.0352]
@@ -3002,8 +3010,8 @@ sql:
 SELECT j,JSON_TYPE(STD(j) OVER (ORDER BY j RANGE 3 PRECEDING)) FROM split_window_stats.tj;
 expect:
 {
-  "j" : [ "/catalog1/split_window_stats/tj/j/" ],
-  "JSON_TYPE(STD(j) OVER (ORDER BY j RANGE 3 PRECEDING))" : [ "/catalog1/split_window_stats/tj/j/" ]
+  "j" : [ "(1:7~1:8) /catalog1/split_window_stats/tj/j/" ],
+  "JSON_TYPE(STD(j) OVER (ORDER BY j RANGE 3 PRECEDING))" : [ "(1:23~1:24) /catalog1/split_window_stats/tj/j/", "(1:7~1:8) /catalog1/split_window_stats/tj/j/" ]
 }
 ----------
 [dql_mysql_window_0.0353]
@@ -3011,8 +3019,8 @@ sql:
 SELECT j,STD(CASE WHEN JSON_TYPE(j)='ARRAY' THEN j->'$[0]' ELSE j END) OVER (ORDER BY j ROWS 3 PRECEDING) FROM split_window_stats.tj;
 expect:
 {
-  "j" : [ "/catalog1/split_window_stats/tj/j/" ],
-  "STD(CASE WHEN JSON_TYPE(j)='ARRAY' THEN j->'$[0]' ELSE j END) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "/catalog1/split_window_stats/tj/j/", "/catalog1/split_window_stats/tj/j/", "/catalog1/split_window_stats/tj/j/" ]
+  "j" : [ "(1:7~1:8) /catalog1/split_window_stats/tj/j/" ],
+  "STD(CASE WHEN JSON_TYPE(j)='ARRAY' THEN j->'$[0]' ELSE j END) OVER (ORDER BY j ROWS 3 PRECEDING)" : [ "(1:33~1:34) /catalog1/split_window_stats/tj/j/", "(1:49~1:50) /catalog1/split_window_stats/tj/j/", "(1:64~1:65) /catalog1/split_window_stats/tj/j/", "(1:7~1:8) /catalog1/split_window_stats/tj/j/" ]
 }
 ----------
 [dql_mysql_window_0.0354]
@@ -3020,9 +3028,9 @@ sql:
 SELECT DISTINCT i,NTILE(3) OVER (ORDER BY i),VARIANCE(i) OVER (),COUNT(*) OVER () FROM split_window_stats.tj ORDER BY NTILE(3) OVER (ORDER BY i);
 expect:
 {
-  "i" : [ "/catalog1/split_window_stats/tj/i/" ],
-  "NTILE(3) OVER (ORDER BY i)" : [ ],
-  "VARIANCE(i) OVER ()" : [ "/catalog1/split_window_stats/tj/i/" ],
+  "i" : [ "(1:16~1:17) /catalog1/split_window_stats/tj/i/" ],
+  "NTILE(3) OVER (ORDER BY i)" : [ "(1:16~1:17) /catalog1/split_window_stats/tj/i/" ],
+  "VARIANCE(i) OVER ()" : [ "(1:54~1:55) /catalog1/split_window_stats/tj/i/" ],
   "COUNT(*) OVER ()" : [ ]
 }
 ----------
@@ -3032,8 +3040,8 @@ SELECT COUNT(*) OVER (),MOD(STD(i),2),MOD(VARIANCE(i),2) FROM split_window_stats
 expect:
 {
   "COUNT(*) OVER ()" : [ ],
-  "MOD(STD(i),2)" : [ "/catalog1/split_window_stats/tj/i/" ],
-  "MOD(VARIANCE(i),2)" : [ "/catalog1/split_window_stats/tj/i/" ]
+  "MOD(STD(i),2)" : [ "(1:32~1:33) /catalog1/split_window_stats/tj/i/" ],
+  "MOD(VARIANCE(i),2)" : [ "(1:51~1:52) /catalog1/split_window_stats/tj/i/" ]
 }
 ----------
 [dql_mysql_window_0.0356]
@@ -3041,11 +3049,11 @@ sql:
 SELECT i,VARIANCE(VARIANCE(i)) OVER (),VARIANCE(i) OVER (ORDER BY i),MOD(VARIANCE(i),2),VARIANCE(i) FROM split_window_stats.tj GROUP BY i;
 expect:
 {
-  "i" : [ "/catalog1/split_window_stats/tj/i/" ],
-  "VARIANCE(VARIANCE(i)) OVER ()" : [ "/catalog1/split_window_stats/tj/i/" ],
-  "VARIANCE(i) OVER (ORDER BY i)" : [ "/catalog1/split_window_stats/tj/i/" ],
-  "MOD(VARIANCE(i),2)" : [ "/catalog1/split_window_stats/tj/i/" ],
-  "VARIANCE(i)" : [ "/catalog1/split_window_stats/tj/i/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_stats/tj/i/" ],
+  "VARIANCE(VARIANCE(i)) OVER ()" : [ "(1:27~1:28) /catalog1/split_window_stats/tj/i/" ],
+  "VARIANCE(i) OVER (ORDER BY i)" : [ "(1:48~1:49) /catalog1/split_window_stats/tj/i/", "(1:7~1:8) /catalog1/split_window_stats/tj/i/" ],
+  "MOD(VARIANCE(i),2)" : [ "(1:82~1:83) /catalog1/split_window_stats/tj/i/" ],
+  "VARIANCE(i)" : [ "(1:97~1:98) /catalog1/split_window_stats/tj/i/" ]
 }
 ----------
 [dql_mysql_window_0.0357]
@@ -3053,8 +3061,8 @@ sql:
 SELECT i,STD(i) OVER (ORDER BY i) FROM split_window_stats.tj UNION ALL SELECT i,STD(i) OVER (ORDER BY i) FROM split_window_stats.tj;
 expect:
 {
-  "i" : [ "/catalog1/split_window_stats/tj/i/", "/catalog1/split_window_stats/tj/i/" ],
-  "STD(i) OVER (ORDER BY i)" : [ "/catalog1/split_window_stats/tj/i/", "/catalog1/split_window_stats/tj/i/" ]
+  "i" : [ "(1:7~1:8) /catalog1/split_window_stats/tj/i/", "(1:78~1:79) /catalog1/split_window_stats/tj/i/" ],
+  "STD(i) OVER (ORDER BY i)" : [ "(1:13~1:14) /catalog1/split_window_stats/tj/i/", "(1:7~1:8) /catalog1/split_window_stats/tj/i/", "(1:84~1:85) /catalog1/split_window_stats/tj/i/", "(1:78~1:79) /catalog1/split_window_stats/tj/i/" ]
 }
 ----------
 [dql_mysql_window_0.0358]
@@ -3062,9 +3070,9 @@ sql:
 SELECT j,CAST(STD(j) OVER (PARTITION BY i ROWS UNBOUNDED PRECEDING) AS JSON),CAST(VARIANCE(j) OVER (PARTITION BY i ROWS UNBOUNDED PRECEDING) AS JSON) FROM split_window_stats.tj;
 expect:
 {
-  "j" : [ "/catalog1/split_window_stats/tj/j/" ],
-  "CAST(STD(j) OVER (PARTITION BY i ROWS UNBOUNDED PRECEDING) AS JSON)" : [ "/catalog1/split_window_stats/tj/j/" ],
-  "CAST(VARIANCE(j) OVER (PARTITION BY i ROWS UNBOUNDED PRECEDING) AS JSON)" : [ "/catalog1/split_window_stats/tj/j/" ]
+  "j" : [ "(1:7~1:8) /catalog1/split_window_stats/tj/j/" ],
+  "CAST(STD(j) OVER (PARTITION BY i ROWS UNBOUNDED PRECEDING) AS JSON)" : [ "(1:18~1:19) /catalog1/split_window_stats/tj/j/", "(1:40~1:41) /catalog1/split_window_stats/tj/i/" ],
+  "CAST(VARIANCE(j) OVER (PARTITION BY i ROWS UNBOUNDED PRECEDING) AS JSON)" : [ "(1:91~1:92) /catalog1/split_window_stats/tj/j/", "(1:113~1:114) /catalog1/split_window_stats/tj/i/" ]
 }
 ----------
 [dql_mysql_window_0.0359]
@@ -3082,7 +3090,7 @@ sql:
 SELECT STDDEV(c2) OVER (ROWS 2 PRECEDING) FROM split_window_stats.extreme;
 expect:
 {
-  "STDDEV(c2) OVER (ROWS 2 PRECEDING)" : [ "/catalog1/split_window_stats/extreme/c2/" ]
+  "STDDEV(c2) OVER (ROWS 2 PRECEDING)" : [ "(1:14~1:16) /catalog1/split_window_stats/extreme/c2/" ]
 }
 ----------
 [dql_mysql_window_0.0361]
@@ -3247,8 +3255,8 @@ sql:
 SELECT * FROM (SELECT f1,SUM(f1) OVER() AS f2 FROM wf GROUP BY f1 UNION SELECT f1,CAST(f1 AS DECIMAL(10,2)) FROM wf) AS dt1 WHERE f1>0 AND f2>0;
 expect:
 {
-  "f1" : [ "/catalog1/schema1/wf/f1/", "/catalog1/schema1/wf/f1/" ],
-  "f2" : [ "/catalog1/schema1/wf/f1/", "/catalog1/schema1/wf/f1/" ]
+  "f1" : [ "(1:22~1:24) /catalog1/schema1/wf/f1/", "(1:79~1:81) /catalog1/schema1/wf/f1/" ],
+  "f2" : [ "(1:29~1:31) /catalog1/schema1/wf/f1/", "(1:87~1:89) /catalog1/schema1/wf/f1/" ]
 }
 ----------
 [dql_mysql_window_0.0381]
@@ -3256,9 +3264,9 @@ sql:
 SELECT * FROM (SELECT f1,f2,SUM(f2) OVER(PARTITION BY f1,f2) FROM t1 GROUP BY f1,f2 UNION ALL SELECT f1,f2,SUM(f2) OVER(PARTITION BY f1,f2) FROM t2 GROUP BY f1,f2) AS dt WHERE f1>2 AND f2>30 AND (f1+f2)>40;
 expect:
 {
-  "f1" : [ "/catalog1/schema1/t1/f1/", "/catalog1/schema1/t2/f1/" ],
-  "f2" : [ "/catalog1/schema1/t1/f2/", "/catalog1/schema1/t2/f2/" ],
-  "SUM(f2) OVER(PARTITION BY f1,f2)" : [ "/catalog1/schema1/t1/f2/", "/catalog1/schema1/t2/f2/" ]
+  "f1" : [ "(1:22~1:24) /catalog1/schema1/t1/f1/", "(1:101~1:103) /catalog1/schema1/t2/f1/" ],
+  "f2" : [ "(1:25~1:27) /catalog1/schema1/t1/f2/", "(1:104~1:106) /catalog1/schema1/t2/f2/" ],
+  "SUM(f2) OVER(PARTITION BY f1,f2)" : [ "(1:32~1:34) /catalog1/schema1/t1/f2/", "(1:22~1:24) /catalog1/schema1/t1/f1/", "(1:25~1:27) /catalog1/schema1/t1/f2/", "(1:111~1:113) /catalog1/schema1/t2/f2/", "(1:101~1:103) /catalog1/schema1/t2/f1/", "(1:104~1:106) /catalog1/schema1/t2/f2/" ]
 }
 ----------
 [dql_mysql_window_0.0382]
@@ -3290,8 +3298,8 @@ sql:
 SELECT w,SUM(w) OVER (ROWS 3.14 PRECEDING) FROM t;
 expect:
 {
-  "w" : [ "/catalog1/schema1/t/w/" ],
-  "SUM(w) OVER (ROWS 3.14 PRECEDING)" : [ "/catalog1/schema1/t/w/" ]
+  "w" : [ "(1:7~1:8) /catalog1/schema1/t/w/" ],
+  "SUM(w) OVER (ROWS 3.14 PRECEDING)" : [ "(1:13~1:14) /catalog1/schema1/t/w/" ]
 }
 ----------
 [dql_mysql_window_0.0386]
@@ -3299,8 +3307,8 @@ sql:
 SELECT w,SUM(w) OVER (ROWS BETWEEN 3 PRECEDING AND 3.4 FOLLOWING) FROM t;
 expect:
 {
-  "w" : [ "/catalog1/schema1/t/w/" ],
-  "SUM(w) OVER (ROWS BETWEEN 3 PRECEDING AND 3.4 FOLLOWING)" : [ "/catalog1/schema1/t/w/" ]
+  "w" : [ "(1:7~1:8) /catalog1/schema1/t/w/" ],
+  "SUM(w) OVER (ROWS BETWEEN 3 PRECEDING AND 3.4 FOLLOWING)" : [ "(1:13~1:14) /catalog1/schema1/t/w/" ]
 }
 ----------
 [dql_mysql_window_0.0387]
@@ -3316,8 +3324,8 @@ sql:
 SELECT t,FIRST_VALUE(t) OVER (ORDER BY t RANGE INTERVAL ? HOUR PRECEDING) FROM t_time;
 expect:
 {
-  "t" : [ "/catalog1/schema1/t_time/t/" ],
-  "FIRST_VALUE(t) OVER (ORDER BY t RANGE INTERVAL ? HOUR PRECEDING)" : [ "/catalog1/schema1/t_time/t/" ]
+  "t" : [ "(1:7~1:8) /catalog1/schema1/t_time/t/" ],
+  "FIRST_VALUE(t) OVER (ORDER BY t RANGE INTERVAL ? HOUR PRECEDING)" : [ "(1:21~1:22) /catalog1/schema1/t_time/t/", "(1:7~1:8) /catalog1/schema1/t_time/t/" ]
 }
 ----------
 [dql_mysql_window_0.0389]

@@ -74,10 +74,10 @@ FROM vector_lifecycle
 ORDER BY distance_value,id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/vector_lifecycle/id/" ],
-  "VECTOR_TO_STRING(embedding)" : [ "/catalog1/schema1/vector_lifecycle/embedding/" ],
-  "VECTOR_DIM(embedding)" : [ "/catalog1/schema1/vector_lifecycle/embedding/" ],
-  "distance_value" : [ "/catalog1/schema1/vector_lifecycle/embedding/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/vector_lifecycle/id/" ],
+  "VECTOR_TO_STRING(embedding)" : [ "(2:24~2:33) /catalog1/schema1/vector_lifecycle/embedding/" ],
+  "VECTOR_DIM(embedding)" : [ "(3:18~3:27) /catalog1/schema1/vector_lifecycle/embedding/" ],
+  "distance_value" : [ "(4:16~4:25) /catalog1/schema1/vector_lifecycle/embedding/" ]
 }
 ----------
 [dql_mysql_vector_0.0010]
@@ -89,10 +89,16 @@ JOIN vector_lifecycle AS b
   ON a.grp=b.grp AND a.id<b.id
 ORDER BY cosine_distance;
 expect:
-{
-  "id" : [ "/catalog1/schema1/vector_lifecycle/id/", "/catalog1/schema1/vector_lifecycle/id/" ],
-  "cosine_distance" : [ "/catalog1/schema1/vector_lifecycle/embedding/", "/catalog1/schema1/vector_lifecycle/embedding/" ]
-}
+[ {
+  "sources" : [ "(1:7~1:11) /catalog1/schema1/vector_lifecycle/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(1:12~1:16) /catalog1/schema1/vector_lifecycle/id/" ],
+  "column" : "id"
+}, {
+  "sources" : [ "(2:23~2:34) /catalog1/schema1/vector_lifecycle/embedding/", "(2:35~2:46) /catalog1/schema1/vector_lifecycle/embedding/" ],
+  "column" : "cosine_distance"
+} ]
 ----------
 [dql_mysql_vector_0.0011]
 sql:
@@ -107,8 +113,8 @@ WHERE EXISTS (
 );
 expect:
 {
-  "id" : [ "/catalog1/schema1/vector_lifecycle/id/" ],
-  "correlated_embedding" : [ "/catalog1/schema1/vector_lifecycle/embedding/" ]
+  "id" : [ "(1:7~1:11) /catalog1/schema1/vector_lifecycle/id/" ],
+  "correlated_embedding" : [ "(2:32~2:44) /catalog1/schema1/vector_lifecycle/embedding/" ]
 }
 ----------
 [dql_mysql_vector_0.0012]
@@ -120,10 +126,10 @@ SELECT id,
 FROM vector_lifecycle;
 expect:
 {
-  "id" : [ "/catalog1/schema1/vector_lifecycle/id/" ],
-  "VECTOR_TO_STRING(CASE WHEN embedding IS NULL THEN TO_VECTOR('[0,0,0]') ELSE embedding END)" : [ "/catalog1/schema1/vector_lifecycle/embedding/", "/catalog1/schema1/vector_lifecycle/embedding/" ],
-  "VECTOR_TO_STRING(COALESCE(embedding,embedding_default))" : [ "/catalog1/schema1/vector_lifecycle/embedding/", "/catalog1/schema1/vector_lifecycle/embedding_default/" ],
-  "NULLIF(embedding,embedding_default)" : [ "/catalog1/schema1/vector_lifecycle/embedding/", "/catalog1/schema1/vector_lifecycle/embedding_default/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/vector_lifecycle/id/" ],
+  "VECTOR_TO_STRING(CASE WHEN embedding IS NULL THEN TO_VECTOR('[0,0,0]') ELSE embedding END)" : [ "(2:34~2:43) /catalog1/schema1/vector_lifecycle/embedding/", "(2:83~2:92) /catalog1/schema1/vector_lifecycle/embedding/" ],
+  "VECTOR_TO_STRING(COALESCE(embedding,embedding_default))" : [ "(3:33~3:42) /catalog1/schema1/vector_lifecycle/embedding/", "(3:43~3:60) /catalog1/schema1/vector_lifecycle/embedding_default/" ],
+  "NULLIF(embedding,embedding_default)" : [ "(4:14~4:23) /catalog1/schema1/vector_lifecycle/embedding/", "(4:24~4:41) /catalog1/schema1/vector_lifecycle/embedding_default/" ]
 }
 ----------
 [dql_mysql_vector_0.0013]
@@ -134,9 +140,9 @@ GROUP BY grp
 HAVING COUNT(embedding)>=0;
 expect:
 {
-  "grp" : [ "/catalog1/schema1/vector_lifecycle/grp/" ],
-  "COUNT(embedding)" : [ "/catalog1/schema1/vector_lifecycle/embedding/" ],
-  "COUNT(DISTINCT embedding)" : [ "/catalog1/schema1/vector_lifecycle/embedding/" ]
+  "grp" : [ "(1:7~1:10) /catalog1/schema1/vector_lifecycle/grp/" ],
+  "COUNT(embedding)" : [ "(1:17~1:26) /catalog1/schema1/vector_lifecycle/embedding/" ],
+  "COUNT(DISTINCT embedding)" : [ "(1:43~1:52) /catalog1/schema1/vector_lifecycle/embedding/" ]
 }
 ----------
 [dql_mysql_vector_0.0014]
@@ -148,9 +154,9 @@ SELECT id,grp,COUNT(embedding) OVER (
 FROM vector_lifecycle;
 expect:
 {
-  "id" : [ "/catalog1/schema1/vector_lifecycle/id/" ],
-  "grp" : [ "/catalog1/schema1/vector_lifecycle/grp/" ],
-  "running_vector_count" : [ "/catalog1/schema1/vector_lifecycle/embedding/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/vector_lifecycle/id/" ],
+  "grp" : [ "(1:10~1:13) /catalog1/schema1/vector_lifecycle/grp/" ],
+  "running_vector_count" : [ "(1:20~1:29) /catalog1/schema1/vector_lifecycle/embedding/", "(1:10~1:13) /catalog1/schema1/vector_lifecycle/grp/", "(1:7~1:9) /catalog1/schema1/vector_lifecycle/id/" ]
 }
 ----------
 [dql_mysql_vector_0.0015]
@@ -167,8 +173,8 @@ WHERE embedding IN (
 );
 expect:
 {
-  "id" : [ "/catalog1/schema1/vector_lifecycle/id/" ],
-  "VECTOR_TO_STRING(embedding)" : [ "/catalog1/schema1/vector_lifecycle/embedding/" ]
+  "id" : [ "(2:9~2:11) /catalog1/schema1/vector_lifecycle/id/" ],
+  "VECTOR_TO_STRING(embedding)" : [ "(2:16~2:25) /catalog1/schema1/vector_lifecycle/embedding/" ]
 }
 ----------
 [dql_mysql_vector_0.0016]
@@ -179,8 +185,8 @@ SELECT id,embedding FROM vector_lifecycle WHERE grp=2
 ORDER BY id;
 expect:
 {
-  "id" : [ "/catalog1/schema1/vector_lifecycle/id/", "/catalog1/schema1/vector_lifecycle/id/" ],
-  "embedding" : [ "/catalog1/schema1/vector_lifecycle/embedding/", "/catalog1/schema1/vector_lifecycle/embedding/" ]
+  "id" : [ "(1:7~1:9) /catalog1/schema1/vector_lifecycle/id/", "(3:7~3:9) /catalog1/schema1/vector_lifecycle/id/" ],
+  "embedding" : [ "(1:10~1:19) /catalog1/schema1/vector_lifecycle/embedding/", "(3:10~3:19) /catalog1/schema1/vector_lifecycle/embedding/" ]
 }
 ----------
 [dql_mysql_vector_0.0017]
@@ -193,9 +199,9 @@ FROM (
 GROUP BY d.grp;
 expect:
 {
-  "grp" : [ "/catalog1/schema1/vector_lifecycle/grp/" ],
+  "grp" : [ "(3:9~3:12) /catalog1/schema1/vector_lifecycle/grp/" ],
   "COUNT(*)" : [ ],
-  "MAX(d.dimensions)" : [ "/catalog1/schema1/vector_lifecycle/embedding/" ]
+  "MAX(d.dimensions)" : [ "(3:24~3:33) /catalog1/schema1/vector_lifecycle/embedding/" ]
 }
 ----------
 [dql_mysql_vector_0.0018]

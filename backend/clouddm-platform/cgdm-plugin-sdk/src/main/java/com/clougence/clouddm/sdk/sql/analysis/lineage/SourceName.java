@@ -19,8 +19,17 @@ import com.clougence.utils.StringUtils;
 
 /**
  * Structured name of a source column.
+ *
+ * <p>The source range is end-exclusive and uses coordinates in the analyzed SQL.
+ * Lines are one-based and columns are zero-based. A zero-valued range means that
+ * the lineage implementation cannot provide the source location.</p>
  */
-public record SourceName(String catalog, String schema, String table, String column) {
+public record SourceName(String catalog, String schema, String table, String column,//
+                         int startLine, int startColumn, int endLine, int endColumn) {
+
+    public SourceName(String catalog, String schema, String table, String column){
+        this(catalog, schema, table, column, 0, 0, 0, 0);
+    }
 
     public String toDsResPath() {
         StringBuilder resPathLike = new StringBuilder();
@@ -39,5 +48,9 @@ public record SourceName(String catalog, String schema, String table, String col
 
         resPathLike.append("/");
         return resPathLike.toString();
+    }
+
+    public String toLocatedDsResPath() {
+        return "(" + this.startLine + ":" + this.startColumn + "~" + this.endLine + ":" + this.endColumn + ") " + this.toDsResPath();
     }
 }

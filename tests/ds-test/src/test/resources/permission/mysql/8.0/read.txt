@@ -1,0 +1,119 @@
+[session_variable]
+sql:
+SET @var = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "ConfigKey(1:4~1:8) /test/1/var/"
+  ]
+}
+----------
+[select]
+sql:
+SELECT * FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "Table(1:14~1:31) /test/1/catalog1/app_schema/orders/"
+  ]
+}
+----------
+[insert_select]
+sql:
+INSERT INTO archive_orders SELECT * FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "Table(1:41~1:58) /test/1/catalog1/app_schema/orders/"
+  ]
+}
+----------
+[data_export]
+sql:
+SELECT * FROM sales.orders INTO OUTFILE '/tmp/orders.csv';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "Table(1:14~1:26) /test/1/catalog1/sales/orders/"
+  ]
+}
+----------
+[data_import]
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "File(1:17~1:54) /test/1/var/lib/mysql-files/split_load.tsv/"
+  ]
+}
+----------
+[performance]
+sql:
+EXPLAIN SELECT * FROM json_op;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "Table(1:22~1:29) /test/1/catalog1/schema1/json_op/"
+  ]
+}
+----------
+[create_table_as_select]
+sql:
+CREATE TABLE report_orders AS SELECT * FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "Table(1:44~1:61) /test/1/catalog1/app_schema/orders/"
+  ]
+}
+----------
+[create_view]
+sql:
+CREATE VIEW order_view AS SELECT * FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "Table(1:40~1:57) /test/1/catalog1/app_schema/orders/"
+  ]
+}
+----------
+[create_procedure]
+sql:
+CREATE PROCEDURE refresh_orders() SELECT COUNT(*) FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "Table(1:55~1:72) /test/1/catalog1/app_schema/orders/"
+  ]
+}
+----------
+[create_event]
+sql:
+CREATE EVENT split_event.ev_unit_0 ON SCHEDULE EVERY 1 YEAR DO SET @event_unit_0=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "ConfigKey(1:67~1:80) /test/1/event_unit_0/"
+  ]
+}

@@ -1,0 +1,36 @@
+[create_user]
+sql:
+CREATE USER analyst IDENTIFIED BY 'secret';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "AUTH": [
+    "User(1:12~1:19) /test/1/analyst/"
+  ]
+}
+----------
+[grant_table]
+sql:
+GRANT SELECT ON app_schema.orders TO analyst;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "AUTH": [
+    "Table(1:16~1:33) /test/1/catalog1/app_schema/orders/",
+    "UserOrRole(1:37~1:44) /test/1/analyst/"
+  ]
+}
+----------
+[create_role]
+sql:
+CREATE ROLE 'app_read';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "AUTH": [
+    "Role(1:12~1:22) /test/1/app_read/"
+  ]
+}

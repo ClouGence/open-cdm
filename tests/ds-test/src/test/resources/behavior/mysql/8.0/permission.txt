@@ -111,7 +111,7 @@ expect:
     {
       "subject"   : "Table(1:14~1:18) /test/1/catalog1/schema1/DUAL/",
       "action"    : "READ",
-      "permission": "EXEMPT"
+      "permission": "REQUIRED"
     }
   ]
 }

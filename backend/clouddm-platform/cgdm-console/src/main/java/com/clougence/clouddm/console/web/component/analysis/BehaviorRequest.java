@@ -15,11 +15,13 @@
  */
 package com.clougence.clouddm.console.web.component.analysis;
 
+import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 
 /**
- * One flattened resource request derived from a behavior relation.
+ * One resource action request derived from a flattened behavior relation. A null authorization
+ * kind means the request does not require permission checking.
  */
-public record BehaviorRequest(BehaviorAction action, BehaviorObject resource, boolean skipPermission) {
+public record BehaviorRequest(BehaviorObject resource, BehaviorAction action, SecDataAuthKind authKind) {
 }

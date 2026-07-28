@@ -3354,7 +3354,7 @@ expect:
   "UNSAFE": [
     {
       "subject": "PrepareStatement(1:8~1:19) /test/1/sample_stmt/",
-      "action" : "ADMIN"
+      "action" : "UNSAFE"
     }
   ]
 }

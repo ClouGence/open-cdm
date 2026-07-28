@@ -3,7 +3,7 @@ sql:
 SELECT * FROM (SELECT alias2.pk AS field1 FROM split_derived_json57.t1 AS alias1 LEFT OUTER JOIN split_derived_json57.t2 AS alias2 ON JSON_UNQUOTE(JSON_EXTRACT(alias1.col_varchar,'$.varc')) COLLATE utf8mb4_general_ci=alias2.col_date_key GROUP BY JSON_QUOTE(JSON_EXTRACT(field1,'$.intc'))) AS dt;
 expect:
 {
-  "field1" : [ "/catalog1/split_derived_json57/t2/pk/" ]
+  "field1" : [ "(1:22~1:31) /catalog1/split_derived_json57/t2/pk/" ]
 }
 ----------
 [dql_mysql_json_0.0002]
@@ -43,7 +43,7 @@ sql:
 SELECT (SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1) FROM agg_t AS o GROUP BY o.t2;
 expect:
 {
-  "(SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1)" : [ "/catalog1/schema1/agg_t/t1/" ]
+  "(SELECT JSON_ARRAYAGG(i.t1) FROM agg_t AS i WHERE i.t2=o.t2 LIMIT 1)" : [ "(1:29~1:33) /catalog1/schema1/agg_t/t1/" ]
 }
 ----------
 [dql_mysql_json_0.0007]
@@ -116,8 +116,8 @@ sql:
 SELECT JSON_OBJECTAGG(t.col_int,t.col_int), (SELECT JSON_ARRAYAGG(s.col_int) FROM CC AS s WHERE s.col_int<>t.col_int) AS field5 FROM CC AS t WHERE t.col_int<>ALL(SELECT q.col_int FROM CC AS q STRAIGHT_JOIN C) GROUP BY field5;
 expect:
 {
-  "JSON_OBJECTAGG(t.col_int,t.col_int)" : [ "/catalog1/schema1/CC/col_int/", "/catalog1/schema1/CC/col_int/" ],
-  "field5" : [ "/catalog1/schema1/CC/col_int/" ]
+  "JSON_OBJECTAGG(t.col_int,t.col_int)" : [ "(1:22~1:31) /catalog1/schema1/CC/col_int/", "(1:32~1:41) /catalog1/schema1/CC/col_int/" ],
+  "field5" : [ "(1:66~1:75) /catalog1/schema1/CC/col_int/" ]
 }
 ----------
 [dql_mysql_json_0.0016]
@@ -309,7 +309,7 @@ sql:
 SELECT JSON_SCHEMA_VALID(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
 expect:
 {
-  "JSON_SCHEMA_VALID(t2.j,t2.j)" : [ "/catalog1/schema1/schema_t/j/", "/catalog1/schema1/schema_t/j/" ]
+  "JSON_SCHEMA_VALID(t2.j,t2.j)" : [ "(1:59~1:60) /catalog1/schema1/schema_t/j/", "(1:59~1:60) /catalog1/schema1/schema_t/j/" ]
 }
 ----------
 [dql_mysql_json_0.0040]
@@ -317,7 +317,7 @@ sql:
 SELECT JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j) FROM schema_t, (SELECT * FROM schema_t WHERE pk=1) AS t2;
 expect:
 {
-  "JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j)" : [ "/catalog1/schema1/schema_t/j/", "/catalog1/schema1/schema_t/j/" ]
+  "JSON_SCHEMA_VALIDATION_REPORT(t2.j,t2.j)" : [ "(1:71~1:72) /catalog1/schema1/schema_t/j/", "(1:71~1:72) /catalog1/schema1/schema_t/j/" ]
 }
 ----------
 [dql_mysql_json_0.0041]
@@ -390,7 +390,7 @@ SELECT JSON_EXTRACT('{"a":1}', '$.a') AS je, COUNT(DISTINCT a) FROM split_json_r
 expect:
 {
   "je" : [ ],
-  "COUNT(DISTINCT a)" : [ "/catalog1/schema1/split_json_rollup/a/" ]
+  "COUNT(DISTINCT a)" : [ "(1:60~1:61) /catalog1/schema1/split_json_rollup/a/" ]
 }
 ----------
 [dql_mysql_json_0.0050]
@@ -406,7 +406,7 @@ sql:
 SELECT * FROM split_json_prepare WHERE JSON_LENGTH(?, a BETWEEN ? AND ?);
 expect:
 {
-  "a" : [ "/catalog1/schema1/split_json_prepare/a/" ]
+  "id" : [ "(1:7~1:8) /catalog1/schema1/split_json_prepare/id/" ]
 }
 ----------
 [dql_mysql_json_0.0052]
@@ -430,7 +430,7 @@ sql:
 SELECT JSON_EXTRACT(col_json, ?) FROM t_reuse ORDER BY pk;
 expect:
 {
-  "JSON_EXTRACT(col_json, ?)" : [ "/catalog1/schema1/t_reuse/col_json/" ]
+  "JSON_EXTRACT(col_json, ?)" : [ "(1:20~1:28) /catalog1/schema1/t_reuse/col_json/" ]
 }
 ----------
 [dql_mysql_json_0.0055]

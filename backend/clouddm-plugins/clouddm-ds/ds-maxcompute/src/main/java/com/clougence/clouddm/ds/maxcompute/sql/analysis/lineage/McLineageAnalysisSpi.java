@@ -25,7 +25,7 @@ import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.McSQLParserVisi
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.builder.McBuilderFactory;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.McSqlDslProvider;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.ColumnLineage;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -47,7 +47,7 @@ public class McLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public List<ColumnLineage> analyze(String sql, LineageContext lineageContext) {
+    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
         McConfig mcConfig = (McConfig) lineageContext.getDsConfig();
         McBuilderFactory builder = new McBuilderFactory(this.metaService, mcConfig.getSchemaStyle());
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> this.parserVisitor(builder, parser));

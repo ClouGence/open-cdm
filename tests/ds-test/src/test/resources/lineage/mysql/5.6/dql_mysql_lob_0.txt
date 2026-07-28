@@ -7,10 +7,10 @@ ORDER BY t,b
 LIMIT 5;
 expect:
 {
-  "HEX(b)" : [ "/catalog1/schema1/lob_family/b/" ],
-  "OCTET_LENGTH(mb)" : [ "/catalog1/schema1/lob_family/mb/" ],
-  "CHAR_LENGTH(t)" : [ "/catalog1/schema1/lob_family/t/" ],
-  "LENGTH(lt)" : [ "/catalog1/schema1/lob_family/lt/" ]
+  "HEX(b)" : [ "(1:11~1:12) /catalog1/schema1/lob_family/b/" ],
+  "OCTET_LENGTH(mb)" : [ "(1:27~1:29) /catalog1/schema1/lob_family/mb/" ],
+  "CHAR_LENGTH(t)" : [ "(1:43~1:44) /catalog1/schema1/lob_family/t/" ],
+  "LENGTH(lt)" : [ "(1:53~1:55) /catalog1/schema1/lob_family/lt/" ]
 }
 ----------
 [dql_mysql_lob_0.0002]
@@ -22,10 +22,10 @@ HAVING COUNT(*) >= 1
 ORDER BY t;
 expect:
 {
-  "t" : [ "/catalog1/schema1/lob_family/t/" ],
+  "t" : [ "(1:7~1:8) /catalog1/schema1/lob_family/t/" ],
   "COUNT(*)" : [ ],
-  "MIN(HEX(b))" : [ "/catalog1/schema1/lob_family/b/" ],
-  "MAX(CHAR_LENGTH(lt))" : [ "/catalog1/schema1/lob_family/lt/" ]
+  "MIN(HEX(b))" : [ "(1:26~1:27) /catalog1/schema1/lob_family/b/" ],
+  "MAX(CHAR_LENGTH(lt))" : [ "(1:46~1:48) /catalog1/schema1/lob_family/lt/" ]
 }
 ----------
 [dql_mysql_lob_0.0003]
@@ -38,7 +38,7 @@ WHERE EXISTS (
 );
 expect:
 {
-  "t" : [ "/catalog1/schema1/lob_family/t/" ]
+  "t" : [ "(1:7~1:18) /catalog1/schema1/lob_family/t/" ]
 }
 ----------
 [dql_mysql_lob_0.0004]
@@ -49,8 +49,8 @@ JOIN lob_family AS b ON a.b=b.b AND a.t=b.t
 WHERE a.mb IS NOT NULL;
 expect:
 {
-  "t" : [ "/catalog1/schema1/lob_family/t/" ],
-  "HEX(b.b)" : [ "/catalog1/schema1/lob_family/b/" ]
+  "t" : [ "(1:7~1:10) /catalog1/schema1/lob_family/t/" ],
+  "HEX(b.b)" : [ "(1:15~1:18) /catalog1/schema1/lob_family/b/" ]
 }
 ----------
 [dql_mysql_lob_0.0005]
@@ -61,9 +61,9 @@ SELECT CASE WHEN b IS NULL THEN CAST('none' AS CHAR) ELSE HEX(b) END,
 FROM lob_family;
 expect:
 {
-  "CASE WHEN b IS NULL THEN CAST('none' AS CHAR) ELSE HEX(b) END" : [ "/catalog1/schema1/lob_family/b/", "/catalog1/schema1/lob_family/b/" ],
-  "COALESCE(t,mt,lt)" : [ "/catalog1/schema1/lob_family/t/", "/catalog1/schema1/lob_family/mt/", "/catalog1/schema1/lob_family/lt/" ],
-  "NULLIF(b,X'00')" : [ "/catalog1/schema1/lob_family/b/" ]
+  "CASE WHEN b IS NULL THEN CAST('none' AS CHAR) ELSE HEX(b) END" : [ "(1:17~1:18) /catalog1/schema1/lob_family/b/", "(1:62~1:63) /catalog1/schema1/lob_family/b/" ],
+  "COALESCE(t,mt,lt)" : [ "(2:16~2:17) /catalog1/schema1/lob_family/t/", "(2:18~2:20) /catalog1/schema1/lob_family/mt/", "(2:21~2:23) /catalog1/schema1/lob_family/lt/" ],
+  "NULLIF(b,X'00')" : [ "(3:14~3:15) /catalog1/schema1/lob_family/b/" ]
 }
 ----------
 [dql_mysql_lob_0.0006]
@@ -73,7 +73,7 @@ UNION ALL
 SELECT CAST(b AS CHAR CHARACTER SET utf8mb4) FROM lob_family;
 expect:
 {
-  "t" : [ "/catalog1/schema1/lob_family/t/", "/catalog1/schema1/lob_family/b/" ]
+  "t" : [ "(1:7~1:8) /catalog1/schema1/lob_family/t/", "(3:12~3:13) /catalog1/schema1/lob_family/b/" ]
 }
 ----------
 [dql_mysql_lob_0.0007]
@@ -83,5 +83,5 @@ SELECT (SELECT (b <> 1) FROM lob_family LIMIT 1) <> ALL
 FROM lob_family;
 expect:
 {
-  "(SELECT (b <> 1) FROM lob_family LIMIT 1) <> ALL\n       (SELECT 1681007452 FROM lob_family)" : [ "/catalog1/schema1/lob_family/b/" ]
+  "(SELECT (b <> 1) FROM lob_family LIMIT 1) <> ALL\n       (SELECT 1681007452 FROM lob_family)" : [ "(1:16~1:17) /catalog1/schema1/lob_family/b/" ]
 }

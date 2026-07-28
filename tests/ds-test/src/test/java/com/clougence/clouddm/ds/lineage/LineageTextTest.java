@@ -22,6 +22,8 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import com.clougence.clouddm.ds.SqlTestSupport;
 import com.clougence.clouddm.ds.TextCaseSupport;
@@ -30,7 +32,7 @@ import com.clougence.clouddm.ds.TextTestCase;
 import com.clougence.clouddm.ds.TextTestFramework;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.ColumnLineage;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
@@ -39,6 +41,7 @@ import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Execution(ExecutionMode.CONCURRENT)
 public abstract class LineageTextTest {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -95,7 +98,7 @@ public abstract class LineageTextTest {
         return text.substring(index + prefix.length()).strip();
     }
 
-    static List<String> verify(TestCase testCase, LineageAnalysisSpi analysisSpi) {
+    List<String> verify(TestCase testCase, LineageAnalysisSpi analysisSpi) {
         List<String> failures = new ArrayList<>();
         JsonNode expected;
         try {
@@ -112,7 +115,7 @@ public abstract class LineageTextTest {
             return failures;
         }
 
-        List<ColumnLineage> items;
+        List<LineageColumn> items;
         try {
             items = analysisSpi.analyze(testCase.sql, lineageContext(context));
         } catch (Exception e) {
@@ -139,7 +142,7 @@ public abstract class LineageTextTest {
         return failures;
     }
 
-    static void assertCase(String resourcePath, TestCase testCase, LineageAnalysisSpi analysisSpi) {
+    void assertCase(String resourcePath, TestCase testCase, LineageAnalysisSpi analysisSpi) {
         List<String> failures = verify(testCase, analysisSpi);
         if (!failures.isEmpty()) {
             Assert.fail(resourcePath + System.lineSeparator() + String.join(System.lineSeparator(), failures));
@@ -154,7 +157,7 @@ public abstract class LineageTextTest {
         return spi;
     }
 
-    private static void assertLineage(String label, JsonNode expected, Map<String, List<String>> actual, List<String> failures) {
+    private void assertLineage(String label, JsonNode expected, Map<String, List<String>> actual, List<String> failures) {
         if (expected.size() != actual.size()) {
             failures.add(label + ".size: expected=" + expected.size() + ", actual=" + actual.size() + " " + actual);
             return;
@@ -173,7 +176,7 @@ public abstract class LineageTextTest {
         }
     }
 
-    private static void assertOrderedLineage(String label, JsonNode expected, List<ColumnLineage> actual, List<String> failures) {
+    private void assertOrderedLineage(String label, JsonNode expected, List<LineageColumn> actual, List<String> failures) {
         if (expected.size() != actual.size()) {
             failures.add(label + ".size: expected=" + expected.size() + ", actual=" + actual.size() + " " + summarize(actual));
             return;
@@ -184,7 +187,7 @@ public abstract class LineageTextTest {
                 failures.add(label + "[" + i + "]: expected {\"column\": string, \"sources\": array}");
                 return;
             }
-            ColumnLineage actualColumn = actual.get(i);
+            LineageColumn actualColumn = actual.get(i);
             String expectedName = expectedColumn.path("column").asText();
             if (!Objects.equals(expectedName, actualColumn.column())) {
                 failures.add(label + "[" + i + "].column: expected=" + expectedName + ", actual=" + actualColumn.column());
@@ -254,21 +257,25 @@ public abstract class LineageTextTest {
         return "[" + testCase.name() + "]";
     }
 
-    private static String summarize(List<ColumnLineage> items) {
+    private String summarize(List<LineageColumn> items) {
         List<String> summary = new ArrayList<>();
         items.forEach(column -> summary.add(column.column() + "=" + columnPaths(column.sources())));
         return summary.toString();
     }
 
-    private static List<String> columnPaths(List<SourceName> sourceNames) {
+    private List<String> columnPaths(List<SourceName> sourceNames) {
         List<String> paths = new ArrayList<>();
         for (SourceName sourceName : sourceNames) {
-            paths.add(sourceName.toDsResPath());
+            paths.add(sourcePath(sourceName));
         }
         return paths;
     }
 
-    private static Map<String, List<String>> columnLineage(List<ColumnLineage> items) {
+    protected String sourcePath(SourceName sourceName) {
+        return sourceName.toDsResPath();
+    }
+
+    private Map<String, List<String>> columnLineage(List<LineageColumn> items) {
         Map<String, List<String>> lineage = new LinkedHashMap<>();
         items.forEach(column -> lineage.computeIfAbsent(column.column(), ignored -> new ArrayList<>()).addAll(columnPaths(column.sources())));
         return lineage;

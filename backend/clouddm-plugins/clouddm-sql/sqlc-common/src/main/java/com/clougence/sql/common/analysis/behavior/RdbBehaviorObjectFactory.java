@@ -16,7 +16,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.ObjectName;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
@@ -114,38 +113,6 @@ public class RdbBehaviorObjectFactory {
         return object;
     }
 
-    public BehaviorObject unnamedObject(TargetType type, ParserRuleContext context, UmiTypes ancestorLevel) {
-        return unnamedObject(type, context.getStart(), context.getStop(), ancestorLevel);
-    }
-
-    public BehaviorObject unnamedObject(TargetType type, Token token, UmiTypes ancestorLevel) {
-        return unnamedObject(type, token, token, ancestorLevel);
-    }
-
-    private BehaviorObject unnamedObject(TargetType type, Token start, Token stop, UmiTypes ancestorLevel) {
-        List<String> path = new ArrayList<>();
-        addLevelPath(path, UmiTypes.Instance);
-        if (ancestorLevel == UmiTypes.Catalog || ancestorLevel == UmiTypes.Schema) {
-            addLevel(path, UmiTypes.Catalog);
-        }
-        if (ancestorLevel == UmiTypes.Schema) {
-            addLevel(path, UmiTypes.Schema);
-        }
-
-        BehaviorObject object = new BehaviorObject();
-        object.setObjectType(type);
-        object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
-        object.setStartLine(line(start));
-        object.setStartColumn(column(start));
-        object.setEndLine(line(stop));
-        object.setEndColumn(column(stop) + stop.getText().length());
-        return object;
-    }
-
-    public BehaviorObject instanceObject(TargetType type, Token nameToken, String name) {
-        return instanceObject(type, nameToken, nameToken, name);
-    }
-
     public BehaviorObject instanceObject(TargetType type, Token start, Token stop, String name) {
         List<String> path = new ArrayList<>();
         addLevelPath(path, UmiTypes.Instance);
@@ -176,9 +143,14 @@ public class RdbBehaviorObjectFactory {
         if (StringUtils.isBlank(value)) {
             return;
         }
-        for (String node : value.split("/")) {
-            if (StringUtils.isNotBlank(node)) {
-                path.add(node);
+        int start = 0;
+        for (int i = 0; i <= value.length(); i++) {
+            if (i == value.length() || value.charAt(i) == '/') {
+                String node = value.substring(start, i);
+                if (StringUtils.isNotBlank(node)) {
+                    path.add(node);
+                }
+                start = i + 1;
             }
         }
     }

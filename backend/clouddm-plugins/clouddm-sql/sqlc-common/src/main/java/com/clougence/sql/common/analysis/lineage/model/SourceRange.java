@@ -13,18 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.sql.analysis.lineage;
+package com.clougence.sql.common.analysis.lineage.model;
 
-import java.util.List;
-
-/**
- * Column returned by a query and its source-column lineage.
- *
- * <p>{@link #column()} is the key used to match this analysis result against an actual result-set column.</p>
- */
-public record ColumnLineage(String column, List<SourceName> sources) {
-
-    public ColumnLineage{
-        sources = sources == null ? List.of() : List.copyOf(sources);
-    }
+public record SourceRange(int startLine, int startColumn, int endLine, int endColumn) {
 }

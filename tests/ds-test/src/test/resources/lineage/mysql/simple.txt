@@ -3,12 +3,12 @@ sql:
 select * from table1
 expect:
 {
-  "column1" : [ "/catalog1/schema1/table1/column1/" ],
-  "column2" : [ "/catalog1/schema1/table1/column2/" ],
-  "column3" : [ "/catalog1/schema1/table1/column3/" ],
-  "column4" : [ "/catalog1/schema1/table1/column4/" ],
-  "column5" : [ "/catalog1/schema1/table1/column5/" ],
-  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test1_1]
@@ -16,12 +16,12 @@ sql:
 select * from (select * from table1)
 expect:
 {
-  "column1" : [ "/catalog1/schema1/table1/column1/" ],
-  "column2" : [ "/catalog1/schema1/table1/column2/" ],
-  "column3" : [ "/catalog1/schema1/table1/column3/" ],
-  "column4" : [ "/catalog1/schema1/table1/column4/" ],
-  "column5" : [ "/catalog1/schema1/table1/column5/" ],
-  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+  "column1" : [ "(1:22~1:23) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:22~1:23) /catalog1/schema1/table1/column2/" ],
+  "column3" : [ "(1:22~1:23) /catalog1/schema1/table1/column3/" ],
+  "column4" : [ "(1:22~1:23) /catalog1/schema1/table1/column4/" ],
+  "column5" : [ "(1:22~1:23) /catalog1/schema1/table1/column5/" ],
+  "column6" : [ "(1:22~1:23) /catalog1/schema1/table1/column6/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test1_2]
@@ -29,12 +29,12 @@ sql:
 select * from (select * from table1) c
 expect:
 {
-  "column1" : [ "/catalog1/schema1/table1/column1/" ],
-  "column2" : [ "/catalog1/schema1/table1/column2/" ],
-  "column3" : [ "/catalog1/schema1/table1/column3/" ],
-  "column4" : [ "/catalog1/schema1/table1/column4/" ],
-  "column5" : [ "/catalog1/schema1/table1/column5/" ],
-  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+  "column1" : [ "(1:22~1:23) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:22~1:23) /catalog1/schema1/table1/column2/" ],
+  "column3" : [ "(1:22~1:23) /catalog1/schema1/table1/column3/" ],
+  "column4" : [ "(1:22~1:23) /catalog1/schema1/table1/column4/" ],
+  "column5" : [ "(1:22~1:23) /catalog1/schema1/table1/column5/" ],
+  "column6" : [ "(1:22~1:23) /catalog1/schema1/table1/column6/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test2]
@@ -42,12 +42,12 @@ sql:
 select * from table1 a
 expect:
 {
-  "column1" : [ "/catalog1/schema1/table1/column1/" ],
-  "column2" : [ "/catalog1/schema1/table1/column2/" ],
-  "column3" : [ "/catalog1/schema1/table1/column3/" ],
-  "column4" : [ "/catalog1/schema1/table1/column4/" ],
-  "column5" : [ "/catalog1/schema1/table1/column5/" ],
-  "column6" : [ "/catalog1/schema1/table1/column6/" ]
+  "column1" : [ "(1:7~1:8) /catalog1/schema1/table1/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema1/table1/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema1/table1/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema1/table1/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema1/table1/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema1/table1/column6/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test3]
@@ -55,7 +55,7 @@ sql:
 select column1 from table1
 expect:
 {
-  "column1" : [ "/catalog1/schema1/table1/column1/" ]
+  "column1" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test4]
@@ -63,7 +63,7 @@ sql:
 select column1 as test from table1 a
 expect:
 {
-  "test" : [ "/catalog1/schema1/table1/column1/" ]
+  "test" : [ "(1:7~1:14) /catalog1/schema1/table1/column1/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test5]
@@ -71,12 +71,12 @@ sql:
 select * from schema2.table1
 expect:
 {
-  "column1" : [ "/catalog1/schema2/table1/column1/" ],
-  "column2" : [ "/catalog1/schema2/table1/column2/" ],
-  "column3" : [ "/catalog1/schema2/table1/column3/" ],
-  "column4" : [ "/catalog1/schema2/table1/column4/" ],
-  "column5" : [ "/catalog1/schema2/table1/column5/" ],
-  "column6" : [ "/catalog1/schema2/table1/column6/" ]
+  "column1" : [ "(1:7~1:8) /catalog1/schema2/table1/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema2/table1/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema2/table1/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema2/table1/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema2/table1/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema2/table1/column6/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test6]
@@ -84,12 +84,12 @@ sql:
 select * from schema2.table1 a
 expect:
 {
-  "column1" : [ "/catalog1/schema2/table1/column1/" ],
-  "column2" : [ "/catalog1/schema2/table1/column2/" ],
-  "column3" : [ "/catalog1/schema2/table1/column3/" ],
-  "column4" : [ "/catalog1/schema2/table1/column4/" ],
-  "column5" : [ "/catalog1/schema2/table1/column5/" ],
-  "column6" : [ "/catalog1/schema2/table1/column6/" ]
+  "column1" : [ "(1:7~1:8) /catalog1/schema2/table1/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema2/table1/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema2/table1/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema2/table1/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema2/table1/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema2/table1/column6/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test7]
@@ -97,7 +97,7 @@ sql:
 select column1 from schema2.table1
 expect:
 {
-  "column1" : [ "/catalog1/schema2/table1/column1/" ]
+  "column1" : [ "(1:7~1:14) /catalog1/schema2/table1/column1/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test8]
@@ -105,7 +105,7 @@ sql:
 select column1 as test from schema2.table1 a
 expect:
 {
-  "test" : [ "/catalog1/schema2/table1/column1/" ]
+  "test" : [ "(1:7~1:14) /catalog1/schema2/table1/column1/" ]
 }
 ----------
 [MyParseColumnSimpleTest.test9]
@@ -113,11 +113,11 @@ sql:
 select *,test(column1) as s from schema2.table1
 expect:
 {
-  "column1" : [ "/catalog1/schema2/table1/column1/" ],
-  "column2" : [ "/catalog1/schema2/table1/column2/" ],
-  "column3" : [ "/catalog1/schema2/table1/column3/" ],
-  "column4" : [ "/catalog1/schema2/table1/column4/" ],
-  "column5" : [ "/catalog1/schema2/table1/column5/" ],
-  "column6" : [ "/catalog1/schema2/table1/column6/" ],
-  "s" : [ "/catalog1/schema2/table1/column1/" ]
+  "column1" : [ "(1:7~1:8) /catalog1/schema2/table1/column1/" ],
+  "column2" : [ "(1:7~1:8) /catalog1/schema2/table1/column2/" ],
+  "column3" : [ "(1:7~1:8) /catalog1/schema2/table1/column3/" ],
+  "column4" : [ "(1:7~1:8) /catalog1/schema2/table1/column4/" ],
+  "column5" : [ "(1:7~1:8) /catalog1/schema2/table1/column5/" ],
+  "column6" : [ "(1:7~1:8) /catalog1/schema2/table1/column6/" ],
+  "s" : [ "(1:14~1:21) /catalog1/schema2/table1/column1/" ]
 }
