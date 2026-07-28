@@ -15,15 +15,15 @@
  */
 package com.clougence.clouddm.console.web.component.config;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigValType;
-import com.clougence.clouddm.console.web.global.i18n.I18nUserConfigMsgKeys;
-import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
-import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import com.clougence.clouddm.base.metadata.ds.ConfigValType;
+import com.clougence.clouddm.console.web.global.i18n.I18nUserConfigMsgKeys;
+import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 
 /**
  * @author bucketli 2020/11/5 19:42

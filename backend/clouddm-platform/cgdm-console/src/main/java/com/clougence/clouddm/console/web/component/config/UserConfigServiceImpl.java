@@ -15,6 +15,14 @@
  */
 package com.clougence.clouddm.console.web.component.config;
 
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -32,15 +40,9 @@ import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
+
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author bucketli 2022/1/10 20:28:25
@@ -49,15 +51,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserConfigServiceImpl implements UserConfigService {
 
-    private static final int DEFAULT_LANGUAGE_MAX_REQUESTS = 50;
-    private static final int DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 2;
+    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS         = 50;
+    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 2;
 
     @Resource
-    private SystemDal systemDal;
+    private SystemDal              systemDal;
     @Resource
-    private AuthDal authDal;
+    private AuthDal                authDal;
     @Resource
-    private ConsoleConfig rdpConfig;
+    private ConsoleConfig          rdpConfig;
     @Resource
     private List<RdpNotifyService> notifyServices;
 
