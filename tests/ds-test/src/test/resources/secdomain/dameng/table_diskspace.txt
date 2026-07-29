@@ -34,7 +34,7 @@ create table app.table_disk_ctas diskspace limit 1 as select id from app.table_d
 expect:
 {
   "contains": [
-    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "schema":"app", "table":"table_disk_ctas"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_SELECT", "schema":"app", "table":"table_disk_ctas"},
     {"class":"RdbTableDomain", "sqlType":"SELECT", "schema":"app", "table":"table_disk_source"}
   ]
 }

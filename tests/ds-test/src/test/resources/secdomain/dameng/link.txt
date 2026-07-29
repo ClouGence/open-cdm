@@ -4,7 +4,7 @@ create link employee_link connect 'DPI' with remote_user identified by remote_pa
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"employee_link"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_link"}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ create public link public_employee_link connect 'DPI' with remote_user identifie
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"public_employee_link"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"public_employee_link"}
   ]
 }
 ----------
@@ -105,8 +105,8 @@ drop public link if exists public_employee_link;
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"employee_link"},
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"public_employee_link"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_link"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"public_employee_link"}
   ]
 }
 ----------

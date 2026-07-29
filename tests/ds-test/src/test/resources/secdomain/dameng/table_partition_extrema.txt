@@ -122,7 +122,7 @@ expect:
 sql:
 truncate table app.part_an_range partition(p10) reuse storage
 expect:
-{"contains":[{"class":"RdbTableDomain","sqlType":"TRUNCATE_TABLE","schema":"app","table":"part_an_range"}]}
+{"contains":[{"class":"RdbTableDomain","sqlType":"TRUNCATE","schema":"app","table":"part_an_range"}]}
 ----------
 [drop_range]
 sql:

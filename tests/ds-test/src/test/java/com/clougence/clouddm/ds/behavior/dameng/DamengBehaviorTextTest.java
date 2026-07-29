@@ -48,7 +48,7 @@ public final class DamengBehaviorTextTest {
         DmSysObjectRegistrySpi registry = new DmSysObjectRegistrySpi();
 
         List<DynamicTest> tests = new ArrayList<>();
-        for (String resourcePath : TextCaseSupport.resourceFiles("behavior/dameng")) {
+        for (String resourcePath : TextCaseSupport.resourceFiles("behavior/dameng/8")) {
             for (BehaviorTextTest.TestCase testCase : BehaviorTextTest.loadCases(resourcePath)) {
                 tests.add(DynamicTest.dynamicTest(testCase.displayName(), () -> {
                     BehaviorTextTest.assertStrictCase(resourcePath, testCase, spi.get(), relation -> {

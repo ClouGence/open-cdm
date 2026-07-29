@@ -14,7 +14,7 @@ expect:
     {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_longvarbinary"},
     {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_blob"},
     {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_clob"},
-    {"class":"RdbConfigDomain","sqlType":"SYSTEM_SETTING_WRITE","auditKind":"OTHER","configKey":"codex_dm8_bfile_dir"},
+    {"class":"RdbConfigDomain","sqlType":"CONFIG_WRITE","auditKind":"OTHER","configKey":"codex_dm8_bfile_dir"},
     {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_type_bfile"},
     {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_bad_text"},
     {"class":"RdbTableDomain","sqlType":"CREATE_TABLE","auditKind":"CREATE","schema":"app","table":"codex_dm8_bad_long"},

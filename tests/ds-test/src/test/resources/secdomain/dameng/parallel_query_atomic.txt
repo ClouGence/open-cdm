@@ -77,7 +77,7 @@ expect:
   "contains": [
     {
       "class": "RdbConfigDomain",
-      "sqlType": "SESSION_SETTING_WRITE",
+      "sqlType": "CONFIG_WRITE",
       "auditKind": "OTHER",
       "configKey": "PARALLEL_POLICY"
     }
@@ -92,7 +92,7 @@ expect:
   "contains": [
     {
       "class": "RdbConfigDomain",
-      "sqlType": "SESSION_SETTING_WRITE",
+      "sqlType": "CONFIG_WRITE",
       "auditKind": "OTHER",
       "configKey": "PARALLEL_POLICY"
     }
@@ -107,7 +107,7 @@ expect:
   "contains": [
     {
       "class": "RdbConfigDomain",
-      "sqlType": "SESSION_SETTING_WRITE",
+      "sqlType": "CONFIG_WRITE",
       "auditKind": "OTHER",
       "configKey": "PARALLEL_POLICY"
     }

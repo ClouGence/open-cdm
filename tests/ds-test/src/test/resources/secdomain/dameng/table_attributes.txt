@@ -18,7 +18,7 @@ create table app.orders_archive tablespace main parallel 2 add logic log
 expect:
 {
   "contains": [
-    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"orders_archive"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_SELECT", "auditKind":"CREATE", "schema":"app", "table":"orders_archive"},
     {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "catalog":"catalog1", "schema":"app", "table":"orders"}
   ]
 }

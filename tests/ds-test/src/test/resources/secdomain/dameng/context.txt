@@ -4,7 +4,7 @@ create context codex_ctx using app.context_pkg
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ create or replace context if not exists codex_ctx using app.replacement_context_
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
   ]
 }
 ----------
@@ -24,7 +24,7 @@ drop context if exists SYS.codex_ctx
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
   ]
 }
 ----------
@@ -34,7 +34,7 @@ drop context if exists codex_ctx
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"codex_ctx"}
   ]
 }
 ----------

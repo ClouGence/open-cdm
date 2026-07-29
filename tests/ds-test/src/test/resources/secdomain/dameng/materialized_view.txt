@@ -160,7 +160,7 @@ expect:
     {"class":"RdbInsertDomain", "sqlType":"INSERT", "auditKind":"DML", "schema":"app", "table":"mv_orders"},
     {"class":"RdbUpdateDomain", "sqlType":"UPDATE", "auditKind":"DML", "schema":"app", "table":"mv_orders"},
     {"class":"RdbDeleteDomain", "sqlType":"DELETE", "auditKind":"DML", "schema":"app", "table":"mv_orders"},
-    {"class":"RdbTableDomain", "sqlType":"TRUNCATE_TABLE", "auditKind":"ALTER", "schema":"app", "table":"mv_orders"}
+    {"class":"RdbTableDomain", "sqlType":"TRUNCATE", "auditKind":"ALTER", "schema":"app", "table":"mv_orders"}
   ]
 }
 ----------

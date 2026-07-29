@@ -37,7 +37,7 @@ create table app.mpp_ctas as select id, note from app.mpp_stage distributed rand
 expect:
 {
   "contains": [
-    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"mpp_ctas"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_SELECT", "auditKind":"CREATE", "schema":"app", "table":"mpp_ctas"},
     {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"mpp_stage"}
   ]
 }

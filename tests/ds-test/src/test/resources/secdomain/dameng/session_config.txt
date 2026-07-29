@@ -4,7 +4,7 @@ set time zone '+9:00'
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SESSION_SETTING_WRITE", "auditKind":"OTHER", "configKey":"TIME_ZONE"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"TIME_ZONE"}
   ]
 }
 ----------
@@ -15,7 +15,7 @@ alter session disable parallel dml;
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SESSION_SETTING_WRITE", "auditKind":"OTHER", "configKey":"PARALLEL_POLICY"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"PARALLEL_POLICY"}
   ]
 }
 ----------
@@ -28,10 +28,10 @@ alter session set case_sensitive=false;
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SESSION_SETTING_WRITE", "auditKind":"OTHER", "configKey":"nls_date_language"},
-    {"class":"RdbConfigDomain", "sqlType":"SESSION_SETTING_WRITE", "auditKind":"OTHER", "configKey":"nls_date_format"},
-    {"class":"RdbConfigDomain", "sqlType":"SESSION_SETTING_WRITE", "auditKind":"OTHER", "configKey":"nls_sort"},
-    {"class":"RdbConfigDomain", "sqlType":"SESSION_SETTING_WRITE", "auditKind":"OTHER", "configKey":"case_sensitive"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"nls_date_language"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"nls_date_format"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"nls_sort"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"case_sensitive"}
   ]
 }
 ----------
@@ -42,8 +42,8 @@ alter system set 'SORT_BUF_SIZE'=10 memory;
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SESSION_SETTING_WRITE", "auditKind":"OTHER", "configKey":"HAGR_HASH_SIZE"},
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"HAGR_HASH_SIZE"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"}
   ]
 }
 ----------
@@ -55,8 +55,8 @@ alter system set 'BDTA_SIZE'=301 spfile;
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"},
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"BDTA_SIZE"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"BDTA_SIZE"}
   ]
 }
 ----------
@@ -67,8 +67,8 @@ sp_set_para_double_value(0,'CKPT_FLUSH_RATE',5.0);
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"},
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"CKPT_FLUSH_RATE"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"CKPT_FLUSH_RATE"}
   ]
 }
 ----------
@@ -85,7 +85,7 @@ sp_set_param_in_session(
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"}
   ]
 }
 ----------
@@ -95,7 +95,7 @@ sp_set_para_string_value(0,'COMMIT_WRITE','IMMEDIATE,WAIT')
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"COMMIT_WRITE"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"COMMIT_WRITE"}
   ]
 }
 ----------
@@ -106,7 +106,7 @@ sp_reset_session_para_value('JOIN_HASH_SIZE');
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"JOIN_HASH_SIZE"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"JOIN_HASH_SIZE"}
   ]
 }
 ----------
@@ -116,7 +116,7 @@ sf_set_system_para_value('SORT_BUF_SIZE',10,0,0)
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SORT_BUF_SIZE"}
   ]
 }
 ----------
@@ -127,7 +127,7 @@ sp_set_session_readonly(0);
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"SESSION_READONLY"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"SESSION_READONLY"}
   ]
 }
 ----------

@@ -18,11 +18,11 @@ public final class DamengSplitTextTest extends SingleDataSourceSplitTextTest {
 
     @Override
     protected List<String> fixtureResources() {
-        return TextCaseSupport.resourceFiles("split/dameng", path -> !path.contains("/reject/"));
+        return TextCaseSupport.resourceFiles("split/dameng/8", path -> !path.contains("/reject/"));
     }
 
     @TestFactory
     public Stream<DynamicTest> rejectedScripts() {
-        return rejectedDynamicTests(TextCaseSupport.resourceFiles("split/dameng", path -> path.contains("/reject/")), "dameng");
+        return rejectedDynamicTests(TextCaseSupport.resourceFiles("split/dameng/8", path -> path.contains("/reject/")), "dameng");
     }
 }

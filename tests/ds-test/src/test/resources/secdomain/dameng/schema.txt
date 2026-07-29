@@ -69,7 +69,7 @@ expect:
     {"class":"RdbTriggerDomain", "sqlType":"CREATE_TRIGGER", "auditKind":"CREATE", "schema":"app", "name":"trg_base"},
     {"class":"RdbObjectDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"embed_pkg"},
     {"class":"RdbObjectDomain", "sqlType":"CREATE_TYPE", "auditKind":"CREATE", "schema":"app", "name":"embed_class"},
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"embed_link"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"embed_link"},
     {"class":"RdbViewDomain", "sqlType":"CREATE_VIEW", "auditKind":"CREATE", "schema":"app", "view":"mv_embed"},
     {"class":"RdbObjectDomain", "sqlType":"CREATE_PROG_OBJ", "auditKind":"CREATE", "schema":"app", "name":"@^"}
   ]

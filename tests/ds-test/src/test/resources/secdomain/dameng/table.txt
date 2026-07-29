@@ -14,7 +14,7 @@ create table app.orders_copy like app.orders
 expect:
 {
   "contains": [
-    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"orders_copy"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_LIKE", "auditKind":"CREATE", "schema":"app", "table":"orders_copy"},
     {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
   ]
 }
@@ -25,7 +25,7 @@ create table app.orders_archive as select o.id, o.amount from app.orders o where
 expect:
 {
   "contains": [
-    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE", "auditKind":"CREATE", "schema":"app", "table":"orders_archive"},
+    {"class":"RdbTableDomain", "sqlType":"CREATE_TABLE_SELECT", "auditKind":"CREATE", "schema":"app", "table":"orders_archive"},
     {"class":"RdbTableDomain", "sqlType":"SELECT", "auditKind":"QUERY", "schema":"app", "table":"orders"}
   ]
 }
@@ -38,7 +38,7 @@ drop table app.orders cascade;
 expect:
 {
   "contains": [
-    {"class":"RdbTableDomain", "sqlType":"TRUNCATE_TABLE", "auditKind":"ALTER", "schema":"app", "table":"orders"},
+    {"class":"RdbTableDomain", "sqlType":"TRUNCATE", "auditKind":"ALTER", "schema":"app", "table":"orders"},
     {"class":"RdbTableDomain", "sqlType":"ALTER_TABLE", "auditKind":"ALTER", "schema":"app", "table":"orders"},
     {"class":"RdbTableDomain", "sqlType":"DROP_TABLE", "auditKind":"DROP", "schema":"app", "table":"orders"}
   ]

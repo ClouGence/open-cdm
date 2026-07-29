@@ -5,7 +5,7 @@ session_per_user 10 connect_time 60 password_life_time 90
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"employee_profile"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_profile"}
   ]
 }
 ----------
@@ -15,7 +15,7 @@ alter profile employee_profile limit session_per_user 20 connect_time unlimited
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"employee_profile"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_profile"}
   ]
 }
 ----------
@@ -25,7 +25,7 @@ alter profile default limit session_per_user default
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"default"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"default"}
   ]
 }
 ----------
@@ -66,7 +66,7 @@ drop profile if exists employee_profile cascade
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"employee_profile"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_profile"}
   ]
 }
 ----------

@@ -4,7 +4,7 @@ create or replace directory if not exists employee_files as '/tmp/employee'
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"employee_files"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_files"}
   ]
 }
 ----------
@@ -14,7 +14,7 @@ create directory "Employee Files" as './employee files'
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"Employee Files"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"Employee Files"}
   ]
 }
 ----------
@@ -68,8 +68,8 @@ drop directory "Employee Files" restrict;
 expect:
 {
   "contains": [
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"employee_files"},
-    {"class":"RdbConfigDomain", "sqlType":"SYSTEM_SETTING_WRITE", "auditKind":"OTHER", "configKey":"Employee Files"}
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"employee_files"},
+    {"class":"RdbConfigDomain", "sqlType":"CONFIG_WRITE", "auditKind":"OTHER", "configKey":"Employee Files"}
   ]
 }
 ----------
