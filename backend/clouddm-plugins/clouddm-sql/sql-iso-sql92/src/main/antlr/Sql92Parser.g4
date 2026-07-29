@@ -7,7 +7,7 @@ parser grammar Sql92Parser;
 options { tokenVocab=Sql92Lexer; }
 
 root
-    : sqlScript? EOF
+    : sqlScript EOF
     ;
 
 sqlScript
@@ -276,7 +276,7 @@ qualifiedLocalTableName
 
 // <table element list>
 tableElementList
-    : LEFT_PAREN tableElement ((COMMA tableElement)*)? RIGHT_PAREN
+    : LEFT_PAREN tableElement (COMMA tableElement)* RIGHT_PAREN
     ;
 
 // <table element>
@@ -294,7 +294,7 @@ columnDefinition
 dataType
     : characterStringType (T__27 T__28 characterSetSpecification)?
     | nationalCharacterStringType
-    | 
+    | bitStringType
     | numericType
     | datetimeType
     | intervalType
@@ -807,7 +807,7 @@ querySpecification
 // <select list>
 selectList
     : T__77
-    | selectSublist ((COMMA selectSublist)*)?
+    | selectSublist (COMMA selectSublist)*
     ;
 
 // <select sublist>
@@ -833,7 +833,7 @@ tableExpression
 
 // <from clause>
 fromClause
-    : T__92 crossJoin ((COMMA crossJoin)*)?
+    : T__92 crossJoin (COMMA crossJoin)*
     ;
 
 // <correlation specification>
@@ -911,7 +911,7 @@ groupByClause
 
 // <grouping column reference list>
 groupingColumnReferenceList
-    : groupingColumnReference ((COMMA groupingColumnReference)*)?
+    : groupingColumnReference (COMMA groupingColumnReference)*
     ;
 
 // <grouping column reference>
@@ -936,7 +936,7 @@ tableValueConstructor
 
 // <table value constructor list>
 tableValueConstructorList
-    : rowValueConstructor ((COMMA rowValueConstructor)*)?
+    : rowValueConstructor (COMMA rowValueConstructor)*
     ;
 
 // <explicit table>
@@ -1073,7 +1073,7 @@ characterPrimary
 // <string value function>
 stringValueFunction
     : characterValueFunction
-    | 
+    | bitValueFunction
     ;
 
 // <character value function>
@@ -1245,7 +1245,7 @@ timeZoneSpecifier
 lengthExpression
     : charLengthExpression
     | octetLengthExpression
-    | 
+    | bitLengthExpression
     ;
 
 // <char length expression>
@@ -1256,7 +1256,7 @@ charLengthExpression
 // <string value expression>
 stringValueExpression
     : characterValueExpression
-    | 
+    | bitValueExpression
     ;
 
 // <octet length expression>
@@ -1276,7 +1276,7 @@ defaultSpecification
 
 // <row value constructor list>
 rowValueConstructorList
-    : rowValueConstructorElement ((COMMA rowValueConstructorElement)*)?
+    : rowValueConstructorElement (COMMA rowValueConstructorElement)*
     ;
 
 // <row subquery>
@@ -1467,7 +1467,7 @@ orderByClause
 
 // <sort specification list>
 sortSpecificationList
-    : sortSpecification ((COMMA sortSpecification)*)?
+    : sortSpecification (COMMA sortSpecification)*
     ;
 
 // <sort specification>
@@ -1509,7 +1509,7 @@ procedureName
 
 // <parameter declaration list>
 parameterDeclarationList
-    : LEFT_PAREN parameterDeclaration ((COMMA parameterDeclaration)*)? RIGHT_PAREN
+    : LEFT_PAREN parameterDeclaration (COMMA parameterDeclaration)* RIGHT_PAREN
     ;
 
 // <parameter declaration>
@@ -1614,7 +1614,7 @@ levelsClause
 
 // <grant statement>
 grantStatement
-    : T__167 privileges T__21 objectName T__50 grantee ((COMMA grantee)*)? (T__46 T__167 T__165)?
+    : T__167 privileges T__21 objectName T__50 grantee (COMMA grantee)* (T__46 T__167 T__165)?
     ;
 
 // <privileges>
@@ -1625,7 +1625,7 @@ privileges
 
 // <action list>
 actionList
-    : action ((COMMA action)*)?
+    : action (COMMA action)*
     ;
 
 // <action>
@@ -1897,7 +1897,7 @@ dropViewStatement
 
 // <revoke statement>
 revokeStatement
-    : T__185 (T__167 T__165 T__120)? privileges T__21 objectName T__92 grantee ((COMMA grantee)*)? dropBehaviour
+    : T__185 (T__167 T__165 T__120)? privileges T__21 objectName T__92 grantee (COMMA grantee)* dropBehaviour
     ;
 
 // <alter domain statement>
@@ -1995,7 +1995,7 @@ simpleValueSpecification
 
 // <fetch target list>
 fetchTargetList
-    : targetSpecification ((COMMA targetSpecification)*)?
+    : targetSpecification (COMMA targetSpecification)*
     ;
 
 // <target specification>
@@ -2016,7 +2016,7 @@ selectStatement_SingleRow
 
 // <select target list>
 selectTargetList
-    : targetSpecification ((COMMA targetSpecification)*)?
+    : targetSpecification (COMMA targetSpecification)*
     ;
 
 // <SQL data change statement>
@@ -2061,7 +2061,7 @@ updateStatement_Positioned
 
 // <set clause list>
 setClauseList
-    : setClause ((COMMA setClause)*)?
+    : setClause (COMMA setClause)*
     ;
 
 // <set clause>
@@ -2096,7 +2096,7 @@ sqlTransactionStatement
 
 // <set transaction statement>
 setTransactionStatement
-    : T__28 T__197 transactionMode ((COMMA transactionMode)*)?
+    : T__28 T__197 transactionMode (COMMA transactionMode)*
     ;
 
 // <transaction mode>
@@ -2295,7 +2295,7 @@ setDescriptorStatement
 // <set descriptor information>
 setDescriptorInformation
     : setCount
-    | T__79 itemNumber setItemInformation ((COMMA setItemInformation)*)?
+    | T__79 itemNumber setItemInformation (COMMA setItemInformation)*
     ;
 
 // <set count>
@@ -2355,7 +2355,7 @@ getDescriptorStatement
 // <get descriptor information>
 getDescriptorInformation
     : getCount
-    | T__79 itemNumber getItemInformation ((COMMA getItemInformation)*)?
+    | T__79 itemNumber getItemInformation (COMMA getItemInformation)*
     ;
 
 // <get count>
@@ -2444,7 +2444,7 @@ usingClause
 
 // <using arguments>
 usingArguments
-    : (T__101 | T__188) argument ((COMMA argument)*)?
+    : (T__101 | T__188) argument (COMMA argument)*
     ;
 
 // <argument>
@@ -2505,7 +2505,7 @@ dynamicDeleteStatement_Positioned
 
 // <dynamic update statement: positioned>
 dynamicUpdateStatement_Positioned
-    : T__69 tableName T__28 setClause ((COMMA setClause)*)? T__102 T__196 T__157 dynamicCursorName
+    : T__69 tableName T__28 setClause (COMMA setClause)* T__102 T__196 T__157 dynamicCursorName
     ;
 
 // <SQL diagnostics statement>
@@ -2526,7 +2526,7 @@ sqlDiagnosticsInformation
 
 // <statement information>
 statementInformation
-    : statementInformationItem ((COMMA statementInformationItem)*)?
+    : statementInformationItem (COMMA statementInformationItem)*
     ;
 
 // <statement information item>
@@ -2545,7 +2545,7 @@ statementInformationItemName
 
 // <condition information>
 conditionInformation
-    : T__233 conditionNumber conditionInformationItem ((COMMA conditionInformationItem)*)?
+    : T__233 conditionNumber conditionInformationItem (COMMA conditionInformationItem)*
     ;
 
 // <condition number>
@@ -2632,7 +2632,7 @@ hostVariableDefinition
 
 // <Ada variable definition>
 adaVariableDefinition
-    : adaHostIdentifier ((COMMA adaHostIdentifier)*)? T__4 adaTypeSpecification (adaInitialValue)?
+    : adaHostIdentifier (COMMA adaHostIdentifier)* T__4 adaTypeSpecification (adaInitialValue)?
     ;
 
 // <Ada type specification>
@@ -2704,7 +2704,7 @@ cVariableSpecification
 
 // <C numeric variable>
 cNumericVariable
-    : (IDENTIFIER | IDENTIFIER | IDENTIFIER | IDENTIFIER) cHostIdentifier (cInitialValue)? ((COMMA cHostIdentifier (cInitialValue)?)*)?
+    : (IDENTIFIER | IDENTIFIER | IDENTIFIER | IDENTIFIER) cHostIdentifier (cInitialValue)? (COMMA cHostIdentifier (cInitialValue)?)*
     ;
 
 // <C initial value>
@@ -2714,7 +2714,7 @@ cInitialValue
 
 // <C character variable>
 cCharacterVariable
-    : IDENTIFIER (T__27 T__28 (T__76)? characterSetSpecification)? cHostIdentifier cArraySpecification (cInitialValue)? ((COMMA cHostIdentifier cArraySpecification (cInitialValue)?)*)?
+    : IDENTIFIER (T__27 T__28 (T__76)? characterSetSpecification)? cHostIdentifier cArraySpecification (cInitialValue)? (COMMA cHostIdentifier cArraySpecification (cInitialValue)?)*
     ;
 
 // <C array specification>
@@ -2730,12 +2730,12 @@ cDerivedVariable
 
 // <C VARCHAR variable>
 cVARCHARVariable
-    : T__31 (T__27 T__28 (T__76)? characterSetSpecification)? cHostIdentifier cArraySpecification (cInitialValue)? ((COMMA cHostIdentifier cArraySpecification (cInitialValue)?)*)?
+    : T__31 (T__27 T__28 (T__76)? characterSetSpecification)? cHostIdentifier cArraySpecification (cInitialValue)? (COMMA cHostIdentifier cArraySpecification (cInitialValue)?)*
     ;
 
 // <C bit variable>
 cBitVariable
-    : T__238 cHostIdentifier cArraySpecification (cInitialValue)? ((COMMA cHostIdentifier cArraySpecification (cInitialValue)?)*)?
+    : T__238 cHostIdentifier cArraySpecification (cInitialValue)? (COMMA cHostIdentifier cArraySpecification (cInitialValue)?)*
     ;
 
 // <Cobol variable definition>
@@ -3019,37 +3019,37 @@ schemaName
 
 // Name-type placeholder (from lexical BNF rule)
 catalogName
-    : IDENTIFIER ( T__247 IDENTIFIER )*
+    : IDENTIFIER ( DOT IDENTIFIER )*
     ;
 
 // Name-type placeholder (from lexical BNF rule)
 domainName
-    : IDENTIFIER ( T__247 IDENTIFIER )*
+    : IDENTIFIER ( DOT IDENTIFIER )*
     ;
 
 // Name-type placeholder (from lexical BNF rule)
 constraintName
-    : IDENTIFIER ( T__247 IDENTIFIER )*
+    : IDENTIFIER ( DOT IDENTIFIER )*
     ;
 
 // Name-type placeholder (from lexical BNF rule)
 correlationName
-    : IDENTIFIER ( T__247 IDENTIFIER )*
+    : IDENTIFIER ( DOT IDENTIFIER )*
     ;
 
 // Name-type placeholder (from lexical BNF rule)
 triggerName
-    : IDENTIFIER ( T__247 IDENTIFIER )*
+    : IDENTIFIER ( DOT IDENTIFIER )*
     ;
 
 // Name-type placeholder (from lexical BNF rule)
 constraintNameList
-    : IDENTIFIER ( T__247 IDENTIFIER )*
+    : IDENTIFIER ( DOT IDENTIFIER )*
     ;
 
 // Name-type placeholder (from lexical BNF rule)
 columnNameList
-    : IDENTIFIER ( T__247 IDENTIFIER )*
+    : IDENTIFIER ( DOT IDENTIFIER )*
     ;
 
 // Auto-generated placeholder for undefined rule

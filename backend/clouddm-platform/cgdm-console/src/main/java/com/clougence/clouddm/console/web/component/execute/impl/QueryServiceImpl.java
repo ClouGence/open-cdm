@@ -65,7 +65,7 @@ public class QueryServiceImpl implements QueryService {
     @Resource
     private SystemDal         systemDal;
     @Resource
-    private ExecutionDal      executionDal;
+    private ExecutionDal      execDal;
     @Resource
     private ObjectCacheDao    cacheDao;
     @Resource
@@ -113,7 +113,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void testSessionWorker(String curUid, String sessionId) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -126,7 +126,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public boolean hasSession(String curUid, String sessionId) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return false;
         }
@@ -137,7 +137,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public DmExecSessionDO getSessionInfo(String curUid, String sessionId) {
-        return this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        return this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
     }
 
     @Override
@@ -149,11 +149,11 @@ public class QueryServiceImpl implements QueryService {
         }
 
         // close and remove old data.
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO != null) {
             RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
             this.sessionRService.closeSession(sendDTO, sessionId);
-            this.executionDal.sessionMapper().deleteBySessionId(sessionId);
+            this.execDal.sessionMapper().deleteBySessionId(sessionId);
         }
 
         // gen new session.
@@ -171,7 +171,7 @@ public class QueryServiceImpl implements QueryService {
         sessionDO.setGmtCreate(new Date());
         sessionDO.setGmtModified(new Date());
 
-        int insert = this.executionDal.sessionMapper().insert(sessionDO);
+        int insert = this.execDal.sessionMapper().insert(sessionDO);
         if (insert != 1) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STORE_SESSION_DATA_ERROR.name()));
         }
@@ -213,7 +213,7 @@ public class QueryServiceImpl implements QueryService {
             return;
         }
 
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -224,7 +224,7 @@ public class QueryServiceImpl implements QueryService {
             this.sessionRService.closeSession(sendDTO, sessionId);
         }
 
-        this.executionDal.sessionMapper().deleteBySessionId(sessionId);
+        this.execDal.sessionMapper().deleteBySessionId(sessionId);
     }
 
     /**
@@ -232,7 +232,7 @@ public class QueryServiceImpl implements QueryService {
      */
     @Override
     public void commitSession(String curUid, final String sessionId) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -246,7 +246,7 @@ public class QueryServiceImpl implements QueryService {
      */
     @Override
     public void rollbackSession(String curUid, final String sessionId) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -260,7 +260,7 @@ public class QueryServiceImpl implements QueryService {
      */
     @Override
     public void cancelQuery(final String curUid, final String sessionId) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -271,13 +271,13 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void asyncExecuteQuery(String curUid, String sessionId, String batchId, List<QueryRequest> queryRequest) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SESSION_NOT_EXIST_ERROR.name()));
         }
 
         // update SessionInfo
-        this.executionDal.sessionMapper().updateSessionQueryTime(curUid, sessionId);
+        this.execDal.sessionMapper().updateSessionQueryTime(curUid, sessionId);
 
         // record Statistics
         //this.recordStatistics(sessionDO);
@@ -297,14 +297,14 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public ResultList syncExecuteQuery(String curUid, String sessionId, QueryRequest queryRequest) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SESSION_NOT_EXIST_ERROR.name()));
         }
         RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
 
         // update SessionInfo
-        this.executionDal.sessionMapper().updateSessionQueryTime(curUid, sessionId);
+        this.execDal.sessionMapper().updateSessionQueryTime(curUid, sessionId);
 
         // record Statistics
         //this.recordStatistics(sessionDO);
@@ -335,7 +335,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public boolean isExecuting(String curUid, String sessionId) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return false;
         }
@@ -346,7 +346,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public boolean hasQueryResult(String curUid, String sessionId) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return false;
         }
@@ -357,7 +357,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public ResultList fetchQueryResult(String curUid, String sessionId) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return null;
         }
@@ -370,7 +370,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void changeCatalog(String curUid, String sessionId, String catalog) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -382,7 +382,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void changeSchema(String curUid, String sessionId, String schema) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -394,7 +394,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void setAutoCommit(String curUid, String sessionId, boolean autoCommit) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -406,7 +406,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void setIsolation(String curUid, String sessionId, RdbIsolation isolation) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -418,7 +418,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void setReadOnly(String curUid, String sessionId, boolean readOnly) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -430,7 +430,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public StatusDTO getAndUpdateStatus(String curUid, String sessionId) {
-        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return null;
         }
@@ -459,6 +459,6 @@ public class QueryServiceImpl implements QueryService {
         ctx.setSqlParameters(status.getSqlParameters());
 
         sessionDO.setConfig(JsonUtils.toJson(ctx));
-        this.executionDal.sessionMapper().updateSessionConfig(sessionDO);
+        this.execDal.sessionMapper().updateSessionConfig(sessionDO);
     }
 }

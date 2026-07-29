@@ -217,7 +217,7 @@ public class PluginLoadHelper {
 
     static Set<String> scanPluginClasses(ResourceLoader pluginLoader) throws IOException {
         return new CgResourceScanner(pluginLoader).getClassNamesSet(//
-                new String[] { "com/clougence/clouddm/", "com/clougence/sql/" },//
+                new String[] { "com/clougence/" },//
                 c -> testPlugin(c.getClassInfo()));
     }
 
