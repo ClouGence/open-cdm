@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,12 +39,7 @@ public abstract class SplitTextTest {
                 continue;
             }
             SplitFixture splitFixture = loadFixtureUnchecked(fixture.resourcePath);
-            SplitRun run = createRun(splitFixture, () -> splitAnalysisSpi(fixture));
-            for (SplitCase splitCase : splitFixture.cases()) {
-                tests.add(DynamicTest.dynamicTest(splitCase.displayName(), () -> {
-                    verifyCase(splitCase, run, verifyAllTypes());
-                }));
-            }
+            tests.add(DynamicTest.dynamicTest(fixture.resourcePath, () -> verifyFixture(splitFixture, splitAnalysisSpi(fixture), verifyAllTypes())));
         }
         return tests.stream();
     }
@@ -79,11 +73,11 @@ public abstract class SplitTextTest {
         List<DynamicTest> tests = new ArrayList<>();
         for (String resourcePath : resourcePaths) {
             SplitFixture fixture = loadFixtureUnchecked(resourcePath);
-            for (SplitCase splitCase : fixture.cases()) {
-                tests.add(DynamicTest.dynamicTest(splitCase.displayName(), () -> {
-                    Assertions.assertThrows(RuntimeException.class, () -> splitRejectedCase(resourcePath, datasource, splitCase.splitIndex()));
-                }));
-            }
+            tests.add(DynamicTest.dynamicTest(resourcePath, () -> {
+                for (SplitCase splitCase : fixture.cases()) {
+                    Assertions.assertThrows(RuntimeException.class, () -> splitRejectedCase(resourcePath, datasource, splitCase.splitIndex()), splitCase.displayName());
+                }
+            }));
         }
         return tests.stream();
     }
@@ -98,19 +92,13 @@ public abstract class SplitTextTest {
         return new SplitFixture(resourcePath, inputSql, parseExpected(expectedPart));
     }
 
-    static SplitRun createRun(SplitFixture fixture, Supplier<SplitAnalysisSpi> spiFactory) {
-        return new SplitRun(fixture.resourcePath(), fixture.expected().size(), spiFactory);
-    }
-
-    static void verifyCase(SplitCase splitCase, SplitRun run, boolean verifyAllTypes) {
-        try {
-            SplitResult result = run.result();
-            SplitFixture fixture = result.fixture();
-            List<ExpectedSplit> expected = fixture.expected();
-            List<ExpectedSplit> actual = result.actual();
-
-            Assert.assertEquals("split count mismatch: " + fixture.resourcePath(), expected.size(), actual.size());
-            int index = splitCase.splitIndex();
+    static void verifyFixture(SplitFixture fixture, SplitAnalysisSpi spi, boolean verifyAllTypes) {
+        List<SplitScript> scripts = spi.splitScript(fixture.inputSql(), null, 0, 0);
+        scripts.forEach(SplitTextTest::verifySplitTree);
+        List<ExpectedSplit> expected = fixture.expected();
+        List<ExpectedSplit> actual = scripts.stream().map(ExpectedSplit::from).toList();
+        Assert.assertEquals("split count mismatch: " + fixture.resourcePath(), expected.size(), actual.size());
+        for (int index = 0; index < expected.size(); index++) {
             Assert.assertTrue("split index missing: " + fixture.resourcePath() + " index " + index, index < actual.size());
             ExpectedTypeTree expectedType = expected.get(index).type;
             ExpectedTypeTree actualType = actual.get(index).type;
@@ -120,8 +108,6 @@ public abstract class SplitTextTest {
                 Assert.assertEquals("split primary type mismatch: " + fixture.resourcePath() + " index " + index, expectedType.primaryType(), actualType.primaryType());
             }
             Assert.assertEquals("split script mismatch: " + fixture.resourcePath() + " index " + index, expected.get(index).script, actual.get(index).script);
-        } finally {
-            run.complete();
         }
     }
 
@@ -228,48 +214,6 @@ public abstract class SplitTextTest {
         }
     }
 
-    static final class SplitRun {
-
-        private final String                     resourcePath;
-        private final Supplier<SplitAnalysisSpi> spiFactory;
-        private int                              remaining;
-        private SplitResult                      result;
-        private Throwable                        failure;
-
-        private SplitRun(String resourcePath, int caseCount, Supplier<SplitAnalysisSpi> spiFactory){
-            this.resourcePath = resourcePath;
-            this.remaining = caseCount;
-            this.spiFactory = spiFactory;
-        }
-
-        synchronized SplitResult result() {
-            if (failure != null) {
-                throw new AssertionError("failed to split fixture: " + resourcePath, failure);
-            }
-            if (result == null) {
-                try {
-                    SplitFixture fixture = loadFixture(resourcePath);
-                    List<SplitScript> scripts = spiFactory.get().splitScript(fixture.inputSql(), null, 0, 0);
-                    scripts.forEach(SplitTextTest::verifySplitTree);
-                    List<ExpectedSplit> actual = scripts.stream().map(ExpectedSplit::from).toList();
-                    result = new SplitResult(fixture, actual);
-                } catch (IOException | RuntimeException e) {
-                    failure = e;
-                    throw new AssertionError("failed to split fixture: " + resourcePath, e);
-                }
-            }
-            return result;
-        }
-
-        synchronized void complete() {
-            remaining--;
-            if (remaining == 0) {
-                result = null;
-                failure = null;
-            }
-        }
-    }
-
     private static void verifySplitTree(SplitScript parent) {
         Assert.assertNotNull("split script must not be null", parent.getScript());
         Assert.assertFalse("split script must not be blank", parent.getScript().isBlank());
@@ -286,9 +230,6 @@ public abstract class SplitTextTest {
             Assert.assertTrue("child ends before it starts: " + child.getScript(), child.getBodyEndCodeLine() >= child.getBodyStartCodeLine());
             verifySplitTree(child);
         }
-    }
-
-    record SplitResult(SplitFixture fixture, List<ExpectedSplit> actual) {
     }
 
     private record ExpectedSplit(ExpectedTypeTree type, String script) {

@@ -123,6 +123,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     private NamingDao                   namingDao;
     @Resource
     private ApprovalFlowService         approvalFlowService;
+    @Resource
     private DmAuthServiceForManage      authServiceForManage;
     @Resource
     private SecRulesEngine              ruleCheckService;

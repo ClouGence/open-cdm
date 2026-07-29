@@ -39,10 +39,15 @@ public final class SecDomainTextTest {
         List<DynamicTest> tests = new ArrayList<>();
         for (Fixture fixture : fixtures()) {
             for (String resourcePath : resourceFiles(fixture)) {
-                for (TestCase testCase : loadCases(resourcePath)) {
-                    tests.add(DynamicTest.dynamicTest(testCase.displayName(fixture.datasource()), () -> assertCase(resourcePath, testCase, SqlTestSupport
-                        .dataSourceType(fixture.datasource()), secDomainResolveSpi(fixture.datasource()), SqlTestSupport.contextInfo(fixture.datasource()))));
-                }
+                List<TestCase> cases = loadCases(resourcePath);
+                tests.add(DynamicTest.dynamicTest(fixture.datasource() + " " + resourcePath, () -> {
+                    DataSourceType dataSourceType = SqlTestSupport.dataSourceType(fixture.datasource());
+                    SecDomainResolveSpi resolveSpi = secDomainResolveSpi(fixture.datasource());
+                    ContextInfo contextInfo = SqlTestSupport.contextInfo(fixture.datasource());
+                    for (TestCase testCase : cases) {
+                        assertCase(resourcePath, testCase, dataSourceType, resolveSpi, contextInfo);
+                    }
+                }));
             }
         }
         return tests.stream();
