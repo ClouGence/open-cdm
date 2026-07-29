@@ -66,11 +66,82 @@ test {
     if (!['8', '16'].contains(parserTestParallelism)) {
         throw new GradleException('parserTestParallelism must be 8 or 16')
     }
+    def progressInterval = providers.gradleProperty('testProgressInterval').getOrElse('100').toInteger()
+    def heartbeatSeconds = providers.gradleProperty('testProgressHeartbeatSeconds').getOrElse('30').toInteger()
+    if (progressInterval < 1) {
+        throw new GradleException('testProgressInterval must be greater than 0')
+    }
+    if (heartbeatSeconds < 1) {
+        throw new GradleException('testProgressHeartbeatSeconds must be greater than 0')
+    }
 
     systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
     systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'fixed'
     systemProperty 'junit.jupiter.execution.parallel.config.fixed.parallelism', parserTestParallelism
     systemProperty 'junit.jupiter.execution.parallel.config.fixed.max-pool-size', parserTestParallelism
+
+    def startedCount = new java.util.concurrent.atomic.AtomicLong()
+    def completedCount = new java.util.concurrent.atomic.AtomicLong()
+    def failedCount = new java.util.concurrent.atomic.AtomicLong()
+    def skippedCount = new java.util.concurrent.atomic.AtomicLong()
+    def startNanos = new java.util.concurrent.atomic.AtomicLong()
+    def heartbeatExecutor = new java.util.concurrent.atomic.AtomicReference<java.util.concurrent.ScheduledExecutorService>()
+
+    beforeSuite { descriptor ->
+        if (descriptor.parent == null) {
+            startNanos.set(System.nanoTime())
+            logger.lifecycle("[s-test] started: JUnit dynamic cases are registered during execution; " +
+                "progress shows completed, started, and currently running counts.")
+
+            def threadFactory = { Runnable runnable ->
+                Thread thread = new Thread(runnable, 's-test-progress')
+                thread.daemon = true
+                return thread
+            } as java.util.concurrent.ThreadFactory
+            def executor = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(threadFactory)
+            heartbeatExecutor.set(executor)
+            executor.scheduleAtFixedRate({
+                long started = startedCount.get()
+                long completed = completedCount.get()
+                long elapsedSeconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos.get())
+                logger.lifecycle("[s-test] heartbeat: ${completed} completed, ${started} started, " +
+                    "${Math.max(0L, started - completed)} running, ${elapsedSeconds}s elapsed")
+            } as Runnable, heartbeatSeconds, heartbeatSeconds, java.util.concurrent.TimeUnit.SECONDS)
+        }
+    }
+
+    beforeTest {
+        startedCount.incrementAndGet()
+    }
+
+    afterTest { descriptor, result ->
+        long completed = completedCount.incrementAndGet()
+        if (result.resultType == org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE) {
+            failedCount.incrementAndGet()
+        } else if (result.resultType == org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED) {
+            skippedCount.incrementAndGet()
+        }
+
+        if (completed == 1 || completed % progressInterval == 0 ||
+            result.resultType == org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE) {
+            long started = startedCount.get()
+            logger.lifecycle("[s-test] progress: ${completed} completed, ${started} started, " +
+                "${Math.max(0L, started - completed)} running, ${failedCount.get()} failed, " +
+                "${skippedCount.get()} skipped; latest: ${descriptor.className}.${descriptor.name}")
+        }
+    }
+
+    afterSuite { descriptor, result ->
+        if (descriptor.parent == null) {
+            def executor = heartbeatExecutor.getAndSet(null)
+            if (executor != null) {
+                executor.shutdownNow()
+            }
+            long elapsedSeconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos.get())
+            logger.lifecycle("[s-test] finished: ${result.testCount} total, ${result.successfulTestCount} passed, " +
+                "${result.failedTestCount} failed, ${result.skippedTestCount} skipped, ${elapsedSeconds}s elapsed")
+        }
+    }
 }
 
 description = 's-test'
