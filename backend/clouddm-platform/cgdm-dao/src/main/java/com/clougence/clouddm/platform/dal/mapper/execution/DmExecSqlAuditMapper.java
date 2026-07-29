@@ -32,6 +32,13 @@ public interface DmExecSqlAuditMapper extends BaseMapper<DmExecSqlAuditDO> {
     int completeByQueryId(@Param("queryId") String queryId, @Param("sessionId") String sessionId, @Param("status") String status, @Param("affectLine") long affectLine,
                           @Param("message") String message, @Param("time") Date time);
 
+    List<DmExecSqlAuditDO> pageByCondition(@Param("puid") String puid, @Param("uid") String uid, @Param("dsId") Long dsId, @Param("requester") Requester requester,
+                                           @Param("status") SqlStatus status, @Param("dateStart") Date dateStart, @Param("dateEnd") Date dateEnd,
+                                           @Param("offset") int offset, @Param("pageSize") int pageSize);
+
+    long countByCondition(@Param("puid") String puid, @Param("uid") String uid, @Param("dsId") Long dsId, @Param("requester") Requester requester,
+                          @Param("status") SqlStatus status, @Param("dateStart") Date dateStart, @Param("dateEnd") Date dateEnd);
+
     DmExecSqlAuditDO queryByQueryId(@Param("queryId") String queryId);
 
     List<DmExecSqlAuditDO> queryWaitConfirmBySessionId(@Param("sessionId") String sessionId);

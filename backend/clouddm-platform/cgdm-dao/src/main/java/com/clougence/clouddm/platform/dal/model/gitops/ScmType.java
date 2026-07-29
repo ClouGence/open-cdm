@@ -26,7 +26,8 @@ import lombok.Getter;
 public enum ScmType {
 
     Gitee(ScmProviderNames.Gitee, "DEVOPS_PROVIDER_GITEE", false),
-    Github(ScmProviderNames.Github, "DEVOPS_PROVIDER_GITHUB", false),;
+    Github(ScmProviderNames.Github, "DEVOPS_PROVIDER_GITHUB", false),
+    Gitlab(ScmProviderNames.Gitlab, "DEVOPS_PROVIDER_GITLAB", true),;
 
     private final ScmProviderNames providerType;
     private final String           i18nKey;

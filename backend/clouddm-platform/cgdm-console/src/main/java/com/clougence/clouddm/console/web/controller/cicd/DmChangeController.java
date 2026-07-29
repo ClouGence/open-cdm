@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
@@ -40,11 +39,11 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.cicd.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.DmPageVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cicd.DmChangeService;
 import com.clougence.clouddm.console.web.service.cicd.DmScmService;
@@ -87,7 +86,7 @@ public class DmChangeController {
     public ResWebData<?> changeList(HttpServletRequest request, @Valid @RequestBody ChangeListFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        IPage<ChangeVO> result = this.dmChangeService.queryChangeByFlowAndQuery(puid, fo.getFlowId(), fo);
+        DmPageVO<ChangeVO> result = this.dmChangeService.queryChangeByFlowAndQuery(puid, fo.getFlowId(), fo);
         return ResWebDataUtils.buildSuccess(result);
     }
 
@@ -283,11 +282,20 @@ public class DmChangeController {
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeExecTaskSkip", method = RequestMethod.POST)
-    public ResWebData<?> skipAutoExecTask(HttpServletRequest request, @Valid @RequestBody ChangeExecSkipTaskFO fo) {
+    public ResWebData<?> skipAutoExecTask(HttpServletRequest request, @Valid @RequestBody ChangeExecTaskFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         this.dmChangeService.skipExecTask(puid, uid, fo.getChangeId(), fo.getTaskId());
+        return ResWebDataUtils.buildSuccess();
+    }
+
+    @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
+    @RequestMapping(value = "/changeExecTaskContinue", method = RequestMethod.POST)
+    public ResWebData<?> continueAutoExecTask(HttpServletRequest request, @Valid @RequestBody ChangeExecTaskFO fo) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+
+        this.dmChangeService.continueExecTask(puid, fo.getChangeId(), fo.getTaskId());
         return ResWebDataUtils.buildSuccess();
     }
 

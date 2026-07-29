@@ -369,6 +369,9 @@ public class LoginServiceImpl implements LoginService {
     }
 
     private DmAuthUserDO queryProviderBindUser(AccountBindType bindType, DmAuthUserDO loginUser) {
+        if (StringUtils.isNotBlank(loginUser.getUnionId())) {
+            return this.authDal.userMapper().queryByUnionInfo(loginUser.getUnionId(), bindType);
+        }
         if (StringUtils.isBlank(loginUser.getBindAccount())) {
             return null;
         }

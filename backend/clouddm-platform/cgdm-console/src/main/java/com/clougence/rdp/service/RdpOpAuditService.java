@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.model.fo.ExportOpAuditFO;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.OpAuditConditionVO;
 import com.clougence.clouddm.console.web.model.vo.RdpOpAuditVO;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
@@ -43,6 +44,9 @@ public interface RdpOpAuditService {
 
     List<RdpOpAuditVO> queryUserAllAudit(String puid, String uid, SecurityLevel securityLevel, String userNameLike, String auditType, String resourceType, Date start, Date end,
                                          long startId, int pageSize);
+
+    DmPageVO<RdpOpAuditVO> pageUserAllAudit(String puid, String uid, SecurityLevel securityLevel, String userNameLike, String auditType, String resourceType, Date start, Date end,
+                                            int pageNumber, int pageSize);
 
     /**
      * query audit by userName and basic condition. if startId not specified, fill it with 0. if pageSize not specified, fill it with DEFAULT_PAGE_SIZE.

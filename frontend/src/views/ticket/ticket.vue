@@ -80,10 +80,10 @@
           </a-form-item>
         </a-form>
         <div class="create-ticket-form-btn">
-          <Button type="primary" :loading="loading" :disabled="!ticketData.ticketEnable" @click="handleSubmitTicket(false)">
+          <Button type="primary" :loading="loading" :disabled="loading || !ticketData.ticketEnable" @click="handleSubmitTicket(false)">
             {{ $t('jiao-yan-0') }}
           </Button>
-          <Button type="primary" ghost v-if="showForceBtn" @click="handleSubmitTicket(true)">
+          <Button type="primary" ghost v-if="showForceBtn" :loading="loading" :disabled="loading" @click="handleSubmitTicket(true)">
             {{ $t('qiang-zhi-ti-jiao') }}
           </Button>
         </div>
@@ -105,7 +105,7 @@
         </template>
       </Table>
       <template #footer>
-        <Button type="primary" @click="handleSubmitTicket(true)" v-if="showForceBtn">
+        <Button type="primary" :loading="loading" :disabled="loading" @click="handleSubmitTicket(true)" v-if="showForceBtn">
           {{ $t('ji-xu-ti-jiao') }}
         </Button>
         <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
@@ -127,7 +127,7 @@
         </template>
       </Table>
       <template #footer>
-        <Button type="primary" @click="handleSubmitTicket(true)" v-if="showForceBtn">
+        <Button type="primary" :loading="loading" :disabled="loading" @click="handleSubmitTicket(true)" v-if="showForceBtn">
           {{ $t('ji-xu-ti-jiao') }}
         </Button>
         <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
@@ -250,9 +250,11 @@ export default {
     this.$nextTick(() => {
       this.initializeHeights();
     });
+    window.addEventListener('resize', this.handleWindowResize);
   },
   beforeDestroy() {
     this.stopResize();
+    window.removeEventListener('resize', this.handleWindowResize);
   },
   watch: {
     showRollbackSql() {
@@ -282,22 +284,16 @@ export default {
     },
 
     initializeHeights() {
-      const editor = this.$el.querySelector('.editor');
-      if (editor) {
-        const totalHeight = editor.clientHeight;
-        const rawCollapse = this.$el.querySelector('.collapse.raw');
-        if (rawCollapse) {
-          let heightToSubtract = 0;
-          if (this.showForceBtn) {
-            heightToSubtract += this.validationResultHeight + 6;
-          }
-          if (this.showRollbackSql) {
-            heightToSubtract += 200;
-          }
-          const newRawHeight = totalHeight - heightToSubtract;
-          rawCollapse.style.height = `${Math.max(200, newRawHeight)}px`;
-        }
-      }
+      this.$nextTick(() => {
+        this.layoutEditors();
+      });
+    },
+
+    layoutEditors() {
+      const editors = [this.$refs.rawSqlEditor, this.$refs.rollbackSqlEditor];
+      editors.forEach((editor) => {
+        editor?.monacoEditor?.layout();
+      });
     },
 
     onResize(e) {
@@ -306,25 +302,17 @@ export default {
       const deltaY = this.startY - e.clientY;
       const newHeight = Math.max(100, Math.min(400, this.startHeight + deltaY));
       this.validationResultHeight = newHeight;
-
-      this.$nextTick(() => {
-        const rawCollapse = this.$el.querySelector('.collapse.raw');
-        if (rawCollapse) {
-          const totalHeight = this.$el.querySelector('.editor').clientHeight;
-          let heightToSubtract = newHeight + 6;
-          if (this.showRollbackSql) {
-            heightToSubtract += 200;
-          }
-          const newRawHeight = totalHeight - heightToSubtract;
-          rawCollapse.style.height = `${Math.max(200, newRawHeight)}px`;
-        }
-      });
+      this.layoutEditors();
     },
 
     stopResize() {
       this.isResizing = false;
       document.removeEventListener('mousemove', this.onResize);
       document.removeEventListener('mouseup', this.stopResize);
+    },
+
+    handleWindowResize() {
+      this.layoutEditors();
     },
 
     handleCloseModal() {
@@ -378,75 +366,78 @@ export default {
       }
     },
     async handleSubmitTicket(force = false) {
+      if (this.loading) {
+        return;
+      }
+
       this.showCheckedOnlyError = false;
       if (!this.ticketData.instanceId) {
         this.instanceRequiredError = true;
         this.$Message.error(this.$t('qing-xuan-ze-shu-ju-yuan-shi-li'));
         return;
       }
-      this.$refs.ticketContent
-        .validate()
-        .then(async () => {
-          this.loading = true;
-          const dbLevels = [this.ticketData.envId, this.ticketData.instanceId];
+      this.loading = true;
 
-          if (this.ticketData.catalog && hasSchema(this.ticketData.dataSourceType)) {
-            dbLevels.push(this.ticketData.catalog);
-          }
+      try {
+        await this.$refs.ticketContent.validate();
+        const dbLevels = [this.ticketData.envId, this.ticketData.instanceId];
 
-          if (this.ticketData.schema) {
-            dbLevels.push(this.ticketData.schema);
-          }
+        if (this.ticketData.catalog && hasSchema(this.ticketData.dataSourceType)) {
+          dbLevels.push(this.ticketData.catalog);
+        }
 
-          const data = {
-            approvalType: this.ticketData.approvalType,
-            dbLevels,
-            rawSql: this.$refs.rawSqlEditor ? this.$refs.rawSqlEditor?.getSql() : '',
-            rollBackSql: this.showRollbackSql && this.$refs.rollbackSqlEditor ? this.$refs.rollbackSqlEditor?.getSql() : '',
-            description: this.ticketData.description,
-            ticketTitle: this.ticketData.ticketTitle,
-            expectedAffectedRows: this.ticketData.expectedAffectedRows,
-            immediately: this.ticketData.immediately === 'immediately',
-            templateIdentity: '',
-            approTemplateName: '',
-            force
-          };
+        if (this.ticketData.schema) {
+          dbLevels.push(this.ticketData.schema);
+        }
 
-          const res = await this.$services.dmTicketCreate({ data });
-          if (res.success) {
-            if (res.data.failure || res.data.confirm) {
-              if (res.data.confirm && !res.data.failure) {
-                this.showForceBtn = true;
-                if (force) {
-                  // Forced surrender, no obstruction rules.
-                  this.noPassedRuleList = [];
-                  this.showForceBtn = false;
-                  await this.$router.push({ path: `/ticket/${res.data.ticketId}` });
-                }
+        const data = {
+          approvalType: this.ticketData.approvalType,
+          dbLevels,
+          rawSql: this.$refs.rawSqlEditor ? this.$refs.rawSqlEditor?.getSql() : '',
+          rollBackSql: this.showRollbackSql && this.$refs.rollbackSqlEditor ? this.$refs.rollbackSqlEditor?.getSql() : '',
+          description: this.ticketData.description,
+          ticketTitle: this.ticketData.ticketTitle,
+          expectedAffectedRows: this.ticketData.expectedAffectedRows,
+          immediately: this.ticketData.immediately === 'immediately',
+          templateIdentity: '',
+          approTemplateName: '',
+          force
+        };
+
+        const res = await this.$services.dmTicketCreate({ data });
+        if (res.success) {
+          if (res.data.failure || res.data.confirm) {
+            if (res.data.confirm && !res.data.failure) {
+              this.showForceBtn = true;
+              if (force) {
+                // Forced surrender, no obstruction rules.
+                this.noPassedRuleList = [];
+                this.showForceBtn = false;
+                await this.$router.push({ path: `/ticket/${res.data.ticketId}` });
               }
-              this.noPassedRuleList = res.data.checkedVOS;
-            } else {
-              this.noPassedRuleList = [];
-              this.showForceBtn = false;
-              await this.$router.push({ path: `/ticket/${res.data.ticketId}` });
             }
-          } else if (res.code === '20001') {
-            this.$Modal.confirm({
-              title: this.$t('gong-dan-yi-chang-ti-shi'),
-              content: res.msg,
-              okText: this.$t('qiang-zhi-ti-jiao'),
-              cancelText: this.$t('qu-xiao'),
-              onOk: () => {
-                this.handleSubmitTicket(true);
-              }
-            });
-            this.loading = false;
+            this.noPassedRuleList = res.data.checkedVOS;
+          } else {
+            this.noPassedRuleList = [];
+            this.showForceBtn = false;
+            await this.$router.push({ path: `/ticket/${res.data.ticketId}` });
           }
-          this.loading = false;
-        })
-        .catch(() => {
-          this.loading = false;
-        });
+        } else if (res.code === '20001') {
+          this.$Modal.confirm({
+            title: this.$t('gong-dan-yi-chang-ti-shi'),
+            content: res.msg,
+            okText: this.$t('qiang-zhi-ti-jiao'),
+            cancelText: this.$t('qu-xiao'),
+            onOk: () => {
+              this.handleSubmitTicket(true);
+            }
+          });
+        }
+      } catch {
+        return;
+      } finally {
+        this.loading = false;
+      }
     },
     async listDsSchema() {
       const res = await this.$services.dmDataSourceSchemaListSchemas({
@@ -543,23 +534,28 @@ export default {
 .ticket-create-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 
   .create-content-container {
     flex: 1;
     display: flex;
     min-height: 0;
+    overflow: hidden;
     padding: 16px 24px;
     gap: 24px;
 
     .create-ticket-editor {
       flex: 1;
       min-width: 0;
+      min-height: 0;
       overflow: hidden;
       display: flex;
       flex-direction: column;
 
       .create-ticket-editor-operator {
+        flex-shrink: 0;
         padding-bottom: 16px;
       }
 
@@ -572,9 +568,10 @@ export default {
         .collapse {
           display: flex;
           flex-direction: column;
+          min-height: 0;
 
           &.raw {
-            flex: none;
+            flex: 1;
             min-height: 200px;
             overflow: hidden;
           }
@@ -688,9 +685,10 @@ export default {
 
           .content {
             flex: 1;
+            min-height: 0;
             border: 1px solid #eaeaea;
             border-radius: 6px;
-            overflow: auto;
+            overflow: hidden;
           }
         }
 

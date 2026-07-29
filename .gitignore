@@ -37,6 +37,9 @@ gen
 /backend/data
 /backend/install_upgrade.log
 
+# test artifacts
+/backend/clouddm-utils/cg-utils/test.dat
+
 # web
 frontend/node_modules
 frontend/dist
@@ -45,3 +48,6 @@ frontend/package-lock.json
 /data
 /logs
 install_upgrade.log
+/dist
+*.override.md
+*.local.md

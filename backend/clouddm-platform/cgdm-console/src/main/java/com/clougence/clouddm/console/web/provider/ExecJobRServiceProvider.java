@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.provider;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -154,10 +155,12 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
 
     private void jobPause(AutoExecMessageDTO dto) {
         DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(dto.getJobId());
-        if (jobDO == null || jobDO.getStatus() == AutoExecJobStatus.PAUSE) {
+        if (jobDO == null) {
             return;
         }
-        this.execDal.autoJobMapper().updateJobStatus(dto.getJobId(), AutoExecJobStatus.PAUSE);
+        if (this.execDal.autoJobMapper().pauseJobIfActive(dto.getJobId()) == 0) {
+            return;
+        }
         this.jobLog(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_PAUSE_MESSAGE.name()), dto.getJobId());
     }
 
@@ -179,10 +182,12 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
 
     private void createSessionFailed(AutoExecMessageDTO dto) {
         DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(dto.getJobId());
-        if (jobDO == null || jobDO.getStatus() == AutoExecJobStatus.FAILED) {
+        if (jobDO == null) {
             return;
         }
-        this.execDal.autoJobMapper().updateJobStatus(dto.getJobId(), AutoExecJobStatus.FAILED);
+        if (this.execDal.autoJobMapper().markJobFailedIfActive(dto.getJobId()) == 0) {
+            return;
+        }
         this.jobLog(Loglevel.ERROR, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_CREATE_SESSION_ERROR_MESSAGE.name(), dto.getMessage()), dto.getJobId());
 
         this.execHelperService.getHelper(jobDO.getDependOnBizType()).execFailed(jobDO.getDependOnBizType(), jobDO.getBizId());
@@ -190,23 +195,30 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
 
     private void jobFinish(AutoExecMessageDTO dto) {
         DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(dto.getJobId());
-        if (jobDO == null || jobDO.getStatus() == AutoExecJobStatus.FINISH) {
+        if (jobDO == null) {
             return;
         }
-        this.execDal.autoJobMapper().finishJob(dto.getJobId());
+        if (this.execDal.autoJobMapper().finishJobIfActive(dto.getJobId()) == 0) {
+            return;
+        }
         this.jobLog(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_FINISH_MESSAGE.name()), dto.getJobId());
 
         this.execHelperService.getHelper(jobDO.getDependOnBizType()).execCompleted(jobDO.getDependOnBizType(), jobDO.getBizId());
     }
 
     private void jobFailed(AutoExecMessageDTO dto) {
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(dto.getJobId());
         DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().selectById(dto.getTaskId());
-        if (taskDO == null) {
+        if (jobDO == null || taskDO == null || !Objects.equals(taskDO.getAutoExecJobId(), jobDO.getId())) {
             return;
         }
-        this.execDal.autoJobMapper().updateJobStatus(dto.getJobId(), AutoExecJobStatus.FAILED);
+        if (this.execDal.autoJobMapper().markJobFailedIfActive(dto.getJobId()) == 0) {
+            return;
+        }
         String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_FAILED_MESSAGE.name(), taskDO.getExecOrder(), taskDO.getExecSql());
         this.jobLog(Loglevel.ERROR, msg, dto.getJobId());
+
+        this.execHelperService.getHelper(jobDO.getDependOnBizType()).execFailed(jobDO.getDependOnBizType(), jobDO.getBizId());
     }
 
     private void taskRetry(AutoExecMessageDTO message) {

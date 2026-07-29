@@ -41,12 +41,13 @@ import com.clougence.clouddm.console.web.model.fo.cicd.ChangeExecTaskListFO;
 import com.clougence.clouddm.console.web.model.fo.cicd.ChangeListFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyItemVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.DmPageVO;
+import com.clougence.clouddm.console.web.service.cicd.domain.ChangeTriggerContext;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggest;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggestType;
 import com.clougence.clouddm.console.web.service.cicd.domain.Item;
@@ -99,7 +100,7 @@ public class DmChangeServiceImpl implements DmChangeService {
     private ApprovalFlowService approvalFlowService;
 
     @Override
-    public IPage<ChangeVO> queryChangeByFlowAndQuery(String ownerUid, long flowId, ChangeListFO fo) {
+    public DmPageVO<ChangeVO> queryChangeByFlowAndQuery(String ownerUid, long flowId, ChangeListFO fo) {
         Page<?> page = PageUtils.startPage(fo.getPage());
 
         // page
@@ -111,9 +112,10 @@ public class DmChangeServiceImpl implements DmChangeService {
 
         DmChangeFlowDO flowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
         IPage<DmChangeDO> pageData = this.changeFlowDal.changeMapper().listChangeByConditionAndPage(page, queryParams);
+        DmPageVO<ChangeVO> results = new DmPageVO<>(pageData);
         List<DmChangeDO> records = pageData.getRecords();
         if (CollectionUtils.isEmpty(records)) {
-            return new Page<>();
+            return results;
         }
         Map<Long, DmChangeFlowDO> devopsMap;
         Map<Long, DmDsDO> dsMap;
@@ -146,12 +148,7 @@ public class DmChangeServiceImpl implements DmChangeService {
             return DmConvertUtils.convertToChangeVO(flowDO, obj, devopsMap, dsMap, scmMap);
         }).collect(Collectors.toList());
 
-        IPage<ChangeVO> results = new Page<>();
         results.setRecords(vos);
-        results.setCurrent(pageData.getCurrent());
-        results.setSize(pageData.getSize());
-        results.setPages(pageData.getPages());
-        results.setTotal(pageData.getTotal());
         return results;
     }
 
@@ -354,6 +351,9 @@ public class DmChangeServiceImpl implements DmChangeService {
                 return Collections.emptyList();
             } else {
                 DmExecAutoTaskDO execTaskDO = executionDal.autoTaskMapper().selectById(fo.getTaskId());
+                if (execTaskDO == null || !Objects.equals(execTaskDO.getAutoExecJobId(), jobDO.getId())) {
+                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_JOB_NOT_MATCH_ERROR_MESSAGE.name()));
+                }
                 dmBizLogDOS = this.monitorDal.bizLogMapper().queryListByBizId(execTaskDO.getBizId());
             }
         }
@@ -408,6 +408,15 @@ public class DmChangeServiceImpl implements DmChangeService {
         checkRunStatus(change);
 
         this.autoExecService.skipTask(String.valueOf(changeId), SQLJobBizType.CHANGE, taskId, curUid);
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public void continueExecTask(String ownerUid, long changeId, long taskId) {
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        checkRunStatus(change);
+
+        this.autoExecService.continueTask(String.valueOf(changeId), SQLJobBizType.CHANGE, taskId);
     }
 
     @Override
@@ -672,7 +681,7 @@ public class DmChangeServiceImpl implements DmChangeService {
         if (jobDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_EXISTS_ERROR_MESSAGE.name()));
         }
-        if (!jobDO.getPrimaryUid().equals(ownerUid)) {
+        if (!Objects.equals(jobDO.getPrimaryUid(), ownerUid)) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_BELONG_CURRENT_TEAM.name()));
         }
         return jobDO;
@@ -706,6 +715,12 @@ public class DmChangeServiceImpl implements DmChangeService {
         List<DmChangeDO> changeList = this.changeFlowDal.changeMapper().queryUnlockedChange(ownerUid, flowDO.getId());
         if (CollectionUtils.isNotEmpty(changeList)) {
             for (DmChangeDO changeDO : changeList) {
+                if (!StringUtils.equals(commitId, changeDO.getLastCommitId())) {
+                    CreateSuggest suggest = new CreateSuggest();
+                    suggest.setChange(changeDO);
+                    suggest.setSuggestType(CreateSuggestType.Later);
+                    return suggest;
+                }
                 switch (changeDO.getCurrentStep()) {
                     case INIT_SNAPSHOT: {
                         CreateSuggest suggest = new CreateSuggest();
@@ -750,21 +765,38 @@ public class DmChangeServiceImpl implements DmChangeService {
     }
 
     @Override
-    public ResWebData<String> triggerChangeSuggest(String ownerUid, long flowId, String commitId) {
-        DmChangeFlowDO flowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+    @Transactional(rollbackFor = Throwable.class)
+    public ResWebData<String> triggerChangeSuggest(String ownerUid, long flowId, ChangeTriggerContext triggerContext) {
+        if (triggerContext == null || StringUtils.isBlank(triggerContext.getCommitId())) {
+            throw new ErrorMessageException("change trigger commit is missing.");
+        }
+        DmChangeFlowDO flowDO = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
+        if (flowDO == null || flowDO.isDeleted()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
+        }
 
+        DmChangeTriggerReceiptDO receipt = new DmChangeTriggerReceiptDO();
+        receipt.setOwnerUid(ownerUid);
+        receipt.setRefFlowId(flowId);
+        receipt.setProvider(flowDO.getRefScmType());
+        receipt.setDeliveryId(triggerContext.getDeliveryId());
+        receipt.setCommitId(triggerContext.getCommitId());
+        receipt.setTriggerType(triggerContext.getTriggerType());
+        if (this.changeFlowDal.triggerReceiptMapper().reserve(receipt) == 0) {
+            return ResWebDataUtils.buildSuccess("duplicate change trigger ignored.");
+        }
         // create
         try {
-            CreateSuggest suggest = this.createChangeSuggest(ownerUid, flowId, commitId);
+            CreateSuggest suggest = this.createChangeSuggest(ownerUid, flowId, triggerContext.getCommitId());
             switch (suggest.getSuggestType()) {
                 case Create:
-                    doCreateChange(ownerUid, flowDO, commitId);
+                    doCreateChange(ownerUid, flowDO, triggerContext.getCommitId());
                     return ResWebDataUtils.buildSuccess("change created.");
                 case Restart:
                     doRestartChange(suggest);
                     return ResWebDataUtils.buildSuccess("change restarted.");
                 case Later:
-                    doLaterChange(ownerUid, flowDO, commitId, suggest);
+                    doLaterChange(ownerUid, flowDO, triggerContext.getCommitId(), suggest);
                     return ResWebDataUtils.buildError("change later.");
                 default: {
                     return ResWebDataUtils.buildError("InnerError: Unknown SuggestType.");
@@ -772,7 +804,7 @@ public class DmChangeServiceImpl implements DmChangeService {
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new ErrorMessageException(e.getMessage());
+            throw new ErrorMessageException(e);
         }
     }
 

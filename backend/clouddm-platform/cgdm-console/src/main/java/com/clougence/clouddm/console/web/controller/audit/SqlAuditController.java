@@ -31,6 +31,7 @@ import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.audit.SqlAuditFO;
 import com.clougence.clouddm.console.web.model.fo.cicd.GuideUsersFO;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.audit.OperateUserVO;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
@@ -62,17 +63,13 @@ public class SqlAuditController {
 
     @RequestAuth(DM_SQL_AUDIT)
     @RequestMapping(value = "/queryAll", method = RequestMethod.POST)
-    public ResWebData<?> queryAll(@Valid @RequestBody SqlAuditFO fo) {
-        List<SqlAuditVO> sqlAuditVOS = sqlAuditService.queryUserAllAudit(//
-                fo.getUserUid(),    //
-                fo.getDsId(),       //
-                fo.getRequester(),  //
-                fo.getStatus(),     //
-                fo.getOpStart(),    //
-                fo.getOpEnd(),      //
-                fo.getPageData());
+    public ResWebData<?> queryAll(@Valid @RequestBody SqlAuditFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        return ResWebDataUtils.buildSuccess(sqlAuditVOS);
+        DmPageVO<SqlAuditVO> auditPage = sqlAuditService.pageUserAllAudit(puid, fo.getUserUid(), fo.getDsId(), fo.getRequester(), fo.getStatus(), fo.getOpStart(), fo.getOpEnd(),
+                fo.getPageData().getPageNumber(), fo.getPageData().getPageSize());
+
+        return ResWebDataUtils.buildSuccess(auditPage);
     }
 
     @RequestAuth(DM_SQL_AUDIT)

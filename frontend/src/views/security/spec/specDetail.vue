@@ -168,7 +168,7 @@
           <Table :columns="specRuleParamColumns" :data="specRuleParamList" size="small" border height="300">
             <template #value="{ row }">
               <div>
-                <Input v-model="row.value" @on-change="handleEditSpecRuleParam(row.name, $event)" />
+                <Input v-model="ruleParam[row.name]" />
               </div>
             </template>
           </Table>
@@ -401,9 +401,6 @@ export default {
       if (!this[ruleKind].total) {
         this.getSpecDetail();
       }
-    },
-    handleEditSpecRuleParam(name, e) {
-      this.ruleParam[name] = e.target.value;
     },
     handleEnableSpecRule(rule, type, force) {
       this.selectedRule = rule;

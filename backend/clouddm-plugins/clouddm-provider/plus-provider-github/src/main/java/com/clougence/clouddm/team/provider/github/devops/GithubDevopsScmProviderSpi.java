@@ -57,12 +57,31 @@ public class GithubDevopsScmProviderSpi implements ScmProviderSpi {
     }
 
     @Override
-    public List<ScmBranch> fetchBranchList(String serviceUrl, String accessToken, String repoName, String filter, boolean exactMatch) {
+    public ScmRepo fetchRepo(String serviceUrl, String accessToken, ScmRepo selection) {
+        if (selection == null) {
+            return null;
+        }
+        return ScmRepoUtils.findUnique(fetchRepoList(serviceUrl, accessToken, selection.getRepoName()), selection);
+    }
+
+    @Override
+    public List<ScmBranch> fetchBranchList(String serviceUrl, String accessToken, ScmRepo repo, String filter, boolean exactMatch) {
         return Collections.emptyList();
     }
 
     @Override
-    public ScmEvent readEvent(String serviceUrl, String accessToken, String repoPath, String repoName, String password, Map<String, List<String>> headers, String jsonBody) {
+    public ScmPathValidation validateScriptPath(String serviceUrl, String accessToken, ScmRepo repo, String scriptPath) {
+        return new ScmPathValidation();
+    }
+
+    @Override
+    public String fetchServerVersion(String serviceUrl, String accessToken) {
+        return null;
+    }
+
+    @Override
+    public ScmEvent readEvent(String serviceUrl, String accessToken, String repoId, String repoPath, String repoName,
+                              String password, String signingToken, Map<String, List<String>> headers, String jsonBody) {
         throw new UnsupportedOperationException();
     }
 

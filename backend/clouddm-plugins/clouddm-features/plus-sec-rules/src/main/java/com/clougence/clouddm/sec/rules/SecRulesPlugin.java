@@ -38,6 +38,6 @@ public class SecRulesPlugin implements DsPlugin, DsFeatureIDs {
         dsPlugin.addGlobalService(new SecRulesCheckerServiceProvider(cacheService));
         dsPlugin.addGlobalService(new SecValueProcessServiceProvider(cacheService, configService));
 
-        dsPlugin.addPluginFeature(FUNC_RULE_CHECK_SUPPORT);
+        dsPlugin.addGlobalFeature(FUNC_RULE_CHECK_SUPPORT);
     }
 }

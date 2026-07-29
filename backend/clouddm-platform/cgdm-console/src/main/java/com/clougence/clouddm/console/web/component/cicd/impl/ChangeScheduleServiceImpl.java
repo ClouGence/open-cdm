@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.console.web.component.cicd.ChangeFlowConstants;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.cicd.action.*;
@@ -80,6 +81,8 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
         ThreadFactory scheduledTF = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "change-scheduled-%s");
         this.scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1, scheduledTF);
         this.scheduledThreadPoolExecutor.scheduleWithFixedDelay(this::scanPendingJob, 5, 5, TimeUnit.SECONDS);
+        this.scheduledThreadPoolExecutor
+            .scheduleWithFixedDelay(this::cleanupOrphanTriggerReceipts, ChangeFlowConstants.ORPHAN_RECEIPT_CLEANUP_INTERVAL_MINUTES, ChangeFlowConstants.ORPHAN_RECEIPT_CLEANUP_INTERVAL_MINUTES, TimeUnit.MINUTES);
         log.info("changeScheduleService started");
 
         this.actionMap = new HashMap<>();
@@ -93,7 +96,13 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
 
     @Override
     public void stop() {
-
+        if (this.scheduledThreadPoolExecutor != null) {
+            this.scheduledThreadPoolExecutor.shutdownNow();
+        }
+        if (this.threadPoolExecutor != null) {
+            this.threadPoolExecutor.shutdownNow();
+        }
+        this.inited.set(false);
     }
 
     private void scanPendingJob() {
@@ -107,6 +116,17 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
             }
         } catch (Exception e) {
             log.warn("changeSchedule scanPendingJob and submit failed,msg:" + ExceptionUtils.getRootCauseMessage(e), e);
+        }
+    }
+
+    private void cleanupOrphanTriggerReceipts() {
+        try {
+            List<Long> orphanIds = this.changeFlowDal.triggerReceiptMapper().queryOrphanIds(ChangeFlowConstants.ORPHAN_RECEIPT_CLEANUP_BATCH_SIZE);
+            if (orphanIds != null && !orphanIds.isEmpty()) {
+                this.changeFlowDal.triggerReceiptMapper().deleteOrphansByIds(orphanIds);
+            }
+        } catch (Exception e) {
+            log.warn("changeSchedule cleanup orphan trigger receipts failed,msg:" + ExceptionUtils.getRootCauseMessage(e), e);
         }
     }
 

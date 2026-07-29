@@ -77,9 +77,7 @@
             <if test="envName != null">
                 env_name = #{envName},
             </if>
-            <if test="description != null">
-                description = #{description},
-            </if>
+            description = #{description},
         </set>
         WHERE
         id = #{id} and owner_uid=#{ownerUid}

@@ -92,7 +92,13 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
         if (StringUtils.isNotBlank(uid)) {
             DmAuthUserDO user = this.userService.getUserByUid(uid);
             if (user != null) {
-                userName = user.getUsername();
+                if (StringUtils.isNotBlank(user.getUsername())) {
+                    userName = user.getUsername();
+                } else if (StringUtils.isNotBlank(user.getAccount())) {
+                    userName = user.getAccount();
+                } else if (StringUtils.isNotBlank(user.getBindAccount())) {
+                    userName = user.getBindAccount();
+                }
             }
         }
         DmDsDO dsDO = this.dsDal.dsMapper().queryDsIdentityById(dsId);
@@ -162,15 +168,68 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
             return null;
         }
 
-        auditDO.setSessionId(dto.getSessionId());
-        auditDO.setWorkSeqNumber(wsn);
-        auditDO.setOperateTime(dto.getTime());
-        auditDO.setStatus(SqlStatus.RUNNING);
-        auditDO.setAffectLine(0);
-        auditDO.setEndTime(null);
-        auditDO.setMessage(null);
-        int updated = this.execDal.sqlAuditMapper().markRunningByQueryId(auditDO);
-        return updated == 0 ? null : auditDO;
+                auditDO.setSessionId(dto.getSessionId());
+                auditDO.setExecSql(getString(dto.getSql()));
+                auditDO.setOperateTime(dto.getTime());
+
+                if (dto.isRewrite()) {
+                    auditDO.setOriginalSql(getString(dto.getOriginalSql()));
+                }
+
+                DsConfig dsConfig = dmDsConfigService.dsConstantSettings(rdpDataSourceDO.getDataSourceType());
+                List<String> levels = dsConfig.getCategories().getLevels();
+                Map<String, Object> map = new HashMap<>();
+
+                for (int i = 0; i < dto.getLevels().size(); i++) {
+                    UmiTypes umiTypes = UmiTypes.valueOfCode(levels.get(i + 2));
+                    if (umiTypes == UmiTypes.Catalog) {
+                        map.put(SessionSpi.PARAMS_DEFAULT_DB, dto.getLevels().get(i));
+                    } else {
+                        map.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, dto.getLevels().get(i));
+                    }
+                }
+                try {
+                    DataSourceConfig dataSourceConfig = dmDsConfigService.fetchDsConfigFromExists(rdpDataSourceDO.getId());
+                    Map<RuleDomain, List<ResObject>> objs = queryAnalysisService.analysisResourceV2(dataSourceConfig, dto.getSql(), map);
+
+                    List<String> collect = objs.values().stream().flatMap(List::stream).map(obj -> {
+                        return obj.toDsResPath().getResPath();
+                    }).distinct().sorted().collect(Collectors.toList());
+                    String resource = String.join(",", collect);
+                    auditDO.setResource(getString(resource));
+                } catch (Throwable e) {
+                    logger.error(e.getMessage());
+                    auditDO.setResource("");
+                }
+
+                auditDO.setLogIp(RdpHostUtil.getHostIp());
+                auditDO.setWorkSeqNumber(wsn);
+                auditDO.setClientIp(dto.getClientIp());
+                auditDO.setDsId(dto.getDsId());
+                auditDO.setDataSourceType(rdpDataSourceDO.getDataSourceType());
+
+                auditDO.setDsDesc(rdpDataSourceDO.getInstanceId() + "(" + rdpDataSourceDO.getInstanceDesc() + ")");
+
+                auditDO.setUid(dto.getUid());
+                DmAuthUserDO userByUid = rdpUserService.getUserByUid(dto.getUid());
+                if (userByUid == null) {
+                    auditDO.setUserName(dto.getUid());
+                } else {
+                    auditDO.setUserName(userByUid.getUsername());
+                }
+
+                auditDO.setPrimaryUid(rdpUserService.getPrimaryUser(dto.getUid()).getUid());
+                auditDO.setStatus(SqlStatus.RUNNING);
+                auditDO.setRequester(dto.getRequester());
+                this.executionDal.sqlAuditMapper().insert(auditDO);
+                result.add(LogInfo.getStartLogInfo(auditDO, dto));
+            } else {
+                String message = getString(dto.getMessage());
+                this.executionDal.sqlAuditMapper().updateBySessionId(dto.getSessionId(), dto.getSqlStatus().name(), dto.getLine(), message, dto.getTime());
+                result.add(LogInfo.getEndLogInfo(dto));
+            }
+        }
+        return result;
     }
 
     private String getString(String str) {

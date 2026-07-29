@@ -194,6 +194,26 @@ export default {
         to: '/manager/account'
       };
 
+      if (path === '/manager/account/batch_authorization') {
+        return [accountRoot, { label: this.$t('pi-liang-shou-quan'), to: this.$route.fullPath }];
+      }
+      if (
+        path === '/manager/account/batch_authorization/permissions' ||
+        (path === '/system/account/authdm/batch' && this.$route.query.type === 'batch')
+      ) {
+        const batchAuthorizationQuery = {
+          operation: this.$route.query.operation,
+          uids: this.$route.query.uids
+        };
+        return [
+          accountRoot,
+          {
+            label: this.$t('pi-liang-shou-quan'),
+            to: { path: '/manager/account/batch_authorization', query: batchAuthorizationQuery }
+          },
+          { label: this.$t('xuan-ze-quan-xian'), to: this.$route.fullPath }
+        ];
+      }
       if (path === '/system/authdm' || /^\/system\/account\/authdm\/[^/]+$/.test(path)) {
         return [accountRoot, { label: this.$t('shou-quan'), to: this.$route.fullPath }];
       }

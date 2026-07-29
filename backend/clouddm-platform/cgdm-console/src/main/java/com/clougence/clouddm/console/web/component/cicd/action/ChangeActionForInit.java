@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.component.cicd.action;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
@@ -27,16 +26,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.console.web.component.cicd.CicdSqlFileUtils;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.scm.ScmProvider;
-import com.clougence.clouddm.sdk.scm.ScmProviderSpi;
-import com.clougence.clouddm.sdk.scm.ScmRepo;
-import com.clougence.clouddm.sdk.scm.ScmSaveTo;
+import com.clougence.clouddm.sdk.scm.*;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 import com.clougence.utils.io.FileUtils;
@@ -133,9 +130,15 @@ public class ChangeActionForInit extends AbstractChangeAction {
         scm.setAccessToken(scmDO.getScmAccessToken());
         scm.setServiceUrl(scmDO.getScmServiceUrl());
         ScmRepo repo = new ScmRepo();
+        String repoSpace = gitOpsFlowDO.getScmRepoSpace();
+        String repoName = gitOpsFlowDO.getScmRepoName();
+        repo.setRepoId(gitOpsFlowDO.getScmRepoIdentifier());
+        repo.setRepoPath(ScmUtils.buildRepoPath(repoSpace, repoName));
+        repo.setRepoSpace(repoSpace);
         repo.setRepoUrl(gitOpsFlowDO.getScmRepoUrl());
-        repo.setRepoName(gitOpsFlowDO.getScmRepoName());
+        repo.setRepoName(repoName);
         repo.setBranchName(gitOpsFlowDO.getScmRepoBranch());
+        repo.setCommitId(change.getLastCommitId());
         ScmSaveTo saveTo = new ScmSaveTo();
         saveTo.setSaveToLocal(checkoutPath);
         saveTo.setTempPath(tempPath);
@@ -173,7 +176,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
         // foreach local file script
         File scriptPath = new File(checkoutPath, gitOpsFlowDO.getScmRepoScript());
         List<File> files = FileUtils.walkDown(scriptPath, file -> {
-            return file.isDirectory() || (file.isFile() && file.getName().endsWith(".sql"));
+            return file.isDirectory() || (file.isFile() && file.getName().toLowerCase(Locale.ROOT).endsWith(".sql"));
         }).stream().filter(File::isFile).collect(Collectors.toList());
 
         // update script body. (append)
@@ -182,17 +185,15 @@ public class ChangeActionForInit extends AbstractChangeAction {
         files.sort(Comparator.comparing(File::getName));
         for (File file : files) {
             String fileName = file.getAbsolutePath().substring(basePathLength + 1);
-            try (FileReader reader = new FileReader(file)) {
-                DmChangeItemDO itemDO = new DmChangeItemDO();
-                itemDO.setOwnerUid(change.getOwnerUid());
-                itemDO.setRefFlowId(change.getRefFlowId());
-                itemDO.setRefChangeId(change.getId());
-                itemDO.setChangeItemType(ChangeItemType.SQL);
-                itemDO.setContentName(fileName);
-                itemDO.setContentIndex(i++);
-                itemDO.setContent(IOUtils.toString(reader));
-                this.changeFlowDal.changeItemMapper().insert(itemDO);
-            }
+            DmChangeItemDO itemDO = new DmChangeItemDO();
+            itemDO.setOwnerUid(change.getOwnerUid());
+            itemDO.setRefFlowId(change.getRefFlowId());
+            itemDO.setRefChangeId(change.getId());
+            itemDO.setChangeItemType(ChangeItemType.SQL);
+            itemDO.setContentName(fileName);
+            itemDO.setContentIndex(i++);
+            itemDO.setContent(CicdSqlFileUtils.readUtf8(file));
+            this.changeFlowDal.changeItemMapper().insert(itemDO);
         }
     }
 

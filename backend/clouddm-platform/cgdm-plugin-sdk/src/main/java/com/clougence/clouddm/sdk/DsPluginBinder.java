@@ -34,6 +34,8 @@ public interface DsPluginBinder {
 
     void addPluginFeature(String... featureIds);
 
+    void addGlobalFeature(String... featureIds);
+
     void bindPluginI18n(Class<?>... clazz);
 
     void bindGlobalI18n(Class<?>... clazz);

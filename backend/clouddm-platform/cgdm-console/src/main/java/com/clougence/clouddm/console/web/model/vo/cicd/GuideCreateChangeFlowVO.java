@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.vo.cicd;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,9 +24,10 @@ import lombok.Setter;
 @Setter
 public class GuideCreateChangeFlowVO {
 
-    private long   flowId;
-    private String repoUrl;
-    private String webHookUrl;
-    private String webHookPwd;
-    private String webHookHelpUrl;
+    private long         flowId;
+    private String       repoUrl;
+    private String       webHookUrl;
+    private String       webHookPwd;
+    private String       webHookHelpUrl;
+    private List<String> warnings;
 }

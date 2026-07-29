@@ -68,7 +68,6 @@ export default {
           // Get values in nextTick to avoid Vue3 response system loop dependence
           return this.monacoEditor.getValue();
         } catch (error) {
-          console.error('Monaco Editor getValue error:', error);
           return '';
         }
       }
@@ -81,7 +80,6 @@ export default {
           await nextTick();
           return this.monacoEditor.getValue();
         } catch (error) {
-          console.error('Monaco Editor getValue error:', error);
           return '';
         }
       }
@@ -89,11 +87,7 @@ export default {
     },
     setSql(sql) {
       if (this.monacoEditor) {
-        try {
-          this.monacoEditor.setValue(sql);
-        } catch (error) {
-          console.error('Monaco Editor setValue error:', error);
-        }
+        this.monacoEditor.setValue(sql);
       }
     }
   },
@@ -112,6 +106,8 @@ export default {
 <style scoped lang="less">
 .ticket-editor {
   width: 100%;
+  height: 100%;
+  min-height: 0;
 }
 
 :deep(.message) {

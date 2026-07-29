@@ -49,6 +49,7 @@ include 'plus-provider-dingtalk'; project(":plus-provider-dingtalk").projectDir 
 include 'plus-provider-feishu'; project(":plus-provider-feishu").projectDir = file('clouddm-plugins/clouddm-provider/plus-provider-feishu')
 include 'plus-provider-wechat'; project(":plus-provider-wechat").projectDir = file('clouddm-plugins/clouddm-provider/plus-provider-wechat')
 include 'plus-provider-gitee'; project(":plus-provider-gitee").projectDir = file('clouddm-plugins/clouddm-provider/plus-provider-gitee')
+include 'plus-provider-gitlab'; project(":plus-provider-gitlab").projectDir = file('clouddm-plugins/clouddm-provider/plus-provider-gitlab')
 include 'plus-provider-github'; project(":plus-provider-github").projectDir = file('clouddm-plugins/clouddm-provider/plus-provider-github')
 //include 'plus-provider-ngrok'; project(":plus-provider-ngrok").projectDir = file('clouddm-plugins/clouddm-provider/plus-provider-ngrok')
 

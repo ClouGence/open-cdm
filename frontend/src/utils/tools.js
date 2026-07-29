@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 export const arrToObj = (arr, keyName) => {
   if (Array.isArray(arr) && arr.length) {
     return Object.fromEntries(arr.map((item) => [item[keyName], item]));
@@ -6,7 +7,7 @@ export const arrToObj = (arr, keyName) => {
 };
 
 export const getLanguage = (type) => {
-  console.log('getLanguage', type);
+  appLogger.debug('getLanguage', type);
   switch (type) {
     case 'MySQL':
       return 'mysql';

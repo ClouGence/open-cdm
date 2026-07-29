@@ -942,6 +942,7 @@
 </template>
 
 <script lang="jsx">
+import appLogger from '@/utils/logger';
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import VTree from '@wsfe/vue-tree';
 import Loading from 'vue-loading-overlay';
@@ -963,6 +964,7 @@ import { Modal } from 'ant-design-vue';
 import i18n from '@/i18n';
 import { nanoid } from 'nanoid';
 import ContextMenu from '@imengyu/vue3-context-menu';
+import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
 
 const BG_COLOR = {
   Insert: 'rgb(236, 255, 220)',
@@ -1748,12 +1750,12 @@ export default {
       this.$refs.genDataTree.setSelected(record.key, true);
     },
     handleGoTableConfig() {
-      console.log(11223344, this.genDataModal.selectedNode.key);
+      appLogger.debug(11223344, this.genDataModal.selectedNode.key);
       const currentKey = this.genDataModal.selectedNode.key;
       const lastIndex = currentKey.lastIndexOf('.');
       const tableKey = currentKey.substring(0, lastIndex);
 
-      console.log('tableKey', tableKey);
+      appLogger.debug('tableKey', tableKey);
       this.$refs.genDataTree.setSelected(tableKey, true);
     },
     handlePreStep() {
@@ -1804,7 +1806,7 @@ export default {
     async handlePreview() {
       const { node } = this.currentTab;
       const checkedKeys = this.$refs.genDataTree.getCheckedKeys();
-      console.log('checkedKeys', checkedKeys);
+      appLogger.debug('checkedKeys', checkedKeys);
       const tableConfigs = [];
       const tableConfigColumns = {};
       this.genDataModal.tableConfigs.forEach((tableConfig) => {
@@ -2004,11 +2006,11 @@ export default {
         }
       } catch (e) {
         this.genDataModal.loading = false;
-        console.error(e);
+        appLogger.error(e);
       }
     },
     async getInitTableFaker(node, params = {}, resolve, reject) {
-      console.log('init faker');
+      appLogger.debug('init faker');
       const { checked, selected, expand, preTableConfig } = params;
       try {
         this.genDataModal.loading = true;
@@ -2056,27 +2058,27 @@ export default {
               await this.$refs.genDataTree.setExpand(node.key, true);
             }
             if (checked) {
-              console.log('checked', node.key);
+              appLogger.debug('checked', node.key);
               await this.$refs.genDataTree.setChecked(node.key, true);
             }
             resolve(children);
           }
         } else {
           if (reject) {
-            console.log('reject1');
+            appLogger.debug('reject1');
             reject();
           }
         }
       } catch (e) {
         this.genDataModal.loading = false;
         if (reject) {
-          console.error('reject2', e);
+          appLogger.error('reject2', e);
           reject(e);
         }
       }
     },
     async handleGenDataCheck(node) {
-      console.log('check');
+      appLogger.debug('check');
       if (!node.resume) {
         this.$refs.genDataTree.setSelected(node.key, true); // Set the selected status
         await this.$refs.genDataTree.setExpand(node.key, true);
@@ -2086,12 +2088,12 @@ export default {
       }
     },
     async handleGenDataSetCheckedKeys(keys, checked = true) {
-      console.log('handleGenDataSetCheckedKeys', keys);
+      appLogger.debug('handleGenDataSetCheckedKeys', keys);
       this.genDataModal.checkedKeys = keys;
       await this.$refs.genDataTree.setCheckedKeys(keys, checked);
     },
     async handleGenDataGetCheckedKeys() {
-      console.log('handleGenDataGetCheckedKeys');
+      appLogger.debug('handleGenDataGetCheckedKeys');
       const checkedKeys = await this.$refs.genDataTree.getCheckedKeys();
       return checkedKeys;
     },
@@ -2111,7 +2113,7 @@ export default {
       }
     },
     handleDblClick(node) {
-      console.log('dbl click');
+      appLogger.debug('dbl click');
       let sql = '';
       const dsQueryMap = this.getQuickQuery(this.currentTab.dsType);
       const dsClassify = this.getDsClassify(this.currentTab.dsType);
@@ -2179,7 +2181,7 @@ export default {
       this.handleSetSelected(node);
     },
     async handleExpandLoadNode(node, resolve) {
-      console.log('handleExpandLoadNode');
+      appLogger.debug('handleExpandLoadNode');
       await this.getNodeData(node, {}, resolve);
     },
     async handleGenDataExpandLoadNode(node, resolve, reject) {
@@ -2206,7 +2208,7 @@ export default {
                     key: child.key
                   };
                   this.schemaDef.uiPanels.columnConfig.children.forEach((child2) => {
-                    console.log('child2', child2);
+                    appLogger.debug('child2', child2);
                     if (child2.type === 'Options') {
                       child2.options.forEach((option) => {
                         if (option.value === child.seedType) {
@@ -2236,19 +2238,19 @@ export default {
                 });
               }
             });
-            console.log('children', children);
+            appLogger.debug('children', children);
             resolve(children);
           },
           reject
         );
         node.expand = false;
-        console.log('node', node);
+        appLogger.debug('node', node);
       } else {
         resolve();
       }
     },
     handleFilter(searchKey) {
-      console.log('searchKey', searchKey);
+      appLogger.debug('searchKey', searchKey);
       if (this.$refs.tableTree) {
         this.$refs.tableTree.filter(searchKey);
       }
@@ -2389,11 +2391,11 @@ export default {
       this.$refs.tableTree.setExpandAll(expand);
     },
     handleSelectTable(table) {
-      console.log('handle select table');
+      appLogger.debug('handle select table');
       this.handleSetSelected(table);
     },
     handleGenDataSelectTable(table) {
-      console.log('handleGenDataSelectTable');
+      appLogger.debug('handleGenDataSelectTable');
       this.handleGenDataSetSelected(table);
     },
     handleVTreeClick(table) {
@@ -2422,13 +2424,13 @@ export default {
       const isNotNode = event.target.classList && event.target.classList.length && event.target.classList[0] === 'vtree-tree__block-area';
       const items = [];
       const menuList = this.getBrowserMenus(this.currentTab.dsType, isNotNode || !node ? this.currentTab.leafType : node.nodeType);
-      console.log(event, node, menuList);
+      appLogger.debug(event, node, menuList);
       if (menuList && menuList.length) {
         if (isNotNode || !node) {
           menuList.forEach((menu) => {
             if (menu.menuId !== 'MENU_SEPARATOR' && !menu.needTarget) {
               items.push({
-                label: menu.i18n,
+                label: resolveBrowserMenuLabel(menu),
                 svgProps: {
                   class: 'svg-icon'
                 },
@@ -2441,7 +2443,7 @@ export default {
           menuList.forEach((menu, menuIndex) => {
             if (menu.menuId !== 'MENU_SEPARATOR') {
               items.push({
-                label: menu.i18n,
+                label: resolveBrowserMenuLabel(menu),
                 svgProps: {
                   class: 'svg-icon'
                 },
@@ -2560,7 +2562,7 @@ export default {
         setTimeout(() => {
           const ele = document.getElementById('log-list');
           if (ele) {
-            console.log(ele);
+            appLogger.debug(ele);
             ele.scrollTop = ele.scrollHeight;
           }
         }, 0);
@@ -2633,7 +2635,7 @@ export default {
       return selectedData;
     },
     handleMenuOptionChange(key, e) {
-      console.log(key, e);
+      appLogger.debug(key, e);
       if (this.menuModal.show) {
         if (e !== this.menuModal.options[key]) {
           this.menuModal.sql = '';
@@ -2656,7 +2658,7 @@ export default {
     },
     async handleRightClickMenu(actionType) {
       const tableNode = this.$refs.tableTree.getSelectedNode();
-      console.log(actionType, tableNode);
+      appLogger.debug(actionType, tableNode);
       this.actionType = actionType;
       const { node, selectedTable: table, leafType } = this.currentTab;
       const data = {
@@ -2680,7 +2682,7 @@ export default {
 
       switch (actionType) {
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PROPERTY:
-          console.log(this.selectedNode);
+          appLogger.debug(this.selectedNode);
           res = await this.$services.dmEditorPropertiesPropertiesDef({
             data: {
               levels: this.browseGenLevelsData(data.node),
@@ -2735,7 +2737,7 @@ export default {
               properties.push(property);
             });
 
-            console.log(properties);
+            appLogger.debug(properties);
             this.properties = properties;
             if (properties && properties.length) {
               this.propertiesModal.selectedProperties = properties[0];
@@ -2825,7 +2827,7 @@ export default {
                     }
                   );
                 } catch (e) {
-                  console.log(e);
+                  appLogger.debug(e);
                 }
               }
               tableConfigs.push(tableConfig);
@@ -3632,7 +3634,7 @@ export default {
     },
     async handleDoAction() {
       const callback = () => {
-        console.warn(1231232131, this.actionType);
+        appLogger.warn(1231232131, this.actionType);
         switch (this.actionType) {
           case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_MATERIALIZED_DROP:
           case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_USER_DROP:

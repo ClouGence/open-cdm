@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.component.autoexec.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -33,9 +34,9 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.DmPageVO;
 import com.clougence.clouddm.console.web.util.DmTeamUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -74,26 +75,28 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Override
     public void continueTask(String bizId, SQLJobBizType type, long taskId) {
-        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = requireJob(bizId, type);
         if (job.getStatus() != AutoExecJobStatus.PAUSE && job.getStatus() != AutoExecJobStatus.FAILED) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
         }
         DmExecAutoTaskDO execTaskDO = executionDal.autoTaskMapper().selectById(taskId);
-        if (!execTaskDO.getAutoExecJobId().equals(job.getId())) {
+        if (execTaskDO == null || !execTaskDO.getAutoExecJobId().equals(job.getId())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_JOB_NOT_MATCH_ERROR_MESSAGE.name()));
         }
-        execTaskDO.setStatus(AutoExecTaskStatus.WAIT_EXEC);
-        executionDal.autoTaskMapper().updateById(execTaskDO);
+        if (execTaskDO.getStatus() != AutoExecTaskStatus.CANCELED) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_NOT_SKIPPED.name()));
+        }
+        executionDal.autoTaskMapper().updateStatusByTaskId(execTaskDO.getId(), AutoExecTaskStatus.WAIT_EXEC);
     }
 
     @Override
     public boolean skipTask(String bizId, SQLJobBizType type, long taskId, String uid) {
-        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = requireJob(bizId, type);
         if (job.getStatus() != AutoExecJobStatus.PAUSE && job.getStatus() != AutoExecJobStatus.FAILED) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
         }
         DmExecAutoTaskDO execTaskDO = executionDal.autoTaskMapper().selectById(taskId);
-        if (!execTaskDO.getAutoExecJobId().equals(job.getId())) {
+        if (execTaskDO == null || !Objects.equals(execTaskDO.getAutoExecJobId(), job.getId())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_JOB_NOT_MATCH_ERROR_MESSAGE.name()));
         }
 
@@ -126,7 +129,7 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Override
     public DmAutoExecJobVO queryAutoExecJob(String bizId, SQLJobBizType type, boolean canOperate) {
-        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBiz(bizId, type);
         if (job == null) {
             return null;
         }
@@ -180,7 +183,7 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Override
     public void stopJob(String bizId, SQLJobBizType type, String uid) {
-        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = requireJob(bizId, type);
         DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
         autoExecManager.stopJob(job.getId(), user);
     }
@@ -188,7 +191,7 @@ public class AutoExecServiceImpl implements AutoExecService {
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void endJob(String bizId, SQLJobBizType type, String uid) {
-        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBiz(bizId, type);
         if (job == null) {
             return;
         }
@@ -217,7 +220,7 @@ public class AutoExecServiceImpl implements AutoExecService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void retryJob(String bizId, SQLJobBizType type, String uid) {
-        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = requireJob(bizId, type);
         if (job.getStatus() != AutoExecJobStatus.FAILED && job.getStatus() != AutoExecJobStatus.PAUSE) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_RETRY_JOB_ERROR_MESSAGE.name()));
         }
@@ -238,8 +241,11 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Override
     public DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj pageDO) {
-        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
         Page<?> page = PageUtils.startPage(pageDO);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBiz(bizId, type);
+        if (job == null) {
+            return new DmPageVO<>(page);
+        }
         IPage<DmExecAutoTaskDO> iPage = this.executionDal.autoTaskMapper().queryListByJobId(page, job.getId(), status);
         DmPageVO<DmAutoExecTaskVO> result = new DmPageVO<>(iPage);
 
@@ -255,17 +261,27 @@ public class AutoExecServiceImpl implements AutoExecService {
             }
             vo.setExecCount(taskDO.getExecCount());
             vo.setExecuteOrder(taskDO.getExecOrder());
+            vo.setActualStartTime(DateFormatType.s_yyyyMMdd_HHmmss.format(taskDO.getGmtLastStart()));
+            vo.setActualEndTime(DateFormatType.s_yyyyMMdd_HHmmss.format(taskDO.getGmtLastEnd()));
             if (canOperate) {
                 boolean jobPause = job.getStatus() == AutoExecJobStatus.PAUSE || job.getStatus() == AutoExecJobStatus.FAILED;
                 boolean canSkip = jobPause && taskDO.getStatus() != AutoExecTaskStatus.FINISH && taskDO.getStatus() != AutoExecTaskStatus.CANCELED;
-                boolean canCanceledSkip = jobPause && taskDO.getStatus() == AutoExecTaskStatus.CANCELED;
+                boolean canCancelSkip = jobPause && taskDO.getStatus() == AutoExecTaskStatus.CANCELED;
                 vo.setCanSkip(canSkip);
-                vo.setCanCanceledSkip(canCanceledSkip);
+                vo.setCanCancelSkip(canCancelSkip);
             }
 
             result.getRecords().add(vo);
         }
         return result;
+    }
+
+    private DmExecAutoJobDO requireJob(String bizId, SQLJobBizType type) {
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBiz(bizId, type);
+        if (job == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
+        }
+        return job;
     }
 
     @Transactional(rollbackFor = Throwable.class)

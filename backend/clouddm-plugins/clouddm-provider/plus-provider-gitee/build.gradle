@@ -20,13 +20,16 @@ plugins {
 
 dependencies {
     // project
-    // implementation 'org.apache.commons:commons-compress:1.27.1'
+    implementation 'org.apache.commons:commons-compress:1.27.1'
 
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
 
     // for test
     testImplementation project(':cgdm-plugin-sdk')
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    testImplementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4"
+    testImplementation "com.squareup.okhttp3:mockwebserver:${OKHTTP_VERSION}"
 }
 
 description = 'plus-provider-gitee'

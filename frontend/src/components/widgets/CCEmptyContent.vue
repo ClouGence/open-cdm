@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import CCLoading from '@/components/widgets/CCLoading';
 
 export default {
@@ -48,7 +49,7 @@ export default {
       return /^(https?:|mailto:|tel:)/.test(path);
     },
     jumpTo() {
-      console.warn(this.isExternalLink(this.link));
+      appLogger.warn(this.isExternalLink(this.link));
       // eslint-disable-next-line no-unused-expressions
       this.isExternalLink(this.link) ? window.open(this.link, 'blank') : this.$router.push(this.link);
     }

@@ -90,6 +90,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import AppSidebar from '@/components/layout/AppSidebar';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
@@ -103,7 +104,7 @@ import store from '@/store';
 import dayjs from 'dayjs';
 import fecha from 'fecha';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
-import { resolveWorkbenchRoute } from '@/utils/workbenchRoute';
+import { resolveWorkbenchFallbackPath, resolveWorkbenchRoute } from '@/utils/workbenchRoute';
 
 export default {
   name: 'Home',
@@ -155,7 +156,7 @@ export default {
   mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
   computed: {
     ...mapGetters(['isDesktop', 'displayVersion', 'includesDM', 'isInternalUser']),
-    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay']),
+    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay', 'mySystemMenuItems']),
     ...mapGetters(['isSaas']),
     isSqlRoute() {
       return this.$route.path === '/sql' || this.$route.path.startsWith('/sql/');
@@ -182,7 +183,7 @@ export default {
       }
     });
     this.$bus.on('showCellDetailModal', async (data) => {
-      console.log('showCellDetailModal', data);
+      appLogger.debug('showCellDetailModal', data);
       if (!this.showDetailModal) {
         this.showDetailModal = true;
         this.selectedCellDetail = {
@@ -225,7 +226,7 @@ export default {
   },
   methods: {
     handleShowInactiveModal(msg) {
-      console.log(msg);
+      appLogger.debug(msg);
       this.showInactiveModal = true;
       this.inactiveMsg = msg;
     },
@@ -318,7 +319,7 @@ export default {
       const { resultId, rowNumber, colNumber } = this.selectedCellDetail;
 
       if (!resultId || rowNumber < 0 || colNumber < 0) {
-        console.error('缺少必要参数:', { resultId, rowNumber, colNumber });
+        appLogger.error('缺少必要参数:', { resultId, rowNumber, colNumber });
         return;
       }
 
@@ -363,7 +364,7 @@ export default {
           this.$Message.error(res.message || this.$t('jia-zai-shu-ju-shi-bai'));
         }
       } catch (error) {
-        console.error('加载单元格数据失败:', error);
+        appLogger.error('加载单元格数据失败:', error);
         this.$Message.error(this.$t('jia-zai-shu-ju-shi-bai'));
       } finally {
         this.cellDetailLoading = false;
@@ -376,7 +377,8 @@ export default {
     },
     handleGoAppHome() {
       if (this.isSqlRoute) {
-        const target = resolveWorkbenchRoute('/datasource', this.userInfo?.uid);
+        const fallback = resolveWorkbenchFallbackPath(this.mySystemMenuItems);
+        const target = resolveWorkbenchRoute(fallback, this.userInfo?.uid, this.mySystemMenuItems);
         this.$router.push(target).catch(() => {});
         return;
       }

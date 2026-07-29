@@ -46,8 +46,10 @@ public class ConsoleConfig {
     @Value("${clougence.rdp.async.queue:500}")
     private int            rdpAsyncTaskQueueSize;
 
-    @Value("${clouddm.upgrade.server:127.0.0.1:8113}")
+    @Value("${clouddm.upgrade.server:server.cdmgr.com}")
     private String         upgradeServer;
+    @Value("${clouddm.report.server:server.cdmgr.com}")
+    private String         reportServer;
 
     // for rsocket
     @Value("${clouddm.rsocket.dns:clouddm_console}")

@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import store from '@/store';
 
 // only dm desktop
@@ -6,7 +7,7 @@ export const permission = {
     const { value } = binding;
     if (value) {
       const isDesktop = store.getters.isDesktop;
-      console.log(isDesktop);
+      appLogger.debug(isDesktop);
       let hidden = false;
       if (isDesktop) {
         hidden = true;

@@ -20,11 +20,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
-import com.clougence.clouddm.team.provider.gitee.constants.GiteeI18nKeys;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.scm.ScmUtils;
+import com.clougence.clouddm.team.provider.gitee.constants.GiteeI18nKeys;
 import com.clougence.utils.ArrayUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.function.ESupplier;
@@ -35,8 +39,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ZipUtils {
 
-    private long   time;
-    private String currentFile;
+    /**
+     * Maximum number of entries extracted from one repository archive, protecting against archive entry floods.
+     */
+    private static final int  MAX_FILES           = 10_000;
+    /**
+     * Maximum cumulative uncompressed size of one repository archive, in bytes, protecting against ZIP bombs.
+     */
+    private static final long MAX_EXTRACTED_BYTES = 2L * 1024 * 1024 * 1024;
+    /**
+     * Maximum uncompressed size of one SQL file, in bytes, so later SQL parsing does not consume unbounded memory.
+     */
+    private static final long MAX_SQL_BYTES       = 50L * 1024 * 1024;
+
+    private long              time;
+    private String            currentFile;
 
     private void printProcess(ZipEntry entry, String currentFile, long total) {
         if (!StringUtils.equals(this.currentFile, currentFile)) {
@@ -65,10 +82,13 @@ public class ZipUtils {
 
         long start = System.currentTimeMillis();
 
-        try (ZipFile zipFile = new ZipFile(sourceFile)) {
-            Enumeration<?> entries = zipFile.entries();
+        try (ZipFile zipFile = ZipFile.builder().setFile(sourceFile).get()) {
+            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+            long extractedBytes = 0;
+            int extractedFiles = 0;
+            String targetRoot = targetDir.getCanonicalPath() + File.separator;
             while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
+                ZipArchiveEntry entry = entries.nextElement();
                 String entryName = entry.getName();
                 String currentFile = floorFileName(entryName, floor);
 
@@ -85,14 +105,26 @@ public class ZipUtils {
                 }
 
                 // matches script dir
-                boolean marched = StringUtils.isBlank(keepPath) || StringUtils.startsWith(currentFile, keepPath);
+                String normalizedKeepPath = normalizeKeepPath(keepPath);
+                boolean marched = StringUtils.isBlank(normalizedKeepPath) || StringUtils.equals(currentFile, normalizedKeepPath)
+                                  || StringUtils.startsWith(currentFile, normalizedKeepPath + "/");
                 if (!marched) {
                     log.info("unZip " + currentFile + " skip. (matches script)");
                     continue;
                 }
+                if (entry.isUnixSymlink()) {
+                    throw new IOException("symbolic links are not allowed: " + currentFile);
+                }
 
                 // unzip script
-                File targetFile = new File(targetDir + "/" + currentFile);
+                extractedFiles++;
+                if (extractedFiles > MAX_FILES) {
+                    throw new IOException("more than 10000 files");
+                }
+                File targetFile = new File(targetDir, currentFile);
+                if (!targetFile.getCanonicalPath().startsWith(targetRoot)) {
+                    throw new IOException("unsafe archive path");
+                }
                 createFileIfNotExist(targetFile);
                 try (InputStream in = zipFile.getInputStream(entry); FileOutputStream out = new FileOutputStream(targetFile)) {
                     long bytesReadTotal = 0;
@@ -103,12 +135,19 @@ public class ZipUtils {
                     while ((bytesRead = in.read(buffer)) != -1) {
                         out.write(buffer, 0, bytesRead);
                         bytesReadTotal = bytesReadTotal + bytesRead;
+                        extractedBytes += bytesRead;
+                        if (extractedBytes > MAX_EXTRACTED_BYTES) {
+                            throw new IOException("extracted archive exceeds 2 GiB");
+                        }
+                        if (currentFile.toLowerCase(Locale.ROOT).endsWith(".sql") && bytesReadTotal > MAX_SQL_BYTES) {
+                            throw new IOException("SQL file exceeds 50 MiB: " + currentFile);
+                        }
 
                         printProcess(entry, currentFile, bytesReadTotal);
 
                         if (!watchdog.eGet()) {
                             log.info("unZip interrupt cost " + (System.currentTimeMillis() - start) + " ms");
-                            return;
+                            throw new IOException("archive extraction interrupted");
                         }
                     }
                 }
@@ -117,6 +156,14 @@ public class ZipUtils {
             log.info("unZip cost " + (System.currentTimeMillis() - start) + " ms");
         } catch (Exception e) {
             throw ThirdPartyApiException.as().with(e, GiteeI18nKeys.GITEE_UNZIP_ERROR, e.getMessage());
+        }
+    }
+
+    private static String normalizeKeepPath(String keepPath) throws IOException {
+        try {
+            return ScmUtils.normalizeDirectoryPath(keepPath);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("invalid script path", e);
         }
     }
 

@@ -31,7 +31,7 @@
 | Homepage | https://www.cdmgr.com/                          |
 | Documentation | https://www.cdmgr.com/docs/intro/product_intro  |
 | License | Apache License 2.0                              |
-| Current version | 4.0.0                                           |
+| Current version | 4.0.1                                           |
 | Main languages | Java, JavaScript / TypeScript                   |
 | Deployment modes | Standalone (Alone), Cluster (Console + Sidecar) |
 | Deployment targets | Install package, Docker, Kubernetes             |
@@ -93,7 +93,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.3.0
+  bladepipe/cgdm-alone:4.0.1
 
 # Faster image pulls in China
 docker run -d --name cgdm-alone \
@@ -102,7 +102,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.3.0
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.0.1
 ```
 
 Host directory mount example:
@@ -116,10 +116,22 @@ docker run -d --name cgdm-alone \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
   -v /data/cgdm/mysql:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.3.0
+  bladepipe/cgdm-alone:4.0.1
 ```
 
 When `/data/cgdm/conf` is empty, CloudDM initializes it with the default configuration files on startup.
+
+### Offline Image Deployment
+
+When the host cannot reach an image registry, download the architecture-specific archive `cgdm-alone-image-<arch>.tar.gz` from the [GitHub Release](https://github.com/ClouGence/open-cdm/releases), load it on the target host, and start it as shown above.
+
+```bash
+gunzip -c cgdm-alone-image-<arch>.tar.gz | docker load
+```
+
+This loads the image `bladepipe/cgdm-alone:<version>`. Then start it with the `docker run` commands shown above.
+
+For cluster deployment, use `cgdm-cluster-image-<arch>.tar.gz`. It contains the versioned Console and Sidecar images together with `mysql:8.0`.
 
 ### Upgrade
 
@@ -128,25 +140,25 @@ Before upgrading, back up Docker volumes or database data. To upgrade, remove th
 ```bash
 # Default image
 docker rm -f cgdm-alone
-docker pull bladepipe/cgdm-alone:3.3.0
+docker pull bladepipe/cgdm-alone:4.0.1
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.3.0
+  bladepipe/cgdm-alone:4.0.1
 
 # China acceleration image
 docker rm -f cgdm-alone
-docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.3.0
+docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.0.1
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.3.0
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.0.1
 ```
 
 ### Initialization

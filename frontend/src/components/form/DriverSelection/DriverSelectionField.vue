@@ -39,7 +39,11 @@
 </template>
 
 <script>
+import builtinDrivers from '@/constants/builtin-drivers.json';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+
+const builtinDriverKeys = new Set(builtinDrivers.map((driver) => `${driver.driverFamily}::${driver.version}`));
+const isBuiltinDriver = (family, version) => builtinDriverKeys.has(`${family}::${version}`);
 
 const createInitialDriverStatus = () => ({
   checking: false,
@@ -361,11 +365,14 @@ export default {
         return;
       }
 
-      let currentFamily = families.find((item) => item.name === this.innerDriverFamily);
+      const preferredFamily = this.innerDriverFamily || this.driverFamily || '';
+      const preferredVersion = this.innerDriverVersion || this.driverVersion || '';
+
+      let currentFamily = families.find((item) => item.name === preferredFamily);
       if (!currentFamily || forceReset) {
-        currentFamily = families[0];
-        this.innerDriverFamily = currentFamily?.name || '';
+        currentFamily = families.find((item) => item.versions?.some((version) => isBuiltinDriver(item.name, version))) || families[0];
       }
+      this.innerDriverFamily = currentFamily?.name || '';
 
       const versions = Array.isArray(currentFamily?.versions) ? currentFamily.versions : [];
       if (!versions.length) {
@@ -375,8 +382,10 @@ export default {
         return;
       }
 
-      if (forceReset || !versions.includes(this.innerDriverVersion)) {
-        this.innerDriverVersion = versions[0];
+      if (!forceReset && preferredVersion && versions.includes(preferredVersion)) {
+        this.innerDriverVersion = preferredVersion;
+      } else if (forceReset || !versions.includes(this.innerDriverVersion)) {
+        this.innerDriverVersion = versions.find((version) => isBuiltinDriver(currentFamily.name, version)) || versions[0];
       }
 
       this.syncDriverOutputs();
@@ -385,7 +394,7 @@ export default {
       const family = this.currentDriverFamilies.find((item) => item.name === familyName);
       const versions = Array.isArray(family?.versions) ? family.versions : [];
       this.innerDriverFamily = familyName || '';
-      this.innerDriverVersion = versions.length ? versions[0] : '';
+      this.innerDriverVersion = versions.find((version) => isBuiltinDriver(familyName, version)) || (versions.length ? versions[0] : '');
       this.syncDriverOutputs();
     },
     handleDriverVersionChange(version) {

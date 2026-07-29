@@ -60,6 +60,24 @@
         set status = #{status}
         where id = #{jobId}
     </update>
+    <update id="markJobFailedIfActive">
+        update dm_exec_auto_job
+        set status = 'FAILED'
+        where id = #{jobId}
+          and status not in ('FAILED', 'FINISH', 'TERMINATION')
+    </update>
+    <update id="finishJobIfActive">
+        update dm_exec_auto_job
+        set status = 'FINISH', end_time = now()
+        where id = #{jobId}
+          and status not in ('FAILED', 'FINISH', 'TERMINATION')
+    </update>
+    <update id="pauseJobIfActive">
+        update dm_exec_auto_job
+        set status = 'PAUSE'
+        where id = #{jobId}
+          and status not in ('PAUSE', 'FAILED', 'FINISH', 'TERMINATION')
+    </update>
     <update id="retryJob">
         update dm_exec_auto_job
         set status = 'INIT',normal = 1
@@ -145,11 +163,12 @@
             from dm_exec_auto_job
         where id = #{id} for update
     </select>
-    <select id="queryByDependOnBizId" resultMap="autoExecJobDO">
+    <select id="queryByDependOnBiz" resultMap="autoExecJobDO">
         select
         <include refid="sqlJob"/>
         from dm_exec_auto_job
         where depend_on_biz_id = #{bizId}
+          and depend_on_biz_type = #{bizType}
     </select>
     <select id="queryErrorJob" resultMap="autoExecJobDO">
         select

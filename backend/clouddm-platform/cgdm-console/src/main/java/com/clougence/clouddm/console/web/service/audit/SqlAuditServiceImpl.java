@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
-import com.clougence.clouddm.console.web.model.fo.PageData;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -45,23 +45,28 @@ public class SqlAuditServiceImpl implements SqlAuditService {
     private final int      MAX_PAGE_SIZE     = 60;
 
     @Override
-    public List<SqlAuditVO> queryUserAllAudit(String uid, Long dsId, Requester requester, SqlStatus status, Date start, Date end, PageData pageData) {
-        int pageSize = pageData.getPageSize();
+    public DmPageVO<SqlAuditVO> pageUserAllAudit(String puid, String uid, Long dsId, Requester requester, SqlStatus status, Date start, Date end, int pageNumber, int pageSize) {
         if (pageSize == 0) {
             pageSize = DEFAULT_PAGE_SIZE;
         } else if (pageSize > MAX_PAGE_SIZE) {
             pageSize = MAX_PAGE_SIZE;
         }
-        List<DmExecSqlAuditDO> auditDOs = executionDal.sqlAuditMapper().queryByCondition(uid, dsId, requester, status, start, end, pageData.getStartId(), pageSize);
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+
+        int offset = (pageNumber - 1) * pageSize;
+        List<DmExecSqlAuditDO> auditDOs = executionDal.sqlAuditMapper().pageByCondition(puid, uid, dsId, requester, status, start, end, offset, pageSize);
+        long total = executionDal.sqlAuditMapper().countByCondition(puid, uid, dsId, requester, status, start, end);
 
         if (auditDOs == null || auditDOs.isEmpty()) {
-            return new ArrayList<>();
+            return new DmPageVO<>(pageNumber, pageSize, total, new ArrayList<>());
         }
 
         Map<Long, DsCacheEntry> dsCacheById = new HashMap<>();
         auditDOs.stream().map(DmExecSqlAuditDO::getDsId).filter(Objects::nonNull).distinct().forEach(id -> dsCacheById.put(id, objectCacheDao.queryByDsId(id)));
 
-        return auditDOs.stream().map(auditDO -> {
+        List<SqlAuditVO> auditVOS = auditDOs.stream().map(auditDO -> {
             SqlAuditVO vo = DmConvertUtils.convertToSqlAuditVO(auditDO);
             DsCacheEntry dsCache = dsCacheById.get(auditDO.getDsId());
             if (dsCache != null) {
@@ -70,5 +75,6 @@ public class SqlAuditServiceImpl implements SqlAuditService {
             }
             return vo;
         }).collect(Collectors.toList());
+        return new DmPageVO<>(pageNumber, pageSize, total, auditVOS);
     }
 }

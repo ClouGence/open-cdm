@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import {
   REMAIN_TRIAL_DAY,
   SET_MENU_ITEMS,
@@ -50,7 +51,7 @@ export default {
     state.publicKey = publicKey;
   },
   [UPDATE_USERINFO](state, userInfo) {
-    console.log('UPDATE_USERINFO', userInfo);
+    appLogger.debug('UPDATE_USERINFO', userInfo);
     if (userInfo) {
       state.userInfo = { ...state.userInfo, ...userInfo };
     } else {
@@ -126,7 +127,7 @@ export default {
     state.productClusterList = list;
   },
   [UPDATE_SELECT_PRODUCT_CLUSTER](state, cluster) {
-    console.log('UPDATE_SELECT_PRODUCT_CLUSTER', cluster);
+    appLogger.debug('UPDATE_SELECT_PRODUCT_CLUSTER', cluster);
     state.selectCcProductCluster = cluster;
   },
   [UPDATE_MY_CATALOG](state, data) {
@@ -252,7 +253,7 @@ export default {
     state.jobData = null;
   },
   [UPDATE_GLOBAL_SETTING](state, globalSetting) {
-    console.warn(UPDATE_GLOBAL_SETTING);
+    appLogger.warn(UPDATE_GLOBAL_SETTING);
     state.globalSetting = globalSetting;
     const includesCC = supportsCloudCanalBuild;
     const includesDM = supportsCloudDMBuild;
@@ -284,7 +285,7 @@ export default {
       url = includesDM ? '/sql' : '/system';
     }
 
-    console.log(url);
+    appLogger.debug(url);
     state.defaultRedirectUrl = url;
 
     if (window.location.hash === '#/') {
@@ -311,7 +312,7 @@ export default {
     applyMenuItems(state);
   },
   [UPDATE_SOCKET_STATUS](state, socket) {
-    console.log(socket);
+    appLogger.debug(socket);
     state.socket = socket;
   },
   [REMAIN_TRIAL_DAY](state, data) {
@@ -345,7 +346,7 @@ export default {
         ? requestIdleCallback(() => localStorage.setItem('app-theme', theme))
         : setTimeout(() => localStorage.setItem('app-theme', theme), 0);
     } catch (err) {
-      console.log(err);
+      appLogger.debug(err);
       localStorage.setItem('app-theme', theme);
     }
   }

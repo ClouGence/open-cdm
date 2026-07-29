@@ -31,8 +31,10 @@ public class DmAutoExecTaskVO {
     private String             execSql;
     private Integer            execCount;
     private Integer            executeOrder;
+    private String             actualStartTime;
+    private String             actualEndTime;
 
     private boolean            canSkip;
-    private boolean            canCanceledSkip;
+    private boolean            canCancelSkip;
 
 }
