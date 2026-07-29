@@ -3949,6 +3949,7 @@
   "huo-qu-fen-ye-shu-ju-shi-bai": "Failed to get page data",
   "jie-guo-bian-ji-jin-zhi-fen-ye-ti-shi": "In edit mode, only the current page can be modified. Submit or cancel before switching pages.",
   "jie-guo-bian-ji-dang-qian-ye-ti-shi": "Current page only",
+  "jie-guo-bian-ji-jin-zhi-plan-ti-shi": "Execution plan results cannot be edited",
   "huo-qu-shu-ju-zhong": "Loading data",
   "chu-fa-pei-zhi": "Trigger Settings",
   "callback-pei-zhi": "Callback Settings",

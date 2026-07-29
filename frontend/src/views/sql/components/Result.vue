@@ -154,12 +154,12 @@
             <template v-if="!editMode">
               <a-tooltip v-if="!isEditable" :title="editDisabledReason" placement="top">
                 <div class="tip-footer-edit-btn disabled">
-                  <CustomIcon type="icon-v2-EditSimple" size="16px" />
+                  <CustomIcon type="icon-v2-EditingPen" size="16px" />
                   <span>{{ $t('bian-ji') }}</span>
                 </div>
               </a-tooltip>
               <div v-else class="tip-footer-edit-btn" @click="enterEditMode">
-                <CustomIcon type="icon-v2-EditSimple" hoverStyle size="16px" />
+                <CustomIcon type="icon-v2-EditingPen" hoverStyle size="16px" />
                 <span>{{ $t('bian-ji') }}</span>
               </div>
             </template>
@@ -609,6 +609,9 @@ export default {
       const tab = this.selectedTab;
       if (!tab || !tab.columnList) {
         return '无结果数据';
+      }
+      if (tab.queryType === 'plan') {
+        return this.$t('jie-guo-bian-ji-jin-zhi-plan-ti-shi');
       }
       if (!tab.table) {
         return '该结果涉及多表，暂不支持直接编辑';
@@ -1734,7 +1737,7 @@ export default {
     },
     async enterEditMode() {
       const tab = this.selectedTab;
-      if (!tab || !tab.table) return;
+      if (!tab || !tab.table || tab.queryType === 'plan') return;
 
       try {
         const res = await this.$services.dmEditorDataFetchColumnMeta({
@@ -2172,6 +2175,7 @@ export default {
   cursor: pointer;
   white-space: nowrap;
   margin-right: 8px;
+  color: rgba(0, 0, 0, 0.88);
 
   &.disabled {
     cursor: not-allowed;

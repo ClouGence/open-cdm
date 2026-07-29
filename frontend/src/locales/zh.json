@@ -3945,6 +3945,7 @@
   "huo-qu-fen-ye-shu-ju-shi-bai": "获取分页数据失败",
   "jie-guo-bian-ji-jin-zhi-fen-ye-ti-shi": "编辑模式下仅可修改当前页数据，请先提交或取消后再切换分页",
   "jie-guo-bian-ji-dang-qian-ye-ti-shi": "仅编辑当前页",
+  "jie-guo-bian-ji-jin-zhi-plan-ti-shi": "执行计划结果不支持编辑",
   "huo-qu-shu-ju-zhong": "获取数据中",
   "chu-fa-pei-zhi": "触发配置",
   "callback-pei-zhi": "回调配置",

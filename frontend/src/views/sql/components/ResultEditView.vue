@@ -397,7 +397,11 @@ export default {
             if (window.luckysheet.getLuckysheetfile()) {
               window.luckysheet.destroy();
             }
-            window.luckysheet.create(this.options);
+            if (this.rawTableData.resultSet.length || this.options.data[0].celldata.length) {
+              window.luckysheet.create(this.options);
+            } else {
+              this.loading = false;
+            }
           } catch (e) {
             console.error('Failed to create luckysheet:', e);
             this.loading = false;
@@ -519,7 +523,7 @@ export default {
       sheet.name = 'data';
       sheet.celldata = celldata;
       sheet.dataVerification = dataVerification;
-      sheet.row = Math.max(resultSet.length, 1);
+      sheet.row = resultSet.length;
       sheet.column = Math.max(editableColumns.length, 1);
       sheet.config = {
         columnlen,
@@ -561,18 +565,58 @@ export default {
     },
 
     handleAddRow() {
-      const currentSheet = window.luckysheet.getLuckysheetfile()[0];
-      if (!currentSheet || !currentSheet.data) return;
-      const rowIndex = currentSheet.data.length;
-      this.addRows.push(rowIndex);
-      window.luckysheet.insertRow(rowIndex, { number: 1 });
+      const currentSheet = window.luckysheet.getLuckysheetfile()?.[0];
+      const hasSheetRows = currentSheet && (currentSheet.data?.length || currentSheet.celldata?.length);
+      if (this.rawTableData.resultSet.length || hasSheetRows) {
+        if (!currentSheet || !currentSheet.data) {
+          return;
+        }
+        const rowIndex = currentSheet.data.length;
+        this.addRows.push(rowIndex);
+        window.luckysheet.insertRow(rowIndex, { number: 1 });
 
+        this.columnWithoutHidden.forEach((column, columnIndex) => {
+          const isRefresh = columnIndex === this.columnWithoutHidden.length - 1;
+          window.luckysheet.setCellValue(
+            rowIndex,
+            columnIndex,
+            {
+              v: null,
+              m: null,
+              ct: { fa: '@', t: 's' },
+              bg: BG_COLOR.ADD,
+              custom: {
+                column,
+                new: true
+              }
+            },
+            { isRefresh }
+          );
+        });
+        return;
+      }
+
+      const sheet = this.options.data[0];
       this.columnWithoutHidden.forEach((column, columnIndex) => {
-        const isRefresh = columnIndex === this.columnWithoutHidden.length - 1;
-        window.luckysheet.setCellValue(
-          rowIndex,
-          columnIndex,
-          {
+        if (column.columnType === 'SET') {
+          sheet.dataVerification[`0_${columnIndex}`] = {
+            type: 'dropdown',
+            type2: 'true',
+            value1: (column.option || []).join(','),
+            hintText: '请用逗号隔开'
+          };
+        } else if (column.columnType === 'ENUM') {
+          sheet.dataVerification[`0_${columnIndex}`] = {
+            type: 'dropdown',
+            type2: null,
+            value1: (column.option || []).join(',')
+          };
+        }
+
+        sheet.celldata.push({
+          r: 0,
+          c: columnIndex,
+          v: {
             v: null,
             m: null,
             ct: { fa: '@', t: 's' },
@@ -581,9 +625,31 @@ export default {
               column,
               new: true
             }
-          },
-          { isRefresh }
-        );
+          }
+        });
+      });
+
+      sheet.row = 1;
+      sheet.config.columnlen = this.columnlen;
+      this.addRows.push(0);
+      this.loading = true;
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          try {
+            $('#luckysheet-postil-overshow').remove();
+            if (window.luckysheet.getLuckysheetfile()) {
+              window.luckysheet.destroy();
+            }
+            window.luckysheet.create(this.options);
+          } catch (e) {
+            console.error('Failed to create luckysheet:', e);
+            this.loading = false;
+            Modal.error({
+              title: this.$t('ti-shi'),
+              content: '编辑面板加载失败，请重试'
+            });
+          }
+        });
       });
     },
 
