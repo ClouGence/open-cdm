@@ -703,19 +703,6 @@ expect:
   ]
 }
 ----------
-[permission_mysql_8_0_00006]
-source: permission/mysql/8.0/manage.txt#admin_performance
-sql:
-CACHE INDEX utility_audit.myisam_a INDEX (PRIMARY, idx_v) IN DEFAULT;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Index(1:12~1:34) /test/1/catalog1/utility_audit/myisam_a/"
-  ]
-}
-----------
 [permission_mysql_8_0_00028]
 source: behavior/mysql/5.6/dcl_mysql_transaction_0.txt#session_setting_write__033
 sql:
@@ -726,19 +713,6 @@ expect:
 {
   "MANAGE": [
     "ConfigKey(1:4~1:14) /test/1/autocommit/"
-  ]
-}
-----------
-[permission_mysql_8_0_00139]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#2
-sql:
-FLUSH NO_WRITE_TO_BINLOG STATUS;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:31) /test/1/"
   ]
 }
 ----------
@@ -755,111 +729,6 @@ expect:
   ]
 }
 ----------
-[permission_mysql_8_0_00156]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#12
-sql:
-FLUSH STATUS;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:12) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00158]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#13
-sql:
-FLUSH USER_RESOURCES;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:20) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00160]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#14
-sql:
-FLUSH TABLES;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:0~1:12) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00162]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#15
-sql:
-FLUSH TABLE;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:0~1:11) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00164]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#16
-sql:
-FLUSH TABLES split_verify.flush_a, split_verify.flush_b;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:33) /test/1/catalog1/split_verify/flush_a/",
-    "Table(1:35~1:55) /test/1/catalog1/split_verify/flush_b/"
-  ]
-}
-----------
-[permission_mysql_8_0_00166]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#17
-sql:
-FLUSH TABLES WITH READ LOCK;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:0~1:27) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00168]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#18
-sql:
-FLUSH TABLE split_verify.flush_a WITH READ LOCK;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:12~1:32) /test/1/catalog1/split_verify/flush_a/"
-  ]
-}
-----------
-[permission_mysql_8_0_00176]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#22
-sql:
-FLUSH LOCAL STATUS;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:18) /test/1/"
-  ]
-}
-----------
 [permission_mysql_8_0_00178]
 source: split/mysql/5.6/dcl_mysql_administration_0.txt#23
 sql:
@@ -870,385 +739,6 @@ expect:
 {
   "MANAGE": [
     "ConfigKey(1:0~1:35) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00180]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#24
-sql:
-FLUSH NO_WRITE_TO_BINLOG TABLES admin_sql_audit.flush_a, admin_sql_audit.flush_b;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:32~1:55) /test/1/catalog1/admin_sql_audit/flush_a/",
-    "Table(1:57~1:80) /test/1/catalog1/admin_sql_audit/flush_b/"
-  ]
-}
-----------
-[permission_mysql_8_0_00182]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#25
-sql:
-FLUSH STATUS, USER_RESOURCES;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:28) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00184]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#26
-sql:
-FLUSH HOSTS;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:11) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00187]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#28
-sql:
-FLUSH TABLES admin_sql_audit.flush_a, admin_sql_audit.flush_b WITH READ LOCK;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:36) /test/1/catalog1/admin_sql_audit/flush_a/",
-    "Table(1:38~1:61) /test/1/catalog1/admin_sql_audit/flush_b/"
-  ]
-}
-----------
-[permission_mysql_8_0_00196]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#37
-sql:
-ANALYZE TABLE split84.maint_innodb;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00197]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#38
-sql:
-ANALYZE TABLES split84.maint_innodb;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00198]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#39
-sql:
-ANALYZE NO_WRITE_TO_BINLOG TABLE split84.maint_innodb;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:33~1:53) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00199]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#40
-sql:
-CHECK TABLE split84.maint_innodb FOR UPGRADE;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00200]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#41
-sql:
-CHECK TABLES split84.maint_innodb;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:33) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00201]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#42
-sql:
-CHECK TABLE split84.maint_innodb QUICK FAST MEDIUM EXTENDED CHANGED;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00202]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#43
-sql:
-CHECKSUM TABLE split84.maint_innodb QUICK;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00203]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#44
-sql:
-CHECKSUM TABLE split84.maint_innodb EXTENDED;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00204]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#45
-sql:
-CHECKSUM TABLES split84.maint_innodb QUICK;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:16~1:36) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00205]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#46
-sql:
-OPTIMIZE NO_WRITE_TO_BINLOG TABLE split84.maint_innodb;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:34~1:54) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00206]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#47
-sql:
-OPTIMIZE LOCAL TABLES split84.maint_innodb;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:22~1:42) /test/1/catalog1/split84/maint_innodb/"
-  ]
-}
-----------
-[permission_mysql_8_0_00207]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#48
-sql:
-REPAIR LOCAL TABLE split84.maint_myisam QUICK EXTENDED USE_FRM;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:19~1:39) /test/1/catalog1/split84/maint_myisam/"
-  ]
-}
-----------
-[permission_mysql_8_0_00208]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#49
-sql:
-REPAIR TABLES split84.maint_myisam QUICK;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:14~1:34) /test/1/catalog1/split84/maint_myisam/"
-  ]
-}
-----------
-[permission_mysql_8_0_00209]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#50
-sql:
-CACHE INDEX split84.maint_myisam KEY(idx_v) IN DEFAULT;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Index(1:12~1:32) /test/1/catalog1/split84/maint_myisam/"
-  ]
-}
-----------
-[permission_mysql_8_0_00210]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#51
-sql:
-LOAD INDEX INTO CACHE split84.maint_myisam KEY(idx_v) IGNORE LEAVES;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:67) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00211]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#52
-sql:
-CACHE INDEX split_part.maint_part PARTITION (p0) KEY(idx_v) IN DEFAULT;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Index(1:12~1:33) /test/1/catalog1/split_part/maint_part/"
-  ]
-}
-----------
-[permission_mysql_8_0_00212]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#53
-sql:
-LOAD INDEX INTO CACHE split_part.maint_part PARTITION (p0) KEY(idx_v) IGNORE LEAVES;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:83) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00219]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#62
-sql:
-CACHE INDEX t3 IN keycache1;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Index(1:12~1:14) /test/1/catalog1/schema1/t3/"
-  ]
-}
-----------
-[permission_mysql_8_0_00220]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#63
-sql:
-REPAIR TABLE split84.maint_myisam EXTENDED;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
-  ]
-}
-----------
-[permission_mysql_8_0_00221]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#64
-sql:
-REPAIR TABLE split84.maint_myisam USE_FRM;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
-  ]
-}
-----------
-[permission_mysql_8_0_00222]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#65
-sql:
-REPAIR TABLE split84.maint_myisam QUICK USE_FRM;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
-  ]
-}
-----------
-[permission_mysql_8_0_00223]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#66
-sql:
-REPAIR TABLE split84.maint_myisam EXTENDED USE_FRM;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
-  ]
-}
-----------
-[permission_mysql_8_0_00224]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#67
-sql:
-REPAIR TABLE split84.maint_myisam EXTENDED QUICK;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
-  ]
-}
-----------
-[permission_mysql_8_0_00225]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#68
-sql:
-REPAIR TABLE split84.maint_myisam USE_FRM QUICK EXTENDED;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
-  ]
-}
-----------
-[permission_mysql_8_0_00226]
-source: split/mysql/5.6/dcl_mysql_administration_0.txt#69
-sql:
-REPAIR TABLE split84.maint_myisam QUICK QUICK;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
   ]
 }
 ----------
@@ -1694,19 +1184,6 @@ expect:
   ]
 }
 ----------
-[permission_mysql_8_0_00281]
-source: split/mysql/5.6/dcl_mysql_language_0.txt#7
-sql:
-/*!50000 FLUSH STATUS */;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:9~1:21) /test/1/"
-  ]
-}
-----------
 [permission_mysql_8_0_00283]
 source: split/mysql/5.6/dcl_mysql_language_0.txt#10
 sql:
@@ -1821,71 +1298,6 @@ expect:
 {
   "MANAGE": [
     "ConfigKey(1:4~1:28) /test/1/net_buffer_length/"
-  ]
-}
-----------
-[permission_mysql_8_0_00294]
-source: split/mysql/5.6/dcl_mysql_language_0.txt#21
-sql:
-CHECK TABLE ``;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Table(1:0~1:14) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00295]
-source: split/mysql/5.6/dcl_mysql_language_0.txt#22
-sql:
-CACHE INDEX `` IN cache_name;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:28) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00296]
-source: split/mysql/5.6/dcl_mysql_language_0.txt#23
-sql:
-CACHE INDEX `` PARTITION (ALL) IN cache_name;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:44) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00297]
-source: split/mysql/5.6/dcl_mysql_language_0.txt#24
-sql:
-LOAD INDEX INTO CACHE `` PARTITION (ALL);
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:40) /test/1/"
-  ]
-}
-----------
-[permission_mysql_8_0_00298]
-source: split/mysql/5.6/dcl_mysql_language_0.txt#25
-sql:
-LOAD INDEX INTO CACHE ``;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MANAGE": [
-    "Instance(1:0~1:24) /test/1/"
   ]
 }
 ----------
@@ -2681,5 +2093,239 @@ expect:
 {
   "MANAGE": [
     "ConfigKey(1:19~1:35) /test/1/sql_safe_updates/"
+  ]
+}
+----------
+[permission_mysql_8_0_00326]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#7
+sql:
+CHANGE MASTER TO MASTER_HOST='127.0.0.1', MASTER_PORT=9, MASTER_USER='split_repl', MASTER_PASSWORD='pw', MASTER_AUTO_POSITION=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Replication(1:0~1:127) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00331]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#14
+sql:
+CHANGE MASTER TO MASTER_LOG_FILE='binlog.000001', MASTER_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Replication(1:0~1:66) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00332]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#15
+sql:
+CHANGE MASTER TO MASTER_BIND='', MASTER_CONNECT_RETRY=7, MASTER_RETRY_COUNT=3, MASTER_DELAY=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Replication(1:0~1:93) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00333]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#16
+sql:
+CHANGE MASTER TO IGNORE_SERVER_IDS=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Replication(1:0~1:37) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00334]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#17
+sql:
+CHANGE MASTER TO MASTER_HEARTBEAT_PERIOD=0.5, IGNORE_SERVER_IDS=(2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Replication(1:0~1:69) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00335]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#18
+sql:
+CHANGE MASTER TO RELAY_LOG_FILE='relay-bin.000001', RELAY_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Replication(1:0~1:67) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00336]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#19
+sql:
+CHANGE MASTER TO MASTER_SSL=1, MASTER_SSL_CA='', MASTER_SSL_CAPATH='', MASTER_SSL_CERT='', MASTER_SSL_KEY='', MASTER_SSL_CIPHER='', MASTER_SSL_VERIFY_SERVER_CERT=0, MASTER_SSL_CRL='', MASTER_SSL_CRLPATH='';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Replication(1:0~1:205) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00369]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#23
+sql:
+SET SESSION GTID_NEXT = '11111111-1111-1111-1111-111111111111:audit:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "ConfigKey(1:4~1:21) /test/1/GTID_NEXT/"
+  ]
+}
+----------
+[permission_mysql_8_0_00370]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#24
+sql:
+SET SESSION GTID_NEXT = 'AUTOMATIC:audit';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "ConfigKey(1:4~1:21) /test/1/GTID_NEXT/"
+  ]
+}
+----------
+[permission_mysql_8_0_00375]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#29
+sql:
+SET @@SESSION.pseudo_slave_mode=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "ConfigKey(1:4~1:31) /test/1/pseudo_slave_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00871]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#4
+sql:
+ALTER LOGFILE GROUP audit_lg ADD UNDOFILE 'audit_lg2.dat' ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Log(1:20~1:28) /test/1/catalog1/schema1/audit_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00872]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#5
+sql:
+CREATE LOGFILE GROUP audit_lg ADD UNDOFILE 'audit_lg.dat' ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Log(1:21~1:29) /test/1/catalog1/schema1/audit_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00873]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#6
+sql:
+DROP LOGFILE GROUP audit_lg ENGINE NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Log(1:19~1:27) /test/1/catalog1/schema1/audit_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00874]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#7
+sql:
+CREATE LOGFILE GROUP split_lg ADD UNDOFILE 'split_undo.dat' INITIAL_SIZE=16M UNDO_BUFFER_SIZE=1M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Log(1:21~1:29) /test/1/catalog1/schema1/split_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00875]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#8
+sql:
+ALTER LOGFILE GROUP split_lg ADD UNDOFILE 'split_undo2.dat' INITIAL_SIZE=4M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Log(1:20~1:28) /test/1/catalog1/schema1/split_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00880]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#14
+sql:
+DROP LOGFILE GROUP split_lg ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Log(1:19~1:27) /test/1/catalog1/schema1/split_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00892]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#31
+sql:
+CREATE LOGFILE GROUP split_lg_options ADD UNDOFILE 'split_undo_options.dat' COMMENT='all options', NODEGROUP=1 REDO_BUFFER_SIZE=2M UNDO_BUFFER_SIZE=1M INITIAL_SIZE=16M WAIT STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Log(1:21~1:37) /test/1/catalog1/schema1/split_lg_options/"
+  ]
+}
+----------
+[permission_mysql_8_0_00893]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#32
+sql:
+ALTER LOGFILE GROUP split_lg_options ADD UNDOFILE 'split_undo_options_2.dat' WAIT, INITIAL_SIZE=4M STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MANAGE": [
+    "Log(1:20~1:36) /test/1/catalog1/schema1/split_lg_options/"
   ]
 }

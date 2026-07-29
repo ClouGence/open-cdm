@@ -29,7 +29,9 @@ import com.clougence.clouddm.ds.TextCaseSupport.CaseBlock;
 import com.clougence.clouddm.ds.TextTestCase;
 import com.clougence.clouddm.ds.behavior.BehaviorCodeLine;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,6 +53,22 @@ public final class PermissionTextTest {
 
     public static List<TestCase> loadCases(String resourcePath) {
         return TextCaseSupport.loadBlocks(resourcePath).stream().map(PermissionTextTest::parseCase).toList();
+    }
+
+    public static void assertCompleteResourceDirectory(String resourceDirectory) {
+        Set<SecDataAuthKind> actual = EnumSet.noneOf(SecDataAuthKind.class);
+        List<String> resourcePaths = TextCaseSupport.resourceFiles(resourceDirectory);
+        Assert.assertFalse(resourceDirectory + " must contain permission fixtures", resourcePaths.isEmpty());
+        for (String resourcePath : resourcePaths) {
+            for (TestCase testCase : loadCases(resourcePath)) {
+                try {
+                    actual.addAll(parseExpectedResources(testCase.expectJson).keySet());
+                } catch (IOException e) {
+                    Assert.fail(resourcePath + System.lineSeparator() + prefix(testCase) + " invalid expect JSON: " + e.getMessage());
+                }
+            }
+        }
+        Assert.assertEquals(resourceDirectory + " must cover every SecDataAuthKind", EnumSet.allOf(SecDataAuthKind.class), actual);
     }
 
     public static void assertStrictCase(String resourcePath, TestCase testCase, BehaviorAnalysisSpi spi,//
@@ -84,8 +102,8 @@ public final class PermissionTextTest {
             verifyResources(prefix(testCase) + "." + entry.getKey(), entry.getValue(), actualForKind, failures);
         }
         if (!failures.isEmpty()) {
-            Assert.fail(resourcePath + System.lineSeparator() + String.join(System.lineSeparator(), failures) + System.lineSeparator()
-                        + prefix(testCase) + ".actual: " + summarize(actual));
+            Assert.fail(resourcePath + System.lineSeparator() + String.join(System.lineSeparator(), failures) + System.lineSeparator() + prefix(testCase) + ".actual: "
+                        + summarize(actual));
         }
     }
 

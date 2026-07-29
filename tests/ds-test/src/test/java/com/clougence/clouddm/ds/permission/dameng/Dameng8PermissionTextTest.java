@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.permission.mysql;
+package com.clougence.clouddm.ds.permission.dameng;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,45 +27,38 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import com.clougence.clouddm.ds.SqlTestSupport;
 import com.clougence.clouddm.ds.TextCaseSupport;
+import com.clougence.clouddm.ds.dameng.sql.analysis.sysobj.DmSysObjectRegistrySpi;
 import com.clougence.clouddm.ds.permission.PermissionTextTest;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.sql.mysql.MySqlEngineSpi;
-import com.clougence.sql.mysql.analysis.sysobj.MySysObjectRegistrySpi;
 
-/** MySQL permission fixtures are isolated by parser version. */
 @Execution(ExecutionMode.CONCURRENT)
-public abstract class MySqlPermissionTextTest {
+public final class Dameng8PermissionTextTest {
 
-    private final String resourceDirectory;
-    private final String version;
-
-    protected MySqlPermissionTextTest(String directoryName, String version){
-        this.resourceDirectory = "permission/mysql/" + directoryName;
-        this.version = version;
-    }
+    private static final String RESOURCE_DIRECTORY = "permission/dameng/8";
+    private static final String VERSION            = "8";
 
     @Test
     public void permissionFixtureCompleteness() {
-        PermissionTextTest.assertCompleteResourceDirectory(resourceDirectory);
+        PermissionTextTest.assertCompleteResourceDirectory(RESOURCE_DIRECTORY);
     }
 
     @TestFactory
     public Stream<DynamicTest> permissionScripts() {
         ThreadLocal<BehaviorAnalysisSpi> spi = ThreadLocal.withInitial(() -> {
-            MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
-            BehaviorAnalysisSpi analysisSpi = engine.behaviorAnalysisSpi(SqlParserParameters.ofVersion(version));
+            BehaviorAnalysisSpi analysisSpi = SqlTestSupport.sqlEngine("dameng").behaviorAnalysisSpi(//
+                    SqlParserParameters.ofVersion(VERSION));
             if (analysisSpi == null) {
-                throw new IllegalStateException("No BehaviorAnalysisSpi for MySQL " + version);
+                throw new IllegalStateException("No BehaviorAnalysisSpi for Dameng " + VERSION);
             }
             return analysisSpi;
         });
-        MySysObjectRegistrySpi registry = new MySysObjectRegistrySpi();
+        DmSysObjectRegistrySpi registry = new DmSysObjectRegistrySpi();
         List<DynamicTest> tests = new ArrayList<>();
-        for (String resourcePath : TextCaseSupport.resourceFiles(resourceDirectory)) {
+        for (String resourcePath : TextCaseSupport.resourceFiles(RESOURCE_DIRECTORY)) {
             for (PermissionTextTest.TestCase testCase : PermissionTextTest.loadCases(resourcePath)) {
                 tests.add(DynamicTest.dynamicTest(testCase.displayName(), () -> PermissionTextTest.assertStrictCase(//
-                        resourcePath, testCase, spi.get(), registry, version)));
+                        resourcePath, testCase, spi.get(), registry, VERSION)));
             }
         }
         return tests.stream();
