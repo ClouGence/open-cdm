@@ -1744,7 +1744,7 @@ expect:
   "CREATE_PROG_OBJ": [
     {
       "subject": "Function(1:16~1:24) /test/1/catalog1/schema1/f_labels/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     }
   ]
 }

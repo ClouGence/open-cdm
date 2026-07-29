@@ -323,7 +323,7 @@ expect:
   "ADMIN_LOG": [
     {
       "subject": "ConfigKey(1:0~1:38) /test/1/",
-      "action" : "CONFIGURE"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -338,7 +338,7 @@ expect:
   "ADMIN_LOG": [
     {
       "subject": "ConfigKey(1:0~1:37) /test/1/",
-      "action" : "CONFIGURE"
+      "action": "ALTER"
     }
   ]
 }
@@ -443,7 +443,7 @@ expect:
   "ADMIN_LOG": [
     {
       "subject": "ConfigKey(1:0~1:39) /test/1/",
-      "action" : "CONFIGURE"
+      "action": "ALTER"
     }
   ]
 }

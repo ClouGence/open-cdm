@@ -60,8 +60,7 @@ public class RdbResourceDomain extends RuleDomain {
             return this.target;
         }
         return switch (queryType) {
-            case CREATE_OBJECT, ALTER_OBJECT, DROP_OBJECT, CREATE_USER, DROP_USER, RENAME_USER, GRANT, REVOKE, TRANSFER_PRIVILEGE, CREATE_ROLE, DROP_ROLE,
-                    ALTER_USER -> queryType.getTarget();
+            case CREATE_USER, DROP_USER, RENAME_USER, GRANT, REVOKE, TRANSFER_PRIVILEGE, CREATE_ROLE, DROP_ROLE, ALTER_USER -> queryType.getTarget();
             default -> this.target;
         };
     }

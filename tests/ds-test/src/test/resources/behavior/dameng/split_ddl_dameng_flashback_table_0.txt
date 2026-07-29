@@ -8,7 +8,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:16~1:25) /test/1/catalog1/schema1/fb_time_1/",
-      "action": "ADMIN"
+      "action": "RESTORE"
     }
   ]
 }
@@ -23,7 +23,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:16~1:25) /test/1/catalog1/schema1/fb_time_2/",
-      "action": "ADMIN"
+      "action": "RESTORE"
     }
   ]
 }
@@ -38,7 +38,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:16~1:25) /test/1/catalog1/schema1/fb_time_3/",
-      "action": "ADMIN"
+      "action": "RESTORE"
     }
   ]
 }
@@ -53,11 +53,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:16~1:25) /test/1/catalog1/schema1/fb_time_4/",
-      "action": "ADMIN"
+      "action": "RESTORE"
     },
     {
       "subject": "Table(1:27~1:38) /test/1/catalog1/schema1/flash_other/",
-      "action": "ADMIN"
+      "action": "RESTORE"
     }
   ]
 }

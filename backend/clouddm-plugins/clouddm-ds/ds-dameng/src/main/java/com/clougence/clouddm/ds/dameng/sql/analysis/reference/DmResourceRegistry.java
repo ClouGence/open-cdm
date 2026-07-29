@@ -205,21 +205,21 @@ public final class DmResourceRegistry {
     }
 
     private void registerFunctionBehaviors() {
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.ADMIN, "CHECKPOINT");
+        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.CHECKPOINT, "CHECKPOINT");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_PARA_DOUBLE_VALUE");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_PARA_STRING_VALUE");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_PARA_VALUE");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_SESSION_MPP_SELECT_LOCAL");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_SESSION_PARA_VALUE");
         functionTypes.register(FUNCTION, DM8, DM8, SplitQueryType.SESSION_VARIABLE_RW, "SF_GET_SESSION_PARA_VALUE");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.ADMIN, "SF_MPP_INST_ADD");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.ADMIN, "SF_MPP_INST_REMOVE");
+        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.ALTER, "SF_MPP_INST_ADD");
+        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.UNSAFE, "SF_MPP_INST_REMOVE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 1, "SF_GET_PARA_DOUBLE_VALUE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 1, "SF_GET_PARA_STRING_VALUE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 1, "SF_GET_PARA_VALUE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 0, "SF_GET_SESSION_PARA_VALUE");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.ADMIN, "DBMS_SQLTUNE", "CREATE_TUNING_TASK");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.ADMIN, "DBMS_SQLTUNE", "EXECUTE_TUNING_TASK");
+        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.CREATE, "DBMS_SQLTUNE", "CREATE_TUNING_TASK");
+        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.CALL, "DBMS_SQLTUNE", "EXECUTE_TUNING_TASK");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "DBMS_SQLTUNE", "REPORT_SQL_MONITOR");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "DBMS_SQLTUNE", "REPORT_SQL_MONITOR_LIST");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "DBMS_SQLTUNE", "REPORT_TUNING_TASK");

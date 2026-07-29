@@ -733,7 +733,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(2:11~2:34) /test/1/catalog1/CODEX_DM8_TYPE/T_MEMBER/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }
@@ -749,7 +749,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(2:11~2:34) /test/1/catalog1/CODEX_DM8_TYPE/T_MEMBER/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }

@@ -46,11 +46,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:14~1:35) /test/1/catalog1/utility_audit/maint_a/",
-      "action" : "ADMIN"
+      "action" : "ANALYZE"
     },
     {
       "subject": "Table(1:37~1:58) /test/1/catalog1/utility_audit/maint_b/",
-      "action" : "ADMIN"
+      "action" : "ANALYZE"
     }
   ]
 }
@@ -65,11 +65,11 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Index(1:12~1:34) /test/1/catalog1/utility_audit/myisam_a/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     },
     {
       "subject": "Index(1:36~1:58) /test/1/catalog1/utility_audit/myisam_b/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -84,11 +84,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:33) /test/1/catalog1/utility_audit/maint_a/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     },
     {
       "subject": "Table(1:35~1:56) /test/1/catalog1/utility_audit/maint_b/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -103,11 +103,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:15~1:36) /test/1/catalog1/utility_audit/maint_a/",
-      "action" : "ADMIN"
+      "action" : "CHECKSUM"
     },
     {
       "subject": "Table(1:38~1:59) /test/1/catalog1/utility_audit/maint_b/",
-      "action" : "ADMIN"
+      "action" : "CHECKSUM"
     }
   ]
 }
@@ -2443,7 +2443,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:82) /test/1/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -3143,11 +3143,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:15~1:36) /test/1/catalog1/utility_audit/maint_a/",
-      "action" : "ADMIN"
+      "action" : "OPTIMIZE"
     },
     {
       "subject": "Table(1:38~1:59) /test/1/catalog1/utility_audit/maint_b/",
-      "action" : "ADMIN"
+      "action" : "OPTIMIZE"
     }
   ]
 }
@@ -3162,11 +3162,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:32~1:54) /test/1/catalog1/utility_audit/myisam_a/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     },
     {
       "subject": "Table(1:56~1:78) /test/1/catalog1/utility_audit/myisam_b/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }
@@ -3596,7 +3596,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -3611,7 +3611,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -3626,7 +3626,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -3641,7 +3641,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -3656,7 +3656,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -3671,7 +3671,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:33) /test/1/catalog1/split_check_options/t/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }

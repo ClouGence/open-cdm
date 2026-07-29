@@ -8,7 +8,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:12) /test/1/",
-      "action" : "ADMIN"
+      "action": "STOP"
     }
   ]
 }
@@ -23,7 +23,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:31) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -38,7 +38,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:144) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -53,7 +53,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:193) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -68,7 +68,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:191) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -83,7 +83,7 @@ expect:
   "ADMIN_REPLICATION": [
     {
       "subject": "Log(1:0~1:169) /test/1/",
-      "action" : "ADMIN"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -98,7 +98,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:23) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -113,7 +113,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:22) /test/1/",
-      "action" : "ADMIN"
+      "action": "STOP"
     }
   ]
 }
@@ -128,7 +128,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:40) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -143,7 +143,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:41) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -158,7 +158,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:60) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -173,7 +173,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:59) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -188,7 +188,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:78) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -203,7 +203,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:79) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -218,7 +218,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:97) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -233,7 +233,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:97) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -248,7 +248,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:61) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -263,7 +263,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:31) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -278,7 +278,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:86) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -293,7 +293,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:87) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -308,7 +308,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:44) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -323,7 +323,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:63) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -338,7 +338,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:47) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -353,7 +353,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:72) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -368,7 +368,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:48) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -383,7 +383,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:67) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -398,7 +398,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:51) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -413,7 +413,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:76) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -428,7 +428,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:179) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -443,7 +443,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:85) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -458,7 +458,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:49) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -473,7 +473,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:96) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -488,7 +488,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:52) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -503,7 +503,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:80) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -518,7 +518,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:56) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -533,7 +533,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:84) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -548,7 +548,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:41) /test/1/",
-      "action" : "ALTER"
+      "action": "RESET"
     }
   ]
 }
@@ -563,7 +563,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:140) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -578,7 +578,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:123) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -593,7 +593,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:208) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -608,7 +608,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:94) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -623,7 +623,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:95) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -638,7 +638,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:133) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -653,7 +653,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:154) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -668,7 +668,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:99) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -683,7 +683,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:125) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -698,7 +698,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:220) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -713,7 +713,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:297) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -728,7 +728,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:178) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -743,7 +743,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:160) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -758,7 +758,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:116) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -773,7 +773,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:51) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -788,7 +788,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:208) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -803,7 +803,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:116) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -818,7 +818,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:65) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -833,7 +833,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:50) /test/1/",
-      "action" : "ADMIN"
+      "action": "STOP"
     }
   ]
 }
@@ -848,7 +848,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:39) /test/1/",
-      "action" : "ADMIN"
+      "action": "STOP"
     }
   ]
 }
@@ -863,7 +863,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:32) /test/1/",
-      "action" : "ALTER"
+      "action": "RESET"
     }
   ]
 }
@@ -878,7 +878,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:17) /test/1/",
-      "action" : "ALTER"
+      "action": "RESET"
     }
   ]
 }
@@ -893,7 +893,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:100) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -908,7 +908,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:91) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -923,7 +923,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:92) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -938,7 +938,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:91) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -953,7 +953,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:97) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -968,7 +968,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:118) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -983,7 +983,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:76) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -998,7 +998,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:13) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -1013,7 +1013,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:88) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -1028,7 +1028,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:81) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -1043,7 +1043,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:35) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -1058,7 +1058,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:34) /test/1/",
-      "action" : "ADMIN"
+      "action": "STOP"
     }
   ]
 }
@@ -1088,7 +1088,7 @@ expect:
   "ADMIN_RESOURCE_GROUP": [
     {
       "subject": "ResourceGroup(1:19~1:29) /test/1/catalog1/schema1/split_rg_a/",
-      "action" : "ADMIN"
+      "action": "SWITCH"
     }
   ]
 }
@@ -1223,7 +1223,7 @@ expect:
   "ADMIN_RESOURCE_GROUP": [
     {
       "subject": "ResourceGroup(1:19~1:36) /test/1/catalog1/schema1/split_rg_user_mix/",
-      "action" : "ADMIN"
+      "action": "SWITCH"
     }
   ]
 }
@@ -1298,7 +1298,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:101) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -1313,7 +1313,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:81) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -1328,7 +1328,7 @@ expect:
   "ADMIN_RESOURCE_GROUP": [
     {
       "subject": "ResourceGroup(1:19~1:24) /test/1/catalog1/schema1/ca_rg/",
-      "action" : "ADMIN"
+      "action": "SWITCH"
     }
   ]
 }
@@ -1358,7 +1358,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:107) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -1373,7 +1373,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:89) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -1388,7 +1388,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:54) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -1403,7 +1403,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:244) /test/1/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -1421,7 +1421,7 @@ expect:
   "ADMIN_REPLICATION": [
     {
       "subject": "Log(1:0~4:1) /test/1/",
-      "action" : "ADMIN"
+      "action": "UNSAFE"
     }
   ]
 }

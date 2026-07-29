@@ -1149,7 +1149,7 @@ expect:
   "ADMIN": [
     {
       "subject": "File(1:17~1:66) /test/1/opt/dmdbms/data/DAMENG_RESTORE_20260721/dm.ini/",
-      "action": "ADMIN"
+      "action": "RECOVER"
     }
   ]
 }

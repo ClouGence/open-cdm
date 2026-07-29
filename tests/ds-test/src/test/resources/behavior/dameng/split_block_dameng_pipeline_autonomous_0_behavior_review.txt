@@ -565,7 +565,12 @@ levels:
 /test/1/catalog1/schema1
 expect:
 {
-  "BLOCK": []
+  "BLOCK": [
+    {
+      "subject": "PrepareStatement(4:2~4:9) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
 }
 ----------
 [split_block_dameng_pipeline_autonomous_0_behavior_review_029]

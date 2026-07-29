@@ -233,7 +233,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(1:11~1:28) /test/1/catalog1/schema1/codex_dm8_type_01/",
-      "action" : "ADMIN"
+      "action" : "ALTER"
     }
   ]
 }

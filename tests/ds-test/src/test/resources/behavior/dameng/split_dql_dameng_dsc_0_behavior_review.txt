@@ -168,7 +168,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:17) /test/1/catalog1/schema1/checkpoint/",
-      "action": "ADMIN"
+      "action": "CHECKPOINT"
     }
   ]
 }

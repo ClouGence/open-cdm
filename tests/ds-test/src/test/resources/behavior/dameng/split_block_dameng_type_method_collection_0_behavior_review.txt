@@ -721,7 +721,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(1:11~1:20) /test/1/catalog1/schema1/t_methods/",
-      "action" : "ADMIN"
+      "action" : "ALTER"
     }
   ]
 }
@@ -736,7 +736,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(1:11~1:19) /test/1/catalog1/schema1/t_secure/",
-      "action" : "ADMIN"
+      "action" : "ALTER"
     }
   ]
 }

@@ -55,8 +55,8 @@ public class MySqlFunctionalFunctionsTest {
         Map<String, BehaviorAction> functions = registry.registeredFunctionBehaviors(80400);
         assertEquals(21, functions.size());
         assertEquals(BehaviorAction.LOCK, functions.get("SERVICE_GET_WRITE_LOCKS"));
-        assertEquals(BehaviorAction.CONFIGURE, functions.get("GROUP_REPLICATION_SET_AS_PRIMARY"));
-        assertEquals(BehaviorAction.CONFIGURE,
+        assertEquals(BehaviorAction.SWITCH, functions.get("GROUP_REPLICATION_SET_AS_PRIMARY"));
+        assertEquals(BehaviorAction.RESET,
                 functions.get("ASYNCHRONOUS_CONNECTION_FAILOVER_RESET"));
         assertEquals(BehaviorAction.CONFIGURE, functions.get("SET_FIREWALL_MODE"));
     }

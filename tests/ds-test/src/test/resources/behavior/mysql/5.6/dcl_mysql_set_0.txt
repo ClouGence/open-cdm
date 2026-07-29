@@ -342,7 +342,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "ConfigKey(1:4~1:21) /test/1/GTID_NEXT/",
-      "action" : "ALTER"
+      "action": "CONFIGURE"
     }
   ]
 }
@@ -357,7 +357,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "ConfigKey(1:4~1:21) /test/1/GTID_NEXT/",
-      "action" : "ALTER"
+      "action": "CONFIGURE"
     }
   ]
 }
@@ -372,7 +372,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "ConfigKey(1:4~1:22) /test/1/GTID_PURGED/",
-      "action" : "ALTER"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -387,7 +387,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "ConfigKey(1:4~1:33) /test/1/sql_slave_skip_counter/",
-      "action" : "ALTER"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -432,7 +432,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "ConfigKey(1:4~1:31) /test/1/pseudo_slave_mode/",
-      "action" : "ALTER"
+      "action": "CONFIGURE"
     }
   ]
 }
@@ -447,7 +447,7 @@ expect:
   "SESSION_SETTING_WRITE": [
     {
       "subject": "ConfigKey(1:4~1:17) /test/1/debug/",
-      "action" : "CONFIGURE"
+      "action": "UNSAFE"
     }
   ]
 }

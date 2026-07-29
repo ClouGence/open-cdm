@@ -645,7 +645,7 @@ expect:
   "CREATE_LIBRARY": [
     {
       "subject": "Library(1:0~1:71) /test/1/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -660,7 +660,7 @@ expect:
   "DROP_LIBRARY": [
     {
       "subject": "Library(1:0~1:40) /test/1/",
-      "action" : "DROP"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -675,11 +675,11 @@ expect:
   "CREATE_PROG_OBJ": [
     {
       "subject": "Function(1:16~1:36) /test/1/catalog1/schema1/split_missing_udf_56/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     },
     {
       "subject": "File(1:59~1:81) /test/1/split_missing_udf.so/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -694,11 +694,11 @@ expect:
   "CREATE_PROG_OBJ": [
     {
       "subject": "Function(1:26~1:46) /test/1/catalog1/schema1/split_missing_agg_56/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     },
     {
       "subject": "File(1:67~1:89) /test/1/split_missing_agg.so/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -713,11 +713,11 @@ expect:
   "CREATE_PROG_OBJ": [
     {
       "subject": "Function(1:16~1:36) /test/1/catalog1/schema1/split_missing_int_56/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     },
     {
       "subject": "File(1:60~1:82) /test/1/split_missing_int.so/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -732,11 +732,11 @@ expect:
   "CREATE_PROG_OBJ": [
     {
       "subject": "Function(1:16~1:40) /test/1/catalog1/schema1/split_missing_decimal_56/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     },
     {
       "subject": "File(1:64~1:90) /test/1/split_missing_decimal.so/",
-      "action" : "CREATE"
+      "action": "UNSAFE"
     }
   ]
 }

@@ -53,7 +53,7 @@ expect:
   "ALTER_LOG": [
     {
       "subject": "Log(1:20~1:28) /test/1/catalog1/schema1/audit_lg/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -68,7 +68,7 @@ expect:
   "CREATE_LOG": [
     {
       "subject": "Log(1:21~1:29) /test/1/catalog1/schema1/audit_lg/",
-      "action" : "CREATE"
+      "action": "CREATE"
     }
   ]
 }
@@ -83,7 +83,7 @@ expect:
   "DROP_LOG": [
     {
       "subject": "Log(1:19~1:27) /test/1/catalog1/schema1/audit_lg/",
-      "action" : "DROP"
+      "action": "DROP"
     }
   ]
 }
@@ -98,7 +98,7 @@ expect:
   "CREATE_LOG": [
     {
       "subject": "Log(1:21~1:29) /test/1/catalog1/schema1/split_lg/",
-      "action" : "CREATE"
+      "action": "CREATE"
     }
   ]
 }
@@ -113,7 +113,7 @@ expect:
   "ALTER_LOG": [
     {
       "subject": "Log(1:20~1:28) /test/1/catalog1/schema1/split_lg/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -128,7 +128,7 @@ expect:
   "ALTER_LOG": [
     {
       "subject": "Log(1:20~1:28) /test/1/catalog1/schema1/split_lg/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }
@@ -203,7 +203,7 @@ expect:
   "DROP_LOG": [
     {
       "subject": "Log(1:19~1:27) /test/1/catalog1/schema1/split_lg/",
-      "action" : "DROP"
+      "action": "DROP"
     }
   ]
 }
@@ -458,7 +458,7 @@ expect:
   "CREATE_LOG": [
     {
       "subject": "Log(1:21~1:37) /test/1/catalog1/schema1/split_lg_options/",
-      "action" : "CREATE"
+      "action": "CREATE"
     }
   ]
 }
@@ -473,7 +473,7 @@ expect:
   "ALTER_LOG": [
     {
       "subject": "Log(1:20~1:36) /test/1/catalog1/schema1/split_lg_options/",
-      "action" : "ALTER"
+      "action": "ALTER"
     }
   ]
 }

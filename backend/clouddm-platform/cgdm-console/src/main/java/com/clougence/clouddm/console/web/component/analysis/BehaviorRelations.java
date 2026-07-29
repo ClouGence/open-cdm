@@ -40,21 +40,37 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.DELETE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.MERGE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.REPLACE, targetType -> SecDataAuthKind.WRITE), //
-            Map.entry(BehaviorAction.IMPORT, targetType -> SecDataAuthKind.ADMIN), //
-            Map.entry(BehaviorAction.EXPORT, targetType -> SecDataAuthKind.ADMIN), //
-            Map.entry(BehaviorAction.CALL, targetType -> SecDataAuthKind.CALL), //
-            Map.entry(BehaviorAction.GRANT, targetType -> SecDataAuthKind.AUTH), //
-            Map.entry(BehaviorAction.REVOKE, targetType -> SecDataAuthKind.AUTH), //
-            Map.entry(BehaviorAction.TRANSFER, targetType -> SecDataAuthKind.AUTH), //
             Map.entry(BehaviorAction.COPY, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.MOVE, targetType -> SecDataAuthKind.WRITE), //
+            Map.entry(BehaviorAction.CALL, targetType -> SecDataAuthKind.PROGRAM), //
+            Map.entry(BehaviorAction.IMPORT, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.EXPORT, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.GRANT, targetType -> SecDataAuthKind.MANAGE), //
+            Map.entry(BehaviorAction.REVOKE, targetType -> SecDataAuthKind.MANAGE), //
+            Map.entry(BehaviorAction.TRANSFER, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.LOCK, targetType -> null), //
-            Map.entry(BehaviorAction.CONFIGURE, targetType -> SecDataAuthKind.ADMIN), //
+            Map.entry(BehaviorAction.UNLOCK, targetType -> null), //
+            Map.entry(BehaviorAction.CONFIGURE, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.SWITCH, targetType -> null), //
-            Map.entry(BehaviorAction.ADMIN, targetType -> targetType == TargetType.UserOrRole || targetType == TargetType.User || targetType == TargetType.Role //
-                ? SecDataAuthKind.AUTH : SecDataAuthKind.ADMIN), //
+            Map.entry(BehaviorAction.ANALYZE, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.APPLY, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.CHECKPOINT, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.CHECKSUM, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.FLUSH, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.LOAD, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.OPTIMIZE, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.PURGE, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.REFRESH, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.REPAIR, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.RECOVER, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.RESET, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.RESTORE, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.START, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.STOP, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.TERMINATE, targetType -> SecDataAuthKind.MAINTAIN), //
+            Map.entry(BehaviorAction.VALIDATE, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.UNSAFE, targetType -> SecDataAuthKind.UNSAFE), //
-            Map.entry(BehaviorAction.UNKNOWN, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.OTHER)));
+            Map.entry(BehaviorAction.UNKNOWN, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.UNSAFE)));
 
     private static final Set<TargetType>                                            LEVELS_BASED_TARGETS = EnumSet.of( //
             TargetType.Environment, TargetType.Instance, TargetType.Machine, //
@@ -70,9 +86,8 @@ public final class BehaviorRelations {
         EnumMap<TargetType, SecDataAuthKind> overrides = new EnumMap<>(TargetType.class);
         registerSpaceAuthKinds(overrides);
         registerDdlAuthKinds(overrides);
-        registerProgrammableObjectAuthKinds(overrides);
-        registerAuthKinds(overrides);
-        registerAdminAuthKinds(overrides);
+        registerManageAuthKinds(overrides);
+        registerMaintainAuthKinds(overrides);
         return Collections.unmodifiableMap(overrides);
     }
 
@@ -85,27 +100,26 @@ public final class BehaviorRelations {
         putAuthKinds(overrides, SecDataAuthKind.DDL,//
                 TargetType.Table, TargetType.Column, TargetType.Constraint, TargetType.Index, //
                 TargetType.Partition, TargetType.View, TargetType.Materialized, //
-                TargetType.Sequence, TargetType.Synonym, TargetType.Type);
-    }
-
-    private static void registerProgrammableObjectAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
-        putAuthKinds(overrides, SecDataAuthKind.PROGRAM,//
+                TargetType.Sequence, TargetType.Synonym, TargetType.Type, //
                 TargetType.ProgramObject, TargetType.Function, TargetType.Procedure, //
-                TargetType.Trigger, TargetType.Event, TargetType.Job, TargetType.Operator, TargetType.Package);
+                TargetType.Trigger, TargetType.Package, TargetType.Operator);
     }
 
-    private static void registerAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
-        putAuthKinds(overrides, SecDataAuthKind.AUTH, //
-                TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.Object);
-    }
-
-    private static void registerAdminAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
-        putAuthKinds(overrides, SecDataAuthKind.ADMIN, //
-                TargetType.Environment, TargetType.Instance, TargetType.Machine, //
-                TargetType.ResourceGroup, TargetType.Library, //
+    private static void registerManageAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
+        putAuthKinds(overrides, SecDataAuthKind.MANAGE, //
+                TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.Object, //
+                TargetType.Event, TargetType.Job, TargetType.Link, //
+                TargetType.Profile, TargetType.Context, TargetType.Queue, TargetType.QueueSubscriber, //
+                TargetType.Pipe, TargetType.SchedulerObject, TargetType.SchemaObject, TargetType.Library, //
                 TargetType.Replication, TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, //
                 TargetType.Log, TargetType.ConfigKey, //
                 TargetType.Policy, TargetType.RowAccessPolicy, TargetType.MaskingPolicy, TargetType.RedactionPolicy);
+    }
+
+    private static void registerMaintainAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
+        putAuthKinds(overrides, SecDataAuthKind.MAINTAIN, //
+                TargetType.Environment, TargetType.Instance, TargetType.Machine, //
+                TargetType.ResourceGroup);
     }
 
     private static void putAuthKinds(Map<TargetType, SecDataAuthKind> overrides, SecDataAuthKind authKind, TargetType... targetTypes) {

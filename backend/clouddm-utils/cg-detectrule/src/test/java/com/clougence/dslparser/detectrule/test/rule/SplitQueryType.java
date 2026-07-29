@@ -88,11 +88,11 @@ public enum SplitQueryType {
     MYSQL_REPLACE_INTO(TargetType.Table, SecDataAuthKind.DML),
 
     // Redis specific
-    RedisGetCmd(TargetType.Key, SecDataAuthKind.OTHER),
-    RedisSetCmd(TargetType.Key, SecDataAuthKind.OTHER),
+    RedisGetCmd(TargetType.Key, SecDataAuthKind.QUERY),
+    RedisSetCmd(TargetType.Key, SecDataAuthKind.DML),
 
     // Other
-    UNKNOWN(TargetType.Unknown, SecDataAuthKind.OTHER),;
+    UNKNOWN(TargetType.Unknown, SecDataAuthKind.UNSAFE),;
 
     private final TargetType      target;
     private final SecDataAuthKind kind;

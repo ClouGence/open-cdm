@@ -294,14 +294,14 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitFlashbackStatement(DmSqlParser.FlashbackStatementContext ctx) {
         for (DmSqlParser.QualifiedNameContext name : ctx.qualifiedName()) {
-            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.ADMIN, object(TargetType.Table, name, NameParts.from(name)));
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.RESTORE, object(TargetType.Table, name, NameParts.from(name)));
         }
         return null;
     }
 
     @Override
     public Void visitRefreshMaterializedViewStatement(DmSqlParser.RefreshMaterializedViewStatementContext ctx) {
-        add(SplitQueryType.ADMIN, BehaviorAction.ADMIN, object(TargetType.Materialized, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
+        add(SplitQueryType.ADMIN, BehaviorAction.REFRESH, object(TargetType.Materialized, ctx.qualifiedName(), NameParts.from(ctx.qualifiedName())));
         return null;
     }
 
@@ -311,7 +311,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             behavior.setStatementType(SplitQueryType.ADMIN);
         }
         if (ctx.CHECKPOINT() != null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.ADMIN, objects.instanceObject(TargetType.Instance, ctx.CHECKPOINT().getSymbol()));
+            add(SplitQueryType.ADMIN, BehaviorAction.CHECKPOINT, objects.instanceObject(TargetType.Instance, ctx.CHECKPOINT().getSymbol()));
             addFunctionCalls(ctx);
             return null;
         }
@@ -368,7 +368,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             return null;
         }
         if (alterDatabase != null && alterDatabase.ADD() == null && alterDatabase.MODIFY() == null && alterDatabase.DELETE() == null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.ADMIN, objects.instanceObject(TargetType.Instance, ctx.DATABASE().getSymbol()));
+            add(SplitQueryType.ADMIN, BehaviorAction.UNSAFE, objects.instanceObject(TargetType.Instance, ctx.DATABASE().getSymbol()));
             addFunctionCalls(ctx);
             return null;
         }
@@ -575,7 +575,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         }
         DmSqlParser.RepairStatementTailContext repair = ctx.repairStatementTail();
         if (ctx.REPAIR() != null && repair != null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.ADMIN, objects.instanceObject(TargetType.Log, repair.archiveLogKeyword()));
+            add(SplitQueryType.ADMIN, BehaviorAction.REPAIR, objects.instanceObject(TargetType.Log, repair.archiveLogKeyword()));
             add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(repair.backupFilePath().getStart()));
             addFunctionCalls(ctx);
             return null;
@@ -642,7 +642,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         }
         DmSqlParser.RecoverStatementTailContext recover = ctx.recoverStatementTail();
         if (ctx.RECOVER() != null && recover != null && recover.DATABASE() != null && recover.backupFilePath() != null && recover.UPDATE() != null && recover.DB_MAGIC() != null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.ADMIN, fileObject(recover.backupFilePath().getStart()));
+            add(SplitQueryType.ADMIN, BehaviorAction.RECOVER, fileObject(recover.backupFilePath().getStart()));
             addFunctionCalls(ctx);
             return null;
         }
@@ -761,7 +761,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         DmSqlParser.StatTargetContext target = ctx.statTarget();
         DmSqlParser.QualifiedNameContext name = target.qualifiedName();
         TargetType type = target.INDEX() == null ? TargetType.Table : TargetType.Index;
-        add(SplitQueryType.ADMIN_TABLE, BehaviorAction.ADMIN, object(type, name, NameParts.from(name)));
+        add(SplitQueryType.ADMIN_TABLE, BehaviorAction.ANALYZE, object(type, name, NameParts.from(name)));
         addFunctionCalls(ctx);
         return null;
     }
@@ -1510,7 +1510,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         } else if (ctx.TRIGGER() != null) {
             add(SplitQueryType.ALTER_TRIGGER, BehaviorAction.ALTER, object(TargetType.Trigger, qualified, name));
         } else if (ctx.PACKAGE() != null) {
-            add(SplitQueryType.ADMIN_PROG_OBJ, BehaviorAction.ADMIN, object(TargetType.Package, qualified, name));
+            add(SplitQueryType.ADMIN_PROG_OBJ, BehaviorAction.ALTER, object(TargetType.Package, qualified, name));
         } else if (ctx.TABLESPACE() != null) {
             DmSqlParser.TablespaceAlterActionContext action = ctx.tablespaceAlterAction();
             List<DmSqlParser.TablespaceFilePathContext> files = descendants(action, DmSqlParser.TablespaceFilePathContext.class);
@@ -1549,7 +1549,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             }
             add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.ALTER, objects.instanceObject(TargetType.Profile, profile, NameParts.clean(profile.getText())));
         } else if (ctx.TYPE() != null || ctx.CLASS() != null) {
-            add(SplitQueryType.ADMIN_TYPE, BehaviorAction.ADMIN, object(TargetType.Type, qualified, name));
+            add(SplitQueryType.ADMIN_TYPE, BehaviorAction.ALTER, object(TargetType.Type, qualified, name));
         }
         return null;
     }
@@ -3045,6 +3045,12 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitExecuteImmediateStatement(DmSqlParser.ExecuteImmediateStatementContext ctx) {
+        add(SplitQueryType.UNSAFE, BehaviorAction.UNSAFE, objects.instanceObject(TargetType.PrepareStatement, ctx.getStart()));
+        return null;
+    }
+
+    @Override
     public Void visitConfigWriteStatement(DmSqlParser.ConfigWriteStatementContext ctx) {
         DmSqlParser.ConfigKeyContext key;
         SplitQueryType type;
@@ -3343,6 +3349,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         statements.addAll(descendants(tree, DmSqlParser.MergeStatementContext.class));
         statements.addAll(descendants(tree, DmSqlParser.CallStatementContext.class));
         statements.addAll(descendants(tree, DmSqlParser.ProcedureCallStatementContext.class));
+        statements.addAll(descendants(tree, DmSqlParser.ExecuteImmediateStatementContext.class));
         statements.sort(Comparator.comparingInt(statement -> statement.getStart().getStartIndex()));
 
         for (ParserRuleContext statement : statements) {
@@ -3360,6 +3367,8 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 visitCallStatement(call);
             } else if (statement instanceof DmSqlParser.ProcedureCallStatementContext procedureCall) {
                 visitProcedureCallStatement(procedureCall);
+            } else if (statement instanceof DmSqlParser.ExecuteImmediateStatementContext executeImmediate) {
+                visitExecuteImmediateStatement(executeImmediate);
             }
         }
     }
@@ -3675,7 +3684,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     case READ -> SplitQueryType.SELECT;
                     case LOCK -> SplitQueryType.QUERY_LOCK;
                     case CONFIGURE -> SplitQueryType.SYSTEM_SETTING_WRITE;
-                    case ADMIN -> SplitQueryType.ADMIN;
+                    case CREATE, ALTER, CHECKPOINT, RESET, START, STOP, SWITCH, UNSAFE -> SplitQueryType.ADMIN;
                     default -> throw new IllegalStateException("unsupported functional function action " + action);
                 };
             }

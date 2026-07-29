@@ -9,7 +9,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(2:7~2:38) /test/1/catalog1/DBMS_SQLTUNE/CREATE_TUNING_TASK/",
-      "action": "ADMIN"
+      "action": "CREATE"
     },
     {
       "subject": "View(2:46~2:50) /test/1/catalog1/schema1/dual/",
@@ -45,7 +45,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(2:7~2:39) /test/1/catalog1/DBMS_SQLTUNE/EXECUTE_TUNING_TASK/",
-      "action": "ADMIN"
+      "action": "CALL"
     },
     {
       "subject": "View(2:47~2:51) /test/1/catalog1/schema1/dual/",

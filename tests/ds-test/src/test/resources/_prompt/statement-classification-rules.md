@@ -433,7 +433,7 @@ PostgreSQL Foreign Data Wrapper 和 Foreign Server 是数据库外部访问能�
 归类。若同名能力的带参形式会修改跨语句持续的连接状态，则应额外增加
 `SESSION_SETTING_WRITE`。
 
-`SYSTEM_SETTING_WRITE` 和 `ADMIN` 可以共享 `SecDataAuthKind.ADMIN`，但判定依据不同：前者回答“修改了哪项系统配置或全局功能状态”，后者回答“对当前运行中的系统执行了什么即时管理动作”。不能因为插件、组件或全局功能不是字面参数键，就把其配置动作降级为 `ADMIN`。
+`SYSTEM_SETTING_WRITE` 和 `ADMIN` 可以共享 `SecDataAuthKind.MANAGE`，但判定依据不同：前者回答“修改了哪项系统配置或全局功能状态”，后者回答“对当前运行中的系统执行了什么即时管理动作”。不能因为插件、组件或全局功能不是字面参数键，就把其配置动作降级为 `ADMIN`。
 
 修改安全、审计、密钥等系统能力的全局配置时使用 `SYSTEM_SETTING_WRITE`。配置生效
 过程中由数据库内部条件性触发的日志轮转、缓存刷新或清理不是 SQL 直接表达的动作，

@@ -78,7 +78,7 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
         StatementBehavior behavior = new StatementBehavior();
         behavior.setStatementType(statementType);
-        behavior.setRelations(new MyBehaviorRelationAssembler(sql, visitor.references(), levels).assemble());
+        behavior.setRelations(new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), levels).assemble());
         behaviors.add(behavior);
         return null;
     }

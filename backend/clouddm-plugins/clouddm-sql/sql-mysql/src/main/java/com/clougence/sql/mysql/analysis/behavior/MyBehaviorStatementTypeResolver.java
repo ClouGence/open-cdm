@@ -186,10 +186,10 @@ final class MyBehaviorStatementTypeResolver {
         if (normalized.startsWith("SET @@PERSIST") || normalized.startsWith("SET PERSIST")) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
-        if (normalized.startsWith("INSTALL PLUGIN")) {
+        if (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")) {
             return SplitQueryType.CREATE_LIBRARY;
         }
-        if (normalized.startsWith("UNINSTALL PLUGIN")) {
+        if (normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("UNINSTALL COMPONENT")) {
             return SplitQueryType.DROP_LIBRARY;
         }
         if (normalized.startsWith("SIGNAL ") || normalized.startsWith("RESIGNAL")) {

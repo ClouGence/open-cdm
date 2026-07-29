@@ -1280,7 +1280,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateTablespaceInnodb(CreateTablespaceInnodbContext ctx) {
-        addStatementDomain(RuleQueryType.CREATE_OBJECT);
+        addStatementDomain(RuleQueryType.CREATE_TABLESPACE);
         return null;
     }
 
@@ -1292,13 +1292,13 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAlterLogfileGroup(AlterLogfileGroupContext ctx) {
-        addStatementDomain(RuleQueryType.ALTER_OBJECT);
+        addStatementDomain(RuleQueryType.ALTER_LOG);
         return null;
     }
 
     @Override
     public Void visitAlterTablespace(AlterTablespaceContext ctx) {
-        addStatementDomain(RuleQueryType.ALTER_OBJECT);
+        addStatementDomain(RuleQueryType.ALTER_TABLESPACE);
         return null;
     }
 
@@ -1310,7 +1310,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDropTablespace(DropTablespaceContext ctx) {
-        addStatementDomain(RuleQueryType.DROP_OBJECT);
+        addStatementDomain(RuleQueryType.DROP_TABLESPACE);
         return null;
     }
 
@@ -1322,19 +1322,19 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDropLogfileGroup(DropLogfileGroupContext ctx) {
-        addStatementDomain(RuleQueryType.DROP_OBJECT);
+        addStatementDomain(RuleQueryType.DROP_LOG);
         return null;
     }
 
     @Override
     public Void visitCreateLogfileGroup(CreateLogfileGroupContext ctx) {
-        addStatementDomain(RuleQueryType.CREATE_OBJECT);
+        addStatementDomain(RuleQueryType.CREATE_LOG);
         return null;
     }
 
     @Override
     public Void visitCreateTablespaceNdb(CreateTablespaceNdbContext ctx) {
-        addStatementDomain(RuleQueryType.CREATE_OBJECT);
+        addStatementDomain(RuleQueryType.CREATE_TABLESPACE);
         return null;
     }
 

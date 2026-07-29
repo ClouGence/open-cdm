@@ -734,6 +734,10 @@ expect:
     {
       "subject": "Function(2:16~2:49) /test/1/catalog1/CODEX_DM8_FUNCTION/F_CALC_DYNAMIC/",
       "action": "CREATE"
+    },
+    {
+      "subject": "PrepareStatement(2:84~2:91) /test/1/",
+      "action": "UNSAFE"
     }
   ]
 }

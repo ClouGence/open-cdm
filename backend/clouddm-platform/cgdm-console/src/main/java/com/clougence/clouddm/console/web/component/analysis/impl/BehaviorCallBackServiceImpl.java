@@ -35,28 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class BehaviorCallBackServiceImpl implements BehaviorCallBackService {
 
-    private static final Set<BehaviorAction> ACTION_BLACKLIST;
-
-    static {
-        ACTION_BLACKLIST = EnumSet.noneOf(BehaviorAction.class);
-        ACTION_BLACKLIST.add(BehaviorAction.READ);
-        ACTION_BLACKLIST.add(BehaviorAction.INSERT);
-        ACTION_BLACKLIST.add(BehaviorAction.UPDATE);
-        ACTION_BLACKLIST.add(BehaviorAction.DELETE);
-        ACTION_BLACKLIST.add(BehaviorAction.MERGE);
-        ACTION_BLACKLIST.add(BehaviorAction.REPLACE);
-        ACTION_BLACKLIST.add(BehaviorAction.IMPORT);
-        ACTION_BLACKLIST.add(BehaviorAction.EXPORT);
-        ACTION_BLACKLIST.add(BehaviorAction.CALL);
-        ACTION_BLACKLIST.add(BehaviorAction.GRANT);
-        ACTION_BLACKLIST.add(BehaviorAction.REVOKE);
-        ACTION_BLACKLIST.add(BehaviorAction.TRANSFER);
-        ACTION_BLACKLIST.add(BehaviorAction.COPY);
-        ACTION_BLACKLIST.add(BehaviorAction.LOCK);
-        ACTION_BLACKLIST.add(BehaviorAction.CONFIGURE);
-        ACTION_BLACKLIST.add(BehaviorAction.SWITCH);
-        ACTION_BLACKLIST.add(BehaviorAction.ADMIN);
-    }
+    private static final Set<BehaviorAction>    BACKFILL_ACTIONS = EnumSet.of( //
+            BehaviorAction.CREATE, BehaviorAction.ALTER, BehaviorAction.DROP);
 
     @Resource
     private ExecutionDal                        execDal;
@@ -79,7 +59,7 @@ public class BehaviorCallBackServiceImpl implements BehaviorCallBackService {
         }
 
         behaviors = behaviors.stream() //
-            .filter(b -> b != null && !ACTION_BLACKLIST.contains(b.getAction()))
+            .filter(b -> b != null && BACKFILL_ACTIONS.contains(b.getAction()))
             .toList();
         if (behaviors.isEmpty()) {
             return;

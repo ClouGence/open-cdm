@@ -195,7 +195,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/sf_mpp_inst_add/",
-      "action": "ADMIN"
+      "action": "ALTER"
     },
     {
       "subject": "View(2:36~2:40) /test/1/catalog1/schema1/dual/",
@@ -215,7 +215,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(2:7~2:25) /test/1/catalog1/schema1/sf_mpp_inst_remove/",
-      "action": "ADMIN",
+      "action": "UNSAFE",
       "target": "Instance(2:26~2:47) /test/1/CODEX_MISSING_EP_27/"
     },
     {
@@ -327,7 +327,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(2:7~2:22) /test/1/catalog1/schema1/sf_mpp_inst_add/",
-      "action": "ADMIN"
+      "action": "ALTER"
     },
     {
       "subject": "View(2:40~2:44) /test/1/catalog1/schema1/dual/",
@@ -347,7 +347,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(2:7~2:25) /test/1/catalog1/schema1/sf_mpp_inst_remove/",
-      "action": "ADMIN"
+      "action": "UNSAFE"
     },
     {
       "subject": "View(2:33~2:37) /test/1/catalog1/schema1/dual/",

@@ -64,7 +64,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(1:11~1:26) /test/1/catalog1/app/amount_type/",
-      "action" : "ADMIN"
+      "action" : "ALTER"
     }
   ]
 }

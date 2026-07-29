@@ -453,6 +453,10 @@ expect:
     {
       "subject": "Procedure(1:17~1:28) /test/1/catalog1/CODEX_DM8_ROUTINE_20260721/ROUTINE_P20/",
       "action": "CREATE"
+    },
+    {
+      "subject": "PrepareStatement(4:2~4:9) /test/1/",
+      "action": "UNSAFE"
     }
   ]
 }

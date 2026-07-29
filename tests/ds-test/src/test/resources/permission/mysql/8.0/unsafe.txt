@@ -420,3 +420,149 @@ expect:
     "PrepareStatement(1:8~1:20) /test/1/stmt_set_var/"
   ]
 }
+----------
+[permission_mysql_8_0_00075]
+source: behavior/mysql/8.0/basic.txt#install_plugin_is_library
+sql:
+INSTALL PLUGIN split_plugin SONAME 'split.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "Library(1:0~1:45) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00078]
+source: behavior/mysql/8.0/basic.txt#uninstall_plugin_is_library
+sql:
+UNINSTALL PLUGIN split_plugin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "Library(1:0~1:29) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00081]
+source: behavior/mysql/8.0/basic.txt#component_options_are_opaque
+sql:
+INSTALL COMPONENT 'file://component_validate_password' SET length=@gizmo;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "Library(1:0~1:72) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00218]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#59
+sql:
+RESET MASTER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "Log(1:0~1:12) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00266]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#40
+sql:
+INSTALL PLUGIN split_missing_plugin_56 SONAME 'split_missing_plugin.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "Library(1:0~1:71) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00267]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#41
+sql:
+UNINSTALL PLUGIN split_missing_plugin_56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "Library(1:0~1:40) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00325]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#4
+sql:
+BINLOG 'U2EZYw8CAAAAdwAAAHsAAAAAAAQANS43LjM2LWxvZwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEzgNAAgAEgAEBAQEEgAAXwAEGggAAAAICAgCAAAACgoKKioAEjQAAYA9mSk=';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "Log(1:0~1:169) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00352]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#38
+sql:
+BINLOG '
+SVtYRxMBAAAAKQAAADQBAAAAABAAAAAAAAAABHRlc3QAAnQxAAEDAAE=
+SVtYRxcBAAAAIgAAAFYBAAAQABAAAAAAAAEAAf/+AgAAAA==
+';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "Log(1:0~4:1) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00371]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#25
+sql:
+SET GLOBAL GTID_PURGED = '+11111111-1111-1111-1111-111111111111:audit:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "ConfigKey(1:4~1:22) /test/1/GTID_PURGED/"
+  ]
+}
+----------
+[permission_mysql_8_0_00372]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#26
+sql:
+SET GLOBAL sql_slave_skip_counter=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "ConfigKey(1:4~1:33) /test/1/sql_slave_skip_counter/"
+  ]
+}
+----------
+[permission_mysql_8_0_00376]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#30
+sql:
+SET SESSION debug='d,force_fake_uuid';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "ConfigKey(1:4~1:17) /test/1/debug/"
+  ]
+}

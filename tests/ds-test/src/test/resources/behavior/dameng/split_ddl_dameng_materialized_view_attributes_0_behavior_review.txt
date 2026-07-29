@@ -462,7 +462,7 @@ expect:
   "ADMIN": [
     {
       "subject": "Materialized(1:26~1:39) /test/1/catalog1/schema1/MV_AUTOCOMMIT/",
-      "action" : "ADMIN"
+      "action" : "REFRESH"
     }
   ]
 }
@@ -508,7 +508,7 @@ expect:
   "ADMIN": [
     {
       "subject": "Materialized(1:26~1:41) /test/1/catalog1/schema1/MV_PACK_REFRESH/",
-      "action" : "ADMIN"
+      "action" : "REFRESH"
     }
   ]
 }
@@ -523,7 +523,7 @@ expect:
   "ADMIN": [
     {
       "subject": "Materialized(1:26~1:41) /test/1/catalog1/schema1/MV_PACK_REFRESH/",
-      "action" : "ADMIN"
+      "action" : "REFRESH"
     }
   ]
 }
@@ -538,7 +538,7 @@ expect:
   "ADMIN": [
     {
       "subject": "Materialized(1:26~1:41) /test/1/catalog1/schema1/MV_PACK_REFRESH/",
-      "action" : "ADMIN"
+      "action" : "REFRESH"
     }
   ]
 }

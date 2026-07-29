@@ -1,4 +1,4 @@
-[other_object_ddl_CREATE_OBJECT_1]
+[storage_ddl_CREATE_TABLESPACE_1]
 sql:
 -- 创建 InnoDB 通用表空间
 CREATE TABLESPACE `my_innodb_ts`
@@ -8,9 +8,9 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlType": "CREATE_TABLESPACE",
       "auditKind": "CREATE",
-      "target": "Unknown",
+      "target": "Tablespace",
       "needSupply": false
     }
   ]
@@ -18,7 +18,7 @@ expect:
 ----------
 
 
-[other_object_ddl_CREATE_OBJECT_2]
+[storage_ddl_CREATE_TABLESPACE_2]
 sql:
 CREATE TABLESPACE `my_innodb_ts`
 ADD DATAFILE '/path/to/data/my_innodb_ts.ibd'
@@ -27,16 +27,16 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlType": "CREATE_TABLESPACE",
       "auditKind": "CREATE",
-      "target": "Unknown",
+      "target": "Tablespace",
       "needSupply": false
     }
   ]
 }
 ----------
 
-[other_object_ddl_CREATE_OBJECT_3]
+[storage_ddl_CREATE_TABLESPACE_3]
 sql:
 CREATE TABLESPACE `my_innodb_ts`
 ADD DATAFILE 'my_innodb_ts.ibd'
@@ -46,16 +46,16 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlType": "CREATE_TABLESPACE",
       "auditKind": "CREATE",
-      "target": "Unknown",
+      "target": "Tablespace",
       "needSupply": false
     }
   ]
 }
 ----------
 
-[other_object_ddl_CREATE_OBJECT_4]
+[storage_ddl_CREATE_LOG_4]
 sql:
 CREATE LOGFILE GROUP my_log_group
 ADD UNDOFILE 'undo_001.dat'
@@ -66,16 +66,16 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlType": "CREATE_LOG",
       "auditKind": "CREATE",
-      "target": "Unknown",
+      "target": "Log",
       "needSupply": false
     }
   ]
 }
 ----------
 
-[other_object_ddl_CREATE_OBJECT_5]
+[storage_ddl_CREATE_TABLESPACE_5]
 sql:
 CREATE TABLESPACE `my_ndb_ts`
 ADD DATAFILE 'data_001.dat'
@@ -86,16 +86,16 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "CREATE_OBJECT",
+      "sqlType": "CREATE_TABLESPACE",
       "auditKind": "CREATE",
-      "target": "Unknown",
+      "target": "Tablespace",
       "needSupply": false
     }
   ]
 }
 ----------
 
-[other_object_ddl_ALTER_OBJECT_6]
+[storage_ddl_ALTER_LOG_6]
 sql:
 ALTER LOGFILE GROUP my_log_group
 ADD UNDOFILE 'undo_002.dat'
@@ -105,32 +105,32 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_OBJECT",
+      "sqlType": "ALTER_LOG",
       "auditKind": "ALTER",
-      "target": "Unknown",
+      "target": "Log",
       "needSupply": false
     }
   ]
 }
 ----------
 
-[other_object_ddl_ALTER_OBJECT_7]
+[storage_ddl_ALTER_TABLESPACE_7]
 sql:
 ALTER TABLESPACE old_ts_name RENAME TO new_ts_name;
 expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_OBJECT",
+      "sqlType": "ALTER_TABLESPACE",
       "auditKind": "ALTER",
-      "target": "Unknown",
+      "target": "Tablespace",
       "needSupply": false
     }
   ]
 }
 ----------
 
-[other_object_ddl_ALTER_OBJECT_8]
+[storage_ddl_ALTER_TABLESPACE_8]
 sql:
 -- 假设已有表空间 ts_ndb
 ALTER TABLESPACE ts_ndb
@@ -141,32 +141,32 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "ALTER_OBJECT",
+      "sqlType": "ALTER_TABLESPACE",
       "auditKind": "ALTER",
-      "target": "Unknown",
+      "target": "Tablespace",
       "needSupply": false
     }
   ]
 }
 ----------
 
-[other_object_ddl_DROP_OBJECT_9]
+[storage_ddl_DROP_TABLESPACE_9]
 sql:
 DROP TABLESPACE tablespace_name;
 expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_OBJECT",
+      "sqlType": "DROP_TABLESPACE",
       "auditKind": "DROP",
-      "target": "Unknown",
+      "target": "Tablespace",
       "needSupply": false
     }
   ]
 }
 ----------
 
-[other_object_ddl_DROP_OBJECT_10]
+[storage_ddl_DROP_TABLESPACE_10]
 sql:
 DROP TABLESPACE tablespace_name
 ENGINE = NDBCLUSTER;
@@ -174,16 +174,16 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_OBJECT",
+      "sqlType": "DROP_TABLESPACE",
       "auditKind": "DROP",
-      "target": "Unknown",
+      "target": "Tablespace",
       "needSupply": false
     }
   ]
 }
 ----------
 
-[other_object_ddl_DROP_OBJECT_11]
+[storage_ddl_DROP_LOG_11]
 sql:
 DROP LOGFILE GROUP logfile_group_name
 ENGINE = NDBCLUSTER;
@@ -191,9 +191,9 @@ expect:
 {
   "contains": [
     {
-      "sqlType": "DROP_OBJECT",
+      "sqlType": "DROP_LOG",
       "auditKind": "DROP",
-      "target": "Unknown",
+      "target": "Log",
       "needSupply": false
     }
   ]

@@ -8,7 +8,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:23) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -23,7 +23,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:31) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -38,7 +38,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:36) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -53,7 +53,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:17) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -68,7 +68,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:17) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -83,7 +83,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:16) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -98,7 +98,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:18) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -113,7 +113,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:10) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -143,7 +143,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:16) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -158,7 +158,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:15) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -173,7 +173,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:12) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -188,7 +188,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:20) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -203,7 +203,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:0~1:12) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -218,7 +218,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:0~1:11) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -233,11 +233,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:33) /test/1/catalog1/split_verify/flush_a/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     },
     {
       "subject": "Table(1:35~1:55) /test/1/catalog1/split_verify/flush_b/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -252,7 +252,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:0~1:27) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -267,7 +267,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:32) /test/1/catalog1/split_verify/flush_a/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     },
     {
       "subject": "Table(1:12~1:32) /test/1/catalog1/split_verify/flush_a/",
@@ -339,7 +339,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:18) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -369,11 +369,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:32~1:55) /test/1/catalog1/admin_sql_audit/flush_a/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     },
     {
       "subject": "Table(1:57~1:80) /test/1/catalog1/admin_sql_audit/flush_b/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -388,7 +388,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:28) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -403,7 +403,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:11) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -418,7 +418,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:155) /test/1/",
-      "action" : "ADMIN"
+      "action": "FLUSH"
     }
   ]
 }
@@ -433,11 +433,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:36) /test/1/catalog1/admin_sql_audit/flush_a/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     },
     {
       "subject": "Table(1:38~1:61) /test/1/catalog1/admin_sql_audit/flush_b/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     },
     {
       "subject": "Table(1:13~1:36) /test/1/catalog1/admin_sql_audit/flush_a/",
@@ -460,7 +460,7 @@ expect:
   "ADMIN": [
     {
       "subject": "Instance(1:0~1:11) /test/1/",
-      "action" : "ADMIN"
+      "action": "TERMINATE"
     }
   ]
 }
@@ -475,7 +475,7 @@ expect:
   "ADMIN": [
     {
       "subject": "Instance(1:0~1:22) /test/1/",
-      "action" : "ADMIN"
+      "action": "TERMINATE"
     }
   ]
 }
@@ -490,7 +490,7 @@ expect:
   "ADMIN": [
     {
       "subject": "Instance(1:0~1:17) /test/1/",
-      "action" : "ADMIN"
+      "action": "TERMINATE"
     }
   ]
 }
@@ -520,7 +520,7 @@ expect:
   "ADMIN": [
     {
       "subject": "Instance(1:0~1:21) /test/1/",
-      "action" : "ADMIN"
+      "action": "TERMINATE"
     }
   ]
 }
@@ -535,11 +535,11 @@ expect:
   "ADMIN": [
     {
       "subject": "Instance(1:0~1:40) /test/1/",
-      "action" : "ADMIN"
+      "action": "TERMINATE"
     },
     {
       "subject": "Function(1:16~1:20) /test/1/catalog1/schema1/CAST/",
-      "action" : "CALL"
+      "action": "CALL"
     }
   ]
 }
@@ -554,7 +554,7 @@ expect:
   "ADMIN": [
     {
       "subject": "Instance(1:0~1:26) /test/1/",
-      "action" : "ADMIN"
+      "action": "TERMINATE"
     }
   ]
 }
@@ -584,7 +584,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "ANALYZE"
     }
   ]
 }
@@ -599,7 +599,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "ANALYZE"
     }
   ]
 }
@@ -614,7 +614,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:33~1:53) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "ANALYZE"
     }
   ]
 }
@@ -629,7 +629,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -644,7 +644,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -659,7 +659,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -674,7 +674,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "CHECKSUM"
     }
   ]
 }
@@ -689,7 +689,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "CHECKSUM"
     }
   ]
 }
@@ -704,7 +704,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:16~1:36) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "CHECKSUM"
     }
   ]
 }
@@ -719,7 +719,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:34~1:54) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "OPTIMIZE"
     }
   ]
 }
@@ -734,7 +734,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:22~1:42) /test/1/catalog1/split84/maint_innodb/",
-      "action" : "ADMIN"
+      "action" : "OPTIMIZE"
     }
   ]
 }
@@ -749,7 +749,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:19~1:39) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }
@@ -764,7 +764,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:14~1:34) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }
@@ -779,7 +779,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Index(1:12~1:32) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -794,7 +794,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:67) /test/1/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -809,7 +809,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Index(1:12~1:33) /test/1/catalog1/split_part/maint_part/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -824,7 +824,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:83) /test/1/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -839,7 +839,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:39) /test/1/",
-      "action" : "ADMIN"
+      "action": "PURGE"
     }
   ]
 }
@@ -854,7 +854,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:46) /test/1/",
-      "action" : "ADMIN"
+      "action": "PURGE"
     }
   ]
 }
@@ -869,11 +869,11 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:59) /test/1/",
-      "action" : "ADMIN"
+      "action": "PURGE"
     },
     {
       "subject": "Function(1:25~1:42) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
-      "action" : "CALL"
+      "action": "CALL"
     }
   ]
 }
@@ -888,7 +888,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:39) /test/1/",
-      "action" : "ADMIN"
+      "action": "PURGE"
     }
   ]
 }
@@ -903,11 +903,11 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:59) /test/1/",
-      "action" : "ADMIN"
+      "action": "PURGE"
     },
     {
       "subject": "Function(1:25~1:42) /test/1/catalog1/schema1/CURRENT_TIMESTAMP/",
-      "action" : "CALL"
+      "action": "CALL"
     }
   ]
 }
@@ -922,7 +922,7 @@ expect:
   "MAINTAIN_LOG": [
     {
       "subject": "Log(1:0~1:12) /test/1/",
-      "action" : "ADMIN"
+      "action": "UNSAFE"
     }
   ]
 }
@@ -937,7 +937,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:24) /test/1/",
-      "action" : "ALTER"
+      "action": "RESET"
     }
   ]
 }
@@ -952,7 +952,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:17) /test/1/",
-      "action" : "ADMIN"
+      "action" : "RESET"
     }
   ]
 }
@@ -967,7 +967,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Index(1:12~1:14) /test/1/catalog1/schema1/t3/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -982,7 +982,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }
@@ -997,7 +997,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }
@@ -1012,7 +1012,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }
@@ -1027,7 +1027,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }
@@ -1042,7 +1042,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }
@@ -1057,7 +1057,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }
@@ -1072,7 +1072,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/",
-      "action" : "ADMIN"
+      "action" : "REPAIR"
     }
   ]
 }

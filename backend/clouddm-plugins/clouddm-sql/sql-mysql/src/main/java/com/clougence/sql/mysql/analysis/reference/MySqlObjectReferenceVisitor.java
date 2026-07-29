@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.parser.MySqlVersion;
@@ -1340,6 +1341,15 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         List<String> nodes = new ArrayList<>();
         addPart(nodes, name);
         addWithNodes(sqlType, targetType, require, token, nodes);
+    }
+
+    protected final void addInstanceBehaviorResource(SplitQueryType sqlType, TargetType targetType, boolean require, Token token, String name, BehaviorAction action) {
+        List<String> nodes = new ArrayList<>();
+        addPart(nodes, name);
+        if (token == null || nodes.isEmpty()) {
+            return;
+        }
+        references.add(new MySqlObjectReference(sqlType, targetType, require, line(token), column(token), endLine(token), endColumn(token), nodes, action));
     }
 
     private void addWithNodes(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> nodes) {

@@ -1282,7 +1282,7 @@ expect:
   "ADMIN_PROG_OBJ": [
     {
       "subject": "Package(1:14~1:25) /test/1/catalog1/schema1/PACKAGE_P25/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }
@@ -1297,7 +1297,7 @@ expect:
   "ADMIN_PROG_OBJ": [
     {
       "subject": "Package(1:14~1:25) /test/1/catalog1/schema1/PACKAGE_P26/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }
@@ -1312,7 +1312,7 @@ expect:
   "ADMIN_PROG_OBJ": [
     {
       "subject": "Package(1:14~1:25) /test/1/catalog1/schema1/PACKAGE_P27/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }
@@ -1327,7 +1327,7 @@ expect:
   "ADMIN_PROG_OBJ": [
     {
       "subject": "Package(1:14~1:25) /test/1/catalog1/schema1/PACKAGE_P28/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }

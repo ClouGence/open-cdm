@@ -212,14 +212,14 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
             case READ -> SplitQueryType.SELECT;
             case LOCK -> SplitQueryType.QUERY_LOCK;
             case CONFIGURE -> SplitQueryType.SYSTEM_SETTING_WRITE;
-            case ADMIN -> SplitQueryType.ADMIN;
+            case ALTER, RESET, SWITCH -> SplitQueryType.ALTER_REPLICATION;
             default -> throw new IllegalStateException("unsupported functional function action " + behavior);
         };
         boolean quotedIdentifier = token.getType() == MySqlParser.REVERSE_QUOTE_ID || token.getType() == MySqlParser.DOUBLE_QUOTE_ID;
         if (quotedIdentifier || resources.isUserDefinedFunction(token.getText(), false, version)) {
             add(type, TargetType.Function, true, token);
         } else {
-            addInstanceResource(type, TargetType.Function, true, token, token.getText());
+            addInstanceBehaviorResource(type, TargetType.Function, true, token, token.getText(), behavior);
         }
     }
 

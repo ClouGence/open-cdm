@@ -38,7 +38,6 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.DsResPath;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
@@ -53,10 +52,8 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
-import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.utils.CollectionUtils;
@@ -81,8 +78,6 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     private DmResAuthService       dmDsAuthService;
     @Resource
     private DmAuthServiceForManage authServiceForManage;
-    @Resource
-    private DmEnvParamService      dmEnvParamService;
     @Resource
     private DmDsConfigService      dmDsConfigService;
 
@@ -113,14 +108,6 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
 
     @Override
     public boolean checkResPathWithoutError(String puid, String uid, long resId, AuthKind authKind, DsResPath resPath, String dataAuthLabel) {
-        if (authKind == AuthKind.DataSource) {
-            DmDsDO dsDO = this.dsDal.dsMapper().selectById(resId);
-            String enable = this.dmEnvParamService.queryParam(puid, dsDO.getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
-            if (StringUtils.equals(SecDataAuthLabel.DM_DAUTH_OTHER, dataAuthLabel) && StringUtils.equalsIgnoreCase("true", enable)) {
-                return false;
-            }
-        }
-
         try {
             return this.checkResAuthWithoutError(puid, uid, resId, resPath, dataAuthLabel, authKind);
         } catch (Exception e) {

@@ -84,7 +84,8 @@ public final class PermissionTextTest {
             verifyResources(prefix(testCase) + "." + entry.getKey(), entry.getValue(), actualForKind, failures);
         }
         if (!failures.isEmpty()) {
-            Assert.fail(resourcePath + System.lineSeparator() + String.join(System.lineSeparator(), failures));
+            Assert.fail(resourcePath + System.lineSeparator() + String.join(System.lineSeparator(), failures) + System.lineSeparator()
+                        + prefix(testCase) + ".actual: " + summarize(actual));
         }
     }
 

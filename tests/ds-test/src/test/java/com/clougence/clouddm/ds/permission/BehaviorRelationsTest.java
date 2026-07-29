@@ -14,11 +14,8 @@ import org.junit.jupiter.api.Test;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.ObjectName;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 
 public final class BehaviorRelationsTest {
@@ -26,8 +23,66 @@ public final class BehaviorRelationsTest {
     @Test
     public void permissionsComeFromBehaviorSemantics() {
         Assert.assertEquals(SecDataAuthKind.READ, flatten(BehaviorAction.READ, TargetType.Log).authKind());
-        Assert.assertEquals(SecDataAuthKind.ADMIN, flatten(BehaviorAction.ADMIN, TargetType.Instance).authKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, flatten(BehaviorAction.CHECKPOINT, TargetType.Instance).authKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, flatten(BehaviorAction.ANALYZE, TargetType.Table).authKind());
+        Assert.assertEquals(SecDataAuthKind.UNSAFE, flatten(BehaviorAction.UNSAFE, TargetType.Instance).authKind());
         Assert.assertNull(flatten(BehaviorAction.LOCK, TargetType.Table).authKind());
+    }
+
+    @Test
+    public void managementObjectLifecycleUsesManagementPermission() {
+        Assert.assertEquals(SecDataAuthKind.MANAGE, flatten(BehaviorAction.CREATE, TargetType.Link).authKind());
+        Assert.assertEquals(SecDataAuthKind.MANAGE, flatten(BehaviorAction.ALTER, TargetType.Job).authKind());
+        Assert.assertEquals(SecDataAuthKind.MANAGE, flatten(BehaviorAction.DROP, TargetType.Publication).authKind());
+        Assert.assertEquals(SecDataAuthKind.MANAGE, flatten(BehaviorAction.CREATE, TargetType.RowAccessPolicy).authKind());
+    }
+
+    @Test
+    public void operationalBehaviorUsesMaintenancePermission() {
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, flatten(BehaviorAction.IMPORT, TargetType.Table).authKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, flatten(BehaviorAction.EXPORT, TargetType.File).authKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, flatten(BehaviorAction.CREATE, TargetType.ResourceGroup).authKind());
+    }
+
+    @Test
+    public void grantsAndConfigurationUseManagementPermission() {
+        Assert.assertEquals(SecDataAuthKind.MANAGE, flatten(BehaviorAction.GRANT, TargetType.UserOrRole).authKind());
+        Assert.assertEquals(SecDataAuthKind.MANAGE, flatten(BehaviorAction.REVOKE, TargetType.Table).authKind());
+        Assert.assertEquals(SecDataAuthKind.MANAGE, flatten(BehaviorAction.CONFIGURE, TargetType.ConfigKey).authKind());
+    }
+
+    @Test
+    public void programmableObjectDefinitionsRequireDdlPermission() {
+        Assert.assertEquals(SecDataAuthKind.DDL, flatten(BehaviorAction.CREATE, TargetType.Procedure).authKind());
+        Assert.assertEquals(SecDataAuthKind.DDL, flatten(BehaviorAction.ALTER, TargetType.Function).authKind());
+        Assert.assertEquals(SecDataAuthKind.DDL, flatten(BehaviorAction.DROP, TargetType.Trigger).authKind());
+    }
+
+    @Test
+    public void programmableObjectExecutionRequiresProgramPermission() {
+        Assert.assertEquals(SecDataAuthKind.PROGRAM, flatten(BehaviorAction.CALL, TargetType.Procedure).authKind());
+        Assert.assertEquals(SecDataAuthKind.PROGRAM, flatten(BehaviorAction.CALL, TargetType.Function).authKind());
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    public void legacyOtherStatementKindsUseExplicitPermissions() {
+        Assert.assertEquals(SecDataAuthKind.PROGRAM, RuleQueryType.BLOCK.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.PROGRAM, RuleQueryType.PROGRAM_CONTROL.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.READ, RuleQueryType.QUERY_LOCK.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, RuleQueryType.SESSION_LOCK.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, RuleQueryType.ANALYZE.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, RuleQueryType.OPTIMIZE.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, RuleQueryType.CHECK_TABLE.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, RuleQueryType.TRANSACTION.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.UNSAFE, RuleQueryType.PREPARE.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.UNSAFE, RuleQueryType.EXECUTE.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.UNSAFE, RuleQueryType.DEALLOCATE.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.PROGRAM, RuleQueryType.SQL_BLOCK.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, RuleQueryType.EXPORT.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.MAINTAIN, RuleQueryType.SYNC.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.UNSAFE, RuleQueryType.UNSAFE.getAuthKind());
+        Assert.assertEquals(SecDataAuthKind.UNSAFE, RuleQueryType.UNKNOWN.getAuthKind());
     }
 
     @Test

@@ -21155,7 +21155,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:50) /test/1/catalog1/schema1/asynchronous_connection_failover_add_source/",
-      "action" : "CONFIGURE"
+      "action" : "ALTER"
     }
   ]
 }
@@ -21170,7 +21170,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:53) /test/1/catalog1/schema1/asynchronous_connection_failover_delete_source/",
-      "action" : "CONFIGURE"
+      "action" : "ALTER"
     }
   ]
 }
@@ -21185,7 +21185,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:51) /test/1/catalog1/schema1/asynchronous_connection_failover_add_managed/",
-      "action" : "CONFIGURE"
+      "action" : "ALTER"
     }
   ]
 }
@@ -21200,7 +21200,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:54) /test/1/catalog1/schema1/asynchronous_connection_failover_delete_managed/",
-      "action" : "CONFIGURE"
+      "action" : "ALTER"
     }
   ]
 }
@@ -25336,7 +25336,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:45) /test/1/catalog1/schema1/asynchronous_connection_failover_reset/",
-      "action" : "CONFIGURE"
+      "action" : "RESET"
     }
   ]
 }

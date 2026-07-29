@@ -563,7 +563,16 @@ levels:
 /test/1/catalog1/schema1
 expect:
 {
-  "BLOCK": []
+  "BLOCK": [
+    {
+      "subject": "PrepareStatement(4:2~4:9) /test/1/",
+      "action": "UNSAFE"
+    },
+    {
+      "subject": "PrepareStatement(5:2~5:9) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
 }
 ----------
 [split_block_dameng_advanced_0_031]
@@ -577,7 +586,12 @@ levels:
 /test/1/catalog1/schema1
 expect:
 {
-  "BLOCK": []
+  "BLOCK": [
+    {
+      "subject": "PrepareStatement(4:2~4:9) /test/1/",
+      "action": "UNSAFE"
+    }
+  ]
 }
 ----------
 [split_block_dameng_advanced_0_032]
@@ -594,6 +608,10 @@ levels:
 expect:
 {
   "BLOCK": [
+    {
+      "subject": "PrepareStatement(5:2~5:9) /test/1/",
+      "action": "UNSAFE"
+    },
     {
       "subject": "Table(6:14~6:28) /test/1/catalog1/schema1/program_target/",
       "action": "DELETE"
@@ -620,6 +638,10 @@ expect:
       "action": "INSERT"
     },
     {
+      "subject": "PrepareStatement(5:2~5:9) /test/1/",
+      "action": "UNSAFE"
+    },
+    {
       "subject": "Table(6:14~6:28) /test/1/catalog1/schema1/program_target/",
       "action": "DELETE"
     }
@@ -642,6 +664,10 @@ expect:
     {
       "subject": "Table(4:14~4:28) /test/1/catalog1/schema1/program_target/",
       "action": "INSERT"
+    },
+    {
+      "subject": "PrepareStatement(5:2~5:9) /test/1/",
+      "action": "UNSAFE"
     }
   ]
 }
@@ -660,6 +686,10 @@ levels:
 expect:
 {
   "BLOCK": [
+    {
+      "subject": "PrepareStatement(4:2~4:9) /test/1/",
+      "action": "UNSAFE"
+    },
     {
       "subject": "Table(6:14~6:28) /test/1/catalog1/schema1/program_target/",
       "action": "DELETE"

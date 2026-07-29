@@ -2594,7 +2594,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:39) /test/1/catalog1/schema1/group_replication_set_as_primary/",
-      "action" : "CONFIGURE"
+      "action" : "SWITCH"
     }
   ]
 }
@@ -2609,7 +2609,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:53) /test/1/catalog1/schema1/group_replication_switch_to_multi_primary_mode/",
-      "action" : "CONFIGURE"
+      "action" : "SWITCH"
     }
   ]
 }
@@ -2624,7 +2624,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:54) /test/1/catalog1/schema1/group_replication_switch_to_single_primary_mode/",
-      "action" : "CONFIGURE"
+      "action" : "SWITCH"
     }
   ]
 }
@@ -2699,7 +2699,7 @@ expect:
   "SELECT": [
     {
       "subject": "Function(1:7~1:45) /test/1/catalog1/schema1/group_replication_reset_member_actions/",
-      "action" : "CONFIGURE"
+      "action" : "RESET"
     }
   ]
 }

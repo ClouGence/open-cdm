@@ -26,13 +26,15 @@ import com.clougence.utils.StringUtils;
 final class MyBehaviorRelationAssembler {
 
     private final String                     sql;
+    private final BehaviorAction             statementAction;
     private final List<MySqlObjectReference> references;
     private final Map<UmiTypes, Object>      levels;
     private final boolean[]                  consumed;
     private final List<BehaviorRelation>     relations = new ArrayList<>();
 
-    MyBehaviorRelationAssembler(String sql, List<MySqlObjectReference> references, Map<UmiTypes, Object> levels){
+    MyBehaviorRelationAssembler(String sql, SplitQueryType statementType, List<MySqlObjectReference> references, Map<UmiTypes, Object> levels){
         this.sql = sql == null ? "" : sql;
+        this.statementAction = statementAction(this.sql, statementType);
         this.references = references;
         this.levels = levels;
         this.consumed = new boolean[references.size()];
@@ -67,7 +69,7 @@ final class MyBehaviorRelationAssembler {
     private void assembleRename() {
         for (int i = 0; i < references.size(); i++) {
             MySqlObjectReference source = references.get(i);
-            if (consumed[i] || action(source.sqlType()) != BehaviorAction.RENAME || !source.require()) {
+            if (consumed[i] || action(source) != BehaviorAction.RENAME || !source.require()) {
                 continue;
             }
             for (int j = i + 1; j < references.size(); j++) {
@@ -83,7 +85,7 @@ final class MyBehaviorRelationAssembler {
     private void assembleGrantOrRevoke() {
         BehaviorAction relationAction = null;
         for (MySqlObjectReference reference : references) {
-            BehaviorAction current = action(reference.sqlType());
+            BehaviorAction current = action(reference);
             if (current == BehaviorAction.GRANT || current == BehaviorAction.REVOKE) {
                 relationAction = current;
                 break;
@@ -96,7 +98,7 @@ final class MyBehaviorRelationAssembler {
         List<Integer> resources = new ArrayList<>();
         List<Integer> principals = new ArrayList<>();
         for (int i = 0; i < references.size(); i++) {
-            if (action(references.get(i).sqlType()) != relationAction) {
+            if (action(references.get(i)) != relationAction) {
                 continue;
             }
             TargetType type = references.get(i).targetType();
@@ -143,8 +145,8 @@ final class MyBehaviorRelationAssembler {
         if (!(normalized.startsWith("SET DEFAULT ROLE") || alterUserEnd >= 0 && MyBehaviorText.containsWords(normalized.substring(alterUserEnd), "DEFAULT", "ROLE"))) {
             return;
         }
-        List<Integer> users = all(reference -> reference.targetType() == TargetType.User && action(reference.sqlType()) == BehaviorAction.ALTER);
-        List<Integer> roles = all(reference -> reference.targetType() == TargetType.Role && action(reference.sqlType()) == BehaviorAction.ALTER);
+        List<Integer> users = all(reference -> reference.targetType() == TargetType.User && action(reference) == BehaviorAction.ALTER);
+        List<Integer> roles = all(reference -> reference.targetType() == TargetType.Role && action(reference) == BehaviorAction.ALTER);
         if (users.isEmpty() || roles.isEmpty()) {
             return;
         }
@@ -173,19 +175,19 @@ final class MyBehaviorRelationAssembler {
     }
 
     private void assembleImport() {
-        int table = first(reference -> action(reference.sqlType()) == BehaviorAction.IMPORT && reference.targetType() == TargetType.Table);
-        List<Integer> files = all(reference -> action(reference.sqlType()) == BehaviorAction.IMPORT && reference.targetType() == TargetType.File);
+        int table = first(reference -> action(reference) == BehaviorAction.IMPORT && reference.targetType() == TargetType.Table);
+        List<Integer> files = all(reference -> action(reference) == BehaviorAction.IMPORT && reference.targetType() == TargetType.File);
         if (table >= 0 && !files.isEmpty()) {
             addRelation(table, BehaviorAction.IMPORT, files);
         }
     }
 
     private void assembleExport() {
-        int file = first(reference -> action(reference.sqlType()) == BehaviorAction.EXPORT && reference.targetType() == TargetType.File);
+        int file = first(reference -> action(reference) == BehaviorAction.EXPORT && reference.targetType() == TargetType.File);
         if (file < 0) {
             return;
         }
-        List<Integer> sources = all(reference -> action(reference.sqlType()) == BehaviorAction.READ && isDataObject(reference.targetType()));
+        List<Integer> sources = all(reference -> action(reference) == BehaviorAction.READ && isDataObject(reference.targetType()));
         if (!sources.isEmpty()) {
             addRelation(file, BehaviorAction.EXPORT, sources);
         }
@@ -194,7 +196,7 @@ final class MyBehaviorRelationAssembler {
     private void assembleIndexRelation() {
         int table = -1;
         for (int i = 0; i < references.size(); i++) {
-            BehaviorAction tableAction = action(references.get(i).sqlType());
+            BehaviorAction tableAction = action(references.get(i));
             if (references.get(i).targetType() == TargetType.Table && (tableAction == BehaviorAction.CREATE || tableAction == BehaviorAction.ALTER)) {
                 table = i;
                 break;
@@ -207,7 +209,7 @@ final class MyBehaviorRelationAssembler {
         BehaviorObject carrier = toObject(references.get(table));
         boolean related = false;
         for (int i = 0; i < references.size(); i++) {
-            BehaviorAction indexAction = action(references.get(i).sqlType());
+            BehaviorAction indexAction = action(references.get(i));
             if (consumed[i] || references.get(i).targetType() != TargetType.Index
                 || (indexAction != BehaviorAction.CREATE && indexAction != BehaviorAction.ALTER && indexAction != BehaviorAction.DROP && indexAction != BehaviorAction.RENAME)) {
                 continue;
@@ -222,7 +224,7 @@ final class MyBehaviorRelationAssembler {
         }
         boolean hasDataDependency = false;
         for (int i = 0; i < references.size(); i++) {
-            if (!consumed[i] && action(references.get(i).sqlType()) == BehaviorAction.READ && isDataObject(references.get(i).targetType())) {
+            if (!consumed[i] && action(references.get(i)) == BehaviorAction.READ && isDataObject(references.get(i).targetType())) {
                 hasDataDependency = true;
                 break;
             }
@@ -233,11 +235,11 @@ final class MyBehaviorRelationAssembler {
     }
 
     private void assembleTriggerRelation() {
-        int trigger = first(reference -> reference.targetType() == TargetType.Trigger && action(reference.sqlType()) == BehaviorAction.CREATE);
+        int trigger = first(reference -> reference.targetType() == TargetType.Trigger && action(reference) == BehaviorAction.CREATE);
         if (trigger < 0) {
             return;
         }
-        int table = first(reference -> reference.targetType() == TargetType.Table && action(reference.sqlType()) == BehaviorAction.ALTER);
+        int table = first(reference -> reference.targetType() == TargetType.Table && action(reference) == BehaviorAction.ALTER);
         if (table >= 0) {
             addRelation(trigger, BehaviorAction.CREATE, List.of(table));
         }
@@ -248,11 +250,11 @@ final class MyBehaviorRelationAssembler {
         if (subject < 0) {
             return;
         }
-        List<Integer> sources = all(reference -> action(reference.sqlType()) == BehaviorAction.READ && isDataObject(reference.targetType()));
+        List<Integer> sources = all(reference -> action(reference) == BehaviorAction.READ && isDataObject(reference.targetType()));
         if (sources.isEmpty()) {
             return;
         }
-        BehaviorAction behaviorAction = action(references.get(subject).sqlType());
+        BehaviorAction behaviorAction = action(references.get(subject));
         if ((behaviorAction == BehaviorAction.CREATE || behaviorAction == BehaviorAction.ALTER) && MyBehaviorText.containsWords(sql, "OR", "REPLACE")) {
             behaviorAction = BehaviorAction.REPLACE;
         }
@@ -274,7 +276,7 @@ final class MyBehaviorRelationAssembler {
         MySqlObjectReference reference = references.get(index);
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(toObject(reference));
-        relation.setAction(action(reference.sqlType()));
+        relation.setAction(action(reference));
         relations.add(relation);
         consumed[index] = true;
     }
@@ -404,7 +406,109 @@ final class MyBehaviorRelationAssembler {
         return resourcePath(nodes);
     }
 
-    static BehaviorAction action(SplitQueryType type) {
+    private BehaviorAction action(MySqlObjectReference reference) {
+        BehaviorAction action = reference.action() == null ? defaultAction(reference.sqlType()) : reference.action();
+        String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
+        if (statementAction == BehaviorAction.UNSAFE && isUnsafeReference(reference, action)) {
+            return BehaviorAction.UNSAFE;
+        }
+        if (statementAction == BehaviorAction.IMPORT && normalized.startsWith("CLONE")
+            && (action == BehaviorAction.CREATE || action == BehaviorAction.ALTER || action == BehaviorAction.UNKNOWN)) {
+            return BehaviorAction.IMPORT;
+        }
+        if (reference.action() == null && normalized.startsWith("ALTER INSTANCE") && statementAction == BehaviorAction.ALTER) {
+            return statementAction;
+        }
+        if (reference.action() == null && isOperationalType(reference.sqlType())) {
+            return statementAction;
+        }
+        return action;
+    }
+
+    private static boolean isOperationalType(SplitQueryType type) {
+        return switch (type) {
+            case ADMIN, ADMIN_TABLE, ADMIN_PERFORMANCE, ADMIN_LOG, MAINTAIN_LOG, ADMIN_REPLICATION, ADMIN_RESOURCE_GROUP, ALTER_REPLICATION -> true;
+            default -> false;
+        };
+    }
+
+    private static BehaviorAction statementAction(String sql, SplitQueryType type) {
+        if (isUnsafeStatement(sql)) {
+            return BehaviorAction.UNSAFE;
+        }
+        String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
+        if (normalized.startsWith("START REPLICA") || normalized.startsWith("START SLAVE") || normalized.startsWith("START GROUP_REPLICATION")) {
+            return BehaviorAction.START;
+        }
+        if (normalized.startsWith("STOP REPLICA") || normalized.startsWith("STOP SLAVE") || normalized.startsWith("STOP GROUP_REPLICATION")) {
+            return BehaviorAction.STOP;
+        }
+        if (normalized.startsWith("RESET REPLICA") || normalized.startsWith("RESET SLAVE") || normalized.startsWith("RESET BINARY LOGS")
+            || normalized.startsWith("RESET MASTER") || normalized.startsWith("RESET QUERY CACHE")) {
+            return BehaviorAction.RESET;
+        }
+        if (normalized.startsWith("CHANGE REPLICATION") || normalized.startsWith("CHANGE MASTER")
+            || normalized.startsWith("ALTER INSTANCE") && type == SplitQueryType.ADMIN_LOG) {
+            return BehaviorAction.ALTER;
+        }
+        if (normalized.startsWith("BINLOG ")) {
+            return BehaviorAction.APPLY;
+        }
+        if (normalized.contains("FLUSH")) {
+            return BehaviorAction.FLUSH;
+        }
+        if (normalized.startsWith("KILL ")) {
+            return BehaviorAction.TERMINATE;
+        }
+        if (normalized.startsWith("PURGE BINARY LOGS") || normalized.startsWith("PURGE MASTER LOGS")) {
+            return BehaviorAction.PURGE;
+        }
+        if (normalized.contains("CACHE INDEX") || normalized.contains("LOAD INDEX INTO CACHE")) {
+            return BehaviorAction.LOAD;
+        }
+        if (normalized.contains("CHECK TABLE")) {
+            return BehaviorAction.VALIDATE;
+        }
+        if (normalized.contains("CHECKSUM TABLE")) {
+            return BehaviorAction.CHECKSUM;
+        }
+        if (normalized.contains("ANALYZE TABLE") || normalized.contains("ANALYZE NO_WRITE_TO_BINLOG TABLE")
+            || normalized.contains("ANALYZE LOCAL TABLE")) {
+            return BehaviorAction.ANALYZE;
+        }
+        if (normalized.contains("OPTIMIZE TABLE") || normalized.contains("OPTIMIZE NO_WRITE_TO_BINLOG TABLE")
+            || normalized.contains("OPTIMIZE LOCAL TABLE")) {
+            return BehaviorAction.OPTIMIZE;
+        }
+        if (normalized.contains("REPAIR TABLE") || normalized.contains("REPAIR NO_WRITE_TO_BINLOG TABLE")
+            || normalized.contains("REPAIR LOCAL TABLE")) {
+            return BehaviorAction.REPAIR;
+        }
+        if (normalized.contains("GTID_NEXT") || normalized.contains("PSEUDO_SLAVE_MODE")) {
+            return BehaviorAction.CONFIGURE;
+        }
+        if (normalized.contains("SET RESOURCE GROUP") || type == SplitQueryType.ADMIN_RESOURCE_GROUP) {
+            return BehaviorAction.SWITCH;
+        }
+        return defaultAction(type);
+    }
+
+    private boolean isUnsafeReference(MySqlObjectReference reference, BehaviorAction action) {
+        String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
+        if (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN")
+            || normalized.startsWith("INSTALL COMPONENT") || normalized.startsWith("UNINSTALL COMPONENT")) {
+            return reference.targetType() == TargetType.Library || reference.targetType() == TargetType.File;
+        }
+        if (normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME")) {
+            return reference.targetType() == TargetType.Function || reference.targetType() == TargetType.Library || reference.targetType() == TargetType.File;
+        }
+        return action != BehaviorAction.READ && action != BehaviorAction.CALL;
+    }
+
+    private static BehaviorAction defaultAction(SplitQueryType type) {
+        if (type == SplitQueryType.ADMIN || type == SplitQueryType.MAINTAIN_LOG) {
+            return BehaviorAction.UNKNOWN;
+        }
         String name = type.name();
         if (name.startsWith("CREATE_") || name.startsWith("ADD_")) {
             return BehaviorAction.CREATE;
@@ -418,8 +522,8 @@ final class MyBehaviorRelationAssembler {
         if (name.startsWith("RENAME_")) {
             return BehaviorAction.RENAME;
         }
-        if (name.startsWith("ADMIN_") || name.startsWith("MAINTAIN_") || type == SplitQueryType.ADMIN) {
-            return BehaviorAction.ADMIN;
+        if (name.startsWith("ADMIN_")) {
+            return BehaviorAction.UNKNOWN;
         }
         if (type == SplitQueryType.UNSAFE) {
             return BehaviorAction.UNSAFE;
@@ -443,6 +547,19 @@ final class MyBehaviorRelationAssembler {
             case SESSION_SETTING_WRITE, SYSTEM_SETTING_WRITE -> BehaviorAction.CONFIGURE;
             default -> BehaviorAction.UNKNOWN;
         };
+    }
+
+    private static boolean isUnsafeStatement(String sql) {
+        String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
+        return normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE") || normalized.startsWith("DEALLOCATE PREPARE")
+               || normalized.startsWith("RESTART") || normalized.startsWith("SHUTDOWN") || normalized.startsWith("BINLOG ")
+               || normalized.startsWith("RESET MASTER") || normalized.startsWith("RESET BINARY LOGS")
+               || normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN")
+               || normalized.startsWith("INSTALL COMPONENT") || normalized.startsWith("UNINSTALL COMPONENT")
+               || normalized.startsWith("ALTER INSTANCE") && normalized.contains("DISABLE") && normalized.contains("REDO_LOG")
+               || normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME")
+               || normalized.contains("SQL_SLAVE_SKIP_COUNTER") || normalized.contains("GTID_PURGED")
+               || normalized.contains("DEBUG") && normalized.contains("FORCE_FAKE_UUID");
     }
 
     @FunctionalInterface

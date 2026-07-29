@@ -225,7 +225,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(2:16~2:51) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_FB1/",
-      "action": "ADMIN"
+      "action": "RESTORE"
     }
   ]
 }
@@ -241,7 +241,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(2:16~2:51) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_FB2/",
-      "action": "ADMIN"
+      "action": "RESTORE"
     }
   ]
 }
@@ -258,11 +258,11 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(2:16~2:51) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_FB3/",
-      "action": "ADMIN"
+      "action": "RESTORE"
     },
     {
       "subject": "Table(3:2~3:37) /test/1/catalog1/CODEX_DM8_FLASHQUERY_20260727/T_FB4/",
-      "action": "ADMIN"
+      "action": "RESTORE"
     }
   ]
 }

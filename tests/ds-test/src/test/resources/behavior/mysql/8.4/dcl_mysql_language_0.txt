@@ -90,7 +90,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:9~1:21) /test/1/",
-      "action" : "ADMIN"
+      "action" : "FLUSH"
     }
   ]
 }
@@ -343,7 +343,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Table(1:0~1:14) /test/1/",
-      "action" : "ADMIN"
+      "action" : "VALIDATE"
     }
   ]
 }
@@ -358,7 +358,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:28) /test/1/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -373,7 +373,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:44) /test/1/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -388,7 +388,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:40) /test/1/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -403,7 +403,7 @@ expect:
   "ADMIN_PERFORMANCE": [
     {
       "subject": "Instance(1:0~1:24) /test/1/",
-      "action" : "ADMIN"
+      "action" : "LOAD"
     }
   ]
 }
@@ -748,7 +748,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:24) /test/1/",
-      "action" : "ADMIN"
+      "action": "START"
     }
   ]
 }
@@ -763,7 +763,7 @@ expect:
   "ALTER_REPLICATION": [
     {
       "subject": "Replication(1:0~1:23) /test/1/",
-      "action" : "ADMIN"
+      "action": "STOP"
     }
   ]
 }

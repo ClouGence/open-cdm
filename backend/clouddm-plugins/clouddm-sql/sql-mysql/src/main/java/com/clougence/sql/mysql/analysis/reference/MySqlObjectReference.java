@@ -17,6 +17,7 @@ package com.clougence.sql.mysql.analysis.reference;
 
 import java.util.List;
 
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
@@ -26,9 +27,15 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
  * <p>Behavior analysis consumes this parser fact before console-side resource action conversion.
  * It carries no permission-check policy.</p>
  */
-public record MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn, List<String> nodes) {
+public record MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
+                                   List<String> nodes, BehaviorAction action) {
 
     public MySqlObjectReference{
         nodes = nodes == null ? List.of() : List.copyOf(nodes);
+    }
+
+    public MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
+                                List<String> nodes){
+        this(sqlType, targetType, require, startLine, startColumn, endLine, endColumn, nodes, null);
     }
 }

@@ -593,7 +593,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(1:12~1:19) /test/1/catalog1/schema1/j_child/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }
@@ -608,7 +608,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(1:12~1:22) /test/1/catalog1/schema1/j_concrete/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }

@@ -56,7 +56,7 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
             BehaviorRelation relation = new BehaviorRelation();
             relation.setSubject(object);
-            relation.setAction(action(statementType));
+            relation.setAction(action(funcType, statementType));
             behavior.getRelations().add(relation);
             result.add(behavior);
         }
@@ -87,7 +87,19 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         };
     }
 
-    private BehaviorAction action(SplitQueryType type) {
+    private BehaviorAction action(MongoFuncType funcType, SplitQueryType type) {
+        BehaviorAction commandAction = switch (funcType) {
+            case VALIDATE -> BehaviorAction.VALIDATE;
+            case FSYNC_LOCK -> BehaviorAction.LOCK;
+            case FSYNC_UNLOCK -> BehaviorAction.UNLOCK;
+            case PROFILE -> BehaviorAction.CONFIGURE;
+            case KILL_OP -> BehaviorAction.TERMINATE;
+            case HOST_INFO, CURRENT_OP, SERVER_STATUS, BUILD_INFO, GET_LOG_COMPONENTS, DB_STATS, LATENCY_STATS -> BehaviorAction.READ;
+            default -> null;
+        };
+        if (commandAction != null) {
+            return commandAction;
+        }
         return switch (type) {
             case SELECT, METADATA, PERFORMANCE, LOG_READ -> BehaviorAction.READ;
             case CREATE_TABLE, CREATE_VIEW, ADD_INDEX -> BehaviorAction.CREATE;
@@ -99,7 +111,7 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             case DELETE -> BehaviorAction.DELETE;
             case MERGE -> BehaviorAction.MERGE;
             case SWITCH_SCHEMA -> BehaviorAction.SWITCH;
-            case ADMIN, ADMIN_TABLE -> BehaviorAction.ADMIN;
+            case ADMIN, ADMIN_TABLE -> BehaviorAction.UNKNOWN;
             default -> BehaviorAction.UNKNOWN;
         };
     }

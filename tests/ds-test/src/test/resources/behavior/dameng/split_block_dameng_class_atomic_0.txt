@@ -718,7 +718,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(2:12~2:36) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }
@@ -734,7 +734,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(2:12~2:36) /test/1/catalog1/CODEX_DM8_CLASS/C_MEMBER/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }
@@ -1191,7 +1191,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(2:12~2:35) /test/1/catalog1/CODEX_DM8_CLASS/J_BASIC/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }
@@ -1207,7 +1207,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(2:17~2:40) /test/1/catalog1/CODEX_DM8_CLASS/J_BASIC/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }

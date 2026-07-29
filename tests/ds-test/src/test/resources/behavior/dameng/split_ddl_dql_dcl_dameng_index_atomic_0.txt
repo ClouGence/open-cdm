@@ -4516,7 +4516,7 @@ expect:
   "ADMIN_TABLE": [
     {
       "subject": "Index(1:17~1:30) /test/1/catalog1/app/idx_basic/",
-      "action": "ADMIN"
+      "action": "ANALYZE"
     }
   ]
 }

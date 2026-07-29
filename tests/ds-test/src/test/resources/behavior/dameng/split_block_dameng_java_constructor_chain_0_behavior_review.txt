@@ -411,7 +411,7 @@ expect:
   "ADMIN_TYPE": [
     {
       "subject": "Type(1:12~1:30) /test/1/catalog1/schema1/j_standalone_final/",
-      "action": "ADMIN"
+      "action": "ALTER"
     }
   ]
 }
