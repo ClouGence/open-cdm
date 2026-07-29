@@ -45,8 +45,8 @@ public abstract class MySqlSplitTextTest extends SplitTextTest {
     }
 
     @Override
-    protected final void splitRejectedCase(String resourcePath, String datasource, int splitIndex) throws Exception {
-        DslHelper.splitDsl(new MyDslProvider(MySqlParserConfig.unknownSqlMode(version)), rejectedScript(resourcePath, splitIndex));
+    protected final void splitRejectedCase(String resourcePath, String datasource, String rejectedSql) throws Exception {
+        DslHelper.splitDsl(new MyDslProvider(MySqlParserConfig.unknownSqlMode(version)), rejectedSql);
     }
 
     @TestFactory

@@ -9,8 +9,10 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.function.Executable;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.SqlTestSupport;
@@ -44,9 +46,10 @@ public final class SecDomainTextTest {
                     DataSourceType dataSourceType = SqlTestSupport.dataSourceType(fixture.datasource());
                     SecDomainResolveSpi resolveSpi = secDomainResolveSpi(fixture.datasource());
                     ContextInfo contextInfo = SqlTestSupport.contextInfo(fixture.datasource());
-                    for (TestCase testCase : cases) {
-                        assertCase(resourcePath, testCase, dataSourceType, resolveSpi, contextInfo);
-                    }
+                    Stream<Executable> validations = cases.stream().map(testCase -> {
+                        return () -> assertCase(resourcePath, testCase, dataSourceType, resolveSpi, contextInfo);
+                    });
+                    Assertions.assertAll(resourcePath, validations);
                 }));
             }
         }

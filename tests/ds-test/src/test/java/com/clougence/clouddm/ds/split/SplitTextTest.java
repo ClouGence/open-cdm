@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
@@ -56,17 +57,8 @@ public abstract class SplitTextTest {
         return SqlTestSupport.sqlEngine(fixture.datasource()).splitAnalysisSpi(SqlParserParameters.empty());
     }
 
-    protected void splitRejectedCase(String resourcePath, String datasource, int splitIndex) throws Exception {
-        String rejectedSql = rejectedScript(resourcePath, splitIndex);
+    protected void splitRejectedCase(String resourcePath, String datasource, String rejectedSql) throws Exception {
         splitAnalysisSpi(new Fixture(resourcePath, datasource)).splitScript(rejectedSql, null, 0, 0);
-    }
-
-    protected final String rejectedScript(String resourcePath, int splitIndex) throws IOException {
-        SplitFixture fixture = loadFixture(resourcePath);
-        Assert.assertTrue("reject split index missing: " + resourcePath + " index " + splitIndex, splitIndex < fixture.expected().size());
-        String rejectedSql = fixture.expected().get(splitIndex).script();
-        Assert.assertFalse("empty rejected SQL: " + resourcePath + " index " + splitIndex, rejectedSql.isBlank());
-        return rejectedSql;
     }
 
     protected final Stream<DynamicTest> rejectedDynamicTests(List<String> resourcePaths, String datasource) {
@@ -74,9 +66,12 @@ public abstract class SplitTextTest {
         for (String resourcePath : resourcePaths) {
             SplitFixture fixture = loadFixtureUnchecked(resourcePath);
             tests.add(DynamicTest.dynamicTest(resourcePath, () -> {
-                for (SplitCase splitCase : fixture.cases()) {
-                    Assertions.assertThrows(RuntimeException.class, () -> splitRejectedCase(resourcePath, datasource, splitCase.splitIndex()), splitCase.displayName());
-                }
+                Stream<Executable> validations = fixture.cases().stream().map(splitCase -> {
+                    String rejectedSql = fixture.expected().get(splitCase.splitIndex()).script();
+                    return () -> Assertions.assertThrows(RuntimeException.class, () -> splitRejectedCase(resourcePath, datasource, rejectedSql),
+                            splitCase.displayName());
+                });
+                Assertions.assertAll(resourcePath, validations);
             }));
         }
         return tests.stream();

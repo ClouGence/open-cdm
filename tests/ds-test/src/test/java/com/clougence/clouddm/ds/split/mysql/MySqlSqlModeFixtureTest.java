@@ -99,13 +99,13 @@ public class MySqlSqlModeFixtureTest extends SplitTextTest {
     }
 
     @Override
-    protected void splitRejectedCase(String resourcePath, String datasource, int splitIndex) throws Exception {
+    protected void splitRejectedCase(String resourcePath, String datasource, String rejectedSql) throws Exception {
         String version = exactVersion(resourcePath);
         if (version == null) {
             version = segmentAfter(resourcePath, "split/mysql/");
         }
         MyDslProvider provider = new MyDslProvider(parserConfig(version, resourcePath));
-        DslHelper.splitDsl(provider, rejectedScript(resourcePath, splitIndex));
+        DslHelper.splitDsl(provider, rejectedSql);
     }
 
     private static void verifyFixture(String resourcePath) throws Exception {

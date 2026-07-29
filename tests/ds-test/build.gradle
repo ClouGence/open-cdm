@@ -66,6 +66,10 @@ test {
     if (!['8', '16'].contains(parserTestParallelism)) {
         throw new GradleException('parserTestParallelism must be 8 or 16')
     }
+    def parserTestForkEvery = providers.gradleProperty('parserTestForkEvery').getOrElse('12').toLong()
+    if (parserTestForkEvery < 1) {
+        throw new GradleException('parserTestForkEvery must be greater than 0')
+    }
     def progressInterval = providers.gradleProperty('testProgressInterval').getOrElse('100').toInteger()
     def heartbeatSeconds = providers.gradleProperty('testProgressHeartbeatSeconds').getOrElse('30').toInteger()
     if (progressInterval < 1) {
@@ -79,6 +83,9 @@ test {
     systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'fixed'
     systemProperty 'junit.jupiter.execution.parallel.config.fixed.parallelism', parserTestParallelism
     systemProperty 'junit.jupiter.execution.parallel.config.fixed.max-pool-size', parserTestParallelism
+    // Parser runtimes keep thread-local and grammar caches. Recycle the worker before
+    // those caches and JUnit's dynamic-test descriptors make later classes progressively slower.
+    forkEvery = parserTestForkEvery
 
     def startedCount = new java.util.concurrent.atomic.AtomicLong()
     def completedCount = new java.util.concurrent.atomic.AtomicLong()
