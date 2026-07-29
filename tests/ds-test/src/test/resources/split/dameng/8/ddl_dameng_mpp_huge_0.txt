@@ -96,11 +96,11 @@ drop directory mpp_ext_dir;
 ----------
 [TRANSACTION] commit;
 ----------
-[SELECT|CALL_PROG_OBJ] select id, sf_get_ep_seqno(rowid) as ep_seqno from mpp_huge_hash order by id;
+[SELECT] select id, sf_get_ep_seqno(rowid) as ep_seqno from mpp_huge_hash order by id;
 ----------
-[SELECT|CALL_PROG_OBJ] select id, sf_get_ep_seqno(rowid) as ep_seqno from mpp_huge_range order by id;
+[SELECT] select id, sf_get_ep_seqno(rowid) as ep_seqno from mpp_huge_range order by id;
 ----------
-[SELECT|CALL_PROG_OBJ] select id, sf_get_ep_seqno(rowid) as ep_seqno from mpp_huge_list order by id;
+[SELECT] select id, sf_get_ep_seqno(rowid) as ep_seqno from mpp_huge_list order by id;
 ----------
 [UPDATE] update mpp_huge_hash set note='UPDATED' where id=1;
 ----------
@@ -112,7 +112,7 @@ drop directory mpp_ext_dir;
 ----------
 [CALL_PROG_OBJ] call sp_get_ep_count('SYSDBA', 'MPP_HUGE_HASH');
 ----------
-[SELECT|CALL_PROG_OBJ] select table_used_pages('SYSDBA', 'MPP_HUGE_HASH'), name from v$instance order by name;
+[SELECT] select table_used_pages('SYSDBA', 'MPP_HUGE_HASH'), name from v$instance order by name;
 ----------
 [SELECT] select table_name, partitioned from user_tables where table_name like 'MPP_HUGE_%' order by table_name;
 ----------
@@ -120,7 +120,7 @@ drop directory mpp_ext_dir;
 ----------
 [CALL_PROG_OBJ] call sp_set_session_mpp_select_local(1);
 ----------
-[SELECT|CALL_PROG_OBJ] select sf_get_self_ep_seqno() as self_ep, count(*) as local_rows from mpp_huge_fully;
+[SELECT] select sf_get_self_ep_seqno() as self_ep, count(*) as local_rows from mpp_huge_fully;
 ----------
 [CALL_PROG_OBJ] call sp_set_session_mpp_select_local(0);
 ----------

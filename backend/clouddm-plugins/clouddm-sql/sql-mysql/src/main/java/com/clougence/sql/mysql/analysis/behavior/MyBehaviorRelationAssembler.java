@@ -441,7 +441,7 @@ final class MyBehaviorRelationAssembler {
             case DATA_EXPORT -> BehaviorAction.EXPORT;
             case QUERY_LOCK, SESSION_LOCK -> BehaviorAction.LOCK;
             case SESSION_SETTING_WRITE, SYSTEM_SETTING_WRITE -> BehaviorAction.CONFIGURE;
-            default -> BehaviorAction.OTHER;
+            default -> BehaviorAction.UNKNOWN;
         };
     }
 

@@ -237,7 +237,7 @@ public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             case UPDATE -> BehaviorAction.UPDATE;
             case DELETE -> BehaviorAction.DELETE;
             case MERGE -> BehaviorAction.MERGE;
-            default -> BehaviorAction.OTHER;
+            default -> BehaviorAction.UNKNOWN;
         };
     }
 }

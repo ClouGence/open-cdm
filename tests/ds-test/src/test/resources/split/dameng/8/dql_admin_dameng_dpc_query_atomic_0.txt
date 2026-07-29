@@ -163,25 +163,25 @@ select name,dpc_mode,sys_status,status from sys.dpc_instance order by raft_id;
 [SELECT] -- TOPOLOGY_002_V_INSTANCE
 select name from sys.v$instance order by name;
 ----------
-[SELECT|CALL_PROG_OBJ] -- TOPOLOGY_003_LOCAL_DPC_MODE
+[SELECT] -- TOPOLOGY_003_LOCAL_DPC_MODE
 select para_value from sys.v$dm_ini where para_name='DPC_MODE' and sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
 ----------
-[SELECT|CALL_PROG_OBJ] -- ROUTE_001_RANGE
+[SELECT] -- ROUTE_001_RANGE
 select id,sf_get_ep_seqno(rowid) ep_no from app.dpc_q_range_a order by id;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ROUTE_002_HASH
+[SELECT] -- ROUTE_002_HASH
 select sf_get_ep_seqno(rowid) ep_no,count(*) row_count from app.dpc_q_hash group by sf_get_ep_seqno(rowid) order by ep_no;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ROUTE_003_LIST
+[SELECT] -- ROUTE_003_LIST
 select id,sf_get_ep_seqno(rowid) ep_no from app.dpc_q_list order by id;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ROUTE_004_SELF_EP
+[SELECT] -- ROUTE_004_SELF_EP
 select sf_get_self_ep_seqno() self_ep from dual;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ROUTE_005_CURRENT_INSTANCE
+[SELECT] -- ROUTE_005_CURRENT_INSTANCE
 select name from sys.v$instance where sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
 ----------
-[SELECT|CALL_PROG_OBJ] -- ROUTE_006_LOCAL_SESSIONS
+[SELECT] -- ROUTE_006_LOCAL_SESSIONS
 select count(*) local_session_count from sys.v$sessions where sf_get_ep_seqno(rowid)=sf_get_self_ep_seqno();
 ----------
 [PERFORMANCE|SELECT] -- PLAN_001_RANGE_POINT
@@ -247,16 +247,16 @@ explain select /*+ DPC(1 GAT_SORT_X) */ grp_id,count(*) from app.dpc_q_range_a g
 [PERFORMANCE|SELECT] -- HINT_017_X_MERGE
 explain select /*+ DPC(1 X_MERGE) */ id from app.dpc_q_range_a order by id;
 ----------
-[SELECT|CALL_PROG_OBJ] -- API_001_PARTGROUPDEF
+[SELECT] -- API_001_PARTGROUPDEF
 select partgroupdef('APP','DPC_Q_PG_RANGE') from dual;
 ----------
-[SELECT|CALL_PROG_OBJ] -- API_002_TABLEDEF
+[SELECT] -- API_002_TABLEDEF
 select tabledef('APP','DPC_Q_RANGE_A') from dual;
 ----------
 [CALL_PROG_OBJ] -- API_003_EP_COUNT
 call sp_get_ep_count('APP','DPC_Q_RANGE_A');
 ----------
-[SELECT|CALL_PROG_OBJ] -- API_004_TABLE_USED_PAGES
+[SELECT] -- API_004_TABLE_USED_PAGES
 select table_used_pages('APP','DPC_Q_RANGE_A') from dual;
 ----------
 [CALL_PROG_OBJ] -- API_005_CLEAR_ROWCNT_CACHE
@@ -370,22 +370,22 @@ select count(*) from sys.v$dpc_qc_sched_history;
 [SELECT] -- VIEW_034_GLOBAL_RAFT_INFO
 select count(*) from sys.v$global_raft_info;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ARITY_001_SELF_EP_EXTRA
+[SELECT] -- ARITY_001_SELF_EP_EXTRA
 select sf_get_self_ep_seqno(1) from dual;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ARITY_002_EP_SEQNO_MISSING
+[SELECT] -- ARITY_002_EP_SEQNO_MISSING
 select sf_get_ep_seqno() from dual;
 ----------
 [CALL_PROG_OBJ] -- ARITY_003_EP_COUNT_MISSING
 call sp_get_ep_count('APP');
 ----------
-[SELECT|CALL_PROG_OBJ] -- ARITY_004_TABLE_USED_PAGES_MISSING
+[SELECT] -- ARITY_004_TABLE_USED_PAGES_MISSING
 select table_used_pages('APP') from dual;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ARITY_005_PARTGROUPDEF_MISSING
+[SELECT] -- ARITY_005_PARTGROUPDEF_MISSING
 select partgroupdef('APP') from dual;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ARITY_006_TABLEDEF_MISSING
+[SELECT] -- ARITY_006_TABLEDEF_MISSING
 select tabledef('APP') from dual;
 ----------
 [CALL_PROG_OBJ] -- ARITY_007_CLEAR_CACHE_EXTRA

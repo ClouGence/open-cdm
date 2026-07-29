@@ -99,7 +99,7 @@ SELECT ORA_HASH('ORA HASH VALUE',88,100);
 ----------
 [SELECT] SELECT UNHEX('616263');
 ----------
-[SELECT|CALL_PROG_OBJ] SELECT HEX('abc');
+[SELECT] SELECT HEX('abc');
 ----------
 [SELECT] SELECT DECODE(1, 1, 'A', 2, 'B');
 ----------

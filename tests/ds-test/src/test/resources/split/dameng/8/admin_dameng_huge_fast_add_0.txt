@@ -17,7 +17,7 @@ alter session set ALTER_TABLE_OPT=2;
 ----------
 [SESSION_SETTING_WRITE] alter session set 'ALTER_TABLE_OPT'=3;
 ----------
-[SELECT|CALL_PROG_OBJ] select sf_get_session_para_value('ALTER_TABLE_OPT');
+[SELECT|SESSION_VARIABLE_RW] select sf_get_session_para_value('ALTER_TABLE_OPT');
 ----------
 [ALTER_TABLE|ADD_COLUMN] alter table app.huge_fast add column c_no_default int;
 ----------

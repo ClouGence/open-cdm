@@ -143,7 +143,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         String currentResourcePath = DmDsUtils.currentResourcePath(levels.levelsParam());
         String instanceResourcePath = DmDsUtils.instanceResourcePath(levels.levelsParam());
         for (QueryRequest request : requests) {
-            List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations(), request.getQueryTypes());
+            List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations());
             for (BehaviorRequest behavior : behaviors) {
                 if (behavior.authKind() == null) {
                     continue;

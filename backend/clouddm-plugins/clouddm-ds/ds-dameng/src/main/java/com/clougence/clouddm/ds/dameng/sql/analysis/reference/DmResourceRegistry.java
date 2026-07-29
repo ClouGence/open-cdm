@@ -6,11 +6,15 @@
  */
 package com.clougence.clouddm.ds.dameng.sql.analysis.reference;
 
-import static com.clougence.sql.common.registry.RegisteredResourceType.*;
+import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
+import static com.clougence.sql.common.registry.RegisteredResourceType.PROCEDURE;
+import static com.clougence.sql.common.registry.RegisteredResourceType.TABLE;
+import static com.clougence.sql.common.registry.RegisteredResourceType.TYPE;
 
 import java.util.*;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.registry.ResourceRegistryDialect;
 import com.clougence.sql.common.registry.VersionedResourceRegistry;
 
@@ -30,6 +34,7 @@ public final class DmResourceRegistry {
     private final VersionedResourceRegistry<Boolean>        noParenthesesFunctions;
     private final VersionedResourceRegistry<BehaviorAction> functionBehaviors;
     private final VersionedResourceRegistry<Integer>        functionConfigArguments;
+    private final VersionedResourceRegistry<SplitQueryType> functionTypes;
 
     public static DmResourceRegistry instance() {
         return INSTANCE;
@@ -41,6 +46,7 @@ public final class DmResourceRegistry {
         this.noParenthesesFunctions = new VersionedResourceRegistry<>(dialect);
         this.functionBehaviors = new VersionedResourceRegistry<>(dialect);
         this.functionConfigArguments = new VersionedResourceRegistry<>(dialect);
+        this.functionTypes = new VersionedResourceRegistry<>(dialect);
         registerBuiltInFunctions();
         registerSystemResources(SYSTEM_RESOURCES);
         registerSystemResources(SYSTEM_CALLABLE_RESOURCES);
@@ -140,6 +146,10 @@ public final class DmResourceRegistry {
         return functionBehaviors.find(FUNCTION, DM8, packageName, functionName).orElse(BehaviorAction.CALL);
     }
 
+    public Optional<SplitQueryType> functionType(String functionName) {
+        return functionTypes.find(FUNCTION, DM8, functionName);
+    }
+
     public Map<String, BehaviorAction> registeredFunctionBehaviors() {
         return registeredFunctionBehaviors(DM8);
     }
@@ -201,6 +211,7 @@ public final class DmResourceRegistry {
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_PARA_VALUE");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_SESSION_MPP_SELECT_LOCAL");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_SESSION_PARA_VALUE");
+        functionTypes.register(FUNCTION, DM8, DM8, SplitQueryType.SESSION_VARIABLE_RW, "SF_GET_SESSION_PARA_VALUE");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.ADMIN, "SF_MPP_INST_ADD");
         functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.ADMIN, "SF_MPP_INST_REMOVE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 1, "SF_GET_PARA_DOUBLE_VALUE");

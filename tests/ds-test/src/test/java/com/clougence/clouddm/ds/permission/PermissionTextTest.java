@@ -77,8 +77,7 @@ public final class PermissionTextTest {
         }
         List<BehaviorRequest> actual = new ArrayList<>();
         for (StatementBehavior statement : statements) {
-            actual.addAll(BehaviorRelations.flattenResource(registry, databaseVersion, statement.getRelations(),//
-                    statement.getStatementType() == null ? List.of() : List.of(statement.getStatementType())));
+            actual.addAll(BehaviorRelations.flattenResource(registry, databaseVersion, statement.getRelations()));
         }
         for (Map.Entry<SecDataAuthKind, List<String>> entry : expected.entrySet()) {
             List<BehaviorRequest> actualForKind = actual.stream().filter(request -> request.authKind() == entry.getKey()).toList();

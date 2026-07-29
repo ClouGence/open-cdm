@@ -32,7 +32,7 @@ from V$DSC_CRASH_OVER_INFO order by EP_SEQNO;
 ----------
 [SELECT] select count(*) as ASM_DISKS from V$ASMDISK;
 ----------
-[SELECT|CALL_PROG_OBJ] select checkpoint(0) as CHECKPOINT_RESULT;
+[SELECT] select checkpoint(0) as CHECKPOINT_RESULT;
 ----------
 [SELECT] select ID, OWNER_EP, NOTE from CODEX_DM8_DSC.SHARED_T order by ID;
 ----------

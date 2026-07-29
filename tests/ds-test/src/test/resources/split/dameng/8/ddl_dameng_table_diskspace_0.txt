@@ -38,9 +38,9 @@ drop table table_disk_ctas purge;
 ----------
 [CREATE_TABLE|SELECT] create table table_disk_ctas diskspace limit 1 as select 1 id;
 ----------
-[SELECT|CALL_PROG_OBJ] select tabledef('SYSDBA','TABLE_DISK_1');
+[SELECT] select tabledef('SYSDBA','TABLE_DISK_1');
 ----------
-[SELECT|CALL_PROG_OBJ] select tabledef('SYSDBA','TABLE_DISK_MAX');
+[SELECT] select tabledef('SYSDBA','TABLE_DISK_MAX');
 ----------
 [DROP_TABLE] drop table table_disk_1 purge;
 ----------

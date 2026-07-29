@@ -58,7 +58,12 @@ public class V202607270001__sql_audit_ack extends AbstractUpgradeJavaMigration {
                     alter table dm_approval
                         add behaviors longtext null
                 """, """
-                    drop table if exists dm_exec_query_constraints
+                    rename table dm_exec_query_constraints to dm_ds_meta_config
+                """, """
+                    alter table dm_ds_meta_config
+                        drop column primary_uid,
+                        drop column constraints_json,
+                        add column masking longtext null
                 """);
     }
 }

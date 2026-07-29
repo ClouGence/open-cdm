@@ -100,7 +100,7 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             case MERGE -> BehaviorAction.MERGE;
             case SWITCH_SCHEMA -> BehaviorAction.SWITCH;
             case ADMIN, ADMIN_TABLE -> BehaviorAction.ADMIN;
-            default -> BehaviorAction.OTHER;
+            default -> BehaviorAction.UNKNOWN;
         };
     }
 

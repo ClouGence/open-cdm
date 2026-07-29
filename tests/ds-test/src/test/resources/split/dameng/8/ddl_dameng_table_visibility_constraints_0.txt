@@ -74,7 +74,7 @@ drop table table_cons_state purge;
 ----------
 [ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret add user(table_vis_u2);
 ----------
-[SELECT|CALL_PROG_OBJ] select tabledef('SYSDBA','TABLE_VIS_DATA');
+[SELECT] select tabledef('SYSDBA','TABLE_VIS_DATA');
 ----------
 [SELECT] select id,secret from table_vis_data order by id;
 ----------
@@ -92,11 +92,11 @@ drop table table_cons_state purge;
 ----------
 [ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret add user(table_vis_u1,table_vis_u3);
 ----------
-[SELECT|CALL_PROG_OBJ] select tabledef('SYSDBA','TABLE_VIS_DATA');
+[SELECT] select tabledef('SYSDBA','TABLE_VIS_DATA');
 ----------
 [ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column secret drop user(table_vis_u1,table_vis_u2,table_vis_u3);
 ----------
-[SELECT|CALL_PROG_OBJ] select tabledef('SYSDBA','TABLE_VIS_DATA');
+[SELECT] select tabledef('SYSDBA','TABLE_VIS_DATA');
 ----------
 [ALTER_TABLE|ALTER_COLUMN] alter table table_vis_data alter column id add user(table_vis_u1);
 ----------

@@ -113,9 +113,12 @@ public interface SecAuthI18nKeys {
     String AUTH_DATA_DM_DML                         = "AUTH_DATA_DM_DML";
     String AUTH_DATA_DM_DDL                         = "AUTH_DATA_DM_DDL";
     String AUTH_DATA_DM_OBJ                         = "AUTH_DATA_DM_OBJ";
+    String AUTH_DATA_DM_PROGRAM                     = "AUTH_DATA_DM_PROGRAM";
     String AUTH_DATA_DM_SPACE                       = "AUTH_DATA_DM_SPACE";
+    String AUTH_DATA_DM_AUTH                        = "AUTH_DATA_DM_AUTH";
     String AUTH_DATA_DM_DCL                         = "AUTH_DATA_DM_DCL";
     String AUTH_DATA_DM_CALL                        = "AUTH_DATA_DM_CALL";
+    String AUTH_DATA_DM_UNSAFE                      = "AUTH_DATA_DM_UNSAFE";
     String AUTH_DATA_DM_OTHER                       = "AUTH_DATA_DM_OTHER";
     String AUTH_DATA_DM_SENSITIVE                   = "AUTH_DATA_DM_SENSITIVE";
     String AUTH_DATA_DM_TICKET                      = "AUTH_DATA_DM_TICKET";

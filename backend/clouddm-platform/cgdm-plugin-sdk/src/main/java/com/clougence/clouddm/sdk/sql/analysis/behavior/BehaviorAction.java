@@ -48,6 +48,8 @@ public enum BehaviorAction {
     LOCK,
     CONFIGURE,
     SWITCH,
+    //
     ADMIN,
-    OTHER;
+    UNSAFE,
+    UNKNOWN;
 }

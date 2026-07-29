@@ -57,35 +57,35 @@ select updatexml('<a><a1>d1</a1></a>', '/a/a1', '<x>updated</x>');
 ----------
 [SELECT|CALL_PROG_OBJ] select sf_xmlquery(null, '/a');
 ----------
-[SELECT|CALL_PROG_OBJ] select xmlquery('<a><b>b</b></a>', '/a');
+[SELECT] select xmlquery('<a><b>b</b></a>', '/a');
 ----------
-[SELECT|CALL_PROG_OBJ] select xmlquery('<a><b>b</b></a>', '/a/b');
+[SELECT] select xmlquery('<a><b>b</b></a>', '/a/b');
 ----------
-[SELECT|CALL_PROG_OBJ] select xmlquery('<a><b>1</b><b>2</b></a>', '/a/b');
+[SELECT] select xmlquery('<a><b>1</b><b>2</b></a>', '/a/b');
 ----------
-[SELECT|CALL_PROG_OBJ] select xmlquery(null, '/a');
+[SELECT] select xmlquery(null, '/a');
 ----------
-[SELECT|CALL_PROG_OBJ] select existsnode('<a><b>b</b></a>', '/a');
+[SELECT] select existsnode('<a><b>b</b></a>', '/a');
 ----------
-[SELECT|CALL_PROG_OBJ] select existsnode('<a><b>b</b></a>', '/a/b');
+[SELECT] select existsnode('<a><b>b</b></a>', '/a/b');
 ----------
-[SELECT|CALL_PROG_OBJ] select existsnode('<a><b>b</b></a>', '/a/c');
+[SELECT] select existsnode('<a><b>b</b></a>', '/a/c');
 ----------
-[SELECT|CALL_PROG_OBJ] select existsnode(null, '/a');
+[SELECT] select existsnode(null, '/a');
 ----------
-[SELECT|CALL_PROG_OBJ] select extractvalue('<a><b>b</b></a>', '/a/b');
+[SELECT] select extractvalue('<a><b>b</b></a>', '/a/b');
 ----------
-[SELECT|CALL_PROG_OBJ] select extractvalue('<a><b code="x">text</b></a>', '/a/b/@code');
+[SELECT] select extractvalue('<a><b code="x">text</b></a>', '/a/b/@code');
 ----------
-[SELECT|CALL_PROG_OBJ] select extractvalue('<a><b>1</b></a>', '/a/b/text()');
+[SELECT] select extractvalue('<a><b>1</b></a>', '/a/b/text()');
 ----------
-[SELECT|CALL_PROG_OBJ] select extractvalue(null, '/a/b');
+[SELECT] select extractvalue(null, '/a/b');
 ----------
-[SELECT|CALL_PROG_OBJ] select appendchildxml('<a><b>b</b></a>', '/a', '<d>xxx</d>');
+[SELECT] select appendchildxml('<a><b>b</b></a>', '/a', '<d>xxx</d>');
 ----------
-[SELECT|CALL_PROG_OBJ] select appendchildxml('<a/>', '/a', '<b>1</b>');
+[SELECT] select appendchildxml('<a/>', '/a', '<b>1</b>');
 ----------
-[SELECT|CALL_PROG_OBJ] select appendchildxml('<a/>', '/a', '<b><c>1</c></b>');
+[SELECT] select appendchildxml('<a/>', '/a', '<b><c>1</c></b>');
 ----------
 [SELECT] select xmlparse(document '<a>good</a>' wellformed);
 ----------
@@ -103,9 +103,9 @@ select updatexml('<a><a1>d1</a1></a>', '/a/a1', '<x>updated</x>');
 ----------
 [SELECT] select x.item_code from xml_docs d, xmltable('/A/ITEM' passing d.payload columns item_code varchar(10) path '@CODE') x where d.id = 1;
 ----------
-[SELECT|CALL_PROG_OBJ] select * from table(xmlsequence(extract('<a><b>shanghai</b><b>dameng</b></a>', '/a/b')));
+[SELECT] select * from table(xmlsequence(extract('<a><b>shanghai</b><b>dameng</b></a>', '/a/b')));
 ----------
-[SELECT|CALL_PROG_OBJ] select * from table(xmlsequence(extract('<a><b>1</b></a>', '/a/b')));
+[SELECT] select * from table(xmlsequence(extract('<a><b>1</b></a>', '/a/b')));
 ----------
 [SELECT] select xmlelement(DM, 'TXT1', 'TXT2') from dual;
 ----------
@@ -127,13 +127,13 @@ select updatexml('<a><a1>d1</a1></a>', '/a/a1', '<x>updated</x>');
 ----------
 [SELECT] select xmlforest(null as A, 'TXT' as B) from dual;
 ----------
-[SELECT|CALL_PROG_OBJ] select xmlagg(xmlparse(content content wellformed) order by seq) from xml_agg_source;
+[SELECT] select xmlagg(xmlparse(content content wellformed) order by seq) from xml_agg_source;
 ----------
-[SELECT|CALL_PROG_OBJ] select xmlagg(xmlelement(ITEM, content) order by seq) from xml_agg_source;
+[SELECT] select xmlagg(xmlelement(ITEM, content) order by seq) from xml_agg_source;
 ----------
-[SELECT|CALL_PROG_OBJ] select xmlagg(xmlelement(ITEM, content)) from xml_agg_source;
+[SELECT] select xmlagg(xmlelement(ITEM, content)) from xml_agg_source;
 ----------
-[SELECT|CALL_PROG_OBJ] select deletexml('<a><b2>local<c>d</c></b2><b2>dd</b2></a>', 'a/b2/c');
+[SELECT] select deletexml('<a><b2>local<c>d</c></b2><b2>dd</b2></a>', 'a/b2/c');
 ----------
 [SELECT|CALL_PROG_OBJ] select insertchildxml('<a><b2>local</b2><b2>dd</b2></a>', 'a/b2', 'c', xmltype('<c>china</c>'));
 ----------
@@ -145,6 +145,6 @@ select updatexml('<a><a1>d1</a1></a>', '/a/a1', '<x>updated</x>');
 ----------
 [SELECT|CALL_PROG_OBJ] select insertxmlafter(xmltype('<a><b2>local</b2><b2>dd</b2></a>'), 'a/b2', xmltype('<c>china</c>'));
 ----------
-[SELECT|CALL_PROG_OBJ] select updatexml('<a><a1>d1</a1><a2>d2</a2></a>', '/a/a2', '<x>f</x>');
+[SELECT] select updatexml('<a><a1>d1</a1><a2>d2</a2></a>', '/a/a2', '<x>f</x>');
 ----------
-[SELECT|CALL_PROG_OBJ] select updatexml('<a><a1>d1</a1></a>', '/a/a1', '<x>updated</x>');
+[SELECT] select updatexml('<a><a1>d1</a1></a>', '/a/a1', '<x>updated</x>');

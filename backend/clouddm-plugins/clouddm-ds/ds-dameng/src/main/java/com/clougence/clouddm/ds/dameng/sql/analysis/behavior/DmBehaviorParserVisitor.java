@@ -3668,14 +3668,17 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             } else if (name.catalog() == null) {
                 action = DmResourceRegistry.instance().functionBehavior(name.schema(), name.name());
             }
-            SplitQueryType type = switch (action) {
-                case CALL -> SplitQueryType.CALL_PROG_OBJ;
-                case READ -> SplitQueryType.SELECT;
-                case LOCK -> SplitQueryType.QUERY_LOCK;
-                case CONFIGURE -> SplitQueryType.SYSTEM_SETTING_WRITE;
-                case ADMIN -> SplitQueryType.ADMIN;
-                default -> throw new IllegalStateException("unsupported functional function action " + action);
-            };
+            SplitQueryType type = DmResourceRegistry.instance().functionType(name.name()).orElse(null);
+            if (type == null) {
+                type = switch (action) {
+                    case CALL -> SplitQueryType.CALL_PROG_OBJ;
+                    case READ -> SplitQueryType.SELECT;
+                    case LOCK -> SplitQueryType.QUERY_LOCK;
+                    case CONFIGURE -> SplitQueryType.SYSTEM_SETTING_WRITE;
+                    case ADMIN -> SplitQueryType.ADMIN;
+                    default -> throw new IllegalStateException("unsupported functional function action " + action);
+                };
+            }
             List<BehaviorObject> targets = new ArrayList<>();
             OptionalInt configArgument = DmResourceRegistry.instance().functionConfigArgument(name.name());
             if (configArgument.isPresent() && function.functionArguments() != null && configArgument.getAsInt() < function.functionArguments().functionArgument().size()) {
@@ -4230,7 +4233,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             return;
         }
         behavior.getRelations().add(relation);
-        if (behavior.getStatementType() == SplitQueryType.UNKNOWN) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN || behavior.getStatementType() == SplitQueryType.SELECT && type == SplitQueryType.SESSION_VARIABLE_RW) {
             behavior.setStatementType(type);
         }
     }

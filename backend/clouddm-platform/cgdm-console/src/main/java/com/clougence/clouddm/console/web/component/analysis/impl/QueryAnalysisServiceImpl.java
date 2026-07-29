@@ -242,9 +242,12 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
                 for (LineageColumn lineage : lineageCols) {
                     ColumnConfig config = new ColumnConfig();
                     config.setSourceNames(lineage.sources());
+                    // TODO  use DmDsMetaConfigDO config column
+                    //List<DmDsMetaConfigDO> configs = this.dataSourceDal.metaConfigMapper().selectAllByDsId(dsId, pathList);
 
                     columnList.put(lineage.column(), config);
                 }
+
                 request.setColumnList(columnList);
             }
         }
@@ -281,7 +284,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     private void configMaskingWithoutProvenance(QueryRequest request, SysObjectRegistrySpi sysObjRegistry, String dbVersion, String userUid, long dsId,//
                                                 String currentResourcePath, String instanceResourcePath) {
-        List<DsResPathObj> objList = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations(), request.getQueryTypes()).stream().filter(b -> {
+        List<DsResPathObj> objList = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations()).stream().filter(b -> {
             return b.authKind() == SecDataAuthKind.READ;
         }).map(b -> {
             return new DsResPathObj(BehaviorRelations.resourcePath(b.resource(), currentResourcePath, instanceResourcePath));

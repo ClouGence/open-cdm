@@ -63,7 +63,7 @@ create table table_sem_ts_storage(id int) tablespace main storage(on main);
 ----------
 [INSERT] insert into table_sem_pendant values(2);
 ----------
-[SELECT|CALL_PROG_OBJ] select tabledef('SYSDBA', 'TABLE_SEM_PENDANT');
+[SELECT] select tabledef('SYSDBA', 'TABLE_SEM_PENDANT');
 ----------
 [DROP_TABLE] drop table table_sem_pendant purge;
 ----------

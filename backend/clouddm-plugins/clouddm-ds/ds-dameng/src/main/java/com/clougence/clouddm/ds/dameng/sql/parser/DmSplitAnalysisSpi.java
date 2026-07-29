@@ -90,8 +90,14 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof DmSqlParser.ForUpdateClauseContext ctx && ctx.UPDATE() != null) {
             return SplitQueryType.QUERY_LOCK;
         }
-        if (tree instanceof DmSqlParser.FunctionCallContext ctx && isUserFunction(ctx)) {
-            return SplitQueryType.CALL_PROG_OBJ;
+        if (tree instanceof DmSqlParser.FunctionCallContext ctx) {
+            Optional<SplitQueryType> functionType = resources.functionType(ctx.name.getText());
+            if (functionType.isPresent()) {
+                return functionType.get();
+            }
+            if (isUserFunction(ctx)) {
+                return SplitQueryType.CALL_PROG_OBJ;
+            }
         }
         if (tree instanceof DmSqlParser.ColumnDefinitionContext || tree instanceof DmSqlParser.CtasColumnDefinitionContext
             || tree instanceof DmSqlParser.HugeColumnDefinitionContext) {

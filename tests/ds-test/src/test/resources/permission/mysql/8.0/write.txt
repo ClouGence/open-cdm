@@ -1,4 +1,5 @@
-[insert_select]
+[permission_mysql_8_0_00020]
+source: permission/mysql/8.0/read.txt#insert_select
 sql:
 INSERT INTO archive_orders SELECT * FROM app_schema.orders;
 levels:
@@ -7,5 +8,5099 @@ expect:
 {
   "WRITE": [
     "Table(1:12~1:26) /test/1/catalog1/schema1/archive_orders/"
+  ]
+}
+----------
+[permission_mysql_8_0_00030]
+source: behavior/mysql/5.6/dml_mysql_language_0.txt#delete__019
+sql:
+DELETE FROM split_parser_big.t1 WHERE (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2) or (a=1 and b=2)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:31) /test/1/catalog1/split_parser_big/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00034]
+source: behavior/mysql/8.0/basic.txt#insert_on_duplicate_key_update
+sql:
+insert into target_tab(id, value_col) values (1, 'new') on duplicate key update value_col = values(value_col)
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/target_tab/"
+  ]
+}
+----------
+[permission_mysql_8_0_00037]
+source: behavior/mysql/8.0/basic.txt#replace_into
+sql:
+replace into target_tab(id, value_col) values (1, 'replacement')
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:23) /test/1/catalog1/schema1/target_tab/"
+  ]
+}
+----------
+[permission_mysql_8_0_00782]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#43
+sql:
+CREATE FUNCTION rb_fail() RETURNS INTEGER MODIFIES SQL DATA
+BEGIN
+  INSERT INTO rb_not_null SET f1=10,f2=10;
+  INSERT INTO rb_not_null SET f1=10,f2=NULL;
+  RETURN 1;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(3:14~3:25) /test/1/catalog1/schema1/rb_not_null/"
+  ]
+}
+----------
+[permission_mysql_8_0_00898]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#1
+sql:
+CREATE PROCEDURE split_routine.proc_handler_conditions(INOUT p_seen INT)
+outer_block: BEGIN
+  DECLARE named_error CONDITION FOR SQLSTATE VALUE '45000';
+  DECLARE CONTINUE HANDLER FOR 1062 SET p_seen = p_seen + 1;
+  DECLARE CONTINUE HANDLER FOR SQLWARNING SET p_seen = p_seen + 10;
+  inner_block: BEGIN
+    DECLARE EXIT HANDLER FOR named_error SET p_seen = p_seen + 100;
+    INSERT INTO split_routine.t VALUES (1, 'first');
+    INSERT INTO split_routine.t VALUES (1, 'duplicate');
+    SIGNAL named_error;
+  END inner_block;
+END outer_block;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(8:16~8:31) /test/1/catalog1/split_routine/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_00905]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#8
+sql:
+CREATE DEFINER = CURRENT_USER EVENT IF NOT EXISTS split56.ev_once
+  ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR + INTERVAL 1 MINUTE
+  ON COMPLETION PRESERVE
+  DISABLE
+  COMMENT 'one time event'
+  DO UPDATE split56.event_log SET note = 'once' WHERE id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(6:12~6:29) /test/1/catalog1/split56/event_log/"
+  ]
+}
+----------
+[permission_mysql_8_0_00906]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#9
+sql:
+CREATE EVENT split56.ev_repeat
+  ON SCHEDULE EVERY 1 DAY
+    STARTS CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+    ENDS CURRENT_TIMESTAMP + INTERVAL 2 DAY
+  ON COMPLETION NOT PRESERVE
+  DISABLE ON SLAVE
+  COMMENT 'repeat event'
+  DO INSERT INTO split56.event_log VALUES (2, 'repeat');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(8:17~8:34) /test/1/catalog1/split56/event_log/"
+  ]
+}
+----------
+[permission_mysql_8_0_00907]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#10
+sql:
+ALTER EVENT split56.ev_once
+  ON SCHEDULE EVERY 2 HOUR
+    STARTS CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+    ENDS CURRENT_TIMESTAMP + INTERVAL 1 DAY
+  RENAME TO split56.ev_once_renamed
+  ENABLE
+  COMMENT 'renamed event'
+  DO UPDATE split56.event_log SET note = 'renamed' WHERE id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(8:12~8:29) /test/1/catalog1/split56/event_log/"
+  ]
+}
+----------
+[permission_mysql_8_0_00910]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#14
+sql:
+CREATE EVENT split_event.ev_compound
+ON SCHEDULE EVERY (1 + 1) DAY
+STARTS CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+ENDS CURRENT_TIMESTAMP + INTERVAL 7 DAY
+ON COMPLETION PRESERVE
+DISABLE
+COMMENT 'compound event'
+DO event_block: BEGIN
+  DECLARE done BOOLEAN DEFAULT FALSE;
+  DECLARE v_id INT;
+  DECLARE cur CURSOR FOR SELECT id FROM split_event.event_log;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+  OPEN cur;
+  read_loop: LOOP
+    FETCH cur INTO v_id;
+    IF done THEN
+      LEAVE read_loop;
+    END IF;
+    UPDATE split_event.event_log SET note = CONCAT('event-', v_id) WHERE id = v_id;
+  END LOOP read_loop;
+  CLOSE cur;
+  CASE
+    WHEN EXISTS (SELECT 1 FROM split_event.event_log WHERE id = 1) THEN
+      INSERT INTO split_event.event_log VALUES (2, 'created') ON DUPLICATE KEY UPDATE note = VALUES(note);
+    ELSE
+      SET @event_case = 0;
+  END CASE;
+END event_block;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(19:11~19:32) /test/1/catalog1/split_event/event_log/",
+    "Table(24:18~24:39) /test/1/catalog1/split_event/event_log/"
+  ]
+}
+----------
+[permission_mysql_8_0_00911]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#15
+sql:
+ALTER EVENT split_event.ev_compound
+ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 DAY + INTERVAL 2 HOUR
+DO BEGIN
+  UPDATE split_event.event_log SET note = 'altered' WHERE id = 1;
+  DELETE FROM split_event.event_log WHERE id > 10;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(4:9~4:30) /test/1/catalog1/split_event/event_log/",
+    "Table(5:14~5:35) /test/1/catalog1/split_event/event_log/"
+  ]
+}
+----------
+[permission_mysql_8_0_00961]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#66
+sql:
+CREATE PROCEDURE fd_proc_insert() INSERT INTO split_function_defaults_objects.fd_proc_target(a) VALUES(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:46~1:92) /test/1/catalog1/split_function_defaults_objects/fd_proc_target/"
+  ]
+}
+----------
+[permission_mysql_8_0_00962]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#67
+sql:
+CREATE PROCEDURE fd_proc_update() UPDATE fd_proc_target SET a=2 WHERE a=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:41~1:55) /test/1/catalog1/schema1/fd_proc_target/"
+  ]
+}
+----------
+[permission_mysql_8_0_00985]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#90
+sql:
+CREATE PROCEDURE split_select_short.p1()
+BEGIN
+  DECLARE counter INTEGER DEFAULT 0;
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION BEGIN SET counter=counter+1; END;
+  REPEAT
+    IF RAND()>0.5 THEN START TRANSACTION; END IF;
+    IF RAND()>0.5 THEN SELECT COUNT(*) FROM split_select_short.t FOR UPDATE; END IF;
+    UPDATE split_select_short.t SET a=1 WHERE a>=0;
+    SET counter=counter+1;
+  UNTIL counter>=2 END REPEAT;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(8:11~8:31) /test/1/catalog1/split_select_short/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_00988]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#93
+sql:
+CREATE TRIGGER codex_group_having_audit_trg BEFORE INSERT ON codex_group_having_audit_target FOR EACH ROW INSERT INTO codex_group_having_audit_dst(b) SELECT b FROM codex_group_having_audit_src GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:118~1:146) /test/1/catalog1/schema1/codex_group_having_audit_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_00991]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#96
+sql:
+CREATE TRIGGER split56.trg_bd BEFORE DELETE ON split56.trigger_src FOR EACH ROW INSERT INTO split56.trigger_audit(src_id, action_name, old_amount, new_amount) VALUES (OLD.id, 'before delete', OLD.amount, NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:92~1:113) /test/1/catalog1/split56/trigger_audit/"
+  ]
+}
+----------
+[permission_mysql_8_0_00992]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#97
+sql:
+CREATE TRIGGER split56.trg_ai AFTER INSERT ON split56.trigger_src FOR EACH ROW INSERT INTO split56.trigger_audit(src_id, action_name, old_amount, new_amount) VALUES (NEW.id, 'after insert', NULL, NEW.amount);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:91~1:112) /test/1/catalog1/split56/trigger_audit/"
+  ]
+}
+----------
+[permission_mysql_8_0_00993]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#98
+sql:
+CREATE TRIGGER split56.trg_au AFTER UPDATE ON split56.trigger_src FOR EACH ROW INSERT INTO split56.trigger_audit(src_id, action_name, old_amount, new_amount) VALUES (OLD.id, 'after update', OLD.amount, NEW.amount);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:91~1:112) /test/1/catalog1/split56/trigger_audit/"
+  ]
+}
+----------
+[permission_mysql_8_0_00994]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#99
+sql:
+CREATE TRIGGER split56.trg_ad AFTER DELETE ON split56.trigger_src FOR EACH ROW INSERT INTO split56.trigger_audit(src_id, action_name, old_amount, new_amount) VALUES (OLD.id, 'after delete', OLD.amount, NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:91~1:112) /test/1/catalog1/split56/trigger_audit/"
+  ]
+}
+----------
+[permission_mysql_8_0_01002]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#107
+sql:
+CREATE TRIGGER trg07 BEFORE INSERT ON t2 FOR EACH ROW BEGIN DECLARE CONTINUE HANDLER FOR 1062 BEGIN END; INSERT INTO t3 VALUES(NEW.i); INSERT INTO t3 VALUES(NEW.i); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:117~1:119) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01025]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#130
+sql:
+CREATE TRIGGER t15_ad_cascade AFTER DELETE ON t15 FOR EACH ROW DELETE FROM t111 WHERE f1=OLD.f1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:75~1:79) /test/1/catalog1/schema1/t111/"
+  ]
+}
+----------
+[permission_mysql_8_0_01026]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#131
+sql:
+CREATE TRIGGER trig2 BEFORE UPDATE ON employees FOR EACH ROW UPDATE employees SET employee_name=NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:68~1:77) /test/1/catalog1/schema1/employees/"
+  ]
+}
+----------
+[permission_mysql_8_0_01028]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#133
+sql:
+CREATE PROCEDURE split_view_do_dml() BEGIN DO (SELECT @next := IFNULL(MAX(bug_table_seq),0)+1 FROM v1); INSERT INTO t1 VALUES(1); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:116~1:118) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01061]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#167
+sql:
+CREATE PROCEDURE split_handler_rollback()
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+  START TRANSACTION;
+  INSERT INTO split_handler_table VALUES (1);
+  INSERT INTO split_handler_table VALUES (2);
+  COMMIT WORK;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(5:14~5:33) /test/1/catalog1/schema1/split_handler_table/"
+  ]
+}
+----------
+[permission_mysql_8_0_01081]
+source: split/mysql/5.6/ddl_mysql_table_0.txt#2
+sql:
+INSERT INTO t1 VALUES(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01098]
+source: split/mysql/5.6/ddl_mysql_table_0.txt#19
+sql:
+CREATE OR REPLACE VIEW vv AS SELECT /*+ SET_VAR(sql_select_limit=1) */ id FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "View(1:23~1:25) /test/1/catalog1/schema1/vv/"
+  ]
+}
+----------
+[permission_mysql_8_0_01126]
+source: split/mysql/5.6/ddl_mysql_table_0.txt#47
+sql:
+CREATE PROCEDURE split_table_derived.del_rows() DELETE o.* FROM split_table_derived.t1 AS o,(SELECT 1) AS d WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:55~1:56) /test/1/catalog1/schema1/o/"
+  ]
+}
+----------
+[permission_mysql_8_0_01220]
+source: split/mysql/5.6/ddl_mysql_view_0.txt#16
+sql:
+CREATE OR REPLACE ALGORITHM = MERGE DEFINER = CURRENT_USER SQL SECURITY DEFINER VIEW split_view56.v_base (id, amount) AS
+SELECT id, amount FROM split_view56.src WHERE amount >= 0 WITH CASCADED CHECK OPTION;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "View(1:85~1:104) /test/1/catalog1/split_view56/v_base/"
+  ]
+}
+----------
+[permission_mysql_8_0_01235]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#1
+sql:
+delete from test;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:16) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01236]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#2
+sql:
+delete ignore from test where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:23) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01237]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#3
+sql:
+delete from test1 where id = (select max(id) from test2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/test1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01238]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#4
+sql:
+delete from test1 where id = (select max(id) from test2 limit 2) limit 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/test1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01239]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#5
+sql:
+DELETE LOW_PRIORITY QUICK IGNORE FROM ptab PARTITION (p0) WHERE id < 0 ORDER BY id LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:38~1:42) /test/1/catalog1/schema1/ptab/"
+  ]
+}
+----------
+[permission_mysql_8_0_01240]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#6
+sql:
+DELETE LOW_PRIORITY QUICK IGNORE a.*, b.* FROM t1 AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:33~1:34) /test/1/catalog1/schema1/a/",
+    "Table(1:38~1:39) /test/1/catalog1/schema1/b/"
+  ]
+}
+----------
+[permission_mysql_8_0_01241]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#7
+sql:
+DELETE LOW_PRIORITY QUICK IGNORE FROM a, b USING t1 AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:38~1:39) /test/1/catalog1/schema1/a/",
+    "Table(1:41~1:42) /test/1/catalog1/schema1/b/"
+  ]
+}
+----------
+[permission_mysql_8_0_01242]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#8
+sql:
+DELETE a FROM ptab PARTITION (p0) AS a INNER JOIN t2 AS b ON a.id = b.id WHERE a.id < 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/a/"
+  ]
+}
+----------
+[permission_mysql_8_0_01243]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#9
+sql:
+DELETE FROM articles WHERE MATCH(title,body) AGAINST('+database' IN BOOLEAN MODE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:20) /test/1/catalog1/schema1/articles/"
+  ]
+}
+----------
+[permission_mysql_8_0_01244]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#10
+sql:
+DELETE a FROM articles AS a JOIN aux AS b ON a.id=b.id WHERE MATCH(a.title) AGAINST('database');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/a/"
+  ]
+}
+----------
+[permission_mysql_8_0_01245]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#11
+sql:
+DELETE `4.t1` FROM t1 AS `4.t1` WHERE `4.t1`.a = 500;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:13) /test/1/catalog1/schema1/4.t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01246]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#12
+sql:
+DELETE FROM `4.t1` USING t1 AS `4.t1` WHERE `4.t1`.a = 500;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/4.t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01247]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#13
+sql:
+DELETE FROM t1 WHERE (@a := f1) ORDER BY f1 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01248]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#14
+sql:
+DELETE FROM t1.*, codex_delete_native_parallel.t2.*, a.* USING t1, t2, t3 AS a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
+    "Table(1:18~1:49) /test/1/catalog1/codex_delete_native_parallel/t2/",
+    "Table(1:53~1:54) /test/1/catalog1/schema1/a/"
+  ]
+}
+----------
+[permission_mysql_8_0_01249]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#15
+sql:
+DELETE FROM OUTR1.* USING t1 AS OUTR1 LEFT OUTER JOIN t2 AS OUTR2 ON (OUTR1.a = OUTR2.b) WHERE OUTR1.a < (SELECT t3.c FROM t3 WHERE 1 XOR OUTR2.b IS NOT NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/OUTR1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01250]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#16
+sql:
+DELETE IGNORE t1.*, t2.* FROM t1, t2 WHERE c < b OR a != (SELECT 1 UNION SELECT 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
+    "Table(1:20~1:22) /test/1/catalog1/schema1/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01251]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#17
+sql:
+DELETE t1, t2, t3, t4 FROM (t1 INNER JOIN t2 USING (a)) LEFT JOIN (t3 INNER JOIN t4 USING (a)) ON t2.b = t4.b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
+    "Table(1:11~1:13) /test/1/catalog1/schema1/t2/",
+    "Table(1:15~1:17) /test/1/catalog1/schema1/t3/",
+    "Table(1:19~1:21) /test/1/catalog1/schema1/t4/"
+  ]
+}
+----------
+[permission_mysql_8_0_01252]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#18
+sql:
+DELETE IGNORE QUICK LOW_PRIORITY FROM dml_audit.t WHERE id=999 ORDER BY id LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:38~1:49) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01253]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#19
+sql:
+DELETE p1.* FROM split_derived_common.nm AS p1 INNER JOIN (SELECT n FROM split_derived_common.nm GROUP BY n HAVING COUNT(m)>1) AS p2 ON p1.n=p2.n;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:9) /test/1/catalog1/schema1/p1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01254]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#20
+sql:
+DELETE FROM split_subquery_fifth.del1 WHERE del1.EMPNUM NOT IN (SELECT del2.EMPNUM FROM split_subquery_fifth.del2 WHERE del1.EMPNUM=del2.EMPNUM);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:37) /test/1/catalog1/split_subquery_fifth/del1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01255]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#21
+sql:
+DELETE FROM part_t PARTITION(p0,p1) WHERE id IN(2,12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/part_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01256]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#22
+sql:
+DELETE d7_t1, d7_t2 FROM d7_t1 PARTITION (pNeg), d7_t3, d7_t2 PARTITION (subp3) WHERE d7_t1.a = d7_t3.a AND d7_t3.b = 'subp3' AND d7_t3.a = d7_t2.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:12) /test/1/catalog1/schema1/d7_t1/",
+    "Table(1:14~1:19) /test/1/catalog1/schema1/d7_t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01257]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#23
+sql:
+DELETE FROM d8_t2, d8_t3 USING d8_t2 PARTITION (`p0-9`), d8_t3, d8_t1 PARTITION (subp3) WHERE d8_t1.a = d8_t3.a AND d8_t3.b = 'subp3' AND d8_t2.a = d8_t1.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/d8_t2/",
+    "Table(1:19~1:24) /test/1/catalog1/schema1/d8_t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01258]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#24
+sql:
+DELETE d9_t1.* FROM d9_t1 FORCE INDEX(by_val) WHERE val > 1 AND val MOD 1000 = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:12) /test/1/catalog1/schema1/d9_t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01259]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#25
+sql:
+DELETE s FROM split_dml_src AS s IGNORE INDEX FOR JOIN (idx_v)
+  JOIN split_dml_aux AS a USE INDEX FOR JOIN (PRIMARY) ON a.id=s.id
+  WHERE EXISTS (SELECT 1 FROM split_dml_dst AS d WHERE d.id=a.id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/s/"
+  ]
+}
+----------
+[permission_mysql_8_0_01260]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#26
+sql:
+DELETE FROM bit_values WHERE b=FALSE OR b BETWEEN b'1' AND b'111';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/bit_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01261]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#27
+sql:
+DELETE FROM time_widths WHERE t6 IN(TIME'00:00:00.000000',NULL) OR t6 NOT BETWEEN TIME'-24:00:00' AND TIME'24:00:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:23) /test/1/catalog1/schema1/time_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01262]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#28
+sql:
+DELETE FROM str_lifecycle WHERE variable_binary=X'6279746573' OR c BETWEEN 'a' AND 'z';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:25) /test/1/catalog1/schema1/str_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01263]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#29
+sql:
+DELETE FROM lob_family WHERE b=X'4100' OR t COLLATE utf8mb4_bin BETWEEN 'a' AND 'z';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/lob_family/"
+  ]
+}
+----------
+[permission_mysql_8_0_01264]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#30
+sql:
+DELETE FROM split_type_enum_set.es_core
+    WHERE e_basic IN (
+      SELECT e_basic
+      FROM (SELECT e_basic FROM split_type_enum_set.es_core
+            WHERE FIND_IN_SET('green',s_basic)) AS d
+    )
+      AND (s_basic+0 & 2) <> 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/"
+  ]
+}
+----------
+[permission_mysql_8_0_01265]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#31
+sql:
+DELETE FROM spatial_lifecycle
+WHERE EXISTS (
+  SELECT 1
+  FROM spatial_lifecycle AS s2
+  WHERE s2.id=spatial_lifecycle.id
+    AND ST_Within(s2.p,ST_Buffer(spatial_lifecycle.p,1))
+);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01266]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#32
+sql:
+DELETE FROM integer_lifecycle
+WHERE int_signed<0
+  AND EXISTS (
+    SELECT 1
+    FROM integer_lifecycle AS inner_integer
+    WHERE inner_integer.id=integer_lifecycle.id
+      AND inner_integer.big_unsigned=integer_lifecycle.big_unsigned
+  );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01267]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#33
+sql:
+DELETE FROM integer_key_partition
+WHERE id IN (0,18446744073709551615);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:33) /test/1/catalog1/schema1/integer_key_partition/"
+  ]
+}
+----------
+[permission_mysql_8_0_01268]
+source: split/mysql/5.6/dml_mysql_delete_0.txt#34
+sql:
+DELETE FROM numeric_lifecycle
+WHERE float_value<0
+   OR EXISTS (
+     SELECT 1
+     FROM numeric_lifecycle AS inner_numeric
+     WHERE inner_numeric.id=numeric_lifecycle.id
+       AND inner_numeric.decimal_value=numeric_lifecycle.numeric_value
+   );
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01309]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#1
+sql:
+UPDATE default_function_t SET a = DEFAULT(a), b = DEFAULT(b) WHERE id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:25) /test/1/catalog1/schema1/default_function_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01310]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#2
+sql:
+INSERT INTO aes_feedback_modes (a) VALUES (REPEAT('a', 128)), (REPEAT(0x00313233, 32));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:30) /test/1/catalog1/schema1/aes_feedback_modes/"
+  ]
+}
+----------
+[permission_mysql_8_0_01311]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#3
+sql:
+UPDATE aes_feedback_modes SET b128 = AES_ENCRYPT(a, @aes_key1, @aes_iva), b192 = AES_ENCRYPT(a, @aes_key1, @aes_iva), b256 = AES_ENCRYPT(a, @aes_key1, @aes_iva);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:25) /test/1/catalog1/schema1/aes_feedback_modes/"
+  ]
+}
+----------
+[permission_mysql_8_0_01312]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#4
+sql:
+INSERT INTO aes_cipher_keys VALUES (AES_ENCRYPT('a', 'a'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:27) /test/1/catalog1/schema1/aes_cipher_keys/"
+  ]
+}
+----------
+[permission_mysql_8_0_01313]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#5
+sql:
+INSERT INTO aes_cipher_keys VALUES (AES_ENCRYPT('b', 'a'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:27) /test/1/catalog1/schema1/aes_cipher_keys/"
+  ]
+}
+----------
+[permission_mysql_8_0_01314]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#6
+sql:
+INSERT INTO aes_ecb_modes (a) VALUES ('a'), ('Жоро'), (REPEAT('a', 10));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:25) /test/1/catalog1/schema1/aes_ecb_modes/"
+  ]
+}
+----------
+[permission_mysql_8_0_01315]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#7
+sql:
+UPDATE aes_ecb_modes SET b128 = AES_ENCRYPT(a, 'a'), b192 = AES_ENCRYPT(a, 'a'), b256 = AES_ENCRYPT(a, 'a');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:20) /test/1/catalog1/schema1/aes_ecb_modes/"
+  ]
+}
+----------
+[permission_mysql_8_0_01316]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#8
+sql:
+INSERT INTO aes_misc_cipher VALUES (AES_ENCRYPT(@aes_misc_plain, @aes_misc_key, @aes_misc_iv));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:27) /test/1/catalog1/schema1/aes_misc_cipher/"
+  ]
+}
+----------
+[permission_mysql_8_0_01317]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#10
+sql:
+INSERT INTO compress_columns_t(a,b,c) VALUES(COMPRESS(@test_compress_string),COMPRESS(@test_compress_string),'d ');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:30) /test/1/catalog1/schema1/compress_columns_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01318]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#11
+sql:
+INSERT compress_blob_t VALUES(COMPRESS(NULL)),('A\0\0\0BBBBBBBB'),(COMPRESS(SPACE(50000))),(SPACE(50000));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:22) /test/1/catalog1/schema1/compress_blob_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01319]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#13
+sql:
+INSERT INTO codex_func_date_add.invalid_t(d) SELECT DATE_SUB('2000-01-01',INTERVAL 2001 YEAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:41) /test/1/catalog1/codex_func_date_add/invalid_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01320]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#14
+sql:
+INSERT INTO codex_func_date_add.invalid_t(d) SELECT DATE_ADD('2000-01-01',INTERVAL 8000 YEAR);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:41) /test/1/catalog1/codex_func_date_add/invalid_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01321]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#15
+sql:
+INSERT INTO codex_func_date_add.invalid_t VALUES(DATE_ADD(NULL,INTERVAL 1 DAY));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:41) /test/1/catalog1/codex_func_date_add/invalid_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01322]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#16
+sql:
+INSERT INTO codex_func_date_add.invalid_t VALUES(DATE_ADD('2000-01-04',INTERVAL NULL DAY));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:41) /test/1/catalog1/codex_func_date_add/invalid_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01323]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#17
+sql:
+UPDATE des_storage SET des=DES_ENCRYPT('1234');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:18) /test/1/catalog1/schema1/des_storage/"
+  ]
+}
+----------
+[permission_mysql_8_0_01324]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#18
+sql:
+INSERT INTO t1 VALUES(1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01325]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#19
+sql:
+INSERT INTO t2 VALUES(1,NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01326]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#20
+sql:
+INSERT INTO func_test_type_mix VALUES('2017-02-02 12:00:00',@a,@a,@a,@a,@a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:30) /test/1/catalog1/schema1/func_test_type_mix/"
+  ]
+}
+----------
+[permission_mysql_8_0_01327]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#21
+sql:
+INSERT INTO agg_out SELECT grp,MAX(a)+MAX(grp),MAX(c) FROM fg GROUP BY grp;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:19) /test/1/catalog1/schema1/agg_out/"
+  ]
+}
+----------
+[permission_mysql_8_0_01329]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#23
+sql:
+UPDATE update_t SET c1=2 WHERE IF(TRUE,'2015-01-01','2015-01-01') IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:15) /test/1/catalog1/schema1/update_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01330]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#24
+sql:
+INSERT INTO datetime_t SET t_date=NULLIF(NOW(),'');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/datetime_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01331]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#25
+sql:
+DELETE FROM codex_func_in.nullable_field WHERE field NOT IN (NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:40) /test/1/catalog1/codex_func_in/nullable_field/"
+  ]
+}
+----------
+[permission_mysql_8_0_01332]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#26
+sql:
+UPDATE codex_func_in.update_t SET b=1 WHERE a NOT IN (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:29) /test/1/catalog1/codex_func_in/update_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01333]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#27
+sql:
+INSERT INTO func_least_faq VALUES (82,82,1),(82,83,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:26) /test/1/catalog1/schema1/func_least_faq/"
+  ]
+}
+----------
+[permission_mysql_8_0_01334]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#28
+sql:
+INSERT INTO func_least_access_rank VALUES (1,2),(2,3),(3,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/schema1/func_least_access_rank/"
+  ]
+}
+----------
+[permission_mysql_8_0_01335]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#29
+sql:
+INSERT INTO codex_func_rand.t SELECT MAX(i1),FLOOR(RAND(0)*1000) FROM codex_func_rand.t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/codex_func_rand/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01336]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#30
+sql:
+INSERT INTO codex_func_rand.t SELECT MAX(i1),FLOOR(RAND(0)*1000)+EXTRACT(YEAR FROM NOW()) DIV 1000 FROM codex_func_rand.t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/codex_func_rand/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01337]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#31
+sql:
+INSERT INTO codex_func_rand.t SELECT MAX(i1),FLOOR(RAND(0)*1000)+EXTRACT(YEAR FROM NOW()) DIV 1000 FROM codex_func_rand.t GROUP BY i2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/codex_func_rand/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01338]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#32
+sql:
+INSERT INTO rb_aux SET f1=1,f2=rb_fail();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/rb_aux/"
+  ]
+}
+----------
+[permission_mysql_8_0_01339]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#33
+sql:
+INSERT INTO rb_aux SELECT 1,rb_fail();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/rb_aux/"
+  ]
+}
+----------
+[permission_mysql_8_0_01340]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#34
+sql:
+INSERT INTO rb_aux VALUES(1,rb_fail());
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/rb_aux/"
+  ]
+}
+----------
+[permission_mysql_8_0_01341]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#35
+sql:
+DELETE FROM rb_aux WHERE f1=rb_fail();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/rb_aux/"
+  ]
+}
+----------
+[permission_mysql_8_0_01342]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#36
+sql:
+UPDATE rb_aux SET f2=rb_fail()+1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:13) /test/1/catalog1/schema1/rb_aux/"
+  ]
+}
+----------
+[permission_mysql_8_0_01343]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#37
+sql:
+INSERT INTO base64_encoded(encoded_value) SELECT TO_BASE64(binary_value) FROM base64_binary_values;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:26) /test/1/catalog1/schema1/base64_encoded/"
+  ]
+}
+----------
+[permission_mysql_8_0_01344]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#38
+sql:
+UPDATE base64_encoded SET encoded_value = TO_BASE64(FROM_BASE64(encoded_value)) WHERE encoded_value IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:21) /test/1/catalog1/schema1/base64_encoded/"
+  ]
+}
+----------
+[permission_mysql_8_0_01345]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#39
+sql:
+DELETE FROM inet_values ORDER BY INET_NTOA(a) DESC LIMIT 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:23) /test/1/catalog1/schema1/inet_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01346]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#40
+sql:
+UPDATE t_update SET c0=1 WHERE (t_update.c0 IS NULL)>>('');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:15) /test/1/catalog1/schema1/t_update/"
+  ]
+}
+----------
+[permission_mysql_8_0_01347]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#41
+sql:
+UPDATE t_update SET c0=1 WHERE (t_update.c0 IS NULL)>>('' COLLATE 'utf8mb4_0900_ai_ci');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:15) /test/1/catalog1/schema1/t_update/"
+  ]
+}
+----------
+[permission_mysql_8_0_01348]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#42
+sql:
+INSERT INTO int_values VALUES ('21474836461','21474836461');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/int_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01349]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#43
+sql:
+INSERT INTO int_values VALUES ('-21474836461','-21474836461');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/int_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01350]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#44
+sql:
+INSERT INTO t_dst SELECT IF(a, 1, 0) FROM t_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/t_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01351]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#45
+sql:
+INSERT INTO t_dst SELECT IF(a <> 0, 1, 0) FROM t_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/t_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01352]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#46
+sql:
+INSERT INTO t_dst SELECT a | 2147483647 FROM t_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/t_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01353]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#47
+sql:
+INSERT INTO t_dst SELECT CAST(a AS DECIMAL) FROM t_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/t_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01354]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#48
+sql:
+INSERT INTO func_test_nullable_self VALUES(NULL,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:35) /test/1/catalog1/schema1/func_test_nullable_self/"
+  ]
+}
+----------
+[permission_mysql_8_0_01355]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#49
+sql:
+INSERT INTO func_test_not_between VALUES(1,2),(2,3),(3,4),(4,5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:33) /test/1/catalog1/schema1/func_test_not_between/"
+  ]
+}
+----------
+[permission_mysql_8_0_01356]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#50
+sql:
+INSERT INTO func_test_null_unsigned VALUES(0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:35) /test/1/catalog1/schema1/func_test_null_unsigned/"
+  ]
+}
+----------
+[permission_mysql_8_0_01357]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#51
+sql:
+INSERT INTO func_test_unsigned_pair VALUES(202,1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:35) /test/1/catalog1/schema1/func_test_unsigned_pair/"
+  ]
+}
+----------
+[permission_mysql_8_0_01358]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#52
+sql:
+INSERT INTO func_test_duplicate VALUES(1,13836376518955650385) ON DUPLICATE KEY UPDATE b=GREATEST(b,VALUES(b));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:31) /test/1/catalog1/schema1/func_test_duplicate/"
+  ]
+}
+----------
+[permission_mysql_8_0_01359]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#53
+sql:
+INSERT INTO insert_time_source SELECT MAX(1),NOW() FROM insert_time_source;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:30) /test/1/catalog1/schema1/insert_time_source/"
+  ]
+}
+----------
+[permission_mysql_8_0_01360]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#54
+sql:
+INSERT INTO timestamp_source (f2,f3) VALUES (NOW(),FROM_UNIXTIME('9999999999'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:28) /test/1/catalog1/schema1/timestamp_source/"
+  ]
+}
+----------
+[permission_mysql_8_0_01361]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#55
+sql:
+INSERT INTO timestamp_source (f2,f3) VALUES (NOW(),ASCII(NULL));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:28) /test/1/catalog1/schema1/timestamp_source/"
+  ]
+}
+----------
+[permission_mysql_8_0_01362]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#56
+sql:
+INSERT INTO timestamp_source (f2,f3) VALUES (NOW(),COALESCE(FROM_UNIXTIME('9999999999'),'0000-00-00 00:00:00'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:28) /test/1/catalog1/schema1/timestamp_source/"
+  ]
+}
+----------
+[permission_mysql_8_0_01363]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#57
+sql:
+INSERT INTO timestamp_source (f2,f3) VALUES (NOW(),FROM_UNIXTIME(99999999990));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:28) /test/1/catalog1/schema1/timestamp_source/"
+  ]
+}
+----------
+[permission_mysql_8_0_01364]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#58
+sql:
+UPDATE timestamp_source SET f2=NOW(),f3=FROM_UNIXTIME('9999999999') WHERE f1=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:23) /test/1/catalog1/schema1/timestamp_source/"
+  ]
+}
+----------
+[permission_mysql_8_0_01367]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#61
+sql:
+INSERT INTO fd_dml_values VALUES (NULL,NULL,1),(DEFAULT,DEFAULT,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:25) /test/1/catalog1/schema1/fd_dml_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01368]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#62
+sql:
+INSERT INTO fd_dml_values VALUES ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:25) /test/1/catalog1/schema1/fd_dml_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01369]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#63
+sql:
+REPLACE INTO fd_dml_values VALUES (DEFAULT,DEFAULT,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:26) /test/1/catalog1/schema1/fd_dml_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01370]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#64
+sql:
+INSERT INTO split_scalar80_c.pct SELECT s2.avg_us,IFNULL(SUM(s1.cnt)/NULLIF((SELECT COUNT(*) FROM split_scalar80_c.digests),0),0) FROM split_scalar80_c.lat1 AS s1 JOIN split_scalar80_c.lat2 AS s2 ON s1.avg_us<=s2.avg_us GROUP BY s2.avg_us HAVING IFNULL(SUM(s1.cnt)/NULLIF((SELECT COUNT(*) FROM split_scalar80_c.digests),0),0)>0.95 ORDER BY 2 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:32) /test/1/catalog1/split_scalar80_c/pct/"
+  ]
+}
+----------
+[permission_mysql_8_0_01371]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#65
+sql:
+INSERT INTO split_scalar80_d.dst SELECT COUNT(q1.id),(SELECT MIN(q4.s) FROM split_scalar80_d.q AS q4) FROM split_scalar80_d.q AS q1 JOIN (split_scalar80_d.q AS q2 JOIN split_scalar80_d.q AS q3 ON TRUE) ON TRUE WHERE 1<>(SELECT COUNT(*) FROM split_scalar80_d.q AS q5);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:32) /test/1/catalog1/split_scalar80_d/dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01372]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#66
+sql:
+INSERT INTO split_management_function_probe(id,status_code) VALUES (1,set_firewall_mode('fwuser@localhost','RECORDING'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:43) /test/1/catalog1/schema1/split_management_function_probe/"
+  ]
+}
+----------
+[permission_mysql_8_0_01373]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#67
+sql:
+UPDATE split_management_function_probe SET status_code=mysql_firewall_flush_status() WHERE set_firewall_mode('fwuser@localhost','RECORDING') IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:38) /test/1/catalog1/schema1/split_management_function_probe/"
+  ]
+}
+----------
+[permission_mysql_8_0_01374]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#68
+sql:
+DELETE FROM split_management_function_probe WHERE set_firewall_mode('fwuser@localhost','RECORDING') IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:43) /test/1/catalog1/schema1/split_management_function_probe/"
+  ]
+}
+----------
+[permission_mysql_8_0_01375]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#69
+sql:
+INSERT INTO split_management_function_probe(id,status_code) SELECT id,set_firewall_mode('fwuser@localhost','RECORDING') FROM split_management_function_source WHERE mysql_firewall_flush_status()=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:43) /test/1/catalog1/schema1/split_management_function_probe/"
+  ]
+}
+----------
+[permission_mysql_8_0_01376]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#70
+sql:
+INSERT INTO split_replication_wait_probe(wait_result) VALUES (MASTER_POS_WAIT('missing-binlog.000001',4,0));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:40) /test/1/catalog1/schema1/split_replication_wait_probe/"
+  ]
+}
+----------
+[permission_mysql_8_0_01377]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#71
+sql:
+UPDATE split_replication_wait_probe SET wait_result=WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS('',0) WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:35) /test/1/catalog1/schema1/split_replication_wait_probe/"
+  ]
+}
+----------
+[permission_mysql_8_0_01378]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#72
+sql:
+DELETE FROM split_replication_wait_probe WHERE MASTER_POS_WAIT('missing-binlog.000001',4,0) IS NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:40) /test/1/catalog1/schema1/split_replication_wait_probe/"
+  ]
+}
+----------
+[permission_mysql_8_0_01379]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#1
+sql:
+insert into `test_sch`.`table2` (`id`, `b`) values (2, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:31) /test/1/catalog1/test_sch/table2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01380]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#2
+sql:
+insert `test_schema`.`table2` (`id`, `b`) values (2, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:29) /test/1/catalog1/test_schema/table2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01381]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#3
+sql:
+insert `test_schema`.`table2` (`id`, `b`) values ((select id from table1 limit 1), 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:29) /test/1/catalog1/test_schema/table2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01382]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#4
+sql:
+insert into `test_schema`.`table2` (`id`, `b`) value (null, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/test_schema/table2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01383]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#5
+sql:
+insert ignore into `test_schema`.`table2` (`id`, `b`) values (null, 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:41) /test/1/catalog1/test_schema/table2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01384]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#6
+sql:
+insert into `test_schema`.`table2` (`id`, `b`) values (null, 1) ON DUPLICATE KEY UPDATE b = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/test_schema/table2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01385]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#7
+sql:
+insert into table2 (customer_id, order_date, total_amount)
+select customer_id, order_date, total_amount from orders1
+union
+select customer_id, order_date, total_amount from orders2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/table2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01386]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#8
+sql:
+INSERT LOW_PRIORITY IGNORE INTO ptab PARTITION (p0) (id, name, val) VALUES (1, 'a', DEFAULT) ON DUPLICATE KEY UPDATE name = VALUES(name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:32~1:36) /test/1/catalog1/schema1/ptab/"
+  ]
+}
+----------
+[permission_mysql_8_0_01387]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#9
+sql:
+INSERT DELAYED INTO myisam_t SET id = 1, name = 'delayed', val = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:20~1:28) /test/1/catalog1/schema1/myisam_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01388]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#10
+sql:
+INSERT DELAYED myisam_t VALUES (11, 'delayed-no-into', DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:15~1:23) /test/1/catalog1/schema1/myisam_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01389]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#11
+sql:
+INSERT HIGH_PRIORITY INTO myisam_t (id, name, val) SELECT id + 20, name, val FROM src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:26~1:34) /test/1/catalog1/schema1/myisam_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01390]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#12
+sql:
+INSERT INTO target () VALUES();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/target/"
+  ]
+}
+----------
+[permission_mysql_8_0_01391]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#13
+sql:
+INSERT INTO t2 VALUES(CONVERT_TZ('2004-01-01 00:00:00','MET',@@time_zone),NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01392]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#14
+sql:
+INSERT INTO dml_audit.t () VALUES (), ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:23) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01393]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#15
+sql:
+INSERT INTO codex_insert_native_parallel.qualified_target SET codex_insert_native_parallel.qualified_target.c = '1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:57) /test/1/catalog1/codex_insert_native_parallel/qualified_target/"
+  ]
+}
+----------
+[permission_mysql_8_0_01394]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#16
+sql:
+REPLACE INTO table_target SELECT stations.mexs_id AS mexs_id, datetime AS messzeit FROM table_source INNER JOIN view_stations AS stations ON table_source.id = stations.icao LEFT JOIN table_target AS old USING (mexs_id);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:25) /test/1/catalog1/schema1/table_target/"
+  ]
+}
+----------
+[permission_mysql_8_0_01395]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#17
+sql:
+INSERT INTO t2 SELECT STRAIGHT_JOIN * FROM t1 AS alias1 WHERE EXISTS (SELECT * FROM (SELECT * FROM t1 JOIN t1 AS alias2 USING (f1)) AS alias3 WHERE alias1.f1 < 20);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01396]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#18
+sql:
+INSERT INTO t VALUES (1, VALUES(x));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:13) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01397]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#19
+sql:
+INSERT INTO t1 (Ñ, N) VALUES (1, 2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01398]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#20
+sql:
+INSERT INTO dml_audit.t SET id := 11, v := 'i02' ON DUPLICATE KEY UPDATE v := 'i02u';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:23) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01399]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#21
+sql:
+INSERT INTO split_subquery_third.dest SELECT a,b FROM split_subquery_third.src AS o WHERE b=(SELECT MIN(i.b) FROM split_subquery_third.src AS i WHERE i.a=o.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:37) /test/1/catalog1/split_subquery_third/dest/"
+  ]
+}
+----------
+[permission_mysql_8_0_01400]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#22
+sql:
+INSERT DELAYED IGNORE INTO myisam_t VALUES(2,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:27~1:35) /test/1/catalog1/schema1/myisam_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01401]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#23
+sql:
+INSERT INTO part_t PARTITION(p0,p1) VALUES(2,3),(12,4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/part_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01402]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#24
+sql:
+INSERT INTO base_t VALUES(1,9,'x') ON DUPLICATE KEY UPDATE c=VALUES(c),d=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/base_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01403]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#25
+sql:
+INSERT IGNORE INTO base_t SET id=5,c=DEFAULT,d='e';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:25) /test/1/catalog1/schema1/base_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01404]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#26
+sql:
+INSERT DELAYED IGNORE INTO d1_t1 PARTITION(p0, p1) (c1, c2) SELECT c1, 'a' FROM d1_t2 ON DUPLICATE KEY UPDATE c2 = 'c';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:27~1:32) /test/1/catalog1/schema1/d1_t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01405]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#27
+sql:
+INSERT IGNORE INTO d2_t2 PARTITION (subp3) SELECT * FROM d2_t1 PARTITION (subp3, `p10-99`, `p100-99999`);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:24) /test/1/catalog1/schema1/d2_t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01406]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#28
+sql:
+INSERT INTO d3_t1 SELECT MAX(id) FROM d3_t2 GROUP BY id ORDER BY id ON DUPLICATE KEY UPDATE d3_t1.id = id + 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/d3_t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01407]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#29
+sql:
+INSERT split_dml_odku1 (f2) VALUES ('test')
+  ON DUPLICATE KEY UPDATE f1 = LAST_INSERT_ID(f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:22) /test/1/catalog1/schema1/split_dml_odku1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01408]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#30
+sql:
+INSERT INTO split_dml_odku_dst
+  SELECT split_dml_odku_src.a FROM split_dml_odku_src GROUP BY split_dml_odku_src.a
+  ON DUPLICATE KEY UPDATE a = split_dml_odku_dst.a + split_dml_odku_src.b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:30) /test/1/catalog1/schema1/split_dml_odku_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01409]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#31
+sql:
+INSERT INTO f24 VALUES (1e+10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:15) /test/1/catalog1/schema1/f24/"
+  ]
+}
+----------
+[permission_mysql_8_0_01410]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#32
+sql:
+INSERT INTO f24 VALUES (-1e-10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:15) /test/1/catalog1/schema1/f24/"
+  ]
+}
+----------
+[permission_mysql_8_0_01411]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#33
+sql:
+INSERT INTO f52 VALUES (1e+10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:15) /test/1/catalog1/schema1/f52/"
+  ]
+}
+----------
+[permission_mysql_8_0_01412]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#34
+sql:
+INSERT INTO f52 VALUES (-1e-10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:15) /test/1/catalog1/schema1/f52/"
+  ]
+}
+----------
+[permission_mysql_8_0_01413]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#35
+sql:
+INSERT INTO dupper VALUES (1.7976931348623157E+308);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/dupper/"
+  ]
+}
+----------
+[permission_mysql_8_0_01414]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#36
+sql:
+INSERT INTO dupper VALUES (1.7976931348623157E+309);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/dupper/"
+  ]
+}
+----------
+[permission_mysql_8_0_01415]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#37
+sql:
+INSERT INTO dupper VALUES (-1.7976931348623157E+309);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/dupper/"
+  ]
+}
+----------
+[permission_mysql_8_0_01416]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#38
+sql:
+INSERT INTO t1 VALUES ('2001-01-01 23:59:59.4');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01417]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#39
+sql:
+INSERT INTO t1 VALUES (TIMESTAMP'2001-01-01 23:59:59.4');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01418]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#40
+sql:
+INSERT INTO t1 VALUES (20010101235959.4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01419]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#41
+sql:
+INSERT INTO t1 VALUES (TIME'23:59:59.4');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01420]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#42
+sql:
+INSERT INTO t1 VALUES (TIMESTAMP'9999-12-31 23:59:59.9');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01421]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#43
+sql:
+INSERT INTO t2(i) SELECT d FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01422]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#44
+sql:
+INSERT INTO bit_t SET a=1,b=b'111111111',c=b'01';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/bit_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01423]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#45
+sql:
+INSERT IGNORE INTO bit_t(a,b,c) VALUES(2,b'1000000000',b'100');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:24) /test/1/catalog1/schema1/bit_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01424]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#46
+sql:
+INSERT INTO bit_t(a,b,c) VALUES(3,b'',b'');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/bit_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01425]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#47
+sql:
+INSERT IGNORE INTO bit_t(b) SELECT d FROM bit_double;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:24) /test/1/catalog1/schema1/bit_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01426]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#48
+sql:
+INSERT INTO bit_insert_dst(b) SELECT SQL_SMALL_RESULT DISTINCT b FROM bit_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:26) /test/1/catalog1/schema1/bit_insert_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01427]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#49
+sql:
+INSERT INTO bit_values(id,b) VALUES(1,b''),(2,b'0'),(3,0x01),(4,7),(5,NULL),(6,DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/bit_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01428]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#50
+sql:
+INSERT INTO time_widths(id,t,t0,t1,t2,t3,t4,t5,t6) VALUES(1,'1:23','1112','10:10:10.9','10:10:10.99','10:10:10.999','10:10:10.9999','10:10:10.99999','10:10:10.999999'),(2,'-10 01:22:33.45',-10,-10.0,-10e0,'-24:00:00','-48:00:00','-838:59:59.000000','838:59:59.000000');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:23) /test/1/catalog1/schema1/time_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01429]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#51
+sql:
+INSERT IGNORE INTO time_widths(id,t6) VALUES(3,'839:00:00'),(4,'-839:00:00.1'),(5,'10:10:10.9999995'),(6,101010.9999995);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:30) /test/1/catalog1/schema1/time_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01430]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#52
+sql:
+INSERT INTO time_widths(id,t6) SELECT 7,CAST('2001-01-01 10:10:10.999999' AS DATETIME(6));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:23) /test/1/catalog1/schema1/time_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01431]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#53
+sql:
+INSERT INTO time_widths SET id=9,t6=TIME'00:00:01.0000005'+0.000001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:23) /test/1/catalog1/schema1/time_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01432]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#54
+sql:
+INSERT INTO temporal_auto(id,created_at,modified_at,payload) VALUES(2,DEFAULT,DEFAULT,'defaults');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:25) /test/1/catalog1/schema1/temporal_auto/"
+  ]
+}
+----------
+[permission_mysql_8_0_01433]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#55
+sql:
+INSERT INTO temporal_auto SET id=4,created_at=DEFAULT,modified_at=CURRENT_TIMESTAMP(3),explicit_at=TIMESTAMP'2001-02-03 04:05:06.123456',payload='set-form';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:25) /test/1/catalog1/schema1/temporal_auto/"
+  ]
+}
+----------
+[permission_mysql_8_0_01434]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#56
+sql:
+INSERT INTO datetime_widths(id,dt1,dt2,dt3,dt4,dt5,dt6,ts1,ts2,ts3,ts4,ts5,ts6) VALUES(1,'2001-01-01 01:01:01.1','2001-01-01 01:01:01.12','2001-01-01 01:01:01.123','2001-01-01 01:01:01.1234','2001-01-01 01:01:01.12345','2001-01-01 01:01:01.123456','2001-01-01 01:01:01.1','2001-01-01 01:01:01.12','2001-01-01 01:01:01.123','2001-01-01 01:01:01.1234','2001-01-01 01:01:01.12345','2001-01-01 01:01:01.123456');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:27) /test/1/catalog1/schema1/datetime_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01435]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#57
+sql:
+INSERT INTO temporal_auto(id,payload) VALUES(1,'duplicate') ON DUPLICATE KEY UPDATE created_at=DEFAULT(created_at),modified_at=CURRENT_TIMESTAMP(6),payload=VALUES(payload);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:25) /test/1/catalog1/schema1/temporal_auto/"
+  ]
+}
+----------
+[permission_mysql_8_0_01436]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#58
+sql:
+INSERT INTO str_lifecycle(v,c,fixed_binary,variable_binary,t)
+VALUES ('a ', 'a ', X'4100', _binary'a\0', 'text'), ('b', 'b', 0x4200, X'42', DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:25) /test/1/catalog1/schema1/str_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01437]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#59
+sql:
+INSERT IGNORE INTO str_lifecycle SET v='set form', c='c', fixed_binary=X'43', variable_binary=_binary'bytes', t='t';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:32) /test/1/catalog1/schema1/str_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01438]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#60
+sql:
+INSERT INTO str_lifecycle(v,c,fixed_binary,variable_binary,t)
+SELECT CAST(c AS CHAR), CAST(c AS CHAR), CAST(c AS BINARY), CAST(c AS BINARY), CONCAT(c,c) FROM str_ctas;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:25) /test/1/catalog1/schema1/str_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01439]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#61
+sql:
+INSERT INTO str_parents VALUES (X'93222796CABA43CA979F5C96EB6898B7');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:23) /test/1/catalog1/schema1/str_parents/"
+  ]
+}
+----------
+[permission_mysql_8_0_01440]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#62
+sql:
+INSERT INTO str_foos(parent_id,text) SELECT id,'correct output' FROM str_parents;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:20) /test/1/catalog1/schema1/str_foos/"
+  ]
+}
+----------
+[permission_mysql_8_0_01441]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#63
+sql:
+INSERT INTO str_bars(id,parent_id) SELECT X'79CEA9AB6FE14A8EBDFED711A7727763',id FROM str_parents;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:20) /test/1/catalog1/schema1/str_bars/"
+  ]
+}
+----------
+[permission_mysql_8_0_01442]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#64
+sql:
+INSERT INTO lob_family(tb,b,mb,lb,tt,t,mt,lt)
+VALUES (X'00',X'4100',_binary'bytes',REPEAT(X'42',4),'tiny','text','medium','long');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/lob_family/"
+  ]
+}
+----------
+[permission_mysql_8_0_01443]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#65
+sql:
+INSERT IGNORE INTO lob_family
+SET tb=X'01',b=0x4142,mb=_binary'medium',lb=X'FF',tt='a ',t='b ',mt='c ',lt='d ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:29) /test/1/catalog1/schema1/lob_family/"
+  ]
+}
+----------
+[permission_mysql_8_0_01444]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#66
+sql:
+INSERT INTO lob_family(tb,b,mb,lb,tt,t,mt,lt)
+SELECT b,b,b,b,t,t,t,t FROM lob_lifecycle;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/lob_family/"
+  ]
+}
+----------
+[permission_mysql_8_0_01445]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#67
+sql:
+INSERT INTO lob_family(tb,b,mb,lb,tt,t,mt,lt)
+VALUES(X'03',X'41',X'42',X'43','upsert','upsert','upsert','upsert')
+ON DUPLICATE KEY UPDATE t=VALUES(t),mt=NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/lob_family/"
+  ]
+}
+----------
+[permission_mysql_8_0_01446]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#68
+sql:
+INSERT INTO split_type_enum_set.es_core
+      (id,e_basic,e_case,s_basic,s_case,e_added,s_flags)
+    VALUES
+      (1,'alpha','a','red,blue','a','new','x,z'),
+      (2,'10','A','green','A','old','y,w'),
+      (3,2,1,5,3,3,9),
+      (4,'quote''d','a','quote''d,two words','a','archived','z');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/"
+  ]
+}
+----------
+[permission_mysql_8_0_01447]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#69
+sql:
+INSERT INTO split_type_enum_set.es_core
+    SET id=5,e_basic='',e_case='A',s_basic='blue,red',
+        s_case='a,A',e_added='new',s_flags='w,x';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/"
+  ]
+}
+----------
+[permission_mysql_8_0_01448]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#70
+sql:
+INSERT INTO split_type_enum_set.es_core(id,e_basic,s_basic)
+    VALUES (1,'two words','green')
+    ON DUPLICATE KEY UPDATE e_basic=VALUES(e_basic),s_basic=VALUES(s_basic);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:39) /test/1/catalog1/split_type_enum_set/es_core/"
+  ]
+}
+----------
+[permission_mysql_8_0_01449]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#71
+sql:
+INSERT INTO spatial_lifecycle
+  (id,g,p,ls,pg,mp,mls,mpg,gc,p_changed)
+VALUES
+  (1,
+   ST_GeomFromText('POINT(1 1)'),
+   ST_PointFromText('POINT(1 1)'),
+   ST_LineStringFromText('LINESTRING(0 0,1 1)'),
+   ST_PolygonFromText('POLYGON((0 0,0 2,2 2,0 0))'),
+   ST_MultiPointFromText('MULTIPOINT(0 0,1 1)'),
+   ST_MultiLineStringFromText('MULTILINESTRING((0 0,1 1))'),
+   ST_MultiPolygonFromText('MULTIPOLYGON(((0 0,0 2,2 2,0 0)))'),
+   ST_GeometryCollectionFromText('GEOMETRYCOLLECTION(POINT(1 1))'),
+   ST_LineStringFromText('LINESTRING(1 1,2 2)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01450]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#72
+sql:
+INSERT INTO spatial_lifecycle SET
+  id=2,
+  g=ST_GeomFromText('POINT(2 2)'),
+  p=POINT(2,2),
+  ls=ST_GeomFromText('LINESTRING(2 2,3 3)'),
+  pg=ST_GeomFromText('POLYGON((0 0,0 3,3 3,0 0))'),
+  mp=ST_GeomFromText('MULTIPOINT(2 2,3 3)'),
+  mls=ST_GeomFromText('MULTILINESTRING((2 2,3 3))'),
+  mpg=ST_GeomFromText('MULTIPOLYGON(((0 0,0 3,3 3,0 0)))'),
+  gc=ST_GeomFromText('GEOMETRYCOLLECTION(POINT(2 2))'),
+  p_changed=ST_GeomFromText('LINESTRING(2 2,4 4)');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01451]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#73
+sql:
+INSERT INTO spatial_lifecycle
+  (id,g,p,ls,pg,mp,mls,mpg,gc,p_changed)
+SELECT
+  3,g,p,ls,pg,mp,mls,mpg,gc,p_changed
+FROM spatial_lifecycle
+WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/spatial_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01452]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#74
+sql:
+INSERT INTO integer_lifecycle
+  (tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+   int_signed,int_unsigned,big_signed,big_unsigned,bool_alias,boolean_alias,
+   tiny_added,small_changed,medium_added,big_changed,note)
+VALUES
+  (-1,1,-2,2,-3,3,-4,101,-5,5,FALSE,TRUE,6,7,8,9,'values-one'),
+  (1,10,2,20,3,30,4,102,5,50,TRUE,FALSE,60,70,80,90,'values-two');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01453]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#75
+sql:
+INSERT INTO integer_lifecycle SET
+  tiny_signed=-8,tiny_unsigned=8,
+  small_signed=-16,small_unsigned=16,
+  medium_signed=-24,medium_unsigned=24,
+  int_signed=-32,int_unsigned=103,
+  big_signed=-64,big_unsigned=64,
+  bool_alias=1,boolean_alias=0,
+  tiny_added=8,small_changed=16,medium_added=24,big_changed=64,note='set';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01454]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#76
+sql:
+INSERT INTO integer_lifecycle
+  (tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+   int_signed,int_unsigned,big_signed,big_unsigned,bool_alias,boolean_alias,
+   tiny_added,small_changed,medium_added,big_changed,note)
+SELECT
+  tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+  int_signed,int_unsigned+100,big_signed,big_unsigned,bool_alias,boolean_alias,
+  tiny_added,small_changed,medium_added,big_changed,'select'
+FROM integer_lifecycle
+WHERE int_unsigned=101;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01455]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#77
+sql:
+INSERT INTO integer_lifecycle
+  (tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+   int_signed,int_unsigned,big_signed,big_unsigned,note)
+VALUES (-9,9,-18,18,-27,27,-36,101,-72,72,'upsert')
+ON DUPLICATE KEY UPDATE
+  tiny_signed=VALUES(tiny_signed),
+  medium_unsigned=VALUES(medium_unsigned),
+  big_unsigned=VALUES(big_unsigned),
+  note=VALUES(note);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/integer_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01456]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#78
+sql:
+INSERT INTO integer_range_partition(id,partition_value)
+VALUES (1,-8388608),(2,-1),(3,0),(4,8388607);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:35) /test/1/catalog1/schema1/integer_range_partition/"
+  ]
+}
+----------
+[permission_mysql_8_0_01457]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#79
+sql:
+INSERT INTO integer_key_partition(id)
+VALUES (0),(9223372036854775807),(18446744073709551615);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:33) /test/1/catalog1/schema1/integer_key_partition/"
+  ]
+}
+----------
+[permission_mysql_8_0_01458]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#80
+sql:
+INSERT INTO numeric_lifecycle
+  (id,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+   double_value,real_value,decimal_added,numeric_changed,fixed_added,
+   float_changed,double_added,real_changed,note)
+VALUES
+  (1,1.250000,2.5000,3.75,1e-20,4.125,1e100,5.5,
+   6.125,7.25,8.5,9.75,10.125,11.5,'values-one'),
+  (2,12.500000,13.7500,14.25,1e20,15.375,1e-100,16.5,
+   17.625,18.75,19.5,20.75,21.125,22.5,'values-two');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01459]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#81
+sql:
+INSERT INTO numeric_lifecycle SET
+  id=3,
+  decimal_value=23.125,
+  numeric_value=24.25,
+  fixed_value=25.5,
+  float_value=2.5e-10,
+  float_scale=26.75,
+  double_value=2.75e50,
+  real_value=27.875,
+  decimal_added=28.125,
+  numeric_changed=29.25,
+  fixed_added=30.5,
+  float_changed=31.75,
+  double_added=32.125,
+  real_changed=33.5,
+  note='set';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01460]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#82
+sql:
+INSERT INTO numeric_lifecycle
+  (id,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+   double_value,real_value,decimal_added,numeric_changed,fixed_added,
+   float_changed,double_added,real_changed,note)
+SELECT
+  id+10,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+  double_value,real_value,decimal_added,numeric_changed,fixed_added,
+  float_changed,double_added,real_changed,'select'
+FROM numeric_lifecycle
+WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01461]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#83
+sql:
+INSERT INTO numeric_lifecycle
+  (id,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+   double_value,real_value,note)
+VALUES (1,100.125,101.25,102.5,1.03e2,104.75,1.05e2,106.5,'upsert')
+ON DUPLICATE KEY UPDATE
+  decimal_value=VALUES(decimal_value),
+  float_value=VALUES(float_value),
+  double_value=VALUES(double_value),
+  note=VALUES(note);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:29) /test/1/catalog1/schema1/numeric_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01462]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#84
+sql:
+INSERT INTO t3 SELECT t2.*,1,2 FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01463]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#85
+sql:
+INSERT INTO t3 SELECT t2.*,t2.*,3 FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01464]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#86
+sql:
+INSERT IGNORE INTO dst SELECT * FROM src LOCK IN SHARE MODE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:22) /test/1/catalog1/schema1/dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01465]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#87
+sql:
+INSERT IGNORE INTO dst SELECT * FROM src FOR UPDATE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:22) /test/1/catalog1/schema1/dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01466]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#88
+sql:
+INSERT INTO t3 (SELECT a,b FROM t1) UNION (SELECT a,b FROM t2) LIMIT 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01467]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#89
+sql:
+INSERT t1 SELECT 5,6,30 FROM DUAL ON DUPLICATE KEY UPDATE c=c+100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:9) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01468]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#90
+sql:
+INSERT INTO t1(a) SELECT 1 UNION SELECT 2 ON DUPLICATE KEY UPDATE a=(SELECT d FROM t2 GROUP BY 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01469]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#91
+sql:
+INSERT /*+ SET_VAR(auto_increment_increment=10) */ INTO t1 VALUES(NULL),(NULL),(NULL),(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:56~1:58) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01470]
+source: split/mysql/5.6/dml_mysql_language_0.txt#1
+sql:
+/*!50000 INSERT INTO t VALUES (1, 'a', 0), (2, 'b', 0) */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:21~1:22) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01471]
+source: split/mysql/5.6/dml_mysql_language_0.txt#2
+sql:
+/*!50000 UPDATE t SET flag = 1 WHERE id = 1 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:16~1:17) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01472]
+source: split/mysql/5.6/dml_mysql_language_0.txt#3
+sql:
+/*!50000 DELETE FROM t WHERE id = 2 */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:21~1:22) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01473]
+source: split/mysql/5.6/dml_mysql_language_0.txt#4
+sql:
+UPDATE split_packet_native.t1 SET c12=REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:29) /test/1/catalog1/split_packet_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01474]
+source: split/mysql/5.6/dml_mysql_language_0.txt#5
+sql:
+UPDATE IGNORE split_packet_native.t1 SET c12=REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:14~1:36) /test/1/catalog1/split_packet_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01477]
+source: split/mysql/5.6/dml_mysql_language_0.txt#8
+sql:
+INSERT INTO split_packet_native.t1 VALUES (101,REPEAT('ab',@max_allowed_packet));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01478]
+source: split/mysql/5.6/dml_mysql_language_0.txt#9
+sql:
+INSERT INTO split_packet_native.t1 SELECT 101,REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01479]
+source: split/mysql/5.6/dml_mysql_language_0.txt#10
+sql:
+INSERT IGNORE INTO split_packet_native.t1 SELECT 101,REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:41) /test/1/catalog1/split_packet_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01480]
+source: split/mysql/5.6/dml_mysql_language_0.txt#11
+sql:
+REPLACE INTO split_packet_native.t1 VALUES (102,REPEAT('ab',@max_allowed_packet));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:35) /test/1/catalog1/split_packet_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01481]
+source: split/mysql/5.6/dml_mysql_language_0.txt#12
+sql:
+REPLACE INTO split_packet_native.t1 SET c11=102,c12=REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:35) /test/1/catalog1/split_packet_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01482]
+source: split/mysql/5.6/dml_mysql_language_0.txt#13
+sql:
+REPLACE INTO split_packet_native.t1 SELECT 102,REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:35) /test/1/catalog1/split_packet_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01483]
+source: split/mysql/5.6/dml_mysql_language_0.txt#14
+sql:
+DELETE FROM split_packet_native.t1 WHERE c12 <=> REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01484]
+source: split/mysql/5.6/dml_mysql_language_0.txt#15
+sql:
+DELETE FROM split_packet_native.t1,split_packet_native.t2 USING split_packet_native.t1 INNER JOIN split_packet_native.t2 WHERE split_packet_native.t1.c11=split_packet_native.t2.c21 AND split_packet_native.t2.c22 <=> REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t1/",
+    "Table(1:35~1:57) /test/1/catalog1/split_packet_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01485]
+source: split/mysql/5.6/dml_mysql_language_0.txt#16
+sql:
+DELETE IGNORE FROM split_packet_native.t1,split_packet_native.t2 USING split_packet_native.t1 INNER JOIN split_packet_native.t2 WHERE split_packet_native.t1.c11=split_packet_native.t2.c21 AND split_packet_native.t2.c22 <=> REPEAT('ab',@max_allowed_packet);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:19~1:41) /test/1/catalog1/split_packet_native/t1/",
+    "Table(1:42~1:64) /test/1/catalog1/split_packet_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01486]
+source: split/mysql/5.6/dml_mysql_language_0.txt#17
+sql:
+INSERT INTO split_packet_native.t4 SELECT c31,CONCAT(c32,REPEAT('a',@max_allowed_packet-1)) FROM split_packet_native.t3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t4/"
+  ]
+}
+----------
+[permission_mysql_8_0_01487]
+source: split/mysql/5.6/dml_mysql_language_0.txt#18
+sql:
+UPDATE split_packet_native.t3 SET c32=CONCAT(c32,REPEAT('a',@max_allowed_packet-1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:29) /test/1/catalog1/split_packet_native/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01488]
+source: split/mysql/5.6/dml_mysql_language_0.txt#21
+sql:
+INSERT INTO t1 VALUES ('ŁĄŞŻ');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01489]
+source: split/mysql/5.6/dml_mysql_language_0.txt#22
+sql:
+INSERT INTO t1 VALUES ('ŁĄŞŻ' '');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01490]
+source: split/mysql/5.6/dml_mysql_language_0.txt#23
+sql:
+INSERT INTO interval_t VALUES (INTERVAL(3,2,1) + 1, "1997-12-31 23:59:59" + INTERVAL 1 SECOND);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:22) /test/1/catalog1/schema1/interval_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01491]
+source: split/mysql/5.6/dml_mysql_language_0.txt#24
+sql:
+UPDATE t3 SET a4={d '1789-07-14'} WHERE a1=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:9) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01492]
+source: split/mysql/5.6/dml_mysql_language_0.txt#25
+sql:
+INSERT INTO dml_t () SELECT * FROM dml_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/dml_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01493]
+source: split/mysql/5.6/dml_mysql_language_0.txt#26
+sql:
+INSERT INTO dml_t SELECT HIGH_PRIORITY * FROM dml_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/dml_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01494]
+source: split/mysql/5.6/dml_mysql_language_0.txt#27
+sql:
+INSERT INTO dml_t SELECT DISTINCT ALL * FROM dml_t;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:17) /test/1/catalog1/schema1/dml_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01495]
+source: split/mysql/5.6/dml_mysql_language_0.txt#28
+sql:
+REPLACE INTO `` SELECT * FROM ``;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:15) /test/1/catalog1/schema1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01496]
+source: split/mysql/5.6/dml_mysql_language_0.txt#29
+sql:
+DELETE QUICK FROM dml_t WHERE i = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:18~1:23) /test/1/catalog1/schema1/dml_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01540]
+source: split/mysql/5.6/dml_mysql_query_0.txt#1
+sql:
+UPDATE assignment_t SET c1 = 2 WHERE c1 = @assign_where := 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:19) /test/1/catalog1/schema1/assignment_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01547]
+source: split/mysql/5.6/dml_mysql_query_0.txt#8
+sql:
+insert into test (id, name) values (1, 'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:16) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01548]
+source: split/mysql/5.6/dml_mysql_query_0.txt#9
+sql:
+insert into test values (1, 'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:16) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01549]
+source: split/mysql/5.6/dml_mysql_query_0.txt#10
+sql:
+insert into test (id, name) values (1, 'a'), (2, 'b'), (3, 'c');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:16) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01550]
+source: split/mysql/5.6/dml_mysql_query_0.txt#11
+sql:
+insert into test (id, name) select id, name from test2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:16) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01551]
+source: split/mysql/5.6/dml_mysql_query_0.txt#12
+sql:
+insert into test set id = 1, name = 'abc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:16) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01552]
+source: split/mysql/5.6/dml_mysql_query_0.txt#13
+sql:
+replace into test (id, name) values (1, 'abc');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:17) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01553]
+source: split/mysql/5.6/dml_mysql_query_0.txt#14
+sql:
+replace into test set id = 1, name = 'abc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:17) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01554]
+source: split/mysql/5.6/dml_mysql_query_0.txt#15
+sql:
+update test set name = 'abc' where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:11) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01555]
+source: split/mysql/5.6/dml_mysql_query_0.txt#16
+sql:
+update test set name = 'abc', age = 20 where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:11) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01557]
+source: split/mysql/5.6/dml_mysql_query_0.txt#18
+sql:
+delete from test where id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:16) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01558]
+source: split/mysql/5.6/dml_mysql_query_0.txt#19
+sql:
+delete from test where id > 10 order by id limit 5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:16) /test/1/catalog1/schema1/test/"
+  ]
+}
+----------
+[permission_mysql_8_0_01559]
+source: split/mysql/5.6/dml_mysql_query_0.txt#20
+sql:
+delete a from test a join test2 b on a.id = b.id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/a/"
+  ]
+}
+----------
+[permission_mysql_8_0_01563]
+source: split/mysql/5.6/dml_mysql_query_0.txt#24
+sql:
+UPDATE split_derived_80common.u1 SET a=5 WHERE a IN (SELECT a FROM split_derived_80common.u2 ORDER BY (SELECT a FROM (SELECT SUM(a) FROM split_derived_80common.u1) AS dt));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:32) /test/1/catalog1/split_derived_80common/u1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01564]
+source: split/mysql/5.6/dml_mysql_query_0.txt#25
+sql:
+INSERT INTO split_derived_80common.ref_t(a,b) VALUES(999,(SELECT a UNION SELECT a));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:40) /test/1/catalog1/split_derived_80common/ref_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01567]
+source: split/mysql/5.6/dml_mysql_query_0.txt#28
+sql:
+DELETE FROM split_derived_dml57.t1 WHERE id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS dt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/split_derived_dml57/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01568]
+source: split/mysql/5.6/dml_mysql_query_0.txt#29
+sql:
+UPDATE split_derived_dml57.t1 SET d=NULL WHERE id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS dt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:29) /test/1/catalog1/split_derived_dml57/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01569]
+source: split/mysql/5.6/dml_mysql_query_0.txt#30
+sql:
+INSERT INTO split_derived_dml57.t1 SELECT id+10,d FROM split_derived_dml57.t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/split_derived_dml57/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01570]
+source: split/mysql/5.6/dml_mysql_query_0.txt#31
+sql:
+INSERT INTO split_derived_dml57.t1 SELECT id+20,d FROM (SELECT * FROM split_derived_dml57.t1) AS dt;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/split_derived_dml57/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01571]
+source: split/mysql/5.6/dml_mysql_query_0.txt#32
+sql:
+UPDATE split_derived_dml57.users SET position=(SELECT COUNT(pos)+1 FROM (SELECT DISTINCT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:32) /test/1/catalog1/split_derived_dml57/users/"
+  ]
+}
+----------
+[permission_mysql_8_0_01572]
+source: split/mysql/5.6/dml_mysql_query_0.txt#33
+sql:
+UPDATE split_derived_dml57.users SET position=(SELECT COUNT(pos)+1 FROM (SELECT position AS pos FROM split_derived_dml57.users) AS t2 WHERE t2.pos<users.position) WHERE id=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:32) /test/1/catalog1/split_derived_dml57/users/"
+  ]
+}
+----------
+[permission_mysql_8_0_01575]
+source: split/mysql/5.6/dml_mysql_query_0.txt#36
+sql:
+DELETE a,b FROM split_derived_dml57.t1 AS a LEFT JOIN split_derived_dml57.t2 AS b ON a.id=b.id WHERE a.id IN (SELECT * FROM (SELECT id FROM split_derived_dml57.t1) AS t1sub);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/a/",
+    "Table(1:9~1:10) /test/1/catalog1/schema1/b/"
+  ]
+}
+----------
+[permission_mysql_8_0_01577]
+source: split/mysql/5.6/dml_mysql_query_0.txt#38
+sql:
+INSERT INTO split_distinct_native_a.facility_dst SELECT DISTINCT facility FROM split_distinct_native_a.facility_src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:48) /test/1/catalog1/split_distinct_native_a/facility_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01578]
+source: split/mysql/5.6/dml_mysql_query_0.txt#39
+sql:
+INSERT INTO t3 SELECT a,MAX(b) FROM t1 GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01579]
+source: split/mysql/5.6/dml_mysql_query_0.txt#40
+sql:
+INSERT INTO t3 SELECT 1,(SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2) FROM t1 LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01580]
+source: split/mysql/5.6/dml_mysql_query_0.txt#41
+sql:
+DELETE FROM t3 WHERE (SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2)>10000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01581]
+source: split/mysql/5.6/dml_mysql_query_0.txt#42
+sql:
+DELETE FROM t3 WHERE (SELECT (SELECT MAX(b) FROM t1 GROUP BY a HAVING a<2) AS x FROM t1)>10000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:14) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01584]
+source: split/mysql/5.6/dml_mysql_query_0.txt#45
+sql:
+UPDATE t SET b=3 LIMIT 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01585]
+source: split/mysql/5.6/dml_mysql_query_0.txt#46
+sql:
+DELETE FROM t LIMIT 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:13) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01586]
+source: split/mysql/5.6/dml_mysql_query_0.txt#47
+sql:
+UPDATE /*+ INDEX(t1 i_a) */ split_opt_hints_index.t1 AS t1 SET d=2 WHERE a=1 AND b=2 AND c=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:28~1:52) /test/1/catalog1/split_opt_hints_index/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01587]
+source: split/mysql/5.6/dml_mysql_query_0.txt#48
+sql:
+DELETE /*+ INDEX(t1 i_a) */ FROM split_opt_hints_index.t1 WHERE a=100 AND b=2 AND c=3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:33~1:57) /test/1/catalog1/split_opt_hints_index/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01590]
+source: split/mysql/5.6/dml_mysql_query_0.txt#51
+sql:
+DELETE /*+ JOIN_PREFIX(t2,t3,ta2) JOIN_SUFFIX(t3,ta1) */ FROM ta1.* USING t1 AS ta1 JOIN t1 AS ta2 ON 1 RIGHT OUTER JOIN t2 ON ta1.val=t2.val WHERE 9 IN (SELECT val FROM t3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:62~1:65) /test/1/catalog1/schema1/ta1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01591]
+source: split/mysql/5.6/dml_mysql_query_0.txt#52
+sql:
+UPDATE /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY) */ split_opt_hints_native.t1 SET c='z' WHERE a BETWEEN 1 AND 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:48~1:73) /test/1/catalog1/split_opt_hints_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01592]
+source: split/mysql/5.6/dml_mysql_query_0.txt#53
+sql:
+DELETE /*+ NO_RANGE_OPTIMIZATION(t1 PRIMARY) NO_BNL(t2@sub_q) */ FROM split_opt_hints_native.t1 WHERE a IN (SELECT /*+ QB_NAME(sub_q) */ a FROM split_opt_hints_native.t2 AS t2 WHERE t2.b>10);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:70~1:95) /test/1/catalog1/split_opt_hints_native/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01593]
+source: split/mysql/5.6/dml_mysql_query_0.txt#54
+sql:
+INSERT /*+ NO_ICP(t2@src_q idx_ab) */ INTO split_opt_hints_native.t3(a,b,c) SELECT /*+ QB_NAME(src_q) */ t2.a+20,t2.b,t2.c FROM split_opt_hints_native.t2 AS t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:43~1:68) /test/1/catalog1/split_opt_hints_native/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01594]
+source: split/mysql/5.6/dml_mysql_query_0.txt#55
+sql:
+REPLACE /*+ NO_ICP(t2@src_q idx_ab) */ INTO split_opt_hints_native.t3(a,b,c) SELECT /*+ QB_NAME(src_q) */ t2.a+30,t2.b,t2.c FROM split_opt_hints_native.t2 AS t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:44~1:69) /test/1/catalog1/split_opt_hints_native/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01595]
+source: split/mysql/5.6/dml_mysql_query_0.txt#56
+sql:
+INSERT /*+ SET_VAR(auto_increment_increment=10) SET_VAR(auto_increment_offset=5) */ INTO t1 VALUES (3,'c') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:89~1:91) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01596]
+source: split/mysql/5.6/dml_mysql_query_0.txt#57
+sql:
+INSERT /*+ SET_VAR(foreign_key_checks=OFF) */ INTO t1 VALUES (4,'d') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:51~1:53) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01597]
+source: split/mysql/5.6/dml_mysql_query_0.txt#58
+sql:
+UPDATE /*+ SET_VAR(time_zone='UTC') */ t1 SET f1=TIMEDIFF(NOW(), UTC_TIMESTAMP()) WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:39~1:41) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01598]
+source: split/mysql/5.6/dml_mysql_query_0.txt#59
+sql:
+DELETE /*+ SET_VAR(time_zone='UTC') */ FROM t1 WHERE id=999;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:44~1:46) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01599]
+source: split/mysql/5.6/dml_mysql_query_0.txt#60
+sql:
+REPLACE /*+ SET_VAR(unique_checks=OFF) */ INTO t1 VALUES (5,'e');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:47~1:49) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01600]
+source: split/mysql/5.6/dml_mysql_query_0.txt#61
+sql:
+INSERT /*+ SET_VAR(unique_checks=OFF) */ INTO t1 SELECT /*+ SET_VAR(sort_buffer_size=16M) */ id+100, f1 FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:46~1:48) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01602]
+source: split/mysql/5.6/dml_mysql_query_0.txt#63
+sql:
+UPDATE t SET b=0 ORDER BY (a=@id),b LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01603]
+source: split/mysql/5.6/dml_mysql_query_0.txt#64
+sql:
+INSERT INTO split_select_short.distinct_t (SELECT 'a','a','a','a111','xy1','' FROM split_select_short.t);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:41) /test/1/catalog1/split_select_short/distinct_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01604]
+source: split/mysql/5.6/dml_mysql_query_0.txt#65
+sql:
+REPLACE INTO split_select_short.distinct_t (SELECT 'a','a','a','a111','xy1','' FROM split_select_short.t);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:42) /test/1/catalog1/split_select_short/distinct_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01605]
+source: split/mysql/5.6/dml_mysql_query_0.txt#66
+sql:
+DELETE x.*,y.* FROM split_subquery_base.t11a AS x,split_subquery_base.t12a AS y WHERE x.a=y.a AND x.b=(SELECT z.b FROM split_subquery_base.t2 AS z WHERE z.a=x.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/x/",
+    "Table(1:11~1:12) /test/1/catalog1/schema1/y/"
+  ]
+}
+----------
+[permission_mysql_8_0_01606]
+source: split/mysql/5.6/dml_mysql_query_0.txt#67
+sql:
+DELETE x.*,y.* FROM split_subquery_base.t11b AS x,split_subquery_base.t12b AS y WHERE x.a=y.a AND x.b=(SELECT z.b FROM split_subquery_base.t12b AS z WHERE z.a=x.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/x/",
+    "Table(1:11~1:12) /test/1/catalog1/schema1/y/"
+  ]
+}
+----------
+[permission_mysql_8_0_01607]
+source: split/mysql/5.6/dml_mysql_query_0.txt#68
+sql:
+INSERT INTO split_subquery_base.ins_t(x) SELECT (SELECT SUM(s.x)+2 FROM split_subquery_base.ins_t AS s) FROM split_subquery_base.t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:37) /test/1/catalog1/split_subquery_base/ins_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01608]
+source: split/mysql/5.6/dml_mysql_query_0.txt#69
+sql:
+INSERT INTO split_subquery_base.ins_values(x) VALUES ((SELECT x FROM split_subquery_base.ins_values));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:42) /test/1/catalog1/split_subquery_base/ins_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01609]
+source: split/mysql/5.6/dml_mysql_query_0.txt#70
+sql:
+REPLACE LOW_PRIORITY INTO split_subquery_base.rep_t(x,y) VALUES ((SELECT a FROM split_subquery_base.t2 WHERE a=1),(SELECT a+1 FROM split_subquery_base.t2 WHERE a=1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:26~1:51) /test/1/catalog1/split_subquery_base/rep_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01610]
+source: split/mysql/5.6/dml_mysql_query_0.txt#71
+sql:
+REPLACE INTO split_subquery_base.rep_self(x,y) VALUES ((SELECT x FROM split_subquery_base.rep_self),(SELECT a+1 FROM split_subquery_base.t2 WHERE a=1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:41) /test/1/catalog1/split_subquery_base/rep_self/"
+  ]
+}
+----------
+[permission_mysql_8_0_01613]
+source: split/mysql/5.6/dml_mysql_query_0.txt#74
+sql:
+UPDATE split_subquery_next.update_outer SET i=i+1 WHERE i=(SELECT MAX(i));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:39) /test/1/catalog1/split_subquery_next/update_outer/"
+  ]
+}
+----------
+[permission_mysql_8_0_01614]
+source: split/mysql/5.6/dml_mysql_query_0.txt#75
+sql:
+DELETE FROM split_subquery_next.del_t1 WHERE topic IN (SELECT DISTINCT topic FROM split_subquery_next.del_t2 WHERE NOT EXISTS (SELECT * FROM split_subquery_next.del_t3 WHERE numeropost=topic));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:38) /test/1/catalog1/split_subquery_next/del_t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01615]
+source: split/mysql/5.6/dml_mysql_query_0.txt#76
+sql:
+UPDATE split_subquery_next.update_nested SET i=i+(SELECT MAX(i) FROM (SELECT 1 AS i) AS d) WHERE i=(SELECT MAX(i));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:40) /test/1/catalog1/split_subquery_next/update_nested/"
+  ]
+}
+----------
+[permission_mysql_8_0_01617]
+source: split/mysql/5.6/dml_mysql_query_0.txt#78
+sql:
+UPDATE IGNORE split_subquery_next.u1 SET b=(SELECT b FROM split_subquery_next.u2 WHERE u1.a=u2.a);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:14~1:36) /test/1/catalog1/split_subquery_next/u1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01618]
+source: split/mysql/5.6/dml_mysql_query_0.txt#79
+sql:
+UPDATE split_table_derived.t1 AS o SET o.a=o.a*100 WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:29) /test/1/catalog1/split_table_derived/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01620]
+source: split/mysql/5.6/dml_mysql_query_0.txt#81
+sql:
+DELETE FROM split_table_derived.t1 WHERE t1.b<0 OR t1.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:34) /test/1/catalog1/split_table_derived/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01621]
+source: split/mysql/5.6/dml_mysql_query_0.txt#82
+sql:
+DELETE o.* FROM split_table_derived.t1 AS o,(SELECT 1) AS d WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/o/"
+  ]
+}
+----------
+[permission_mysql_8_0_01622]
+source: split/mysql/5.6/dml_mysql_query_0.txt#83
+sql:
+INSERT INTO t(a,b) SELECT a+1000,b FROM r UNION ALL SELECT a+2000,b FROM s;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:13) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01623]
+source: split/mysql/5.6/dml_mysql_query_0.txt#84
+sql:
+REPLACE INTO t(a,b) SELECT a+3000,b FROM r UNION ALL SELECT a+4000,b FROM s;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:14) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01624]
+source: split/mysql/5.6/dml_mysql_query_0.txt#85
+sql:
+INSERT INTO t(a,b) SELECT 20000,'x' UNION SELECT 20001,'y' ON DUPLICATE KEY UPDATE b='updated';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:12~1:13) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01625]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#1
+sql:
+REPLACE LOW_PRIORITY INTO ptab PARTITION (p0) (id, name, val) VALUES (2, 'replace', DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:26~1:30) /test/1/catalog1/schema1/ptab/"
+  ]
+}
+----------
+[permission_mysql_8_0_01626]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#2
+sql:
+REPLACE DELAYED INTO myisam_t SET id = 2, name = 'replace-delayed', val = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:21~1:29) /test/1/catalog1/schema1/myisam_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01627]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#3
+sql:
+REPLACE DELAYED myisam_t VALUES (12, 'replace-no-into', DEFAULT);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:16~1:24) /test/1/catalog1/schema1/myisam_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01628]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#4
+sql:
+REPLACE INTO target (id, name, val) SELECT id, name, val FROM src;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:19) /test/1/catalog1/schema1/target/"
+  ]
+}
+----------
+[permission_mysql_8_0_01629]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#5
+sql:
+REPLACE INTO dml_audit.defaults_t () SELECT 1,'x';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:33) /test/1/catalog1/dml_audit/defaults_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01630]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#6
+sql:
+REPLACE INTO dml_audit.defaults_t () VALUES ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:33) /test/1/catalog1/dml_audit/defaults_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01631]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#7
+sql:
+REPLACE INTO codex_group_having_audit_dst(b) SELECT '' AS b FROM codex_group_having_audit_src GROUP BY VALUES(b);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:41) /test/1/catalog1/schema1/codex_group_having_audit_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01632]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#8
+sql:
+REPLACE INTO dml_audit.t SET id := 22, v := 'r03';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:24) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01633]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#9
+sql:
+REPLACE INTO dml_audit.t (id,v) VALUE (21,'r01');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:24) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01634]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#10
+sql:
+REPLACE INTO part_t PARTITION(p0,p1) VALUES(3,5),(13,6);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:19) /test/1/catalog1/schema1/part_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01635]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#11
+sql:
+REPLACE DELAYED INTO d10_t1 PARTITION(p0, p1) (c1, c2) SELECT c1, 'a' FROM d10_t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:21~1:27) /test/1/catalog1/schema1/d10_t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01636]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#12
+sql:
+REPLACE INTO d11_t1 PARTITION(p0, p1) SET c1 = (SELECT c1 FROM d11_t2 LIMIT 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:19) /test/1/catalog1/schema1/d11_t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01637]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#13
+sql:
+REPLACE INTO bit_values(id,b) VALUES(7,b'10101010');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:23) /test/1/catalog1/schema1/bit_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01638]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#14
+sql:
+REPLACE INTO time_widths(id,t6) VALUES(8,TIME'-00:00:00.000001');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:24) /test/1/catalog1/schema1/time_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01639]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#15
+sql:
+REPLACE INTO temporal_auto(id,created_at,modified_at,explicit_at,payload) VALUES(4,'2010-01-02 03:04:05.123456',DEFAULT,NULL,'replaced');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:26) /test/1/catalog1/schema1/temporal_auto/"
+  ]
+}
+----------
+[permission_mysql_8_0_01640]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#16
+sql:
+REPLACE INTO str_lifecycle(v,c,fixed_binary,variable_binary,t) VALUES('r','r',X'52',X'5200','replace');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:26) /test/1/catalog1/schema1/str_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01641]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#17
+sql:
+REPLACE INTO lob_family(tb,b,mb,lb,tt,t,mt,lt)
+VALUES(X'02',X'52',X'53',X'54','replace','replace','replace','replace');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:23) /test/1/catalog1/schema1/lob_family/"
+  ]
+}
+----------
+[permission_mysql_8_0_01642]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#18
+sql:
+REPLACE INTO split_type_enum_set.es_core
+      (id,e_basic,e_case,s_basic,s_case,e_added,s_flags)
+    VALUES (6,'trailing ','a','red,green','A','old','x,y');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:40) /test/1/catalog1/split_type_enum_set/es_core/"
+  ]
+}
+----------
+[permission_mysql_8_0_01643]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#19
+sql:
+REPLACE INTO spatial_lifecycle
+  (id,g,p,ls,pg,mp,mls,mpg,gc,p_changed)
+VALUES
+  (4,
+   ST_GeomFromText('POINT(4 4)'),
+   ST_PointFromText('POINT(4 4)'),
+   ST_LineStringFromText('LINESTRING(4 4,5 5)'),
+   ST_PolygonFromText('POLYGON((0 0,0 4,4 4,0 0))'),
+   ST_MultiPointFromText('MULTIPOINT(4 4,5 5)'),
+   ST_MultiLineStringFromText('MULTILINESTRING((4 4,5 5))'),
+   ST_MultiPolygonFromText('MULTIPOLYGON(((0 0,0 4,4 4,0 0)))'),
+   ST_GeometryCollectionFromText('GEOMETRYCOLLECTION(POINT(4 4))'),
+   ST_LineStringFromText('LINESTRING(4 4,6 6)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:30) /test/1/catalog1/schema1/spatial_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01644]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#20
+sql:
+REPLACE INTO integer_lifecycle
+  (id,tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+   int_signed,int_unsigned,big_signed,big_unsigned,note)
+VALUES (20,-1,1,-2,2,-3,3,-4,120,-5,5,'replace');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:30) /test/1/catalog1/schema1/integer_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01645]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#21
+sql:
+REPLACE INTO numeric_lifecycle
+  (id,decimal_value,numeric_value,fixed_value,float_value,float_scale,
+   double_value,real_value,note)
+VALUES (20,1.125,2.25,3.5,4.75e-5,5.875,6.125e25,7.5,'replace');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:30) /test/1/catalog1/schema1/numeric_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01646]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#22
+sql:
+REPLACE INTO dst SELECT * FROM src LOCK IN SHARE MODE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:16) /test/1/catalog1/schema1/dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01647]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#23
+sql:
+REPLACE INTO t3 SELECT a,b AS c FROM t1 UNION ALL SELECT a,b FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:15) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01648]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#24
+sql:
+REPLACE t1 SELECT * FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:8~1:10) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01649]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#25
+sql:
+REPLACE t2 SET a=((1) IN (SELECT * FROM t1));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:8~1:10) /test/1/catalog1/schema1/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01650]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#26
+sql:
+REPLACE /*+ MAX_EXECUTION_TIME(1) */ INTO t2 SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:42~1:44) /test/1/catalog1/schema1/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01651]
+source: split/mysql/5.6/dml_mysql_replace_0.txt#27
+sql:
+REPLACE INTO t2 SELECT grp,a,c FROM t1 LIMIT 2,1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:13~1:15) /test/1/catalog1/schema1/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01652]
+source: split/mysql/5.6/dml_mysql_update_0.txt#1
+sql:
+UPDATE gis_point_srid SET g=ST_SRID();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:21) /test/1/catalog1/schema1/gis_point_srid/"
+  ]
+}
+----------
+[permission_mysql_8_0_01653]
+source: split/mysql/5.6/dml_mysql_update_0.txt#2
+sql:
+UPDATE gis_point_srid SET g=ST_SRID(g,4145,0);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:21) /test/1/catalog1/schema1/gis_point_srid/"
+  ]
+}
+----------
+[permission_mysql_8_0_01656]
+source: split/mysql/5.6/dml_mysql_update_0.txt#5
+sql:
+UPDATE split_subquery_bugs_550.u3 SET field3=9 WHERE field3 IN (SELECT 1 FROM (SELECT * FROM split_subquery_bugs_550.u2) AS alias1 WHERE EXISTS (SELECT * FROM split_subquery_bugs_550.u1 WHERE field1<>alias1.field2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:33) /test/1/catalog1/split_subquery_bugs_550/u3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01657]
+source: split/mysql/5.6/dml_mysql_update_0.txt#6
+sql:
+DELETE outr1.* FROM split_subquery_bugs_550.del1 AS outr1 RIGHT OUTER JOIN split_subquery_bugs_550.del2 AS outr2 ON outr1.col_int=outr2.col_int WHERE (0,3) NOT IN (SELECT innr1.pk,innr1.col_int FROM split_subquery_bugs_550.del2 AS innr1 WHERE outr1.col_int=25);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:12) /test/1/catalog1/schema1/outr1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01658]
+source: split/mysql/5.6/dml_mysql_update_0.txt#7
+sql:
+update `table` set id = 1 where id = 2 or name = 3 and zz =4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:14) /test/1/catalog1/schema1/table/"
+  ]
+}
+----------
+[permission_mysql_8_0_01659]
+source: split/mysql/5.6/dml_mysql_update_0.txt#8
+sql:
+update table1 set name = 1 where id = cast(id AS SIGNED) order by id desc;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:13) /test/1/catalog1/schema1/table1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01660]
+source: split/mysql/5.6/dml_mysql_update_0.txt#9
+sql:
+update table1 set name = 1 where id = avg((select id from table2));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:13) /test/1/catalog1/schema1/table1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01661]
+source: split/mysql/5.6/dml_mysql_update_0.txt#10
+sql:
+update `table` set id = 1 limit 21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:14) /test/1/catalog1/schema1/table/"
+  ]
+}
+----------
+[permission_mysql_8_0_01662]
+source: split/mysql/5.6/dml_mysql_update_0.txt#11
+sql:
+update ignore `table` set id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:14~1:21) /test/1/catalog1/schema1/table/"
+  ]
+}
+----------
+[permission_mysql_8_0_01663]
+source: split/mysql/5.6/dml_mysql_update_0.txt#12
+sql:
+update `table` set id = (select id2 from test limit 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:14) /test/1/catalog1/schema1/table/"
+  ]
+}
+----------
+[permission_mysql_8_0_01664]
+source: split/mysql/5.6/dml_mysql_update_0.txt#13
+sql:
+update `table` set id = 2 where table.name = (select id2 from test limit 1) order by aa;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:14) /test/1/catalog1/schema1/table/"
+  ]
+}
+----------
+[permission_mysql_8_0_01665]
+source: split/mysql/5.6/dml_mysql_update_0.txt#14
+sql:
+UPDATE LOW_PRIORITY IGNORE ptab PARTITION (p0) AS p SET p.val = DEFAULT WHERE p.id < 10 ORDER BY p.id LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:27~1:31) /test/1/catalog1/schema1/ptab/"
+  ]
+}
+----------
+[permission_mysql_8_0_01668]
+source: split/mysql/5.6/dml_mysql_update_0.txt#17
+sql:
+UPDATE articles SET body='changed' WHERE MATCH(title) AGAINST('tutorial' IN NATURAL LANGUAGE MODE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:15) /test/1/catalog1/schema1/articles/"
+  ]
+}
+----------
+[permission_mysql_8_0_01672]
+source: split/mysql/5.6/dml_mysql_update_0.txt#21
+sql:
+UPDATE t SET a = 1 WHERE EXISTS (SELECT b FROM g WHERE 1 NOT LIKE c FOR UPDATE);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:8) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01673]
+source: split/mysql/5.6/dml_mysql_update_0.txt#22
+sql:
+UPDATE t1 SET token = X'ad';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:9) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01675]
+source: split/mysql/5.6/dml_mysql_update_0.txt#24
+sql:
+UPDATE codex_group_having_audit_dst SET a=(SELECT '' AS b FROM codex_group_having_audit_src GROUP BY VALUES(b));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:35) /test/1/catalog1/schema1/codex_group_having_audit_dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01676]
+source: split/mysql/5.6/dml_mysql_update_0.txt#25
+sql:
+UPDATE dml_audit.t SET v := 'u01' WHERE id=21;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:18) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01677]
+source: split/mysql/5.6/dml_mysql_update_0.txt#26
+sql:
+UPDATE t1 SET c1=DATE_ADD(CURDATE(),INTERVAL '1 1:1:1' DAY_SECOND) WHERE c2=CURDATE();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:9) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01678]
+source: split/mysql/5.6/dml_mysql_update_0.txt#27
+sql:
+UPDATE part_t PARTITION(p0,p1) SET c=c+1 WHERE id IN(2,12);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:13) /test/1/catalog1/schema1/part_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01680]
+source: split/mysql/5.6/dml_mysql_update_0.txt#29
+sql:
+UPDATE d5_monitor USE INDEX () SET col = 10 WHERE col = 9;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:17) /test/1/catalog1/schema1/d5_monitor/"
+  ]
+}
+----------
+[permission_mysql_8_0_01682]
+source: split/mysql/5.6/dml_mysql_update_0.txt#31
+sql:
+UPDATE split_dml_src USE INDEX FOR ORDER BY (idx_v)
+  SET v=v+1 WHERE id>0 ORDER BY v LIMIT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:20) /test/1/catalog1/schema1/split_dml_src/"
+  ]
+}
+----------
+[permission_mysql_8_0_01684]
+source: split/mysql/5.6/dml_mysql_update_0.txt#33
+sql:
+UPDATE t1 SET b = a, c = CAST(a AS SIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:9) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01685]
+source: split/mysql/5.6/dml_mysql_update_0.txt#34
+sql:
+UPDATE bit_t SET c=CONCAT(b) WHERE a=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:12) /test/1/catalog1/schema1/bit_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01686]
+source: split/mysql/5.6/dml_mysql_update_0.txt#35
+sql:
+UPDATE bit_values SET b=DEFAULT(b) WHERE b IS NULL OR b=FALSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:17) /test/1/catalog1/schema1/bit_values/"
+  ]
+}
+----------
+[permission_mysql_8_0_01687]
+source: split/mysql/5.6/dml_mysql_update_0.txt#36
+sql:
+UPDATE time_widths SET t0=t6,t1=t6,t2=t6,t3=t6,t4=t6,t5=t6 WHERE id IN(1,2);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:18) /test/1/catalog1/schema1/time_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01688]
+source: split/mysql/5.6/dml_mysql_update_0.txt#37
+sql:
+UPDATE time_widths SET t6=-t6 WHERE t6<TIME'00:00:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:18) /test/1/catalog1/schema1/time_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01689]
+source: split/mysql/5.6/dml_mysql_update_0.txt#38
+sql:
+UPDATE time_widths SET t0=t0-INTERVAL 1 SECOND,t3=t3+INTERVAL '1.001' SECOND_MICROSECOND,t6=t6+INTERVAL '1:02:03.000001' HOUR_MICROSECOND WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:18) /test/1/catalog1/schema1/time_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01690]
+source: split/mysql/5.6/dml_mysql_update_0.txt#39
+sql:
+UPDATE temporal_auto SET payload=CONCAT(payload,'-updated') WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:20) /test/1/catalog1/schema1/temporal_auto/"
+  ]
+}
+----------
+[permission_mysql_8_0_01691]
+source: split/mysql/5.6/dml_mysql_update_0.txt#40
+sql:
+UPDATE temporal_auto SET created_at=DEFAULT(created_at),modified_at=DEFAULT WHERE id IN(2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:20) /test/1/catalog1/schema1/temporal_auto/"
+  ]
+}
+----------
+[permission_mysql_8_0_01692]
+source: split/mysql/5.6/dml_mysql_update_0.txt#41
+sql:
+UPDATE datetime_widths SET dt1=dt6,dt2=ts6,ts1=dt6,ts2=ts6 WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:22) /test/1/catalog1/schema1/datetime_widths/"
+  ]
+}
+----------
+[permission_mysql_8_0_01693]
+source: split/mysql/5.6/dml_mysql_update_0.txt#42
+sql:
+UPDATE str_lifecycle
+SET v=CONCAT(v,'x'), c=RTRIM(c), fixed_binary=CONCAT(fixed_binary,X'00'), variable_binary=CONCAT(variable_binary,X'00')
+WHERE BINARY v = BINARY 'a ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:20) /test/1/catalog1/schema1/str_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01694]
+source: split/mysql/5.6/dml_mysql_update_0.txt#43
+sql:
+UPDATE lob_family
+SET b=CONCAT(b,X'00'), t=CONCAT(t,' suffix'), mb=COMPRESS(mt), lt=CONCAT_WS(':',tt,t,mt)
+WHERE HEX(tb)='01' OR t LIKE 'b%';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:17) /test/1/catalog1/schema1/lob_family/"
+  ]
+}
+----------
+[permission_mysql_8_0_01696]
+source: split/mysql/5.6/dml_mysql_update_0.txt#45
+sql:
+UPDATE split_type_enum_set.es_core
+    SET e_basic=2,s_basic=s_basic|4,e_added='archived',s_flags='x,z'
+    WHERE e_basic+0 > 0 AND (s_basic+0 & 1) = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:34) /test/1/catalog1/split_type_enum_set/es_core/"
+  ]
+}
+----------
+[permission_mysql_8_0_01697]
+source: split/mysql/5.6/dml_mysql_update_0.txt#46
+sql:
+UPDATE spatial_lifecycle
+SET p=ST_SRID(ST_PointFromText('POINT(9 9)'),0),
+    g=ST_Buffer(g,1)
+WHERE ST_Intersects(g,ST_GeomFromText('POINT(1 1)'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:24) /test/1/catalog1/schema1/spatial_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01699]
+source: split/mysql/5.6/dml_mysql_update_0.txt#48
+sql:
+UPDATE integer_lifecycle
+SET tiny_signed=tiny_signed+1,
+    small_unsigned=small_unsigned|1,
+    medium_signed=medium_signed DIV 2,
+    int_unsigned=int_unsigned+1000,
+    big_signed=-big_signed,
+    bool_alias=NOT bool_alias
+WHERE tiny_unsigned BETWEEN 1 AND 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:24) /test/1/catalog1/schema1/integer_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01701]
+source: split/mysql/5.6/dml_mysql_update_0.txt#50
+sql:
+UPDATE numeric_lifecycle
+SET decimal_value=ROUND(decimal_value+numeric_value,6),
+    fixed_value=fixed_value*1.10,
+    float_value=float_value/NULLIF(real_value,0),
+    double_value=POW(double_value,2),
+    real_value=SQRT(ABS(real_value))
+WHERE decimal_value BETWEEN 0 AND 1000;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:7~1:24) /test/1/catalog1/schema1/numeric_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01706]
+source: split/mysql/5.6/dml_mysql_update_0.txt#56
+sql:
+UPDATE /*+ SET_VAR(sql_safe_updates=1) */ IGNORE v1 SET a=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "WRITE": [
+    "Table(1:49~1:51) /test/1/catalog1/schema1/v1/"
   ]
 }

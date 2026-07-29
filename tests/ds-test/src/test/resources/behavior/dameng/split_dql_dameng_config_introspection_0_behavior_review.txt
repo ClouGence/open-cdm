@@ -125,7 +125,7 @@ levels:
 /test/1/catalog1/schema1
 expect:
 {
-  "SELECT": [
+  "SESSION_VARIABLE_RW": [
     {
       "subject": "Function(1:7~1:32) /test/1/catalog1/schema1/sf_get_session_para_value/",
       "action": "READ",

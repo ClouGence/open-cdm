@@ -1,4 +1,5 @@
-[create_resource_group]
+[permission_mysql_8_0_00001]
+source: permission/mysql/8.0/admin.txt#create_resource_group
 sql:
 CREATE RESOURCE GROUP split_rg_a TYPE = USER VCPU 0 THREAD_PRIORITY = 0 ENABLE;
 levels:
@@ -10,7 +11,8 @@ expect:
   ]
 }
 ----------
-[system_setting]
+[permission_mysql_8_0_00002]
+source: permission/mysql/8.0/admin.txt#system_setting
 sql:
 SET GLOBAL max_connections = 200;
 levels:
@@ -22,7 +24,8 @@ expect:
   ]
 }
 ----------
-[maintain_log]
+[permission_mysql_8_0_00003]
+source: permission/mysql/8.0/admin.txt#maintain_log
 sql:
 FLUSH LOGS;
 levels:
@@ -34,7 +37,8 @@ expect:
   ]
 }
 ----------
-[data_export]
+[permission_mysql_8_0_00004]
+source: permission/mysql/8.0/admin.txt#data_export
 sql:
 SELECT * FROM sales.orders INTO OUTFILE '/tmp/orders.csv';
 levels:
@@ -46,7 +50,8 @@ expect:
   ]
 }
 ----------
-[data_import]
+[permission_mysql_8_0_00005]
+source: permission/mysql/8.0/admin.txt#data_import
 sql:
 LOAD DATA INFILE '/var/lib/mysql-files/split_load.tsv' INTO TABLE load_innodb;
 levels:
@@ -58,7 +63,8 @@ expect:
   ]
 }
 ----------
-[admin_performance]
+[permission_mysql_8_0_00006]
+source: permission/mysql/8.0/admin.txt#admin_performance
 sql:
 CACHE INDEX utility_audit.myisam_a INDEX (PRIMARY, idx_v) IN DEFAULT;
 levels:
@@ -67,5 +73,3481 @@ expect:
 {
   "ADMIN": [
     "Index(1:12~1:34) /test/1/catalog1/utility_audit/myisam_a/"
+  ]
+}
+----------
+[permission_mysql_8_0_00028]
+source: behavior/mysql/5.6/dcl_mysql_transaction_0.txt#session_setting_write__033
+sql:
+SET autocommit = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:14) /test/1/autocommit/"
+  ]
+}
+----------
+[permission_mysql_8_0_00075]
+source: behavior/mysql/8.0/basic.txt#install_plugin_is_library
+sql:
+INSTALL PLUGIN split_plugin SONAME 'split.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Library(1:0~1:45) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00078]
+source: behavior/mysql/8.0/basic.txt#uninstall_plugin_is_library
+sql:
+UNINSTALL PLUGIN split_plugin;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Library(1:0~1:29) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00081]
+source: behavior/mysql/8.0/basic.txt#component_options_are_opaque
+sql:
+INSTALL COMPONENT 'file://component_validate_password' SET length=@gizmo;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Library(1:0~1:72) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00137]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#1
+sql:
+FLUSH LOCAL BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:23) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00139]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#2
+sql:
+FLUSH NO_WRITE_TO_BINLOG STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:31) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00140]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#3
+sql:
+FLUSH NO_WRITE_TO_BINLOG BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:36) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00142]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#4
+sql:
+FLUSH BINARY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:17) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00144]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#5
+sql:
+FLUSH ENGINE LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:17) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00146]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#6
+sql:
+FLUSH ERROR LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:16) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00148]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#7
+sql:
+FLUSH GENERAL LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:18) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00150]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#9
+sql:
+FLUSH PRIVILEGES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:0~1:16) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00152]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#10
+sql:
+FLUSH RELAY LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:16) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00154]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#11
+sql:
+FLUSH SLOW LOGS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:15) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00156]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#12
+sql:
+FLUSH STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:12) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00158]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#13
+sql:
+FLUSH USER_RESOURCES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:20) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00160]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#14
+sql:
+FLUSH TABLES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:0~1:12) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00162]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#15
+sql:
+FLUSH TABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:0~1:11) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00164]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#16
+sql:
+FLUSH TABLES split_verify.flush_a, split_verify.flush_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split_verify/flush_a/",
+    "Table(1:35~1:55) /test/1/catalog1/split_verify/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00166]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#17
+sql:
+FLUSH TABLES WITH READ LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:0~1:27) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00168]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#18
+sql:
+FLUSH TABLE split_verify.flush_a WITH READ LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:12~1:32) /test/1/catalog1/split_verify/flush_a/"
+  ]
+}
+----------
+[permission_mysql_8_0_00170]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#19
+sql:
+FLUSH TABLES split_verify.flush_a, split_verify.flush_b FOR EXPORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split_verify/flush_a/",
+    "Table(1:35~1:55) /test/1/catalog1/split_verify/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00172]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#20
+sql:
+FLUSH LOCAL TABLES split_verify.flush_a, split_verify.flush_b FOR EXPORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:19~1:39) /test/1/catalog1/split_verify/flush_a/",
+    "Table(1:41~1:61) /test/1/catalog1/split_verify/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00174]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#21
+sql:
+FLUSH TABLE export FOR EXPORT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:12~1:18) /test/1/catalog1/schema1/export/"
+  ]
+}
+----------
+[permission_mysql_8_0_00176]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#22
+sql:
+FLUSH LOCAL STATUS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:18) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00178]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#23
+sql:
+FLUSH NO_WRITE_TO_BINLOG PRIVILEGES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:0~1:35) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00180]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#24
+sql:
+FLUSH NO_WRITE_TO_BINLOG TABLES admin_sql_audit.flush_a, admin_sql_audit.flush_b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:32~1:55) /test/1/catalog1/admin_sql_audit/flush_a/",
+    "Table(1:57~1:80) /test/1/catalog1/admin_sql_audit/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00182]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#25
+sql:
+FLUSH STATUS, USER_RESOURCES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:28) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00184]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#26
+sql:
+FLUSH HOSTS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:11) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00187]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#28
+sql:
+FLUSH TABLES admin_sql_audit.flush_a, admin_sql_audit.flush_b WITH READ LOCK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:36) /test/1/catalog1/admin_sql_audit/flush_a/",
+    "Table(1:38~1:61) /test/1/catalog1/admin_sql_audit/flush_b/"
+  ]
+}
+----------
+[permission_mysql_8_0_00196]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#37
+sql:
+ANALYZE TABLE split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:14~1:34) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00197]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#38
+sql:
+ANALYZE TABLES split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00198]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#39
+sql:
+ANALYZE NO_WRITE_TO_BINLOG TABLE split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:33~1:53) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00199]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#40
+sql:
+CHECK TABLE split84.maint_innodb FOR UPGRADE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00200]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#41
+sql:
+CHECK TABLES split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00201]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#42
+sql:
+CHECK TABLE split84.maint_innodb QUICK FAST MEDIUM EXTENDED CHANGED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:12~1:32) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00202]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#43
+sql:
+CHECKSUM TABLE split84.maint_innodb QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00203]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#44
+sql:
+CHECKSUM TABLE split84.maint_innodb EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:15~1:35) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00204]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#45
+sql:
+CHECKSUM TABLES split84.maint_innodb QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:16~1:36) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00205]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#46
+sql:
+OPTIMIZE NO_WRITE_TO_BINLOG TABLE split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:34~1:54) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00206]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#47
+sql:
+OPTIMIZE LOCAL TABLES split84.maint_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:22~1:42) /test/1/catalog1/split84/maint_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_00207]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#48
+sql:
+REPAIR LOCAL TABLE split84.maint_myisam QUICK EXTENDED USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:19~1:39) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00208]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#49
+sql:
+REPAIR TABLES split84.maint_myisam QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:14~1:34) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00209]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#50
+sql:
+CACHE INDEX split84.maint_myisam KEY(idx_v) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Index(1:12~1:32) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00210]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#51
+sql:
+LOAD INDEX INTO CACHE split84.maint_myisam KEY(idx_v) IGNORE LEAVES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:67) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00211]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#52
+sql:
+CACHE INDEX split_part.maint_part PARTITION (p0) KEY(idx_v) IN DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Index(1:12~1:33) /test/1/catalog1/split_part/maint_part/"
+  ]
+}
+----------
+[permission_mysql_8_0_00212]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#53
+sql:
+LOAD INDEX INTO CACHE split_part.maint_part PARTITION (p0) KEY(idx_v) IGNORE LEAVES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:83) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00213]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#54
+sql:
+PURGE BINARY LOGS TO 'split-bin.999999';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:39) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00214]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#55
+sql:
+PURGE BINARY LOGS BEFORE '2000-01-01 00:00:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:46) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00215]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#56
+sql:
+PURGE BINARY LOGS BEFORE CURRENT_TIMESTAMP - INTERVAL 1 DAY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:59) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00216]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#57
+sql:
+PURGE MASTER LOGS TO 'split-bin.999999';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:39) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00217]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#58
+sql:
+PURGE MASTER LOGS BEFORE CURRENT_TIMESTAMP - INTERVAL 1 DAY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:59) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00218]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#59
+sql:
+RESET MASTER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:12) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00219]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#62
+sql:
+CACHE INDEX t3 IN keycache1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Index(1:12~1:14) /test/1/catalog1/schema1/t3/"
+  ]
+}
+----------
+[permission_mysql_8_0_00220]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#63
+sql:
+REPAIR TABLE split84.maint_myisam EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00221]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#64
+sql:
+REPAIR TABLE split84.maint_myisam USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00222]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#65
+sql:
+REPAIR TABLE split84.maint_myisam QUICK USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00223]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#66
+sql:
+REPAIR TABLE split84.maint_myisam EXTENDED USE_FRM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00224]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#67
+sql:
+REPAIR TABLE split84.maint_myisam EXTENDED QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00225]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#68
+sql:
+REPAIR TABLE split84.maint_myisam USE_FRM QUICK EXTENDED;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00226]
+source: split/mysql/5.6/dcl_mysql_administration_0.txt#69
+sql:
+REPAIR TABLE split84.maint_myisam QUICK QUICK;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:13~1:33) /test/1/catalog1/split84/maint_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_00228]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#2
+sql:
+SET SESSION block_encryption_mode = 'aes-128-cfb1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00229]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#3
+sql:
+SET SESSION block_encryption_mode = 'aes-192-cfb1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00230]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#4
+sql:
+SET SESSION block_encryption_mode = 'aes-256-cfb1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00231]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#5
+sql:
+SET SESSION block_encryption_mode = 'aes-128-cfb8';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00232]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#6
+sql:
+SET SESSION block_encryption_mode = 'aes-192-cfb8';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00233]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#7
+sql:
+SET SESSION block_encryption_mode = 'aes-256-cfb8';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00234]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#8
+sql:
+SET SESSION block_encryption_mode = 'aes-128-cfb128';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00235]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#9
+sql:
+SET SESSION block_encryption_mode = 'aes-192-cfb128';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00236]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#10
+sql:
+SET SESSION block_encryption_mode = 'aes-256-cfb128';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00237]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#11
+sql:
+SET SESSION block_encryption_mode = 'aes-128-ofb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00238]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#12
+sql:
+SET SESSION block_encryption_mode = 'aes-192-ofb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00239]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#13
+sql:
+SET SESSION block_encryption_mode = 'aes-256-ofb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00240]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#14
+sql:
+SET SESSION block_encryption_mode = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00241]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#15
+sql:
+SET SESSION block_encryption_mode = 'aes-128-ecb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00242]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#16
+sql:
+SET SESSION block_encryption_mode = 'aes-192-ecb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00243]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#17
+sql:
+SET SESSION block_encryption_mode = 'aes-256-ecb';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00244]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#18
+sql:
+SET SESSION block_encryption_mode = 'aes-128-cbc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00245]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#19
+sql:
+SET SESSION block_encryption_mode = 'aes-192-cbc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00246]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#20
+sql:
+SET SESSION block_encryption_mode = 'aes-256-cbc';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/block_encryption_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00248]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#22
+sql:
+SET GLOBAL old_passwords=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:24) /test/1/old_passwords/"
+  ]
+}
+----------
+[permission_mysql_8_0_00249]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#23
+sql:
+SET SESSION old_passwords=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:25) /test/1/old_passwords/"
+  ]
+}
+----------
+[permission_mysql_8_0_00250]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#24
+sql:
+SET old_passwords=2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:17) /test/1/old_passwords/"
+  ]
+}
+----------
+[permission_mysql_8_0_00252]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#26
+sql:
+SET optimizer_switch='semijoin=on,materialization=on,firstmatch=on,loosescan=on,index_condition_pushdown=on,mrr=on,mrr_cost_based=off';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:20) /test/1/optimizer_switch/"
+  ]
+}
+----------
+[permission_mysql_8_0_00253]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#27
+sql:
+SET optimizer_switch=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:20) /test/1/optimizer_switch/"
+  ]
+}
+----------
+[permission_mysql_8_0_00255]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#29
+sql:
+SET collation_connection='utf8_general_ci';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:24) /test/1/collation_connection/"
+  ]
+}
+----------
+[permission_mysql_8_0_00256]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#30
+sql:
+SET collation_connection=@old_collation_connection;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:24) /test/1/collation_connection/"
+  ]
+}
+----------
+[permission_mysql_8_0_00258]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#32
+sql:
+SET TIMESTAMP=UNIX_TIMESTAMP('2025-01-01 00:00:00');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:13) /test/1/TIMESTAMP/"
+  ]
+}
+----------
+[permission_mysql_8_0_00259]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#33
+sql:
+SET TIMESTAMP=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:13) /test/1/TIMESTAMP/"
+  ]
+}
+----------
+[permission_mysql_8_0_00260]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#34
+sql:
+SET time_zone='+03:00';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:13) /test/1/time_zone/"
+  ]
+}
+----------
+[permission_mysql_8_0_00261]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#35
+sql:
+SET time_zone=@@global.time_zone;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:13) /test/1/time_zone/"
+  ]
+}
+----------
+[permission_mysql_8_0_00262]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#36
+sql:
+SET time_zone=UTC;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:13) /test/1/time_zone/"
+  ]
+}
+----------
+[permission_mysql_8_0_00263]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#37
+sql:
+SET SESSION explicit_defaults_for_timestamp=OFF;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:43) /test/1/explicit_defaults_for_timestamp/"
+  ]
+}
+----------
+[permission_mysql_8_0_00264]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#38
+sql:
+SET TIMESTAMP=1000000019;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:13) /test/1/TIMESTAMP/"
+  ]
+}
+----------
+[permission_mysql_8_0_00266]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#40
+sql:
+INSTALL PLUGIN split_missing_plugin_56 SONAME 'split_missing_plugin.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Library(1:0~1:71) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00267]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#41
+sql:
+UNINSTALL PLUGIN split_missing_plugin_56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Library(1:0~1:40) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00276]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#50
+sql:
+SET ENABLE_CASCADE_TRIGGERS=ON;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:27) /test/1/ENABLE_CASCADE_TRIGGERS/"
+  ]
+}
+----------
+[permission_mysql_8_0_00281]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#7
+sql:
+/*!50000 FLUSH STATUS */;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:9~1:21) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00283]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#10
+sql:
+SET external = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:12) /test/1/external/"
+  ]
+}
+----------
+[permission_mysql_8_0_00284]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#11
+sql:
+SET library = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:11) /test/1/library/"
+  ]
+}
+----------
+[permission_mysql_8_0_00285]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#12
+sql:
+SET sets = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:8) /test/1/sets/"
+  ]
+}
+----------
+[permission_mysql_8_0_00288]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#15
+sql:
+SET GLOBAL max_allowed_packet=100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:29) /test/1/max_allowed_packet/"
+  ]
+}
+----------
+[permission_mysql_8_0_00289]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#16
+sql:
+SET GLOBAL net_buffer_length=100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:28) /test/1/net_buffer_length/"
+  ]
+}
+----------
+[permission_mysql_8_0_00290]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#17
+sql:
+SET GLOBAL max_allowed_packet=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:29) /test/1/max_allowed_packet/"
+  ]
+}
+----------
+[permission_mysql_8_0_00291]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#18
+sql:
+SET GLOBAL net_buffer_length=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:28) /test/1/net_buffer_length/"
+  ]
+}
+----------
+[permission_mysql_8_0_00292]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#19
+sql:
+SET GLOBAL max_allowed_packet=@max_allowed_packet;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:29) /test/1/max_allowed_packet/"
+  ]
+}
+----------
+[permission_mysql_8_0_00293]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#20
+sql:
+SET GLOBAL net_buffer_length=@net_buffer_length;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:28) /test/1/net_buffer_length/"
+  ]
+}
+----------
+[permission_mysql_8_0_00294]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#21
+sql:
+CHECK TABLE ``;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:0~1:14) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00295]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#22
+sql:
+CACHE INDEX `` IN cache_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:28) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00296]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#23
+sql:
+CACHE INDEX `` PARTITION (ALL) IN cache_name;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:44) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00297]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#24
+sql:
+LOAD INDEX INTO CACHE `` PARTITION (ALL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:40) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00298]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#25
+sql:
+LOAD INDEX INTO CACHE ``;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Instance(1:0~1:24) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00300]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#27
+sql:
+SET @@session.parser_max_mem_size=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00301]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#28
+sql:
+SET @@session.parser_max_mem_size=500*1000*100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00302]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#29
+sql:
+SET SESSION parser_max_mem_size=1000*1000*100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:31) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00303]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#30
+sql:
+SET @@global.parser_max_mem_size=1000*1000*100;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:32) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00304]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#31
+sql:
+SET @@session.parser_max_mem_size='NOT_CHAR_TYPE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00305]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#32
+sql:
+SET @@session.parser_max_mem_size=-10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00306]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#33
+sql:
+SET @@session.parser_max_mem_size=0.5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00307]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#34
+sql:
+SET @@session.parser_max_mem_size=TRUE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00308]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#35
+sql:
+SET @@session.parser_max_mem_size=FALSE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00309]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#36
+sql:
+SET @@global.parser_max_mem_size=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:32) /test/1/parser_max_mem_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_00310]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#37
+sql:
+SET default_storage_engine=a.myisam;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:26) /test/1/default_storage_engine/"
+  ]
+}
+----------
+[permission_mysql_8_0_00311]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#39
+sql:
+SET default_storage_engine = a.b.MyISAM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:26) /test/1/default_storage_engine/"
+  ]
+}
+----------
+[permission_mysql_8_0_00312]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#40
+sql:
+SET default_storage_engine = `a`.MyISAM;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:26) /test/1/default_storage_engine/"
+  ]
+}
+----------
+[permission_mysql_8_0_00313]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#41
+sql:
+SET default_storage_engine = `a`.`MyISAM`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:26) /test/1/default_storage_engine/"
+  ]
+}
+----------
+[permission_mysql_8_0_00314]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#42
+sql:
+SET default_storage_engine = "a.MYISAM";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:26) /test/1/default_storage_engine/"
+  ]
+}
+----------
+[permission_mysql_8_0_00315]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#43
+sql:
+SET default_storage_engine = 'a.MYISAM';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:26) /test/1/default_storage_engine/"
+  ]
+}
+----------
+[permission_mysql_8_0_00316]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#44
+sql:
+SET default_storage_engine = `a.MYISAM`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:26) /test/1/default_storage_engine/"
+  ]
+}
+----------
+[permission_mysql_8_0_00317]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#51
+sql:
+START SLAVE SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:22) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00318]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#52
+sql:
+STOP SLAVE SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:21) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00319]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#53
+sql:
+SET SESSION sql_mode='HIGH_NOT_PRECEDENCE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:20) /test/1/sql_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00320]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#55
+sql:
+SET SESSION sql_mode='PIPES_AS_CONCAT';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:20) /test/1/sql_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00321]
+source: split/mysql/5.6/dcl_mysql_language_0.txt#65
+sql:
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:12) /test/1/sql_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00322]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#1
+sql:
+STOP SLAVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:10) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00323]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#2
+sql:
+START SLAVE IO_THREAD, SQL_THREAD UNTIL MASTER_LOG_FILE='dummy-log.000001', MASTER_LOG_POS=116 USER='root' PASSWORD='secret' DEFAULT_AUTH='auth_test_plugin' PLUGIN_DIR='/usr/lib/mysql/plugin';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:191) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00324]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#3
+sql:
+START SLAVE IO_THREAD, SQL_THREAD UNTIL RELAY_LOG_FILE='dummy-log.000001', RELAY_LOG_POS=116 USER='root' PASSWORD='secret' DEFAULT_AUTH='auth_test_plugin' PLUGIN_DIR='/usr/lib/mysql/plugin';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:189) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00325]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#4
+sql:
+BINLOG 'U2EZYw8CAAAAdwAAAHsAAAAAAAQANS43LjM2LWxvZwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEzgNAAgAEgAEBAQEEgAAXwAEGggAAAAICAgCAAAACgoKKioAEjQAAYA9mSk=';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~1:169) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00326]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#7
+sql:
+CHANGE MASTER TO MASTER_HOST='127.0.0.1', MASTER_PORT=9, MASTER_USER='split_repl', MASTER_PASSWORD='pw', MASTER_AUTO_POSITION=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:127) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00328]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#9
+sql:
+START SLAVE IO_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:21) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00329]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#10
+sql:
+STOP SLAVE IO_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:20) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00330]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#11
+sql:
+RESET SLAVE ALL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:15) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00331]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#14
+sql:
+CHANGE MASTER TO MASTER_LOG_FILE='binlog.000001', MASTER_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:66) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00332]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#15
+sql:
+CHANGE MASTER TO MASTER_BIND='', MASTER_CONNECT_RETRY=7, MASTER_RETRY_COUNT=3, MASTER_DELAY=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:93) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00333]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#16
+sql:
+CHANGE MASTER TO IGNORE_SERVER_IDS=();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:37) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00334]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#17
+sql:
+CHANGE MASTER TO MASTER_HEARTBEAT_PERIOD=0.5, IGNORE_SERVER_IDS=(2,3);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:69) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00335]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#18
+sql:
+CHANGE MASTER TO RELAY_LOG_FILE='relay-bin.000001', RELAY_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:67) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00336]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#19
+sql:
+CHANGE MASTER TO MASTER_SSL=1, MASTER_SSL_CA='', MASTER_SSL_CAPATH='', MASTER_SSL_CERT='', MASTER_SSL_KEY='', MASTER_SSL_CIPHER='', MASTER_SSL_VERIFY_SERVER_CERT=0, MASTER_SSL_CRL='', MASTER_SSL_CRLPATH='';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:205) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00337]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#20
+sql:
+START SLAVE SQL_THREAD UNTIL SQL_AFTER_GTIDS='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:85) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00338]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#21
+sql:
+START SLAVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:11) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00339]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#22
+sql:
+START SLAVE SQL_THREAD UNTIL SQL_BEFORE_GTIDS='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:86) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00340]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#23
+sql:
+START SLAVE USER='root' PASSWORD='123456' DEFAULT_AUTH='mysql_native_password' PLUGIN_DIR='/usr/lib/mysql/plugin';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:113) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00341]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#24
+sql:
+START SLAVE IO_THREAD UNTIL MASTER_LOG_FILE='binlog.000001', MASTER_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:77) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00342]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#25
+sql:
+START SLAVE UNTIL SQL_AFTER_MTS_GAPS;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:36) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00343]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#26
+sql:
+START SLAVE SQL_THREAD UNTIL RELAY_LOG_FILE='relay-bin.000001', RELAY_LOG_POS=4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:79) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00344]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#27
+sql:
+START SLAVE IO_THREAD, SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:33) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00345]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#28
+sql:
+STOP SLAVE IO_THREAD, SQL_THREAD;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:32) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00347]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#33
+sql:
+START SLAVE UNTIL MASTER_LOG_FILE = 'master-bin.000001', MASTER_LOG_POS = 4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:75) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00348]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#34
+sql:
+SET RESOURCE GROUP split_rg_a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ResourceGroup(1:19~1:29) /test/1/catalog1/schema1/split_rg_a/"
+  ]
+}
+----------
+[permission_mysql_8_0_00349]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#35
+sql:
+SET RESOURCE GROUP split_rg_user_mix FOR 77777,88888;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ResourceGroup(1:19~1:36) /test/1/catalog1/schema1/split_rg_user_mix/"
+  ]
+}
+----------
+[permission_mysql_8_0_00350]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#36
+sql:
+SET RESOURCE GROUP ca_rg FOR 77777;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ResourceGroup(1:19~1:24) /test/1/catalog1/schema1/ca_rg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00351]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#37
+sql:
+START SLAVE IO_THREAD UNTIL SQL_BEFORE_GTIDS='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa:4-5';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Replication(1:0~1:87) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00352]
+source: split/mysql/5.6/dcl_mysql_replication_0.txt#38
+sql:
+BINLOG '
+SVtYRxMBAAAAKQAAADQBAAAAABAAAAAAAAAABHRlc3QAAnQxAAEDAAE=
+SVtYRxcBAAAAIgAAAFYBAAAQABAAAAAAAAEAAf/+AgAAAA==
+';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:0~4:1) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00353]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#1
+sql:
+SET @@LOCAL.generated_random_password_length = '4';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:44) /test/1/generated_random_password_length/"
+  ]
+}
+----------
+[permission_mysql_8_0_00354]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#2
+sql:
+SET NAMES utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:0~1:17) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00355]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#3
+sql:
+SET NAMES 'latin1' COLLATE 'latin1_swedish_ci';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:0~1:46) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00356]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#4
+sql:
+SET NAMES DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:0~1:17) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00357]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#5
+sql:
+SET CHARACTER SET utf8mb4;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:0~1:25) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00358]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#6
+sql:
+SET CHARSET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:0~1:18) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00359]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#7
+sql:
+SET CHARACTER SET DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:0~1:25) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00360]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#8
+sql:
+SET CHARACTER SET cp1250_latin2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:0~1:31) /test/1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00361]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#9
+sql:
+SET LOCAL generated_random_password_length = '10';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:42) /test/1/generated_random_password_length/"
+  ]
+}
+----------
+[permission_mysql_8_0_00362]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#10
+sql:
+SET @@PERSIST.max_connections = 1001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:29) /test/1/max_connections/"
+  ]
+}
+----------
+[permission_mysql_8_0_00363]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#11
+sql:
+SET @@PERSIST_ONLY.back_log = 1001;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:27) /test/1/back_log/"
+  ]
+}
+----------
+[permission_mysql_8_0_00365]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#13
+sql:
+SET @@SESSION.sql_auto_is_null = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:30) /test/1/sql_auto_is_null/"
+  ]
+}
+----------
+[permission_mysql_8_0_00366]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#14
+sql:
+SET @@SESSION.sql_auto_is_null = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:30) /test/1/sql_auto_is_null/"
+  ]
+}
+----------
+[permission_mysql_8_0_00369]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#23
+sql:
+SET SESSION GTID_NEXT = '11111111-1111-1111-1111-111111111111:audit:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:21) /test/1/GTID_NEXT/"
+  ]
+}
+----------
+[permission_mysql_8_0_00370]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#24
+sql:
+SET SESSION GTID_NEXT = 'AUTOMATIC:audit';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:21) /test/1/GTID_NEXT/"
+  ]
+}
+----------
+[permission_mysql_8_0_00371]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#25
+sql:
+SET GLOBAL GTID_PURGED = '+11111111-1111-1111-1111-111111111111:audit:1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:22) /test/1/GTID_PURGED/"
+  ]
+}
+----------
+[permission_mysql_8_0_00372]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#26
+sql:
+SET GLOBAL sql_slave_skip_counter=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:33) /test/1/sql_slave_skip_counter/"
+  ]
+}
+----------
+[permission_mysql_8_0_00373]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#27
+sql:
+SET INSERT_ID=128;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:13) /test/1/INSERT_ID/"
+  ]
+}
+----------
+[permission_mysql_8_0_00374]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#28
+sql:
+SET LAST_INSERT_ID=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:18) /test/1/LAST_INSERT_ID/"
+  ]
+}
+----------
+[permission_mysql_8_0_00375]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#29
+sql:
+SET @@SESSION.pseudo_slave_mode=DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:31) /test/1/pseudo_slave_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_00376]
+source: split/mysql/5.6/dcl_mysql_set_0.txt#30
+sql:
+SET SESSION debug='d,force_fake_uuid';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:17) /test/1/debug/"
+  ]
+}
+----------
+[permission_mysql_8_0_00379]
+source: split/mysql/5.6/dcl_mysql_transaction_0.txt#23
+sql:
+SET AUTOCOMMIT = 0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:14) /test/1/AUTOCOMMIT/"
+  ]
+}
+----------
+[permission_mysql_8_0_00380]
+source: split/mysql/5.6/dcl_mysql_transaction_0.txt#33
+sql:
+SET AUTOCOMMIT = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:4~1:14) /test/1/AUTOCOMMIT/"
+  ]
+}
+----------
+[permission_mysql_8_0_00665]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#135
+sql:
+CREATE TRIGGER trigger1 BEFORE INSERT ON t1 FOR EACH ROW SET default_storage_engine = NEW.INNODB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:61~1:83) /test/1/default_storage_engine/"
+  ]
+}
+----------
+[permission_mysql_8_0_00871]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#4
+sql:
+ALTER LOGFILE GROUP audit_lg ADD UNDOFILE 'audit_lg2.dat' ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:20~1:28) /test/1/catalog1/schema1/audit_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00872]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#5
+sql:
+CREATE LOGFILE GROUP audit_lg ADD UNDOFILE 'audit_lg.dat' ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:21~1:29) /test/1/catalog1/schema1/audit_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00873]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#6
+sql:
+DROP LOGFILE GROUP audit_lg ENGINE NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:19~1:27) /test/1/catalog1/schema1/audit_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00874]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#7
+sql:
+CREATE LOGFILE GROUP split_lg ADD UNDOFILE 'split_undo.dat' INITIAL_SIZE=16M UNDO_BUFFER_SIZE=1M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:21~1:29) /test/1/catalog1/schema1/split_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00875]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#8
+sql:
+ALTER LOGFILE GROUP split_lg ADD UNDOFILE 'split_undo2.dat' INITIAL_SIZE=4M ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:20~1:28) /test/1/catalog1/schema1/split_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00880]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#14
+sql:
+DROP LOGFILE GROUP split_lg ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:19~1:27) /test/1/catalog1/schema1/split_lg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00881]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#15
+sql:
+DROP SERVER IF EXISTS split_srv_56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:22~1:34) /test/1/catalog1/schema1/split_srv_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00882]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#16
+sql:
+CREATE SERVER split_srv_56 FOREIGN DATA WRAPPER mysql OPTIONS (HOST '127.0.0.1', DATABASE 'split56', USER 'root', PASSWORD '123456', SOCKET '/tmp/mysql.sock', OWNER 'split_owner', PORT 3306);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:14~1:26) /test/1/catalog1/schema1/split_srv_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00883]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#17
+sql:
+ALTER SERVER split_srv_56 OPTIONS (USER 'split_user', HOST 'localhost', PORT 3307);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:13~1:25) /test/1/catalog1/schema1/split_srv_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00884]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#18
+sql:
+DROP SERVER split_srv_56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:12~1:24) /test/1/catalog1/schema1/split_srv_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00885]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#20
+sql:
+ALTER SERVER audit_srv_missing OPTIONS (PASSWORD 'x');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:13~1:30) /test/1/catalog1/schema1/audit_srv_missing/"
+  ]
+}
+----------
+[permission_mysql_8_0_00886]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#21
+sql:
+CREATE SERVER audit_srv_min FOREIGN DATA WRAPPER mysql OPTIONS (HOST '127.0.0.1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:14~1:27) /test/1/catalog1/schema1/audit_srv_min/"
+  ]
+}
+----------
+[permission_mysql_8_0_00887]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#22
+sql:
+ALTER SERVER 'audit_srv_q' OPTIONS (USER 'u');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:13~1:26) /test/1/catalog1/schema1/audit_srv_q/"
+  ]
+}
+----------
+[permission_mysql_8_0_00888]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#23
+sql:
+CREATE SERVER 'audit_srv_q' FOREIGN DATA WRAPPER 'mysql' OPTIONS (HOST '127.0.0.1');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:14~1:27) /test/1/catalog1/schema1/audit_srv_q/"
+  ]
+}
+----------
+[permission_mysql_8_0_00889]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#24
+sql:
+DROP SERVER IF EXISTS 'audit_srv_q';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:22~1:35) /test/1/catalog1/schema1/audit_srv_q/"
+  ]
+}
+----------
+[permission_mysql_8_0_00892]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#31
+sql:
+CREATE LOGFILE GROUP split_lg_options ADD UNDOFILE 'split_undo_options.dat' COMMENT='all options', NODEGROUP=1 REDO_BUFFER_SIZE=2M UNDO_BUFFER_SIZE=1M INITIAL_SIZE=16M WAIT STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:21~1:37) /test/1/catalog1/schema1/split_lg_options/"
+  ]
+}
+----------
+[permission_mysql_8_0_00893]
+source: split/mysql/5.6/ddl_mysql_storage_0.txt#32
+sql:
+ALTER LOGFILE GROUP split_lg_options ADD UNDOFILE 'split_undo_options_2.dat' WAIT, INITIAL_SIZE=4M STORAGE ENGINE=NDB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Log(1:20~1:36) /test/1/catalog1/schema1/split_lg_options/"
+  ]
+}
+----------
+[permission_mysql_8_0_01097]
+source: split/mysql/5.6/ddl_mysql_table_0.txt#18
+sql:
+CREATE TEMPORARY TABLE tv AS SELECT /*+ SET_VAR(default_tmp_storage_engine=InnoDB) */ id FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:48~1:74) /test/1/default_tmp_storage_engine/"
+  ]
+}
+----------
+[permission_mysql_8_0_01098]
+source: split/mysql/5.6/ddl_mysql_table_0.txt#19
+sql:
+CREATE OR REPLACE VIEW vv AS SELECT /*+ SET_VAR(sql_select_limit=1) */ id FROM t1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:48~1:64) /test/1/sql_select_limit/"
+  ]
+}
+----------
+[permission_mysql_8_0_01232]
+source: split/mysql/5.6/ddl_mysql_view_0.txt#28
+sql:
+CREATE VIEW split_view_outfile AS SELECT 5 INTO OUTFILE '/tmp/split_native_gap_view.txt';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "File(1:56~1:88) /test/1/tmp/split_native_gap_view.txt/"
+  ]
+}
+----------
+[permission_mysql_8_0_01365]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#59
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/function_defaults_fixed.dat'
+INTO TABLE fd_load_target
+FIELDS TERMINATED BY '' ENCLOSED BY '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(2:11~2:25) /test/1/catalog1/schema1/fd_load_target/"
+  ]
+}
+----------
+[permission_mysql_8_0_01372]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#66
+sql:
+INSERT INTO split_management_function_probe(id,status_code) VALUES (1,set_firewall_mode('fwuser@localhost','RECORDING'));
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Function(1:70~1:87) /test/1/catalog1/schema1/set_firewall_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_01373]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#67
+sql:
+UPDATE split_management_function_probe SET status_code=mysql_firewall_flush_status() WHERE set_firewall_mode('fwuser@localhost','RECORDING') IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Function(1:91~1:108) /test/1/catalog1/schema1/set_firewall_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_01374]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#68
+sql:
+DELETE FROM split_management_function_probe WHERE set_firewall_mode('fwuser@localhost','RECORDING') IS NOT NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Function(1:50~1:67) /test/1/catalog1/schema1/set_firewall_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_01375]
+source: split/mysql/5.6/dml_mysql_functions_0.txt#69
+sql:
+INSERT INTO split_management_function_probe(id,status_code) SELECT id,set_firewall_mode('fwuser@localhost','RECORDING') FROM split_management_function_source WHERE mysql_firewall_flush_status()=0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Function(1:70~1:87) /test/1/catalog1/schema1/set_firewall_mode/"
+  ]
+}
+----------
+[permission_mysql_8_0_01469]
+source: split/mysql/5.6/dml_mysql_insert_0.txt#91
+sql:
+INSERT /*+ SET_VAR(auto_increment_increment=10) */ INTO t1 VALUES(NULL),(NULL),(NULL),(NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:19~1:43) /test/1/auto_increment_increment/"
+  ]
+}
+----------
+[permission_mysql_8_0_01497]
+source: split/mysql/5.6/dml_mysql_load_0.txt#2
+sql:
+LOAD DATA LOW_PRIORITY LOCAL INFILE '/var/lib/mysql-files/split_load.csv' REPLACE INTO TABLE load_innodb CHARACTER SET utf8mb4 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\' LINES STARTING BY '' TERMINATED BY '\n' IGNORE 1 LINES (id, @raw_name, val) SET name = TRIM(@raw_name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:93~1:104) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_01498]
+source: split/mysql/5.6/dml_mysql_load_0.txt#3
+sql:
+LOAD DATA CONCURRENT INFILE '/var/lib/mysql-files/split_load.csv' IGNORE INTO TABLE load_myisam COLUMNS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\' LINES TERMINATED BY '\n' IGNORE 1 ROWS (id, name, val) SET val = DEFAULT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:84~1:95) /test/1/catalog1/schema1/load_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_01499]
+source: split/mysql/5.6/dml_mysql_load_0.txt#4
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.csv' INTO TABLE load_partition PARTITION (p0) FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' IGNORE 1 LINES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:66~1:80) /test/1/catalog1/schema1/load_partition/"
+  ]
+}
+----------
+[permission_mysql_8_0_01500]
+source: split/mysql/5.6/dml_mysql_load_0.txt#5
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex_load_audit_missing_empty.csv' INTO TABLE codex_load_audit_s.t ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:86~1:106) /test/1/catalog1/codex_load_audit_s/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01501]
+source: split/mysql/5.6/dml_mysql_load_0.txt#6
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex_load_audit_missing_subquery.csv' INTO TABLE codex_load_audit_s.t (@codex_load_audit_x) SET b = (SELECT 1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:89~1:109) /test/1/catalog1/codex_load_audit_s/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01502]
+source: split/mysql/5.6/dml_mysql_load_0.txt#7
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex_missing.csv' INTO TABLE dml_audit.t (@x) SET v := @x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:69~1:80) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01503]
+source: split/mysql/5.6/dml_mysql_load_0.txt#8
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_innodb;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:65~1:76) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_01504]
+source: split/mysql/5.6/dml_mysql_load_0.txt#9
+sql:
+LOAD XML LOW_PRIORITY LOCAL INFILE '/var/lib/mysql-files/split_load.xml' REPLACE INTO TABLE load_innodb ROWS IDENTIFIED BY '<row>' IGNORE 0 ROWS (id, @raw_name, val) SET name = TRIM(@raw_name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:92~1:103) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_01505]
+source: split/mysql/5.6/dml_mysql_load_0.txt#10
+sql:
+LOAD XML CONCURRENT INFILE '/var/lib/mysql-files/split_load.xml' IGNORE INTO TABLE load_myisam ROWS IDENTIFIED BY '<row>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:83~1:94) /test/1/catalog1/schema1/load_myisam/"
+  ]
+}
+----------
+[permission_mysql_8_0_01506]
+source: split/mysql/5.6/dml_mysql_load_0.txt#11
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_partition PARTITION (p0) ROWS IDENTIFIED BY '<row>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:65~1:79) /test/1/catalog1/schema1/load_partition/"
+  ]
+}
+----------
+[permission_mysql_8_0_01507]
+source: split/mysql/5.6/dml_mysql_load_0.txt#12
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_innodb ROWS IDENTIFIED BY '<row>' COLUMNS TERMINATED BY ',' LINES STARTING BY '<' TERMINATED BY '>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:65~1:76) /test/1/catalog1/schema1/load_innodb/"
+  ]
+}
+----------
+[permission_mysql_8_0_01508]
+source: split/mysql/5.6/dml_mysql_load_0.txt#13
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t CHARACTER SET utf8mb4 ROWS IDENTIFIED BY '<row>';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01509]
+source: split/mysql/5.6/dml_mysql_load_0.txt#14
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t ();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01510]
+source: split/mysql/5.6/dml_mysql_load_0.txt#15
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t FIELDS TERMINATED BY ',';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01511]
+source: split/mysql/5.6/dml_mysql_load_0.txt#16
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/codex_missing.xml' INTO TABLE dml_audit.t (@x) SET v := @x;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:68~1:79) /test/1/catalog1/dml_audit/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01512]
+source: split/mysql/5.6/dml_mysql_load_0.txt#17
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS TERMINATED BY 'raker';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01513]
+source: split/mysql/5.6/dml_mysql_load_0.txt#18
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ENCLOSED BY 0xC3;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01514]
+source: split/mysql/5.6/dml_mysql_load_0.txt#19
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ENCLOSED BY '12345';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01515]
+source: split/mysql/5.6/dml_mysql_load_0.txt#20
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ESCAPED BY '12345';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01516]
+source: split/mysql/5.6/dml_mysql_load_0.txt#21
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary FIELDS ENCLOSED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01517]
+source: split/mysql/5.6/dml_mysql_load_0.txt#22
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary FIELDS ESCAPED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01518]
+source: split/mysql/5.6/dml_mysql_load_0.txt#23
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary FIELDS TERMINATED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01519]
+source: split/mysql/5.6/dml_mysql_load_0.txt#24
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary LINES STARTING BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01520]
+source: split/mysql/5.6/dml_mysql_load_0.txt#25
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary LINES TERMINATED BY 'ъ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01521]
+source: split/mysql/5.6/dml_mysql_load_0.txt#26
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET binary;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01522]
+source: split/mysql/5.6/dml_mysql_load_0.txt#27
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01523]
+source: split/mysql/5.6/dml_mysql_load_0.txt#28
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET koi8r;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01524]
+source: split/mysql/5.6/dml_mysql_load_0.txt#29
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 CHARACTER SET utf8;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01525]
+source: split/mysql/5.6/dml_mysql_load_0.txt#30
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_outfile_load_base.txt' INTO TABLE split_outfile_load_native.t2 FIELDS ENCLOSED BY 0b00100010;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:79~1:107) /test/1/catalog1/split_outfile_load_native/t2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01526]
+source: split/mysql/5.6/dml_mysql_load_0.txt#31
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.txt'
+INTO TABLE load_t FIELDS ESCAPED BY '\\' TERMINATED BY ' ';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(2:11~2:17) /test/1/catalog1/schema1/load_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01527]
+source: split/mysql/5.6/dml_mysql_load_0.txt#32
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.txt'
+INTO TABLE load_t (a, @raw_b)
+SET b=@raw_b+10, c=CONCAT('b=', @raw_b);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(2:11~2:17) /test/1/catalog1/schema1/load_t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01528]
+source: split/mysql/5.6/dml_mysql_load_0.txt#33
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/split_load.txt'
+INTO TABLE load_v(@a,@d) SET a=@a,d=@d;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(2:11~2:17) /test/1/catalog1/schema1/load_v/"
+  ]
+}
+----------
+[permission_mysql_8_0_01529]
+source: split/mysql/5.6/dml_mysql_load_0.txt#34
+sql:
+LOAD XML INFILE '/var/lib/mysql-files/split_load.xml' INTO TABLE load_v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:65~1:71) /test/1/catalog1/schema1/load_v/"
+  ]
+}
+----------
+[permission_mysql_8_0_01530]
+source: split/mysql/5.6/dml_mysql_load_0.txt#35
+sql:
+LOAD DATA INFILE '/tmp/codex_lob.csv'
+INTO TABLE lob_family
+CHARACTER SET binary
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+(@b,@t)
+SET b=UNHEX(@b),t=CONVERT(@t USING utf8mb4);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(2:11~2:21) /test/1/catalog1/schema1/lob_family/"
+  ]
+}
+----------
+[permission_mysql_8_0_01531]
+source: split/mysql/5.6/dml_mysql_load_0.txt#36
+sql:
+LOAD DATA LOCAL INFILE '/tmp/nonexistent-enum-set.csv'
+    INTO TABLE split_type_enum_set.es_core
+    FIELDS TERMINATED BY ','
+    (id,e_basic,e_case,s_basic,s_case,e_added,s_flags);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(2:15~2:42) /test/1/catalog1/split_type_enum_set/es_core/"
+  ]
+}
+----------
+[permission_mysql_8_0_01532]
+source: split/mysql/5.6/dml_mysql_load_0.txt#37
+sql:
+LOAD DATA INFILE '/var/lib/mysql-files/codex-spatial.csv'
+INTO TABLE spatial_lifecycle
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+(@id,@wkt)
+SET id=@id,g=ST_GeomFromText(@wkt),p=ST_PointFromText(@wkt);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(2:11~2:28) /test/1/catalog1/schema1/spatial_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01533]
+source: split/mysql/5.6/dml_mysql_load_0.txt#38
+sql:
+LOAD DATA LOCAL INFILE '/tmp/nonexistent-integer.csv'
+INTO TABLE integer_lifecycle
+FIELDS TERMINATED BY ','
+(tiny_signed,tiny_unsigned,small_signed,small_unsigned,medium_signed,medium_unsigned,
+ int_signed,int_unsigned,big_signed,big_unsigned,@bool_value,note)
+SET bool_alias=CAST(@bool_value AS UNSIGNED),boolean_alias=NOT CAST(@bool_value AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(2:11~2:28) /test/1/catalog1/schema1/integer_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01534]
+source: split/mysql/5.6/dml_mysql_load_0.txt#39
+sql:
+LOAD DATA LOCAL INFILE '/tmp/nonexistent-numeric.csv'
+INTO TABLE numeric_lifecycle
+FIELDS TERMINATED BY ','
+(id,@decimal_value,@numeric_value,@fixed_value,@float_value,@double_value,@real_value,note)
+SET decimal_value=CAST(@decimal_value AS DECIMAL(20,6)),
+    numeric_value=CAST(@numeric_value AS DECIMAL(12,4)),
+    fixed_value=CAST(@fixed_value AS DECIMAL(18,2)),
+    float_value=@float_value+0e0,
+    double_value=@double_value+0e0,
+    real_value=@real_value+0e0;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(2:11~2:28) /test/1/catalog1/schema1/numeric_lifecycle/"
+  ]
+}
+----------
+[permission_mysql_8_0_01535]
+source: split/mysql/5.6/dml_mysql_load_0.txt#40
+sql:
+LOAD DATA INFILE '/tmp/codex_missing_load' INTO TABLE dst (@'raw value') SET id=@'raw value';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:54~1:57) /test/1/catalog1/schema1/dst/"
+  ]
+}
+----------
+[permission_mysql_8_0_01536]
+source: split/mysql/5.6/dml_mysql_load_0.txt#41
+sql:
+LOAD DATA INFILE '/tmp/x' INTO TABLE t FIELDS TERMINATED BY '' ENCLOSED BY '' LINES TERMINATED BY '' IGNORE 1 LINES;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:37~1:38) /test/1/catalog1/schema1/t/"
+  ]
+}
+----------
+[permission_mysql_8_0_01537]
+source: split/mysql/5.6/dml_mysql_load_0.txt#42
+sql:
+LOAD DATA LOCAL INFILE '' REPLACE INTO TABLE v1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:45~1:47) /test/1/catalog1/schema1/v1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01538]
+source: split/mysql/5.6/dml_mysql_load_0.txt#43
+sql:
+LOAD DATA INFILE 'x' INTO TABLE v(a,d);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:32~1:33) /test/1/catalog1/schema1/v/"
+  ]
+}
+----------
+[permission_mysql_8_0_01539]
+source: split/mysql/5.6/dml_mysql_load_0.txt#44
+sql:
+LOAD DATA INFILE 'loadtest.txt' INTO TABLE t1 PARTITION (pNeg,`p10-99`) CHARACTER SET latin1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "Table(1:43~1:45) /test/1/catalog1/schema1/t1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01595]
+source: split/mysql/5.6/dml_mysql_query_0.txt#56
+sql:
+INSERT /*+ SET_VAR(auto_increment_increment=10) SET_VAR(auto_increment_offset=5) */ INTO t1 VALUES (3,'c') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:19~1:43) /test/1/auto_increment_increment/",
+    "ConfigKey(1:56~1:77) /test/1/auto_increment_offset/"
+  ]
+}
+----------
+[permission_mysql_8_0_01596]
+source: split/mysql/5.6/dml_mysql_query_0.txt#57
+sql:
+INSERT /*+ SET_VAR(foreign_key_checks=OFF) */ INTO t1 VALUES (4,'d') ON DUPLICATE KEY UPDATE f1=VALUES(f1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:19~1:37) /test/1/foreign_key_checks/"
+  ]
+}
+----------
+[permission_mysql_8_0_01597]
+source: split/mysql/5.6/dml_mysql_query_0.txt#58
+sql:
+UPDATE /*+ SET_VAR(time_zone='UTC') */ t1 SET f1=TIMEDIFF(NOW(), UTC_TIMESTAMP()) WHERE id=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:19~1:28) /test/1/time_zone/"
+  ]
+}
+----------
+[permission_mysql_8_0_01598]
+source: split/mysql/5.6/dml_mysql_query_0.txt#59
+sql:
+DELETE /*+ SET_VAR(time_zone='UTC') */ FROM t1 WHERE id=999;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:19~1:28) /test/1/time_zone/"
+  ]
+}
+----------
+[permission_mysql_8_0_01599]
+source: split/mysql/5.6/dml_mysql_query_0.txt#60
+sql:
+REPLACE /*+ SET_VAR(unique_checks=OFF) */ INTO t1 VALUES (5,'e');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:20~1:33) /test/1/unique_checks/"
+  ]
+}
+----------
+[permission_mysql_8_0_01600]
+source: split/mysql/5.6/dml_mysql_query_0.txt#61
+sql:
+INSERT /*+ SET_VAR(unique_checks=OFF) */ INTO t1 SELECT /*+ SET_VAR(sort_buffer_size=16M) */ id+100, f1 FROM t2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:19~1:32) /test/1/unique_checks/",
+    "ConfigKey(1:68~1:84) /test/1/sort_buffer_size/"
+  ]
+}
+----------
+[permission_mysql_8_0_01706]
+source: split/mysql/5.6/dml_mysql_update_0.txt#56
+sql:
+UPDATE /*+ SET_VAR(sql_safe_updates=1) */ IGNORE v1 SET a=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "ConfigKey(1:19~1:35) /test/1/sql_safe_updates/"
+  ]
+}
+----------
+[permission_mysql_8_0_01730]
+source: split/mysql/5.6/dql_mysql_aggregation_0.txt#26
+sql:
+SELECT DISTINCT fruit_id,fruit_name INTO OUTFILE '/var/lib/mysql-files/split_distinct_native_b.tsv' FROM split_distinct_native_b.fruit_t WHERE fruit_name='APPLE';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "ADMIN": [
+    "File(1:49~1:99) /test/1/var/lib/mysql-files/split_distinct_native_b.tsv/"
   ]
 }

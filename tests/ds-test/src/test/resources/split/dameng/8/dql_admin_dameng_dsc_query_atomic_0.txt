@@ -101,7 +101,7 @@ select id,owner_ep,note from app.dsc_q_shared_t order by id;
 [SELECT] -- SHARED_002_INSTANCE
 select name,instance_name,status$ from sys.v$instance;
 ----------
-[SELECT|CALL_PROG_OBJ] -- API_001_CHECKPOINT_FUNCTION
+[SELECT] -- API_001_CHECKPOINT_FUNCTION
 select checkpoint(0) checkpoint_result from dual;
 ----------
 [ADMIN] -- API_002_CHECKPOINT_STATEMENT
@@ -233,8 +233,8 @@ select count(*) from sys.v$asm_rebalance_history;
 [SELECT] -- VIEW_042_ASM_FAIL_AU
 select count(*) from sys.v$asm_fail_au;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ARITY_001_CHECKPOINT_MISSING
+[SELECT] -- ARITY_001_CHECKPOINT_MISSING
 select checkpoint() from dual;
 ----------
-[SELECT|CALL_PROG_OBJ] -- ARITY_002_CHECKPOINT_EXTRA
+[SELECT] -- ARITY_002_CHECKPOINT_EXTRA
 select checkpoint(0,1) from dual;

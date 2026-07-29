@@ -22,15 +22,14 @@ import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 /**
  * Interprets behavior relations for console-side authorization, audit, and execution backfill.
  */
 public final class BehaviorRelations {
 
-    private static final Map<TargetType, SecDataAuthKind>                           AUTH_KIND_OVERRIDES           = buildAuthKindOverrides();
-    private static final Map<BehaviorAction, Function<TargetType, SecDataAuthKind>> AUTH_KIND_RESOLVERS           = Map.ofEntries( //
+    private static final Map<TargetType, SecDataAuthKind>                           AUTH_KIND_OVERRIDES  = buildAuthKindOverrides();
+    private static final Map<BehaviorAction, Function<TargetType, SecDataAuthKind>> AUTH_KIND_RESOLVERS  = Map.ofEntries( //
             Map.entry(BehaviorAction.CREATE, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
             Map.entry(BehaviorAction.ALTER, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
             Map.entry(BehaviorAction.DROP, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
@@ -55,17 +54,14 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.ADMIN, targetType -> targetType == TargetType.UserOrRole || targetType == TargetType.User || targetType == TargetType.Role //
                 ? SecDataAuthKind.AUTH : SecDataAuthKind.ADMIN), //
             Map.entry(BehaviorAction.UNSAFE, targetType -> SecDataAuthKind.UNSAFE), //
-            Map.entry(BehaviorAction.OTHER, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.OTHER)));
+            Map.entry(BehaviorAction.UNKNOWN, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.OTHER)));
 
-    private static final Set<TargetType>                                            LEVELS_BASED_TARGETS          = EnumSet.of( //
+    private static final Set<TargetType>                                            LEVELS_BASED_TARGETS = EnumSet.of( //
             TargetType.Environment, TargetType.Instance, TargetType.Machine, //
             TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.ConfigKey, TargetType.File, //
             TargetType.Query, TargetType.Update, TargetType.Delete, TargetType.Insert, TargetType.Call, //
             TargetType.Tablespace, TargetType.Log, TargetType.Library, TargetType.ResourceGroup, TargetType.Replication, //
             TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, TargetType.PrepareStatement);
-    private static final Set<SplitQueryType>                                        PERMISSION_EXEMPT_QUERY_TYPES = EnumSet.of( //
-            SplitQueryType.BLOCK, SplitQueryType.PROGRAM_CONTROL, SplitQueryType.TRANSACTION, //
-            SplitQueryType.QUERY_LOCK, SplitQueryType.SESSION_LOCK);
 
     private BehaviorRelations(){
     }
@@ -117,11 +113,11 @@ public final class BehaviorRelations {
     }
 
     public static List<BehaviorRequest> flattenResourceIgnoringPermission(Collection<BehaviorRelation> relations) {
-        return flattenResource(null, null, relations, null);
+        return flattenResource(null, null, relations);
     }
 
     public static List<BehaviorRequest> flattenResource(SysObjectRegistrySpi registry, String dbVersion,//
-                                                        Collection<BehaviorRelation> relations, Collection<SplitQueryType> queryTypes) {
+                                                        Collection<BehaviorRelation> relations) {
         if (relations == null || relations.isEmpty()) {
             return Collections.emptyList();
         }
@@ -134,51 +130,51 @@ public final class BehaviorRelations {
             List<BehaviorObject> targets = relation.getTarget() == null ? List.of() : relation.getTarget();
             switch (relation.getAction()) {
                 case RENAME, MOVE -> {
-                    addRequest(requests, BehaviorAction.DROP, subject, registry, queryTypes, dbVersion);
+                    addRequest(requests, BehaviorAction.DROP, subject, registry, dbVersion);
                     targets.forEach(target -> {
-                        addRequest(requests, BehaviorAction.CREATE, target, registry, queryTypes, dbVersion);
+                        addRequest(requests, BehaviorAction.CREATE, target, registry, dbVersion);
                     });
                 }
                 case COPY -> {
-                    addRequest(requests, BehaviorAction.READ, subject, registry, queryTypes, dbVersion);
+                    addRequest(requests, BehaviorAction.READ, subject, registry, dbVersion);
                     targets.forEach(target -> {
-                        addRequest(requests, BehaviorAction.COPY, target, registry, queryTypes, dbVersion);
+                        addRequest(requests, BehaviorAction.COPY, target, registry, dbVersion);
                     });
                 }
                 case IMPORT -> {
-                    addRequest(requests, BehaviorAction.IMPORT, subject, registry, queryTypes, dbVersion);
+                    addRequest(requests, BehaviorAction.IMPORT, subject, registry, dbVersion);
                     targets.forEach(target -> {
-                        addRequest(requests, BehaviorAction.READ, target, registry, queryTypes, dbVersion);
+                        addRequest(requests, BehaviorAction.READ, target, registry, dbVersion);
                     });
                 }
                 case EXPORT -> {
-                    addRequest(requests, BehaviorAction.EXPORT, subject, registry, queryTypes, dbVersion);
+                    addRequest(requests, BehaviorAction.EXPORT, subject, registry, dbVersion);
                     targets.forEach(target -> {
-                        addRequest(requests, BehaviorAction.READ, target, registry, queryTypes, dbVersion);
+                        addRequest(requests, BehaviorAction.READ, target, registry, dbVersion);
                     });
                 }
                 case GRANT, REVOKE, TRANSFER -> {
-                    addRequest(requests, relation.getAction(), subject, registry, queryTypes, dbVersion);
+                    addRequest(requests, relation.getAction(), subject, registry, dbVersion);
                     targets.forEach(target -> {
-                        addRequest(requests, relation.getAction(), target, registry, queryTypes, dbVersion);
+                        addRequest(requests, relation.getAction(), target, registry, dbVersion);
                     });
                 }
                 case CREATE, ALTER -> {
-                    addRequest(requests, relation.getAction(), subject, registry, queryTypes, dbVersion);
+                    addRequest(requests, relation.getAction(), subject, registry, dbVersion);
                     targets.forEach(target -> {
-                        addRequest(requests, relatedObjectAction(subject, target), target, registry, queryTypes, dbVersion);
+                        addRequest(requests, relatedObjectAction(subject, target), target, registry, dbVersion);
                     });
                 }
                 case INSERT, UPDATE, DELETE, MERGE, REPLACE -> {
-                    addRequest(requests, relation.getAction(), subject, registry, queryTypes, dbVersion);
+                    addRequest(requests, relation.getAction(), subject, registry, dbVersion);
                     targets.forEach(target -> {
-                        addRequest(requests, BehaviorAction.READ, target, registry, queryTypes, dbVersion);
+                        addRequest(requests, BehaviorAction.READ, target, registry, dbVersion);
                     });
                 }
                 default -> {
-                    addRequest(requests, relation.getAction(), subject, registry, queryTypes, dbVersion);
+                    addRequest(requests, relation.getAction(), subject, registry, dbVersion);
                     targets.forEach(target -> {
-                        addRequest(requests, relation.getAction(), target, registry, queryTypes, dbVersion);
+                        addRequest(requests, relation.getAction(), target, registry, dbVersion);
                     });
                 }
             }
@@ -187,7 +183,7 @@ public final class BehaviorRelations {
     }
 
     private static void addRequest(Map<RequestKey, BehaviorRequest> requests, BehaviorAction action, BehaviorObject resource,//
-                                   SysObjectRegistrySpi registry, Collection<SplitQueryType> queryTypes, String databaseVersion) {
+                                   SysObjectRegistrySpi registry, String databaseVersion) {
         if (resource == null) {
             return;
         }
@@ -195,37 +191,17 @@ public final class BehaviorRelations {
         String resourcePath = DmDsUtils.normalizeResourcePath(resource.getObjectPath());
         RequestKey key = new RequestKey(action, targetType, resourcePath);
         SecDataAuthKind authKind = requiredAuthKind(action, targetType);
-        if (isPermissionExempt(registry, queryTypes, action, resource, databaseVersion)) {
+        if (isPermissionExempt(registry, action, resource, databaseVersion)) {
             authKind = null;
         }
         requests.putIfAbsent(key, new BehaviorRequest(resource, action, authKind));
     }
 
-    private static boolean isPermissionExempt(SysObjectRegistrySpi registry, Collection<SplitQueryType> queryTypes,//
-                                              BehaviorAction action, BehaviorObject resource, String databaseVersion) {
-        TargetType targetType = resource.getObjectType();
-        if (isCommonVirtualResource(queryTypes, action, targetType)) {
-            return true;
-        }
+    private static boolean isPermissionExempt(SysObjectRegistrySpi registry, BehaviorAction action, BehaviorObject resource, String databaseVersion) {
         ObjectName name = resource.getObjectName();
         return registry != null && //
                name != null && //
-               registry.isPermissionExempt(action, targetType, name.getCatalog(), name.getSchema(), name.getObjectName(), databaseVersion);
-    }
-
-    private static boolean isCommonVirtualResource(Collection<SplitQueryType> queryTypes, BehaviorAction action, TargetType targetType) {
-        if (queryTypes == null || action == null || targetType == null) {
-            return false;
-        }
-        if ((action == BehaviorAction.OTHER || action == BehaviorAction.LOCK) && !queryTypes.isEmpty() && queryTypes.stream().allMatch(PERMISSION_EXEMPT_QUERY_TYPES::contains)) {
-            return true;
-        }
-        return switch (action) {
-            case READ -> targetType == TargetType.Log && queryTypes.contains(SplitQueryType.LOG_READ);
-            case ADMIN -> targetType == TargetType.Instance && queryTypes.contains(SplitQueryType.ADMIN);
-            case LOCK -> true;
-            default -> false;
-        };
+               registry.isPermissionExempt(action, resource.getObjectType(), name.getCatalog(), name.getSchema(), name.getObjectName(), databaseVersion);
     }
 
     private static SecDataAuthKind requiredAuthKind(BehaviorAction action, TargetType targetType) {

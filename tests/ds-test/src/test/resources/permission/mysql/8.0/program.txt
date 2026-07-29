@@ -1,28 +1,5 @@
-[create_function]
-sql:
-CREATE FUNCTION tax_amount(amount DECIMAL(10,2)) RETURNS DECIMAL(10,2) DETERMINISTIC RETURN amount * 0.1;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "PROGRAM": [
-    "Function(1:16~1:26) /test/1/catalog1/schema1/tax_amount/"
-  ]
-}
-----------
-[create_procedure]
-sql:
-CREATE PROCEDURE refresh_orders() SELECT COUNT(*) FROM app_schema.orders;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "PROGRAM": [
-    "Procedure(1:17~1:31) /test/1/catalog1/schema1/refresh_orders/"
-  ]
-}
-----------
-[create_trigger]
+[permission_mysql_8_0_00014]
+source: permission/mysql/8.0/ddl.txt#create_trigger
 sql:
 CREATE TRIGGER split80.trg_order_follows BEFORE INSERT ON split80.trigger_src FOR EACH ROW FOLLOWS trg_order_base SET NEW.note = 'follows';
 levels:
@@ -34,7 +11,34 @@ expect:
   ]
 }
 ----------
-[create_event]
+[permission_mysql_8_0_00015]
+source: permission/mysql/8.0/program.txt#create_function
+sql:
+CREATE FUNCTION tax_amount(amount DECIMAL(10,2)) RETURNS DECIMAL(10,2) DETERMINISTIC RETURN amount * 0.1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:26) /test/1/catalog1/schema1/tax_amount/"
+  ]
+}
+----------
+[permission_mysql_8_0_00016]
+source: permission/mysql/8.0/program.txt#create_procedure
+sql:
+CREATE PROCEDURE refresh_orders() SELECT COUNT(*) FROM app_schema.orders;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:31) /test/1/catalog1/schema1/refresh_orders/"
+  ]
+}
+----------
+[permission_mysql_8_0_00017]
+source: permission/mysql/8.0/program.txt#create_event
 sql:
 CREATE EVENT split_event.ev_unit_0 ON SCHEDULE EVERY 1 YEAR DO SET @event_unit_0=1;
 levels:
@@ -43,5 +47,3119 @@ expect:
 {
   "PROGRAM": [
     "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_0/"
+  ]
+}
+----------
+[permission_mysql_8_0_00268]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#42
+sql:
+CREATE FUNCTION split_missing_udf_56 RETURNS STRING SONAME 'split_missing_udf.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:36) /test/1/catalog1/schema1/split_missing_udf_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00269]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#43
+sql:
+CREATE AGGREGATE FUNCTION split_missing_agg_56 RETURNS REAL SONAME 'split_missing_agg.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:26~1:46) /test/1/catalog1/schema1/split_missing_agg_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00270]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#44
+sql:
+CREATE FUNCTION split_missing_int_56 RETURNS INTEGER SONAME 'split_missing_int.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:36) /test/1/catalog1/schema1/split_missing_int_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00271]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#45
+sql:
+CREATE FUNCTION split_missing_decimal_56 RETURNS DECIMAL SONAME 'split_missing_decimal.so';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:40) /test/1/catalog1/schema1/split_missing_decimal_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00272]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#46
+sql:
+DROP FUNCTION split_missing_udf_56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:14~1:34) /test/1/catalog1/schema1/split_missing_udf_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00273]
+source: split/mysql/5.6/dcl_mysql_extensions_0.txt#47
+sql:
+DROP FUNCTION IF EXISTS split_missing_udf_56;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:24~1:44) /test/1/catalog1/schema1/split_missing_udf_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_00386]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#4
+sql:
+CREATE PROCEDURE p_types(IN p ENUM('a','b'), OUT q SET('x','y'), INOUT r DECIMAL(10,2)) BEGIN SET q='x'; SET r=COALESCE(r,0); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:24) /test/1/catalog1/schema1/p_types/"
+  ]
+}
+----------
+[permission_mysql_8_0_00409]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#27
+sql:
+CREATE FUNCTION codex_year4(a YEAR(4)) RETURNS YEAR(4) DETERMINISTIC RETURN a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:27) /test/1/catalog1/schema1/codex_year4/"
+  ]
+}
+----------
+[permission_mysql_8_0_00410]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#28
+sql:
+CREATE FUNCTION codex_year_plain(a YEAR) RETURNS YEAR DETERMINISTIC RETURN a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:32) /test/1/catalog1/schema1/codex_year_plain/"
+  ]
+}
+----------
+[permission_mysql_8_0_00411]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#29
+sql:
+CREATE PROCEDURE codex_year_proc(a YEAR(4),b YEAR) BEGIN END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:32) /test/1/catalog1/schema1/codex_year_proc/"
+  ]
+}
+----------
+[permission_mysql_8_0_00420]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#38
+sql:
+CREATE FUNCTION f_float255(a FLOAT(255,0)) RETURNS DOUBLE(12,3) RETURN 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:26) /test/1/catalog1/schema1/f_float255/"
+  ]
+}
+----------
+[permission_mysql_8_0_00421]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#39
+sql:
+CREATE PROCEDURE p_float255(IN a FLOAT(255,0),OUT b DOUBLE(12,3)) BEGIN SELECT 1 INTO b; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:27) /test/1/catalog1/schema1/p_float255/"
+  ]
+}
+----------
+[permission_mysql_8_0_00422]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#40
+sql:
+CREATE FUNCTION f_unsigned(a FLOAT UNSIGNED) RETURNS DOUBLE UNSIGNED RETURN 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:26) /test/1/catalog1/schema1/f_unsigned/"
+  ]
+}
+----------
+[permission_mysql_8_0_00423]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#41
+sql:
+CREATE PROCEDURE p_unsigned(IN a FLOAT UNSIGNED,OUT b DOUBLE UNSIGNED) BEGIN SELECT 1 INTO b; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:27) /test/1/catalog1/schema1/p_unsigned/"
+  ]
+}
+----------
+[permission_mysql_8_0_00428]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#46
+sql:
+CREATE FUNCTION bit_f(a BIT(64)) RETURNS BIT(8) DETERMINISTIC RETURN a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:21) /test/1/catalog1/schema1/bit_f/"
+  ]
+}
+----------
+[permission_mysql_8_0_00429]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#47
+sql:
+CREATE PROCEDURE bit_p(IN a BIT(3),OUT b BIT(12)) SELECT a INTO b;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:22) /test/1/catalog1/schema1/bit_p/"
+  ]
+}
+----------
+[permission_mysql_8_0_00434]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#52
+sql:
+CREATE PROCEDURE bit_local()
+BEGIN
+  DECLARE v BIT(8) DEFAULT b'1';
+  SET v=v | b'10';
+  SELECT HEX(v);
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:26) /test/1/catalog1/schema1/bit_local/"
+  ]
+}
+----------
+[permission_mysql_8_0_00438]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#56
+sql:
+CREATE FUNCTION time_identity(p_value TIME(6)) RETURNS TIME(6) DETERMINISTIC RETURN p_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:29) /test/1/catalog1/schema1/time_identity/"
+  ]
+}
+----------
+[permission_mysql_8_0_00439]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#57
+sql:
+CREATE PROCEDURE time_parameters(IN p_input TIME(6),OUT p_output TIME(6),INOUT p_accumulator TIME(3))
+BEGIN
+  DECLARE local_time TIME(6) DEFAULT TIME'00:00:00.000001';
+  SET p_output=ADDTIME(p_input,local_time);
+  SET p_accumulator=SUBTIME(p_accumulator,local_time);
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:32) /test/1/catalog1/schema1/time_parameters/"
+  ]
+}
+----------
+[permission_mysql_8_0_00444]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#62
+sql:
+CREATE FUNCTION datetime_identity(p_value DATETIME(6)) RETURNS DATETIME(6) DETERMINISTIC RETURN p_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:33) /test/1/catalog1/schema1/datetime_identity/"
+  ]
+}
+----------
+[permission_mysql_8_0_00445]
+source: split/mysql/5.6/ddl_mysql_data_types_0.txt#63
+sql:
+CREATE PROCEDURE datetime_parameters(IN p_datetime DATETIME(6),OUT p_timestamp TIMESTAMP(6),INOUT p_accumulator DATETIME(3))
+BEGIN
+  DECLARE local_datetime DATETIME(6) DEFAULT '2000-01-01 00:00:00.000001';
+  DECLARE local_timestamp TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6);
+  SET p_timestamp=local_timestamp;
+  SET p_accumulator=TIMESTAMPADD(MICROSECOND,1,p_datetime);
+  SELECT local_datetime;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:36) /test/1/catalog1/schema1/datetime_parameters/"
+  ]
+}
+----------
+[permission_mysql_8_0_00573]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#40
+sql:
+CREATE PROCEDURE audit_label_external() external: BEGIN LEAVE external; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:37) /test/1/catalog1/schema1/audit_label_external/"
+  ]
+}
+----------
+[permission_mysql_8_0_00574]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#42
+sql:
+CREATE PROCEDURE audit_label_library() library: BEGIN LEAVE library; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:36) /test/1/catalog1/schema1/audit_label_library/"
+  ]
+}
+----------
+[permission_mysql_8_0_00575]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#43
+sql:
+CREATE PROCEDURE audit_label_sets() sets: BEGIN LEAVE sets; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:33) /test/1/catalog1/schema1/audit_label_sets/"
+  ]
+}
+----------
+[permission_mysql_8_0_00576]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#44
+sql:
+CREATE PROCEDURE split_keywords.p_label_binlog()
+binlog: BEGIN
+  LEAVE binlog;
+END binlog;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:46) /test/1/catalog1/split_keywords/p_label_binlog/"
+  ]
+}
+----------
+[permission_mysql_8_0_00631]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#101
+sql:
+CREATE PROCEDURE p1()
+BEGIN
+parse_gcol_expr: LOOP
+  SELECT 1;
+  LEAVE parse_gcol_expr;
+END LOOP parse_gcol_expr;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:19) /test/1/catalog1/schema1/p1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00633]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#103
+sql:
+CREATE FUNCTION f_labels() RETURNS INT
+BEGIN
+  ACCOUNT: LOOP LEAVE ACCOUNT; END LOOP ACCOUNT;
+  ALWAYS: LOOP LEAVE ALWAYS; END LOOP ALWAYS;
+  GROUP_REPLICATION: LOOP LEAVE GROUP_REPLICATION; END LOOP GROUP_REPLICATION;
+  INVISIBLE: LOOP LEAVE INVISIBLE; END LOOP INVISIBLE;
+  ROLE: LOOP LEAVE ROLE; END LOOP ROLE;
+  SECONDARY: LOOP LEAVE SECONDARY; END LOOP SECONDARY;
+  SECONDARY_ENGINE: LOOP LEAVE SECONDARY_ENGINE; END LOOP SECONDARY_ENGINE;
+  SECONDARY_LOAD: LOOP LEAVE SECONDARY_LOAD; END LOOP SECONDARY_LOAD;
+  SECONDARY_UNLOAD: LOOP LEAVE SECONDARY_UNLOAD; END LOOP SECONDARY_UNLOAD;
+  VISIBLE: LOOP LEAVE VISIBLE; END LOOP VISIBLE;
+  RETURN 1;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:24) /test/1/catalog1/schema1/f_labels/"
+  ]
+}
+----------
+[permission_mysql_8_0_00665]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#135
+sql:
+CREATE TRIGGER trigger1 BEFORE INSERT ON t1 FOR EACH ROW SET default_storage_engine = NEW.INNODB;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:23) /test/1/catalog1/schema1/trigger1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00668]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#138
+sql:
+CREATE PROCEDURE split_keywords.p_restricted_labels()
+BEGIN
+  `ascii`: BEGIN END `ascii`;
+  `begin`: BEGIN END `begin`;
+  `binlog`: BEGIN END `binlog`;
+  `byte`: BEGIN END `byte`;
+  `cache`: BEGIN END `cache`;
+  `charset`: BEGIN END `charset`;
+  `checksum`: BEGIN END `checksum`;
+  `clone`: BEGIN END `clone`;
+  `comment`: BEGIN END `comment`;
+  `commit`: BEGIN END `commit`;
+  `contains`: BEGIN END `contains`;
+  `deallocate`: BEGIN END `deallocate`;
+  `do`: BEGIN END `do`;
+  `end`: BEGIN END `end`;
+  `execute`: BEGIN END `execute`;
+  `flush`: BEGIN END `flush`;
+  `follows`: BEGIN END `follows`;
+  `handler`: BEGIN END `handler`;
+  `help`: BEGIN END `help`;
+  `import`: BEGIN END `import`;
+  `install`: BEGIN END `install`;
+  `language`: BEGIN END `language`;
+  `no`: BEGIN END `no`;
+  `precedes`: BEGIN END `precedes`;
+  `prepare`: BEGIN END `prepare`;
+  `repair`: BEGIN END `repair`;
+  `reset`: BEGIN END `reset`;
+  `restart`: BEGIN END `restart`;
+  `rollback`: BEGIN END `rollback`;
+  `savepoint`: BEGIN END `savepoint`;
+  `shutdown`: BEGIN END `shutdown`;
+  `signed`: BEGIN END `signed`;
+  `slave`: BEGIN END `slave`;
+  `start`: BEGIN END `start`;
+  `stop`: BEGIN END `stop`;
+  `truncate`: BEGIN END `truncate`;
+  `unicode`: BEGIN END `unicode`;
+  `uninstall`: BEGIN END `uninstall`;
+  `xa`: BEGIN END `xa`;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:51) /test/1/catalog1/split_keywords/p_restricted_labels/"
+  ]
+}
+----------
+[permission_mysql_8_0_00670]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#140
+sql:
+CREATE PROCEDURE p_skip() BEGIN skip: LOOP LEAVE skip; END LOOP skip; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:23) /test/1/catalog1/schema1/p_skip/"
+  ]
+}
+----------
+[permission_mysql_8_0_00671]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#141
+sql:
+CREATE PROCEDURE p_locked() BEGIN locked: LOOP LEAVE locked; END LOOP locked; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:25) /test/1/catalog1/schema1/p_locked/"
+  ]
+}
+----------
+[permission_mysql_8_0_00672]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#142
+sql:
+CREATE PROCEDURE p_nowait() BEGIN nowait: LOOP LEAVE nowait; END LOOP nowait; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:25) /test/1/catalog1/schema1/p_nowait/"
+  ]
+}
+----------
+[permission_mysql_8_0_00674]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#145
+sql:
+CREATE PROCEDURE p_keyword_contexts() BEGIN DECLARE connection INT DEFAULT 1; authors: LOOP LEAVE authors; END LOOP authors; contributors: LOOP LEAVE contributors; END LOOP contributors; general: LOOP LEAVE general; END LOOP general; ignore_server_ids: LOOP LEAVE ignore_server_ids; END LOOP ignore_server_ids; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:35) /test/1/catalog1/schema1/p_keyword_contexts/"
+  ]
+}
+----------
+[permission_mysql_8_0_00676]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#147
+sql:
+CREATE PROCEDURE p_master_keyword() BEGIN master_heartbeat_period: LOOP LEAVE master_heartbeat_period; END LOOP master_heartbeat_period; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:33) /test/1/catalog1/schema1/p_master_keyword/"
+  ]
+}
+----------
+[permission_mysql_8_0_00678]
+source: split/mysql/5.6/ddl_mysql_language_0.txt#149
+sql:
+CREATE PROCEDURE p_source_keyword() BEGIN source_heartbeat_period: LOOP LEAVE source_heartbeat_period; END LOOP source_heartbeat_period; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:33) /test/1/catalog1/schema1/p_source_keyword/"
+  ]
+}
+----------
+[permission_mysql_8_0_00755]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#16
+sql:
+CREATE PROCEDURE codex_func_concat.p_concat_ws(a VARCHAR(255),b INT,c INT) SET @query=CONCAT_WS(',',a,b,c);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:46) /test/1/catalog1/codex_func_concat/p_concat_ws/"
+  ]
+}
+----------
+[permission_mysql_8_0_00756]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#17
+sql:
+CREATE PROCEDURE codex_func_concat.p_concat_double()
+BEGIN
+  DECLARE v1 DOUBLE(10,3);
+  SET v1=100;
+  SET @s=CONCAT('########################################',40,v1);
+  SELECT @s;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:50) /test/1/catalog1/codex_func_concat/p_concat_double/"
+  ]
+}
+----------
+[permission_mysql_8_0_00766]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#27
+sql:
+CREATE PROCEDURE p1()
+BEGIN
+  DECLARE dbl DOUBLE;
+  DECLARE deci DECIMAL(10, 2);
+  DECLARE intv INTEGER;
+  DECLARE str VARBINARY(16);
+  SELECT DISTINCT VAR_POP(1) FROM proc_t1 GROUP BY pk INTO dbl;
+  SELECT DISTINCT STDDEV_POP(1) FROM proc_t1 GROUP BY pk INTO dbl;
+  SELECT DISTINCT STDDEV_SAMP(1) FROM proc_t1 GROUP BY pk INTO dbl;
+  SELECT DISTINCT AVG(3.14159) FROM proc_t1 GROUP BY pk INTO deci;
+  SELECT DISTINCT AVG(3.14159E0) FROM proc_t1 GROUP BY pk INTO dbl;
+  SELECT DISTINCT BIT_OR(x'0000') FROM proc_t1 GROUP BY pk INTO str;
+  SELECT DISTINCT BIT_OR(9) FROM proc_t1 GROUP BY pk INTO intv;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:19) /test/1/catalog1/schema1/p1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00774]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#35
+sql:
+CREATE FUNCTION math_crc32_func(input_value CHAR(10)) RETURNS BIGINT DETERMINISTIC
+BEGIN
+  DECLARE crc_value BIGINT;
+  SELECT CRC32(input_value) INTO crc_value;
+  RETURN crc_value;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:31) /test/1/catalog1/schema1/math_crc32_func/"
+  ]
+}
+----------
+[permission_mysql_8_0_00778]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#39
+sql:
+CREATE FUNCTION split_r_like(input_text VARCHAR(255)) RETURNS BOOLEAN DETERMINISTIC RETURN REGEXP_LIKE(input_text, 'pattern');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:28) /test/1/catalog1/schema1/split_r_like/"
+  ]
+}
+----------
+[permission_mysql_8_0_00779]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#40
+sql:
+CREATE FUNCTION split_r_instr(input_text VARCHAR(255)) RETURNS INT DETERMINISTIC RETURN REGEXP_INSTR(input_text, 'pattern');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:29) /test/1/catalog1/schema1/split_r_instr/"
+  ]
+}
+----------
+[permission_mysql_8_0_00780]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#41
+sql:
+CREATE FUNCTION split_r_replace(input_text VARCHAR(255)) RETURNS VARCHAR(255) DETERMINISTIC RETURN REGEXP_REPLACE(input_text, 'pattern', 'xyz');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:31) /test/1/catalog1/schema1/split_r_replace/"
+  ]
+}
+----------
+[permission_mysql_8_0_00781]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#42
+sql:
+CREATE FUNCTION split_r_substr(input_text VARCHAR(255)) RETURNS VARCHAR(255) DETERMINISTIC RETURN REGEXP_SUBSTR(input_text, 'pattern');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:30) /test/1/catalog1/schema1/split_r_substr/"
+  ]
+}
+----------
+[permission_mysql_8_0_00782]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#43
+sql:
+CREATE FUNCTION rb_fail() RETURNS INTEGER MODIFIES SQL DATA
+BEGIN
+  INSERT INTO rb_not_null SET f1=10,f2=10;
+  INSERT INTO rb_not_null SET f1=10,f2=NULL;
+  RETURN 1;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:23) /test/1/catalog1/schema1/rb_fail/"
+  ]
+}
+----------
+[permission_mysql_8_0_00818]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#81
+sql:
+CREATE PROCEDURE split_limit56.proc_limit(IN p_offset INT,IN p_count INT)
+BEGIN
+  SELECT id FROM split_limit56.t ORDER BY id LIMIT p_count;
+  SELECT id FROM split_limit56.t ORDER BY id LIMIT p_offset,p_count;
+  SELECT id FROM split_limit56.t ORDER BY id LIMIT p_count OFFSET p_offset;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:41) /test/1/catalog1/split_limit56/proc_limit/"
+  ]
+}
+----------
+[permission_mysql_8_0_00831]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#94
+sql:
+CREATE PROCEDURE p() SELECT 'foo' AS c UNION SELECT 'bar';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:18) /test/1/catalog1/schema1/p/"
+  ]
+}
+----------
+[permission_mysql_8_0_00846]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#109
+sql:
+CREATE PROCEDURE str_proc(IN p CHAR(8), OUT q VARCHAR(16), INOUT r VARBINARY(16))
+BEGIN
+  DECLARE local_b BINARY(16);
+  SET local_b = r;
+  SET q = CAST(p AS CHAR);
+  SET r = local_b;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:25) /test/1/catalog1/schema1/str_proc/"
+  ]
+}
+----------
+[permission_mysql_8_0_00847]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#110
+sql:
+CREATE FUNCTION str_func(p VARBINARY(16)) RETURNS BINARY(16) DETERMINISTIC RETURN p;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:24) /test/1/catalog1/schema1/str_func/"
+  ]
+}
+----------
+[permission_mysql_8_0_00851]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#114
+sql:
+CREATE PROCEDURE lob_proc(
+  IN p_tinyblob TINYBLOB,
+  IN p_blob BLOB,
+  OUT p_mediumtext MEDIUMTEXT,
+  INOUT p_longtext LONGTEXT
+)
+BEGIN
+  DECLARE local_mediumblob MEDIUMBLOB;
+  DECLARE local_text TEXT;
+  SET local_mediumblob=p_blob;
+  SET local_text=p_longtext;
+  SET p_mediumtext=local_text;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:25) /test/1/catalog1/schema1/lob_proc/"
+  ]
+}
+----------
+[permission_mysql_8_0_00852]
+source: split/mysql/5.6/ddl_mysql_query_objects_0.txt#115
+sql:
+CREATE FUNCTION lob_func(p LONGBLOB) RETURNS LONGTEXT DETERMINISTIC RETURN HEX(p);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:24) /test/1/catalog1/schema1/lob_func/"
+  ]
+}
+----------
+[permission_mysql_8_0_00898]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#1
+sql:
+CREATE PROCEDURE split_routine.proc_handler_conditions(INOUT p_seen INT)
+outer_block: BEGIN
+  DECLARE named_error CONDITION FOR SQLSTATE VALUE '45000';
+  DECLARE CONTINUE HANDLER FOR 1062 SET p_seen = p_seen + 1;
+  DECLARE CONTINUE HANDLER FOR SQLWARNING SET p_seen = p_seen + 10;
+  inner_block: BEGIN
+    DECLARE EXIT HANDLER FOR named_error SET p_seen = p_seen + 100;
+    INSERT INTO split_routine.t VALUES (1, 'first');
+    INSERT INTO split_routine.t VALUES (1, 'duplicate');
+    SIGNAL named_error;
+  END inner_block;
+END outer_block;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:54) /test/1/catalog1/split_routine/proc_handler_conditions/"
+  ]
+}
+----------
+[permission_mysql_8_0_00899]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#2
+sql:
+CREATE PROCEDURE split_routine.proc_handler_sqlstate()
+BEGIN
+  DECLARE v_seen INT DEFAULT 0;
+  DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET v_seen = 1;
+  SELECT id INTO @missing_id FROM split_routine.t WHERE id = -1;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:52) /test/1/catalog1/split_routine/proc_handler_sqlstate/"
+  ]
+}
+----------
+[permission_mysql_8_0_00900]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#3
+sql:
+CREATE PROCEDURE proc_compound_common(IN p_limit INT, OUT p_total INT)
+COMMENT 'compound coverage'
+LANGUAGE SQL
+MODIFIES SQL DATA
+SQL SECURITY INVOKER
+BEGIN
+  DECLARE v_id INT DEFAULT 0;
+  DECLARE v_done BOOL DEFAULT FALSE;
+  DECLARE cur_ids CURSOR FOR SELECT id FROM proc_src ORDER BY id;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
+  SET p_total = 0;
+  OPEN cur_ids;
+  read_loop: LOOP
+    FETCH NEXT FROM cur_ids INTO v_id;
+    IF v_done THEN
+      LEAVE read_loop;
+    END IF;
+    SET p_total = p_total + 1;
+    CASE
+      WHEN p_total < p_limit THEN SET v_id = v_id + 0;
+      ELSE SET v_id = v_id;
+    END CASE;
+    IF p_total < p_limit THEN
+      ITERATE read_loop;
+    END IF;
+  END LOOP read_loop;
+  CLOSE cur_ids;
+  WHILE p_total < p_limit DO
+    SET p_total = p_total + 1;
+  END WHILE;
+  REPEAT
+    SET p_total = p_total - 1;
+  UNTIL p_total <= p_limit
+  END REPEAT;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:37) /test/1/catalog1/schema1/proc_compound_common/"
+  ]
+}
+----------
+[permission_mysql_8_0_00901]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#4
+sql:
+CREATE FUNCTION fn_compound_common(p_value INT)
+RETURNS INT
+COMMENT 'function coverage'
+LANGUAGE SQL
+DETERMINISTIC
+NO SQL
+SQL SECURITY INVOKER
+BEGIN
+  DECLARE v_result INT DEFAULT 0;
+  IF p_value IS NULL THEN
+    SET v_result = 0;
+  ELSE
+    SET v_result = p_value + 1;
+  END IF;
+  RETURN v_result;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:34) /test/1/catalog1/schema1/fn_compound_common/"
+  ]
+}
+----------
+[permission_mysql_8_0_00902]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#5
+sql:
+DROP EVENT IF EXISTS split56.ev_once;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:21~1:36) /test/1/catalog1/split56/ev_once/"
+  ]
+}
+----------
+[permission_mysql_8_0_00903]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#6
+sql:
+DROP EVENT IF EXISTS split56.ev_once_renamed;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:21~1:44) /test/1/catalog1/split56/ev_once_renamed/"
+  ]
+}
+----------
+[permission_mysql_8_0_00904]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#7
+sql:
+DROP EVENT IF EXISTS split56.ev_repeat;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:21~1:38) /test/1/catalog1/split56/ev_repeat/"
+  ]
+}
+----------
+[permission_mysql_8_0_00905]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#8
+sql:
+CREATE DEFINER = CURRENT_USER EVENT IF NOT EXISTS split56.ev_once
+  ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR + INTERVAL 1 MINUTE
+  ON COMPLETION PRESERVE
+  DISABLE
+  COMMENT 'one time event'
+  DO UPDATE split56.event_log SET note = 'once' WHERE id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:50~1:65) /test/1/catalog1/split56/ev_once/"
+  ]
+}
+----------
+[permission_mysql_8_0_00906]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#9
+sql:
+CREATE EVENT split56.ev_repeat
+  ON SCHEDULE EVERY 1 DAY
+    STARTS CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+    ENDS CURRENT_TIMESTAMP + INTERVAL 2 DAY
+  ON COMPLETION NOT PRESERVE
+  DISABLE ON SLAVE
+  COMMENT 'repeat event'
+  DO INSERT INTO split56.event_log VALUES (2, 'repeat');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:30) /test/1/catalog1/split56/ev_repeat/"
+  ]
+}
+----------
+[permission_mysql_8_0_00907]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#10
+sql:
+ALTER EVENT split56.ev_once
+  ON SCHEDULE EVERY 2 HOUR
+    STARTS CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+    ENDS CURRENT_TIMESTAMP + INTERVAL 1 DAY
+  RENAME TO split56.ev_once_renamed
+  ENABLE
+  COMMENT 'renamed event'
+  DO UPDATE split56.event_log SET note = 'renamed' WHERE id = 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:12~1:27) /test/1/catalog1/split56/ev_once/",
+    "Event(5:12~5:35) /test/1/catalog1/split56/ev_once_renamed/"
+  ]
+}
+----------
+[permission_mysql_8_0_00908]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#11
+sql:
+ALTER EVENT split56.ev_repeat DISABLE ON SLAVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:12~1:29) /test/1/catalog1/split56/ev_repeat/"
+  ]
+}
+----------
+[permission_mysql_8_0_00909]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#13
+sql:
+DROP EVENT split56.ev_repeat;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:11~1:28) /test/1/catalog1/split56/ev_repeat/"
+  ]
+}
+----------
+[permission_mysql_8_0_00910]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#14
+sql:
+CREATE EVENT split_event.ev_compound
+ON SCHEDULE EVERY (1 + 1) DAY
+STARTS CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+ENDS CURRENT_TIMESTAMP + INTERVAL 7 DAY
+ON COMPLETION PRESERVE
+DISABLE
+COMMENT 'compound event'
+DO event_block: BEGIN
+  DECLARE done BOOLEAN DEFAULT FALSE;
+  DECLARE v_id INT;
+  DECLARE cur CURSOR FOR SELECT id FROM split_event.event_log;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+  OPEN cur;
+  read_loop: LOOP
+    FETCH cur INTO v_id;
+    IF done THEN
+      LEAVE read_loop;
+    END IF;
+    UPDATE split_event.event_log SET note = CONCAT('event-', v_id) WHERE id = v_id;
+  END LOOP read_loop;
+  CLOSE cur;
+  CASE
+    WHEN EXISTS (SELECT 1 FROM split_event.event_log WHERE id = 1) THEN
+      INSERT INTO split_event.event_log VALUES (2, 'created') ON DUPLICATE KEY UPDATE note = VALUES(note);
+    ELSE
+      SET @event_case = 0;
+  END CASE;
+END event_block;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:36) /test/1/catalog1/split_event/ev_compound/"
+  ]
+}
+----------
+[permission_mysql_8_0_00911]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#15
+sql:
+ALTER EVENT split_event.ev_compound
+ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 DAY + INTERVAL 2 HOUR
+DO BEGIN
+  UPDATE split_event.event_log SET note = 'altered' WHERE id = 1;
+  DELETE FROM split_event.event_log WHERE id > 10;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:12~1:35) /test/1/catalog1/split_event/ev_compound/"
+  ]
+}
+----------
+[permission_mysql_8_0_00912]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#17
+sql:
+CREATE EVENT split_event.ev_unit_1 ON SCHEDULE EVERY 1 QUARTER DO SET @event_unit_1=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00913]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#18
+sql:
+CREATE EVENT split_event.ev_unit_2 ON SCHEDULE EVERY 1 MONTH DO SET @event_unit_2=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_2/"
+  ]
+}
+----------
+[permission_mysql_8_0_00914]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#19
+sql:
+CREATE EVENT split_event.ev_unit_3 ON SCHEDULE EVERY 1 WEEK DO SET @event_unit_3=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_3/"
+  ]
+}
+----------
+[permission_mysql_8_0_00915]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#20
+sql:
+CREATE EVENT split_event.ev_unit_4 ON SCHEDULE EVERY 1 MINUTE DO SET @event_unit_4=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_4/"
+  ]
+}
+----------
+[permission_mysql_8_0_00916]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#21
+sql:
+CREATE EVENT split_event.ev_unit_5 ON SCHEDULE EVERY 1 SECOND DO SET @event_unit_5=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_5/"
+  ]
+}
+----------
+[permission_mysql_8_0_00917]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#22
+sql:
+CREATE EVENT split_event.ev_unit_6 ON SCHEDULE EVERY '1-2' YEAR_MONTH DO SET @event_unit_6=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_6/"
+  ]
+}
+----------
+[permission_mysql_8_0_00918]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#23
+sql:
+CREATE EVENT split_event.ev_unit_7 ON SCHEDULE EVERY '1 2' DAY_HOUR DO SET @event_unit_7=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_7/"
+  ]
+}
+----------
+[permission_mysql_8_0_00919]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#24
+sql:
+CREATE EVENT split_event.ev_unit_8 ON SCHEDULE EVERY '1 2:3' DAY_MINUTE DO SET @event_unit_8=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_8/"
+  ]
+}
+----------
+[permission_mysql_8_0_00920]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#25
+sql:
+CREATE EVENT split_event.ev_unit_9 ON SCHEDULE EVERY '1 2:3:4' DAY_SECOND DO SET @event_unit_9=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:34) /test/1/catalog1/split_event/ev_unit_9/"
+  ]
+}
+----------
+[permission_mysql_8_0_00921]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#26
+sql:
+CREATE EVENT split_event.ev_unit_10 ON SCHEDULE EVERY '2:3' HOUR_MINUTE DO SET @event_unit_10=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:35) /test/1/catalog1/split_event/ev_unit_10/"
+  ]
+}
+----------
+[permission_mysql_8_0_00922]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#27
+sql:
+CREATE EVENT split_event.ev_unit_11 ON SCHEDULE EVERY '2:3:4' HOUR_SECOND DO SET @event_unit_11=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:35) /test/1/catalog1/split_event/ev_unit_11/"
+  ]
+}
+----------
+[permission_mysql_8_0_00923]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#28
+sql:
+CREATE EVENT split_event.ev_unit_12 ON SCHEDULE EVERY '3:4' MINUTE_SECOND DO SET @event_unit_12=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:35) /test/1/catalog1/split_event/ev_unit_12/"
+  ]
+}
+----------
+[permission_mysql_8_0_00924]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#29
+sql:
+CREATE EVENT split_event.ev_unit_13 ON SCHEDULE EVERY 1 MICROSECOND DO SET @event_unit_13=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:35) /test/1/catalog1/split_event/ev_unit_13/"
+  ]
+}
+----------
+[permission_mysql_8_0_00925]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#30
+sql:
+CREATE EVENT split_event.ev_unit_14 ON SCHEDULE EVERY '4.000005' SECOND_MICROSECOND DO SET @event_unit_14=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:35) /test/1/catalog1/split_event/ev_unit_14/"
+  ]
+}
+----------
+[permission_mysql_8_0_00926]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#31
+sql:
+CREATE EVENT split_event.ev_unit_15 ON SCHEDULE EVERY '3:4.000005' MINUTE_MICROSECOND DO SET @event_unit_15=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:35) /test/1/catalog1/split_event/ev_unit_15/"
+  ]
+}
+----------
+[permission_mysql_8_0_00927]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#32
+sql:
+CREATE EVENT split_event.ev_unit_16 ON SCHEDULE EVERY '2:3:4.000005' HOUR_MICROSECOND DO SET @event_unit_16=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:35) /test/1/catalog1/split_event/ev_unit_16/"
+  ]
+}
+----------
+[permission_mysql_8_0_00928]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#33
+sql:
+CREATE EVENT split_event.ev_unit_17 ON SCHEDULE EVERY '1 2:3:4.000005' DAY_MICROSECOND DO SET @event_unit_17=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:35) /test/1/catalog1/split_event/ev_unit_17/"
+  ]
+}
+----------
+[permission_mysql_8_0_00929]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#34
+sql:
+CREATE TRIGGER tr_bi_check_uniqueness_with_nulls
+BEFORE INSERT ON t1 FOR EACH ROW
+BEGIN
+  IF EXISTS (SELECT * FROM t1 WHERE t1.id <=> NEW.id AND t1.ts <=> NEW.ts) THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Duplicated values not allowed.';
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:48) /test/1/catalog1/schema1/tr_bi_check_uniqueness_with_nulls/"
+  ]
+}
+----------
+[permission_mysql_8_0_00930]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#35
+sql:
+CREATE PROCEDURE p_load() SELECT ISNULL(LOAD_FILE('/tmp/codex_func_str_missing.txt')) AS 'is null';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:23) /test/1/catalog1/schema1/p_load/"
+  ]
+}
+----------
+[permission_mysql_8_0_00931]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#36
+sql:
+CREATE PROCEDURE load_locale_format_table()
+BEGIN
+  DECLARE locale_list VARCHAR(1000) DEFAULT '
+  es_AR,es_BO,es_CL,es_CO,es_CR,es_DO,es_EC,es_ES,es_GT,es_HN,
+  es_MX,es_NI,es_PA,es_PE,es_PR,es_PY,es_SV,es_US,es_UY,es_VE';
+  SET @fmt_stmt = 'INSERT INTO locale_format VALUES
+                   (?, FORMAT(12131254123412541,2,?));';
+  PREPARE stmt FROM @fmt_stmt;
+  WHILE locale_list != '' DO
+    SET @locale =
+          TRIM(REPLACE((SUBSTRING_INDEX(locale_list, ',', 1)), '\n',''));
+    EXECUTE stmt USING @locale, @locale;
+    IF LOCATE(',', locale_list) > 0 THEN
+      SET locale_list =
+      SUBSTRING(locale_list, LOCATE(',', locale_list) + 1);
+    ELSE
+      SET locale_list = '';
+    END IF;
+  END WHILE;
+  DEALLOCATE PREPARE stmt;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:41) /test/1/catalog1/schema1/load_locale_format_table/"
+  ]
+}
+----------
+[permission_mysql_8_0_00932]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#37
+sql:
+CREATE PROCEDURE proc(ofs INT,count INT) BEGIN DECLARE i INT DEFAULT ofs; WHILE i<count DO IF LOWER(CHAR(i USING utf8))<>LOWER(CHAR(i USING utf8mb4)) THEN SELECT i AS 'found funny character'; END IF; SET i=i+1; END WHILE; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:21) /test/1/catalog1/schema1/proc/"
+  ]
+}
+----------
+[permission_mysql_8_0_00933]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#38
+sql:
+CREATE FUNCTION f_charset(p CHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin) RETURNS CHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DETERMINISTIC NO SQL RETURN p;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:25) /test/1/catalog1/schema1/f_charset/"
+  ]
+}
+----------
+[permission_mysql_8_0_00961]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#66
+sql:
+CREATE PROCEDURE fd_proc_insert() INSERT INTO split_function_defaults_objects.fd_proc_target(a) VALUES(1);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:31) /test/1/catalog1/schema1/fd_proc_insert/"
+  ]
+}
+----------
+[permission_mysql_8_0_00962]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#67
+sql:
+CREATE PROCEDURE fd_proc_update() UPDATE fd_proc_target SET a=2 WHERE a=1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:31) /test/1/catalog1/schema1/fd_proc_update/"
+  ]
+}
+----------
+[permission_mysql_8_0_00966]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#71
+sql:
+CREATE PROCEDURE p_diagnostics_full()
+BEGIN
+  DECLARE n INT DEFAULT 1;
+  DECLARE t VARCHAR(128);
+  DECLARE s CHAR(5);
+  DECLARE e INT;
+  GET CURRENT DIAGNOSTICS CONDITION n
+    t=CLASS_ORIGIN, t=SUBCLASS_ORIGIN, s=RETURNED_SQLSTATE,
+    t=MESSAGE_TEXT, e=MYSQL_ERRNO, t=CONSTRAINT_CATALOG,
+    t=CONSTRAINT_SCHEMA, t=CONSTRAINT_NAME, t=CATALOG_NAME,
+    t=SCHEMA_NAME, t=TABLE_NAME, t=COLUMN_NAME, t=CURSOR_NAME;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:35) /test/1/catalog1/schema1/p_diagnostics_full/"
+  ]
+}
+----------
+[permission_mysql_8_0_00967]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#72
+sql:
+CREATE PROCEDURE p_elseif(IN p INT, OUT o INT)
+BEGIN
+  IF p < 0 THEN SET o = -1;
+  ELSEIF p = 0 THEN SET o = 0;
+  ELSE SET o = 1;
+  END IF;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:25) /test/1/catalog1/schema1/p_elseif/"
+  ]
+}
+----------
+[permission_mysql_8_0_00968]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#73
+sql:
+CREATE PROCEDURE p_handler_list()
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND SET @handled = 1;
+  SET @handled = 0;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:31) /test/1/catalog1/schema1/p_handler_list/"
+  ]
+}
+----------
+[permission_mysql_8_0_00969]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#74
+sql:
+CREATE PROCEDURE p_resignal_named()
+BEGIN
+  DECLARE c CONDITION FOR SQLSTATE '45000';
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    RESIGNAL c SET MESSAGE_TEXT='mapped named';
+  SIGNAL SQLSTATE '45000';
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:33) /test/1/catalog1/schema1/p_resignal_named/"
+  ]
+}
+----------
+[permission_mysql_8_0_00970]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#75
+sql:
+CREATE PROCEDURE p_resignal_set()
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    RESIGNAL SET CLASS_ORIGIN='audit', MESSAGE_TEXT='mapped';
+  SIGNAL SQLSTATE '45000';
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:31) /test/1/catalog1/schema1/p_resignal_set/"
+  ]
+}
+----------
+[permission_mysql_8_0_00971]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#76
+sql:
+CREATE PROCEDURE p_signal_full()
+BEGIN
+  DECLARE c CONDITION FOR SQLSTATE '45000';
+  SIGNAL c SET CLASS_ORIGIN='audit', SUBCLASS_ORIGIN='audit',
+    MESSAGE_TEXT='full signal', MYSQL_ERRNO=45001,
+    CONSTRAINT_CATALOG='def', CONSTRAINT_SCHEMA='audit_mysql_flow',
+    CONSTRAINT_NAME='c1', CATALOG_NAME='def',
+    SCHEMA_NAME='audit_mysql_flow', TABLE_NAME='t1',
+    COLUMN_NAME='c1', CURSOR_NAME='cur1';
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:30) /test/1/catalog1/schema1/p_signal_full/"
+  ]
+}
+----------
+[permission_mysql_8_0_00972]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#77
+sql:
+CREATE PROCEDURE p_simple_case(IN p INT, OUT o VARCHAR(8))
+BEGIN
+  CASE p
+    WHEN 0 THEN SET o = 'zero';
+    WHEN 1 THEN SET o = 'one';
+    ELSE SET o = 'other';
+  END CASE;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:30) /test/1/catalog1/schema1/p_simple_case/"
+  ]
+}
+----------
+[permission_mysql_8_0_00973]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#78
+sql:
+ALTER FUNCTION fn_lifecycle_local COMMENT 'altered function' LANGUAGE SQL READS SQL DATA SQL SECURITY INVOKER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:15~1:33) /test/1/catalog1/schema1/fn_lifecycle_local/"
+  ]
+}
+----------
+[permission_mysql_8_0_00974]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#79
+sql:
+ALTER FUNCTION fn_lifecycle_local NO SQL SQL SECURITY DEFINER COMMENT 'no sql';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:15~1:33) /test/1/catalog1/schema1/fn_lifecycle_local/"
+  ]
+}
+----------
+[permission_mysql_8_0_00975]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#80
+sql:
+ALTER PROCEDURE proc_lifecycle_local COMMENT 'altered procedure' LANGUAGE SQL MODIFIES SQL DATA SQL SECURITY DEFINER;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:16~1:36) /test/1/catalog1/schema1/proc_lifecycle_local/"
+  ]
+}
+----------
+[permission_mysql_8_0_00976]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#81
+sql:
+ALTER PROCEDURE proc_lifecycle_local CONTAINS SQL SQL SECURITY INVOKER COMMENT 'contains sql';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:16~1:36) /test/1/catalog1/schema1/proc_lifecycle_local/"
+  ]
+}
+----------
+[permission_mysql_8_0_00977]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#82
+sql:
+CREATE DEFINER = CURRENT_USER() PROCEDURE split_routine.proc_options(p_id INT, INOUT p_total BIGINT)
+COMMENT 'procedure options'
+LANGUAGE SQL
+DETERMINISTIC
+READS SQL DATA
+SQL SECURITY DEFINER
+BEGIN
+  SET p_total = p_total + p_id;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:42~1:68) /test/1/catalog1/split_routine/proc_options/"
+  ]
+}
+----------
+[permission_mysql_8_0_00978]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#83
+sql:
+CREATE DEFINER = 'root'@'localhost' FUNCTION split_routine.fn_options(p_value INT)
+RETURNS DECIMAL(10,2)
+COMMENT 'function options'
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+RETURN p_value + 0.50;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:45~1:69) /test/1/catalog1/split_routine/fn_options/"
+  ]
+}
+----------
+[permission_mysql_8_0_00979]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#84
+sql:
+DROP PROCEDURE proc_lifecycle_local;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:15~1:35) /test/1/catalog1/schema1/proc_lifecycle_local/"
+  ]
+}
+----------
+[permission_mysql_8_0_00980]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#85
+sql:
+DROP PROCEDURE split_types.proc_lifecycle_qualified;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:15~1:51) /test/1/catalog1/split_types/proc_lifecycle_qualified/"
+  ]
+}
+----------
+[permission_mysql_8_0_00981]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#86
+sql:
+DROP PROCEDURE IF EXISTS split_types.proc_lifecycle_missing;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:25~1:59) /test/1/catalog1/split_types/proc_lifecycle_missing/"
+  ]
+}
+----------
+[permission_mysql_8_0_00982]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#87
+sql:
+DROP FUNCTION fn_lifecycle_local;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:14~1:32) /test/1/catalog1/schema1/fn_lifecycle_local/"
+  ]
+}
+----------
+[permission_mysql_8_0_00983]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#88
+sql:
+DROP FUNCTION split_types.fn_lifecycle_qualified;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:14~1:48) /test/1/catalog1/split_types/fn_lifecycle_qualified/"
+  ]
+}
+----------
+[permission_mysql_8_0_00984]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#89
+sql:
+DROP FUNCTION IF EXISTS split_types.fn_lifecycle_missing;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:24~1:56) /test/1/catalog1/split_types/fn_lifecycle_missing/"
+  ]
+}
+----------
+[permission_mysql_8_0_00985]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#90
+sql:
+CREATE PROCEDURE split_select_short.p1()
+BEGIN
+  DECLARE counter INTEGER DEFAULT 0;
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION BEGIN SET counter=counter+1; END;
+  REPEAT
+    IF RAND()>0.5 THEN START TRANSACTION; END IF;
+    IF RAND()>0.5 THEN SELECT COUNT(*) FROM split_select_short.t FOR UPDATE; END IF;
+    UPDATE split_select_short.t SET a=1 WHERE a>=0;
+    SET counter=counter+1;
+  UNTIL counter>=2 END REPEAT;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:38) /test/1/catalog1/split_select_short/p1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00986]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#91
+sql:
+DROP TRIGGER IF EXISTS split56.trg_missing;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:23~1:42) /test/1/catalog1/split56/trg_missing/"
+  ]
+}
+----------
+[permission_mysql_8_0_00987]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#92
+sql:
+DROP TRIGGER split56.trg_ad;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:13~1:27) /test/1/catalog1/split56/trg_ad/"
+  ]
+}
+----------
+[permission_mysql_8_0_00988]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#93
+sql:
+CREATE TRIGGER codex_group_having_audit_trg BEFORE INSERT ON codex_group_having_audit_target FOR EACH ROW INSERT INTO codex_group_having_audit_dst(b) SELECT b FROM codex_group_having_audit_src GROUP BY a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:43) /test/1/catalog1/schema1/codex_group_having_audit_trg/"
+  ]
+}
+----------
+[permission_mysql_8_0_00989]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#94
+sql:
+CREATE DEFINER = CURRENT_USER TRIGGER split56.trg_bi BEFORE INSERT ON split56.trigger_src FOR EACH ROW SET NEW.updated_at = CURRENT_TIMESTAMP;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:38~1:52) /test/1/catalog1/split56/trg_bi/"
+  ]
+}
+----------
+[permission_mysql_8_0_00990]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#95
+sql:
+CREATE TRIGGER split56.trg_bu BEFORE UPDATE ON split56.trigger_src FOR EACH ROW SET NEW.note = COALESCE(NEW.note, 'before update');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:29) /test/1/catalog1/split56/trg_bu/"
+  ]
+}
+----------
+[permission_mysql_8_0_00991]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#96
+sql:
+CREATE TRIGGER split56.trg_bd BEFORE DELETE ON split56.trigger_src FOR EACH ROW INSERT INTO split56.trigger_audit(src_id, action_name, old_amount, new_amount) VALUES (OLD.id, 'before delete', OLD.amount, NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:29) /test/1/catalog1/split56/trg_bd/"
+  ]
+}
+----------
+[permission_mysql_8_0_00992]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#97
+sql:
+CREATE TRIGGER split56.trg_ai AFTER INSERT ON split56.trigger_src FOR EACH ROW INSERT INTO split56.trigger_audit(src_id, action_name, old_amount, new_amount) VALUES (NEW.id, 'after insert', NULL, NEW.amount);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:29) /test/1/catalog1/split56/trg_ai/"
+  ]
+}
+----------
+[permission_mysql_8_0_00993]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#98
+sql:
+CREATE TRIGGER split56.trg_au AFTER UPDATE ON split56.trigger_src FOR EACH ROW INSERT INTO split56.trigger_audit(src_id, action_name, old_amount, new_amount) VALUES (OLD.id, 'after update', OLD.amount, NEW.amount);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:29) /test/1/catalog1/split56/trg_au/"
+  ]
+}
+----------
+[permission_mysql_8_0_00994]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#99
+sql:
+CREATE TRIGGER split56.trg_ad AFTER DELETE ON split56.trigger_src FOR EACH ROW INSERT INTO split56.trigger_audit(src_id, action_name, old_amount, new_amount) VALUES (OLD.id, 'after delete', OLD.amount, NULL);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:29) /test/1/catalog1/split56/trg_ad/"
+  ]
+}
+----------
+[permission_mysql_8_0_00995]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#100
+sql:
+ALTER DEFINER=CURRENT_USER() EVENT e1 ENABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:35~1:37) /test/1/catalog1/schema1/e1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00996]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#101
+sql:
+CREATE PROCEDURE p01() BEGIN DECLARE done BOOL DEFAULT FALSE; DECLARE a CHAR(16); DECLARE b,c INT; DECLARE c1 CURSOR FOR SELECT id,data FROM t1; DECLARE c2 CURSOR FOR SELECT i FROM t2; DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=TRUE; OPEN c1; OPEN c2; read_loop: LOOP FETCH c1 INTO a,b; FETCH c2 INTO c; IF done THEN LEAVE read_loop; END IF; END LOOP; CLOSE c1; CLOSE c2; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:20) /test/1/catalog1/schema1/p01/"
+  ]
+}
+----------
+[permission_mysql_8_0_00997]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#102
+sql:
+CREATE PROCEDURE p02() BEGIN DECLARE c CURSOR FOR SELECT id,data FROM t1; OPEN c; BEGIN DECLARE v_id CHAR(16); DECLARE v_data INT; DECLARE EXIT HANDLER FOR NOT FOUND BEGIN END; WHILE TRUE DO FETCH c INTO v_id,v_data; END WHILE; END; CLOSE c; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:20) /test/1/catalog1/schema1/p02/"
+  ]
+}
+----------
+[permission_mysql_8_0_00998]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#103
+sql:
+CREATE PROCEDURE p03() BEGIN DECLARE CONTINUE HANDLER FOR SQLSTATE '42S02' SET @h='state'; DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET @h='class'; DROP TABLE missing_t; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:20) /test/1/catalog1/schema1/p03/"
+  ]
+}
+----------
+[permission_mysql_8_0_00999]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#104
+sql:
+CREATE PROCEDURE p04() BEGIN DECLARE CONTINUE HANDLER FOR SQLSTATE '42S02' SET @h='outer'; BEGIN DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET @h='inner'; DROP TABLE missing_t; END; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:20) /test/1/catalog1/schema1/p04/"
+  ]
+}
+----------
+[permission_mysql_8_0_01000]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#105
+sql:
+CREATE FUNCTION f05() RETURNS TEXT BEGIN DECLARE msg TEXT; DECLARE warn CONDITION FOR SQLSTATE '01234'; DECLARE CONTINUE HANDLER FOR SQLWARNING BEGIN GET DIAGNOSTICS CONDITION 1 msg=MESSAGE_TEXT; END; SIGNAL warn SET MESSAGE_TEXT='message'; RETURN msg; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:19) /test/1/catalog1/schema1/f05/"
+  ]
+}
+----------
+[permission_mysql_8_0_01001]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#106
+sql:
+CREATE TRIGGER trg06 BEFORE INSERT ON t1 FOR EACH ROW BEGIN DECLARE n INT DEFAULT ROW_COUNT(); GET DIAGNOSTICS @rows=ROW_COUNT; SET @before=n; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:20) /test/1/catalog1/schema1/trg06/"
+  ]
+}
+----------
+[permission_mysql_8_0_01002]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#107
+sql:
+CREATE TRIGGER trg07 BEFORE INSERT ON t2 FOR EACH ROW BEGIN DECLARE CONTINUE HANDLER FOR 1062 BEGIN END; INSERT INTO t3 VALUES(NEW.i); INSERT INTO t3 VALUES(NEW.i); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:20) /test/1/catalog1/schema1/trg07/"
+  ]
+}
+----------
+[permission_mysql_8_0_01003]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#108
+sql:
+CREATE PROCEDURE p08() BEGIN DECLARE seconds INT UNSIGNED DEFAULT 100; ALTER EVENT e08 ON SCHEDULE EVERY seconds SECOND STARTS '2030-01-01 00:00:00' ENABLE; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:20) /test/1/catalog1/schema1/p08/",
+    "Event(1:83~1:86) /test/1/catalog1/schema1/e08/"
+  ]
+}
+----------
+[permission_mysql_8_0_01004]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#109
+sql:
+CREATE EVENT e09 ON SCHEDULE EVERY @secs MINUTE STARTS SYSDATE() ON COMPLETION PRESERVE DO BEGIN DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'handled'; SET @seen=1; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:16) /test/1/catalog1/schema1/e09/"
+  ]
+}
+----------
+[permission_mysql_8_0_01005]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#110
+sql:
+CREATE FUNCTION f10() RETURNS INT BEGIN DECLARE CONTINUE HANDLER FOR SQLEXCEPTION BEGIN END; BEGIN DECLARE CONTINUE HANDLER FOR SQLEXCEPTION RETURN f10(); BEGIN DECLARE CONTINUE HANDLER FOR SQLEXCEPTION RETURN f10(); RETURN f10(); END; END; RETURN 1; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:19) /test/1/catalog1/schema1/f10/"
+  ]
+}
+----------
+[permission_mysql_8_0_01006]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#111
+sql:
+CREATE PROCEDURE p13() BEGIN DECLARE done INT DEFAULT 0; DECLARE a,b INT; DECLARE c1 CURSOR FOR SELECT x,y FROM t1 UNION DISTINCT SELECT x,y FROM t2; DECLARE c2 CURSOR FOR SELECT x,y FROM t1 UNION ALL SELECT x,y FROM t2; DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done=1; OPEN c1; FETCH c1 INTO a,b; CLOSE c1; SET done=0; OPEN c2; FETCH c2 INTO a,b; CLOSE c2; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:20) /test/1/catalog1/schema1/p13/"
+  ]
+}
+----------
+[permission_mysql_8_0_01007]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#112
+sql:
+CREATE PROCEDURE p14() BEGIN DECLARE done,a,b,v INT DEFAULT 0; DECLARE c CURSOR FOR SELECT x,(SELECT y FROM t2 WHERE t1.x=t2.x) FROM t1 WHERE x=v; DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=1; OPEN c; FETCH c INTO a,b; CLOSE c; FLUSH TABLES; SET v=1; SET done=0; OPEN c; FETCH c INTO a,b; CLOSE c; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:20) /test/1/catalog1/schema1/p14/"
+  ]
+}
+----------
+[permission_mysql_8_0_01008]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#113
+sql:
+CREATE PROCEDURE p_tx() SET SESSION TRANSACTION READ ONLY;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:21) /test/1/catalog1/schema1/p_tx/"
+  ]
+}
+----------
+[permission_mysql_8_0_01009]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#114
+sql:
+CREATE PROCEDURE p_label_binlog() binlog: BEGIN LEAVE binlog; END binlog;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:31) /test/1/catalog1/schema1/p_label_binlog/"
+  ]
+}
+----------
+[permission_mysql_8_0_01010]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#115
+sql:
+CREATE FUNCTION split_type_enum_set.es_enum_fn(v CHAR(1))
+    RETURNS ENUM('a','b')
+    DETERMINISTIC NO SQL
+    RETURN v;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:46) /test/1/catalog1/split_type_enum_set/es_enum_fn/"
+  ]
+}
+----------
+[permission_mysql_8_0_01011]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#116
+sql:
+CREATE FUNCTION spatial_identity(input_value GEOMETRY)
+RETURNS GEOMETRY
+DETERMINISTIC
+RETURN input_value;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:32) /test/1/catalog1/schema1/spatial_identity/"
+  ]
+}
+----------
+[permission_mysql_8_0_01012]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#117
+sql:
+CREATE FUNCTION spatial_point(input_x DOUBLE,input_y DOUBLE)
+RETURNS POINT
+DETERMINISTIC
+RETURN POINT(input_x,input_y);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:29) /test/1/catalog1/schema1/spatial_point/"
+  ]
+}
+----------
+[permission_mysql_8_0_01013]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#118
+sql:
+CREATE PROCEDURE spatial_convert(
+  IN input_geometry GEOMETRY,
+  OUT output_point POINT,
+  INOUT output_line LINESTRING
+)
+BEGIN
+  DECLARE local_polygon POLYGON;
+  SET output_point=ST_Centroid(input_geometry);
+  SET output_line=ST_LineStringFromText('LINESTRING(0 0,1 1)');
+  SET local_polygon=ST_PolygonFromText('POLYGON((0 0,0 1,1 1,0 0))');
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:32) /test/1/catalog1/schema1/spatial_convert/"
+  ]
+}
+----------
+[permission_mysql_8_0_01014]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#119
+sql:
+CREATE TRIGGER spatial_trigger_bi
+BEFORE INSERT ON spatial_trigger_target
+FOR EACH ROW
+BEGIN
+  SET NEW.g=COALESCE(NEW.g,ST_GeomFromText('POINT(0 0)'));
+  SET NEW.p=COALESCE(NEW.p,ST_PointFromText('POINT(0 0)'));
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:33) /test/1/catalog1/schema1/spatial_trigger_bi/"
+  ]
+}
+----------
+[permission_mysql_8_0_01015]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#120
+sql:
+CREATE FUNCTION integer_combine(
+  tiny_value TINYINT,
+  small_value SMALLINT UNSIGNED,
+  medium_value MEDIUMINT,
+  int_value INTEGER UNSIGNED,
+  big_value BIGINT
+)
+RETURNS BIGINT UNSIGNED
+DETERMINISTIC
+RETURN CAST(tiny_value+small_value+medium_value+int_value+big_value AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:31) /test/1/catalog1/schema1/integer_combine/"
+  ]
+}
+----------
+[permission_mysql_8_0_01016]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#121
+sql:
+CREATE PROCEDURE integer_copy(
+  IN tiny_input TINYINT,
+  IN small_input SMALLINT,
+  IN medium_input MEDIUMINT,
+  IN int_input INT,
+  IN big_input BIGINT,
+  OUT big_output BIGINT UNSIGNED,
+  INOUT bool_state BOOLEAN
+)
+BEGIN
+  DECLARE tiny_local TINYINT DEFAULT 0;
+  DECLARE small_local SMALLINT DEFAULT 0;
+  DECLARE medium_local MEDIUMINT DEFAULT 0;
+  DECLARE int_local INTEGER DEFAULT 0;
+  DECLARE big_local BIGINT DEFAULT 0;
+  SET tiny_local=tiny_input;
+  SET small_local=small_input;
+  SET medium_local=medium_input;
+  SET int_local=int_input;
+  SET big_local=big_input;
+  SET big_output=CAST(tiny_local+small_local+medium_local+int_local+big_local AS UNSIGNED);
+  SET bool_state=NOT bool_state;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:29) /test/1/catalog1/schema1/integer_copy/"
+  ]
+}
+----------
+[permission_mysql_8_0_01017]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#122
+sql:
+CREATE FUNCTION integer_attributes(
+  bool_value BOOLEAN,
+  tiny_value TINYINT(1),
+  tiny_unsigned TINYINT(1) UNSIGNED,
+  tiny_zerofill TINYINT(1) ZEROFILL
+)
+RETURNS BIGINT UNSIGNED
+DETERMINISTIC
+RETURN CAST(bool_value+tiny_value+tiny_unsigned+tiny_zerofill AS UNSIGNED);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:34) /test/1/catalog1/schema1/integer_attributes/"
+  ]
+}
+----------
+[permission_mysql_8_0_01018]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#123
+sql:
+CREATE PROCEDURE integer_attribute_copy(
+  IN medium_input MEDIUMINT(8) ZEROFILL,
+  OUT bool_output BOOL
+)
+BEGIN
+  DECLARE integer_local INTEGER(11) SIGNED DEFAULT 0;
+  DECLARE big_local BIGINT UNSIGNED DEFAULT 0;
+  SET big_local=medium_input;
+  SET bool_output=big_local>=integer_local;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:39) /test/1/catalog1/schema1/integer_attribute_copy/"
+  ]
+}
+----------
+[permission_mysql_8_0_01019]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#124
+sql:
+CREATE FUNCTION numeric_identity(
+  decimal_input DECIMAL(20,6),
+  numeric_input NUMERIC(12,4),
+  fixed_input FIXED(18,2),
+  float_input FLOAT,
+  double_input DOUBLE PRECISION,
+  real_input REAL
+)
+RETURNS DECIMAL(30,10)
+DETERMINISTIC
+RETURN decimal_input+numeric_input+fixed_input+float_input+double_input+real_input;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:32) /test/1/catalog1/schema1/numeric_identity/"
+  ]
+}
+----------
+[permission_mysql_8_0_01020]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#125
+sql:
+CREATE PROCEDURE numeric_copy(
+  IN decimal_input DECIMAL(20,6),
+  IN numeric_input NUMERIC(12,4),
+  IN fixed_input FIXED(18,2),
+  OUT float_output FLOAT,
+  OUT double_output DOUBLE PRECISION,
+  INOUT real_accumulator REAL
+)
+BEGIN
+  DECLARE decimal_local DECIMAL(30,10) DEFAULT 0;
+  DECLARE numeric_local NUMERIC(20,8) DEFAULT 0;
+  DECLARE fixed_local FIXED(24,6) DEFAULT 0;
+  DECLARE float_local FLOAT DEFAULT 0;
+  DECLARE double_local DOUBLE PRECISION DEFAULT 0;
+  DECLARE real_local REAL DEFAULT 0;
+  SET decimal_local=decimal_input;
+  SET numeric_local=numeric_input;
+  SET fixed_local=fixed_input;
+  SET float_local=decimal_local+numeric_local;
+  SET double_local=fixed_local+float_local;
+  SET real_local=real_accumulator+double_local;
+  SET float_output=float_local;
+  SET double_output=double_local;
+  SET real_accumulator=real_local;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:29) /test/1/catalog1/schema1/numeric_copy/"
+  ]
+}
+----------
+[permission_mysql_8_0_01021]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#126
+sql:
+CREATE TRIGGER numeric_before_update
+BEFORE UPDATE ON numeric_trigger_target
+FOR EACH ROW
+BEGIN
+  SET NEW.decimal_value=ROUND(COALESCE(NEW.decimal_value,OLD.decimal_value),6);
+  SET NEW.float_value=COALESCE(NEW.float_value,OLD.float_value);
+  SET NEW.double_value=COALESCE(NEW.double_value,OLD.double_value);
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:36) /test/1/catalog1/schema1/numeric_before_update/"
+  ]
+}
+----------
+[permission_mysql_8_0_01022]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#127
+sql:
+CREATE PROCEDURE p_37269() BEGIN DECLARE done INT DEFAULT 0; DECLARE varb INT DEFAULT 0; DECLARE vara INT DEFAULT 0; REPEAT SELECT NOW(); UNTIL done END REPEAT; WHILE varb DO SELECT NOW(); BEGIN SELECT NOW(); REPEAT SELECT NOW(); UNTIL done END REPEAT; IF vara THEN SELECT NOW(); REPEAT SELECT NOW(); LOOP SELECT NOW(); END LOOP; REPEAT SELECT NOW(); label1: WHILE varb DO SELECT NOW(); END WHILE label1; IF vara THEN SELECT NOW(); REPEAT SELECT NOW(); UNTIL done END REPEAT; BEGIN SELECT NOW(); WHILE varb DO SELECT NOW(); label1: WHILE varb DO SELECT NOW(); END WHILE label1; IF vara THEN SELECT NOW(); WHILE varb DO SELECT NOW(); LOOP SELECT NOW(); END LOOP; REPEAT SELECT NOW(); LOOP SELECT NOW(); WHILE varb DO SELECT NOW(); END WHILE; REPEAT SELECT NOW(); label1: LOOP SELECT NOW(); IF vara THEN SELECT NOW(); END IF; END LOOP label1; UNTIL done END REPEAT; END LOOP; UNTIL done END REPEAT; END WHILE; END IF; END WHILE; END; END IF; UNTIL done END REPEAT; UNTIL done END REPEAT; END IF; END; END WHILE; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:24) /test/1/catalog1/schema1/p_37269/"
+  ]
+}
+----------
+[permission_mysql_8_0_01023]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#128
+sql:
+CREATE PROCEDURE split_case_scope(arg INT) BEGIN CASE arg WHEN 1 THEN BEGIN DECLARE i TINYINT DEFAULT 2; WHILE i>0 DO CASE MOD(i,2) WHEN 0 THEN SET @split_case_scope='even'; ELSE SET @split_case_scope='odd'; END CASE; SET i=i-1; END WHILE; END; ELSE SET @split_case_scope='other'; END CASE; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:33) /test/1/catalog1/schema1/split_case_scope/"
+  ]
+}
+----------
+[permission_mysql_8_0_01024]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#129
+sql:
+CREATE PROCEDURE split_drop_trigger() DROP TRIGGER tr1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:35) /test/1/catalog1/schema1/split_drop_trigger/",
+    "Trigger(1:51~1:54) /test/1/catalog1/schema1/tr1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01025]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#130
+sql:
+CREATE TRIGGER t15_ad_cascade AFTER DELETE ON t15 FOR EACH ROW DELETE FROM t111 WHERE f1=OLD.f1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:29) /test/1/catalog1/schema1/t15_ad_cascade/"
+  ]
+}
+----------
+[permission_mysql_8_0_01026]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#131
+sql:
+CREATE TRIGGER trig2 BEFORE UPDATE ON employees FOR EACH ROW UPDATE employees SET employee_name=NULL;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:20) /test/1/catalog1/schema1/trig2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01027]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#132
+sql:
+CREATE TRIGGER child_after_delete AFTER DELETE ON child FOR EACH ROW BEGIN SET @parent_count=get_parent_count(); DO insert_parent(); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:33) /test/1/catalog1/schema1/child_after_delete/"
+  ]
+}
+----------
+[permission_mysql_8_0_01028]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#133
+sql:
+CREATE PROCEDURE split_view_do_dml() BEGIN DO (SELECT @next := IFNULL(MAX(bug_table_seq),0)+1 FROM v1); INSERT INTO t1 VALUES(1); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:34) /test/1/catalog1/schema1/split_view_do_dml/"
+  ]
+}
+----------
+[permission_mysql_8_0_01029]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#135
+sql:
+CREATE PROCEDURE proc_knn() BEGIN EXPLAIN FORMAT=TREE SELECT ST_Distance(location,POINT(0,0)) AS d FROM cafe ORDER BY d; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:25) /test/1/catalog1/schema1/proc_knn/"
+  ]
+}
+----------
+[permission_mysql_8_0_01030]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#136
+sql:
+CREATE PROCEDURE gap_cond_numeric() BEGIN DECLARE c CONDITION FOR 1146; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:33) /test/1/catalog1/schema1/gap_cond_numeric/"
+  ]
+}
+----------
+[permission_mysql_8_0_01031]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#137
+sql:
+CREATE PROCEDURE gap_handler_value() BEGIN DECLARE CONTINUE HANDLER FOR SQLSTATE VALUE '42S02' SET @x=1; DROP TABLE missing_t; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:34) /test/1/catalog1/schema1/gap_handler_value/"
+  ]
+}
+----------
+[permission_mysql_8_0_01032]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#138
+sql:
+CREATE PROCEDURE gap_fetch_from() BEGIN DECLARE x INT; DECLARE c CURSOR FOR SELECT 1; OPEN c; FETCH FROM c INTO x; CLOSE c; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:31) /test/1/catalog1/schema1/gap_fetch_from/"
+  ]
+}
+----------
+[permission_mysql_8_0_01033]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#139
+sql:
+CREATE PROCEDURE gap_scalar_default() BEGIN DECLARE x INT DEFAULT (SELECT 1); SELECT x; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:35) /test/1/catalog1/schema1/gap_scalar_default/"
+  ]
+}
+----------
+[permission_mysql_8_0_01034]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#140
+sql:
+CREATE PROCEDURE gap_direct_repeat() REPEAT SET @x=1; UNTIL @x=1 END REPEAT;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:34) /test/1/catalog1/schema1/gap_direct_repeat/"
+  ]
+}
+----------
+[permission_mysql_8_0_01035]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#141
+sql:
+CREATE PROCEDURE gap_direct_while() w: WHILE 0 DO LEAVE w; END WHILE w;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:33) /test/1/catalog1/schema1/gap_direct_while/"
+  ]
+}
+----------
+[permission_mysql_8_0_01036]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#142
+sql:
+CREATE PROCEDURE gap_direct_if() IF 1 THEN SET @x=1; ELSE SET @x=2; END IF;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:30) /test/1/catalog1/schema1/gap_direct_if/"
+  ]
+}
+----------
+[permission_mysql_8_0_01037]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#143
+sql:
+CREATE PROCEDURE gap_direct_case() CASE WHEN 1 THEN SET @x=1; ELSE SET @x=2; END CASE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:32) /test/1/catalog1/schema1/gap_direct_case/"
+  ]
+}
+----------
+[permission_mysql_8_0_01038]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#144
+sql:
+CREATE PROCEDURE gap_direct_loop() l: LOOP LEAVE l; END LOOP l;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:32) /test/1/catalog1/schema1/gap_direct_loop/"
+  ]
+}
+----------
+[permission_mysql_8_0_01039]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#145
+sql:
+CREATE PROCEDURE gap_dynamic_literal() BEGIN PREPARE s FROM 'SELECT 1'; EXECUTE s; DEALLOCATE PREPARE s; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:36) /test/1/catalog1/schema1/gap_dynamic_literal/"
+  ]
+}
+----------
+[permission_mysql_8_0_01040]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#146
+sql:
+CREATE TRIGGER gap_trigger_call BEFORE INSERT ON gap_t FOR EACH ROW CALL gap_sink();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:31) /test/1/catalog1/schema1/gap_trigger_call/"
+  ]
+}
+----------
+[permission_mysql_8_0_01041]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#147
+sql:
+CREATE TRIGGER gap_trigger_empty BEFORE INSERT ON gap_t FOR EACH ROW BEGIN END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:32) /test/1/catalog1/schema1/gap_trigger_empty/"
+  ]
+}
+----------
+[permission_mysql_8_0_01042]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#148
+sql:
+CREATE EVENT gap_event_empty ON SCHEDULE AT CURRENT_TIMESTAMP DO BEGIN END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:28) /test/1/catalog1/schema1/gap_event_empty/"
+  ]
+}
+----------
+[permission_mysql_8_0_01043]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#149
+sql:
+CREATE EVENT gap_event_ddl ON SCHEDULE AT CURRENT_TIMESTAMP DO DROP TABLE gap_drop;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:26) /test/1/catalog1/schema1/gap_event_ddl/"
+  ]
+}
+----------
+[permission_mysql_8_0_01044]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#150
+sql:
+ALTER EVENT gap_event_outer DO ALTER EVENT gap_event_inner ENABLE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:12~1:27) /test/1/catalog1/schema1/gap_event_outer/",
+    "Event(1:43~1:58) /test/1/catalog1/schema1/gap_event_inner/"
+  ]
+}
+----------
+[permission_mysql_8_0_01045]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#151
+sql:
+CREATE PROCEDURE gap_proc_call() CALL gap_sink();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:30) /test/1/catalog1/schema1/gap_proc_call/"
+  ]
+}
+----------
+[permission_mysql_8_0_01046]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#152
+sql:
+CREATE FUNCTION gap_fn_prepare() RETURNS INT PREPARE s FROM 'SELECT 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:30) /test/1/catalog1/schema1/gap_fn_prepare/"
+  ]
+}
+----------
+[permission_mysql_8_0_01047]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#153
+sql:
+CREATE TRIGGER gap_trigger_prepare BEFORE INSERT ON gap_t FOR EACH ROW PREPARE s FROM 'SELECT 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:34) /test/1/catalog1/schema1/gap_trigger_prepare/"
+  ]
+}
+----------
+[permission_mysql_8_0_01048]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#154
+sql:
+CREATE PROCEDURE gap_cursor_before_var() BEGIN DECLARE c CURSOR FOR SELECT 1; DECLARE x INT; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:38) /test/1/catalog1/schema1/gap_cursor_before_var/"
+  ]
+}
+----------
+[permission_mysql_8_0_01049]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#155
+sql:
+CREATE PROCEDURE gap_handler_before_cursor() BEGIN DECLARE CONTINUE HANDLER FOR NOT FOUND SET @x=1; DECLARE c CURSOR FOR SELECT 1; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:42) /test/1/catalog1/schema1/gap_handler_before_cursor/"
+  ]
+}
+----------
+[permission_mysql_8_0_01050]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#156
+sql:
+CREATE EVENT ev_enable_gap ON SCHEDULE EVERY '10:20' MINUTE_SECOND ON COMPLETION PRESERVE ENABLE COMMENT 'enabled' DO SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:26) /test/1/catalog1/schema1/ev_enable_gap/"
+  ]
+}
+----------
+[permission_mysql_8_0_01051]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#157
+sql:
+ALTER EVENT ev_base_gap ON COMPLETION NOT PRESERVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:12~1:23) /test/1/catalog1/schema1/ev_base_gap/"
+  ]
+}
+----------
+[permission_mysql_8_0_01052]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#158
+sql:
+ALTER EVENT ev_base_gap ON COMPLETION PRESERVE;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:12~1:23) /test/1/catalog1/schema1/ev_base_gap/"
+  ]
+}
+----------
+[permission_mysql_8_0_01053]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#159
+sql:
+ALTER EVENT ev_base_gap COMMENT '';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:12~1:23) /test/1/catalog1/schema1/ev_base_gap/"
+  ]
+}
+----------
+[permission_mysql_8_0_01054]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#160
+sql:
+ALTER EVENT ev_base_gap RENAME TO audit_db2.ev_moved_gap;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:12~1:23) /test/1/catalog1/schema1/ev_base_gap/",
+    "Event(1:34~1:56) /test/1/catalog1/audit_db2/ev_moved_gap/"
+  ]
+}
+----------
+[permission_mysql_8_0_01055]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#161
+sql:
+ALTER DEFINER=root@localhost EVENT ev_base_gap ON SCHEDULE EVERY 1 HOUR;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:35~1:46) /test/1/catalog1/schema1/ev_base_gap/"
+  ]
+}
+----------
+[permission_mysql_8_0_01056]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#162
+sql:
+CREATE DEFINER=root@localhost EVENT ev_def_gap ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR DO SELECT CURRENT_USER();
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:36~1:46) /test/1/catalog1/schema1/ev_def_gap/"
+  ]
+}
+----------
+[permission_mysql_8_0_01057]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#163
+sql:
+ALTER EVENT ev_def_gap DO SELECT 12;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:12~1:22) /test/1/catalog1/schema1/ev_def_gap/"
+  ]
+}
+----------
+[permission_mysql_8_0_01058]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#164
+sql:
+CREATE DEFINER=root@localhost TRIGGER trg_def_gap BEFORE UPDATE ON t1 FOR EACH ROW SET NEW.a=OLD.a;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:38~1:49) /test/1/catalog1/schema1/trg_def_gap/"
+  ]
+}
+----------
+[permission_mysql_8_0_01059]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#165
+sql:
+CREATE FUNCTION audit_kill_fn(tid INT) RETURNS INT BEGIN DECLARE CONTINUE HANDLER FOR SQLEXCEPTION BEGIN END; KILL tid; RETURN (SELECT COUNT(*) = 0 FROM INFORMATION_SCHEMA.PROCESSLIST WHERE ID = tid); END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:16~1:29) /test/1/catalog1/schema1/audit_kill_fn/"
+  ]
+}
+----------
+[permission_mysql_8_0_01060]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#166
+sql:
+CREATE PROCEDURE audit_flush_proc() BEGIN DECLARE x INT DEFAULT 1; WHILE x DO SET x = x - 1; FLUSH STATUS; END WHILE; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:33) /test/1/catalog1/schema1/audit_flush_proc/"
+  ]
+}
+----------
+[permission_mysql_8_0_01061]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#167
+sql:
+CREATE PROCEDURE split_handler_rollback()
+BEGIN
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+  START TRANSACTION;
+  INSERT INTO split_handler_table VALUES (1);
+  INSERT INTO split_handler_table VALUES (2);
+  COMMIT WORK;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:39) /test/1/catalog1/schema1/split_handler_rollback/"
+  ]
+}
+----------
+[permission_mysql_8_0_01062]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#168
+sql:
+CREATE PROCEDURE split_proc_create_view() CREATE VIEW split_proc_view AS SELECT 1 FROM (SELECT 1) AS d1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:39) /test/1/catalog1/schema1/split_proc_create_view/"
+  ]
+}
+----------
+[permission_mysql_8_0_01063]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#169
+sql:
+CREATE TRIGGER split_trigger_event BEFORE INSERT ON split_trigger_source FOR EACH ROW CREATE EVENT split_trigger_event_body ON SCHEDULE EVERY 1 SECOND DO SET @a=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:34) /test/1/catalog1/schema1/split_trigger_event/",
+    "Event(1:99~1:123) /test/1/catalog1/schema1/split_trigger_event_body/"
+  ]
+}
+----------
+[permission_mysql_8_0_01064]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#170
+sql:
+CREATE PROCEDURE split_proc_create_event() CREATE EVENT split_proc_event_body ON SCHEDULE EVERY @a SECOND DO SET @a=5;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:40) /test/1/catalog1/schema1/split_proc_create_event/",
+    "Event(1:56~1:77) /test/1/catalog1/schema1/split_proc_event_body/"
+  ]
+}
+----------
+[permission_mysql_8_0_01065]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#171
+sql:
+CREATE EVENT split_event_at_subquery ON SCHEDULE AT (SELECT s1 FROM split_event_source) DO DROP TABLE split_event_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:36) /test/1/catalog1/schema1/split_event_at_subquery/"
+  ]
+}
+----------
+[permission_mysql_8_0_01066]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#172
+sql:
+CREATE EVENT split_event_every_subquery ON SCHEDULE EVERY (SELECT s1 FROM split_event_source) SECOND DO DROP TABLE split_event_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:39) /test/1/catalog1/schema1/split_event_every_subquery/"
+  ]
+}
+----------
+[permission_mysql_8_0_01067]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#173
+sql:
+CREATE EVENT split_event_starts_subquery ON SCHEDULE EVERY 5 SECOND STARTS (SELECT s1 FROM split_event_source) DO DROP TABLE split_event_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:40) /test/1/catalog1/schema1/split_event_starts_subquery/"
+  ]
+}
+----------
+[permission_mysql_8_0_01068]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#174
+sql:
+CREATE EVENT split_event_ends_subquery ON SCHEDULE EVERY 5 SECOND ENDS (SELECT s1 FROM split_event_source) DO DROP TABLE split_event_target;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:38) /test/1/catalog1/schema1/split_event_ends_subquery/"
+  ]
+}
+----------
+[permission_mysql_8_0_01069]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#175
+sql:
+CREATE EVENT split_event_every_union ON SCHEDULE EVERY (SELECT 'abcdef' UNION SELECT 'abcdef') SECOND DO SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:36) /test/1/catalog1/schema1/split_event_every_union/"
+  ]
+}
+----------
+[permission_mysql_8_0_01070]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#176
+sql:
+CREATE EVENT split_event_every_union_arithmetic ON SCHEDULE EVERY (SELECT 'abcdef' UNION SELECT 'abcdef')+10 SECOND DO SELECT 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Event(1:13~1:47) /test/1/catalog1/schema1/split_event_every_union_arithmetic/"
+  ]
+}
+----------
+[permission_mysql_8_0_01071]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#177
+sql:
+CREATE PROCEDURE p_cursor() BEGIN DECLARE c CURSOR FOR SELECT a FROM t1 FOR UPDATE; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:25) /test/1/catalog1/schema1/p_cursor/"
+  ]
+}
+----------
+[permission_mysql_8_0_01072]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#178
+sql:
+CREATE DEFINER = CURRENT_USER FUNCTION split_info_current_user_fn() RETURNS INT DETERMINISTIC NO SQL RETURN 1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:39~1:65) /test/1/catalog1/schema1/split_info_current_user_fn/"
+  ]
+}
+----------
+[permission_mysql_8_0_01073]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#179
+sql:
+CREATE DEFINER = CURRENT_USER() FUNCTION split_info_current_user_fn_paren() RETURNS INT DETERMINISTIC NO SQL RETURN 2;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Function(1:41~1:73) /test/1/catalog1/schema1/split_info_current_user_fn_paren/"
+  ]
+}
+----------
+[permission_mysql_8_0_01074]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#180
+sql:
+CREATE PROCEDURE p_signal_param(IN msg TEXT) SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=msg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:31) /test/1/catalog1/schema1/p_signal_param/"
+  ]
+}
+----------
+[permission_mysql_8_0_01075]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#181
+sql:
+CREATE PROCEDURE p_resignal_param(IN msg TEXT) RESIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=msg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:33) /test/1/catalog1/schema1/p_resignal_param/"
+  ]
+}
+----------
+[permission_mysql_8_0_01076]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#182
+sql:
+CREATE TRIGGER tr_signal_new BEFORE INSERT ON t_signal FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=NEW.msg;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:28) /test/1/catalog1/schema1/tr_signal_new/"
+  ]
+}
+----------
+[permission_mysql_8_0_01077]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#183
+sql:
+CREATE PROCEDURE split_acl_native.split_native_acl_p() SET PASSWORD FOR 'split_acl_0720b'@'%' = '12345';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:52) /test/1/catalog1/split_acl_native/split_native_acl_p/"
+  ]
+}
+----------
+[permission_mysql_8_0_01078]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#184
+sql:
+CREATE PROCEDURE split_into_mix_56(x CHAR(16), y INT) BEGIN SELECT id, data INTO x, @z FROM split_into_mix.t1 LIMIT 1; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:34) /test/1/catalog1/schema1/split_into_mix_56/"
+  ]
+}
+----------
+[permission_mysql_8_0_01079]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#185
+sql:
+CREATE TRIGGER split56.trg_nested_new BEFORE INSERT ON split56.trigger_src FOR EACH ROW BEGIN IF NEW.note IS NULL THEN SET NeW.`note` = 'nested', NEW.updated_at = CURRENT_TIMESTAMP; END IF; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Trigger(1:15~1:37) /test/1/catalog1/split56/trg_nested_new/"
+  ]
+}
+----------
+[permission_mysql_8_0_01126]
+source: split/mysql/5.6/ddl_mysql_table_0.txt#47
+sql:
+CREATE PROCEDURE split_table_derived.del_rows() DELETE o.* FROM split_table_derived.t1 AS o,(SELECT 1) AS d WHERE o.b<0 OR o.a IN(SELECT i.a+1 FROM split_table_derived.t2 AS i);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "PROGRAM": [
+    "Procedure(1:17~1:45) /test/1/catalog1/split_table_derived/del_rows/"
   ]
 }

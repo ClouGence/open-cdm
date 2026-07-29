@@ -236,9 +236,9 @@ select d.id, jt.ord, jt.v from json_docs d, json_table(d.payload, '$.items[*]' c
 ----------
 [SELECT|CALL_PROG_OBJ] select json_type('true');
 ----------
-[SELECT|CALL_PROG_OBJ] select json_typeof('{"a":1}');
+[SELECT] select json_typeof('{"a":1}');
 ----------
-[SELECT|CALL_PROG_OBJ] select json_typeof('[1,2]');
+[SELECT] select json_typeof('[1,2]');
 ----------
 [SELECT|CALL_PROG_OBJ] select json_contains('{"a":1,"b":2}', '{"a":1}');
 ----------
@@ -260,11 +260,11 @@ select d.id, jt.ord, jt.v from json_docs d, json_table(d.payload, '$.items[*]' c
 ----------
 [SELECT|CALL_PROG_OBJ] select to_jsonb('{"b":1,"a":2}'::jsonb);
 ----------
-[SELECT|CALL_PROG_OBJ] select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,a}', '15');
+[SELECT] select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,a}', '15');
 ----------
-[SELECT|CALL_PROG_OBJ] select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', true);
+[SELECT] select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', true);
 ----------
-[SELECT|CALL_PROG_OBJ] select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', false);
+[SELECT] select jsonb_set('[{"f1":{"a":1}}]', '{0,f1,b}', '15', false);
 ----------
 [SELECT|CALL_PROG_OBJ] select jsonb_concat(null, '1');
 ----------

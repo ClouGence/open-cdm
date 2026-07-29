@@ -20,7 +20,6 @@ public class ExecutionDalImpl implements ExecutionDal {
     private DmExecAutoTaskMapper         autoTaskMapper;
     @Resource
     private DmExecFileMapper             fileMapper;
-    @Resource
     private DmExecSessionMapper          sessionMapper;
     @Resource
     private DmExecSqlAuditMapper         sqlAuditMapper;

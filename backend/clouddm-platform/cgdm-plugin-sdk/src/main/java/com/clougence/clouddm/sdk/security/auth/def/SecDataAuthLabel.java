@@ -16,7 +16,9 @@
 package com.clougence.clouddm.sdk.security.auth.def;
 
 import static com.clougence.clouddm.sdk.security.auth.def.SecAuthCategory.CAT_RDP_DS;
-import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.*;
+import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.RDP_AUTH_DATA_DS_CREATOR;
+import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.RDP_AUTH_DATA_DS_MANAGE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.RDP_AUTH_DATA_DS_READ;
 
 import com.clougence.clouddm.sdk.security.auth.AuthElementType;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -40,7 +42,8 @@ public interface SecDataAuthLabel {
 
     @AuthLabel(order = 2, category = CAT_RDP_DS, usedOfRole = false, include = { RDP_DAUTH_DS_MANAGER, SecDataAuthLabel.DM_DAUTH_QUERY, SecDataAuthLabel.DM_DAUTH_CALL,
                                                                                  SecDataAuthLabel.DM_DAUTH_DML, SecDataAuthLabel.DM_DAUTH_DDL, SecDataAuthLabel.DM_DAUTH_OBJ,
-                                                                                 SecDataAuthLabel.DM_DAUTH_SPACE, SecDataAuthLabel.DM_DAUTH_DCL, SecDataAuthLabel.DM_DAUTH_OTHER,
+                                                                                 SecDataAuthLabel.DM_DAUTH_PROGRAM, SecDataAuthLabel.DM_DAUTH_SPACE, SecDataAuthLabel.DM_DAUTH_DCL,
+                                                                                 SecDataAuthLabel.DM_DAUTH_AUTH, SecDataAuthLabel.DM_DAUTH_UNSAFE, SecDataAuthLabel.DM_DAUTH_OTHER,
                                                                                  SecDataAuthLabel.DM_DAUTH_SENSITIVE,
                                                                                  SecDataAuthLabel.DM_DAUTH_TICKET }, i18nKey = RDP_AUTH_DATA_DS_CREATOR, kind = { AuthKind.DataSource })
     @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance })
@@ -68,27 +71,42 @@ public interface SecDataAuthLabel {
     @AuthLabel(order = 3, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_DDL,//
             kind = { AuthKind.DataSource }, include = DM_DAUTH_QUERY)
     @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Catalog, AuthElementType.Schema, AuthElementType.Table,
-                                                                 AuthElementType.Column })
+                                                                 AuthElementType.Column, AuthElementType.View, AuthElementType.Materialized, AuthElementType.Sequence,
+                                                                 AuthElementType.Synonym })
     String DM_DAUTH_DDL         = "DM_DDL";
 
     @AuthLabel(order = 4, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_OBJ,//
             kind = { AuthKind.DataSource }, include = { DM_DAUTH_QUERY, DM_DAUTH_DDL })
-    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Catalog, AuthElementType.Schema, AuthElementType.View,
-                                                                 AuthElementType.Materialized, AuthElementType.Sequence, AuthElementType.Synonym, AuthElementType.Function,
-                                                                 AuthElementType.Procedure, AuthElementType.Trigger })
+    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Catalog, AuthElementType.Schema })
     String DM_DAUTH_OBJ         = "DM_OBJ";
 
-    @AuthLabel(order = 5, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_SPACE,//
+    @AuthLabel(order = 5, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_PROGRAM,//
+            kind = { AuthKind.DataSource }, include = { DM_DAUTH_QUERY, DM_DAUTH_DDL })
+    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Catalog, AuthElementType.Schema, AuthElementType.Function,
+                                                                 AuthElementType.Procedure, AuthElementType.Trigger })
+    String DM_DAUTH_PROGRAM     = "DM_PROGRAM";
+
+    @AuthLabel(order = 6, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_SPACE,//
             kind = { AuthKind.DataSource })
     @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Catalog, AuthElementType.Schema })
     String DM_DAUTH_SPACE       = "DM_SPACE";
 
-    @AuthLabel(order = 6, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_DCL,//
+    @AuthLabel(order = 7, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_AUTH,//
+            kind = { AuthKind.DataSource })
+    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance })
+    String DM_DAUTH_AUTH        = "DM_AUTH";
+
+    @AuthLabel(order = 8, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_DCL,//
             kind = { AuthKind.DataSource })
     @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance })
     String DM_DAUTH_DCL         = "DM_DCL";
 
-    @AuthLabel(order = 7, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_OTHER,//
+    @AuthLabel(order = 9, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_UNSAFE,//
+            kind = { AuthKind.DataSource })
+    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance })
+    String DM_DAUTH_UNSAFE      = "DM_UNSAFE";
+
+    @AuthLabel(order = 10, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_OTHER,//
             kind = { AuthKind.DataSource })
     @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Catalog, AuthElementType.Schema })
     String DM_DAUTH_OTHER       = "DM_OTHER";

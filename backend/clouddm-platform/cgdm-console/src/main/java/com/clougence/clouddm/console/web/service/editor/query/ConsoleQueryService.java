@@ -499,7 +499,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             if (StringUtils.equalsIgnoreCase("true", enable)) {
                 SqlEngineSpi sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(ctx.getLevels().dsDO().getId());
                 SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngine.name());
-                boolean hasNonReadBehavior = BehaviorRelations.flattenResource(registry, parameters.version(), request.getRelations(), request.getQueryTypes())
+                boolean hasNonReadBehavior = BehaviorRelations.flattenResource(registry, parameters.version(), request.getRelations())
                     .stream()
                     .filter(behavior -> behavior.authKind() != null)
                     .anyMatch(behavior -> behavior.authKind() != SecDataAuthKind.READ);

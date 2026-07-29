@@ -81,7 +81,7 @@ drop partition group pg_hash_count;
 ----------
 [CREATE_TABLE|ADD_COLUMN] create table pg_table_sub(id int,kind int,note varchar(20)) using partition group pg_rr by(id) subpartition by(kind);
 ----------
-[SELECT|CALL_PROG_OBJ] select partgroupdef('SYSDBA','PG_RANGE_BASIC');
+[SELECT] select partgroupdef('SYSDBA','PG_RANGE_BASIC');
 ----------
 [SELECT] select name,id,schid,valid from sysobjects where subtype$='PGRP';
 ----------

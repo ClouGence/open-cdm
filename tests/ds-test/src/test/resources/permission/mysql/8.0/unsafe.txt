@@ -1,4 +1,5 @@
-[unsafe_prepare]
+[permission_mysql_8_0_00023]
+source: permission/mysql/8.0/unsafe.txt#unsafe_prepare
 sql:
 PREPARE ps_select FROM 'SELECT 1';
 levels:
@@ -7,5 +8,415 @@ expect:
 {
   "UNSAFE": [
     "PrepareStatement(1:8~1:17) /test/1/ps_select/"
+  ]
+}
+----------
+[permission_mysql_8_0_00068]
+source: behavior/mysql/8.0/basic.txt#prepare_statement
+sql:
+PREPARE stmt1 FROM 'SELECT * FROM t1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:13) /test/1/stmt1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00069]
+source: behavior/mysql/8.0/basic.txt#execute_statement
+sql:
+EXECUTE stmt1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:13) /test/1/stmt1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00071]
+source: behavior/mysql/8.0/basic.txt#deallocate_statement
+sql:
+DEALLOCATE PREPARE stmt1;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:19~1:24) /test/1/stmt1/"
+  ]
+}
+----------
+[permission_mysql_8_0_00931]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#36
+sql:
+CREATE PROCEDURE load_locale_format_table()
+BEGIN
+  DECLARE locale_list VARCHAR(1000) DEFAULT '
+  es_AR,es_BO,es_CL,es_CO,es_CR,es_DO,es_EC,es_ES,es_GT,es_HN,
+  es_MX,es_NI,es_PA,es_PE,es_PR,es_PY,es_SV,es_US,es_UY,es_VE';
+  SET @fmt_stmt = 'INSERT INTO locale_format VALUES
+                   (?, FORMAT(12131254123412541,2,?));';
+  PREPARE stmt FROM @fmt_stmt;
+  WHILE locale_list != '' DO
+    SET @locale =
+          TRIM(REPLACE((SUBSTRING_INDEX(locale_list, ',', 1)), '\n',''));
+    EXECUTE stmt USING @locale, @locale;
+    IF LOCATE(',', locale_list) > 0 THEN
+      SET locale_list =
+      SUBSTRING(locale_list, LOCATE(',', locale_list) + 1);
+    ELSE
+      SET locale_list = '';
+    END IF;
+  END WHILE;
+  DEALLOCATE PREPARE stmt;
+END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(8:10~8:14) /test/1/stmt/"
+  ]
+}
+----------
+[permission_mysql_8_0_01039]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#145
+sql:
+CREATE PROCEDURE gap_dynamic_literal() BEGIN PREPARE s FROM 'SELECT 1'; EXECUTE s; DEALLOCATE PREPARE s; END;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:53~1:54) /test/1/s/"
+  ]
+}
+----------
+[permission_mysql_8_0_01046]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#152
+sql:
+CREATE FUNCTION gap_fn_prepare() RETURNS INT PREPARE s FROM 'SELECT 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:53~1:54) /test/1/s/"
+  ]
+}
+----------
+[permission_mysql_8_0_01047]
+source: split/mysql/5.6/ddl_mysql_stored_program_0.txt#153
+sql:
+CREATE TRIGGER gap_trigger_prepare BEFORE INSERT ON gap_t FOR EACH ROW PREPARE s FROM 'SELECT 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:79~1:80) /test/1/s/"
+  ]
+}
+----------
+[permission_mysql_8_0_01277]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#13
+sql:
+EXECUTE ps_no_args;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:18) /test/1/ps_no_args/"
+  ]
+}
+----------
+[permission_mysql_8_0_01280]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#31
+sql:
+PREPARE ps_select FROM 'SELECT id, v FROM split84.ps_t WHERE id = ?';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_select/"
+  ]
+}
+----------
+[permission_mysql_8_0_01282]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#33
+sql:
+EXECUTE ps_select USING @ps_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_select/"
+  ]
+}
+----------
+[permission_mysql_8_0_01284]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#36
+sql:
+DEALLOCATE PREPARE ps_select;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:19~1:28) /test/1/ps_select/"
+  ]
+}
+----------
+[permission_mysql_8_0_01286]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#38
+sql:
+PREPARE ps_update FROM @ps_sql;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_update/"
+  ]
+}
+----------
+[permission_mysql_8_0_01288]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#40
+sql:
+EXECUTE ps_update USING @ps_v, @ps_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_update/"
+  ]
+}
+----------
+[permission_mysql_8_0_01289]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#41
+sql:
+DROP PREPARE ps_update;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:13~1:22) /test/1/ps_update/"
+  ]
+}
+----------
+[permission_mysql_8_0_01290]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#42
+sql:
+PREPARE ps_insert FROM 'INSERT INTO split84.ps_t(id, v, c) VALUES (?, ?, ?)';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_insert/"
+  ]
+}
+----------
+[permission_mysql_8_0_01292]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#44
+sql:
+EXECUTE ps_insert USING @ps_id, @ps_v, @ps_c;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_insert/"
+  ]
+}
+----------
+[permission_mysql_8_0_01293]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#45
+sql:
+DEALLOCATE PREPARE ps_insert;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:19~1:28) /test/1/ps_insert/"
+  ]
+}
+----------
+[permission_mysql_8_0_01294]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#46
+sql:
+PREPARE ps_delete FROM 'DELETE FROM split84.ps_t WHERE id = ?';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_delete/"
+  ]
+}
+----------
+[permission_mysql_8_0_01296]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#48
+sql:
+EXECUTE ps_delete USING @ps_id;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps_delete/"
+  ]
+}
+----------
+[permission_mysql_8_0_01297]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#49
+sql:
+DEALLOCATE PREPARE ps_delete;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:19~1:28) /test/1/ps_delete/"
+  ]
+}
+----------
+[permission_mysql_8_0_01299]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#51
+sql:
+PREPARE p_bt FROM @`quoted sql`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:12) /test/1/p_bt/"
+  ]
+}
+----------
+[permission_mysql_8_0_01300]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#52
+sql:
+PREPARE p_dq FROM @"quoted sql";
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:12) /test/1/p_dq/"
+  ]
+}
+----------
+[permission_mysql_8_0_01301]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#53
+sql:
+PREPARE split_dml_s1 FROM 'INSERT INTO split_dml_p1 VALUES (@split_dml_a),(?)';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:20) /test/1/split_dml_s1/"
+  ]
+}
+----------
+[permission_mysql_8_0_01302]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#54
+sql:
+PREPARE split_dml_s2 FROM 'INSERT INTO split_dml_p2 SELECT 100 LIMIT ?';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:20) /test/1/split_dml_s2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01303]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#56
+sql:
+PREPARE `ps name` FROM 'SELECT 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps name/"
+  ]
+}
+----------
+[permission_mysql_8_0_01304]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#57
+sql:
+EXECUTE `ps name`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:17) /test/1/ps name/"
+  ]
+}
+----------
+[permission_mysql_8_0_01305]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#58
+sql:
+DEALLOCATE PREPARE `ps name`;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:19~1:28) /test/1/ps name/"
+  ]
+}
+----------
+[permission_mysql_8_0_01306]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#59
+sql:
+PREPARE p2 FROM @'sql text';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:10) /test/1/p2/"
+  ]
+}
+----------
+[permission_mysql_8_0_01307]
+source: split/mysql/5.6/dml_mysql_execution_0.txt#60
+sql:
+EXECUTE p3 USING @'arg name';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:10) /test/1/p3/"
+  ]
+}
+----------
+[permission_mysql_8_0_01601]
+source: split/mysql/5.6/dml_mysql_query_0.txt#62
+sql:
+PREPARE stmt_set_var FROM 'SELECT /*+ SET_VAR(big_tables=on) */ 1';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "UNSAFE": [
+    "PrepareStatement(1:8~1:20) /test/1/stmt_set_var/"
   ]
 }
