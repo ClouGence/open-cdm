@@ -200,9 +200,7 @@ public class PluginLoadHelper {
         // load Plugins
         try {
             List<BaseMeta> result = new ArrayList<>();
-            Set<String> dsPluginClasses = new CgResourceScanner(pluginLoader).getClassNamesSet(//
-                    new String[] { "com/clougence/clouddm/" },//
-                    c -> testPlugin(c.getClassInfo()));
+            Set<String> dsPluginClasses = scanPluginClasses(pluginLoader);
 
             List<String> sortedPluginClassNames = new ArrayList<>(dsPluginClasses);
             Collections.sort(sortedPluginClassNames);
@@ -215,6 +213,12 @@ public class PluginLoadHelper {
             log.error("scan plugins from '{}' failed, error: {}", physicalPlugin, e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+
+    static Set<String> scanPluginClasses(ResourceLoader pluginLoader) throws IOException {
+        return new CgResourceScanner(pluginLoader).getClassNamesSet(//
+                new String[] { "com/clougence/clouddm/", "com/clougence/sql/" },//
+                c -> testPlugin(c.getClassInfo()));
     }
 
     private static boolean testPlugin(ClassInfo classInfo) {
