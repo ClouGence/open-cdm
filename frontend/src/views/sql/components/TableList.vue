@@ -2,34 +2,31 @@
   <div class="table-list-container">
     <div class="table-list-resize" />
     <div class="table-list-content">
-      <div class="object-type-tabs-shell">
-        <AppPageTabs
-          ref="objectTypeTabs"
-          class="object-type-tabs"
-          :model-value="currentTab.leafType"
-          :tabs="objectTypeTabs"
-          @change="handleChangeTab"
-        >
-          <template #label="{ tab }">
-            <span class="object-type-tabs__label">
-              <cc-svg-icon :size="16" :name="tab.name" />
-              <span>{{ tab.label }}</span>
-            </span>
-          </template>
-        </AppPageTabs>
-        <button
-          v-if="objectTypeTabs.length > 1"
-          type="button"
-          class="object-type-tabs__next"
-          :aria-label="$t('geng-duo')"
-          :title="$t('geng-duo')"
-          @click="handleScrollObjectTabs"
-        >
-          <Icon type="ios-arrow-forward" />
-        </button>
-      </div>
       <div class="search-header">
         <div class="search-border">
+          <a-dropdown v-if="objectTypeTabs.length > 1" trigger="click" placement="bottomLeft" overlayClassName="object-type-dropdown">
+            <button type="button" class="object-type-trigger" :aria-label="currentObjectTypeLabel" :title="currentObjectTypeLabel">
+              <cc-svg-icon :size="16" :name="currentTab.leafType" :cursor="false" />
+            </button>
+            <template #overlay>
+              <a-menu :selectedKeys="[currentTab.leafType]">
+                <a-menu-item v-for="tab in objectTypeTabs" :key="tab.name" @click="handleChangeTab(tab.name)">
+                  <template #icon>
+                    <cc-svg-icon :size="16" :name="tab.name" :cursor="false" />
+                  </template>
+                  {{ tab.label }}
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+          <span
+            v-else-if="objectTypeTabs.length === 1"
+            class="object-type-trigger object-type-trigger--static"
+            :aria-label="currentObjectTypeLabel"
+            :title="currentObjectTypeLabel"
+          >
+            <cc-svg-icon :size="16" :name="currentTab.leafType" :cursor="false" />
+          </span>
           <a-input
             size="small"
             allow-clear
@@ -1002,7 +999,6 @@ import { clearAllPending } from '@/services/http/cancelRequest';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import CreateTableItem from '@/components/modal/CreateTableItem';
 import CCReadOnlyTable from '@/components/widgets/CCReadOnlyTable';
-import AppPageTabs from '@/components/layout/AppPageTabs';
 import * as monaco from 'monaco-editor';
 import { Modal } from 'ant-design-vue';
 import i18n from '@/i18n';
@@ -1186,7 +1182,6 @@ export default {
   name: 'TableList',
   mixins: [copyMixin, datasourceMixin, browseMixin, utilMixin],
   components: {
-    AppPageTabs,
     QuestionCircleOutlined,
     SearchOutlined,
     CCReadOnlyTable,
@@ -1463,6 +1458,10 @@ export default {
         name: leaf.type,
         label: leaf.i18n
       }));
+    },
+    currentObjectTypeLabel() {
+      const current = this.objectTypeTabs.find((tab) => tab.name === this.currentTab.leafType);
+      return current ? current.label : '';
     },
     objectSearchPlaceholder() {
       const placeholderKeyMap = {
@@ -2515,20 +2514,6 @@ export default {
       this.ensureObjectPagination();
       const refreshCache = true;
       this.listLeaf(refreshCache);
-    },
-    handleScrollObjectTabs() {
-      const tabComponent = this.$refs.objectTypeTabs;
-      const tabList = tabComponent && (tabComponent.$el || tabComponent);
-      if (!tabList) {
-        return;
-      }
-
-      const maxScrollLeft = Math.max(0, tabList.scrollWidth - tabList.clientWidth);
-      const isAtEnd = maxScrollLeft - tabList.scrollLeft <= 1;
-      tabList.scrollTo({
-        left: isAtEnd ? 0 : Math.min(maxScrollLeft, tabList.scrollLeft + Math.max(96, tabList.clientWidth * 0.75)),
-        behavior: 'smooth'
-      });
     },
     ensureObjectPagination() {
       if (!this.objectPagination[this.currentObjectPaginationKey]) {
@@ -3891,76 +3876,47 @@ export default {
 };
 </script>
 <style scoped lang="less">
-.object-type-tabs-shell {
-  display: flex;
-  height: 44px;
-  flex: 0 0 44px;
-  align-items: stretch;
-  min-width: 0;
-  box-sizing: border-box;
-  border-bottom: 1px solid var(--border-primary);
-  background: var(--bg-secondary);
-}
+.object-type-trigger {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color 0.2s ease;
 
-.object-type-tabs {
-  flex: 1 1 auto;
-  gap: 0;
-  min-width: 0;
-  width: auto;
-
-  :deep(.app-page-tabs__tab) {
-    min-height: 44px;
-    padding: 0 8px;
-    font-size: 14px;
+  &:hover,
+  &:focus-visible {
+    color: var(--primary-color);
   }
 
-  :deep(.app-page-tabs__tab::after) {
-    right: 8px;
-    left: 8px;
+  &:focus-visible {
+    outline: 1px solid var(--primary-color);
+    outline-offset: 1px;
   }
 
-  &__label {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-  }
-
-  &__next {
-    display: inline-flex;
-    width: 32px;
-    flex: 0 0 32px;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease;
+  &--static {
+    cursor: default;
 
     &:hover,
     &:focus-visible {
-      background: var(--bg-tertiary);
       color: var(--text-primary);
-    }
-
-    &:focus-visible {
-      outline: 1px solid var(--primary-color);
-      outline-offset: -2px;
     }
   }
 }
 
 .search-header {
-  height: 52px;
+  height: 44px;
   display: flex;
-  flex: 0 0 52px;
+  flex: 0 0 44px;
   align-items: center;
   box-sizing: border-box;
-  padding: 8px;
+  padding: 6px 0px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-primary);
 
@@ -3968,16 +3924,16 @@ export default {
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     margin: 0;
     border: none;
     border-radius: 0;
     background: transparent;
 
     :deep(.ant-input-affix-wrapper) {
-      height: 36px;
+      height: 32px;
       flex: 1;
-      padding: 0 10px;
+      padding: 0 8px;
       border-color: var(--border-primary);
       border-radius: 6px;
       background: var(--bg-primary);
@@ -3985,9 +3941,9 @@ export default {
     }
 
     :deep(.ant-input-prefix) {
-      margin-right: 8px;
+      margin-right: 4px;
       color: var(--text-tertiary);
-      font-size: 16px;
+      font-size: 14px;
     }
 
     :deep(.ant-input) {
@@ -4006,9 +3962,9 @@ export default {
 
 .object-refresh-button {
   display: inline-flex;
-  width: 36px;
-  height: 36px;
-  flex: 0 0 36px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -4502,5 +4458,36 @@ export default {
 }
 
 [dark-theme='dark'] {
+}
+</style>
+
+<style lang="less">
+:global(.object-type-dropdown) {
+  min-width: 148px !important;
+}
+
+:global(.object-type-dropdown .ant-dropdown-menu) {
+  min-width: 148px;
+}
+
+:global(.object-type-dropdown .ant-dropdown-menu-item) {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+
+:global(.object-type-dropdown .ant-dropdown-menu-item-icon) {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  margin-inline-end: 8px;
+}
+
+:global(.object-type-dropdown .ant-dropdown-menu-title-content) {
+  flex: 1 1 auto;
+  white-space: nowrap;
 }
 </style>

@@ -20,7 +20,22 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      overflow: visible;
+      flex-shrink: 0;
       border-right: 1px solid var(--border-primary);
+
+      &.data-source-container--collapsed {
+        z-index: 2;
+        border-right-color: transparent;
+      }
+
+      &.data-source-container--animating {
+        transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      &.data-source-container--resizing {
+        transition: none !important;
+      }
 
       .data-source-filter {
         width: 100%;
@@ -101,12 +116,6 @@
         .anticon {
           color: #ffffff;
         }
-      }
-    }
-
-    .data-source-container--collapsed + .query-container {
-      .object-list-pagination {
-        padding-left: 48px;
       }
     }
 

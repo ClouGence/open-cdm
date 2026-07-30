@@ -1,6 +1,6 @@
 <script lang="jsx">
 import appLogger from '@/utils/logger';
-import { DoubleLeftOutlined, DoubleRightOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
 import VTree from '@wsfe/vue-tree';
@@ -21,8 +21,6 @@ export default {
   mixins: [copyMixin, datasourceMixin, browseMixin, utilMixin],
   components: {
     AddDataSource,
-    DoubleLeftOutlined,
-    DoubleRightOutlined,
     SearchOutlined,
     VTree
   },
@@ -120,6 +118,7 @@ export default {
       hide: storedHide,
       dataSourceWidth: 0,
       preDataSourceWidth: 250,
+      sidebarAnimating: false,
       searchKey: '',
       showTicketModal: false,
       rawSqlToSubmit: '',
@@ -886,15 +885,34 @@ export default {
       this.handleSetSelected(key);
     },
     handleSwitchHide() {
+      if (this.sidebarAnimating) {
+        return;
+      }
+
+      this.sidebarAnimating = true;
+
       if (this.hide) {
-        this.dataSourceWidth = 250;
         this.hide = false;
         this.saveHideState(false);
-      } else {
-        this.dataSourceWidth = 0;
-        this.hide = true;
-        this.saveHideState(true);
+        this.$nextTick(() => {
+          this.dataSourceWidth = this.preDataSourceWidth || 250;
+          window.setTimeout(() => {
+            this.sidebarAnimating = false;
+          }, 260);
+        });
+        return;
       }
+
+      if (this.dataSourceWidth > 0) {
+        this.preDataSourceWidth = this.dataSourceWidth;
+      }
+
+      this.dataSourceWidth = 0;
+      this.saveHideState(true);
+      window.setTimeout(() => {
+        this.hide = true;
+        this.sidebarAnimating = false;
+      }, 260);
     },
     handleShowAddDsModal() {
       this.showAddDsModal = true;
@@ -1213,9 +1231,17 @@ export default {
 </script>
 
 <template>
-  <div class="data-source-container" :class="{ 'data-source-container--collapsed': hide }" :style="`width: ${dataSourceWidth}px`">
-    <div class="tree-resize" />
-    <div class="data-source-filter" v-if="!hide">
+  <div
+    class="data-source-container"
+    :class="{
+      'data-source-container--collapsed': hide,
+      'data-source-container--animating': sidebarAnimating
+    }"
+    :style="{ width: `${dataSourceWidth}px` }"
+  >
+    <div class="tree-resize" v-show="!hide" />
+    <div v-show="!hide" class="data-source-panel-body">
+      <div class="data-source-filter">
       <!--      <Icon type="md-add" style="margin-right: 5px;" @click="handleShowAddDsModal" v-if="isDesktop"/>-->
       <a-input
         v-model:value="searchKey"
@@ -1256,6 +1282,7 @@ export default {
         @click="handleNodeClick"
       ></v-tree>
     </div>
+    </div>
     <button
       type="button"
       class="data-source-sidebar-toggle"
@@ -1264,8 +1291,7 @@ export default {
       :title="$t(hide ? 'sql-expand-datasource-sidebar' : 'sql-collapse-datasource-sidebar')"
       @click="handleSwitchHide"
     >
-      <DoubleRightOutlined v-if="hide" class="data-source-sidebar-toggle-icon" />
-      <DoubleLeftOutlined v-else class="data-source-sidebar-toggle-icon" />
+      <span class="data-source-sidebar-toggle__icon" aria-hidden="true" />
     </button>
     <CCModal :title="menuModal.title" v-model="menuModal.show" :mask-closable="false" :closable="false" :keyboard="false">
       <div style="margin-bottom: 5px; font-weight: bold">
@@ -1404,7 +1430,31 @@ export default {
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: visible;
+  flex-shrink: 0;
   border-right: 1px solid var(--border-primary);
+
+  &.data-source-container--collapsed {
+    z-index: 2;
+    border-right-color: transparent;
+  }
+
+  &.data-source-container--animating {
+    transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &.data-source-container--resizing {
+    transition: none !important;
+  }
+
+  .data-source-panel-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    opacity: 1;
+  }
 
   .tree-resize {
     height: 100%;
@@ -1429,44 +1479,62 @@ export default {
   }
 
   .data-source-sidebar-toggle {
-    position: relative;
-    display: flex;
-    width: 100%;
-    height: 40px;
-    flex: 0 0 40px;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 0 16px;
-    border: 1px solid transparent;
-    border-top-color: var(--border-primary);
-    background: var(--bg-secondary);
-    cursor: pointer;
-  }
-
-  .data-source-sidebar-toggle-icon {
     position: absolute;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--text-secondary);
-    font-size: 14px;
-    line-height: 1;
-  }
-
-  .data-source-sidebar-toggle--collapsed {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    z-index: 9;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: 0;
-    border-top: 1px solid var(--border-primary);
-    border-right: 1px solid var(--border-primary);
-    border-radius: 0;
-    background: var(--bg-secondary);
+    right: 0;
+    z-index: 20;
+    display: flex;
+    width: 24px;
+    height: 24px;
+    align-items: center;
     justify-content: center;
+    padding: 0;
+    border: 1px solid var(--border-primary);
+    border-radius: 50%;
+    background: var(--bg-primary);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(24, 29, 38, 0.06);
+    transform: translate(50%, -50%);
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--text-primary);
+      border-color: var(--text-tertiary);
+      background: var(--bg-secondary);
+      box-shadow: 0 2px 6px rgba(24, 29, 38, 0.1);
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--primary-color);
+      outline-offset: 1px;
+    }
+
+    &__icon {
+      width: 7px;
+      height: 7px;
+      border-left: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      margin-left: 2px;
+      transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    &--collapsed {
+      right: auto;
+      left: 0;
+      transform: translateY(-50%);
+
+      .data-source-sidebar-toggle__icon {
+        transform: rotate(-135deg);
+        margin-left: -2px;
+      }
+    }
   }
 }
 
