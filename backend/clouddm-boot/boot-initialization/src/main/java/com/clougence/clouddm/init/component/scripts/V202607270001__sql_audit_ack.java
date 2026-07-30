@@ -37,7 +37,7 @@ public class V202607270001__sql_audit_ack extends AbstractUpgradeJavaMigration {
                 """, """
                     alter table dm_exec_sql_audit
                         modify operate_time datetime(3) null,
-                        modify uid varchar(36) null,
+                        modify uid varchar(36) character set utf8mb4 collate utf8mb4_general_ci null,
                         modify user_name varchar(255) null,
                         modify ds_desc varchar(1024) null,
                         modify data_source_type varchar(128) null,
