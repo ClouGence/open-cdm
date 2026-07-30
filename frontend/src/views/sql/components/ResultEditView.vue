@@ -1,6 +1,6 @@
 <script>
 import { h } from 'vue';
-import { PlusOutlined, MinusOutlined } from '@ant-design/icons-vue';
+import { PlusOutlined, MinusOutlined, UndoOutlined } from '@ant-design/icons-vue';
 import { Modal } from 'ant-design-vue';
 import copyMixin from '@/mixins/copyMixin';
 import exportMixin from '@/mixins/exportMixin';
@@ -15,6 +15,8 @@ const BG_COLOR = {
   UPDATE: 'yellow',
   CUSTOM: '#fff'
 };
+
+const MAX_UNDO_STACK = 50;
 
 const CELL_RIGHT_MENU = {
   COPY_COLUMN_NAME: {
@@ -97,9 +99,17 @@ export default {
     targetType: {
       type: String,
       default: 'TABLE'
+    },
+    pageSize: {
+      type: Number,
+      default: 50
+    },
+    pageSizeOptions: {
+      type: Array,
+      default: () => [30, 50, 100, 300]
     }
   },
-  emits: ['saved', 'cancel'],
+  emits: ['saved', 'cancel', 'page-size-change'],
   data() {
     return {
       rawTableData: { resultSet: [], resultSetMore: [], columnList: [] },
@@ -122,6 +132,11 @@ export default {
       showSqlModal: false,
       showExecuteInfoModal: false,
       loading: false,
+      undoStack: [],
+      isApplyingUndo: false,
+      pendingUndoCells: [],
+      undoBatchFlushTimer: null,
+      suppressCellUndoCount: 0,
 
       options: {
         container: 'luckysheet-result-edit',
@@ -186,9 +201,20 @@ export default {
             }
           },
           cellUpdated: (r, c, oldValue, newValue) => {
+            if (this.isApplyingUndo) {
+              return;
+            }
             if (newValue && newValue.custom && !newValue.custom.new && !newValue.custom.delete) {
               if (newValue.custom.update) {
                 this.updateCellList[r][newValue.custom.column.column] = true;
+                if (oldValue) {
+                  this.pushUndoCell({
+                    row: r,
+                    col: c,
+                    columnKey: newValue.custom.column.column,
+                    prev: this.snapshotCell(oldValue)
+                  });
+                }
               } else {
                 delete this.updateCellList[r][newValue.custom.column.column];
               }
@@ -296,6 +322,9 @@ export default {
         }
       }
       return false;
+    },
+    canUndo() {
+      return this.undoStack.length > 0;
     }
   },
   mounted() {
@@ -315,6 +344,7 @@ export default {
   beforeUnmount() {
     this.showSqlModal = false;
     this.showExecuteInfoModal = false;
+    clearTimeout(this.undoBatchFlushTimer);
     this.destroyLuckysheet();
   },
   methods: {
@@ -416,6 +446,12 @@ export default {
     },
     initEditData() {
       this.loading = true;
+      this.undoStack = [];
+      this.isApplyingUndo = false;
+      this.pendingUndoCells = [];
+      clearTimeout(this.undoBatchFlushTimer);
+      this.undoBatchFlushTimer = null;
+      this.suppressCellUndoCount = 0;
       const resultSet = deepClone(this.resolveResultSet()).filter((row) => row);
       const resultSetMore = resultSet.map(() => ({}));
 
@@ -556,6 +592,240 @@ export default {
       };
     },
 
+    snapshotCell(cell) {
+      if (!cell) {
+        return null;
+      }
+      return {
+        v: cell.v,
+        m: cell.m,
+        bg: cell.bg,
+        custom: cell.custom ? deepClone(cell.custom) : undefined
+      };
+    },
+
+    pushUndo(entry) {
+      if (this.isApplyingUndo) {
+        return;
+      }
+      this.flushPendingUndoCells();
+      this.undoStack.push(entry);
+      if (this.undoStack.length > MAX_UNDO_STACK) {
+        this.undoStack.shift();
+      }
+    },
+
+    pushUndoCell(entry) {
+      if (this.isApplyingUndo) {
+        return;
+      }
+      if (this.suppressCellUndoCount > 0) {
+        this.suppressCellUndoCount -= 1;
+        return;
+      }
+      this.pendingUndoCells.push(entry);
+      clearTimeout(this.undoBatchFlushTimer);
+      this.undoBatchFlushTimer = setTimeout(() => {
+        this.undoBatchFlushTimer = null;
+        this.flushPendingUndoCells();
+      }, 0);
+    },
+
+    flushPendingUndoCells() {
+      clearTimeout(this.undoBatchFlushTimer);
+      this.undoBatchFlushTimer = null;
+      if (!this.pendingUndoCells.length) {
+        return;
+      }
+      const cells = this.pendingUndoCells;
+      this.pendingUndoCells = [];
+      if (cells.length === 1) {
+        this.undoStack.push({ type: 'cell', ...cells[0] });
+      } else {
+        this.undoStack.push({ type: 'cells', cells });
+      }
+      if (this.undoStack.length > MAX_UNDO_STACK) {
+        this.undoStack.shift();
+      }
+    },
+
+    collectEditableCellsFromRanges(rangeList) {
+      const cells = [];
+      rangeList.forEach((range) => {
+        for (let rowIndex = range.row[0]; rowIndex <= range.row[1]; rowIndex++) {
+          for (let columnIndex = range.column[0]; columnIndex <= range.column[1]; columnIndex++) {
+            const cell = window.luckysheet.getSheetData()[rowIndex][columnIndex];
+            if (!cell || !cell.custom || cell.custom.new || cell.custom.delete) {
+              continue;
+            }
+            cells.push({ rowIndex, columnIndex, cell });
+          }
+        }
+      });
+      return cells;
+    },
+
+    pushUndoForEditableCells(editableCells) {
+      const undoCells = editableCells.map(({ rowIndex, columnIndex, cell }) => ({
+        row: rowIndex,
+        col: columnIndex,
+        columnKey: cell.custom.column.column,
+        prev: this.snapshotCell(cell)
+      }));
+      if (!undoCells.length) {
+        return 0;
+      }
+      if (undoCells.length === 1) {
+        this.pushUndo({ type: 'cell', ...undoCells[0] });
+      } else {
+        this.pushUndo({ type: 'cells', cells: undoCells });
+      }
+      return undoCells.length;
+    },
+
+    applyBulkCellEdit(rangeList, getCellPatch) {
+      const editableCells = this.collectEditableCellsFromRanges(rangeList);
+      const undoCount = this.pushUndoForEditableCells(editableCells);
+      if (!undoCount) {
+        return;
+      }
+      this.suppressCellUndoCount += undoCount;
+      editableCells.forEach(({ rowIndex, columnIndex, cell }, index) => {
+        const isLast = index === editableCells.length - 1;
+        const patch = getCellPatch(cell);
+        window.luckysheet.setCellValue(rowIndex, columnIndex, patch, { isRefresh: isLast });
+      });
+      this.$nextTick(() => {
+        this.suppressCellUndoCount = 0;
+      });
+    },
+
+    syncEditTrackingFromSheet() {
+      const sheetData = window.luckysheet.getSheetData();
+      if (!sheetData) {
+        return;
+      }
+
+      const addRows = [];
+      const deleteRows = [];
+      const updateCellList = [];
+
+      for (let rowIndex = 0; rowIndex < sheetData.length; rowIndex++) {
+        updateCellList[rowIndex] = {};
+        const row = sheetData[rowIndex];
+        let arr = [];
+        if (Array.isArray(row)) {
+          arr = row;
+        } else if (row) {
+          arr = Object.values(row);
+        }
+        arr.forEach((cell) => {
+          if (!cell || !cell.custom) {
+            return;
+          }
+          if (cell.custom.new && !cell.custom.delete) {
+            if (!addRows.includes(rowIndex)) {
+              addRows.push(rowIndex);
+            }
+          }
+          if (cell.custom.delete) {
+            if (!deleteRows.includes(rowIndex)) {
+              deleteRows.push(rowIndex);
+            }
+          }
+          if (cell.custom.update && cell.custom.column) {
+            updateCellList[rowIndex][cell.custom.column.column] = true;
+          }
+        });
+      }
+
+      this.addRows = addRows;
+      this.deleteRows = deleteRows;
+      this.updateCellList = updateCellList;
+    },
+
+    undoLast() {
+      const op = this.undoStack.pop();
+      if (!op) {
+        return;
+      }
+
+      this.isApplyingUndo = true;
+      try {
+        window.luckysheet.exitEditMode();
+        if (op.type === 'cell') {
+          this.undoCell(op);
+        } else if (op.type === 'cells') {
+          this.undoCells(op);
+        } else if (op.type === 'addRow') {
+          this.undoAddRow(op);
+        } else if (op.type === 'deleteRow') {
+          this.undoDeleteRow(op);
+        }
+      } finally {
+        this.$nextTick(() => {
+          this.syncEditTrackingFromSheet();
+          this.isApplyingUndo = false;
+        });
+      }
+    },
+
+    undoCell(op) {
+      this.undoCellValue(op, true);
+    },
+
+    undoCells(op) {
+      const cells = op.cells || [];
+      cells.forEach((cellOp, index) => {
+        const isLast = index === cells.length - 1;
+        this.undoCellValue(cellOp, isLast);
+      });
+    },
+
+    undoCellValue(op, isRefresh) {
+      const { row, col, prev, columnKey } = op;
+      if (!prev) {
+        return;
+      }
+      window.luckysheet.setCellValue(
+        row,
+        col,
+        {
+          v: prev.v,
+          m: prev.m,
+          bg: prev.bg,
+          custom: prev.custom ? deepClone(prev.custom) : undefined
+        },
+        { isRefresh }
+      );
+      if (prev.custom && prev.custom.update) {
+        this.updateCellList[row][columnKey] = true;
+      } else {
+        delete this.updateCellList[row][columnKey];
+      }
+    },
+
+    undoAddRow(op) {
+      const { rowIndex } = op;
+      this.addRows = this.addRows.filter((item) => item !== rowIndex);
+      if (typeof window.luckysheet.deleteRow === 'function') {
+        window.luckysheet.deleteRow(rowIndex, rowIndex);
+      } else {
+        this.handleDeleteRow([{ row: [rowIndex, rowIndex] }]);
+      }
+    },
+
+    undoDeleteRow(op) {
+      const ranges = (op.rows || []).map(({ rowIndex }) => ({ row: [rowIndex, rowIndex] }));
+      if (ranges.length) {
+        this.handleRollbackDeleteRow(ranges);
+      }
+    },
+
+    handleUndoLast() {
+      this.undoLast();
+    },
+
     handleEmptyUpdate() {
       this.addRows = [];
       this.deleteRows = [];
@@ -574,6 +844,7 @@ export default {
         const rowIndex = currentSheet.data.length;
         this.addRows.push(rowIndex);
         window.luckysheet.insertRow(rowIndex, { number: 1 });
+        this.pushUndo({ type: 'addRow', rowIndex });
 
         this.columnWithoutHidden.forEach((column, columnIndex) => {
           const isRefresh = columnIndex === this.columnWithoutHidden.length - 1;
@@ -632,6 +903,7 @@ export default {
       sheet.row = 1;
       sheet.config.columnlen = this.columnlen;
       this.addRows.push(0);
+      this.pushUndo({ type: 'addRow', rowIndex: 0 });
       this.loading = true;
       this.$nextTick(() => {
         requestAnimationFrame(() => {
@@ -655,6 +927,18 @@ export default {
 
     handleDeleteRow(list = []) {
       const rangeList = list.length ? list : window.luckysheet.getRange();
+      const undoRows = [];
+      rangeList.forEach((range) => {
+        for (let rowIndex = range.row[0]; rowIndex <= range.row[1]; rowIndex++) {
+          undoRows.push({
+            rowIndex,
+            wasNew: this.addRows.includes(rowIndex)
+          });
+        }
+      });
+      if (undoRows.length) {
+        this.pushUndo({ type: 'deleteRow', rows: undoRows });
+      }
       rangeList.forEach((range) => {
         for (let rowIndex = range.row[0]; rowIndex <= range.row[1]; rowIndex++) {
           const isNew = this.addRows.includes(rowIndex);
@@ -748,35 +1032,25 @@ export default {
           this.copyText(this.columnWithoutHidden[params.columnIndex]?.column);
           break;
         case CELL_RIGHT_MENU.SET_NULL.id:
-          rangeList.forEach((range) => {
-            const { row, column } = range;
-            for (let rowIndex = row[0]; rowIndex <= row[1]; rowIndex++) {
-              for (let columnIndex = column[0]; columnIndex <= column[1]; columnIndex++) {
-                const isRefresh = rowIndex === row[1] && columnIndex === column[1];
-                const cell = window.luckysheet.getSheetData()[rowIndex][columnIndex];
-                let bg = cell && cell.bg;
-                if (cell && cell.custom && !cell.custom.new && !cell.custom.delete) {
-                  bg = Object.is(cell.custom.v, null) ? '#fff' : 'yellow';
-                }
-                window.luckysheet.setCellValue(rowIndex, columnIndex, { v: null, m: null, bg }, { isRefresh });
-              }
+          this.applyBulkCellEdit(rangeList, (cell) => {
+            let bg = cell.bg;
+            if (Object.is(cell.custom.v, null)) {
+              bg = '#fff';
+            } else {
+              bg = 'yellow';
             }
+            return { v: null, m: null, bg };
           });
           break;
         case CELL_RIGHT_MENU.SET_EMPTY_STRING.id:
-          rangeList.forEach((range) => {
-            const { row, column } = range;
-            for (let rowIndex = row[0]; rowIndex <= row[1]; rowIndex++) {
-              for (let columnIndex = column[0]; columnIndex <= column[1]; columnIndex++) {
-                const isRefresh = rowIndex === row[1] && columnIndex === column[1];
-                const cell = window.luckysheet.getSheetData()[rowIndex][columnIndex];
-                let bg = cell && cell.bg;
-                if (cell && cell.custom && !cell.custom.new && !cell.custom.delete) {
-                  bg = Object.is(cell.custom.v, '') ? '#fff' : 'yellow';
-                }
-                window.luckysheet.setCellValue(rowIndex, columnIndex, { v: '', m: '', bg }, { isRefresh });
-              }
+          this.applyBulkCellEdit(rangeList, (cell) => {
+            let bg = cell.bg;
+            if (Object.is(cell.custom.v, '')) {
+              bg = '#fff';
+            } else {
+              bg = 'yellow';
             }
+            return { v: '', m: '', bg };
           });
           break;
         case CELL_RIGHT_MENU.ROLLBACK_DATA.id:
@@ -1283,6 +1557,24 @@ export default {
       } else {
         doCancel();
       }
+    },
+
+    handlePageSizeChange(size) {
+      const nextSize = Number(size);
+      if (!nextSize || nextSize === this.pageSize) {
+        return;
+      }
+      if (this.isEditing) {
+        Modal.confirm({
+          title: this.$t('ti-shi'),
+          content: this.$t('jie-guo-bian-ji-ye-mian-da-xiao-bian-geng-ti-shi'),
+          onOk: () => {
+            this.$emit('page-size-change', nextSize);
+          }
+        });
+        return;
+      }
+      this.$emit('page-size-change', nextSize);
     }
   }
 };
@@ -1304,12 +1596,28 @@ export default {
           </template>
           {{ $t('shan-chu-hang') }}
         </a-button>
-        <a-button type="primary" size="small" @click="handleSubmit" :disabled="executeSQLLoading">
-          {{ $t('ti-jiao') }}
+        <a-button class="op" size="small" @click="handleUndoLast" :disabled="executeSQLLoading || !canUndo">
+          <template #icon>
+            <UndoOutlined />
+          </template>
+          {{ $t('che-xiao') }}
         </a-button>
-        <a-button size="small" @click="handleCancel">
-          {{ $t('qu-xiao') }}
-        </a-button>
+        <div class="toolbar-page-size">
+          <span class="toolbar-page-size-label">{{ $t('jie-guo-bian-ji-me-ye-tiao-shu') }}</span>
+          <a-select :value="pageSize" size="small" class="toolbar-page-size-select" :disabled="executeSQLLoading" @change="handlePageSizeChange">
+            <a-select-option v-for="size in pageSizeOptions" :key="size" :value="size">
+              {{ size }}
+            </a-select-option>
+          </a-select>
+        </div>
+        <div class="toolbar-actions">
+          <a-button type="primary" size="small" @click="handleSubmit" :disabled="executeSQLLoading">
+            {{ $t('ti-jiao') }}
+          </a-button>
+          <a-button size="small" @click="handleCancel">
+            {{ $t('qu-xiao') }}
+          </a-button>
+        </div>
       </div>
     </div>
     <div class="table-container">
@@ -1388,11 +1696,38 @@ export default {
       display: flex;
       align-items: center;
       gap: 4px;
+      width: 100%;
 
       .op {
         display: flex;
         align-items: center;
         gap: 2px;
+      }
+    }
+
+    .toolbar-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+    }
+
+    .toolbar-page-size {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 8px;
+      padding-left: 12px;
+      border-left: 1px solid #e8eaed;
+
+      .toolbar-page-size-label {
+        font-size: 12px;
+        color: #41454d;
+        white-space: nowrap;
+      }
+
+      .toolbar-page-size-select {
+        width: 72px;
       }
     }
   }

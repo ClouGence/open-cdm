@@ -96,26 +96,23 @@
         class="result-content-wrapper"
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
-        <div class="tip-footer">
+        <div class="tip-footer" v-if="!editMode">
           <div class="tip-footer-main">
             <div v-if="selectedTab.resultId && selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
               <div v-if="selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
                 <div class="loading-spinner"></div>
               </div>
-              <a-tooltip :title="editMode && hasResultPagination ? $t('jie-guo-bian-ji-jin-zhi-fen-ye-ti-shi') : ''" placement="top">
-                <div class="tip-footer-page-control" :class="{ 'is-disabled': editMode && hasResultPagination }">
-                  <Page
-                    :model-value="selectedTab.page"
-                    :page-size="resultPageSize"
-                    :total="resultTotalRows"
-                    placement="top"
-                    show-total
-                    size="small"
-                    @on-change="handlePageChange"
-                  ></Page>
-                </div>
-              </a-tooltip>
-              <span v-if="editMode" class="tip-footer-edit-page-hint">{{ $t('jie-guo-bian-ji-dang-qian-ye-ti-shi') }}</span>
+              <div class="tip-footer-page-control">
+                <Page
+                  :model-value="selectedTab.page"
+                  :page-size="resultPageSize"
+                  :total="resultTotalRows"
+                  placement="top"
+                  show-total
+                  size="small"
+                  @on-change="handlePageChange"
+                ></Page>
+              </div>
             </div>
             <div v-else class="stream-info">
               <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
@@ -155,18 +152,16 @@
             </a-popover>
           </div>
           <div class="tip-footer-right">
-            <template v-if="!editMode">
-              <a-tooltip v-if="!isEditable" :title="editDisabledReason" placement="top">
-                <div class="tip-footer-edit-btn disabled">
-                  <CustomIcon type="icon-v2-EditingPen" size="16px" />
-                  <span>{{ $t('bian-ji') }}</span>
-                </div>
-              </a-tooltip>
-              <div v-else class="tip-footer-edit-btn" @click="enterEditMode">
-                <CustomIcon type="icon-v2-EditingPen" hoverStyle size="16px" />
+            <a-tooltip v-if="!isEditable" :title="editDisabledReason" placement="top">
+              <div class="tip-footer-edit-btn disabled">
+                <CustomIcon type="icon-v2-EditingPen" size="16px" />
                 <span>{{ $t('bian-ji') }}</span>
               </div>
-            </template>
+            </a-tooltip>
+            <div v-else class="tip-footer-edit-btn" @click="enterEditMode">
+              <CustomIcon type="icon-v2-EditingPen" hoverStyle size="16px" />
+              <span>{{ $t('bian-ji') }}</span>
+            </div>
             <div class="tip-footer-export" v-if="!selectedTab.exportState?.exporting && selectedTab.exportState?.percent !== 100">
               <Poptip
                 v-if="selectedTab.exportState?.errorStatus === 'FAILED' && selectedTab.exportState?.errorMessage"
@@ -237,15 +232,18 @@
         </div>
         <ResultEditView
           v-if="selectedTab.resultId && editMode && editableMeta"
-          :key="selectedTab.resultId"
+          :key="`${selectedTab.resultId}_${editViewKey}`"
           style="flex: 1; min-height: 0"
           :resultData="selectedTab"
           :columnMeta="editableMeta.columnList"
           :levels="editableMeta.levels"
           :targetName="editableMeta.targetName"
           :targetType="editableMeta.targetType"
+          :page-size="resultPageSize"
+          :page-size-options="RESULT_EDIT_PAGE_SIZE_OPTIONS"
           @saved="handleEditSaved"
           @cancel="handleEditCancel"
+          @page-size-change="handleEditPageSizeChange"
         />
       </div>
     </div>
@@ -442,9 +440,12 @@ import ResultEditView from '@/views/sql/components/ResultEditView.vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import XEClipboard from 'xe-clipboard';
 import { cloneDeep as deepClone } from '@/utils/lodash';
+import { chunk } from 'xe-utils';
 
 // Align with backend default onlineMaxRecordCount; only block editing for very large result sets.
 const RESULT_EDIT_MAX_ROWS = 3000;
+const RESULT_EDIT_PAGE_SIZE_OPTIONS = [30, 50, 100, 300];
+const RESULT_EDIT_MAX_PAGE_SIZE = 300;
 
 export default {
   name: 'Result',
@@ -520,7 +521,9 @@ export default {
       // edit mode
       editMode: false,
       editableMeta: null,
-      editShowDataSnapshot: null
+      editShowDataSnapshot: null,
+      editViewKey: 0,
+      RESULT_EDIT_PAGE_SIZE_OPTIONS
     };
   },
   computed: {
@@ -631,14 +634,7 @@ export default {
       return this.browseGenLevelsData(this.tab.node);
     },
     resultPageSize() {
-      const tab = this.selectedTab;
-      if (!tab) {
-        return 50;
-      }
-      if (tab.receiveMode === 'PAGINATED') {
-        return 30;
-      }
-      return tab.size || 50;
+      return this.getTabPageSize(this.selectedTab);
     },
     resultTotalRows() {
       const tab = this.selectedTab;
@@ -649,9 +645,6 @@ export default {
         return tab.fetchCount || tab.total || 0;
       }
       return tab.total || 0;
-    },
-    hasResultPagination() {
-      return this.resultTotalRows > this.resultPageSize;
     }
   },
   watch: {
@@ -801,20 +794,104 @@ export default {
       document.body.addEventListener('mouseup', onMouseUp);
       document.body.style.cursor = 'col-resize';
     },
+    getTabPageSize(tab) {
+      if (!tab) {
+        return 50;
+      }
+      if (tab.size) {
+        return tab.size;
+      }
+      if (tab.receiveMode === 'PAGINATED') {
+        return 30;
+      }
+      return 50;
+    },
+    convertRowSetToShowList(rowSet, columnList) {
+      const list = [];
+      if (!rowSet || !columnList) {
+        return list;
+      }
+      rowSet.forEach((item) => {
+        const currentRow = {};
+        const rowData = item.data || item.row;
+        if (rowData) {
+          for (let i = 0; i < columnList.length; i++) {
+            if (rowData[i]) {
+              currentRow[columnList[i]] = rowData[i].value;
+            }
+          }
+        }
+        list.push(currentRow);
+      });
+      return list;
+    },
+    rechunkPageFullData(tab, pageSize) {
+      this.applyPageFullWindow(tab, pageSize, 0);
+    },
+    applyPageFullWindow(tab, pageSize, anchorOffset) {
+      let fullList = [];
+      if (Array.isArray(tab.dataArr) && tab.dataArr.length) {
+        if (Array.isArray(tab.dataArr[0])) {
+          fullList = tab.dataArr.flat();
+        } else {
+          fullList = [...tab.dataArr];
+        }
+      }
+      if (!fullList.length && tab.rowSet && tab.columnList) {
+        fullList = this.convertRowSetToShowList(tab.rowSet, tab.columnList);
+      }
+      if (!fullList.length && Array.isArray(tab.showData)) {
+        fullList = [...tab.showData];
+      }
+      const safeOffset = Math.max(anchorOffset, 0);
+      tab.dataArr = chunk(fullList, pageSize);
+      tab.dataOffset = safeOffset;
+      tab.page = Math.floor(safeOffset / pageSize) + 1;
+      tab.showData = fullList.slice(safeOffset, safeOffset + pageSize);
+    },
+    async fetchPaginatedPageAtOffset(tab, offsetRow, pageSize) {
+      const safeOffset = Math.max(offsetRow, 0);
+      try {
+        const res = await this.$services.dmQueryFetchResultPage({
+          data: {
+            resultId: tab.resultId,
+            offsetRow: safeOffset,
+            pageSize
+          }
+        });
+
+        if (res.success && res.data && res.data.rowSet) {
+          const { rowSet } = res.data;
+          const list = this.convertRowSetToShowList(rowSet, tab.columnList);
+          tab.dataOffset = safeOffset;
+          tab.page = Math.floor(safeOffset / pageSize) + 1;
+          tab.showData = list;
+          if (!tab.rowSetCache) {
+            tab.rowSetCache = {};
+          }
+          tab.rowSetCache[tab.page] = rowSet;
+        }
+      } catch (error) {
+        appLogger.error('获取分页数据失败:', error);
+        this.$Message.error(this.$t('huo-qu-fen-ye-shu-ju-shi-bai'));
+      }
+    },
     getRowNumber(index) {
       if (!this.selectedTab) return index + 1;
 
       const page = this.selectedTab.page || 1;
       const receiveMode = this.selectedTab.receiveMode || 'PAGE_FULL';
 
-      let pageSize = 50; // Default page size
-      if (receiveMode === 'PAGINATED') {
-        pageSize = 30;
-      } else if (receiveMode === 'STREAM') {
+      if (receiveMode === 'STREAM') {
         // STREAM mode is not paginated; return the index directly.
         return index + 1;
       }
 
+      if (this.editMode && this.selectedTab.dataOffset != null) {
+        return this.selectedTab.dataOffset + index + 1;
+      }
+
+      const pageSize = this.getTabPageSize(this.selectedTab);
       return (page - 1) * pageSize + index + 1;
     },
     onContextmenu(event, tab) {
@@ -1114,14 +1191,11 @@ export default {
 
       // Calculate the actual row number, accounting for pagination.
       let rowNumber = rowIndex;
-      if (this.selectedTab.receiveMode === 'PAGINATED') {
-        const pageSize = 30;
+      if (this.selectedTab.receiveMode === 'PAGINATED' || this.selectedTab.receiveMode === 'PAGE_FULL') {
+        const pageSize = this.getTabPageSize(this.selectedTab);
         rowNumber = (this.selectedTab.page - 1) * pageSize + rowIndex;
       } else if (this.selectedTab.receiveMode === 'STREAM') {
         rowNumber = rowIndex;
-      } else {
-        const pageSize = 50;
-        rowNumber = (this.selectedTab.page - 1) * pageSize + rowIndex;
       }
 
       const cellValue = record[column.dataIndex || column.property] || '';
@@ -1343,6 +1417,8 @@ export default {
       const tab = this.selectedTab;
       const receiveMode = tab.receiveMode || 'PAGE_FULL';
 
+      delete tab.dataOffset;
+
       // STREAM mode does not support pagination changes.
       if (receiveMode === 'STREAM') {
         return;
@@ -1351,7 +1427,7 @@ export default {
       if (receiveMode === 'PAGINATED') {
         // Backend pagination mode
         tab.page = page;
-        const pageSize = 30;
+        const pageSize = this.getTabPageSize(tab);
         const offsetRow = (page - 1) * pageSize;
 
         // Check cache.
@@ -1372,23 +1448,7 @@ export default {
 
           if (res.success && res.data && res.data.rowSet) {
             const { rowSet } = res.data;
-            const { columnList } = tab;
-            const list = [];
-
-            if (rowSet && columnList) {
-              rowSet.forEach((item) => {
-                const currentRow = {};
-                const rowData = item.data || item.row;
-                if (rowData) {
-                  for (let i = 0; i < columnList?.length; i++) {
-                    if (rowData[i]) {
-                      currentRow[columnList[i]] = rowData[i].value;
-                    }
-                  }
-                }
-                list.push(currentRow);
-              });
-            }
+            const list = this.convertRowSetToShowList(rowSet, tab.columnList);
 
             if (!tab.pageCache) {
               tab.pageCache = {};
@@ -1743,6 +1803,9 @@ export default {
       if (!this.editMode) {
         return;
       }
+      if (this.selectedTab) {
+        delete this.selectedTab.dataOffset;
+      }
       this.editMode = false;
       this.editableMeta = null;
     },
@@ -1767,6 +1830,9 @@ export default {
               content: '该表无主键，无法定位数据行'
             });
             return;
+          }
+          if (!tab.size) {
+            tab.size = tab.receiveMode === 'PAGINATED' ? 30 : 50;
           }
           this.editableMeta = {
             resultId: tab.resultId,
@@ -1798,6 +1864,36 @@ export default {
       this.restoreEditShowData();
       this.editShowDataSnapshot = null;
       this.exitEditMode();
+    },
+    async handleEditPageSizeChange(pageSize) {
+      const tab = this.selectedTab;
+      if (!tab || !this.editMode) {
+        return;
+      }
+      const nextSize = Number(pageSize);
+      if (!nextSize || nextSize > RESULT_EDIT_MAX_PAGE_SIZE || nextSize === this.getTabPageSize(tab)) {
+        return;
+      }
+
+      const oldPageSize = this.getTabPageSize(tab);
+      const oldPage = tab.page || 1;
+      let anchorOffset = (oldPage - 1) * oldPageSize;
+      if (tab.dataOffset != null) {
+        anchorOffset = tab.dataOffset;
+      }
+
+      tab.size = nextSize;
+
+      if (tab.receiveMode === 'PAGINATED') {
+        tab.pageCache = {};
+        tab.rowSetCache = {};
+        await this.fetchPaginatedPageAtOffset(tab, anchorOffset, nextSize);
+      } else if (tab.receiveMode === 'PAGE_FULL') {
+        this.applyPageFullWindow(tab, nextSize, anchorOffset);
+      }
+
+      this.editShowDataSnapshot = Array.isArray(tab.showData) ? deepClone(tab.showData) : null;
+      this.editViewKey += 1;
     }
   }
 };
@@ -2096,23 +2192,6 @@ export default {
 .tip-footer-page-control {
   display: inline-flex;
   align-items: center;
-
-  &.is-disabled {
-    cursor: not-allowed;
-
-    :deep(.ivu-page) {
-      opacity: 0.55;
-      pointer-events: none;
-    }
-  }
-}
-
-.tip-footer-edit-page-hint {
-  flex-shrink: 0;
-  font-size: 12px;
-  line-height: 30px;
-  color: #41454d;
-  white-space: nowrap;
 }
 
 .stream-info {
