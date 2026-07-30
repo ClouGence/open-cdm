@@ -1,5 +1,6 @@
 <script lang="jsx">
 import appLogger from '@/utils/logger';
+import { DoubleLeftOutlined, DoubleRightOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
 import VTree from '@wsfe/vue-tree';
@@ -20,6 +21,9 @@ export default {
   mixins: [copyMixin, datasourceMixin, browseMixin, utilMixin],
   components: {
     AddDataSource,
+    DoubleLeftOutlined,
+    DoubleRightOutlined,
+    SearchOutlined,
     VTree
   },
   props: {
@@ -1209,11 +1213,23 @@ export default {
 </script>
 
 <template>
-  <div class="data-source-container" :style="`width: ${dataSourceWidth}px`">
+  <div class="data-source-container" :class="{ 'data-source-container--collapsed': hide }" :style="`width: ${dataSourceWidth}px`">
     <div class="tree-resize" />
     <div class="data-source-filter" v-if="!hide">
       <!--      <Icon type="md-add" style="margin-right: 5px;" @click="handleShowAddDsModal" v-if="isDesktop"/>-->
-      <Input v-model="searchKey" class="filter-input" icon="ios-search" @on-click="handleSearch" @on-enter="handleSearch" size="small" allow-clear />
+      <a-input
+        v-model:value="searchKey"
+        class="filter-input"
+        size="small"
+        allow-clear
+        :placeholder="$t('object-browser-search-datasource-placeholder')"
+        @change="handleSearch"
+        @pressEnter="handleSearch"
+      >
+        <template #prefix>
+          <SearchOutlined />
+        </template>
+      </a-input>
       <cc-svg-icon :size="18" name="focus" @click.native="handleFocus" style="cursor: pointer" :color="`${isDark ? '#fff' : '#000'}`"></cc-svg-icon>
       <cc-svg-icon
         style="margin-left: 6px"
@@ -1223,7 +1239,6 @@ export default {
         :color="`${isDark ? '#fff' : '#000'}`"
       ></cc-svg-icon>
     </div>
-    <cc-iconfont @click.native="handleSwitchHide" :size="14" class="hide-icon" color="#999999" :name="hide ? 'zhankai' : 'shouqi'"></cc-iconfont>
     <div class="datasource-tree" @contextmenu.prevent.stop="onContextmenu">
       <v-tree
         emptyText=" "
@@ -1241,6 +1256,17 @@ export default {
         @click="handleNodeClick"
       ></v-tree>
     </div>
+    <button
+      type="button"
+      class="data-source-sidebar-toggle"
+      :class="{ 'data-source-sidebar-toggle--collapsed': hide }"
+      :aria-label="$t(hide ? 'sql-expand-datasource-sidebar' : 'sql-collapse-datasource-sidebar')"
+      :title="$t(hide ? 'sql-expand-datasource-sidebar' : 'sql-collapse-datasource-sidebar')"
+      @click="handleSwitchHide"
+    >
+      <DoubleRightOutlined v-if="hide" class="data-source-sidebar-toggle-icon" />
+      <DoubleLeftOutlined v-else class="data-source-sidebar-toggle-icon" />
+    </button>
     <CCModal :title="menuModal.title" v-model="menuModal.show" :mask-closable="false" :closable="false" :keyboard="false">
       <div style="margin-bottom: 5px; font-weight: bold">
         {{ menuModal.content }}
@@ -1391,18 +1417,6 @@ export default {
     z-index: 9;
   }
 
-  .hide-icon {
-    position: absolute;
-    border-radius: 5px;
-    right: -28px;
-    z-index: 9;
-    top: 7px;
-    background: var(--bg-card);
-    padding: 2px 5px;
-    cursor: pointer;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 1px 2px;
-  }
-
   .datasource-tree {
     padding: 2px 0 0 4px;
     flex: 1;
@@ -1412,6 +1426,47 @@ export default {
       display: flex;
       align-items: center;
     }
+  }
+
+  .data-source-sidebar-toggle {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 40px;
+    flex: 0 0 40px;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-top-color: var(--border-primary);
+    background: var(--bg-secondary);
+    cursor: pointer;
+  }
+
+  .data-source-sidebar-toggle-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .data-source-sidebar-toggle--collapsed {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 9;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-top: 1px solid var(--border-primary);
+    border-right: 1px solid var(--border-primary);
+    border-radius: 0;
+    background: var(--bg-secondary);
+    justify-content: center;
   }
 }
 

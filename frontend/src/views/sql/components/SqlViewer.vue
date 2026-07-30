@@ -13,7 +13,11 @@
       :handleReadOnly="handleReadOnly"
       :storeQueryTabs="storeQueryTabs"
       :formatSql="formatSql"
-    />
+    >
+      <template #connection-context>
+        <slot name="connection-context" />
+      </template>
+    </operators>
     <Editor
       :set-editor-instance="setEditorInstance"
       :current-tab="tab"

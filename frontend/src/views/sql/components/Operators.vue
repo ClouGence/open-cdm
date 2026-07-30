@@ -84,10 +84,10 @@
               </template>
             </Dropdown>
           </Button>
-          <Button size="small" v-if="isSupportTx" :disabled="isRunning || tab.autoCommit" @click="handleCommit">
+          <Button size="small" v-if="isSupportTx && !tab.autoCommit" :disabled="isRunning" @click="handleCommit">
             {{ $t('ti-jiao') }}
           </Button>
-          <Button size="small" v-if="isSupportTx" :disabled="isRunning || tab.autoCommit" @click="handleRollback">
+          <Button size="small" v-if="isSupportTx && !tab.autoCommit" :disabled="isRunning" @click="handleRollback">
             {{ $t('hui-gun') }}
           </Button>
           <Button size="small" v-if="isSupportReadOnly" class="readonly-operator-btn" @click="handleReadOnlyClick">
@@ -97,7 +97,9 @@
           </Button>
         </div>
       </div>
-      <div class="right"></div>
+      <div class="right">
+        <slot name="connection-context" />
+      </div>
     </div>
   </div>
 </template>
@@ -200,12 +202,18 @@ export default {
 </script>
 <style lang="less" scoped>
 .operators {
+  display: flex;
+  height: 44px;
+  flex: 0 0 44px;
+  align-items: center;
+  box-sizing: border-box;
   padding: 3px;
   border-bottom: 1px solid #c7c7c7;
   position: relative;
 
   .operator-character {
     display: flex;
+    width: 100%;
     justify-content: space-between;
     align-items: center;
     overflow: hidden;
@@ -216,9 +224,16 @@ export default {
       align-items: center;
       gap: 8px;
       min-width: 0;
+      flex: 0 0 auto;
     }
 
     .right {
+      display: flex;
+      flex: 1 1 auto;
+      justify-content: flex-end;
+      min-width: 0;
+      margin-left: 16px;
+      overflow: hidden;
     }
   }
 }
