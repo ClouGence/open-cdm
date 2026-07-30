@@ -11,6 +11,7 @@ import { NODE_TYPE, DS_RIGHT_CLICK_MENU_ITEM } from '@/utils';
 import utilMixin from '@/mixins/utilMixin';
 import { clearAllPending } from '@/services/http/cancelRequest';
 import AddDataSource from '@/views/dataSource/AddDataSource';
+import TreeNodeLabel from '@/views/sql/components/TreeNodeLabel';
 
 const DATASOURCE_EXPANDED_KEYS_KEY = 'clouddm_datasource_expanded_keys';
 
@@ -667,14 +668,16 @@ export default {
           ) : (
             <CustomIcon type={icon} />
           )}
-          <div
-            style={{
+          <TreeNodeLabel
+            text={title}
+            html={this.highlight(title, this.searchKey)}
+            labelStyle={{
               marginLeft: '3px',
               marginRight: `${nodeType === 'INSTANCE' && !node.connected ? '20px' : '0'}`,
               color: `${node.isNew ? 'green' : this.isDark ? '#fff' : '#000'}`,
               fontWeight: `${node.isNew ? 'bold' : 'default'}`
             }}
-            innerHTML={this.highlight(title, this.searchKey)}></div>
+          />
           {nodeType === 'INSTANCE' && !node.connected && (
             <Tooltip placement='right' content={node.connectedMsg} transfer style={{ position: 'absolute', right: '3px' }}>
               <cc-svg-icon
@@ -687,7 +690,11 @@ export default {
               />
             </Tooltip>
           )}
-          {children && children.length > 0 && <div style='font-weight: bold;color: #bbb;'>[{children.length}]</div>}
+          {children && children.length > 0 && (
+            <div class='node-badge' style='font-weight: bold;color: #bbb;'>
+              [{children.length}]
+            </div>
+          )}
         </div>
       );
     },
@@ -1406,10 +1413,21 @@ export default {
     padding: 2px 0 0 4px;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    :deep(.ctree-tree__wrapper),
+    :deep(.vtree-tree__wrapper) {
+      flex: 1;
+      min-height: 0;
+    }
 
     :deep(.node) {
       display: flex;
       align-items: center;
+      min-width: 0;
+      overflow: hidden;
     }
   }
 }

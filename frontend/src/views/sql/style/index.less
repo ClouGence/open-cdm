@@ -85,7 +85,7 @@
     }
 
     .table-open {
-      width: 204px;
+      width: 260px;
     }
 
     .table-close {
@@ -156,7 +156,9 @@
 
             .table-list-container {
               position: relative;
-              width: 200px;
+              width: 260px;
+              min-width: 180px;
+              overflow: hidden;
               background: var(--bg-secondary);
               border-right: 1px solid var(--border-primary);
               display: flex;
@@ -177,9 +179,24 @@
 
                 .table-query-item-container {
                   padding-left: 4px;
-                  overflow: auto;
+                  overflow: hidden;
                   user-select: none;
                   flex: 1;
+                  min-height: 0;
+                  display: flex;
+                  flex-direction: column;
+
+                  .table-list-tree {
+                    flex: 1;
+                    min-height: 0;
+                    overflow: hidden;
+                    height: 100%;
+
+                    .vtree-tree__wrapper,
+                    .ctree-tree__wrapper {
+                      height: 100%;
+                    }
+                  }
 
                   .no-data-tip {
                     text-align: center;
