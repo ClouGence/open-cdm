@@ -28,7 +28,7 @@
                   type="icon-v2-close2"
                   hoverStyle
                   customStyle="radius-hover"
-                  @click.native="handleCloseResultTab('current', res.resultId)"
+                  @click.native.stop="handleCloseResultTab('current', res.resultId)"
                 />
               </div>
             </template>
@@ -43,7 +43,11 @@
                       <CustomIcon type="icon-v2-Table" />
                       <div style="margin-left: 5px; white-space: nowrap">{{ `${$t('jie-guo')}${res.showIndex}` }}</div>
                       <div class="dropdown-item-close">
-                        <CustomIcon type="icon-v2-close2" customStyle="icon-v2-hover" @click.native="handleCloseResultTab('current', res.resultId)" />
+                        <CustomIcon
+                          type="icon-v2-close2"
+                          customStyle="icon-v2-hover"
+                          @click.native.stop="handleCloseResultTab('current', res.resultId)"
+                        />
                       </div>
                     </div>
                   </a-menu-item>
@@ -88,7 +92,7 @@
         </div>
       </div>
       <div
-        v-if="!['message', 'async'].includes(tab.result.active)"
+        v-if="!['message', 'async'].includes(tab.result.active) && selectedTab.resultId"
         class="result-content-wrapper"
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
@@ -550,18 +554,11 @@ export default {
       ];
     },
     selectedTab() {
-      if (!['message'].includes(this.tab.result.active)) {
-        let tab = {};
-        for (let i = 0; i < this.tab.result.list.length; i++) {
-          if (this.tab.result.list[i].resultId === this.tab.result.active) {
-            tab = this.tab.result.list[i];
-            break;
-          }
-        }
-        return tab;
-      } else {
+      if (['message', 'async'].includes(this.tab.result.active)) {
         return {};
       }
+      const matched = this.tab.result.list.find((item) => item.resultId === this.tab.result.active);
+      return matched || {};
     },
     antdColumns() {
       if (!this.selectedTab || !this.selectedTab.columnListSeq) {
@@ -700,8 +697,11 @@ export default {
       }
       this.refreshResultTableLayout();
     },
-    'tab.result.list.length'() {
+    'tab.result.list.length'(length) {
       this.exitEditMode();
+      if (!length && !['message', 'async'].includes(this.tab.result.active)) {
+        this.tab.result.active = 'message';
+      }
     },
     editMode(val) {
       if (val) {
@@ -839,6 +839,9 @@ export default {
       console.log(type, key);
       if (type === 'current') {
         const deleteIndex = this.tab.result.list.findIndex((tab) => tab.resultId === key);
+        if (deleteIndex < 0) {
+          return;
+        }
         const closingTab = this.tab.result.list[deleteIndex];
         if (closingTab) {
           this.callCloseResultWindow(closingTab);
@@ -893,6 +896,13 @@ export default {
     },
     handleResultTabChange(activeKey) {
       this.exitEditMode();
+      if (activeKey !== 'message' && activeKey !== 'async') {
+        const exists = this.tab.result.list.some((item) => item.resultId === activeKey);
+        if (!exists) {
+          this.tab.result.active = 'message';
+          activeKey = 'message';
+        }
+      }
       this.tab.result.active = activeKey;
 
       // process message table scroll position
