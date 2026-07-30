@@ -263,7 +263,7 @@ export default {
             </Button>
           </div>
           <div class="rule-editor-content">
-            <ReadOnlyEditor :text="ruleForm.ruleContent" v-if="isView" />
+            <ReadOnlyEditor :text="ruleForm.ruleContent" :border="0" v-if="isView" />
             <TicketEditor ref="ruleEditor" v-else />
           </div>
         </div>
@@ -360,7 +360,7 @@ export default {
 
 .rule-workspace {
   display: grid;
-  grid-template-rows: minmax(360px, 1fr) 240px;
+  grid-template-rows: minmax(0, 1fr) 240px;
   gap: 16px;
   min-width: 0;
   min-height: 0;
@@ -427,6 +427,11 @@ export default {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+
+  :deep(.read-only-editor-wrapper),
+  :deep(.read-only-editor) {
+    height: 100% !important;
+  }
 }
 
 .rule-param-panel {
@@ -447,10 +452,16 @@ export default {
 @media (max-width: 1180px) {
   .rule-detail-layout {
     grid-template-columns: 1fr;
+    flex: none;
+  }
+
+  .rule-config-card {
+    overflow: visible;
   }
 
   .rule-workspace {
     grid-template-rows: 420px 240px;
+    min-height: 676px;
   }
 }
 </style>

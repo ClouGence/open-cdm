@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import { isEqual } from '@/utils/lodash';
 
 const sqlMixin = {
@@ -29,7 +30,7 @@ const sqlMixin = {
       return false;
     },
     structViewIsEditing(tab) {
-      console.log(isEqual(tab.originalFormData, tab.formData), tab.originalFormData, tab.formData);
+      appLogger.debug(isEqual(tab.originalFormData, tab.formData), tab.originalFormData, tab.formData);
       return !isEqual(tab.originalFormData, tab.formData);
     }
   }

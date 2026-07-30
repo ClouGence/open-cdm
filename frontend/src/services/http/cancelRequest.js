@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import axios from 'axios';
 import qs from 'qs';
 
@@ -51,7 +52,7 @@ export const addPending = (config) => {
 export const cancelPending = (config) => {
   const url = generateCancelReqKey('remove', config);
   if (pending.has(url)) {
-    console.log('cancel pending');
+    appLogger.debug('cancel pending');
     const cancel = pending.get(url);
     cancel(url);
     pending.delete(url);
@@ -66,7 +67,7 @@ export const removePending = (config) => {
 };
 
 export const clearAllPending = () => {
-  console.log(pending);
+  appLogger.debug(pending);
   for (const [url, cancel] of pending) {
     cancel(url);
   }

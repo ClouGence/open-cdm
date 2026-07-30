@@ -1,7 +1,10 @@
 /*
- * Build-time module that resolves the built-in driver bundle for Docker images.
+ * Build-time module that resolves the built-in driver bundle for release distributions
+ * (tgz packages and Docker images).
  * Not part of any runtime artifact; only the generateBuiltinDrivers task output is consumed.
  */
+import java.security.MessageDigest
+
 plugins {
     id 'com.clougence.java-conventions'
 }
@@ -17,17 +20,70 @@ description = 'pkg-builtin-drivers'
 
 tasks.register('generateBuiltinDrivers', JavaExec) {
     group = 'build'
-    description = 'Resolve built-in drivers into package/build/built-in-drivers'
+    description = 'Resolve built-in drivers into the cached bundle directory'
 
-    def configFile = file("${projectDir}/../../docker/built-in-drivers.xml")
-    def outputDir = file("${projectDir}/../../build/built-in-drivers")
+    def configFile = file("${projectDir}/built-in-drivers.xml")
+    // Default bundle lives outside `build/` so gradle clean and package.sh's
+    // `rm -rf package/build` do not wipe it. Set CG_BUILTIN_DRIVERS_BUNDLE_DIR
+    // to share a single bundle across worktrees on a bandwidth-limited machine.
+    def overrideBundleDir = System.getenv('CG_BUILTIN_DRIVERS_BUNDLE_DIR')?.trim()
+    def outputDir = overrideBundleDir ? file(overrideBundleDir) : file("${projectDir}/bundle")
+    def hashFile = new File(outputDir, '.bundle-hash')
 
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.clougence.clouddm.pkg.drivers.BuiltinDriverBundler'
     args configFile.absolutePath, outputDir.absolutePath
 
+    inputs.file configFile
+    outputs.dir outputDir
+
+    // The runtime classpath overlaps inner-driver-loader's build/libs, where customFatJar also
+    // writes; order after it so both tasks can share one task graph with the tgz packaging.
+    mustRunAfter ':inner-driver-loader:customFatJar'
+
     doFirst {
+        // Skip re-download when the driver manifest is unchanged and a previous
+        // bundle is still present. Local machines with slow bandwidth reuse the
+        // existing outputDir; CI still needs actions/cache to prime it first.
+        def expectedHash = sha256(configFile)
+        if (hashFile.isFile() && hashFile.text.trim() == expectedHash && hasBundleContent(outputDir)) {
+            logger.lifecycle("built-in driver bundle up-to-date (hash={}), skip regenerate", expectedHash)
+            throw new StopExecutionException()
+        }
+
         delete outputDir
         outputDir.mkdirs()
     }
+
+    doLast {
+        hashFile.text = sha256(configFile)
+    }
+}
+
+static String sha256(File file) {
+    def digest = MessageDigest.getInstance('SHA-256')
+    file.withInputStream { input ->
+        byte[] buffer = new byte[8192]
+        int read
+        while ((read = input.read(buffer)) != -1) {
+            digest.update(buffer, 0, read)
+        }
+    }
+    return digest.digest().encodeHex().toString()
+}
+
+static boolean hasBundleContent(File outputDir) {
+    if (!outputDir.isDirectory()) {
+        return false
+    }
+    File[] children = outputDir.listFiles()
+    if (children == null) {
+        return false
+    }
+    for (File child : children) {
+        if (child.isDirectory()) {
+            return true
+        }
+    }
+    return false
 }

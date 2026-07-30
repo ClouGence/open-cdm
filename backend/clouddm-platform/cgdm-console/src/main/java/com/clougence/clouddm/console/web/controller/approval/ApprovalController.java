@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
@@ -44,6 +43,7 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseLevelsFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.*;
@@ -203,7 +203,7 @@ public class ApprovalController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         fo.setUid(uid);
 
-        IPage<RdpTicketBasicVO> result = this.approvalControlService.queryTicketListByPage(puid, fo);
+        DmPageVO<RdpTicketBasicVO> result = this.approvalControlService.queryTicketListByPage(puid, fo);
         return ResWebDataUtils.buildSuccess(result);
     }
 

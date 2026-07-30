@@ -19,8 +19,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.console.web.model.fo.cicd.*;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeFlowVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.GuideCreateChangeFlowVO;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus;
@@ -28,7 +28,7 @@ import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 
 public interface DmChangeFlowService {
 
-    IPage<ChangeFlowVO> queryChangeFlowListByPage(String ownerUid, ChangeFlowListFO fo);
+    DmPageVO<ChangeFlowVO> queryChangeFlowListByPage(String ownerUid, ChangeFlowListFO fo);
 
     List<ChangeFlowVO> queryChangeFlowListByIds(String ownerUid, Set<Long> ids);
 
@@ -54,7 +54,7 @@ public interface DmChangeFlowService {
 
     void updateFlowConfigByFlowId(String ownerUid, long flowId, ChangeFlowConfigFO fo);
 
-    long createGitOpsFlow(String ownerUid, long flowId, ChangeFlowGitOpsCreateFO fo);
+    GuideCreateChangeFlowVO createGitOpsFlow(String ownerUid, long flowId, ChangeFlowGitOpsCreateFO fo);
 
     void updateInfoByFlowId(String ownerUid, long flowId, ChangeFlowUpdateFO fo);
 
@@ -64,7 +64,7 @@ public interface DmChangeFlowService {
 
     void disableGitOpsFlow(String ownerUid, long flowId);
 
-    void configGitOpsWebhook(String ownerUid, long flowId, boolean enable);
+    void configGitOpsWebhook(String ownerUid, long flowId, boolean enable, String signingToken, boolean clearSigningToken);
 
     void configGitOpsTrigger(String ownerUid, long flowId, boolean enable);
 

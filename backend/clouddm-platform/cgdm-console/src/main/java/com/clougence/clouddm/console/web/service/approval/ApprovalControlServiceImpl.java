@@ -48,6 +48,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.security.ListMyAuthTicketFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamTicketDesVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.*;
@@ -593,7 +594,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     @Override
-    public IPage<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo) {
+    public DmPageVO<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo) {
         Page<?> page = PageUtils.startPage(fo.getPage());
         ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
             .ticketStatus(fo.getTicketStatus())
@@ -607,7 +608,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     @Override
-    public IPage<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo) {
+    public DmPageVO<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo) {
         IPage<DmApprovalDO> tickets;
         switch (fo.getTicketListType()) {
             case SELF_CREATE: {
@@ -893,10 +894,11 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         })).collect(Collectors.toList());
     }
 
-    private IPage<RdpTicketBasicVO> convertAndFillExtraInfo(IPage<DmApprovalDO> tickets) {
+    private DmPageVO<RdpTicketBasicVO> convertAndFillExtraInfo(IPage<DmApprovalDO> tickets) {
+        DmPageVO<RdpTicketBasicVO> results = new DmPageVO<>(tickets);
         List<DmApprovalDO> records = tickets.getRecords();
         if (CollectionUtils.isEmpty(records)) {
-            return new Page<>();
+            return results;
         }
 
         Map<Long, DmAuthUserDO> ticketUserMap = genTicketUserMap(records);
@@ -916,12 +918,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
         vos.sort((o1, o2) -> -o1.getGmtCreate().compareTo(o2.getGmtCreate()));
 
-        IPage<RdpTicketBasicVO> results = new Page<>();
         results.setRecords(vos);
-        results.setCurrent(tickets.getCurrent());
-        results.setSize(tickets.getSize());
-        results.setPages(tickets.getPages());
-        results.setTotal(tickets.getTotal());
         return results;
     }
 

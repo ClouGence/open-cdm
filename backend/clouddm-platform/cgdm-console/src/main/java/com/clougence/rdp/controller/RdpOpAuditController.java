@@ -34,6 +34,7 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.ExportOpAuditFO;
 import com.clougence.clouddm.console.web.model.fo.QueryOpAuditByNameFO;
 import com.clougence.clouddm.console.web.model.fo.QueryOpAuditFO;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.RdpOpAuditVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -62,10 +63,10 @@ public class RdpOpAuditController {
     @RequestMapping(value = "/queryAll", method = RequestMethod.POST)
     public ResWebData<?> queryAll(@RequestBody @Valid QueryOpAuditFO auditFO, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        List<RdpOpAuditVO> auditVos = auditService.queryUserAllAudit(puid, auditFO.getUid(), auditFO.getSecurityLevel(), auditFO.getUserNameLike(), auditFO.getAuditType(), auditFO
-            .getResourceType(), auditFO.getOpStart(), auditFO.getOpEnd(), auditFO.getPageData().getStartId(), auditFO.getPageData().getPageSize());
+        DmPageVO<RdpOpAuditVO> auditPage = auditService.pageUserAllAudit(puid, auditFO.getUid(), auditFO.getSecurityLevel(), auditFO.getUserNameLike(), auditFO
+            .getAuditType(), auditFO.getResourceType(), auditFO.getOpStart(), auditFO.getOpEnd(), auditFO.getPageData().getPageNumber(), auditFO.getPageData().getPageSize());
 
-        return ResWebDataUtils.buildSuccess(auditVos);
+        return ResWebDataUtils.buildSuccess(auditPage);
     }
 
     @RequestAuth(RDP_OP_AUDIT_READ)

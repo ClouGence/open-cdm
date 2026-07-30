@@ -1,0 +1,18 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ */
+plugins {
+    id 'com.clougence.plugin-conventions'
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-compress:1.27.1'
+    compileOnly project(':cgdm-share-libs')
+    testImplementation project(':cgdm-plugin-sdk')
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    testImplementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4"
+    testImplementation "com.squareup.okhttp3:mockwebserver:${OKHTTP_VERSION}"
+}
+
+description = 'plus-provider-gitlab'

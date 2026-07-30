@@ -102,6 +102,7 @@
   </div>
 </template>
 <script>
+import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import browseMixin from '@/mixins/browseMixin';
 
@@ -171,7 +172,7 @@ export default {
     },
     tab: {
       handler(newVal, oldVal) {
-        console.log('tab', newVal);
+        appLogger.debug('tab', newVal);
       },
       immediate: true,
       deep: true

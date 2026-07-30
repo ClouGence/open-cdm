@@ -22,6 +22,9 @@
               </Button>
             </div>
             <div class="right">
+              <Button v-if="myAuth.includes('RDP_AUTH_MANAGE')" style="margin-right: 10px" @click="goBatchAuthorizationPage">
+                {{ $t('pi-liang-shou-quan') }}
+              </Button>
               <Button @click="handleClickAddBtn" type="primary" style="margin-right: 10px" icon="md-add">
                 {{ $t('tian-jia-zi-zhang-hao') }}
               </Button>
@@ -29,8 +32,8 @@
           </div>
           <div class="table-container">
             <Table
-              :columns="subAccountColumns"
-              :data="showSubAccountList"
+              :columns="accountTableColumns"
+              :data="accountTableData"
               :locale="{ emptyText: $t('zan-wu-shu-ju') }"
               :loading="subAccountListLoading"
               size="small"
@@ -241,6 +244,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { mapState, mapGetters } from 'vuex';
 import { generateData } from '@/utils';
 import copyMixin from '@/mixins/copyMixin';
@@ -290,6 +294,12 @@ export default {
     },
     showLocalCredential() {
       return !this.isExternalAccount || this.newAccountForm.allowLocal;
+    },
+    accountTableColumns() {
+      return this.subAccountColumns;
+    },
+    accountTableData() {
+      return this.showSubAccountList;
     }
   },
   data() {
@@ -598,6 +608,9 @@ export default {
         }
       });
     },
+    goBatchAuthorizationPage() {
+      this.$router.push({ name: 'Management_Accounts_Batch_Authorization' });
+    },
     handleShowDeleteConfirm(subAccount) {
       this.$Modal.confirm({
         title: this.$t('que-ding-shan-chu-gai-zi-zhang-hao-ma'),
@@ -667,7 +680,7 @@ export default {
       this.accountFormVisible = false;
     },
     handlePageChange(pageNum) {
-      console.log(pageNum);
+      appLogger.debug(pageNum);
       this.pageNum = pageNum;
       this.setTableShowData();
     },

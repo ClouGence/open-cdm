@@ -34,6 +34,7 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
+import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalActivityInfo;
 import com.clougence.clouddm.sdk.approval.ApprovalCreateInstanceResult;
@@ -68,7 +69,7 @@ public class QueryApprovalHandler implements ApprovalHandler {
     @Override
     public void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
-        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
+        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().queryByDependOnBiz(ticketDO.getBizId(), SQLJobBizType.TICKET);
         if (jobDO == null) {
             return;
         }
@@ -87,7 +88,7 @@ public class QueryApprovalHandler implements ApprovalHandler {
     @Override
     public void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
-        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
+        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().queryByDependOnBiz(ticketDO.getBizId(), SQLJobBizType.TICKET);
         AutoExecJobStatus status = jobDO.getStatus();
         runningCheck(approvalId, status);
     }

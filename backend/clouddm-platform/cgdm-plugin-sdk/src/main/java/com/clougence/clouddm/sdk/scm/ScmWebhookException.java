@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo.cicd;
+package com.clougence.clouddm.sdk.scm;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-public class ChangeExecSkipTaskFO {
+public class ScmWebhookException extends RuntimeException {
 
-    private long changeId;
-    private long taskId;
+    private final int statusCode;
+
+    public ScmWebhookException(int statusCode, String message){
+        super(message);
+        this.statusCode = statusCode;
+    }
 }

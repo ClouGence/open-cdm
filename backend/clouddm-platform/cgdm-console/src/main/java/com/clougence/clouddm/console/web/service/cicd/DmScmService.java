@@ -23,6 +23,7 @@ import com.clougence.clouddm.console.web.model.fo.cicd.DevopsScmUpdateFO;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmBranchDef;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmRepoDef;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmScmDef;
+import com.clougence.clouddm.console.web.service.cicd.domain.ScmConnectionTestResult;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 
@@ -42,12 +43,12 @@ public interface DmScmService {
 
     void deleteScmById(String ownerUid, long scmId);
 
-    void updateScmById(String ownerUid, DevopsScmUpdateFO fo);
+    List<Long> updateScmById(String ownerUid, DevopsScmUpdateFO fo);
 
     List<DmRepoDef> fetchReposByScmId(String ownerUid, long scmId);
 
-    DmBranchDef fetchBranchByScmAndRepo(String ownerUid, long scmId, String repoName, String branch);
+    DmBranchDef fetchBranchByScmAndRepo(String ownerUid, long scmId, String repoId, String repoSpace, String repoName, String branch);
 
-    void testScmByConfig(String ownerUid, DevopsScmAddFO fo);
+    ScmConnectionTestResult testScmByConfig(String ownerUid, DevopsScmAddFO fo);
 
 }

@@ -31,13 +31,14 @@ import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.constants.DmInitScriptStrategy;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.cicd.*;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeFlowVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.GuideCreateChangeFlowVO;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmBranchDef;
@@ -52,9 +53,12 @@ import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
+import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
+import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.scm.*;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.HashUtils;
 import com.clougence.utils.StringUtils;
@@ -80,10 +84,10 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     @Resource
     private ImSenderService   senderService;
     @Resource
-    private DmDsService       dmDsService;
+    private DsSchemaService   dmDsSchemaService;
 
     @Override
-    public IPage<ChangeFlowVO> queryChangeFlowListByPage(String ownerUid, ChangeFlowListFO fo) {
+    public DmPageVO<ChangeFlowVO> queryChangeFlowListByPage(String ownerUid, ChangeFlowListFO fo) {
         Page<?> page = PageUtils.startPage(fo.getPage());
 
         ArgChangeFlowQueryObj queryParams = ArgChangeFlowQueryObj.builder()//
@@ -92,21 +96,17 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             .build();
 
         IPage<DmChangeFlowDO> pageData = this.changeFlowDal.flowMapper().listFlowByConditionAndPage(page, queryParams, ownerUid);
+        DmPageVO<ChangeFlowVO> results = new DmPageVO<>(pageData);
         List<DmChangeFlowDO> records = pageData.getRecords();
         if (CollectionUtils.isEmpty(records)) {
-            return new Page<>();
+            return results;
         }
 
         List<ChangeFlowVO> vos = records.stream().map(obj -> {
             return DmConvertUtils.convertToChangeFlowVO(obj, this.objectCacheDao);
         }).collect(Collectors.toList());
 
-        IPage<ChangeFlowVO> results = new Page<>();
         results.setRecords(vos);
-        results.setCurrent(pageData.getCurrent());
-        results.setSize(pageData.getSize());
-        results.setPages(pageData.getPages());
-        results.setTotal(pageData.getTotal());
         return results;
     }
 
@@ -158,12 +158,18 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
 
     @Override
     public long toHash(GuideCheckFlowFO fo) {
-        String strBuilder = fo.getRepoScmUrl().trim() + "/" + fo.getRepoBranch().trim() + "/" + fo.getDsId() + "/" + "[" + StringUtils.join(fo.getDsLevels(), "/") + "]";
-        return HashUtils.fnvHash(strBuilder);
+        String repoKey = StringUtils.isBlank(fo.getRepoId()) ? fo.getRepoScmUrl().trim() : fo.getRepoId().trim();
+        return toHash(fo.getRepoScmId(), repoKey, fo.getRepoBranch(), fo.getDsId(), StringUtils.join(fo.getDsLevels(), "/"));
     }
 
     private long toHash(DmChangeFlowDO fo) {
-        String strBuilder = fo.getScmRepoUrl().trim() + "/" + fo.getScmRepoBranch().trim() + "/" + fo.getDsId() + "/" + "[" + fo.getDsPath() + "]";
+        String repoKey = StringUtils.isBlank(fo.getScmRepoIdentifier()) ? fo.getScmRepoUrl().trim() : fo.getScmRepoIdentifier().trim();
+        return toHash(fo.getRefScmId(), repoKey, fo.getScmRepoBranch(), Long.toString(fo.getDsId()), fo.getDsPath());
+    }
+
+    private static long toHash(long scmId, String repoKey, String repoBranch, String dsId, String dsPath) {
+        String normalizedDsPath = StringUtils.stripStart(dsPath.trim(), "/");
+        String strBuilder = scmId + "/" + repoKey.trim() + "/" + repoBranch.trim() + "/" + dsId + "/[" + normalizedDsPath + "]";
         return HashUtils.fnvHash(strBuilder);
     }
 
@@ -212,6 +218,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         vo.setRepoUrl(flowDO.getScmRepoUrl());
         vo.setWebHookUrl(DmConvertUtils.generateCicdWebhookEventUrl(flowDO));
         vo.setWebHookPwd(flowDO.getScmBindWebhookPwd());
+        vo.setWarnings(flowDO.getScmPreflightWarnings());
 
         DmScmDef defByType = this.dmScmService.getScmDefByType(flowDO.getRefScmType());
         if (defByType != null) {
@@ -268,30 +275,86 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
 
+        if (pipeline.getDsLevels() == null || pipeline.getDsLevels().size() < 2) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
+        }
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(pipeline.getDsLevels());
         DmDsDO dsDO = dsLevels.dsDO();
         if (dsDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
+        }
+        this.objectCacheDao.ownDataSource(ownerUid, dsDO.getId());
+        if (!StringUtils.equals(String.valueOf(dsDO.getDsEnvId()), dsLevels.envId())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
+        }
+        if (!dsLevels.levelsDef().isEmpty() && this.dmDsSchemaService.detailLevel(dsDO, dsLevels.levelsDef(), dsLevels.levelsParam()) == null) {
+            String target = dsLevels.dbLevels().isEmpty() ? "" : dsLevels.dbLevels().get(dsLevels.dbLevels().size() - 1);
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_SCHEMA_NOT_EXIST_ERROR.name(), target));
         }
         DmGitOpsScmDO scmDO = this.dmScmService.queryScmById(ownerUid, pipeline.getRepoScmId());
         if (scmDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
         }
 
+        if (scmDO.getScmType() == ScmType.Gitlab && StringUtils.isBlank(pipeline.getRepoId())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_REPO_ID_REQUIRED.name()));
+        }
+        if (StringUtils.isBlank(pipeline.getRepoBranch())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_BRANCH_NOT_EXIST_ERROR.name()));
+        }
+        String scriptPath;
+        try {
+            scriptPath = ScmUtils.normalizeDirectoryPath(pipeline.getRepoScriptPath());
+        } catch (IllegalArgumentException e) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+        }
+        ScmProviderSpi provider = PluginManager.findSpi(ScmProviderSpi.class, scmDO.getScmType().getProviderType().name());
+        if (provider == null) {
+            String scmType = DmI18nUtils.getMessage(scmDO.getScmType().getI18nKey());
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_MISSING_PROVIDER.name(), scmType));
+        }
+        if (pipeline.getEventType() == null || !provider.devopsSupportEvents().contains(pipeline.getEventType())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+        }
+
+        ScmRepo selection = new ScmRepo();
+        selection.setRepoId(pipeline.getRepoId());
+        selection.setRepoPath(pipeline.getRepoPath());
+        selection.setRepoSpace(pipeline.getRepoSpace());
+        selection.setRepoName(pipeline.getRepoName());
+        ScmRepo canonicalRepo = provider.fetchRepo(scmDO.getScmServiceUrl(), scmDO.getScmAccessToken(), selection);
+        if (canonicalRepo == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_REPO_ID_REQUIRED.name()));
+        }
+        if (canonicalRepo.isEmpty()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_EMPTY_REPO.name()));
+        }
+        List<ScmBranch> branches = provider.fetchBranchList(scmDO.getScmServiceUrl(), scmDO.getScmAccessToken(), canonicalRepo, pipeline.getRepoBranch(), true);
+        ScmBranch exactBranch = branches == null ? null : branches.stream()
+            .filter(branch -> branch != null && StringUtils.equals(pipeline.getRepoBranch(), branch.getBranchName()))
+            .findFirst()
+            .orElse(null);
+        if (exactBranch == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_BRANCH_NOT_EXIST_ERROR.name()));
+        }
+        canonicalRepo.setCommitId(exactBranch.getCommitId());
+        ScmPathValidation pathValidation = provider.validateScriptPath(scmDO.getScmServiceUrl(), scmDO.getScmAccessToken(), canonicalRepo, scriptPath);
+        List<String> warnings = new ArrayList<>();
+        if (pathValidation.isChecked() && pathValidation.getSqlFileCount() == 0) {
+            warnings.add(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NO_SQL_WARNING.name()));
+        }
+
         DmChangeFlowDO gitOpsFlowDO = new DmChangeFlowDO();
         gitOpsFlowDO.setOwnerUid(ownerUid);
         gitOpsFlowDO.setRefScmId(pipeline.getRepoScmId());
         gitOpsFlowDO.setRefScmType(scmDO.getScmType());
-        gitOpsFlowDO.setScmRepoSpace(pipeline.getRepoSpace());
-        gitOpsFlowDO.setScmRepoName(pipeline.getRepoName());
-        gitOpsFlowDO.setScmRepoUrl(pipeline.getRepoScmUrl());
+        gitOpsFlowDO.setScmRepoSpace(canonicalRepo.getRepoSpace());
+        gitOpsFlowDO.setScmRepoIdentifier(canonicalRepo.getRepoId());
+        gitOpsFlowDO.setScmRepoName(canonicalRepo.getRepoName());
+        gitOpsFlowDO.setScmRepoUrl(canonicalRepo.getRepoUrl());
         gitOpsFlowDO.setScmRepoBranch(pipeline.getRepoBranch());
         gitOpsFlowDO.setScmRepoEvent(pipeline.getEventType());
-        if (StringUtils.isNotBlank(pipeline.getRepoScriptPath())) {
-            gitOpsFlowDO.setScmRepoScript(StringUtils.trimStart(pipeline.getRepoScriptPath(), '/'));
-        } else {
-            gitOpsFlowDO.setScmRepoScript("");
-        }
+        gitOpsFlowDO.setScmRepoScript(scriptPath);
 
         gitOpsFlowDO.setDsId(dsDO.getId());
         gitOpsFlowDO.setDsType(dsDO.getDataSourceType());
@@ -309,6 +372,8 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         gitOpsFlowDO.setEnableTrigger(false);
         gitOpsFlowDO.setTriggerToken(RandomStrUtils.fixedLenRandomStr(32).toUpperCase());
         gitOpsFlowDO.setEnable(true);
+        gitOpsFlowDO.setScmValidatedCommitId(canonicalRepo.getCommitId());
+        gitOpsFlowDO.setScmPreflightWarnings(warnings);
         return gitOpsFlowDO;
     }
 
@@ -358,8 +423,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     }
 
     private void initInitScriptForSnapshot(DmChangeFlowDO flowDO, DmChangeFlowDO gitOpsFlowDO) {
-        DmBranchDef branch = this.dmScmService
-            .fetchBranchByScmAndRepo(flowDO.getOwnerUid(), gitOpsFlowDO.getRefScmId(), gitOpsFlowDO.getScmRepoName(), gitOpsFlowDO.getScmRepoBranch());
+        DmBranchDef branch = validatedBranch(flowDO, gitOpsFlowDO);
         if (branch == null) {
             return;
         }
@@ -382,8 +446,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     }
 
     private void initInitScriptForChange(DmChangeFlowDO flowDO, DmChangeFlowDO gitOpsFlowDO) {
-        DmBranchDef branch = this.dmScmService
-            .fetchBranchByScmAndRepo(flowDO.getOwnerUid(), gitOpsFlowDO.getRefScmId(), gitOpsFlowDO.getScmRepoName(), gitOpsFlowDO.getScmRepoBranch());
+        DmBranchDef branch = validatedBranch(flowDO, gitOpsFlowDO);
         if (branch == null) {
             return;
         }
@@ -403,6 +466,20 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         changeDO.setLockStatus(false);
         changeDO.setFlowWalked(new RsChangeFlowWalkedObj());
         this.changeFlowDal.changeMapper().insert(changeDO);
+    }
+
+    private DmBranchDef validatedBranch(DmChangeFlowDO flowDO, DmChangeFlowDO gitOpsFlowDO) {
+        if (StringUtils.isNotBlank(gitOpsFlowDO.getScmValidatedCommitId())) {
+            DmBranchDef branch = new DmBranchDef();
+            branch.setScmId(gitOpsFlowDO.getRefScmId());
+            branch.setRepoId(gitOpsFlowDO.getScmRepoIdentifier());
+            branch.setRepoName(gitOpsFlowDO.getScmRepoName());
+            branch.setBranch(gitOpsFlowDO.getScmRepoBranch());
+            branch.setBranchCommitId(gitOpsFlowDO.getScmValidatedCommitId());
+            return branch;
+        }
+        return this.dmScmService.fetchBranchByScmAndRepo(flowDO.getOwnerUid(), gitOpsFlowDO.getRefScmId(), gitOpsFlowDO.getScmRepoIdentifier(), gitOpsFlowDO
+            .getScmRepoSpace(), gitOpsFlowDO.getScmRepoName(), gitOpsFlowDO.getScmRepoBranch());
     }
 
     @Override
@@ -543,8 +620,9 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         this.changeFlowDal.flowMapper().updateMessageConfigByOwnerAndId(ownerUid, flowId, msgDO);
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
-    public long createGitOpsFlow(String ownerUid, long flowId, ChangeFlowGitOpsCreateFO fo) {
+    public GuideCreateChangeFlowVO createGitOpsFlow(String ownerUid, long flowId, ChangeFlowGitOpsCreateFO fo) {
         DmChangeFlowDO baseFlow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
         if (baseFlow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
@@ -582,9 +660,13 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
 
         String textMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_CONFIG_NEW_DEVOPS_MESSAGE.name(), flowDO.getFlowName(), toString(flowDO));
         this.senderService.sendMessage(ownerUid, flowDO.getId(), ImMessageType.FlowConfig, textMsg);
-        return flowDO.getId();
+        GuideCreateChangeFlowVO result = new GuideCreateChangeFlowVO();
+        result.setFlowId(flowDO.getId());
+        result.setWarnings(flowDO.getScmPreflightWarnings());
+        return result;
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
     public void deleteGitOpsFlow(String ownerUid, long flowId) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
@@ -600,7 +682,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_CHANGE_IN_INUSE_ERROR.name(), useCount));
         }
 
-        int res = this.changeFlowDal.flowMapper().deleteByOwnerAndId(ownerUid, flowId);
+        this.changeFlowDal.flowMapper().deleteByOwnerAndId(ownerUid, flowId);
 
         String textMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_CONFIG_DEL_DEVOPS_MESSAGE.name(), flow.getFlowName(), toString(flow));
         this.senderService.sendMessage(ownerUid, flowId, ImMessageType.FlowConfig, textMsg);
@@ -633,8 +715,9 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         this.changeFlowDal.flowMapper().disableFlowByOwnerAndId(ownerUid, flowId);
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void configGitOpsWebhook(String ownerUid, long flowId, boolean enable) {
+    public void configGitOpsWebhook(String ownerUid, long flowId, boolean enable, String signingToken, boolean clearSigningToken) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
         if (flow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
@@ -644,6 +727,26 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
         if (!flow.isEnable()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IS_DISABLED_ERROR.name()));
+        }
+
+        if (StringUtils.isNotBlank(signingToken)) {
+            try {
+                if (flow.getRefScmType() != ScmType.Gitlab || !signingToken.startsWith("whsec_")) {
+                    throw new IllegalArgumentException();
+                }
+                String encoded = signingToken.substring("whsec_".length());
+                if (StringUtils.isBlank(encoded)) {
+                    throw new IllegalArgumentException();
+                }
+                if (Base64.getDecoder().decode(encoded).length != 32) {
+                    throw new IllegalArgumentException();
+                }
+            } catch (IllegalArgumentException e) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_SIGNING_TOKEN_INVALID.name()));
+            }
+            this.changeFlowDal.flowMapper().updateWebhookSigningToken(ownerUid, flowId, signingToken);
+        } else if (clearSigningToken) {
+            this.changeFlowDal.flowMapper().updateWebhookSigningToken(ownerUid, flowId, null);
         }
 
         if (enable) {
@@ -750,6 +853,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
     public void deleteFlow(String ownerUid, long flowId) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);

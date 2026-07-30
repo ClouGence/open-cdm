@@ -62,6 +62,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import { cloneDeep } from '@/utils/lodash';
 import * as Vue from 'vue';
 import { PG_GP } from '@/const';
@@ -380,7 +381,7 @@ export default {
         deleteRules: Object.values(this.deleteDataRules)
       };
       const res = await this.$services.dmDataHandlePackageConfigBind({ data });
-      console.log(res);
+      appLogger.debug(res);
       this.showRulesConfirmModal = false;
       this.confirmLoading = false;
       this.addDataRules = {};

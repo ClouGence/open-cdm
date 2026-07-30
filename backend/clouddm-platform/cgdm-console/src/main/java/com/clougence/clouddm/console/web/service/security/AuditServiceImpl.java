@@ -162,11 +162,17 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
 
                 auditDO.setUid(dto.getUid());
                 DmAuthUserDO userByUid = rdpUserService.getUserByUid(dto.getUid());
-                if (userByUid == null) {
-                    auditDO.setUserName(dto.getUid());
-                } else {
-                    auditDO.setUserName(userByUid.getUsername());
+                String auditUserName = dto.getUid();
+                if (userByUid != null) {
+                    if (StringUtils.isNotBlank(userByUid.getUsername())) {
+                        auditUserName = userByUid.getUsername();
+                    } else if (StringUtils.isNotBlank(userByUid.getAccount())) {
+                        auditUserName = userByUid.getAccount();
+                    } else if (StringUtils.isNotBlank(userByUid.getBindAccount())) {
+                        auditUserName = userByUid.getBindAccount();
+                    }
                 }
+                auditDO.setUserName(auditUserName);
 
                 auditDO.setPrimaryUid(rdpUserService.getPrimaryUser(dto.getUid()).getUid());
                 auditDO.setStatus(SqlStatus.RUNNING);

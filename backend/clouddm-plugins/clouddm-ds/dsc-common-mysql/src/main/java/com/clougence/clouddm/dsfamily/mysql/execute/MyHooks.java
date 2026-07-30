@@ -195,8 +195,13 @@ public class MyHooks implements SessionHook {
         } else {
             stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         }
-        stmt.setFetchSize(Integer.MIN_VALUE);
+
+        this.setFetchSize(stmt);
         return stmt;
+    }
+
+    protected void setFetchSize(PreparedStatement stmt) throws SQLException {
+        stmt.setFetchSize(Integer.MIN_VALUE);
     }
 
     @Override

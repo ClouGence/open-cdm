@@ -101,6 +101,24 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-auth" */ '@/views/system/subaccount/auth/authDm')
   },
   {
+    path: '/manager/account/batch_authorization',
+    name: 'Management_Accounts_Batch_Authorization',
+    component: () => import(/* webpackChunkName: "ccsystem-subaccount-batch-auth" */ '@/views/system/subaccount/BatchAuthorizationPage'),
+    meta: { requiredAuth: 'RDP_AUTH_MANAGE' }
+  },
+  {
+    path: '/manager/account/batch_authorization/permissions',
+    name: 'Management_Accounts_Batch_Authorization_Permissions',
+    component: () => import(/* webpackChunkName: "ccsystem-subaccount-auth" */ '@/views/system/subaccount/auth/authDm'),
+    meta: { requiredAuth: 'RDP_AUTH_MANAGE' }
+  },
+  {
+    path: 'account/authdm/batch',
+    name: 'System_Sub_Account_Batch_AuthDm',
+    component: () => import(/* webpackChunkName: "ccsystem-subaccount-auth" */ '@/views/system/subaccount/auth/authDm'),
+    meta: { requiredAuth: 'RDP_AUTH_MANAGE' }
+  },
+  {
     path: 'account/authdm/:uid',
     name: 'System_Sub_Account_AuthDm',
     component: () => import(/* webpackChunkName: "ccsystem-subaccount-auth" */ '@/views/system/subaccount/auth/authDm')

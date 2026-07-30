@@ -1,4 +1,5 @@
 <script>
+import appLogger from '@/utils/logger';
 import Loading from 'vue-loading-overlay';
 import dayjs from 'dayjs';
 import { Modal } from 'ant-design-vue';
@@ -102,7 +103,7 @@ export default {
     dayjs,
     hasSchema,
     async getSchemaAndInitData() {
-      console.log('getSchemaAndInitData');
+      appLogger.debug('getSchemaAndInitData');
       this.initEditorLoading = true;
       try {
         if (this.tab.editorType) {
@@ -116,7 +117,7 @@ export default {
         this.tab.isEditing = false;
         this.tab.init = true;
       } catch (e) {
-        console.error(e);
+        appLogger.error(e);
       } finally {
         this.initEditorLoading = false;
       }
@@ -200,7 +201,7 @@ export default {
         }
       });
       if (res.success) {
-        console.log('initSchemaEditor');
+        appLogger.debug('initSchemaEditor');
         this.tab.initTableData = deepClone(res.data);
         this.formatSchemaData(res.data);
       }
@@ -212,7 +213,7 @@ export default {
             data[key] = [data[key]];
           }
           if (Array.isArray(data[key])) {
-            console.log(key);
+            appLogger.debug(key);
             this.tab.treeData.forEach((node) => {
               if (node.schema === key) {
                 data[key].forEach((item) => {
@@ -232,7 +233,7 @@ export default {
                           indexColumn[colKey] = col[colKey];
                         });
                         indexColumn.key = `${col.name}-${dayjs().valueOf()}`;
-                        console.log(indexColumn, attr);
+                        appLogger.debug(indexColumn, attr);
                         return indexColumn;
                       });
                     }
@@ -304,7 +305,7 @@ export default {
       });
 
       if (res.success) {
-        console.log('get schema');
+        appLogger.debug('get schema');
         const { order, uiPanels } = res.data;
         const schema = {};
         order.forEach((name) => {
@@ -576,7 +577,7 @@ export default {
       });
     },
     setOptionsAttr(attr, topItem, data) {
-      console.log(attr.field, topItem);
+      appLogger.debug(attr.field, topItem);
       if (attr.type === 'Options') {
         const attrOptionsLength = attr.options.length;
         if (attr.field in topItem) {
@@ -637,7 +638,7 @@ export default {
             }
           });
         } else {
-          console.log(this.tab.formData[key], key);
+          appLogger.debug(this.tab.formData[key], key);
           this.tab.formData[key].forEach((item) => {
             if (!tableSchema[key]) {
               tableSchema[key] = [];
@@ -691,7 +692,7 @@ export default {
       return tableSchema;
     },
     async handleCreateTable(type = 'create') {
-      console.log('handleCreateTable');
+      appLogger.debug('handleCreateTable');
       if (type === 'refresh') {
         this.refreshLoading = true;
       } else {
@@ -760,7 +761,7 @@ export default {
     },
     handleRefresh() {
       const tableScehma = this.generateEditData();
-      console.log(tableScehma);
+      appLogger.debug(tableScehma);
     },
     async submitTicket() {
       try {
@@ -814,7 +815,7 @@ export default {
           }
         }
       } catch (error) {
-        console.error(error);
+        appLogger.error(error);
       }
     },
     resetTicketForm() {

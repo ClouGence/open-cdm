@@ -1,4 +1,5 @@
 <script lang="jsx">
+import appLogger from '@/utils/logger';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
 import VTree from '@wsfe/vue-tree';
@@ -171,7 +172,7 @@ export default {
       try {
         localStorage.setItem('clouddm_datasource_hide', hide.toString());
       } catch (e) {
-        console.warn('Failed to save hide state:', e);
+        appLogger.warn('Failed to save hide state:', e);
       }
     },
     getStoredExpandedKeys() {
@@ -200,7 +201,7 @@ export default {
       try {
         localStorage.setItem(DATASOURCE_EXPANDED_KEYS_KEY, JSON.stringify(this.expandedKeys));
       } catch (e) {
-        console.warn('Failed to save datasource expanded keys:', e);
+        appLogger.warn('Failed to save datasource expanded keys:', e);
       }
     },
     getTreeKeyDepth(key) {
@@ -252,7 +253,7 @@ export default {
         const treeData = this.$refs.tree.getTreeData();
         const hasData = treeData && treeData.length > 0;
 
-        console.log('v-tree data check:', hasData, treeData);
+        appLogger.debug('v-tree data check:', hasData, treeData);
 
         // Get a user saved status
         const storedHide = this.getStoredHideState();
@@ -492,7 +493,7 @@ export default {
             break;
           case DS_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_SCHEMA_CREATE:
             if (this.selectedNode.nodeType === NODE_TYPE.SCHEMA) {
-              console.log(this.selectedNode);
+              appLogger.debug(this.selectedNode);
               const parentNode = this.selectedNode._parent;
               currentNode = {
                 ...this.selectedNode,
@@ -565,7 +566,7 @@ export default {
       }
     },
     handleSetExpandedKeys(node) {
-      console.log('expand key', node.key);
+      appLogger.debug('expand key', node.key);
       const { key } = node;
       if (this.isExpandedKey(node)) {
         this.expandedKeys = this.expandedKeys.filter((k) => k !== key);
@@ -609,7 +610,7 @@ export default {
     },
     async handleSetData(data, search = false) {
       this.top = this.scrollY;
-      console.log('handleSetData', this.$refs);
+      appLogger.debug('handleSetData', this.$refs);
       const expandedKeys = this.expandedKeys.slice();
       this.suspendExpandedKeysSync = true;
       try {
@@ -953,7 +954,7 @@ export default {
       }
     },
     async handleRightClickMenu(actionType) {
-      console.log('handleRightClickMenu', actionType);
+      appLogger.debug('handleRightClickMenu', actionType);
       this.actionType = actionType;
       const data = {
         actionType,

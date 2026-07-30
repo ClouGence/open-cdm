@@ -26,12 +26,16 @@ tasks.register('tgz', Tar) {
     }
 
     def sidecarPath = "cgdm/alone"
-    def mainVersion = rootProject.findProperty("cg.clouddm.main.version") ?: "unknow"
+    def mainVersion = System.getenv("CG_CLOUDDM_MAIN_VERSION") ?: rootProject.findProperty("cg.clouddm.main.version") ?: "unknow"
 
     into("${sidecarPath}") {
         project.file("$buildDir/emptyFoldersRoot/logs").mkdirs()
         project.file("$buildDir/emptyFoldersRoot/data").mkdirs()
         from "$buildDir/emptyFoldersRoot"
+        from rootProject.file("../LICENSE.txt")
+    }
+    into("${sidecarPath}/legal") {
+        from "${projectDir}/../../legal"
     }
     into("${sidecarPath}/bin") {
         from "${buildDir}/../app.conf"
@@ -66,6 +70,10 @@ tasks.register('tgz', Tar) {
                 from p.tasks.customFatJar.archiveFile
             }
         }
+    }
+    into("${sidecarPath}/built-in-drivers") {
+        from project(':pkg-builtin-drivers').tasks.named('generateBuiltinDrivers')
+        exclude '.bundle-hash'
     }
 
     archiveFileName = "cgdm-alone.tar.gz"

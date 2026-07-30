@@ -20,6 +20,7 @@
                 format="YYYY-MM-DD HH:mm"
                 :placeholder="[$t('kai-shi-shi-jian'), $t('jie-shu-shi-jian')]"
                 class="log-time-range"
+                @change="handleTimeRangeChange"
               />
               <Select v-model="searchType" style="width: 100px; margin-right: 10px" @on-change="handleChangeSearchType">
                 <Option value="user" :label="$t('cao-zuo-ren')">
@@ -73,9 +74,15 @@
               </Select>
               <Select v-if="searchType === 'requester'" v-model="searchData.requester" style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
-                <Option value="CONSOLE" :label="$t('sql-requester-console')">{{ $t('sql-requester-console') }}</Option>
-                <Option value="TICKET" :label="$t('sql-requester-ticket')">{{ $t('sql-requester-ticket') }}</Option>
-                <Option value="CHANGE" :label="$t('sql-requester-change')">{{ $t('sql-requester-change') }}</Option>
+                <Option value="CONSOLE" :label="$t('sql-requester-console')">
+                  {{ $t('sql-requester-console') }}
+                </Option>
+                <Option value="TICKET" :label="$t('sql-requester-ticket')">
+                  {{ $t('sql-requester-ticket') }}
+                </Option>
+                <Option value="CHANGE" :label="$t('sql-requester-change')">
+                  {{ $t('sql-requester-change') }}
+                </Option>
               </Select>
               <Select v-if="searchType === 'status'" v-model="searchData.status" style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
@@ -176,6 +183,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import fecha from 'fecha';
 import { mapState } from 'vuex';
 import { h, resolveComponent } from 'vue';
@@ -192,13 +200,9 @@ export default {
     return {
       auditLogType: 'sql',
       searchType: 'user',
-      noMoreData: false,
       refreshLoading: false,
-      firstId: 0,
-      lastId: 0,
-      prevFirst: {},
       page: 1,
-      currentPageSize: 10,
+      total: 0,
       dsList: [],
       operateUserList: [],
       selectedRow: null,
@@ -207,6 +211,7 @@ export default {
       retentionLoading: false,
       retentionSaveLoading: false,
       retentionConfig: null,
+      followCurrentTimeRange: true,
       retentionForm: {
         sqlAuditRetentionDays: ''
       },
@@ -239,7 +244,7 @@ export default {
         resourcePath: null,
         status: null,
         pageData: {
-          startId: 0,
+          pageNumber: 1,
           pageSize: 10
         }
       },
@@ -277,26 +282,36 @@ export default {
             } else if (row.status === 'RUNNING') {
               color = '#faad14';
             }
-            const statusNode = h('div', { style: { color, display: 'flex', 'align-items': 'center' } }, [
-              h('span', row.status),
-              (row.status === 'FAILURE' || row?.status === 'ERROR') && row?.message
-                ? h(
-                    resolveComponent('Tooltip'),
-                    {
-                      content: row.message,
-                      placement: 'top',
-                      transfer: true
-                    },
-                    [
-                      h(resolveComponent('CustomIcon'), {
-                        type: 'help',
-                        size: 16,
-                        style: { color: '#aaa', marginLeft: '4px', cursor: 'pointer' }
-                      })
-                    ]
-                  )
-                : null
-            ]);
+            const statusNode = h(
+              'div',
+              {
+                style: {
+                  color,
+                  display: 'flex',
+                  'align-items': 'center'
+                }
+              },
+              [
+                h('span', row.status),
+                (row.status === 'FAILURE' || row?.status === 'ERROR') && row?.message
+                  ? h(
+                      resolveComponent('Tooltip'),
+                      {
+                        content: row.message,
+                        placement: 'top',
+                        transfer: true
+                      },
+                      [
+                        h(resolveComponent('CustomIcon'), {
+                          type: 'help',
+                          size: 16,
+                          style: { color: '#aaa', marginLeft: '4px', cursor: 'pointer' }
+                        })
+                      ]
+                    )
+                  : null
+              ]
+            );
             return statusNode;
           }
         },
@@ -380,19 +395,12 @@ export default {
     },
     pageSize() {
       return this.searchData.pageData.pageSize;
-    },
-    total() {
-      if (this.noMoreData) {
-        return (this.page - 1) * this.pageSize + this.logData.length;
-      }
-      return this.page * this.pageSize + 1;
     }
   },
   mounted() {
     this.getDsList();
     this.getOperateUserList();
     this.handleSearch();
-    this.searchData.pageData.pageSize = 10;
   },
   methods: {
     async getDsList() {
@@ -402,7 +410,7 @@ export default {
           this.dsList = res.data || [];
         }
       } catch (error) {
-        console.error('获取数据源列表失败:', error);
+        appLogger.error('获取数据源列表失败:', error);
       }
     },
 
@@ -417,7 +425,7 @@ export default {
           this.operateUserList = res.data || [];
         }
       } catch (error) {
-        console.error('获取操作人列表失败:', error);
+        appLogger.error('获取操作人列表失败:', error);
       }
     },
 
@@ -437,13 +445,17 @@ export default {
     },
 
     handleRefresh() {
+      if (this.followCurrentTimeRange) {
+        const now = dayjs();
+        this.timeRange = [now.subtract(1, 'day'), now];
+      }
       this.page = 1;
-      this.firstId = 0;
-      this.lastId = 0;
-      this.prevFirst = {};
-      this.currentPageSize = this.searchData.pageData.pageSize;
-      this.searchData.pageData.startId = 0;
+      this.searchData.pageData.pageNumber = 1;
       this.handleSearch();
+    },
+
+    handleTimeRangeChange() {
+      this.followCurrentTimeRange = false;
     },
 
     async handleOpenRetentionSetting() {
@@ -498,19 +510,10 @@ export default {
       }
     },
 
-    handleSearch(type) {
+    handleSearch() {
       this.refreshLoading = true;
       this.syncTimeRangeQuery();
-      this.searchData.pageData.pageSize = 10;
-
-      if (this.currentPageSize !== this.searchData.pageData.pageSize) {
-        this.page = 1;
-        this.firstId = 0;
-        this.lastId = 0;
-        this.prevFirst = {};
-        this.searchData.pageData.startId = 0;
-        this.currentPageSize = this.searchData.pageData.pageSize;
-      }
+      this.searchData.pageData.pageNumber = this.page;
 
       this.$services
         .dmAuditSqlAuditQueryAll({
@@ -518,97 +521,29 @@ export default {
         })
         .then((res) => {
           if (res.code === '1') {
-            this.logData = res.data;
-
-            if (this.logData.length > 0) {
-              this.firstId = this.logData[0].id;
-              this.lastId = this.logData[this.logData.length - 1].id;
-
-              if (type === 'next') {
-                this.prevFirst[this.page] = this.firstId;
-              } else if (type === 'prev') {
-                this.prevFirst[this.page] = this.firstId;
-              } else {
-                this.prevFirst[1] = this.firstId;
-              }
-            } else {
-              this.firstId = 0;
-              this.lastId = 0;
-            }
+            this.logData = res.data.records;
+            this.total = res.data.total;
           }
           this.refreshLoading = false;
-          this.noMoreData = res.data.length < this.searchData.pageData.pageSize;
         })
         .catch(() => {
           this.refreshLoading = false;
         });
     },
 
-    handlePre() {
-      if (this.page <= 1) {
-        return;
-      }
-
-      this.page--;
-      let startId = 0;
-
-      if (this.prevFirst[this.page] !== undefined) {
-        startId = this.prevFirst[this.page] + 1;
-      }
-
-      if (startId < 0) {
-        startId = 0;
-      }
-
-      this.searchData.pageData.startId = startId;
-      this.handleSearch('prev');
-    },
-
-    handleNext() {
-      if (this.noMoreData) {
-        return;
-      }
-
-      this.searchData.pageData.startId = this.lastId;
-      this.handleSearch('next');
-      this.page++;
-    },
-
     handlePageChange(nextPage) {
-      if (nextPage === this.page) {
-        return;
-      }
-      if (nextPage > this.page) {
-        if (this.noMoreData || nextPage !== this.page + 1) {
-          return;
-        }
-        this.handleNext();
-        return;
-      }
       this.page = nextPage;
-      let startId = 0;
-      if (nextPage > 1 && this.prevFirst[nextPage] !== undefined) {
-        startId = this.prevFirst[nextPage] + 1;
-      }
-      if (startId < 0) {
-        startId = 0;
-      }
-      this.searchData.pageData.startId = startId;
-      this.handleSearch('prev');
+      this.searchData.pageData.pageNumber = nextPage;
+      this.handleSearch();
     },
 
     handlePageSizeChange(pageSize) {
       this.searchData.pageData.pageSize = pageSize;
-      this.currentPageSize = pageSize;
       this.handleRefresh();
     },
 
     handleChangeSearchType() {
       this.page = 1;
-      this.firstId = 0;
-      this.lastId = 0;
-      this.prevFirst = {};
-      this.currentPageSize = 10;
       this.searchData = {
         dsId: null,
         userUid: null,
@@ -616,7 +551,7 @@ export default {
         requester: null,
         status: null,
         pageData: {
-          startId: 0,
+          pageNumber: 1,
           pageSize: 10
         }
       };

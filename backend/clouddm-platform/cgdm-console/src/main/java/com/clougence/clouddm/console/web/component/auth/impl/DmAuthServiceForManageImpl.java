@@ -30,6 +30,8 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.model.fo.security.BatchModifyUserAuthFO;
+import com.clougence.clouddm.console.web.model.fo.security.BatchModifyUserAuthOperation;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForDelete;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForUpdate;
@@ -289,6 +291,37 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
         this.appendDataAuth(targetUid, modifyData.getAuthKind(), updateAuth);
     }
 
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public void batchModifyUserAuth(String puid, BatchModifyUserAuthFO modifyData) {
+        if (modifyData.getAuthKind() != AuthKind.DataSource) {
+            throw new IllegalArgumentException("Unsupported auth kind:" + modifyData.getAuthKind());
+        }
+
+        ModifyUserAuthFO ownerCheckData = new ModifyUserAuthFO();
+        ownerCheckData.setAuthKind(modifyData.getAuthKind());
+        ownerCheckData.setAppends(modifyData.getChanges());
+        checkResOwner(puid, ownerCheckData);
+
+        Map<Long, String> resInstIdMap = new HashMap<>();
+        Map<Long, String> resDescMap = new HashMap<>();
+        if (modifyData.getOperation() == BatchModifyUserAuthOperation.GRANT) {
+            fillExtraInfo(resInstIdMap, resDescMap, modifyData.getChanges(), Collections.emptyList(), modifyData.getAuthKind());
+        }
+
+        Set<String> targetUids = new LinkedHashSet<>(modifyData.getTargetUids());
+        for (String targetUid : targetUids) {
+            for (ModifyAuthForAppend change : modifyData.getChanges()) {
+                if (modifyData.getOperation() == BatchModifyUserAuthOperation.GRANT) {
+                    DmAuthResDO grantAuth = RdpConvertUtils.convertToAuthDOFromInsert(targetUid, change, resInstIdMap.get(change.getResId()), resDescMap
+                        .get(change.getResId()), modifyData.getAuthKind());
+                    mergeGrantedAuth(grantAuth);
+                } else {
+                    revokeGrantedAuth(targetUid, modifyData.getAuthKind(), change);
+                }
+            }
+        }
+    }
+
     protected void checkResOwner(String puid, ModifyUserAuthFO modifyData) {
         Set<Long> resIds = new HashSet<>();
 
@@ -379,6 +412,67 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
             authDO.setAuthLabels(cascadeAuthLabel);
             this.authDal.resMapper().insert(authDO);
         }
+    }
+
+    private void mergeGrantedAuth(DmAuthResDO grantAuth) {
+        normalizeGlobalAuth(grantAuth);
+        if (CollectionUtils.isEmpty(grantAuth.getAuthLabels())) {
+            return;
+        }
+
+        List<DmAuthResDO> existingAuths = this.authDal.resMapper()
+            .queryByPath(grantAuth.getResId(), grantAuth.getOwnerUid(), grantAuth.getKindType(), grantAuth.getResPath());
+        DmAuthResDO sameDurationAuth = existingAuths.stream()
+            .filter(existing -> Objects.equals(existing.getStartTime(), grantAuth.getStartTime()) && Objects.equals(existing.getEndTime(), grantAuth.getEndTime()))
+            .findFirst()
+            .orElse(null);
+
+        if (sameDurationAuth == null) {
+            grantAuth.setAuthLabels(this.getCascadeAuthByLabel(grantAuth.getAuthLabels()));
+            this.authDal.resMapper().insert(grantAuth);
+            return;
+        }
+
+        Set<String> mergedLabels = new HashSet<>(sameDurationAuth.getAuthLabels());
+        mergedLabels.addAll(grantAuth.getAuthLabels());
+        sameDurationAuth.setAuthLabels(new ArrayList<>(this.evalLabels(sameDurationAuth.getAuthLabels(), new ArrayList<>(mergedLabels))));
+        sameDurationAuth.setGmtModified(new Date());
+        this.authDal.resMapper().updateById(sameDurationAuth);
+    }
+
+    private void revokeGrantedAuth(String targetUid, AuthKind authKind, ModifyAuthForAppend revokeData) {
+        DmAuthResDO revokeAuth = RdpConvertUtils.convertToAuthDOFromInsert(targetUid, revokeData, null, null, authKind);
+        if (revokeAuth.getResId() == GLOBAL_RESOURCE_RES_ID && StringUtils.equals(revokeAuth.getResPath(), GLOBAL_RESOURCE_PATH)) {
+            this.authDal.resMapper().deleteGlobalByUser(targetUid, authKind);
+            return;
+        }
+        if (CollectionUtils.isEmpty(revokeAuth.getAuthLabels())) {
+            throw new IllegalArgumentException("authLabels can not be empty when revoking a non-global resource.");
+        }
+
+        Set<String> revokedLabels = new HashSet<>(revokeAuth.getAuthLabels());
+        List<DmAuthResDO> existingAuths = this.authDal.resMapper().queryByPath(revokeAuth.getResId(), targetUid, authKind, revokeAuth.getResPath());
+        for (DmAuthResDO existingAuth : existingAuths) {
+            List<String> beforeLabels = existingAuth.getAuthLabels();
+            Collection<String> finalLabels = this.revokeLabels(beforeLabels, revokedLabels);
+            List<String> remainingLabels = new ArrayList<>(finalLabels);
+            if (remainingLabels.size() == beforeLabels.size()) {
+                continue;
+            }
+            if (finalLabels.isEmpty()) {
+                this.authDal.resMapper().deleteById(existingAuth.getId());
+                continue;
+            }
+            existingAuth.setAuthLabels(new ArrayList<>(finalLabels));
+            existingAuth.setGmtModified(new Date());
+            this.authDal.resMapper().updateById(existingAuth);
+        }
+    }
+
+    Collection<String> revokeLabels(List<String> beforeLabels, Set<String> revokedLabels) {
+        List<String> remainingLabels = beforeLabels.stream().filter(label -> !revokedLabels.contains(label) && Collections.disjoint(this
+            .getCascadeAuthByLabel(Collections.singletonList(label)), revokedLabels)).collect(Collectors.toList());
+        return this.evalLabels(beforeLabels, remainingLabels);
     }
 
     private void keepUnknownLabels(List<DmAuthResDO> resAuthDOList) {

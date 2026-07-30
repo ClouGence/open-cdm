@@ -25,6 +25,31 @@ public final class DriverSpecUtils {
     private DriverSpecUtils(){
     }
 
+    public static String resolveDriverFamily(String driverSpec) {
+        String trimmed = StringUtils.trimToNull(driverSpec);
+        if (trimmed == null) {
+            return null;
+        }
+
+        if (trimmed.startsWith("[")) {
+            try {
+                List<String> driverParts = JsonUtils.toListUseType(trimmed, String.class);
+                if (driverParts != null && !driverParts.isEmpty()) {
+                    return StringUtils.trimToNull(driverParts.get(0));
+                }
+            } catch (Exception ignored) {
+                // fall through
+            }
+        }
+
+        int slashIndex = trimmed.lastIndexOf('/');
+        return slashIndex > 0 ? StringUtils.trimToNull(trimmed.substring(0, slashIndex)) : null;
+    }
+
+    public static boolean matchesDriverFamily(String driverSpec, String driverFamily) {
+        return StringUtils.equals(resolveDriverFamily(driverSpec), driverFamily);
+    }
+
     public static String resolveDriverVersion(String driverSpec) {
         String trimmed = StringUtils.trimToNull(driverSpec);
         if (trimmed == null) {

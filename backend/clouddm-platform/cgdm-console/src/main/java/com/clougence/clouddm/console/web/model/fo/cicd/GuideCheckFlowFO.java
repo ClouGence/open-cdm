@@ -30,6 +30,7 @@ public class GuideCheckFlowFO {
     private long         repoScmId;
     private ScmType      repoScmType;
     private String       repoScmUrl;
+    private String       repoId;
     private String       repoName;
     private String       repoBranch;
     private String       repoScriptPath;

@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import appLogger from '@/utils/logger';
 import * as Vue from 'vue';
 
 export default {
@@ -56,7 +57,7 @@ export default {
     },
     async handleSave() {
       const { ruleExpr, id, ruleType } = this.rule;
-      console.log(this.rule);
+      appLogger.debug(this.rule);
       const res = await this.$services.dmDesensitizationRuleUpdateDesensitizeRule({
         data: {
           ruleExpr,

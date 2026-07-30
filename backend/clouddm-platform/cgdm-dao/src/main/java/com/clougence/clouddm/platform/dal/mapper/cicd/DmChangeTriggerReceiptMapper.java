@@ -13,30 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo.ticket;
+package com.clougence.clouddm.platform.dal.mapper.cicd;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.apache.ibatis.annotations.Param;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeTriggerReceiptDO;
 
-@Getter
-@Setter
-public class DmPageVO<T> {
+public interface DmChangeTriggerReceiptMapper extends BaseMapper<DmChangeTriggerReceiptDO> {
 
-    private long    current;
-    private long    pages;
-    private long    size;
-    private long    total;
-    private List<T> records = new ArrayList<T>();
+    int reserve(@Param("receipt") DmChangeTriggerReceiptDO receipt);
 
-    public DmPageVO(IPage page){
-        this.current = page.getCurrent();
-        this.pages = page.getPages();
-        this.total = page.getTotal();
-        this.size = page.getSize();
-    }
+    List<Long> queryOrphanIds(@Param("batchSize") int batchSize);
+
+    int deleteOrphansByIds(@Param("ids") List<Long> ids);
 }

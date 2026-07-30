@@ -1,3 +1,4 @@
+import appLogger from '@/utils/logger';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { UPDATE_SOCKET_STATUS } from '@/store/mutationTypes';
 import store from '@/store';
@@ -64,7 +65,7 @@ const checkLoginStatus = async () => {
 };
 
 const createWebSocket = async (url) => {
-  console.log('create socket', i18n);
+  appLogger.debug('create socket', i18n);
 
   if (rws || creatingWebSocket) {
     return;
@@ -126,7 +127,7 @@ const createWebSocket = async (url) => {
         eventBus.emit(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, data.object || data);
       }
     } catch (error) {
-      console.error(error);
+      appLogger.error(error);
     }
     if (globalCallback.message) {
       globalCallback.message(e.data);
@@ -212,23 +213,23 @@ const sendWebSocket = (data, callback = {}) => {
   globalCallback = callback;
   switch (rws.readyState) {
     case rws.OPEN:
-      console.log('OPEN');
+      appLogger.debug('OPEN');
       webSocketSend(data);
       break;
     case rws.CONNECTING:
-      console.log('CONNECTING');
+      appLogger.debug('CONNECTING');
       setTimeout(() => {
         webSocketSend(data, callback);
       }, 1000);
       break;
     case rws.CLOSING:
-      console.log('CLOSING');
+      appLogger.debug('CLOSING');
       setTimeout(() => {
         webSocketSend(data, callback);
       });
       break;
     case rws.CLOSED:
-      console.log('CLOSED');
+      appLogger.debug('CLOSED');
       break;
     default:
       break;

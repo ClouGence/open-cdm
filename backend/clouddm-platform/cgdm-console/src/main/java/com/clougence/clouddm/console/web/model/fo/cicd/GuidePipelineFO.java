@@ -28,6 +28,8 @@ public class GuidePipelineFO {
 
     private long         repoScmId;
     private String       repoScmUrl;
+    private String       repoId;
+    private String       repoPath;
     private String       repoSpace;
     private String       repoName;
     private String       repoBranch;

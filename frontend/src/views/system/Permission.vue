@@ -264,6 +264,7 @@
 </template>
 
 <script lang="jsx">
+import appLogger from '@/utils/logger';
 import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
@@ -570,7 +571,7 @@ export default {
   watch: {
     '$route.query.type': {
       handler(newVal) {
-        console.log(newVal);
+        appLogger.debug(newVal);
         if (newVal === 'apply') {
           this.goApplAuth();
         } else {
@@ -582,7 +583,7 @@ export default {
     },
     '$route.params.uid': {
       async handler(newVal, oldVal) {
-        console.log('uid', newVal, oldVal);
+        appLogger.debug('uid', newVal, oldVal);
         if (newVal !== oldVal) {
           this.uid = this.$route.params.uid || this.userInfo.uid;
           this.subAccount = this.$route.params.uid ? this.$route.query.name : '';
@@ -1981,7 +1982,7 @@ export default {
 
         this.curRightTreeTab = 'Instance';
       } catch (err) {
-        console.log(err);
+        appLogger.debug(err);
       }
     },
     async handleSwitchBatchMode(needSwitch = true) {
@@ -2007,7 +2008,7 @@ export default {
       if (this.batchMode) {
         if (this.activeAuthType === 'task') {
           await this.handleGetAuthTree('DataJob');
-          console.log('set task');
+          appLogger.debug('set task');
           this.auth.batchTreeData = deepClone(this.authList.DataJob);
         }
         if (this.activeAuthType === 'datasource') {
