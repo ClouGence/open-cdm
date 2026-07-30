@@ -4,20 +4,28 @@ import Loading from 'vue-loading-overlay';
 import dayjs from 'dayjs';
 import { Modal } from 'ant-design-vue';
 import { hasSchema } from '@/utils';
-import CreateTableItem from '@/components/modal/CreateTableItem';
 import { ACTION_TYPE } from '@/const';
 import copyMixin from '@/mixins/copyMixin';
 import { isUndefined } from 'xe-utils';
 import browseMixin from '@/mixins/browseMixin';
-import { cloneDeep as deepClone } from '@/utils/lodash';
+import { cloneDeep as deepClone, isEqual } from '@/utils/lodash';
 import CCModal from '@/components/ui/CCModal.vue';
+import TableEditorColumnsPanel from './tableEditor/TableEditorColumnsPanel';
+import TableEditorEntityPanel from './tableEditor/TableEditorEntityPanel';
+import TableEditorFormPanel from './tableEditor/TableEditorFormPanel';
+import { findFieldSchema, initializeFields, normalizeEditorItem, validatePanelItem } from './tableEditor/tableEditorUtils';
+
+const SQL_PREVIEW_PANEL = 'sqlPreview';
+const PANEL_PRIORITY = ['tableInfo', 'columns', 'indexes', 'foreignKeys', 'constraints', 'partitions'];
 
 export default {
   name: 'StructView',
   components: {
     CCModal,
-    CreateTableItem,
-    Loading
+    Loading,
+    TableEditorColumnsPanel,
+    TableEditorEntityPanel,
+    TableEditorFormPanel
   },
   mixins: [copyMixin, browseMixin],
   props: {
@@ -26,12 +34,78 @@ export default {
     setActiveKey: Function,
     tab: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     }
+  },
+  data() {
+    return {
+      ACTION_TYPE,
+      SQL_PREVIEW_PANEL,
+      activePanel: 'tableInfo',
+      initEditorLoading: false,
+      needFetchNewData: true,
+      sqlString: '',
+      sqlStale: false,
+      createSQLLoading: false,
+      executeSQLLoading: false,
+      showExecuteInfoModal: false,
+      sqls: [],
+      showTicketModal: false,
+      permission: {
+        hasPermission: false,
+        permissionI18n: ''
+      },
+      ticketData: {
+        ticketTitle: '',
+        description: ''
+      }
+    };
   },
   computed: {
     isEditTable() {
       return this.tab.editorType === ACTION_TYPE.EDIT_TABLE;
+    },
+    isDirty() {
+      if (!this.tab.init) {
+        return false;
+      }
+      return !isEqual(this.tab.originalFormData, this.tab.formData);
+    },
+    editorTabs() {
+      const availablePanels = Object.keys(this.tab.schemaDef || {}).filter((panelKey) => {
+        if (panelKey === 'keys' && this.tab.schemaDef.columns) {
+          return false;
+        }
+        return true;
+      });
+      const orderedPanels = [
+        ...PANEL_PRIORITY.filter((panelKey) => availablePanels.includes(panelKey)),
+        ...availablePanels.filter((panelKey) => !PANEL_PRIORITY.includes(panelKey))
+      ];
+      const tabs = orderedPanels.map((panelKey) => ({
+        name: panelKey,
+        label: this.panelLabel(panelKey),
+        errorCount: this.panelErrorCount(panelKey)
+      }));
+      tabs.push({
+        name: SQL_PREVIEW_PANEL,
+        label: this.$t('table-editor-sql-preview'),
+        errorCount: 0
+      });
+      return tabs;
+    },
+    activePanelSchema() {
+      const panelSchema = this.tab.schemaDef?.[this.activePanel] || null;
+      if (this.activePanel !== 'tableInfo' || !panelSchema) {
+        return panelSchema;
+      }
+
+      const tableInfoSchema = deepClone(panelSchema);
+      const nameFieldSchema = findFieldSchema(tableInfoSchema, 'name');
+      if (nameFieldSchema) {
+        nameFieldSchema.titleI18N = this.$t('biao-ming');
+      }
+      return tableInfoSchema;
     },
     ticketRuleValidate() {
       return {
@@ -64,46 +138,128 @@ export default {
     },
     'tab.formData': {
       handler() {
-        if (this.tab.init) {
-          this.storeQueryTabs();
+        if (!this.tab.init) {
+          return;
         }
+        if (this.sqlString) {
+          this.sqlStale = true;
+        }
+        this.storeQueryTabs();
       },
       deep: true
     }
   },
-  data() {
-    return {
-      initEditorLoading: false,
-      needFetchNewData: true,
-      showItem: true,
-      ACTION_TYPE,
-      sqlString: '',
-      createSQLLoading: false,
-      refreshLoading: false,
-      executeSQLLoading: false,
-      showExecuteInfoModal: false,
-      sqls: [],
-      showTicketModal: false,
-      showSqlModal: false,
-      permission: {
-        hasPermission: false,
-        permissionI18n: ''
-      },
-      ticketData: {
-        ticketTitle: '',
-        description: ''
-      },
-      replaceFields: {
-        title: 'name'
-      },
-      hoveredNodeKey: null
-    };
-  },
   methods: {
     dayjs,
     hasSchema,
+    panelLabel(panelKey) {
+      const labelKeys = {
+        tableInfo: 'table-editor-general',
+        columns: 'table-editor-fields',
+        keys: 'table-editor-primary-key',
+        foreignKeys: 'table-editor-foreign-keys',
+        constraints: 'table-editor-check-constraints',
+        indexes: 'table-editor-indexes',
+        partitions: 'table-editor-partitions'
+      };
+      if (labelKeys[panelKey]) {
+        return this.$t(labelKeys[panelKey]);
+      }
+      return this.tab.schemaDef?.[panelKey]?.titleI18N || panelKey;
+    },
+    databasePath() {
+      if (hasSchema(this.tab.dsType)) {
+        return `${this.tab.node.INSTANCE.name}.${this.tab.node.CATALOG.name}.${this.tab.node.SCHEMA.name}`;
+      }
+      return `${this.tab.node.INSTANCE.name}.${this.tab.node.SCHEMA.name}`;
+    },
+    panelErrorCount(panelKey) {
+      return this.collectValidationErrors().filter((error) => error.panelKey === panelKey).length;
+    },
+    collectValidationErrors() {
+      const errors = [];
+      Object.keys(this.tab.schemaDef || {}).forEach((panelKey) => {
+        const panelSchema = this.tab.schemaDef[panelKey];
+        if (panelKey === 'tableInfo') {
+          validatePanelItem(panelSchema, this.tab.formData.tableInfo || {}).forEach((error) => {
+            errors.push({ panelKey, ...error });
+          });
+          return;
+        }
+        const panelItems = this.tab.formData[panelKey] || [];
+        panelItems.forEach((item, rowIndex) => {
+          validatePanelItem(panelSchema, item).forEach((error) => {
+            errors.push({
+              panelKey: panelKey === 'keys' && this.tab.schemaDef.columns ? 'columns' : panelKey,
+              sourcePanelKey: panelKey,
+              rowIndex,
+              ...error
+            });
+          });
+        });
+        if (panelKey !== 'columns' && findFieldSchema(panelSchema, 'name')) {
+          const nameCounts = new Map();
+          panelItems.forEach((item) => {
+            const name = String(item.name || '').trim();
+            if (name) {
+              nameCounts.set(name, (nameCounts.get(name) || 0) + 1);
+            }
+          });
+          nameCounts.forEach((count, name) => {
+            if (count > 1) {
+              errors.push({
+                panelKey,
+                rowIndex: panelItems.findIndex((item) => String(item.name || '').trim() === name),
+                field: 'name',
+                label: this.$t('table-editor-duplicate-name', [name])
+              });
+            }
+          });
+        }
+      });
+
+      const columns = this.tab.formData.columns || [];
+      if (this.tab.schemaDef.columns && !columns.length) {
+        errors.push({
+          panelKey: 'columns',
+          label: this.$t('table-editor-at-least-one-column')
+        });
+      }
+      const columnNameCount = new Map();
+      columns.forEach((column) => {
+        const name = String(column.name || '').trim();
+        if (name) {
+          columnNameCount.set(name, (columnNameCount.get(name) || 0) + 1);
+        }
+      });
+      columnNameCount.forEach((count, name) => {
+        if (count > 1) {
+          errors.push({
+            panelKey: 'columns',
+            rowIndex: columns.findIndex((column) => String(column.name || '').trim() === name),
+            field: 'name',
+            label: this.$t('table-editor-duplicate-column', [name])
+          });
+        }
+      });
+      return errors;
+    },
+    validateEditorData() {
+      const errors = this.collectValidationErrors();
+      if (!errors.length) {
+        return true;
+      }
+      const firstError = errors[0];
+      this.tab.validationTarget = {
+        ...firstError,
+        nonce: dayjs().valueOf()
+      };
+      this.handlePanelChange(firstError.panelKey);
+      this.$Message.error(this.$t('table-editor-validation-failed', [this.panelLabel(firstError.panelKey), firstError.label || firstError.field]));
+      return false;
+    },
     async getSchemaAndInitData() {
-      appLogger.debug('getSchemaAndInitData');
+      this.tab.init = false;
       this.initEditorLoading = true;
       try {
         if (this.tab.editorType) {
@@ -116,27 +272,273 @@ export default {
         this.tab.originalFormData = deepClone(this.tab.formData);
         this.tab.isEditing = false;
         this.tab.init = true;
-      } catch (e) {
-        appLogger.error(e);
+        this.sqlString = '';
+        this.sqls = [];
+        this.sqlStale = false;
+        this.permission = {
+          hasPermission: false,
+          permissionI18n: ''
+        };
+        const requestedPanel = this.tab.activeEditorPanel;
+        const initialPanel = this.editorTabs.some((item) => item.name === requestedPanel) ? requestedPanel : this.editorTabs[0]?.name || 'tableInfo';
+        this.handlePanelChange(initialPanel);
+      } catch (error) {
+        appLogger.error(error);
       } finally {
         this.initEditorLoading = false;
       }
     },
-    async handleCloseExecuteInfoModal() {
-      this.showExecuteInfoModal = false;
-      if (this.needFetchNewData) {
-        const tabKey = `${this.tab.prefixKey}.\`${this.tab.formData.tableInfo.name}\``;
-        this.tab.key = tabKey;
-        this.tab.title = this.$t('thistabformdatatableinfoname-de-biao-jie-gou', [this.tab.formData.tableInfo.name]);
-        this.tab.initTableData.tableInfo.name = this.tab.formData.tableInfo.name;
-        this.tab.selectedTable.title = this.tab.formData.tableInfo.name;
-        this.tab.editorType = ACTION_TYPE.EDIT_TABLE;
-        this.setActiveKey(tabKey);
-        await this.getSchemaAndInitData();
+    async getSchema() {
+      const { node } = this.tab;
+      const res = await this.$services.dmEditorTableEditorDef({
+        data: {
+          levels: this.browseGenLevelsData(node),
+          viewMode: this.tab.editorType
+        }
+      });
+
+      if (!res.success) {
+        return;
       }
-      this.needFetchNewData = true;
+      const { order, uiPanels } = res.data;
+      const schema = {};
+      order.forEach((name) => {
+        schema[name] = uiPanels[name];
+      });
+      this.tab.schemaDef = schema;
+      this.tab.order = order;
+      this.initData();
+    },
+    initData() {
+      const formData = {};
+      Object.keys(this.tab.schemaDef).forEach((panelKey) => {
+        if (panelKey === 'tableInfo') {
+          formData[panelKey] = initializeFields({}, this.tab.schemaDef[panelKey].children);
+          return;
+        }
+        formData[panelKey] = [];
+      });
+      this.tab.formData = formData;
+      this.tab.nodeType = 'tableInfo';
+      this.tab.selectedIndex = -1;
+      this.tab.selectedNode = null;
+    },
+    async initSchemaEditor() {
+      const { selectedTable: table, node } = this.tab;
+      const res = await this.$services.dmEditorTableInitEditor({
+        data: {
+          levels: this.browseGenLevelsData(node),
+          table: table.title,
+          refreshCache: true
+        }
+      });
+      if (!res.success) {
+        return;
+      }
+      this.tab.initTableData = deepClone(res.data);
+      this.formatSchemaData(res.data);
+    },
+    formatSchemaData(sourceData) {
+      Object.keys(this.tab.schemaDef).forEach((panelKey) => {
+        let panelData = sourceData[panelKey];
+        if (panelData === undefined || panelData === null) {
+          return;
+        }
+        if (panelKey === 'tableInfo') {
+          const normalized = normalizeEditorItem(panelKey, panelData);
+          delete normalized.key;
+          delete normalized.schema;
+          delete normalized.isAdd;
+          this.tab.formData[panelKey] = initializeFields(normalized, this.tab.schemaDef[panelKey].children);
+          return;
+        }
+        if ((panelKey === 'keys' || panelKey === 'partitions') && !Array.isArray(panelData)) {
+          panelData = [panelData];
+        }
+        if (!Array.isArray(panelData)) {
+          return;
+        }
+        this.tab.formData[panelKey] = panelData.map((item) => {
+          const normalized = normalizeEditorItem(panelKey, item);
+          return initializeFields(normalized, this.tab.schemaDef[panelKey].children);
+        });
+      });
+    },
+    async handlePanelChange(panelName) {
+      this.activePanel = panelName;
+      this.tab.activeEditorPanel = panelName;
+      if (panelName !== SQL_PREVIEW_PANEL) {
+        this.tab.nodeType = panelName;
+        return;
+      }
+      if (!this.createSQLLoading && (!this.sqlString || this.sqlStale)) {
+        await this.generateSql({
+          switchPanel: false,
+          showNoChanges: false
+        });
+      }
+    },
+    setOptionsAttr(attr, topItem, data) {
+      if (attr.type === 'Options') {
+        if (attr.field in topItem) {
+          data[attr.field] = topItem[attr.field];
+          if (isUndefined(topItem[attr.field])) {
+            data[attr.field] = null;
+          }
+        }
+        (attr.options || []).forEach((option) => {
+          if (option.value === topItem[attr.field] && option.children) {
+            option.children.forEach((child) => {
+              if (child.type === 'SelectColumns' || child.type === 'SelectorList') {
+                const columns = [];
+                (topItem[child.field] || []).forEach((column) => {
+                  const indexColumn = {};
+                  (child.children || []).forEach((childField) => {
+                    indexColumn[childField.field] = column[childField.field];
+                  });
+                  columns.push(indexColumn);
+                });
+                data[child.field] = columns;
+                return;
+              }
+              data[child.field] = topItem[child.field];
+              this.setOptionsAttr(child, topItem, data);
+            });
+          }
+        });
+        return;
+      }
+      data[attr.field] = topItem[attr.field];
+    },
+    generateEditData() {
+      const tableSchema = {};
+
+      Object.keys(this.tab.schemaDef).forEach((panelKey) => {
+        if (panelKey === 'tableInfo') {
+          tableSchema[panelKey] = {};
+          this.tab.schemaDef[panelKey].children.forEach((attr) => {
+            if (attr.type === 'SelectColumns') {
+              tableSchema[panelKey][attr.field] = (this.tab.formData[panelKey][attr.field] || []).map((column) => {
+                const result = {};
+                (attr.children || []).forEach((child) => {
+                  result[child.field] = column[child.field];
+                });
+                return result;
+              });
+              return;
+            }
+            this.setOptionsAttr(attr, this.tab.formData[panelKey], tableSchema[panelKey]);
+          });
+          return;
+        }
+
+        tableSchema[panelKey] = [];
+        (this.tab.formData[panelKey] || []).forEach((item) => {
+          const result = {};
+          this.tab.schemaDef[panelKey].children.forEach((attr) => {
+            if (attr.type === 'SelectColumns') {
+              result[attr.field] = (item[attr.field] || []).map((column) => {
+                const selectedColumn = {};
+                (attr.children || []).forEach((child) => {
+                  selectedColumn[child.field] = column[child.field];
+                });
+                return selectedColumn;
+              });
+              return;
+            }
+            if (attr.type === 'Radios') {
+              result[attr.field] = item[attr.field];
+              (attr.options || []).forEach((option) => {
+                if (item[attr.field] === option.value) {
+                  (option.children || []).forEach((child) => {
+                    result[child.field] = item[child.field];
+                  });
+                }
+              });
+              return;
+            }
+            this.setOptionsAttr(attr, item, result);
+          });
+          tableSchema[panelKey].push(result);
+        });
+      });
+
+      if (Array.isArray(tableSchema.keys)) {
+        tableSchema.keys = tableSchema.keys[0] || null;
+      }
+      if (Array.isArray(tableSchema.partitions)) {
+        tableSchema.partitions = tableSchema.partitions[0] || null;
+      }
+      return tableSchema;
+    },
+    async generateSql(options = {}) {
+      const { switchPanel = true, showNoChanges = true } = options;
+      if (!this.validateEditorData()) {
+        return false;
+      }
+
+      this.createSQLLoading = true;
+      const tableSchema = this.generateEditData();
+      const { node } = this.tab;
+      const data = {
+        levels: this.browseGenLevelsData(node),
+        table: this.tab.editorType === ACTION_TYPE.EDIT_TABLE ? this.tab.initTableData.tableInfo.name : null,
+        tableSchema,
+        actionType: this.tab.editorType
+      };
+
+      this.storeQueryTabs();
+      try {
+        const res = await this.$services.dmEditorTableGenerateScript({ data });
+        if (!res.success) {
+          return false;
+        }
+        this.permission.hasPermission = res?.permission;
+        this.permission.permissionI18n = res?.permissionI18n;
+        this.sqls = res.data || [];
+        this.sqlString = this.sqls.map((sql) => sql.sql).join('\n');
+        this.sqlStale = false;
+        if (!this.sqlString && showNoChanges) {
+          Modal.info({
+            title: this.$t('ti-shi'),
+            content: this.$t('biao-jie-gou-wei-jin-hang-xiu-gai')
+          });
+        }
+        if (switchPanel) {
+          this.activePanel = SQL_PREVIEW_PANEL;
+          this.tab.activeEditorPanel = SQL_PREVIEW_PANEL;
+        }
+        return true;
+      } finally {
+        this.createSQLLoading = false;
+      }
+    },
+    handleCancelChanges() {
+      if (!this.isDirty) {
+        return;
+      }
+      Modal.confirm({
+        title: this.$t('table-editor-cancel-title'),
+        content: this.$t('table-editor-cancel-content'),
+        okText: this.$t('que-ding'),
+        cancelText: this.$t('qu-xiao'),
+        onOk: () => {
+          this.tab.formData = deepClone(this.tab.originalFormData);
+          this.tab.selectedIndex = -1;
+          this.tab.selectedNode = null;
+          this.sqlString = '';
+          this.sqls = [];
+          this.sqlStale = false;
+          this.handlePanelChange('tableInfo');
+          this.storeQueryTabs();
+        }
+      });
     },
     async handleRun() {
+      if (this.sqlStale) {
+        this.$Message.warning(this.$t('table-editor-sql-stale'));
+        return;
+      }
       this.executeSQLLoading = true;
       const sqlList = this.sqls.map((sql) => sql.sql);
       const { node } = this.tab;
@@ -145,7 +547,7 @@ export default {
       };
       this.tab.executeInfo = [];
       let database = null;
-      if (this.tab.node.levels && this.tab.node.levels.length) {
+      if (this.tab.node.levels?.length) {
         const lastLevel = this.tab.node.levels[this.tab.node.levels.length - 1];
         if (this.tab.node[lastLevel]) {
           database = this.tab.node[lastLevel].name;
@@ -162,669 +564,95 @@ export default {
             success: false,
             message: this.$t('wei-zhi-hang')
           });
-        } else {
-          const res = await this.$services.dmEditorTableScriptExecute({
-            data
-          });
-
-          if (res.success) {
-            this.tab.executeInfo.unshift({
-              database,
-              ...res.data[0]
-            });
-            if (!res.data[0].success) {
-              error = true;
-              this.needFetchNewData = false;
-            }
-          }
+          continue;
         }
-
-        // this.$forceUpdate();
-        if (this.showSqlModal) {
-          this.showSqlModal = false;
+        const res = await this.$services.dmEditorTableScriptExecute({ data });
+        if (res.success) {
+          this.tab.executeInfo.unshift({
+            database,
+            ...res.data[0]
+          });
+          if (!res.data[0].success) {
+            error = true;
+            this.needFetchNewData = false;
+          }
         }
         if (!this.showExecuteInfoModal) {
           this.showExecuteInfoModal = true;
         }
       }
-
-      this.createSQLLoading = false;
       this.executeSQLLoading = false;
     },
-    async initSchemaEditor() {
-      const { selectedTable: table, node } = this.tab;
-      const res = await this.$services.dmEditorTableInitEditor({
-        data: {
-          levels: this.browseGenLevelsData(node),
-          table: table.title,
-          refreshCache: true
-        }
-      });
-      if (res.success) {
-        appLogger.debug('initSchemaEditor');
-        this.tab.initTableData = deepClone(res.data);
-        this.formatSchemaData(res.data);
+    async handleCloseExecuteInfoModal() {
+      this.showExecuteInfoModal = false;
+      if (this.needFetchNewData) {
+        const tabKey = `${this.tab.prefixKey}.\`${this.tab.formData.tableInfo.name}\``;
+        this.tab.key = tabKey;
+        this.tab.title = this.$t('thistabformdatatableinfoname-de-biao-jie-gou', [this.tab.formData.tableInfo.name]);
+        this.tab.initTableData.tableInfo.name = this.tab.formData.tableInfo.name;
+        this.tab.selectedTable.title = this.tab.formData.tableInfo.name;
+        this.tab.editorType = ACTION_TYPE.EDIT_TABLE;
+        this.setActiveKey(tabKey);
+        await this.getSchemaAndInitData();
       }
-    },
-    formatSchemaData(data) {
-      Object.keys(data).forEach((key) => {
-        if (key && this.tab.schemaDef[key] && data[key]) {
-          if (key === 'keys' || key === 'partitions') {
-            data[key] = [data[key]];
-          }
-          if (Array.isArray(data[key])) {
-            appLogger.debug(key);
-            this.tab.treeData.forEach((node) => {
-              if (node.schema === key) {
-                data[key].forEach((item) => {
-                  const column = { scopedSlots: { title: 'custom' } };
-                  Object.keys(item).forEach((attr) => {
-                    column[attr] = item[attr];
-                    if (column[attr] === 'false') {
-                      column[attr] = false;
-                    }
-                    if (column[attr] === 'true') {
-                      column[attr] = true;
-                    }
-                    if (Array.isArray(item[attr])) {
-                      column[attr] = item[attr].map((col) => {
-                        const indexColumn = {};
-                        Object.keys(col).forEach((colKey) => {
-                          indexColumn[colKey] = col[colKey];
-                        });
-                        indexColumn.key = `${col.name}-${dayjs().valueOf()}`;
-                        appLogger.debug(indexColumn, attr);
-                        return indexColumn;
-                      });
-                    }
-                  });
-                  column.key = `${key}-${column.name}-${dayjs().valueOf()}`;
-                  column.schema = key;
-                  column.showForm = true;
-                  column.canDelete = true;
-                  column.canAdd = true;
-                  column.parentKey = node.key;
-                  node.num++;
-                  if (node.schema === 'keys' || node.schema === 'partitions') {
-                    column.canAdd = false;
-                    node.canAdd = false;
-                  }
-                  this.tab.formData[key].push(column);
-                  node.children.push(column);
-                });
-                if (!this.tab.expandedKeys.includes(node.key)) {
-                  this.tab.expandedKeys.push(node.key);
-                }
-              }
-            });
-          } else {
-            const item = data[key];
-            Object.keys(item).forEach((attr) => {
-              this.tab.formData[key][attr] = item[attr];
-              if (item[attr] === 'false') {
-                this.tab.formData[key][attr] = false;
-              }
-              if (item[attr] === 'true') {
-                this.tab.formData[key][attr] = true;
-              }
-
-              if (Array.isArray(item[attr])) {
-                this.tab.formData[key][attr] = item[attr].map((col) => {
-                  const indexColumn = {};
-                  Object.keys(col).forEach((colKey) => {
-                    indexColumn[colKey] = col[colKey];
-                  });
-                  indexColumn.key = `${col.name}-${dayjs().valueOf()}`;
-                  return indexColumn;
-                });
-              }
-            });
-          }
-        }
-      });
-
-      this.handleSelect([this.tab.treeData[0].key], {
-        node: {
-          pos: '0-0',
-          dataRef: {
-            schema: 'tableInfo',
-            showForm: true,
-            canAdd: false,
-            canDelete: false
-          }
-        }
-      });
-    },
-    async getSchema() {
-      const { node } = this.tab;
-      const res = await this.$services.dmEditorTableEditorDef({
-        data: {
-          levels: this.browseGenLevelsData(node),
-          viewMode: this.tab.editorType
-        }
-      });
-
-      if (res.success) {
-        appLogger.debug('get schema');
-        const { order, uiPanels } = res.data;
-        const schema = {};
-        order.forEach((name) => {
-          schema[name] = uiPanels[name];
-        });
-        this.tab.schemaDef = schema;
-        this.tab.order = order;
-        this.initData();
-      }
-    },
-    handleAddFromNode(item) {
-      // Select this node first
-      const schemaIndex = this.tab.order.findIndex((e) => e === item.schema);
-      let pos = `0-${schemaIndex}`;
-
-      // If it's a child, you need to find the index in the parent.
-      if (item.parentKey) {
-        const parentNode = this.tab.treeData.find((node) => node.key === item.parentKey);
-        if (parentNode) {
-          const childIndex = parentNode.children.findIndex((child) => child.key === item.key);
-          pos = `0-${this.tab.order.findIndex((e) => e === item.schema)}-${childIndex}`;
-        }
-      }
-
-      this.handleSelect([item.key], {
-        node: {
-          pos,
-          dataRef: item
-        }
-      });
-
-      // Then perform the addition operation
-      this.$nextTick(() => {
-        this.handleAdd();
-      });
-    },
-    handleDeleteFromNode(item) {
-      // Select this node first
-      const schemaIndex = this.tab.order.findIndex((e) => e === item.schema);
-      const parentNode = this.tab.treeData.find((node) => node.key === item.parentKey);
-      if (parentNode) {
-        const childIndex = parentNode.children.findIndex((child) => child.key === item.key);
-        this.handleSelect([item.key], {
-          node: {
-            pos: `0-${schemaIndex}-${childIndex}`,
-            dataRef: item
-          }
-        });
-
-        // Then execute the deletion operation
-        this.$nextTick(() => {
-          this.handleDelete();
-        });
-      }
-    },
-    handleAdd() {
-      const formData = this.tab.formData;
-      const treeData = this.tab.treeData;
-      const schema = {
-        scopedSlots: { title: 'custom' }
-      };
-      if (!this.tab.formData[this.tab.nodeType]) {
-        this.tab.formData[this.tab.nodeType] = [];
-      }
-
-      this.tab.schemaDef[this.tab.nodeType].children.forEach((column) => {
-        schema[column.field] = column.defaultVal;
-      });
-
-      schema.key = `${this.tab.nodeType}-${dayjs().valueOf()}`;
-      schema.schema = this.tab.nodeType;
-      schema.showForm = true;
-      schema.canDelete = true;
-      schema.canAdd = true;
-      schema.isAdd = true;
-      if (this.tab.selectedNode.dataRef.schema === 'keys' || this.tab.selectedNode.dataRef.schema === 'partitions') {
-        schema.canAdd = false;
-        this.tab.selectedNode.dataRef.canAdd = false;
-      }
-
-      treeData.forEach((item) => {
-        if (item.key === this.tab.selectedNode.dataRef.key || item.key === this.tab.selectedNode.dataRef.parentKey) {
-          schema.name = schema.name ? (item.num ? `${schema.name}_${item.num}` : schema.name) : '';
-          item.num++;
-          schema.parentKey = item.key;
-          schema.columns = [];
-          item.children.push(schema);
-          formData[this.tab.nodeType].push(schema);
-        }
-      });
-
-      if (!this.tab.expandedKeys.includes(this.tab.selectedNode.dataRef.key)) {
-        this.tab.expandedKeys.push(this.tab.selectedNode.dataRef.key);
-      }
-
-      this.tab.treeData = treeData;
-      this.tab.formData = formData;
-
-      const schemaIndex = this.tab.order.findIndex((e) => e === this.tab.nodeType);
-
-      this.handleSelect([schema.key], {
-        node: {
-          pos: `0-${schemaIndex}-${formData[this.tab.nodeType].length - 1}`,
-          dataRef: {
-            ...schema
-          }
-        }
-      });
-
-      // Autofocus name
-      this.$nextTick(() => {
-        this.focusAndSelectNameField();
-      });
-    },
-    focusAndSelectNameField() {
-      this.$nextTick(() => {
-        const nameLabels = this.$el.querySelectorAll('div');
-        nameLabels.forEach((label) => {
-          if (label.textContent && label.textContent.includes('名称')) {
-            const parentContainer = label.parentElement;
-            if (parentContainer) {
-              const input = parentContainer.querySelector('input[type="text"]');
-              if (input) {
-                input.focus();
-                input.select();
-              }
-            }
-          }
-        });
-      });
-    },
-    handleDelete() {
-      this.tab.treeData.forEach((node) => {
-        if (node.children) {
-          let index = node.children.findIndex((child) => child.key === this.tab.selectedNode.dataRef.key);
-          if (index > -1) {
-            node.canAdd = true;
-            node.children.splice(index, 1);
-            this.tab.formData[this.tab.nodeType].splice(index, 1);
-            if (this.tab.formData[this.tab.nodeType].length) {
-              if (this.tab.formData[this.tab.nodeType].length === index) {
-                index--;
-              }
-
-              const schemaIndex = this.tab.order.findIndex((e) => e === this.tab.nodeType);
-              const nextNode = this.tab.formData[this.tab.nodeType][index];
-
-              this.handleSelect([nextNode.key], {
-                node: {
-                  pos: `0-${schemaIndex}-${index}`,
-                  dataRef: {
-                    ...nextNode
-                  }
-                }
-              });
-            } else {
-              this.clearRightPanel();
-            }
-          }
-        }
-      });
-    },
-    clearRightPanel() {
-      // Empty the right panel
-      this.showItem = false;
-      this.tab.selectedKeys = [];
-      this.tab.selectedNode = null;
-      this.tab.selectedIndex = -1;
-      this.tab.selectedSchema = [];
-      this.tab.nodeType = null;
-    },
-    initData() {
-      const formData = {};
-      const treeData = [];
-
-      Object.keys(this.tab.schemaDef).forEach((key) => {
-        const treeKey = `${key}-${dayjs().valueOf()}`;
-        if (key === 'tableInfo') {
-          formData[key] = {};
-          this.tab.nodeType = key;
-          treeData.push({
-            name: this.tab.schemaDef[key].titleI18N,
-            key: treeKey,
-            schema: key,
-            showForm: true,
-            canDelete: false,
-            canAdd: false,
-            scopedSlots: { title: 'custom' }
-          });
-          this.tab.expandedKeys.push(treeKey);
-        } else {
-          formData[key] = [];
-          treeData.push({
-            name: this.tab.schemaDef[key].titleI18N,
-            key: treeKey,
-            schema: key,
-            showForm: false,
-            num: 0,
-            canDelete: false,
-            canAdd: true,
-            scopedSlots: { title: 'custom' },
-            children: []
-          });
-        }
-      });
-
-      this.tab.formData = formData;
-      this.tab.treeData = treeData;
-
-      this.handleSelect([treeData[0].key], {
-        node: {
-          pos: '0-0',
-          dataRef: {
-            schema: 'tableInfo',
-            showForm: true,
-            canAdd: false,
-            canDelete: false
-          }
-        }
-      });
-    },
-    handleSelect(selectedKeys, e) {
-      if (!selectedKeys.length) {
-        return;
-      }
-      this.showItem = false;
-      this.tab.selectedKeys = selectedKeys;
-      this.tab.selectedNode = {
-        key: selectedKeys[0],
-        dataRef: e.node.dataRef
-      };
-      const { schema, showForm } = e.node.dataRef;
-      this.tab.nodeType = schema;
-      if (!showForm) {
-        this.tab.selectedIndex = -1;
-        this.tab.selectedSchema = [];
-        return;
-      }
-      const posArr = e.node.pos.split('-');
-      this.tab.selectedIndex = parseInt(posArr[posArr.length - 1], 10);
-      const selectedData =
-        this.tab.nodeType === 'tableInfo' ? this.tab.formData[schema] : this.tab.formData[this.tab.nodeType][this.tab.selectedIndex];
-      const selectedSchema = deepClone(this.tab.schemaDef[schema].children);
-      const generateOptionSchema = (item) => {
-        if (item.type === 'Options' && selectedData) {
-          const optionData = selectedData[item.field];
-          item.options.forEach((option) => {
-            if (option.value === optionData && option.children && option.children.length) {
-              item.children = option.children;
-              option.children.forEach((child) => {
-                if (!(child.field in selectedData)) {
-                  selectedData[child.field] = child.defaultVal;
-                }
-                generateOptionSchema(child);
-              });
-            }
-          });
-        }
-        if (!(item.field in selectedData)) {
-          selectedData[item.field] = item.defaultVal;
-        }
-      };
-      selectedSchema.forEach((item) => {
-        generateOptionSchema(item);
-      });
-      this.tab.selectedSchema = selectedSchema;
-      this.$nextTick(() => {
-        this.showItem = true;
-      });
-    },
-    setOptionsAttr(attr, topItem, data) {
-      appLogger.debug(attr.field, topItem);
-      if (attr.type === 'Options') {
-        const attrOptionsLength = attr.options.length;
-        if (attr.field in topItem) {
-          data[attr.field] = topItem[attr.field];
-          if (isUndefined(topItem[attr.field])) {
-            data[attr.field] = null;
-          }
-        }
-        if (attrOptionsLength) {
-          attr.options.forEach((option) => {
-            if (option.value === topItem[attr.field] && option.children) {
-              option.children.forEach((child) => {
-                if (child.type === 'SelectColumns' || child.type === 'SelectorList') {
-                  const columns = [];
-                  if (topItem[child.field]) {
-                    topItem[child.field].forEach((col) => {
-                      const indexColumn = {};
-                      child.children.forEach((child2) => {
-                        indexColumn[child2.field] = col[child2.field];
-                      });
-                      columns.push(indexColumn);
-                    });
-                  }
-                  data[child.field] = columns;
-                } else {
-                  data[child.field] = topItem[child.field];
-                  this.setOptionsAttr(child, topItem, data);
-                }
-              });
-            }
-          });
-        }
-      } else {
-        data[attr.field] = topItem[attr.field];
-      }
-    },
-    generateEditData() {
-      const tableSchema = {};
-
-      Object.keys(this.tab.schemaDef).forEach((key) => {
-        if (key === 'tableInfo') {
-          this.tab.schemaDef[key].children.forEach((attr) => {
-            if (!tableSchema[key]) {
-              tableSchema[key] = {};
-            }
-            if (attr.type === 'SelectColumns' && this.tab.formData[key][attr.field]) {
-              const columns = [];
-              this.tab.formData[key][attr.field].forEach((col) => {
-                const indexColumn = {};
-                attr.children.forEach((child) => {
-                  indexColumn[child.field] = col[child.field];
-                });
-                columns.push(indexColumn);
-              });
-              tableSchema[key][attr.field] = columns;
-            } else {
-              this.setOptionsAttr(attr, this.tab.formData[key], tableSchema[key]);
-            }
-          });
-        } else {
-          appLogger.debug(this.tab.formData[key], key);
-          this.tab.formData[key].forEach((item) => {
-            if (!tableSchema[key]) {
-              tableSchema[key] = [];
-            }
-
-            const column = {};
-
-            this.tab.schemaDef[key].children.forEach((attr) => {
-              if (attr.type === 'SelectColumns') {
-                column[attr.field] = item[attr.field];
-                const columns = [];
-                item[attr.field].forEach((col) => {
-                  const indexColumn = {};
-                  attr.children.forEach((child) => {
-                    indexColumn[child.field] = col[child.field];
-                  });
-                  columns.push(indexColumn);
-                });
-                column[attr.field] = columns;
-              } else if (attr.type === 'Radios') {
-                column[attr.field] = item[attr.field];
-                if (attr.options) {
-                  attr.options.forEach((option) => {
-                    if (item[attr.field] === option.value) {
-                      if (option.children) {
-                        option.children.forEach((child) => {
-                          column[child.field] = item[child.field];
-                        });
-                      }
-                    }
-                  });
-                }
-              } else {
-                this.setOptionsAttr(attr, item, column);
-              }
-            });
-
-            tableSchema[key].push(column);
-          });
-        }
-      });
-
-      if (tableSchema.keys && tableSchema.keys.length) {
-        tableSchema.keys = tableSchema.keys[0];
-      }
-
-      if (tableSchema.partitions && tableSchema.partitions.length) {
-        tableSchema.partitions = tableSchema.partitions[0];
-      }
-
-      return tableSchema;
-    },
-    async handleCreateTable(type = 'create') {
-      appLogger.debug('handleCreateTable');
-      if (type === 'refresh') {
-        this.refreshLoading = true;
-      } else {
-        this.createSQLLoading = true;
-      }
-      const tableSchema = this.generateEditData();
-      const { node } = this.tab;
-
-      const data = {
-        levels: this.browseGenLevelsData(node),
-        table: this.tab.editorType === ACTION_TYPE.EDIT_TABLE ? this.tab.initTableData.tableInfo.name : null,
-        tableSchema,
-        actionType: this.tab.editorType
-      };
-
-      this.storeQueryTabs();
-
-      const res = await this.$services.dmEditorTableGenerateScript({ data });
-      if (res.success) {
-        this.permission.hasPermission = res?.permission;
-        this.permission.permissionI18n = res?.permissionI18n;
-      }
-      if (type === 'refresh') {
-        this.refreshLoading = false;
-      } else {
-        this.createSQLLoading = false;
-      }
-
-      if (res.success) {
-        this.sqls = res.data;
-        const sqlList = [];
-        res.data.forEach((sql) => {
-          sqlList.push(sql.sql);
-        });
-        if (sqlList.length) {
-          if (type === 'refresh') {
-            Modal.confirm({
-              title: this.$t('ti-shi'),
-              content: this.$t('shua-xin-hui-diu-shi-xiu-gai-que-ding-yao-shua-xin-ma'),
-              onOk: async () => this.getSchemaAndInitData()
-            });
-          } else {
-            this.sqlString = sqlList.join('\n');
-            this.showSqlModal = true;
-          }
-        } else {
-          if (type === 'refresh') {
-            await this.getSchemaAndInitData();
-          } else {
-            Modal.info({
-              title: this.$t('ti-shi'),
-              content: this.$t('biao-jie-gou-wei-jin-hang-xiu-gai')
-            });
-          }
-        }
-      }
-    },
-    handleExpandTree(expandedKeys, e) {
-      const { eventKey } = e.node;
-      if (e.expanded) {
-        expandedKeys.push(eventKey);
-      } else {
-        expandedKeys = expandedKeys.filter((key) => key !== eventKey);
-      }
-      this.tab.expandedKeys = expandedKeys;
-    },
-    handleRefresh() {
-      const tableScehma = this.generateEditData();
-      appLogger.debug(tableScehma);
+      this.needFetchNewData = true;
     },
     async submitTicket() {
       try {
         const valid = await this.$refs.ticketContent.validate();
-        if (valid) {
-          const { node } = this.tab;
-          const dbLevels = this.browseGenLevelsData(node);
-          const data = {
-            dbLevels,
-            rawSql: this.sqlString,
-            description: this.ticketData.description,
-            ticketTitle: this.ticketData.ticketTitle,
-            force: true
-          };
-          const res = await this.$services.dmTicketCreate({ data });
-          if (res.success) {
-            const path = `/ticket/${res.data?.ticketId}`;
-            this.$Message.success({
-              duration: 2.5,
-              render: (h) => {
-                return h('div', [
-                  this.$t('ti-jiao-cheng-gong'),
-                  ', ',
-                  h(
-                    'a',
-                    {
-                      style: {
-                        position: 'relative',
-                        top: '1px',
-                        color: '#2d8cf0',
-                        textDecoration: 'underline',
-                        cursor: 'pointer'
-                      },
-                      on: {
-                        click: () => {
-                          this.$router.push(path);
-                        }
-                      }
-                    },
-                    this.$t('dian-ji-tiao-zhuan-zhi-gong-dan')
-                  )
-                ]);
-              }
-            });
-            this.showSqlModal = false;
-            this.showTicketModal = false;
-            this.resetTicketForm();
-          } else {
-            this.$Message.error(res.msg);
-            this.showTicketModal = false;
-          }
+        if (!valid) {
+          return;
         }
+        const { node } = this.tab;
+        const data = {
+          dbLevels: this.browseGenLevelsData(node),
+          rawSql: this.sqlString,
+          description: this.ticketData.description,
+          ticketTitle: this.ticketData.ticketTitle,
+          force: true
+        };
+        const res = await this.$services.dmTicketCreate({ data });
+        if (!res.success) {
+          this.$Message.error(res.msg);
+          this.showTicketModal = false;
+          return;
+        }
+        const path = `/ticket/${res.data?.ticketId}`;
+        this.$Message.success({
+          duration: 2.5,
+          render: (h) =>
+            h('div', [
+              this.$t('ti-jiao-cheng-gong'),
+              ', ',
+              h(
+                'a',
+                {
+                  style: {
+                    position: 'relative',
+                    top: '1px',
+                    color: 'var(--info-color)',
+                    textDecoration: 'underline',
+                    cursor: 'pointer'
+                  },
+                  on: {
+                    click: () => this.$router.push(path)
+                  }
+                },
+                this.$t('dian-ji-tiao-zhuan-zhi-gong-dan')
+              )
+            ])
+        });
+        this.showTicketModal = false;
+        this.resetTicketForm();
       } catch (error) {
         appLogger.error(error);
       }
     },
     resetTicketForm() {
-      // Reset Form Data
       this.ticketData = {
         ticketTitle: '',
         description: ''
       };
-      // Clear Form Verify Status
       if (this.$refs.ticketContent) {
         this.$refs.ticketContent.clearValidate();
       }
@@ -834,12 +662,14 @@ export default {
       this.resetTicketForm();
     },
     handleOpenTicketModal() {
-      // Reset Form Data
+      if (this.sqlStale) {
+        this.$Message.warning(this.$t('table-editor-sql-stale'));
+        return;
+      }
       this.ticketData = {
         ticketTitle: `${this.$t('gong-dan')}${new Date().getTime()}`,
         description: ''
       };
-      // Clear prevalidation status
       this.$nextTick(() => {
         if (this.$refs.ticketContent) {
           this.$refs.ticketContent.clearValidate();
@@ -853,94 +683,100 @@ export default {
 
 <template>
   <div class="struct-view">
-    <div class="header" style="font-weight: bold">
-      <div class="title" style="display: flex; align-items: center">
-        <CustomIcon size="16" rightMargin :type="tab.node.INSTANCE.attr.dsType" />
-        {{
-          hasSchema(tab.dsType)
-            ? `${tab.node.INSTANCE.name}.${tab.node.CATALOG.name}.${tab.node.SCHEMA.name}`
-            : `${tab.node.INSTANCE.name}.${tab.node.SCHEMA.name}`
-        }}
+    <loading :active.sync="initEditorLoading" :is-full-page="false" />
+
+    <div class="table-editor-header">
+      <div class="table-editor-context">
+        <CustomIcon size="18" right-margin :type="tab.node.INSTANCE.attr.dsType" />
+        <div class="table-editor-context__text">
+          <span class="table-editor-context__path">{{ databasePath() }}</span>
+          <span v-if="tab.formData.tableInfo?.name" class="table-editor-context__table">/ {{ tab.formData.tableInfo.name }}</span>
+          <span v-if="isDirty" class="table-editor-dirty">{{ $t('table-editor-unsaved') }}</span>
+        </div>
       </div>
-      <div class="op">
-        <a-button
-          type="primary"
-          @click="handleCreateTable"
-          :loading="createSQLLoading"
-          size="small"
-          style="margin-right: 10px"
-          :disabled="refreshLoading"
+    </div>
+
+    <div v-if="tab.init" class="table-editor-workspace">
+      <nav class="table-editor-sidebar" :aria-label="$t('table-editor-navigation')">
+        <button
+          v-for="tabItem in editorTabs"
+          :key="tabItem.name"
+          type="button"
+          class="table-editor-sidebar__item"
+          :class="{
+            'table-editor-sidebar__item--active': activePanel === tabItem.name
+          }"
+          :aria-current="activePanel === tabItem.name ? 'page' : undefined"
+          @click="handlePanelChange(tabItem.name)"
         >
-          {{ createSQLLoading ? $t('zheng-zai-sheng-cheng-sql-yu-ju') : $t('bao-cun') }}
-        </a-button>
-        <a-button size="small" style="width: 40px" @click="handleCreateTable('refresh')" :loading="refreshLoading" :disabled="createSQLLoading">
-          <CustomIcon type="icon-v2-Refresh" v-if="!refreshLoading" />
-        </a-button>
-      </div>
-    </div>
-    <div class="struct-view-content">
-      <loading :active.sync="initEditorLoading" :is-full-page="false"></loading>
-      <div class="left">
-        <div class="struct-resize" />
-        <div style="flex: 1; overflow: auto">
-          <a-tree
-            :tree-data="tab.treeData"
-            @select="handleSelect"
-            :replace-fields="replaceFields"
-            :expandedKeys="tab.expandedKeys"
-            v-if="tab.treeData.length"
-            @expand="handleExpandTree"
-            :selectedKeys="tab.selectedKeys"
-          >
-            <template #title="item">
-              <div class="tree-node-wrapper" @mouseenter="hoveredNodeKey = item.key" @mouseleave="hoveredNodeKey = null">
-                <div class="tree-node-content">
-                  <span :style="`font-weight: bold;color: ${item.isAdd ? 'green' : ''}`">
-                    {{ item.name }}
-                  </span>
-                  <span v-if="item.columnType" style="color: #aaa; font-style: italic">{{ ` (${item.columnType})` }}</span>
-                </div>
-                <div class="tree-node-actions" v-if="hoveredNodeKey === item.key || (tab.selectedKeys && tab.selectedKeys.includes(item.key))">
-                  <span v-if="item.canAdd && !item.parentKey" class="action-icon-wrapper" @click.stop="handleAddFromNode(item)">
-                    <CustomIcon type="icon-v2-Add" :size="14" />
-                  </span>
-                  <span v-if="item.canDelete && item.parentKey" class="action-icon-wrapper" @click.stop="handleDeleteFromNode(item)">
-                    <CustomIcon type="icon-v2-Delete2" :size="14" />
-                  </span>
-                </div>
-              </div>
-            </template>
-          </a-tree>
-        </div>
-      </div>
-      <div class="right">
-        <div class="create-table" v-if="showItem">
-          <create-table-item
-            :current-schema="component"
-            :form-data="tab.formData"
-            :node-type="tab.nodeType"
-            :selected-index="tab.selectedIndex"
+          <span class="table-editor-sidebar__label">{{ tabItem.label }}</span>
+          <span v-if="tabItem.errorCount" class="table-editor-tab-error">{{ tabItem.errorCount }}</span>
+        </button>
+      </nav>
+
+      <main class="table-editor-main">
+        <div class="table-editor-body">
+          <TableEditorFormPanel
+            v-if="activePanel === 'tableInfo' && activePanelSchema"
             :tab="tab"
-            v-for="component in tab.selectedSchema"
-            :key="component.field"
+            panel-key="tableInfo"
+            :panel-schema="activePanelSchema"
           />
+
+          <TableEditorColumnsPanel
+            v-else-if="activePanel === 'columns' && activePanelSchema"
+            :tab="tab"
+            :panel-schema="activePanelSchema"
+            :keys-schema="tab.schemaDef.keys"
+          />
+
+          <TableEditorEntityPanel
+            v-else-if="activePanel !== SQL_PREVIEW_PANEL && activePanelSchema"
+            :key="activePanel"
+            :tab="tab"
+            :panel-key="activePanel"
+            :panel-schema="activePanelSchema"
+          />
+
+          <div v-else-if="activePanel === SQL_PREVIEW_PANEL" class="sql-preview-panel">
+            <div v-if="sqlStale" class="sql-preview-notice">
+              <span>{{ $t('table-editor-sql-stale') }}</span>
+              <a-button type="link" :loading="createSQLLoading" @click="generateSql({ switchPanel: false })">
+                {{ $t('table-editor-regenerate-sql') }}
+              </a-button>
+            </div>
+            <div v-if="sqlString" class="sql-preview-code">
+              <pre>{{ sqlString }}</pre>
+            </div>
+            <div v-else class="sql-preview-empty">
+              <div>{{ $t('table-editor-no-sql-preview') }}</div>
+              <a-button type="primary" :loading="createSQLLoading" @click="generateSql({ switchPanel: false })">
+                {{ $t('table-editor-generate-sql') }}
+              </a-button>
+            </div>
+            <div v-if="sqlString" class="sql-preview-actions">
+              <a-button @click="copyText(sqlString)">{{ $t('fu-zhi-sql-yu-ju') }}</a-button>
+              <a-button v-if="permission.hasPermission" type="primary" :disabled="sqlStale" :loading="executeSQLLoading" @click="handleRun">
+                {{ $t('li-ji-zhi-hang') }}
+              </a-button>
+              <a-button v-else type="primary" :disabled="sqlStale" @click="handleOpenTicketModal">
+                {{ $t('ti-jiao-gong-dan') }}
+              </a-button>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <footer v-if="activePanel !== SQL_PREVIEW_PANEL" class="table-editor-footer">
+          <a-button :disabled="!isDirty || createSQLLoading" @click="handleCancelChanges">
+            {{ $t('qu-xiao') }}
+          </a-button>
+          <a-button type="primary" :loading="createSQLLoading" @click="generateSql()">
+            {{ createSQLLoading ? $t('zheng-zai-sheng-cheng-sql-yu-ju') : $t('table-editor-preview-changes') }}
+          </a-button>
+        </footer>
+      </main>
     </div>
-    <CCModal v-model="showSqlModal" :title="$t('sql-yu-ju')" :width="700" :mask-closable="false">
-      <div style="border: 1px solid #ccc; padding: 5px; height: 450px; overflow: scroll">
-        <pre>{{ sqlString }}</pre>
-      </div>
-      <template #footer>
-        <a-button @click="copyText(sqlString)">{{ $t('fu-zhi-sql-yu-ju') }}</a-button>
-        <a-button v-if="permission.hasPermission" type="primary" @click="handleRun" :loading="executeSQLLoading">
-          {{ $t('li-ji-zhi-hang') }}
-        </a-button>
-        <a-button v-if="!permission.hasPermission" type="primary" @click="handleOpenTicketModal">
-          {{ $t('ti-jiao-gong-dan') }}
-        </a-button>
-      </template>
-    </CCModal>
+
     <CCModal
       v-model="showExecuteInfoModal"
       :title="$t('zhi-hang-xin-xi')"
@@ -949,17 +785,15 @@ export default {
       :keyboard="false"
       @on-cancel="handleCloseExecuteInfoModal"
     >
-      <div style="height: 600px; overflow: auto">
+      <div class="execute-info-list">
         <div v-for="(info, index) in tab.executeInfo" :key="index" class="result-info">
-          <div class="first">
-            <div :class="`level ${info.success ? 'Info' : 'Error'}`">{{ info.database }}></div>
-            <div class="sql">{{ info.sql }}</div>
+          <div class="result-info__first">
+            <div :class="`result-info__level ${info.success ? 'Info' : 'Error'}`">{{ info.database }}></div>
+            <div class="result-info__sql">{{ info.sql }}</div>
           </div>
-          <div class="second">
-            <div class="time">[{{ dayjs(info.startTimestamp).format('YYYY-MM-DD HH:mm:ss') }}]</div>
-            <div :class="`message ${!info.success ? 'message-error' : ''}`">
-              {{ info.message }}
-            </div>
+          <div class="result-info__second">
+            <div class="result-info__time">[{{ dayjs(info.startTimestamp).format('YYYY-MM-DD HH:mm:ss') }}]</div>
+            <div :class="{ 'result-info__message--error': !info.success }">{{ info.message }}</div>
           </div>
         </div>
       </div>
@@ -967,17 +801,18 @@ export default {
         <a-button @click="handleCloseExecuteInfoModal">{{ $t('guan-bi') }}</a-button>
       </template>
     </CCModal>
+
     <CCModal v-model="showTicketModal" :title="$t('ti-jiao-gong-dan')" @on-cancel="handleCloseTicketModal">
       <a-form :model="ticketData" :rules="ticketRuleValidate" ref="ticketContent" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
         <a-form-item :label="$t('biao-ti')" prop="ticketTitle">
           <a-input v-model:value="ticketData.ticketTitle" />
         </a-form-item>
         <a-form-item :label="$t('xu-qiu-miao-shu')" prop="description">
-          <a-input type="textarea" v-model:value="ticketData.description" :rows="4" />
+          <a-textarea v-model:value="ticketData.description" :rows="4" />
         </a-form-item>
       </a-form>
       <template #footer>
-        <a-button type="text" @click="handleCloseTicketModal">{{ $t('qu-xiao') }}</a-button>
+        <a-button @click="handleCloseTicketModal">{{ $t('qu-xiao') }}</a-button>
         <a-button type="primary" @click="submitTicket">{{ $t('que-ding') }}</a-button>
       </template>
     </CCModal>
@@ -985,221 +820,348 @@ export default {
 </template>
 
 <style scoped lang="less">
+.struct-view {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.table-editor-header {
+  display: flex;
+  min-height: 52px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 24px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.table-editor-context {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.table-editor-context__text {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
+}
+
+.table-editor-context__path,
+.table-editor-context__table {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-editor-context__path {
+  font-weight: 500;
+}
+
+.table-editor-context__table {
+  color: var(--text-secondary);
+}
+
+.table-editor-dirty {
+  flex: 0 0 auto;
+  color: var(--warning-color);
+  font-size: 12px;
+}
+
+.table-editor-workspace {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: 184px minmax(0, 1fr);
+}
+
+.table-editor-sidebar {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  padding: 16px 12px;
+  border-right: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+}
+
+.table-editor-sidebar__item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.table-editor-sidebar__item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.table-editor-sidebar__item--active {
+  background: var(--bg-hover);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.table-editor-sidebar__item--active::before {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--primary-color);
+  content: '';
+}
+
+.table-editor-sidebar__label {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-editor-tab-error {
+  display: inline-flex;
+  min-width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--error-color);
+  color: #fff;
+  font-size: 11px;
+}
+
+.table-editor-main {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.table-editor-body {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.table-editor-footer {
+  display: flex;
+  box-sizing: border-box;
+  height: 64px;
+  min-height: 64px;
+  max-height: 64px;
+  flex: 0 0 64px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-primary);
+}
+
+.table-editor-footer :deep(.ant-btn) {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 16px;
+  line-height: 34px;
+}
+
+.sql-preview-panel {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  padding: 20px 24px;
+}
+
+.sql-preview-notice {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--warning-color);
+}
+
+.sql-preview-code {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+}
+
+.sql-preview-code pre {
+  min-width: max-content;
+  margin: 0;
+  padding: 16px;
+  color: var(--text-primary);
+  font-family: ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.sql-preview-empty {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.sql-preview-actions {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+.execute-info-list {
+  max-height: 600px;
+  overflow: auto;
+}
+
 .result-info {
-  margin-bottom: 5px;
-  font-weight: bold;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
 
-  .first {
-    display: flex;
+.result-info__first,
+.result-info__second {
+  display: flex;
+}
+
+.result-info__level {
+  height: 20px;
+  margin-right: 4px;
+  padding: 0 6px;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.result-info__level.Info {
+  background: var(--success-color);
+}
+
+.result-info__level.Error {
+  background: var(--error-color);
+}
+
+.result-info__sql {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-info__time {
+  margin-right: 6px;
+  color: var(--text-tertiary);
+}
+
+.result-info__message--error {
+  color: var(--error-color);
+}
+
+@media (max-width: 900px) {
+  .table-editor-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
-  .level {
-    padding: 0 5px;
-    border-radius: 3px;
-    height: 20px;
-    margin-right: 3px;
-    color: #fff;
-
-    &.Info {
-      background: #19be6b;
-    }
-
-    &.Warn {
-      background: #f90;
-    }
-
-    &.Error {
-      background: #ed4014;
-    }
+  .table-editor-sidebar {
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 8px 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-light);
+    scrollbar-width: none;
   }
 
-  .time {
-    margin-right: 5px;
-    color: #aaa;
+  .table-editor-sidebar::-webkit-scrollbar {
+    display: none;
   }
 
-  .message {
-    flex: 1;
+  .table-editor-sidebar__item {
+    width: auto;
+    min-width: 128px;
+    flex: 0 0 auto;
+    justify-content: center;
+  }
+
+  .table-editor-sidebar__item--active::before {
+    top: auto;
+    right: 12px;
+    bottom: -9px;
+    left: 12px;
+    width: auto;
+    height: 3px;
+    border-radius: 2px 2px 0 0;
   }
 }
 
-.struct-view {
-  width: 100%;
-  padding: 0 10px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-
-  .header {
-    height: 30px;
-    line-height: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .title {
-      display: flex;
-      align-items: center;
-    }
+@media (max-width: 768px) {
+  .table-editor-header {
+    padding: 12px 16px;
   }
 
-  .struct-view-content {
-    margin-bottom: 10px;
-    display: flex;
-    border: 1px solid #ccc;
-    flex: 1;
-    min-height: 0;
+  .table-editor-context__path {
+    max-width: 55vw;
+  }
 
-    .left {
-      border-right: 1px solid #ccc;
-      width: 200px;
-      display: flex;
-      flex-direction: column;
-      position: relative;
+  .table-editor-footer {
+    height: 58px;
+    min-height: 58px;
+    max-height: 58px;
+    flex-basis: 58px;
+    padding: 10px 16px;
+  }
 
-      .struct-resize {
-        height: 100%;
-        width: 6px;
-        background: rgba(0, 0, 0, 0);
-        position: absolute;
-        right: -3px;
-        cursor: col-resize;
-        z-index: 9;
-      }
-
-      :deep(.ant-btn) {
-        border: none;
-        border-bottom: 1px solid #ccc;
-
-        &:first-child {
-          border-right: 1px solid #ccc;
-        }
-      }
-
-      > div {
-        overflow-x: hidden !important;
-        overflow-y: auto;
-      }
-    }
-
-    .right {
-      flex: 1;
-      overflow: auto;
-      padding: 10px;
-    }
-
-    :deep(.ant-tree-child-tree > li:first-child) {
-      padding: 0;
-    }
-
-    :deep(.ant-tree > li:first-child) {
-      padding: 0;
-    }
-
-    :deep(.ant-tree li) {
-      padding: 0;
-    }
-
-    :deep(.ant-tree li ul) {
-      padding-left: 8px;
-    }
-
-    :deep(.ant-tree li .ant-tree-node-content-wrapper) {
-      width: 100%;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.3s;
-      display: inline-block;
-      line-height: 16px;
-    }
-
-    :deep(.ant-tree li .ant-tree-node-content-wrapper:hover) {
-      background-color: #f5f5f5;
-    }
-
-    :deep(.ant-tree li .ant-tree-node-content-wrapper.ant-tree-node-selected) {
-      background-color: #e6f7ff;
-    }
-    :deep(.ant-tree-node-content-wrapper) {
-      width: 100% !important;
-      overflow: hidden;
-    }
-    :deep(.ant-tree-treenode) {
-      width: 100% !important;
-      padding-bottom: 0;
-      white-space: nowrap;
-      overflow: hidden;
-    }
-    :deep(.ant-tree-treenode-selected) {
-      width: 100% !important;
-      background-color: #e6f4ff !important;
-      padding-bottom: 0;
-      overflow: hidden;
-    }
-    :deep(.ant-tree-node-selected) {
-      width: 100% !important;
-      overflow: hidden;
-    }
-
-    :deep(.ant-tree) {
-      overflow-x: hidden !important;
-    }
-
-    .tree-node-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      width: 100%;
-      min-height: 24px;
-    }
-
-    .tree-node-content {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      padding-right: 20px;
-    }
-
-    .tree-node-actions {
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      gap: 4px;
-      padding-left: 16px;
-      padding-right: 4px;
-      background: linear-gradient(to right, transparent 0%, rgba(245, 245, 245, 0.8) 15%, #f5f5f5 100%);
-
-      .action-icon-wrapper {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 22px;
-        height: 22px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        color: rgba(0, 0, 0, 0.45);
-
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.06);
-          color: rgba(0, 0, 0, 0.88);
-          transform: scale(1.1);
-        }
-
-        &:active {
-          transform: scale(0.95);
-        }
-      }
-    }
-
-    :deep(.ant-tree-node-content-wrapper.ant-tree-node-selected) {
-      .tree-node-actions {
-        background: linear-gradient(to right, transparent 0%, rgba(230, 247, 255, 0.8) 15%, #e6f7ff 100%);
-      }
-    }
+  .table-editor-footer :deep(.ant-btn) {
+    height: 34px;
+    min-height: 34px;
+    line-height: 32px;
   }
 }
 </style>

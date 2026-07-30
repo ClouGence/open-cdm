@@ -1,9 +1,10 @@
 <script>
 import appLogger from '@/utils/logger';
-import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
+import { MinusOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import { TAB_TYPE } from '@/const';
 import browseMixin from '@/mixins/browseMixin';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 
 export default {
   name: 'CreateTableItem',
@@ -20,6 +21,7 @@ export default {
     selectedNode: Object
   },
   components: {
+    MinusOutlined,
     PlusOutlined,
     QuestionCircleOutlined
   },
@@ -31,6 +33,15 @@ export default {
       } else {
         return false;
       }
+    },
+    isIndexColumnsSelector() {
+      return this.nodeType === 'indexes' && this.schema.type === 'SelectColumns';
+    },
+    selectedIndexColumnNames() {
+      return (this.selectedData[this.schema.field] || [])
+        .map((column) => column.name)
+        .filter(Boolean)
+        .join(', ');
     }
   },
   data() {
@@ -45,7 +56,10 @@ export default {
       selectedLeaf: null,
       schema: {},
       inputVisible: false,
-      inputValue: ''
+      inputValue: '',
+      indexColumnsModalVisible: false,
+      indexColumnsDraft: [],
+      selectedIndexColumnDraftIndex: -1
     };
   },
   watch: {
@@ -179,6 +193,51 @@ export default {
       this.selectedColumnIndex = index;
       this.selectedColumn = column;
     },
+    createIndexColumnDraft() {
+      const column = {
+        key: `${dayjs().valueOf()}-${this.indexColumnsDraft.length}`
+      };
+      (this.schema.children || []).forEach((childSchema) => {
+        column[childSchema.field] = deepClone(childSchema.defaultVal);
+      });
+      return column;
+    },
+    handleOpenIndexColumnsModal() {
+      this.indexColumnsDraft = deepClone(this.selectedData[this.schema.field] || []);
+      if (!this.indexColumnsDraft.length) {
+        this.indexColumnsDraft.push(this.createIndexColumnDraft());
+      }
+      this.selectedIndexColumnDraftIndex = this.indexColumnsDraft.length - 1;
+      this.indexColumnsModalVisible = true;
+    },
+    handleCloseIndexColumnsModal() {
+      this.indexColumnsModalVisible = false;
+      this.indexColumnsDraft = [];
+      this.selectedIndexColumnDraftIndex = -1;
+    },
+    handleSaveIndexColumns() {
+      this.selectedData[this.schema.field] = deepClone(this.indexColumnsDraft);
+      this.handleCloseIndexColumnsModal();
+      this.$forceUpdate();
+    },
+    handleAddIndexColumnDraft() {
+      this.indexColumnsDraft.push(this.createIndexColumnDraft());
+      this.selectedIndexColumnDraftIndex = this.indexColumnsDraft.length - 1;
+    },
+    handleDeleteIndexColumnDraft() {
+      if (this.selectedIndexColumnDraftIndex < 0) {
+        return;
+      }
+      this.indexColumnsDraft.splice(this.selectedIndexColumnDraftIndex, 1);
+      if (!this.indexColumnsDraft.length) {
+        this.selectedIndexColumnDraftIndex = -1;
+        return;
+      }
+      this.selectedIndexColumnDraftIndex = Math.min(this.selectedIndexColumnDraftIndex, this.indexColumnsDraft.length - 1);
+    },
+    isIndexColumnOptionDisabled(columnName, rowIndex) {
+      return this.indexColumnsDraft.some((column, index) => index !== rowIndex && column.name === columnName);
+    },
     handleAddColumn(schema) {
       const column = {
         key: dayjs().valueOf()
@@ -210,6 +269,18 @@ export default {
       this.selectedData[schema.field].splice(index, 1);
       this.selectedColumn = {};
       this.selectedColumnIndex = -1;
+      this.$forceUpdate();
+    },
+    handleMoveColumn(schema, offset) {
+      const columns = this.selectedData[schema.field] || [];
+      const targetIndex = this.selectedColumnIndex + offset;
+      if (this.selectedColumnIndex < 0 || targetIndex < 0 || targetIndex >= columns.length) {
+        return;
+      }
+      const [column] = columns.splice(this.selectedColumnIndex, 1);
+      columns.splice(targetIndex, 0, column);
+      this.selectedColumnIndex = targetIndex;
+      this.selectedColumn = column;
       this.$forceUpdate();
     },
     handleAddTree(schema) {
@@ -614,6 +685,12 @@ export default {
             size="small"
           />
         </div>
+        <button v-else-if="isIndexColumnsSelector" type="button" class="index-columns-trigger" @click="handleOpenIndexColumnsModal">
+          <span :class="{ 'index-columns-trigger__placeholder': !selectedIndexColumnNames }">
+            {{ selectedIndexColumnNames || $t('qing-xuan-ze-lie') }}
+          </span>
+          <span class="index-columns-trigger__action">{{ $t('bian-ji') }}</span>
+        </button>
         <div
           v-else-if="
             schema.type === 'SelectColumns' || schema.type === 'ReferenceRelation' || schema.type === 'PartitionDefineList' || schema.type === 'Tree'
@@ -652,12 +729,30 @@ export default {
             </a-tree>
           </div>
           <div class="left" v-else style="width: 200px; border-right: 1px solid #ccc">
-            <div style="width: 100%; display: flex">
-              <a-button @click="handleAddColumn(schema)" size="small" style="flex: 1" :disabled="isReadOnly(schema)">
+            <div style="width: 100%; display: flex; flex-wrap: wrap">
+              <a-button @click="handleAddColumn(schema)" size="small" style="flex: 1 1 50%" :disabled="isReadOnly(schema)">
                 {{ $t('zeng-jia') }}
               </a-button>
-              <a-button @click="handleDeleteColumn(schema)" size="small" style="flex: 1" :disabled="isReadOnly(schema)">
+              <a-button @click="handleDeleteColumn(schema)" size="small" style="flex: 1 1 50%" :disabled="isReadOnly(schema)">
                 {{ $t('shan-chu') }}
+              </a-button>
+              <a-button
+                v-if="schema.type === 'SelectColumns'"
+                size="small"
+                style="flex: 1 1 50%"
+                :disabled="isReadOnly(schema) || selectedColumnIndex <= 0"
+                @click="handleMoveColumn(schema, -1)"
+              >
+                {{ $t('table-editor-move-up') }}
+              </a-button>
+              <a-button
+                v-if="schema.type === 'SelectColumns'"
+                size="small"
+                style="flex: 1 1 50%"
+                :disabled="isReadOnly(schema) || selectedColumnIndex < 0 || selectedColumnIndex >= (selectedData[schema.field] || []).length - 1"
+                @click="handleMoveColumn(schema, 1)"
+              >
+                {{ $t('table-editor-move-down') }}
               </a-button>
             </div>
             <div :style="`min-height: 80px;height: ${selectedData[schema.field] ? selectedData[schema.field].length * 20 : 0}px`">
@@ -857,6 +952,90 @@ export default {
           </template>
         </a-tooltip>
       </div>
+      <a-modal
+        v-if="isIndexColumnsSelector"
+        :visible="indexColumnsModalVisible"
+        :title="$t('table-editor-included-columns')"
+        :width="900"
+        :mask-closable="false"
+        wrap-class-name="index-columns-modal"
+        @cancel="handleCloseIndexColumnsModal"
+      >
+        <div class="index-columns-table-wrap">
+          <table class="index-columns-table">
+            <thead>
+              <tr>
+                <th class="index-columns-table__order">{{ $t('table-editor-order') }}</th>
+                <th v-for="childSchema in schema.children" :key="childSchema.field">{{ childSchema.titleI18N }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(column, rowIndex) in indexColumnsDraft"
+                :key="column.key"
+                :class="{ 'index-columns-table__row--selected': rowIndex === selectedIndexColumnDraftIndex }"
+                @click="selectedIndexColumnDraftIndex = rowIndex"
+              >
+                <td class="index-columns-table__order">{{ rowIndex + 1 }}</td>
+                <td v-for="childSchema in schema.children" :key="childSchema.field">
+                  <a-select
+                    v-if="childSchema.type === 'Columns'"
+                    v-model:value="column[childSchema.field]"
+                    :placeholder="$t('qing-xuan-ze-lie')"
+                    :disabled="isReadOnly(schema) || childSchema.readOnly"
+                    allow-clear
+                    show-search
+                    style="width: 100%"
+                  >
+                    <a-select-option
+                      v-for="tableColumn in formData.columns"
+                      :key="`${tab.tabId}-${tableColumn.key}`"
+                      :value="tableColumn.name"
+                      :disabled="isIndexColumnOptionDisabled(tableColumn.name, rowIndex)"
+                    >
+                      {{ tableColumn.name }}
+                    </a-select-option>
+                  </a-select>
+                  <a-input
+                    v-else-if="childSchema.type === 'Input'"
+                    v-model:value="column[childSchema.field]"
+                    :disabled="isReadOnly(schema) || childSchema.readOnly"
+                  />
+                  <a-select
+                    v-else-if="childSchema.type === 'Options'"
+                    v-model:value="column[childSchema.field]"
+                    :disabled="isReadOnly(schema) || childSchema.readOnly"
+                    allow-clear
+                    show-search
+                    style="width: 100%"
+                  >
+                    <a-select-option v-for="option in childSchema.options" :key="option.value" :value="option.value">
+                      {{ option.label }}
+                    </a-select-option>
+                  </a-select>
+                  <span v-else>{{ column[childSchema.field] || $t('table-editor-empty-value') }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="index-columns-actions">
+          <a-button :disabled="isReadOnly(schema)" :aria-label="$t('xin-zeng')" @click="handleAddIndexColumnDraft">
+            <PlusOutlined />
+          </a-button>
+          <a-button
+            :disabled="isReadOnly(schema) || selectedIndexColumnDraftIndex < 0"
+            :aria-label="$t('shan-chu')"
+            @click="handleDeleteIndexColumnDraft"
+          >
+            <MinusOutlined />
+          </a-button>
+        </div>
+        <template #footer>
+          <a-button @click="handleCloseIndexColumnsModal">{{ $t('qu-xiao') }}</a-button>
+          <a-button type="primary" :disabled="isReadOnly(schema)" @click="handleSaveIndexColumns">{{ $t('que-ding') }}</a-button>
+        </template>
+      </a-modal>
       <a-collapse v-if="schema.type === 'Fold'" size="small">
         <a-collapse-panel :header="schema.titleI18N">
           <CreateTableItem
@@ -886,6 +1065,7 @@ export default {
         <CreateTableItem
           v-for="childSchema in schema.children"
           :key="childSchema.field"
+          class="create-table-item--nested"
           style="flex: 1; margin-left: -100px"
           :current-schema="childSchema"
           :node-type="nodeType"
@@ -933,5 +1113,86 @@ export default {
     flex: 1;
     border-left: 1px solid #ccc;
   }
+}
+
+.index-columns-trigger {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.index-columns-trigger > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.index-columns-trigger__placeholder {
+  color: var(--text-tertiary);
+}
+
+.index-columns-trigger__action {
+  flex: 0 0 auto;
+  color: var(--primary-color);
+}
+
+:global(.index-columns-modal .ant-modal-body) {
+  padding: 24px;
+}
+
+.index-columns-table-wrap {
+  min-height: 240px;
+  overflow: auto;
+}
+
+.index-columns-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.index-columns-table th,
+.index-columns-table td {
+  height: 48px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-light);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.index-columns-table th {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.index-columns-table__order {
+  width: 64px;
+  color: var(--text-tertiary);
+  text-align: center !important;
+}
+
+.index-columns-table__row--selected td {
+  background: var(--bg-hover);
+}
+
+.index-columns-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
 }
 </style>
