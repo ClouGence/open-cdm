@@ -1,6 +1,6 @@
 <script lang="jsx">
 import appLogger from '@/utils/logger';
-import { SearchOutlined } from '@ant-design/icons-vue';
+import { DoubleLeftOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
 import VTree from '@wsfe/vue-tree';
@@ -15,12 +15,16 @@ import { clearAllPending } from '@/services/http/cancelRequest';
 import AddDataSource from '@/views/dataSource/AddDataSource';
 
 const DATASOURCE_EXPANDED_KEYS_KEY = 'clouddm_datasource_expanded_keys';
+const SEARCH_PANEL_EXPANDED_WIDTH = 280;
+const SIDEBAR_ANIMATION_DURATION = 260;
 
 export default {
   name: 'DataSourceTree',
+  emits: ['sidebar-state-change'],
   mixins: [copyMixin, datasourceMixin, browseMixin, utilMixin],
   components: {
     AddDataSource,
+    DoubleLeftOutlined,
     SearchOutlined,
     VTree
   },
@@ -44,6 +48,12 @@ export default {
         this.$nextTick(() => {
           this.checkTreeDataAndToggle();
         });
+      },
+      immediate: true
+    },
+    hide: {
+      handler(hidden) {
+        this.$emit('sidebar-state-change', hidden);
       },
       immediate: true
     }
@@ -119,6 +129,8 @@ export default {
       dataSourceWidth: 0,
       preDataSourceWidth: 250,
       sidebarAnimating: false,
+      sidebarClosing: false,
+      sidebarOpening: false,
       searchKey: '',
       showTicketModal: false,
       rawSqlToSubmit: '',
@@ -725,6 +737,31 @@ export default {
         this.$refs.tree.scrollTo(this.treeData[0].key);
       }
     },
+    getSidebarAnimationDuration() {
+      return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : SIDEBAR_ANIMATION_DURATION;
+    },
+    handleExpandCompactSearch() {
+      if (this.sidebarAnimating) {
+        return;
+      }
+
+      const currentWidth = this.$el.getBoundingClientRect().width;
+      this.dataSourceWidth = currentWidth;
+      this.preDataSourceWidth = SEARCH_PANEL_EXPANDED_WIDTH;
+      this.sidebarAnimating = true;
+      this.sidebarOpening = true;
+      this.$nextTick(() => {
+        window.requestAnimationFrame(() => {
+          this.dataSourceWidth = SEARCH_PANEL_EXPANDED_WIDTH;
+          this.$el.style.setProperty('width', `${SEARCH_PANEL_EXPANDED_WIDTH}px`, 'important');
+          window.setTimeout(() => {
+            this.sidebarOpening = false;
+            this.sidebarAnimating = false;
+            this.$refs.compactSearchInput?.focus();
+          }, this.getSidebarAnimationDuration());
+        });
+      });
+    },
     handleFocus() {
       if (!this.currentTab) {
         return;
@@ -893,26 +930,42 @@ export default {
 
       if (this.hide) {
         this.hide = false;
+        this.sidebarOpening = true;
         this.saveHideState(false);
         this.$nextTick(() => {
-          this.dataSourceWidth = this.preDataSourceWidth || 250;
-          window.setTimeout(() => {
-            this.sidebarAnimating = false;
-          }, 260);
+          window.requestAnimationFrame(() => {
+            const targetWidth = this.preDataSourceWidth || 250;
+            this.dataSourceWidth = targetWidth;
+            this.$el.style.setProperty('width', `${targetWidth}px`, 'important');
+            window.setTimeout(() => {
+              this.sidebarOpening = false;
+              this.sidebarAnimating = false;
+            }, this.getSidebarAnimationDuration());
+          });
         });
         return;
       }
 
-      if (this.dataSourceWidth > 0) {
-        this.preDataSourceWidth = this.dataSourceWidth;
+      const currentWidth = this.$el.getBoundingClientRect().width;
+      if (currentWidth > 0) {
+        this.preDataSourceWidth = currentWidth;
+        this.dataSourceWidth = currentWidth;
       }
 
-      this.dataSourceWidth = 0;
+      this.sidebarClosing = true;
+      this.$emit('sidebar-state-change', true);
       this.saveHideState(true);
-      window.setTimeout(() => {
-        this.hide = true;
-        this.sidebarAnimating = false;
-      }, 260);
+      this.$nextTick(() => {
+        window.requestAnimationFrame(() => {
+          this.dataSourceWidth = 0;
+          this.$el.style.setProperty('width', '0px', 'important');
+          window.setTimeout(() => {
+            this.hide = true;
+            this.sidebarClosing = false;
+            this.sidebarAnimating = false;
+          }, this.getSidebarAnimationDuration());
+        });
+      });
     },
     handleShowAddDsModal() {
       this.showAddDsModal = true;
@@ -1235,64 +1288,82 @@ export default {
     class="data-source-container"
     :class="{
       'data-source-container--collapsed': hide,
-      'data-source-container--animating': sidebarAnimating
+      'data-source-container--animating': sidebarAnimating,
+      'data-source-container--closing': sidebarClosing,
+      'data-source-container--opening': sidebarOpening
     }"
-    :style="{ width: `${dataSourceWidth}px` }"
+    :style="{
+      width: `${dataSourceWidth}px`,
+      '--data-source-content-width': `${preDataSourceWidth || 250}px`
+    }"
   >
     <div class="tree-resize" v-show="!hide" />
     <div v-show="!hide" class="data-source-panel-body">
       <div class="data-source-filter">
-      <!--      <Icon type="md-add" style="margin-right: 5px;" @click="handleShowAddDsModal" v-if="isDesktop"/>-->
-      <a-input
-        v-model:value="searchKey"
-        class="filter-input"
-        size="small"
-        allow-clear
-        :placeholder="$t('object-browser-search-datasource-placeholder')"
-        @change="handleSearch"
-        @pressEnter="handleSearch"
-      >
-        <template #prefix>
-          <SearchOutlined />
-        </template>
-      </a-input>
-      <cc-svg-icon :size="18" name="focus" @click.native="handleFocus" style="cursor: pointer" :color="`${isDark ? '#fff' : '#000'}`"></cc-svg-icon>
-      <cc-svg-icon
-        style="margin-left: 6px"
-        name="refresh"
-        @click.native="handleRefreshTree"
-        :size="16"
-        :color="`${isDark ? '#fff' : '#000'}`"
-      ></cc-svg-icon>
+        <!--      <Icon type="md-add" style="margin-right: 5px;" @click="handleShowAddDsModal" v-if="isDesktop"/>-->
+        <a-input
+          v-model:value="searchKey"
+          class="filter-input"
+          size="small"
+          allow-clear
+          ref="compactSearchInput"
+          :placeholder="$t('object-browser-search-datasource-placeholder')"
+          @change="handleSearch"
+          @pressEnter="handleSearch"
+        >
+          <template #prefix>
+            <SearchOutlined class="data-source-search-icon" />
+          </template>
+        </a-input>
+        <button
+          type="button"
+          class="data-source-toolbar-button compact-search-button"
+          :aria-label="$t('object-browser-search-datasource-placeholder')"
+          :title="$t('object-browser-search-datasource-placeholder')"
+          @click="handleExpandCompactSearch"
+        >
+          <SearchOutlined aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="data-source-toolbar-button"
+          :aria-label="$t('sql-locate-current-datasource')"
+          :title="$t('sql-locate-current-datasource')"
+          @click="handleFocus"
+        >
+          <cc-svg-icon :size="16" name="focus" :cursor="false" :color="`${isDark ? '#fff' : '#000'}`" />
+        </button>
+        <button type="button" class="data-source-toolbar-button" :aria-label="$t('shua-xin')" :title="$t('shua-xin')" @click="handleRefreshTree">
+          <cc-svg-icon name="refresh" :size="16" :cursor="false" :color="`${isDark ? '#fff' : '#000'}`" />
+        </button>
+        <button
+          type="button"
+          class="data-source-toolbar-button data-source-sidebar-toggle"
+          :aria-label="$t('sql-collapse-datasource-sidebar')"
+          :title="$t('sql-collapse-datasource-sidebar')"
+          @click="handleSwitchHide"
+        >
+          <DoubleLeftOutlined aria-hidden="true" />
+        </button>
+      </div>
+      <div class="datasource-tree" @contextmenu.prevent.stop="onContextmenu">
+        <v-tree
+          emptyText=" "
+          ref="tree"
+          keyField="key"
+          :load="handleExpandLoadNode"
+          :render="renderNode"
+          :expand-on-filter="false"
+          :expanded-keys="expandedKeys"
+          @node-right-click="handleNodeRightClick"
+          @node-dblclick="handleDblClick"
+          @expand="handleTreeExpand"
+          :nodeIndent="10"
+          :renderNodeAmount="200"
+          @click="handleNodeClick"
+        ></v-tree>
+      </div>
     </div>
-    <div class="datasource-tree" @contextmenu.prevent.stop="onContextmenu">
-      <v-tree
-        emptyText=" "
-        ref="tree"
-        keyField="key"
-        :load="handleExpandLoadNode"
-        :render="renderNode"
-        :expand-on-filter="false"
-        :expanded-keys="expandedKeys"
-        @node-right-click="handleNodeRightClick"
-        @node-dblclick="handleDblClick"
-        @expand="handleTreeExpand"
-        :nodeIndent="10"
-        :renderNodeAmount="200"
-        @click="handleNodeClick"
-      ></v-tree>
-    </div>
-    </div>
-    <button
-      type="button"
-      class="data-source-sidebar-toggle"
-      :class="{ 'data-source-sidebar-toggle--collapsed': hide }"
-      :aria-label="$t(hide ? 'sql-expand-datasource-sidebar' : 'sql-collapse-datasource-sidebar')"
-      :title="$t(hide ? 'sql-expand-datasource-sidebar' : 'sql-collapse-datasource-sidebar')"
-      @click="handleSwitchHide"
-    >
-      <span class="data-source-sidebar-toggle__icon" aria-hidden="true" />
-    </button>
     <CCModal :title="menuModal.title" v-model="menuModal.show" :mask-closable="false" :closable="false" :keyboard="false">
       <div style="margin-bottom: 5px; font-weight: bold">
         {{ menuModal.content }}
@@ -1424,6 +1495,7 @@ export default {
 }
 
 .data-source-container {
+  container-type: inline-size;
   background: var(--bg-secondary);
   height: 100%;
   float: left;
@@ -1436,11 +1508,31 @@ export default {
 
   &.data-source-container--collapsed {
     z-index: 2;
-    border-right-color: transparent;
+    border-right: 0;
   }
 
   &.data-source-container--animating {
     transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+
+    .data-source-panel-body {
+      width: var(--data-source-content-width);
+      min-width: var(--data-source-content-width);
+    }
+  }
+
+  &.data-source-container--closing {
+    .data-source-panel-body {
+      animation: data-source-panel-conceal 0.16s ease-out both;
+      pointer-events: none;
+    }
+  }
+
+  &.data-source-container--opening {
+    .data-source-panel-body {
+      animation: data-source-panel-reveal 0.26s cubic-bezier(0.4, 0, 0.2, 1) both;
+      pointer-events: none;
+    }
   }
 
   &.data-source-container--resizing {
@@ -1454,6 +1546,26 @@ export default {
     min-height: 0;
     overflow: hidden;
     opacity: 1;
+  }
+
+  .data-source-filter {
+    gap: 4px;
+
+    .filter-input {
+      margin-right: 0;
+
+      :deep(.ant-input-prefix) {
+        color: var(--text-primary);
+      }
+    }
+
+    .data-source-search-icon {
+      :deep(svg) {
+        width: 16px;
+        height: 16px;
+        color: var(--text-primary);
+      }
+    }
   }
 
   .tree-resize {
@@ -1478,61 +1590,100 @@ export default {
     }
   }
 
-  .data-source-sidebar-toggle {
-    position: absolute;
-    top: 50%;
-    right: 0;
-    z-index: 20;
+  .data-source-toolbar-button {
     display: flex;
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
     align-items: center;
     justify-content: center;
     padding: 0;
-    border: 1px solid var(--border-primary);
-    border-radius: 50%;
-    background: var(--bg-primary);
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
     color: var(--text-tertiary);
     cursor: pointer;
-    box-shadow: 0 1px 2px rgba(24, 29, 38, 0.06);
-    transform: translate(50%, -50%);
     transition:
       color 0.2s ease,
-      border-color 0.2s ease,
       background-color 0.2s ease,
       box-shadow 0.2s ease;
+    font-size: 16px;
 
     &:hover,
     &:focus-visible {
       color: var(--text-primary);
-      border-color: var(--text-tertiary);
-      background: var(--bg-secondary);
-      box-shadow: 0 2px 6px rgba(24, 29, 38, 0.1);
+      background: var(--bg-hover);
+      box-shadow: var(--shadow-sm);
     }
 
     &:focus-visible {
       outline: 1px solid var(--primary-color);
       outline-offset: 1px;
     }
+  }
 
-    &__icon {
-      width: 7px;
-      height: 7px;
-      border-left: 2px solid currentColor;
-      border-bottom: 2px solid currentColor;
-      transform: rotate(45deg);
-      margin-left: 2px;
-      transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  .compact-search-button {
+    display: none;
+    color: var(--text-primary);
+
+    :deep(svg) {
+      width: 16px;
+      height: 16px;
+      color: var(--text-primary);
+    }
+  }
+}
+
+@container (max-width: 150px) {
+  .data-source-container:not(.data-source-container--animating) .data-source-filter {
+    gap: 3px;
+    padding: 4px !important;
+
+    .filter-input {
+      display: none;
     }
 
-    &--collapsed {
-      right: auto;
-      left: 0;
-      transform: translateY(-50%);
+    .compact-search-button {
+      display: inline-flex;
+    }
+  }
+}
 
-      .data-source-sidebar-toggle__icon {
-        transform: rotate(-135deg);
-        margin-left: -2px;
+@keyframes data-source-panel-conceal {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+@keyframes data-source-panel-reveal {
+  0%,
+  20% {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .data-source-container {
+    &.data-source-container--animating {
+      transition: none;
+    }
+
+    &.data-source-container--closing,
+    &.data-source-container--opening {
+      .data-source-panel-body {
+        animation: none;
       }
     }
   }

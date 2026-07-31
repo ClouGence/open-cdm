@@ -14,10 +14,25 @@
         :handle-add-tab="handleAddTab"
         :set-loading="setLoading"
         :refresh-tab-select-options="refreshTabSelectOptions"
+        @sidebar-state-change="handleDataSourceSidebarStateChange"
       />
       <div class="query-container">
         <div class="content">
           <div class="tab-wrap">
+            <div class="sql-sidebar-toggle-slot" :class="{ 'sql-sidebar-toggle-slot--visible': dataSourceSidebarHidden }">
+              <transition name="sql-sidebar-toggle">
+                <button
+                  v-if="dataSourceSidebarHidden"
+                  type="button"
+                  class="sql-tab-sidebar-toggle"
+                  :aria-label="$t('sql-expand-datasource-sidebar')"
+                  :title="$t('sql-expand-datasource-sidebar')"
+                  @click="handleExpandDataSourceSidebar"
+                >
+                  <DoubleRightOutlined aria-hidden="true" />
+                </button>
+              </transition>
+            </div>
             <div class="sql-tabs-style" v-if="tabs.length">
               <a-tabs type="card" v-model:activeKey="active" @tabClick="handleChangeTab" :key="tabsKey">
                 <a-tab-pane v-for="(tab, index) in tabs" :key="tab.key">
@@ -118,11 +133,7 @@
                             size="14px"
                             aria-hidden="true"
                           />
-                          <div class="query-connection-label">
-                            @{{ currentTab.node.INSTANCE.attr.dsHost }}【{{
-                              currentTab.node.INSTANCE.attr.dsInstanceDesc || currentTab.node.INSTANCE.attr.dsInstance
-                            }}】
-                          </div>
+                          <div class="query-connection-label">@{{ currentTab.node.INSTANCE.attr.dsHost }}</div>
                         </div>
                       </template>
                     </SqlViewer>
@@ -195,6 +206,7 @@ import { nanoid } from 'nanoid';
 import { TabManager } from '@/views/sql/tabManager';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
+import { DoubleRightOutlined } from '@ant-design/icons-vue';
 
 window.luckysheetData = {
   activeKey: '',
@@ -213,6 +225,7 @@ export default {
   mixins: [browseMixin, sqlMixin],
   components: {
     CustomIcon,
+    DoubleRightOutlined,
     LuckySheetDataView,
     DataSourceTree,
     StructView,
@@ -243,6 +256,7 @@ export default {
       treeData: [],
       newMode: true,
       TAB_ACTION,
+      dataSourceSidebarHidden: false,
       dataSourceWidth: 250,
       preDataSourceWidth: 0,
       ACTION_TYPE,
@@ -311,6 +325,12 @@ export default {
     ...mapGetters(['isDesktop', 'getNodeType', 'getLeafGroup', 'getLevels', 'getLeafExpand'])
   },
   methods: {
+    handleDataSourceSidebarStateChange(hidden) {
+      this.dataSourceSidebarHidden = hidden;
+    },
+    handleExpandDataSourceSidebar() {
+      this.$refs.dataSourceTree?.handleSwitchHide();
+    },
     onContextmenu(event, tab) {
       this.contextData = tab;
       ContextMenu.showContextMenu({
@@ -1687,9 +1707,89 @@ export default {
   flex: 0 0 44px;
   justify-content: flex-start;
 
+  .sql-sidebar-toggle-slot {
+    position: relative;
+    width: 0;
+    height: 44px;
+    flex: 0 0 0;
+    overflow: hidden;
+    transition:
+      width 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+      flex-basis 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &--visible {
+      width: 44px;
+      flex-basis: 44px;
+    }
+  }
+
+  .sql-tab-sidebar-toggle {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-right: 1px solid var(--border-primary);
+    border-bottom: 1px solid var(--border-primary);
+    border-radius: 0;
+    background: var(--bg-secondary);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--primary-color);
+      outline-offset: -2px;
+    }
+  }
+
+  .sql-sidebar-toggle-enter-active {
+    transition:
+      opacity 0.16s ease-out 0.08s,
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1) 0.06s;
+  }
+
+  .sql-sidebar-toggle-leave-active {
+    transition:
+      opacity 0.1s ease-in,
+      transform 0.12s ease-in;
+  }
+
+  .sql-sidebar-toggle-enter-from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+
+  .sql-sidebar-toggle-leave-to {
+    opacity: 0;
+    transform: translateX(-3px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sql-sidebar-toggle-slot,
+    .sql-sidebar-toggle-enter-active,
+    .sql-sidebar-toggle-leave-active {
+      transition: none;
+    }
+  }
+
   .sql-tabs-style {
     height: 44px;
-    width: 100%;
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
 
     :deep(.ant-tabs-nav) {
       height: 44px;

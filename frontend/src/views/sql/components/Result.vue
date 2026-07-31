@@ -1660,19 +1660,68 @@ export default {
 
   .tab-group {
     display: flex;
+    height: 44px;
+    flex: 0 0 44px;
     width: 100%;
+    background: var(--bg-secondary);
 
     .right {
       flex: 1;
       min-width: 0;
     }
 
+    :deep(.ant-tabs) {
+      height: 44px;
+    }
+
     :deep(.ant-tabs-top > .ant-tabs-nav) {
+      height: 44px;
       margin: 0;
+    }
+
+    :deep(.ant-tabs-nav-list) {
+      min-height: 44px;
+      align-items: stretch;
+      padding-top: 0;
+      box-sizing: border-box;
     }
 
     :deep(.ant-tabs-nav-more) {
       display: none;
+    }
+
+    :deep(.ant-tabs-nav-wrap) {
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    :deep(.ant-tabs-tab) {
+      height: 44px;
+      align-items: center;
+      margin: 0 !important;
+      padding: 0 8px !important;
+      border-top: 0 !important;
+      border-left: 0 !important;
+      border-color: var(--border-primary) !important;
+      border-radius: 0 !important;
+      background: var(--bg-tertiary) !important;
+      color: var(--text-secondary) !important;
+
+      &:hover {
+        color: var(--primary-color) !important;
+      }
+    }
+
+    :deep(.ant-tabs-tab-active) {
+      border-bottom-color: var(--bg-primary) !important;
+      background: var(--bg-primary) !important;
+      color: var(--text-primary) !important;
+    }
+
+    :deep(.ant-tabs-extra-content) {
+      height: 44px;
+      line-height: 44px;
+      border-bottom: 1px solid var(--border-primary);
+      padding-right: 8px;
     }
   }
 

@@ -3840,6 +3840,7 @@
   "sql-empty-no-datasource-tip": "暂无数据源，请先添加数据源",
   "sql-collapse-datasource-sidebar": "收起数据源侧边栏",
   "sql-expand-datasource-sidebar": "展开数据源侧边栏",
+  "sql-locate-current-datasource": "定位当前数据源",
   "nei-zhi": "内置",
   "shu-ru-tong-bu-biao-de-biao-da-shi": "输入同步表的表达式",
   "nin-dang-qian-xuan-ze-le-biao-da-shi-mo-shi-dan-que-shao-shai-xuan-biao-da-shi-qing-shu-ru-bi-yao-xin-xi": "您当前选择了表达式模式，但未输入同步表的筛选表达式，请补充必要信息。",

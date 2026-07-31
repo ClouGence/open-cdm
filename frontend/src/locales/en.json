@@ -3827,6 +3827,7 @@
   "sql-empty-no-datasource-tip": "No data sources available, please add a data source first",
   "sql-collapse-datasource-sidebar": "Collapse data source sidebar",
   "sql-expand-datasource-sidebar": "Expand data source sidebar",
+  "sql-locate-current-datasource": "Locate current data source",
   "shen-qing-fa-qi": "Application initiation",
   "nei-zhi": "Built-in",
   "shu-ru-tong-bu-biao-de-biao-da-shi": "Expression for synchronization tables",

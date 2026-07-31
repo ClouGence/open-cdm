@@ -28,6 +28,7 @@
             <cc-svg-icon :size="16" :name="currentTab.leafType" :cursor="false" />
           </span>
           <a-input
+            ref="compactSearchInput"
             size="small"
             allow-clear
             v-model:value="currentTab[currentTab.leafType].searchKey"
@@ -39,6 +40,15 @@
               <SearchOutlined class="object-search-icon" />
             </template>
           </a-input>
+          <button
+            type="button"
+            class="compact-search-button"
+            :aria-label="objectSearchPlaceholder"
+            :title="objectSearchPlaceholder"
+            @click="handleExpandCompactSearch"
+          >
+            <SearchOutlined aria-hidden="true" />
+          </button>
           <button type="button" class="object-refresh-button" :aria-label="$t('shua-xin')" :title="$t('shua-xin')" @click="handleRefreshTree">
             <cc-svg-icon :size="16" name="refresh" />
           </button>
@@ -1011,6 +1021,7 @@ const BG_COLOR = {
   Delete: 'rgb(250, 128, 114)',
   Update: 'yellow'
 };
+const SEARCH_PANEL_EXPANDED_WIDTH = 280;
 
 const EMPTY_PROCEDURE_DATA = {
   collapseKey: '',
@@ -2207,6 +2218,17 @@ export default {
       const pagination = this.ensureObjectPagination();
       pagination.currentPage = 1;
       await this.handleSetCurrentObjectPage();
+    },
+    handleExpandCompactSearch() {
+      const container = this.$el;
+      container.classList.add('table-list-container--animating');
+      window.requestAnimationFrame(() => {
+        container.style.setProperty('width', `${SEARCH_PANEL_EXPANDED_WIDTH}px`, 'important');
+        window.setTimeout(() => {
+          container.classList.remove('table-list-container--animating');
+          this.$refs.compactSearchInput?.focus();
+        }, 260);
+      });
     },
     handleDblClick(node) {
       appLogger.debug('dbl click');
@@ -3885,14 +3907,20 @@ export default {
   justify-content: center;
   padding: 0;
   border: none;
+  border-radius: 4px;
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover,
   &:focus-visible {
-    color: var(--primary-color);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+    box-shadow: var(--shadow-sm);
   }
 
   &:focus-visible {
@@ -3906,7 +3934,17 @@ export default {
     &:hover,
     &:focus-visible {
       color: var(--text-primary);
+      background: transparent;
+      box-shadow: none;
     }
+  }
+}
+
+.table-list-container {
+  container-type: inline-size;
+
+  &.table-list-container--animating {
+    transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -3957,6 +3995,68 @@ export default {
       border-color: var(--primary-color);
       box-shadow: none !important;
     }
+
+    :deep(.ant-input-prefix) {
+      color: var(--text-primary);
+    }
+  }
+}
+
+.compact-search-button {
+  display: none;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  font-size: 16px;
+
+  :deep(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--text-primary);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--primary-color);
+    outline-offset: 1px;
+  }
+}
+
+.object-search-icon {
+  :deep(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--text-primary);
+  }
+}
+
+@container (max-width: 150px) {
+  .search-border {
+    :deep(.ant-input-affix-wrapper) {
+      display: none;
+    }
+
+    .compact-search-button {
+      display: inline-flex;
+    }
   }
 }
 
@@ -3969,14 +4069,20 @@ export default {
   justify-content: center;
   padding: 0;
   border: none;
+  border-radius: 4px;
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover,
   &:focus-visible {
-    color: var(--primary-color);
+    color: var(--text-primary);
+    background: var(--bg-hover);
+    box-shadow: var(--shadow-sm);
   }
 
   &:focus-visible {
