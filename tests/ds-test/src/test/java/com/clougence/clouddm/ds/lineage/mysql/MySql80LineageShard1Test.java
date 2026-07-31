@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.lineage.mysql;
 
-public final class MySql80LineageShard1Test extends MySqlLineageTextTest {
+public final class MySql80LineageShard1Test extends BasicMySql80LineageTextTest {
 
     public MySql80LineageShard1Test(){
-        super("8.0", "8.0.46", 0, 2);
+        super(3, 0);
     }
 }

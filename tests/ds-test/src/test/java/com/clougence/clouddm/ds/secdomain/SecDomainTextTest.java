@@ -4,6 +4,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Stream;
@@ -92,8 +93,8 @@ public final class SecDomainTextTest {
         }
 
         List<RuleDomain> domains;
-        try {
-            domains = flatten(resolveSpi.resolveDomain(dataSourceType, codeInfo(testCase.sql), contextInfo(testCase, contextInfo)));
+        try (StringReader reader = new StringReader(testCase.sql)) {
+            domains = flatten(resolveSpi.resolveDomain(dataSourceType, reader, codeInfo(), contextInfo(testCase, contextInfo)));
         } catch (Exception e) {
             if (expected.has("exception")) {
                 assertExpectedException(testCase, expected.get("exception"), e, failures);
@@ -426,8 +427,8 @@ public final class SecDomainTextTest {
         }
     }
 
-    private static CodeInfo codeInfo(String sql) {
-        return CodeInfo.builder().query(sql).baseLine(1).baseColumn(0).build();
+    private static CodeInfo codeInfo() {
+        return CodeInfo.builder().baseLine(1).baseColumn(0).build();
     }
 
     private static ContextInfo contextInfo(TestCase testCase, ContextInfo defaultContextInfo) {

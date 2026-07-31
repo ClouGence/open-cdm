@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.behavior.mysql;
 
-public final class MySql57BehaviorShard2Test extends MySqlBehaviorTextTest {
+public final class MySql57BehaviorShard2Test extends BasicMySql57BehaviorTextTest {
 
     public MySql57BehaviorShard2Test(){
-        super("5.7", "5.7.44", 1, 2);
+        super(3, 1);
     }
 }

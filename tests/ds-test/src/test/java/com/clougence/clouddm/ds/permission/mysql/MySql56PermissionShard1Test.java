@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.permission.mysql;
 
-public final class MySql56PermissionShard1Test extends MySqlPermissionTextTest {
+public final class MySql56PermissionShard1Test extends BasicMySql56PermissionTextTest {
 
     public MySql56PermissionShard1Test(){
-        super("5.6", "5.6.51", 0, 2);
+        super(3, 0);
     }
 }

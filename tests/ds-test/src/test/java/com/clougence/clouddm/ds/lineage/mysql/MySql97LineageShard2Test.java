@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.lineage.mysql;
 
-public final class MySql97LineageShard2Test extends MySqlLineageTextTest {
+public final class MySql97LineageShard2Test extends BasicMySql97LineageTextTest {
 
     public MySql97LineageShard2Test(){
-        super("9.7", "9.7.1", 1, 2);
+        super(3, 1);
     }
 }

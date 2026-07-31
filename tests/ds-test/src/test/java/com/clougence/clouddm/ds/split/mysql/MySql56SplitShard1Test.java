@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.split.mysql;
 
-public final class MySql56SplitShard1Test extends MySqlSplitTextTest {
+public final class MySql56SplitShard1Test extends BasicMySql56SplitTextTest {
 
     public MySql56SplitShard1Test(){
-        super("5.6", "5.6.51", 0, 2);
+        super(3, 0);
     }
 }
