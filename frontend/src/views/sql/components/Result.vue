@@ -4,7 +4,8 @@
       <div class="tab-group">
         <a-tabs
           v-model:activeKey="tab.result.active"
-          :style="`width: ${tab.result?.list?.length ? '110px' : '100%'}`"
+          class="message-tabs"
+          :class="{ 'message-tabs--with-results': tab.result?.list?.length }"
           type="card"
           @tabClick="handleResultTabChange"
         >
@@ -1668,6 +1669,19 @@ export default {
     .right {
       flex: 1;
       min-width: 0;
+    }
+
+    .message-tabs {
+      flex: 1;
+      min-width: 0;
+
+      &--with-results {
+        flex: 0 0 auto;
+      }
+
+      :deep(.ant-tabs-nav-operations) {
+        display: none;
+      }
     }
 
     :deep(.ant-tabs) {

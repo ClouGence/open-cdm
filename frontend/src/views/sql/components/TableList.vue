@@ -6,7 +6,7 @@
         <div class="search-border">
           <a-dropdown v-if="objectTypeTabs.length > 1" trigger="click" placement="bottomLeft" overlayClassName="object-type-dropdown">
             <button type="button" class="object-type-trigger" :aria-label="currentObjectTypeLabel" :title="currentObjectTypeLabel">
-              <cc-svg-icon :size="16" :name="currentTab.leafType" :cursor="false" />
+              <cc-svg-icon :size="16" :name="currentTab.leafType" />
             </button>
             <template #overlay>
               <a-menu :selectedKeys="[currentTab.leafType]">

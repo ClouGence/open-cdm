@@ -1331,10 +1331,10 @@ export default {
           :title="$t('sql-locate-current-datasource')"
           @click="handleFocus"
         >
-          <cc-svg-icon :size="16" name="focus" :cursor="false" :color="`${isDark ? '#fff' : '#000'}`" />
+          <cc-svg-icon :size="16" name="focus" :color="`${isDark ? '#fff' : '#000'}`" />
         </button>
         <button type="button" class="data-source-toolbar-button" :aria-label="$t('shua-xin')" :title="$t('shua-xin')" @click="handleRefreshTree">
-          <cc-svg-icon name="refresh" :size="16" :cursor="false" :color="`${isDark ? '#fff' : '#000'}`" />
+          <cc-svg-icon name="refresh" :size="16" :color="`${isDark ? '#fff' : '#000'}`" />
         </button>
         <button
           type="button"
