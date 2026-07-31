@@ -9,7 +9,7 @@
         <CustomIcon type="icon-v2-Delete2" size="14" right-margin />
         {{ $t('shan-chu') }}
       </a-button>
-      <a-button :disabled="selectedIndex < 0" @click="openDetails(selectedIndex)">
+      <a-button :disabled="selectedIndex < 0" @click="startInlineEdit(selectedIndex)">
         {{ $t('bian-ji') }}
       </a-button>
     </div>
@@ -19,7 +19,7 @@
         <thead>
           <tr>
             <th class="entity-table__order">{{ $t('table-editor-order') }}</th>
-            <th v-for="column in entityColumns" :key="column.key" :style="{ width: column.width }">
+            <th v-for="column in entityColumns" :key="column.key" :style="{ width: entityColumnWidth(column) }">
               {{ column.label }}
             </th>
             <th class="entity-table__actions">{{ $t('cao-zuo') }}</th>
@@ -34,12 +34,46 @@
             tabindex="0"
             :aria-selected="index === selectedIndex"
             @click="selectItem(index)"
-            @dblclick="openDetails(index)"
-            @keydown.enter.prevent="openDetails(index)"
+            @dblclick="startInlineEdit(index)"
+            @keydown.enter.prevent="startInlineEdit(index)"
           >
             <td class="entity-table__order">{{ index + 1 }}</td>
             <td v-for="column in entityColumns" :key="column.key" :title="entityCellValue(item, column.key)">
-              <span class="entity-table__value">{{ entityCellValue(item, column.key) || $t('table-editor-empty-value') }}</span>
+              <div v-if="panelKey === 'indexes' && column.key === 'columns'" class="entity-table__columns-cell">
+                <a-button v-if="index === selectedIndex" type="text" class="entity-table__edit-link" @click.stop="openIndexColumns(index)">
+                  {{ $t('bian-ji') }}
+                </a-button>
+                <span v-if="entityCellValue(item, column.key)" class="entity-table__value">
+                  {{ entityCellValue(item, column.key) }}
+                </span>
+                <span v-else-if="index !== selectedIndex" class="entity-table__value">{{ $t('table-editor-empty-value') }}</span>
+              </div>
+              <a-select
+                v-else-if="isIndexInlineEditing(index) && indexEditorSchema(column.key)?.options?.length"
+                v-model:value="item[indexEditorSchema(column.key).field]"
+                class="entity-table__editor"
+                :disabled="isIndexEditorReadOnly(item, column.key)"
+                @click.stop
+                @change="handleInlineIndexOptionChange(item, indexEditorSchema(column.key), $event)"
+              >
+                <a-select-option
+                  v-for="option in indexEditorSchema(column.key).options"
+                  :key="`${item.key}-${indexEditorSchema(column.key).field}-${option.value}`"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </a-select-option>
+              </a-select>
+              <a-input
+                v-else-if="isIndexInlineEditing(index) && indexEditorSchema(column.key)"
+                v-model:value="item[indexEditorSchema(column.key).field]"
+                class="entity-table__editor"
+                :disabled="isIndexEditorReadOnly(item, column.key)"
+                @click.stop
+              />
+              <span v-else class="entity-table__value">
+                {{ indexCellDisplayValue(item, column.key) || $t('table-editor-empty-value') }}
+              </span>
             </td>
             <td class="entity-table__actions">
               <a-button type="text" @click.stop="openDetails(index)">{{ $t('xiang-qing') }}</a-button>
@@ -54,7 +88,7 @@
       </table>
     </div>
 
-    <section v-if="detailsVisible && selectedIndex >= 0" class="entity-detail">
+    <section v-if="detailsVisible && selectedIndex >= 0 && panelKey !== 'indexes'" class="entity-detail">
       <div class="entity-detail__header">
         <div>
           <div class="entity-detail__title">{{ $t('pei-zhi-xiang-qing') }}</div>
@@ -64,17 +98,55 @@
       </div>
       <TableEditorFormPanel :key="selectedItem.key" :tab="tab" :panel-key="panelKey" :panel-schema="panelSchema" :selected-index="selectedIndex" />
     </section>
+
+    <a-modal
+      v-if="panelKey === 'indexes'"
+      :visible="detailsVisible && Boolean(detailsDraft)"
+      :title="$t('xiang-qing')"
+      :width="1040"
+      :mask-closable="false"
+      wrap-class-name="index-details-modal"
+      @cancel="closeIndexDetails"
+    >
+      <TableEditorFormPanel
+        v-if="detailsDraft"
+        :key="detailsDraft.key"
+        :tab="indexDetailsTab"
+        panel-key="indexes"
+        :panel-schema="panelSchema"
+        :selected-index="0"
+      />
+      <template #footer>
+        <a-button @click="closeIndexDetails">{{ $t('qu-xiao') }}</a-button>
+        <a-button type="primary" @click="saveIndexDetails">{{ $t('que-ding') }}</a-button>
+      </template>
+    </a-modal>
+
+    <IndexColumnsModal
+      v-if="indexColumnsSchema"
+      :visible="indexColumnsModalVisible"
+      :schema="indexColumnsSchema"
+      :value="indexColumnsValue"
+      :table-columns="tab.formData.columns || []"
+      :tab-id="tab.tabId"
+      :read-only="indexColumnsReadOnly"
+      @cancel="closeIndexColumns"
+      @confirm="saveIndexColumns"
+    />
   </div>
 </template>
 
 <script>
 import { PlusOutlined } from '@ant-design/icons-vue';
+import IndexColumnsModal from '@/components/modal/IndexColumnsModal';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import TableEditorFormPanel from './TableEditorFormPanel';
-import { createEditorItem } from './tableEditorUtils';
+import { createEditorItem, findFieldSchema, initializeFields } from './tableEditorUtils';
 
 export default {
   name: 'TableEditorEntityPanel',
   components: {
+    IndexColumnsModal,
     PlusOutlined,
     TableEditorFormPanel
   },
@@ -95,7 +167,12 @@ export default {
   data() {
     return {
       selectedIndex: -1,
-      detailsVisible: false
+      inlineEditingIndex: -1,
+      detailsVisible: false,
+      detailsDraft: null,
+      detailsRowIndex: -1,
+      indexColumnsModalVisible: false,
+      indexColumnsRowIndex: -1
     };
   },
   computed: {
@@ -107,6 +184,55 @@ export default {
     },
     canAddItem() {
       return !['keys', 'partitions'].includes(this.panelKey) || this.items.length === 0;
+    },
+    indexColumnsSchema() {
+      if (this.panelKey !== 'indexes') {
+        return null;
+      }
+      return findFieldSchema(this.panelSchema, 'columns');
+    },
+    indexColumnsValue() {
+      return this.items[this.indexColumnsRowIndex]?.columns || [];
+    },
+    indexColumnsReadOnly() {
+      const item = this.items[this.indexColumnsRowIndex];
+      if (!item || item.isAdd) {
+        return false;
+      }
+      return Boolean(this.indexColumnsSchema?.readOnly);
+    },
+    indexChoiceSchemas() {
+      if (this.panelKey !== 'indexes') {
+        return [];
+      }
+      const result = [];
+      const fields = new Set();
+      const collect = (schemas = []) => {
+        schemas.forEach((schema) => {
+          if (['Options', 'Radios'].includes(schema.type) && !['name', 'comment', 'columns'].includes(schema.field) && !fields.has(schema.field)) {
+            fields.add(schema.field);
+            result.push(schema);
+          }
+          collect(schema.children);
+          (schema.options || []).forEach((option) => collect(option.children));
+        });
+      };
+      collect(this.panelSchema?.children);
+      return result;
+    },
+    indexDetailsTab() {
+      return {
+        ...this.tab,
+        formData: {
+          ...this.tab.formData,
+          indexes: this.detailsDraft ? [this.detailsDraft] : []
+        },
+        nodeType: 'indexes',
+        selectedIndex: 0,
+        selectedNode: {
+          key: this.detailsDraft?.key
+        }
+      };
     },
     entityColumns() {
       if (this.panelKey === 'indexes') {
@@ -151,6 +277,9 @@ export default {
     panelKey: {
       handler() {
         this.detailsVisible = false;
+        this.detailsDraft = null;
+        this.detailsRowIndex = -1;
+        this.inlineEditingIndex = -1;
         this.selectInitialItem();
       },
       immediate: true
@@ -159,11 +288,16 @@ export default {
       if (this.selectedIndex >= this.items.length) {
         this.selectedIndex = this.items.length - 1;
       }
+      if (this.inlineEditingIndex >= this.items.length) {
+        this.inlineEditingIndex = -1;
+      }
       if (this.items.length && this.selectedIndex < 0) {
         this.selectItem(0);
       }
       if (!this.items.length) {
         this.detailsVisible = false;
+        this.detailsDraft = null;
+        this.detailsRowIndex = -1;
       }
     },
     'tab.validationTarget': {
@@ -199,12 +333,107 @@ export default {
         key: this.items[index]?.key
       };
     },
+    entityColumnWidth(column) {
+      const percentage = Number.parseFloat(column.width);
+      if (!Number.isFinite(percentage)) {
+        return column.width;
+      }
+      return `calc((100% - 136px) * ${percentage / 100})`;
+    },
+    startInlineEdit(index) {
+      if (index < 0 || !this.items[index]) {
+        return;
+      }
+      this.selectItem(index);
+      if (this.panelKey !== 'indexes') {
+        this.openDetails(index);
+        return;
+      }
+      this.detailsVisible = false;
+      this.detailsDraft = null;
+      this.detailsRowIndex = -1;
+      this.inlineEditingIndex = index;
+      this.$nextTick(() => {
+        const input = this.$el.querySelector('.entity-table__row--selected .entity-table__editor input:not([disabled])');
+        input?.focus();
+        input?.select();
+      });
+    },
     openDetails(index) {
       if (index < 0 || !this.items[index]) {
         return;
       }
       this.selectItem(index);
+      if (this.panelKey === 'indexes') {
+        this.detailsDraft = deepClone(this.items[index]);
+        this.detailsRowIndex = index;
+      }
       this.detailsVisible = true;
+    },
+    closeIndexDetails() {
+      this.detailsVisible = false;
+      this.detailsDraft = null;
+      this.detailsRowIndex = -1;
+    },
+    saveIndexDetails() {
+      if (this.detailsDraft && this.items[this.detailsRowIndex]) {
+        this.items.splice(this.detailsRowIndex, 1, deepClone(this.detailsDraft));
+        this.selectItem(this.detailsRowIndex);
+      }
+      this.closeIndexDetails();
+    },
+    openIndexColumns(index) {
+      if (!this.indexColumnsSchema || !this.items[index]) {
+        return;
+      }
+      this.selectItem(index);
+      this.indexColumnsRowIndex = index;
+      this.indexColumnsModalVisible = true;
+    },
+    closeIndexColumns() {
+      this.indexColumnsModalVisible = false;
+      this.indexColumnsRowIndex = -1;
+    },
+    saveIndexColumns(columns) {
+      const item = this.items[this.indexColumnsRowIndex];
+      if (item) {
+        item.columns = columns;
+      }
+      this.closeIndexColumns();
+    },
+    isIndexInlineEditing(index) {
+      return this.panelKey === 'indexes' && index === this.inlineEditingIndex;
+    },
+    indexEditorSchema(key) {
+      if (key === 'name' || key === 'comment') {
+        return findFieldSchema(this.panelSchema, key);
+      }
+      if (key === 'indexType') {
+        return this.indexChoiceSchemas[0] || null;
+      }
+      if (key === 'indexMethod') {
+        return this.indexChoiceSchemas[1] || null;
+      }
+      return null;
+    },
+    isIndexEditorReadOnly(item, key) {
+      const schema = this.indexEditorSchema(key);
+      return Boolean(schema?.readOnly && !item.isAdd);
+    },
+    handleInlineIndexOptionChange(item, schema, value) {
+      const option = (schema?.options || []).find((entry) => entry.value === value);
+      if (option?.children?.length) {
+        initializeFields(item, option.children);
+      }
+    },
+    indexCellDisplayValue(item, key) {
+      const schema = this.indexEditorSchema(key);
+      if (schema) {
+        const value = item[schema.field];
+        const option = (schema.options || []).find((entry) => entry.value === value);
+        return option?.label || value || '';
+      }
+      return this.entityCellValue(item, key);
     },
     addItem() {
       if (!this.canAddItem) {
@@ -221,16 +450,24 @@ export default {
         }
       }
       this.detailsVisible = false;
+      this.detailsDraft = null;
+      this.detailsRowIndex = -1;
       this.items.push(item);
       this.$nextTick(() => {
-        this.selectItem(this.items.length - 1);
+        this.startInlineEdit(this.items.length - 1);
       });
     },
     deleteItem() {
       if (this.selectedIndex < 0) {
         return;
       }
+      const removedIndex = this.selectedIndex;
       this.items.splice(this.selectedIndex, 1);
+      if (this.inlineEditingIndex === removedIndex) {
+        this.inlineEditingIndex = -1;
+      } else if (this.inlineEditingIndex > removedIndex) {
+        this.inlineEditingIndex -= 1;
+      }
       if (this.items.length) {
         this.selectItem(Math.min(this.selectedIndex, this.items.length - 1));
         return;
@@ -457,6 +694,8 @@ export default {
 
 .entity-table__actions {
   width: 72px;
+  padding-right: 6px !important;
+  padding-left: 6px !important;
   text-align: center !important;
 }
 
@@ -466,6 +705,35 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.entity-table__columns-cell {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.entity-table__columns-cell .entity-table__value {
+  flex: 1 1 auto;
+}
+
+.entity-table__edit-link {
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0;
+  color: var(--primary-color);
+}
+
+.entity-table__editor {
+  width: 100%;
+  min-width: 0;
+}
+
+.entity-table__editor :deep(.ant-select-selector),
+.entity-table__editor.ant-input {
+  min-height: 36px;
+  border-radius: 6px;
 }
 
 .entity-table__empty {
@@ -507,6 +775,14 @@ export default {
 .entity-detail :deep(.table-editor-form-panel) {
   max-width: none;
   padding: 20px;
+}
+
+:global(.index-details-modal .ant-modal-body) {
+  padding: 0;
+}
+
+:global(.index-details-modal .table-editor-form-panel) {
+  max-width: none;
 }
 
 @media (max-width: 768px) {

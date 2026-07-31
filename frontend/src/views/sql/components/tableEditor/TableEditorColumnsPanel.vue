@@ -263,11 +263,6 @@
           </tr>
         </tbody>
       </table>
-
-      <button v-if="!searchText" type="button" class="add-column-row column-add-button" @click="addColumn">
-        <PlusOutlined />
-        <span class="column-add-button__label">{{ $t('table-editor-add-column') }}</span>
-      </button>
     </div>
 
     <CCModal
@@ -545,9 +540,14 @@ export default {
 
       this.rows.push(row);
       this.searchText = '';
+      const rowIndex = this.rows.length - 1;
+      this.selectRow(rowIndex);
       this.$nextTick(() => {
-        this.selectRow(this.rows.length - 1);
-        this.focusCell(this.rows.length - 1, 'name');
+        this.$el.querySelector(`[data-row-index="${rowIndex}"]`)?.scrollIntoView({
+          block: 'center',
+          inline: 'nearest'
+        });
+        this.focusCell(rowIndex, 'name');
       });
     },
     openDetails(index) {
@@ -722,7 +722,7 @@ export default {
           this.focusCell(target.rowIndex, target.field || 'name');
           return;
         }
-        this.$el.querySelector('.add-column-row')?.focus();
+        this.$el.querySelector('.columns-toolbar .column-add-button')?.focus();
       });
     },
     finishRename(row) {
@@ -1221,29 +1221,6 @@ export default {
   height: 160px !important;
   color: var(--text-secondary);
   text-align: center;
-}
-
-.add-column-row {
-  display: flex;
-  width: 100%;
-  min-height: 40px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-bottom: 0;
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  gap: 6px;
-}
-
-.add-column-row:hover {
-  background: var(--bg-hover);
-  color: var(--primary-color);
-}
-
-.add-column-row.column-add-button {
-  gap: 8px;
 }
 
 .column-details-modal-body {

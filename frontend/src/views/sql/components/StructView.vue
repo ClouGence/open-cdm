@@ -3,7 +3,6 @@ import appLogger from '@/utils/logger';
 import Loading from 'vue-loading-overlay';
 import dayjs from 'dayjs';
 import { Modal } from 'ant-design-vue';
-import { hasSchema } from '@/utils';
 import { ACTION_TYPE } from '@/const';
 import copyMixin from '@/mixins/copyMixin';
 import { isUndefined } from 'xe-utils';
@@ -151,7 +150,6 @@ export default {
   },
   methods: {
     dayjs,
-    hasSchema,
     panelLabel(panelKey) {
       const labelKeys = {
         tableInfo: 'table-editor-general',
@@ -168,10 +166,12 @@ export default {
       return this.tab.schemaDef?.[panelKey]?.titleI18N || panelKey;
     },
     databasePath() {
-      if (hasSchema(this.tab.dsType)) {
-        return `${this.tab.node.INSTANCE.name}.${this.tab.node.CATALOG.name}.${this.tab.node.SCHEMA.name}`;
+      const databaseName = this.tab.node.CATALOG?.name;
+      const schemaName = this.tab.node.SCHEMA.name;
+      if (databaseName) {
+        return `${databaseName}.${schemaName}`;
       }
-      return `${this.tab.node.INSTANCE.name}.${this.tab.node.SCHEMA.name}`;
+      return schemaName;
     },
     panelErrorCount(panelKey) {
       return this.collectValidationErrors().filter((error) => error.panelKey === panelKey).length;
@@ -687,7 +687,16 @@ export default {
 
     <div class="table-editor-header">
       <div class="table-editor-context">
-        <CustomIcon size="18" right-margin :type="tab.node.INSTANCE.attr.dsType" />
+        <div class="table-editor-context__connection">
+          <CustomIcon
+            class="table-editor-context__icon"
+            :type="tab.node.INSTANCE.attr.dsType"
+            :instance-type="tab.node.INSTANCE.attr.dsDeployType"
+            size="14px"
+            aria-hidden="true"
+          />
+          <span class="table-editor-context__host">@{{ tab.node.INSTANCE.attr.dsHost }}</span>
+        </div>
         <div class="table-editor-context__text">
           <span class="table-editor-context__path">{{ databasePath() }}</span>
           <span v-if="tab.formData.tableInfo?.name" class="table-editor-context__table">/ {{ tab.formData.tableInfo.name }}</span>
@@ -845,6 +854,28 @@ export default {
   display: flex;
   min-width: 0;
   align-items: center;
+  gap: 12px;
+}
+
+.table-editor-context__connection {
+  display: flex;
+  min-width: 0;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.table-editor-context__icon {
+  flex: 0 0 auto;
+}
+
+.table-editor-context__host {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .table-editor-context__text {

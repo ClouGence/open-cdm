@@ -1,10 +1,11 @@
 <script>
 import appLogger from '@/utils/logger';
-import { MinusOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
+import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import { TAB_TYPE } from '@/const';
 import browseMixin from '@/mixins/browseMixin';
 import { cloneDeep as deepClone } from '@/utils/lodash';
+import IndexColumnsModal from './IndexColumnsModal';
 
 export default {
   name: 'CreateTableItem',
@@ -21,7 +22,7 @@ export default {
     selectedNode: Object
   },
   components: {
-    MinusOutlined,
+    IndexColumnsModal,
     PlusOutlined,
     QuestionCircleOutlined
   },
@@ -57,9 +58,7 @@ export default {
       schema: {},
       inputVisible: false,
       inputValue: '',
-      indexColumnsModalVisible: false,
-      indexColumnsDraft: [],
-      selectedIndexColumnDraftIndex: -1
+      indexColumnsModalVisible: false
     };
   },
   watch: {
@@ -193,50 +192,16 @@ export default {
       this.selectedColumnIndex = index;
       this.selectedColumn = column;
     },
-    createIndexColumnDraft() {
-      const column = {
-        key: `${dayjs().valueOf()}-${this.indexColumnsDraft.length}`
-      };
-      (this.schema.children || []).forEach((childSchema) => {
-        column[childSchema.field] = deepClone(childSchema.defaultVal);
-      });
-      return column;
-    },
     handleOpenIndexColumnsModal() {
-      this.indexColumnsDraft = deepClone(this.selectedData[this.schema.field] || []);
-      if (!this.indexColumnsDraft.length) {
-        this.indexColumnsDraft.push(this.createIndexColumnDraft());
-      }
-      this.selectedIndexColumnDraftIndex = this.indexColumnsDraft.length - 1;
       this.indexColumnsModalVisible = true;
     },
     handleCloseIndexColumnsModal() {
       this.indexColumnsModalVisible = false;
-      this.indexColumnsDraft = [];
-      this.selectedIndexColumnDraftIndex = -1;
     },
-    handleSaveIndexColumns() {
-      this.selectedData[this.schema.field] = deepClone(this.indexColumnsDraft);
+    handleSaveIndexColumns(columns) {
+      this.selectedData[this.schema.field] = columns;
       this.handleCloseIndexColumnsModal();
       this.$forceUpdate();
-    },
-    handleAddIndexColumnDraft() {
-      this.indexColumnsDraft.push(this.createIndexColumnDraft());
-      this.selectedIndexColumnDraftIndex = this.indexColumnsDraft.length - 1;
-    },
-    handleDeleteIndexColumnDraft() {
-      if (this.selectedIndexColumnDraftIndex < 0) {
-        return;
-      }
-      this.indexColumnsDraft.splice(this.selectedIndexColumnDraftIndex, 1);
-      if (!this.indexColumnsDraft.length) {
-        this.selectedIndexColumnDraftIndex = -1;
-        return;
-      }
-      this.selectedIndexColumnDraftIndex = Math.min(this.selectedIndexColumnDraftIndex, this.indexColumnsDraft.length - 1);
-    },
-    isIndexColumnOptionDisabled(columnName, rowIndex) {
-      return this.indexColumnsDraft.some((column, index) => index !== rowIndex && column.name === columnName);
     },
     handleAddColumn(schema) {
       const column = {
@@ -952,90 +917,17 @@ export default {
           </template>
         </a-tooltip>
       </div>
-      <a-modal
+      <IndexColumnsModal
         v-if="isIndexColumnsSelector"
         :visible="indexColumnsModalVisible"
-        :title="$t('table-editor-included-columns')"
-        :width="900"
-        :mask-closable="false"
-        wrap-class-name="index-columns-modal"
+        :schema="schema"
+        :value="selectedData[schema.field] || []"
+        :table-columns="formData.columns || []"
+        :tab-id="tab.tabId"
+        :read-only="isReadOnly(schema)"
         @cancel="handleCloseIndexColumnsModal"
-      >
-        <div class="index-columns-table-wrap">
-          <table class="index-columns-table">
-            <thead>
-              <tr>
-                <th class="index-columns-table__order">{{ $t('table-editor-order') }}</th>
-                <th v-for="childSchema in schema.children" :key="childSchema.field">{{ childSchema.titleI18N }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(column, rowIndex) in indexColumnsDraft"
-                :key="column.key"
-                :class="{ 'index-columns-table__row--selected': rowIndex === selectedIndexColumnDraftIndex }"
-                @click="selectedIndexColumnDraftIndex = rowIndex"
-              >
-                <td class="index-columns-table__order">{{ rowIndex + 1 }}</td>
-                <td v-for="childSchema in schema.children" :key="childSchema.field">
-                  <a-select
-                    v-if="childSchema.type === 'Columns'"
-                    v-model:value="column[childSchema.field]"
-                    :placeholder="$t('qing-xuan-ze-lie')"
-                    :disabled="isReadOnly(schema) || childSchema.readOnly"
-                    allow-clear
-                    show-search
-                    style="width: 100%"
-                  >
-                    <a-select-option
-                      v-for="tableColumn in formData.columns"
-                      :key="`${tab.tabId}-${tableColumn.key}`"
-                      :value="tableColumn.name"
-                      :disabled="isIndexColumnOptionDisabled(tableColumn.name, rowIndex)"
-                    >
-                      {{ tableColumn.name }}
-                    </a-select-option>
-                  </a-select>
-                  <a-input
-                    v-else-if="childSchema.type === 'Input'"
-                    v-model:value="column[childSchema.field]"
-                    :disabled="isReadOnly(schema) || childSchema.readOnly"
-                  />
-                  <a-select
-                    v-else-if="childSchema.type === 'Options'"
-                    v-model:value="column[childSchema.field]"
-                    :disabled="isReadOnly(schema) || childSchema.readOnly"
-                    allow-clear
-                    show-search
-                    style="width: 100%"
-                  >
-                    <a-select-option v-for="option in childSchema.options" :key="option.value" :value="option.value">
-                      {{ option.label }}
-                    </a-select-option>
-                  </a-select>
-                  <span v-else>{{ column[childSchema.field] || $t('table-editor-empty-value') }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="index-columns-actions">
-          <a-button :disabled="isReadOnly(schema)" :aria-label="$t('xin-zeng')" @click="handleAddIndexColumnDraft">
-            <PlusOutlined />
-          </a-button>
-          <a-button
-            :disabled="isReadOnly(schema) || selectedIndexColumnDraftIndex < 0"
-            :aria-label="$t('shan-chu')"
-            @click="handleDeleteIndexColumnDraft"
-          >
-            <MinusOutlined />
-          </a-button>
-        </div>
-        <template #footer>
-          <a-button @click="handleCloseIndexColumnsModal">{{ $t('qu-xiao') }}</a-button>
-          <a-button type="primary" :disabled="isReadOnly(schema)" @click="handleSaveIndexColumns">{{ $t('que-ding') }}</a-button>
-        </template>
-      </a-modal>
+        @confirm="handleSaveIndexColumns"
+      />
       <a-collapse v-if="schema.type === 'Fold'" size="small">
         <a-collapse-panel :header="schema.titleI18N">
           <CreateTableItem
@@ -1146,53 +1038,5 @@ export default {
 .index-columns-trigger__action {
   flex: 0 0 auto;
   color: var(--primary-color);
-}
-
-:global(.index-columns-modal .ant-modal-body) {
-  padding: 24px;
-}
-
-.index-columns-table-wrap {
-  min-height: 240px;
-  overflow: auto;
-}
-
-.index-columns-table {
-  width: 100%;
-  min-width: 640px;
-  border-collapse: separate;
-  border-spacing: 0;
-  table-layout: fixed;
-}
-
-.index-columns-table th,
-.index-columns-table td {
-  height: 48px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border-light);
-  text-align: left;
-  vertical-align: middle;
-}
-
-.index-columns-table th {
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.index-columns-table__order {
-  width: 64px;
-  color: var(--text-tertiary);
-  text-align: center !important;
-}
-
-.index-columns-table__row--selected td {
-  background: var(--bg-hover);
-}
-
-.index-columns-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
 }
 </style>
