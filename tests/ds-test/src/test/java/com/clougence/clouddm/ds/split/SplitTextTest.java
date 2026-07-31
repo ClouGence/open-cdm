@@ -1,6 +1,7 @@
 package com.clougence.clouddm.ds.split;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -58,7 +59,9 @@ public abstract class SplitTextTest {
     }
 
     protected void splitRejectedCase(String resourcePath, String datasource, String rejectedSql) throws Exception {
-        splitAnalysisSpi(new Fixture(resourcePath, datasource)).splitScript(rejectedSql, null, 0, 0);
+        try (StringReader reader = new StringReader(rejectedSql)) {
+            splitAnalysisSpi(new Fixture(resourcePath, datasource)).splitScript(reader, null, 0, 0);
+        }
     }
 
     protected final Stream<DynamicTest> rejectedDynamicTests(List<String> resourcePaths, String datasource) {
@@ -88,7 +91,10 @@ public abstract class SplitTextTest {
     }
 
     static void verifyFixture(SplitFixture fixture, SplitAnalysisSpi spi, boolean verifyAllTypes) {
-        List<SplitScript> scripts = spi.splitScript(fixture.inputSql(), null, 0, 0);
+        List<SplitScript> scripts;
+        try (StringReader reader = new StringReader(fixture.inputSql())) {
+            scripts = spi.splitScript(reader, null, 0, 0);
+        }
         scripts.forEach(SplitTextTest::verifySplitTree);
         List<ExpectedSplit> expected = fixture.expected();
         List<ExpectedSplit> actual = scripts.stream().map(ExpectedSplit::from).toList();

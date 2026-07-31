@@ -1,5 +1,6 @@
 package com.clougence.clouddm.ds.split.mysql;
 
+import java.io.StringReader;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -46,7 +47,9 @@ public abstract class MySqlSplitTextTest extends SplitTextTest {
 
     @Override
     protected final void splitRejectedCase(String resourcePath, String datasource, String rejectedSql) throws Exception {
-        DslHelper.splitDsl(new MyDslProvider(MySqlParserConfig.unknownSqlMode(version)), rejectedSql);
+        try (StringReader reader = new StringReader(rejectedSql)) {
+            DslHelper.splitDsl(new MyDslProvider(MySqlParserConfig.unknownSqlMode(version)), reader);
+        }
     }
 
     @TestFactory

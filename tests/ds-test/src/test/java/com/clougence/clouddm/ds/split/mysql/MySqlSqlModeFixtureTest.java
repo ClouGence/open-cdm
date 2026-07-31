@@ -1,5 +1,6 @@
 package com.clougence.clouddm.ds.split.mysql;
 
+import java.io.StringReader;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -105,7 +106,9 @@ public class MySqlSqlModeFixtureTest extends SplitTextTest {
             version = segmentAfter(resourcePath, "split/mysql/");
         }
         MyDslProvider provider = new MyDslProvider(parserConfig(version, resourcePath));
-        DslHelper.splitDsl(provider, rejectedSql);
+        try (StringReader reader = new StringReader(rejectedSql)) {
+            DslHelper.splitDsl(provider, reader);
+        }
     }
 
     private static void verifyFixture(String resourcePath) throws Exception {
@@ -200,7 +203,10 @@ public class MySqlSqlModeFixtureTest extends SplitTextTest {
             return new TokenEvidence(token.getText(), token.getType());
         }).toList();
 
-        List<ParseTree> trees = DslHelper.splitDsl(provider, input).stream().map(AstSplitScript::getAstTree).toList();
+        List<ParseTree> trees;
+        try (StringReader reader = new StringReader(input)) {
+            trees = DslHelper.splitDsl(provider, reader).stream().map(AstSplitScript::getAstTree).toList();
+        }
         return new ParseEvidence(tokens, trees);
     }
 
