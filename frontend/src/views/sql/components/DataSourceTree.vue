@@ -64,7 +64,7 @@ export default {
     return {
       testDsMsg: '',
       showAddDsModal: false,
-      isInitialized: false, // The tag has been initialized
+      isInitialized: false,
       advancedSetting: [
         {
           value: 'delimited',
@@ -128,6 +128,7 @@ export default {
       hide: storedHide,
       dataSourceWidth: 0,
       preDataSourceWidth: 250,
+      refreshingTree: false,
       sidebarAnimating: false,
       sidebarClosing: false,
       sidebarOpening: false,
@@ -262,47 +263,40 @@ export default {
       }
     },
     checkTreeDataAndToggle() {
-      // Check for data within the V-tree component
-      if (this.$refs.tree) {
-        const treeData = this.$refs.tree.getTreeData();
-        const hasData = treeData && treeData.length > 0;
-
-        appLogger.debug('v-tree data check:', hasData, treeData);
-
-        // Get a user saved status
-        const storedHide = this.getStoredHideState();
-
-        if (hasData) {
-          // If data are available, decide whether to proceed according to the status of the user
-          // Automatically expand only when the user does not close manually
-          if (!storedHide) {
-            // Update only if the current state is not consistent with the target state, avoiding unnecessary updating leading to flash
-            if (this.hide !== false || this.dataSourceWidth !== 250) {
-              this.hide = false;
-              this.dataSourceWidth = 250;
-            }
-          } else {
-            // The user collected it manually and kept it closed.
-            if (this.hide !== true || this.dataSourceWidth !== 0) {
-              this.hide = true;
-              this.dataSourceWidth = 0;
-            }
-          }
-        } else {
-          // When data are not available, automatically close only after initialization
-          // But if the user has started manually, stay active.
-          if (this.isInitialized && !storedHide) {
-            // Update only when the state needs a change
-            if (this.hide !== true || this.dataSourceWidth !== 0) {
-              this.hide = true;
-              this.dataSourceWidth = 0;
-            }
-          }
-        }
-
-        // Mark as Initialized
-        this.isInitialized = true;
+      if (!this.$refs.tree) {
+        return;
       }
+
+      const treeData = this.$refs.tree.getTreeData();
+      const hasData = treeData && treeData.length > 0;
+      appLogger.debug('v-tree data check:', hasData, treeData);
+      if (!hasData) {
+        if (this.isInitialized && !this.refreshingTree && !this.getStoredHideState()) {
+          this.hide = true;
+          this.dataSourceWidth = 0;
+        }
+        this.isInitialized = true;
+        return;
+      }
+
+      const storedHide = this.getStoredHideState();
+      if (storedHide) {
+        if (this.hide !== true || this.dataSourceWidth !== 0) {
+          this.hide = true;
+          this.dataSourceWidth = 0;
+        }
+        return;
+      }
+
+      let targetWidth = this.dataSourceWidth;
+      if (targetWidth <= 0) {
+        targetWidth = this.preDataSourceWidth || 250;
+      }
+      if (this.hide !== false || this.dataSourceWidth !== targetWidth) {
+        this.hide = false;
+        this.dataSourceWidth = targetWidth;
+      }
+      this.isInitialized = true;
     },
     async submitTicket() {
       this.$refs.ticketContent.validate(async (valid) => {
@@ -384,10 +378,22 @@ export default {
         this.handleCloseModal();
       }
     },
-    handleRefreshTree() {
+    async handleRefreshTree() {
+      const currentWidth = this.$el.getBoundingClientRect().width;
+      if (!this.hide && currentWidth > 0) {
+        this.dataSourceWidth = currentWidth;
+        this.preDataSourceWidth = currentWidth;
+      }
       this.scrollY = 0;
-      this.getDataSourceList();
       this.searchKey = '';
+      this.refreshingTree = true;
+      try {
+        await this.getDataSourceList();
+      } finally {
+        await this.$nextTick();
+        this.refreshingTree = false;
+        this.checkTreeDataAndToggle();
+      }
     },
     handleMenuNameChange(e) {
       if (e.target.value !== this.menuModal.name) {
