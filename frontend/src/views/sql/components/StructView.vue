@@ -841,12 +841,13 @@ export default {
 
 .table-editor-header {
   display: flex;
-  min-height: 52px;
-  flex: 0 0 auto;
+  box-sizing: border-box;
+  height: 44px;
+  flex: 0 0 44px;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 8px 24px;
+  padding: 0 24px;
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -1174,7 +1175,7 @@ export default {
 
 @media (max-width: 768px) {
   .table-editor-header {
-    padding: 12px 16px;
+    padding: 0 16px;
   }
 
   .table-editor-context__path {

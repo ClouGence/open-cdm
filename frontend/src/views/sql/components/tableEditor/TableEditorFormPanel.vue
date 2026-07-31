@@ -135,6 +135,19 @@ export default {
   border-radius: 6px !important;
 }
 
+.table-editor-form-grid :deep(.ant-select-single.ant-select-sm .ant-select-selector) {
+  height: 36px;
+}
+
+.table-editor-form-grid :deep(.ant-select-single.ant-select-sm .ant-select-selector .ant-select-selection-item),
+.table-editor-form-grid :deep(.ant-select-single.ant-select-sm .ant-select-selector .ant-select-selection-placeholder) {
+  line-height: 34px;
+}
+
+.table-editor-form-grid :deep(.ant-select-single.ant-select-sm .ant-select-selector .ant-select-selection-search-input) {
+  height: 34px;
+}
+
 .table-editor-form-grid :deep(.ant-select) {
   min-width: 0;
 }
