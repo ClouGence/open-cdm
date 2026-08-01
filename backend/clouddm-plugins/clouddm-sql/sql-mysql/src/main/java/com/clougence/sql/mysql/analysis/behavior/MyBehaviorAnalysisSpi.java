@@ -15,7 +15,7 @@
  */
 package com.clougence.sql.mysql.analysis.behavior;
 
-import java.util.Collections;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +23,9 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MyDslProvider;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
-import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
-import com.clougence.utils.StringUtils;
 
 public class MyBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
@@ -39,13 +38,10 @@ public class MyBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     }
 
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
-        }
+    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         MyBehaviorParserVisitor[] holder = new MyBehaviorParserVisitor[1];
-        DslHelper.doVisitor(provider, query, (lexer, parser) -> {
+        DslHelper.doVisitor(provider, queryReader, (lexer, parser) -> {
             holder[0] = new MyBehaviorParserVisitor(parser, provider, levels, baseLine, baseColumn, resources);
             return holder[0];
         });

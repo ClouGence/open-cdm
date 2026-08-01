@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.maxcompute.sql.analysis.lineage;
 
+import java.io.Reader;
 import java.util.List;
 
 import org.antlr.v4.runtime.Parser;
@@ -47,7 +48,7 @@ public class McLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+    public List<LineageColumn> analyze(Reader sql, LineageContext lineageContext) {
         McConfig mcConfig = (McConfig) lineageContext.getDsConfig();
         McBuilderFactory builder = new McBuilderFactory(this.metaService, mcConfig.getSchemaStyle());
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> this.parserVisitor(builder, parser));

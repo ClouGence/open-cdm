@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.maxcompute.sql.analysis.security;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,12 +55,12 @@ public class McSecDomainResolveSpi implements SecDomainResolveSpi, McSecDomainOp
     }
 
     @Override
-    public List<RuleDomain> resolveDomain(DataSourceType dsType, CodeInfo codeInfo, ContextInfo ctxInfo) {
+    public List<RuleDomain> resolveDomain(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
         CodeLocation dslBase = new CodeLocation(codeInfo.getBaseLine(), codeInfo.getBaseColumn());
         List<RuleDomain> domainList = new ArrayList<>();
         McConfig mcConfig = (McConfig) ctxInfo.getDataSourceConfig();
 
-        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), codeInfo.getQuery(), dslBase);
+        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), queryReader, dslBase);
         for (AstSplitScript s : scripts) {
             SplitScript ss = new SplitScript();
             ss.setScript(s.getScript());
@@ -69,7 +71,9 @@ public class McSecDomainResolveSpi implements SecDomainResolveSpi, McSecDomainOp
 
             //
             McBuilderFactory builder = new McBuilderFactory(this.metaService, mcConfig.getSchemaStyle());
-            DslHelper.doVisitor(dslProvider(), s.getScript(), (lexer, parser) -> this.parserVisitor(builder, parser));
+            try (StringReader reader = new StringReader(s.getScript())) {
+                DslHelper.doVisitor(dslProvider(), reader, (lexer, parser) -> this.parserVisitor(builder, parser));
+            }
             List<RuleDomain> build;
             //            if (ctxInfo.isDeepParser()) {
             //                build = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());

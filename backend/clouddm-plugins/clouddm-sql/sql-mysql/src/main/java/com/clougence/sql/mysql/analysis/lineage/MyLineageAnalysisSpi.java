@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.mysql.analysis.lineage;
 
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +24,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -49,7 +50,7 @@ public class MyLineageAnalysisSpi implements LineageAnalysisSpi {
     }
 
     @Override
-    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+    public List<LineageColumn> analyze(Reader sql, LineageContext lineageContext) {
         AtomicReference<MyLineageCstVisitor> visitorRef = new AtomicReference<>();
         DslHelper.doVisitor(provider, sql, (lexer, parser) -> {
             MyLineageCstVisitor visitor = new MyLineageCstVisitor(parser);

@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.oracle.analysis.lineage;
 
+import java.io.Reader;
 import java.util.List;
 
 import org.antlr.v4.runtime.Parser;
@@ -46,7 +47,7 @@ public class OraLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+    public List<LineageColumn> analyze(Reader sql, LineageContext lineageContext) {
         OraBuilderFactory builder = new OraBuilderFactory(this.metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> this.parserVisitor(builder, parser));
 

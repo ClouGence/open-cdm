@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.mongodb.execute.jdbc;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -99,7 +100,10 @@ public class MongoConnection extends AdapterConnection {
 
     @Override
     public synchronized void doRequest(AdapterRequest request, AdapterReceive receive) throws SQLException {
-        StatementSet statementSet = DslHelper.parserDsl(MongoDslProvider.INSTANCE, ((MongoRequest) request).getCommandBody());
+        StatementSet statementSet;
+        try (StringReader reader = new StringReader(((MongoRequest) request).getCommandBody())) {
+            statementSet = DslHelper.parserDsl(MongoDslProvider.INSTANCE, reader);
+        }
         List<Statement> cmdSet = statementSet.getStatements();
         if (cmdSet.isEmpty()) {
             //            throw new SQLException("query command is empty.", JdbcErrorCode.SQL_STATE_QUERY_EMPTY);

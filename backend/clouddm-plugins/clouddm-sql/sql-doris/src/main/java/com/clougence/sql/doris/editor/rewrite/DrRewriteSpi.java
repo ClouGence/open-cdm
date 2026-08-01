@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.doris.editor.rewrite;
 
+import java.io.Reader;
 import java.util.List;
 
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -35,8 +36,8 @@ import com.clougence.sql.doris.parser.antlr.DorisParser;
 public class DrRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(DrDslProvider.INSTANCE, request.getQueryBody());
+    public String rewriterQuery(Reader queryReader, QueryRequest request, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(DrDslProvider.INSTANCE, queryReader);
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 

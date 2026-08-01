@@ -1,5 +1,6 @@
 package com.clougence.sql.mysql;
 
+import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,24 +118,54 @@ public class MySqlVersionConfigurationTest {
         String sql = "SELECT * FROM \"table1\";";
 
         Map<UmiTypes, Object> levels = Map.of(UmiTypes.Catalog, "catalog1", UmiTypes.Schema, "schema1");
-        Assertions.assertDoesNotThrow(() -> engine.behaviorAnalysisSpi(ansiQuotes).analysisBehavior(sql, levels, 0, 0));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.behaviorAnalysisSpi(knownEmpty).analysisBehavior(sql, levels, 0, 0));
+        Assertions.assertDoesNotThrow(() -> {
+            try (StringReader reader = new StringReader(sql)) {
+                return engine.behaviorAnalysisSpi(ansiQuotes).analysisBehavior(reader, levels, 0, 0);
+            }
+        });
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> {
+            try (StringReader reader = new StringReader(sql)) {
+                engine.behaviorAnalysisSpi(knownEmpty).analysisBehavior(reader, levels, 0, 0);
+            }
+        });
 
-        CodeInfo codeInfo = CodeInfo.builder().query(sql).baseLine(0).baseColumn(0).build();
+        CodeInfo codeInfo = CodeInfo.builder().baseLine(0).baseColumn(0).build();
         ContextInfo securityContextInfo = ContextInfo.builder().deepParser(false).levelsParam(levels).build();
-        Assertions.assertDoesNotThrow(() -> engine.secDomainResolveSpi(ansiQuotes).resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.secDomainResolveSpi(knownEmpty).resolveDomain(DataSourceType.MySQL, codeInfo, securityContextInfo));
+        Assertions.assertDoesNotThrow(() -> {
+            try (StringReader reader = new StringReader(sql)) {
+                return engine.secDomainResolveSpi(ansiQuotes).resolveDomain(DataSourceType.MySQL, reader, codeInfo, securityContextInfo);
+            }
+        });
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> {
+            try (StringReader reader = new StringReader(sql)) {
+                engine.secDomainResolveSpi(knownEmpty).resolveDomain(DataSourceType.MySQL, reader, codeInfo, securityContextInfo);
+            }
+        });
 
         var columnContextInfo = com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext.builder().levelsParam(levels).build();
-        Assertions.assertDoesNotThrow(() -> engine.lineageAnalysisSpi(ansiQuotes).analyze(sql, columnContextInfo));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.lineageAnalysisSpi(knownEmpty).analyze(sql, columnContextInfo));
+        Assertions.assertDoesNotThrow(() -> {
+            try (StringReader reader = new StringReader(sql)) {
+                return engine.lineageAnalysisSpi(ansiQuotes).analyze(reader, columnContextInfo);
+            }
+        });
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> {
+            try (StringReader reader = new StringReader(sql)) {
+                engine.lineageAnalysisSpi(knownEmpty).analyze(reader, columnContextInfo);
+            }
+        });
 
         QueryRequest request = new QueryRequest();
         request.setQueryBody(sql);
         RewriteContext rewriteContext = new RewriteContext();
         rewriteContext.setFetchLimit(10);
-        Assertions.assertTrue(engine.rewriteSpi(ansiQuotes).rewriterQuery(request, rewriteContext).contains("LIMIT 10"));
-        Assertions.assertThrows(AntlerSyntaxException.class, () -> engine.rewriteSpi(knownEmpty).rewriterQuery(request, rewriteContext));
+        try (StringReader reader = new StringReader(sql)) {
+            Assertions.assertTrue(engine.rewriteSpi(ansiQuotes).rewriterQuery(reader, request, rewriteContext).contains("LIMIT 10"));
+        }
+        Assertions.assertThrows(AntlerSyntaxException.class, () -> {
+            try (StringReader reader = new StringReader(sql)) {
+                engine.rewriteSpi(knownEmpty).rewriterQuery(reader, request, rewriteContext);
+            }
+        });
     }
 
     private static SqlParserParameters parserParameters(String sqlMode) {

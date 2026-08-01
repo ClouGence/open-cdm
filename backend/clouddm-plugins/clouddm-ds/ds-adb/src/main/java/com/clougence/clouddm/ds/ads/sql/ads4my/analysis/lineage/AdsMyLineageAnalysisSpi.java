@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.ads.sql.ads4my.analysis.lineage;
 
+import java.io.Reader;
 import java.util.List;
 
 import org.antlr.v4.runtime.Parser;
@@ -52,7 +53,7 @@ public class AdsMyLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public List<LineageColumn> analyze(String sql, LineageContext context) {
+    public List<LineageColumn> analyze(Reader sql, LineageContext context) {
         MyBuilderFactory builder = new MyBuilderFactory(metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> parserVisitor(builder, parser));
         List<MutableColumnLineage> columns = analyzeColumns(context.getUserUID(), context.getDsId(), context.getLevelsParam(), builder.buildKeepOrigin());

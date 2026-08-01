@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.sec.rules.execute;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -53,7 +54,9 @@ public class AbstractCheckerSpiProvider {
 
     protected StatementSet cacheOrParserDsl(String script) throws Exception {
         return (StatementSet) this.cacheService.getObjectIfAbsent("detectrule-script-" + MD5.getMD5(script), s -> {
-            return DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, script);
+            try (StringReader reader = new StringReader(script)) {
+                return DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, reader);
+            }
         });
     }
 

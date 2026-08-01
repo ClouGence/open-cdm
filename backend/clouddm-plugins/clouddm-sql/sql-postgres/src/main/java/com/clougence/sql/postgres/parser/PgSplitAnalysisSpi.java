@@ -15,6 +15,9 @@
  */
 package com.clougence.sql.postgres.parser;
 
+import java.io.Reader;
+import java.util.List;
+
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -46,10 +49,10 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    public java.util.List<SplitScript> splitScript(String script, java.util.List<QueryArg> args, int baseLine, int baseColumn) {
+    public java.util.List<SplitScript> splitScript(Reader reader, List<QueryArg> args, int baseLine, int baseColumn) {
         this.lastStatementStart.remove();
         try {
-            return super.splitScript(script, args, baseLine, baseColumn);
+            return super.splitScript(reader, args, baseLine, baseColumn);
         } finally {
             this.lastStatementStart.remove();
         }

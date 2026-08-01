@@ -5,6 +5,7 @@
  */
 package com.clougence.sql.iso.sql2003.analysis.lineage;
 
+import java.io.Reader;
 import java.util.List;
 
 import org.antlr.v4.runtime.Parser;
@@ -41,7 +42,7 @@ public class Sql2003LineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     @Override
-    public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+    public List<LineageColumn> analyze(Reader sql, LineageContext lineageContext) {
         Sql2003DomainCollector collector = new Sql2003DomainCollector();
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> parserVisitor(collector, parser));
         return toResultColumns(analyzeColumns(lineageContext.getUserUID(), lineageContext.getDsId(), lineageContext.getLevelsParam(), collector.build()));

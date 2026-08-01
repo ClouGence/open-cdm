@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.dsfamily.language.split;
 
+import java.io.StringReader;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.language.AbstractRequest;
@@ -38,9 +39,9 @@ public class SplitStrategyCenter {
         }
 
         List<SplitScript> scripts;
-        try {
+        try (StringReader reader = new StringReader(request.getSqlText())) {
             SplitAnalysisSpi splitSpi = request.getSqlEngine().splitAnalysisSpi(new SqlParserParameters(request.getSqlParameters()));
-            scripts = splitSpi.splitScript(request.getSqlText(), null, request.getBasicCodeLine(), request.getBasicCodeColumn());
+            scripts = splitSpi.splitScript(reader, null, request.getBasicCodeLine(), request.getBasicCodeColumn());
         } catch (RuntimeException e) {
             return result;
         }

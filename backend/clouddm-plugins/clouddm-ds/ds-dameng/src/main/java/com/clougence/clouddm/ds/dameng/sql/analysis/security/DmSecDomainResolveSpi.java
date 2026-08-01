@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.dameng.sql.analysis.security;
 
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,9 +40,9 @@ public class DmSecDomainResolveSpi implements SecDomainResolveSpi {
     }
 
     @Override
-    public List<RuleDomain> resolveDomain(DataSourceType dsType, CodeInfo codeInfo, ContextInfo ctxInfo) {
+    public List<RuleDomain> resolveDomain(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
         CodeLocation dslBase = new CodeLocation(codeInfo.getBaseLine(), codeInfo.getBaseColumn());
-        List<AstSplitScript> scripts = DslHelper.splitDsl(DmDslProvider.INSTANCE, codeInfo.getQuery(), dslBase);
+        List<AstSplitScript> scripts = DslHelper.splitDsl(DmDslProvider.INSTANCE, queryReader, dslBase);
         List<RuleDomain> domainList = new ArrayList<>();
         for (AstSplitScript script : scripts) {
             SplitScript splitScript = new SplitScript();

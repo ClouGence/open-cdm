@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.redis.execute.jdbc;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -109,8 +110,8 @@ public class JedisConnection extends AdapterConnection {
 
         this.cancelled = false;
         StatementSet statementSet;
-        try {
-            statementSet = DslHelper.parserDsl(RedisDslProvider.INSTANCE, ((JedisRequest) request).getCommandBody());
+        try (StringReader reader = new StringReader(((JedisRequest) request).getCommandBody())) {
+            statementSet = DslHelper.parserDsl(RedisDslProvider.INSTANCE, reader);
         } catch (Exception e) {
             String errorMsg = "command '" + ((JedisRequest) request).getCommandBody() + "' parserFailed.')";
             throw new SQLException(errorMsg, JdbcErrorCode.SQL_STATE_SYNTAX_ERROR);

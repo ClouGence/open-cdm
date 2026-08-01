@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.sec.rules;
 
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
@@ -36,8 +37,10 @@ public class AbstractRangeTestCase {
             SessionSpi.PARAMS_DEFAULT_SCHEMA, "test_schema");
 
     protected List<RuleDomain> resolveDomain(String sql) {
-        CodeInfo codeInfo = CodeInfo.builder().query(sql).baseLine(0).baseColumn(0).build();
-        return this.resolveSpi.resolveDomain(dataSourceType, codeInfo, ContextInfo.builder().build());
+        CodeInfo codeInfo = CodeInfo.builder().baseLine(0).baseColumn(0).build();
+        try (StringReader reader = new StringReader(sql)) {
+            return this.resolveSpi.resolveDomain(dataSourceType, reader, codeInfo, ContextInfo.builder().build());
+        }
     }
 
     protected List<RuleDomain> configDsAndEnv(long envId, long dsId, List<RuleDomain> domainList) {

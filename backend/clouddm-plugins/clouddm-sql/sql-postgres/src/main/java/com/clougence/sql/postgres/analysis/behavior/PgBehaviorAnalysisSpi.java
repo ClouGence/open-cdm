@@ -6,7 +6,7 @@
  */
 package com.clougence.sql.postgres.analysis.behavior;
 
-import java.util.Collections;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +16,6 @@ import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.postgres.parser.PgDslProvider;
 import com.clougence.sql.postgres.parser.PostgresVersion;
-import com.clougence.utils.StringUtils;
 
 public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
@@ -27,13 +26,10 @@ public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     }
 
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
-        }
+    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         PgBehaviorParserVisitor[] holder = new PgBehaviorParserVisitor[1];
-        DslHelper.doVisitor(provider, query, (lexer, parser) -> {
+        DslHelper.doVisitor(provider, queryReader, (lexer, parser) -> {
             holder[0] = new PgBehaviorParserVisitor(parser, provider.version(), levels, baseLine, baseColumn);
             return holder[0];
         });
