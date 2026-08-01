@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.file;
+package com.clougence.clouddm.console.web.component.file.resource;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -24,9 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.file.resource.DefaultPluginResourceModel;
-import com.clougence.clouddm.console.web.component.file.resource.PluginResourceModel;
-import com.clougence.clouddm.console.web.component.file.resource.ResourceRoute;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.resource.ResourceCategory;

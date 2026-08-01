@@ -37,6 +37,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.menus.UiMenuDef;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.impl.DsMenuUtils;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
@@ -117,6 +118,8 @@ public class DmHomeController {
     private DmDsConfigService   dmDsConfigService;
     @Resource
     private JwtService          jwtService;
+    @Resource
+    private UserConfigService   userConfigService;
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/healthcheck")
@@ -384,6 +387,7 @@ public class DmHomeController {
             .filter(this::displayDsPlugin)
             .collect(Collectors.toCollection(ArrayList::new));
         settings.setDsSupportNames(groupDsTypesByDisplay(dsList).stream().map(this::toDsSupportNames).collect(Collectors.toList()));
+        settings.setSqlFileMaxSize(this.userConfigService.sqlFileMaxSize());
 
         return ResWebDataUtils.buildSuccess(settings);
     }

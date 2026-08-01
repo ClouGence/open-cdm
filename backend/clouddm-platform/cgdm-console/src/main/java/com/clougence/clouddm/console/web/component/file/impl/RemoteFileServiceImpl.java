@@ -31,7 +31,7 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultSetRService;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
-import com.clougence.clouddm.console.web.component.file.FileService;
+import com.clougence.clouddm.console.web.component.file.RemoteFileService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
@@ -53,11 +53,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class FileServiceImpl implements FileService, UnifiedPostConstruct {
+public class RemoteFileServiceImpl implements RemoteFileService, UnifiedPostConstruct {
     @Resource
     private SystemDal                   systemDal;
     @Resource
-    private ExecutionDal                executionDal;
+    private ExecutionDal                execDal;
     @Resource
     private ResultSetRService           resultSetRService;
     private ScheduledThreadPoolExecutor scheduledExecutor;
@@ -80,7 +80,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
         c.add(Calendar.MINUTE, -2); // 2min pre check.
 
         while (true) {
-            List<DmExecFileDO> files = this.executionDal.fileMapper().queryByAfterHeartbeatTime(c.getTime(), 500);
+            List<DmExecFileDO> files = this.execDal.fileMapper().queryByAfterHeartbeatTime(c.getTime(), 500);
             if (files.isEmpty()) {
                 break;
             }
@@ -94,7 +94,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
                         String wsn = fileUri.getHost();
                         DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(wsn);
                         if (worker == null) {
-                            this.executionDal.fileMapper().incrementTryCountByUniqueId(f.getUniqueId(), "worker offline.");
+                            this.execDal.fileMapper().incrementTryCountByUniqueId(f.getUniqueId(), "worker offline.");
                             continue;
                         }
                     }
@@ -107,9 +107,9 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
                     switch (f.getStatus()) {
                         case Pending: {
                             if (this.existsFile(f)) {
-                                this.executionDal.fileMapper().updateAccessTimeByUniqueId(f.getUniqueId(), "File exists during pending check.");
+                                this.execDal.fileMapper().updateAccessTimeByUniqueId(f.getUniqueId(), "File exists during pending check.");
                             } else {
-                                this.executionDal.fileMapper().deleteFileByUniqueId(f.getUniqueId());
+                                this.execDal.fileMapper().deleteFileByUniqueId(f.getUniqueId());
                             }
                             break;
                         }
@@ -121,14 +121,14 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
                             int cacheTimeoutSec = this.getTimeoutByOwnerUid(f.getOwnerUid(), timeoutConfigCache);
                             long fileLastTime = f.getGmtModified().getTime() + (cacheTimeoutSec * 1000L);
                             if (fileLastTime > System.currentTimeMillis()) {
-                                this.executionDal.fileMapper().updateHeartbeatByUniqueId(f.getUniqueId());
+                                this.execDal.fileMapper().updateHeartbeatByUniqueId(f.getUniqueId());
                             } else {
                                 deleteFile(f);
                             }
                         }
                     }
                 } catch (Exception e) {
-                    this.executionDal.fileMapper().incrementTryCountByUniqueId(f.getUniqueId(), "file clear error: " + e.getMessage());
+                    this.execDal.fileMapper().incrementTryCountByUniqueId(f.getUniqueId(), "file clear error: " + e.getMessage());
                 }
             }
         }
@@ -158,7 +158,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
             this.resultSetRService.deleteFile(sendDTO, fileUri.getPath(), false);
             log.info("delete file [{}] on worker [{}] success.", fileUri.getPath(), wsn);
         }
-        this.executionDal.fileMapper().deleteFileByUniqueId(f.getUniqueId());
+        this.execDal.fileMapper().deleteFileByUniqueId(f.getUniqueId());
     }
 
     private boolean existsFile(DmExecFileDO f) {

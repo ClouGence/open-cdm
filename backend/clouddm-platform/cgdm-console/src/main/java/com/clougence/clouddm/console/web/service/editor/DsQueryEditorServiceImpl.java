@@ -31,7 +31,7 @@ import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
-import com.clougence.clouddm.console.web.component.file.FileService;
+import com.clougence.clouddm.console.web.component.file.RemoteFileService;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -88,7 +88,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
     @Resource
     private QueryService        queryService;
     @Resource
-    private FileService         fileService;
+    private RemoteFileService   remoteFileService;
     @Resource
     private DmDsConfigService   dmDsConfigService;
     @Resource
@@ -265,11 +265,11 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             String wsn = fileUri.getHost();
             requireConnectedWorker(wsn);
 
-            String suffix = this.fileService.fetchFileExtensionByFormatName(dstFormatName);
+            String suffix = this.remoteFileService.fetchFileExtensionByFormatName(dstFormatName);
             String srcFileId = fileDO.getUniqueId();
             String exportId = ("e_" + resultId.substring(2) + "_" + StringUtils.leftPad(Long.toString(System.currentTimeMillis(), 16), 11, '0')).toLowerCase();
             String exportFile = "export" + File.separator + exportId + "." + suffix;
-            String exportFileUri = this.fileService
+            String exportFileUri = this.remoteFileService
                 .submitFileConvert(puid, uid, wsn, srcFileId, exportId, DmFileType.ResultSet, fileUri.getPath(), exportFile, dstFormatName, option);
 
             DmExecFileDO exportFileDO = new DmExecFileDO();
@@ -307,7 +307,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             String wsn = fileUri.getHost();
             requireConnectedWorker(wsn);
 
-            return this.fileService.fetchFileSize(wsn, fileUri.getPath());
+            return this.remoteFileService.fetchFileSize(wsn, fileUri.getPath());
         }
 
         throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.FILE_FS_UNSUPPORT_ERROR.name(), fsName));
@@ -326,7 +326,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             String wsn = fileUri.getHost();
             requireConnectedWorker(wsn);
 
-            return this.fileService.fetchFileSize(wsn, fileUri.getPath());
+            return this.remoteFileService.fetchFileSize(wsn, fileUri.getPath());
         }
 
         throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.FILE_FS_UNSUPPORT_ERROR.name(), fsName));
@@ -340,7 +340,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             String wsn = fileUri.getHost();
             requireConnectedWorker(wsn);
 
-            return this.fileService.fetchFileData(wsn, fileUri.getPath(), offset, length);
+            return this.remoteFileService.fetchFileData(wsn, fileUri.getPath(), offset, length);
         }
 
         throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.FILE_FS_UNSUPPORT_ERROR.name(), fsName));
@@ -356,7 +356,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             String wsn = fileUri.getHost();
             requireConnectedWorker(wsn);
 
-            return this.fileService.fetchResultPage(wsn, fileUri.getPath(), offsetRow, pageSize);
+            return this.remoteFileService.fetchResultPage(wsn, fileUri.getPath(), offsetRow, pageSize);
         }
 
         throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.FILE_FS_UNSUPPORT_ERROR.name(), fsName));
@@ -372,7 +372,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             String wsn = fileUri.getHost();
             requireConnectedWorker(wsn);
 
-            return this.fileService.fetchResultCol(wsn, fileUri.getPath(), rowNumber, colNumber, offset, length);
+            return this.remoteFileService.fetchResultCol(wsn, fileUri.getPath(), rowNumber, colNumber, offset, length);
         }
 
         throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.FILE_FS_UNSUPPORT_ERROR.name(), fsName));

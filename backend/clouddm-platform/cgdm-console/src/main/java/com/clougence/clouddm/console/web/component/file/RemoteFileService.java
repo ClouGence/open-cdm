@@ -23,7 +23,7 @@ import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
  * @author mode 2020-01-20 21:04
  * @since 1.1.3
  */
-public interface FileService {
+public interface RemoteFileService {
 
     String submitFileConvert(String puid, String userId, String wsn, String srcFileId, String exportId, DmFileType dmFileType, String srcFile, String dstFile, String formatName,
                              String option);

@@ -18,7 +18,10 @@ package com.clougence.clouddm.console.web.controller.datasource;
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel.RDP_DAUTH_DS_MANAGER;
 import static com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel.RDP_DAUTH_DS_READ;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_DS_MANAGE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_DS_READ;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QUERY_CONSOLE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_DS_MANAGE;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,7 +60,7 @@ import com.clougence.clouddm.console.web.model.vo.env.DsEnvVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
 import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
-import com.clougence.clouddm.console.web.service.upload.ConsoleUploadService;
+import com.clougence.clouddm.console.web.service.upload.UploadService4Certificate;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
@@ -92,29 +95,29 @@ import lombok.extern.slf4j.Slf4j;
 public class DmDsController {
 
     @Resource
-    private DmDsWebService       dsService;
+    private DmDsWebService            dsService;
     @Resource
-    private DmDsService          dmDsService;
+    private DmDsService               dmDsService;
     @Resource
-    private DataSourceDal        dsDal;
+    private DataSourceDal             dsDal;
     @Resource
-    private DmResAuthService     authService;
+    private DmResAuthService          authService;
     @Resource
-    private ObjectCacheDao       cacheDao;
+    private ObjectCacheDao            cacheDao;
     @Resource
-    private DmAuthServiceForBiz  authServiceForBiz;
+    private DmAuthServiceForBiz       authServiceForBiz;
     @Resource
-    private DmDsConfigService    dsConfigService;
+    private DmDsConfigService         dsConfigService;
     @Resource
-    private DmDriverService      driverService;
+    private DmDriverService           driverService;
     @Resource
-    private RdpOpAuditService    auditService;
+    private RdpOpAuditService         auditService;
     @Resource
-    private ClusterService       clusterService;
+    private ClusterService            clusterService;
     @Resource
-    private RdpDsEnvService      envService;
+    private RdpDsEnvService           envService;
     @Resource
-    private ConsoleUploadService uploadService;
+    private UploadService4Certificate uploadService;
 
     // drivers
 
@@ -171,8 +174,10 @@ public class DmDsController {
 
     @RequestAuth(DM_DS_MANAGE)
     @RequestMapping(value = "/uploadCertificate", method = RequestMethod.POST)
-    public ResWebData<?> uploadCertificate(@RequestParam("file") MultipartFile file) {
-        return ResWebDataUtils.buildSuccess(this.uploadService.uploadCertificate(file));
+    public ResWebData<?> uploadCertificate(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+
+        return ResWebDataUtils.buildSuccess(this.uploadService.uploadCertificate(uid, file));
     }
 
     @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)

@@ -19,9 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.clougence.clouddm.console.web.model.vo.datasource.ConsoleUploadVO;
 
-public interface ConsoleUploadService {
+public interface UploadService4Certificate {
 
-    ConsoleUploadVO uploadCertificate(MultipartFile file);
+    ConsoleUploadVO uploadCertificate(String uid, MultipartFile file);
 
-    String resolveCertificateData(String value);
+    String readCertificateData(String uid, String value);
+
+    void deleteCertificateData(String uid, String value);
 }

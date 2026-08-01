@@ -25,37 +25,42 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.clougence.clouddm.api.common.rpc.ResWebData;
+import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.file.mode.PluginResourceData;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.resource.PluginResourceService;
+import com.clougence.clouddm.console.web.service.upload.UploadService4SqlFile;
+import com.clougence.clouddm.console.web.service.upload.model.SqlFilePreviewFO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.sdk.resource.ResourceRequest;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/resource")
 @Slf4j
-public class PluginResourceController {
+public class ResourceController {
 
     @Resource
-    private PluginResourceService pluginResourceService;
+    private PluginResourceService resourceService;
     @Resource
     private JwtService            jwtService;
     @Resource
-    private RdpUserService        rdpUserService;
+    private RdpUserService        userService;
+    @Resource
+    private UploadService4SqlFile sqlFileUploadService;
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/fetch", method = { RequestMethod.GET })
@@ -67,7 +72,7 @@ public class PluginResourceController {
             requestParams.remove("format");
 
             ResourceRequest resourceRequest = buildResourceRequest(expectedFormat, requestParams, httpRequest);
-            PluginResourceData resourceData = this.pluginResourceService.getResource(resourceName, resourceRequest);
+            PluginResourceData resourceData = this.resourceService.getResource(resourceName, resourceRequest);
             if (resourceData == null || resourceData.inputStream() == null) {
                 return ResponseEntity.notFound().build();
             }
@@ -126,7 +131,7 @@ public class PluginResourceController {
             return new LoginContext(null, false);
         }
 
-        DmAuthUserDO user = this.rdpUserService.getUserByUid(jwt.getId());
+        DmAuthUserDO user = this.userService.getUserByUid(jwt.getId());
         if (user == null || user.isDisable()) {
             return new LoginContext(null, false);
         }
@@ -134,5 +139,23 @@ public class PluginResourceController {
     }
 
     private record LoginContext(String userId, boolean loggedIn) {
+    }
+
+    //
+
+    @RequestAuth(strategy = RequestAuth.AuthStrategy.RefAnyOnes)
+    @RequestMapping(value = "/sqlfile/upload", method = RequestMethod.POST)
+    public ResWebData<?> uploadSqlFile(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+
+        return ResWebDataUtils.buildSuccess(this.sqlFileUploadService.upload(uid, file));
+    }
+
+    @RequestAuth(strategy = RequestAuth.AuthStrategy.RefAnyOnes)
+    @RequestMapping(value = "/sqlfile/preview", method = RequestMethod.POST)
+    public ResWebData<?> previewSqlFile(@Valid @RequestBody SqlFilePreviewFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+
+        return ResWebDataUtils.buildSuccess(this.sqlFileUploadService.preview(uid, fo.getAttachmentId(), fo.getStartLine(), fo.getLineCount()));
     }
 }

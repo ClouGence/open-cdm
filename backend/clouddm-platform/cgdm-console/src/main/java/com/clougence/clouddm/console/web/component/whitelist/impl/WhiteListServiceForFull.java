@@ -49,6 +49,7 @@ public class WhiteListServiceForFull implements WhiteListService, DsFeatureIDs, 
             this.userConfigRange.put(RootUserConfig.Fields.onlineMaxResultSetMegaByte, new Range(-1, 200));
             this.userConfigRange.put(RootUserConfig.Fields.onlineMaxColumnMegaByte, new Range(-1, 16));
             this.userConfigRange.put(RootUserConfig.Fields.onlineMaxElementMegaByte, new Range(-1, 16));
+            this.userConfigRange.put(RootUserConfig.Fields.approvalSqlFileMaxMegaByte, new Range(1, 20));
 
         }
     }

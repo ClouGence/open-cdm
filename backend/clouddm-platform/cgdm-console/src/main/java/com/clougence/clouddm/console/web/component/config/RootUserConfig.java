@@ -241,6 +241,8 @@ public class RootUserConfig {
     private Boolean       dmEnableMCP;
     @UserConfigDef(name = "sqlAuditRetentionDays", defaultValue = "30", descKey = I18nUserConfigMsgKeys.SQL_AUDIT_RETENTION_DAYS, valueRange = "1 - 60", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
     private String        sqlAuditRetentionDays;
+    @UserConfigDef(name = "approvalSqlFileMaxMegaByte", defaultValue = "20", descKey = I18nUserConfigMsgKeys.APPROVAL_SQL_FILE_MAX_MB, valueRange = "1 ~ 20 MB", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
+    private Integer       approvalSqlFileMaxMegaByte;
     @UserConfigDef(name = "defaultColumnDisplayChars", defaultValue = "250", valueRange = "10~500, default 250", descKey = I18nUserConfigMsgKeys.SQL_RESULT_COL_MAXIMUM_DISPLAY_SIZE, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Integer       defaultColumnDisplayChars;
     @UserConfigDef(name = "consoleMetadataCache", defaultValue = "true", valueRange = "true, false", descKey = I18nUserConfigMsgKeys.SQL_RESULT_METADATA_CACHE, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
