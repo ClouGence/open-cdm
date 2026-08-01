@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.approval.schedule;
+package com.clougence.clouddm.console.web.component.approval;
 
 import java.util.List;
 import java.util.Set;
@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
+import com.clougence.clouddm.console.web.component.approval.schedule.ApprovalTaskScheduler;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
@@ -48,7 +48,7 @@ public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
     @Resource
     private ApprovalProviderServiceImpl approvalService;
     @Resource
-    private ApprovalTaskSchedule        scheduleService;
+    private ApprovalTaskScheduler       taskScheduler;
 
     @Override
     public void init() throws Exception {
@@ -68,12 +68,12 @@ public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
             }
         }
 
-        // scheduleService start
+        // task scheduler start
         try {
-            this.scheduleService.start();
-            log.info("[ApprovalStarter] ScheduleService started.");
+            this.taskScheduler.start();
+            log.info("[ApprovalStarter] ApprovalTaskScheduler started.");
         } catch (Exception e) {
-            String msg = "[ApprovalStarter] ScheduleService started failed, but will ignore exception, msg: " + ExceptionUtils.getRootCauseMessage(e);
+            String msg = "[ApprovalStarter] ApprovalTaskScheduler started failed, but will ignore exception, msg: " + ExceptionUtils.getRootCauseMessage(e);
             log.error(msg, e);
         }
     }

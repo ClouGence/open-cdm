@@ -61,7 +61,7 @@ public class AutoExecHelperForChange implements AutoExecHelper {
             return;
         }
 
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(job.getPrimaryUid(), Long.parseLong(job.getDependOnBizId()));
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(Long.parseLong(job.getDependOnBizId()));
 
         // language
         String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());
@@ -81,7 +81,7 @@ public class AutoExecHelperForChange implements AutoExecHelper {
             return;
         }
 
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(job.getPrimaryUid(), Long.parseLong(job.getDependOnBizId()));
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(Long.parseLong(job.getDependOnBizId()));
 
         // language
         String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());
@@ -100,7 +100,7 @@ public class AutoExecHelperForChange implements AutoExecHelper {
             return;
         }
 
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(job.getPrimaryUid(), Long.parseLong(job.getDependOnBizId()));
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(Long.parseLong(job.getDependOnBizId()));
 
         // language
         String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());

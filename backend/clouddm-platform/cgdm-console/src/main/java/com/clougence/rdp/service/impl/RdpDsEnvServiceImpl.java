@@ -15,7 +15,8 @@
  */
 package com.clougence.clouddm.console.web.component.config.impl;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -24,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpLabelKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.env.UpdateDsEnvFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsEnvLO;
@@ -56,35 +56,6 @@ public class RdpDsEnvServiceImpl implements RdpDsEnvService {
     @Override
     public DmSysEnvDO queryByUserAndId(String puid, String uid, long envID) {
         return this.systemDal.envMapper().queryByEnvID(puid, envID);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public int initPrimaryUserDefaultEnv(String puid, String uid) {
-        DmSysEnvDO dsEnvDO = new DmSysEnvDO();
-        dsEnvDO.setOwnerUid(puid);
-        dsEnvDO.setEnvName(DmI18nUtils.getMessage(I18nRdpLabelKeys.DEFAULT_ENV.name()));
-        dsEnvDO.setDescription(DmI18nUtils.getMessage(I18nRdpLabelKeys.DEFAULT_ENV_DESC.name()));
-
-        return this.systemDal.envMapper().insert(dsEnvDO);
-    }
-
-    @Override
-    public void fillDsEnvInfo(List<DmDsDO> dss) {
-        List<Long> dsEnvIds = dss.stream().filter(Objects::nonNull).map(DmDsDO::getDsEnvId).collect(Collectors.toCollection(ArrayList::new));
-        if (dsEnvIds.isEmpty()) {
-            return;
-        }
-
-        Map<Long, DmSysEnvDO> dsEnvDOMap = new HashMap<>();
-        List<DmSysEnvDO> dsEnvDOs = this.systemDal.envMapper().selectBatchIds(dsEnvIds);
-        for (DmSysEnvDO dsEnvDO : dsEnvDOs) {
-            dsEnvDOMap.put(dsEnvDO.getId(), dsEnvDO);
-        }
-
-        for (DmDsDO ds : dss) {
-            ds.setDsEnvDO(dsEnvDOMap.get(ds.getDsEnvId()));
-        }
     }
 
     @Override

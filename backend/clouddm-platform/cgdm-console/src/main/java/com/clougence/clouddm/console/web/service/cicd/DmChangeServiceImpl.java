@@ -154,12 +154,12 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public DmChangeDO queryChangeById(String ownerUid, long changeId) {
-        return this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        return this.changeFlowDal.changeMapper().queryChangeById(changeId);
     }
 
     @Override
     public ChangeBodyVO fetchChangeBodyByChangeId(String ownerUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
 
         // current content, map by name
         List<DmChangeFlowItemDO> versionedList = this.changeFlowDal.flowItemMapper().queryItemByFlowId(change.getOwnerUid(), change.getRefFlowId());
@@ -248,7 +248,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public void skipCheck(String ownerUid, String userUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         if (change == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
@@ -271,7 +271,7 @@ public class DmChangeServiceImpl implements DmChangeService {
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void confirmExec(String ownerUid, String userUid, long changeId, DmAutoExecConfigFO fo) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         if (change == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
@@ -319,7 +319,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public DmAutoExecJobVO queryExecJobInfo(String ownerUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         checkRunStatus(change);
 
         return this.autoExecService.queryAutoExecJob(String.valueOf(change.getId()), SQLJobBizType.CHANGE, true);
@@ -327,7 +327,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String ownerUid, ChangeExecTaskListFO fo) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, fo.getChangeId());
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(fo.getChangeId());
         checkRunStatus(change);
 
         return this.autoExecService.queryAutoExecTaskList(String.valueOf(change.getId()), SQLJobBizType.CHANGE, true, fo.getTaskStatus(), fo.getPage());
@@ -335,7 +335,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public List<DmBizLogVO> queryExecLog(String ownerUid, ChangeExecLogFO fo) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, fo.getChangeId());
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(fo.getChangeId());
         checkRunStatus(change);
 
         DmExecAutoJobDO jobDO = checkJob(ownerUid, fo.getJobId());
@@ -371,7 +371,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public void pauseExecJob(String ownerUid, String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         checkRunStatus(change);
 
         this.autoExecService.stopJob(String.valueOf(changeId), SQLJobBizType.CHANGE, curUid);
@@ -379,7 +379,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public void startExecJob(String ownerUid, String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         checkRunStatus(change);
 
         this.autoExecService.retryJob(String.valueOf(changeId), SQLJobBizType.CHANGE, curUid);
@@ -387,7 +387,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public void retryExecJob(String ownerUid, String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         checkRunStatus(change);
 
         this.autoExecService.retryJob(String.valueOf(changeId), SQLJobBizType.CHANGE, curUid);
@@ -395,7 +395,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public void abortExecJob(String ownerUid, String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         checkRunStatus(change);
 
         this.autoExecService.endJob(String.valueOf(changeId), SQLJobBizType.CHANGE, curUid);
@@ -404,7 +404,7 @@ public class DmChangeServiceImpl implements DmChangeService {
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void skipExecTask(String ownerUid, String curUid, long changeId, long taskId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         checkRunStatus(change);
 
         this.autoExecService.skipTask(String.valueOf(changeId), SQLJobBizType.CHANGE, taskId, curUid);
@@ -413,7 +413,7 @@ public class DmChangeServiceImpl implements DmChangeService {
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void continueExecTask(String ownerUid, long changeId, long taskId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         checkRunStatus(change);
 
         this.autoExecService.continueTask(String.valueOf(changeId), SQLJobBizType.CHANGE, taskId);
@@ -421,7 +421,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public void retryChange(String ownerUid, String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         if (change == null || change.isLockStatus()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
@@ -450,7 +450,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public void restartChange(String ownerUid, String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         if (change == null || change.isLockStatus()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
@@ -504,7 +504,7 @@ public class DmChangeServiceImpl implements DmChangeService {
                 if (ticketInfo != null) {
                     String msg1 = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_REAPPROVAL_AT_CONSOLE_NOTICE.name());
                     this.approvalFlowService.closeTicket(ticketInfo.getTicketId(), msg1, ownerUid, curUid);
-                    change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, change.getId());
+                    change = this.changeFlowDal.changeMapper().queryChangeById(change.getId());
                 }
             }
         }
@@ -574,7 +574,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public void closeChange(String ownerUid, String curUid, long changeId) {
-        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
         if (change == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }

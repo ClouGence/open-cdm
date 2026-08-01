@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.api.sidecar.autoexec;
+package com.clougence.clouddm.worker.component.autoexec;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class AutoExecTaskDTO {
-
-    private Long    taskId;
-    private String  queryId;
-    private String  execSql;
-    private Integer execOrder;
+public enum JobResult {
+    SUCCESS,
+    FAILED,
+    PAUSED
 }

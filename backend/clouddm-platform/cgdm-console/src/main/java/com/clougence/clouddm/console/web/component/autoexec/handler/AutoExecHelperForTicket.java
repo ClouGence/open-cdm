@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class AutoExecHelperForTicket implements AutoExecHelper {
-
     @Override
     public SQLJobBizType getHandleType() { return SQLJobBizType.TICKET; }
 

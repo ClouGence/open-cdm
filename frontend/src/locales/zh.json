@@ -4175,5 +4175,6 @@
   "ticket-sql-select-file": "选择或拖拽 .sql 文件",
   "ticket-sql-upload-limit": "最大 {size} MB，必须为 UTF-8 编码",
   "ticket-sql-confirm-upload": "确认上传",
-  "ticket-sql-only-sql": "仅支持 .sql 文件"
+  "ticket-sql-only-sql": "仅支持 .sql 文件",
+  "ticket-rule-location-total": "共 {count} 处"
 }

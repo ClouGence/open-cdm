@@ -65,6 +65,7 @@ public class DmApprovalDO {
     private String                 explainSqlData;
     private Integer                riskSqlCount;
     private String                 rawSql;
+    private SqlContentType         contentType;
     private Integer                totalCount;
     @TableField("`expected_affected_rows`")
     private Long                   expectedAffectedRows;

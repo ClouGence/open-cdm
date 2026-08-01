@@ -17,7 +17,10 @@ package com.clougence.clouddm.console.web.controller.approval;
 
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.Ignore;
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_WORKER_ORDER_APPROVE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_WORKER_ORDER_EXECUTE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_WORKER_ORDER_READ;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_WORKER_ORDER_REQUEST;
 
 import java.util.List;
 import java.util.Map;
@@ -95,16 +98,6 @@ public class ApprovalController {
         return ResWebDataUtils.buildSuccess(vo);
     }
 
-    @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/createDataSourceAuthApproval", method = RequestMethod.POST)
-    public ResWebData<String> createDataSourceAuthTicket(@RequestBody RdpAddAuthTicketFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        approvalControlService.createAuthTicket(puid, uid, fo);
-        return ResWebDataUtils.buildSuccess("ok.");
-    }
-
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_EXECUTE)
     @RequestMapping(value = "/confirm", method = RequestMethod.POST)
     public ResWebData<?> confirmTicket(@Valid @RequestBody DmConfirmTicketFO fo, HttpServletRequest request) {
@@ -114,6 +107,16 @@ public class ApprovalController {
 
         this.approvalControlService.confirmTicket(puid, fo.getTicketId(), fo);
         return ResWebDataUtils.buildSuccess();
+    }
+
+    @RequestAuth(strategy = Ignore)
+    @RequestMapping(value = "/createDataSourceAuthApproval", method = RequestMethod.POST)
+    public ResWebData<String> createDataSourceAuthTicket(@RequestBody RdpAddAuthTicketFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+
+        approvalControlService.createAuthTicket(puid, uid, fo);
+        return ResWebDataUtils.buildSuccess("ok.");
     }
 
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_APPROVE)
@@ -161,6 +164,7 @@ public class ApprovalController {
     public ResWebData<?> skipAutoExecTask(@Valid @RequestBody DmQueryAutoExecFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
+
         this.approvalControlService.skipTask(puid, uid, fo);
         return ResWebDataUtils.buildSuccess();
     }
@@ -170,6 +174,7 @@ public class ApprovalController {
     public ResWebData<?> continueAutoExecTask(@Valid @RequestBody DmQueryAutoExecFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
+
         this.approvalControlService.canceledSkipTask(puid, uid, fo);
         return ResWebDataUtils.buildSuccess();
     }
@@ -179,6 +184,7 @@ public class ApprovalController {
     public ResWebData<?> stopAutoExecJob(@Valid @RequestBody DmTicketFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
+
         this.approvalControlService.stopJob(puid, uid, fo.getTicketId());
         return ResWebDataUtils.buildSuccess();
     }
@@ -188,6 +194,7 @@ public class ApprovalController {
     public ResWebData<?> endAutoExecJob(@Valid @RequestBody DmTicketFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
+
         this.approvalControlService.endAutoExecJob(puid, uid, fo.getTicketId());
         return ResWebDataUtils.buildSuccess();
     }
@@ -252,8 +259,18 @@ public class ApprovalController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         fo.setUid(uid);
 
-        DmQueryTicketVO vo = this.approvalControlService.queryQueryTicketDetail(puid, fo);
+        DmQueryTicketVO vo = this.approvalControlService.queryTicketDetail(puid, fo);
         return ResWebDataUtils.buildSuccess(vo);
+    }
+
+    @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
+    @RequestMapping(value = "/previewSqlFile", method = RequestMethod.POST)
+    public ResWebData<?> previewApprovalSql(@Valid @RequestBody DmApprovalSqlPreviewFO fo) {
+        if (fo.getStartLine() < 1 || fo.getLineCount() < 1 || fo.getLineCount() > 1000) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_PREVIEW_RANGE_INVALID_ERROR.name()));
+        }
+
+        return ResWebDataUtils.buildSuccess(this.approvalControlService.previewSqlFile(fo.getTicketId(), fo.getStartLine(), fo.getLineCount()));
     }
 
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)

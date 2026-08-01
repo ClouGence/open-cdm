@@ -80,7 +80,7 @@ public class PgSecDomainResolveSpi implements SecDomainResolveSpi, PgSecDomainOp
                 DslHelper.doVisitor(dslProvider(), reader, (lexer, parser) -> this.parserVisitor(builder, parser));
             }
             List<RuleDomain> build;
-            if (ctxInfo == null || !ctxInfo.isDeepParser()) {
+            if (ctxInfo == null) {
                 build = builder.build();
             } else {
                 build = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());

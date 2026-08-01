@@ -15,7 +15,6 @@ import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
-import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -130,15 +129,14 @@ public class MySqlVersionConfigurationTest {
         });
 
         CodeInfo codeInfo = CodeInfo.builder().baseLine(0).baseColumn(0).build();
-        ContextInfo securityContextInfo = ContextInfo.builder().deepParser(false).levelsParam(levels).build();
         Assertions.assertDoesNotThrow(() -> {
             try (StringReader reader = new StringReader(sql)) {
-                return engine.secDomainResolveSpi(ansiQuotes).resolveDomain(DataSourceType.MySQL, reader, codeInfo, securityContextInfo);
+                return engine.secDomainResolveSpi(ansiQuotes).resolveDomain(DataSourceType.MySQL, reader, codeInfo, null);
             }
         });
         Assertions.assertThrows(AntlerSyntaxException.class, () -> {
             try (StringReader reader = new StringReader(sql)) {
-                engine.secDomainResolveSpi(knownEmpty).resolveDomain(DataSourceType.MySQL, reader, codeInfo, securityContextInfo);
+                engine.secDomainResolveSpi(knownEmpty).resolveDomain(DataSourceType.MySQL, reader, codeInfo, null);
             }
         });
 

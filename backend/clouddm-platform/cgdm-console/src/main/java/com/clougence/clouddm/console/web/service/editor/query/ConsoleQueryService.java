@@ -303,7 +303,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             .currentUid(queryDTO.getCurrentUserId())
             .dataSourceId(ctx.getLevels().dsDO().getId())
             .levels(ctx.getLevels().levelsParam())
-            .deepParser(false)
             .build();
         List<QueryRequest> requests;
         try (StringReader reader = new StringReader(queryDTO.getQueryString())) {
@@ -315,8 +314,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         //
         SessionSpi sessionSpi = ctx.getSessionSpi();
-        QueryRequest temp = sessionSpi.createQueryRequest(ctx.getCtxDTO(), ctx.getDsConfig(), ctx.getCtxParams(),//
-                queryDTO.getCurrentUserId(), queryDTO.getClientIp(), true);
+        QueryRequest temp = sessionSpi.createQueryRequest(ctx.getDsConfig());
         temp.setRequester(Requester.CONSOLE);
         if (this.isUsingCacheResult(queryDTO)) {
             temp.getResultConf().setCacheResult(true);
@@ -336,7 +334,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             clone.setQueryArgs(analyzed.getQueryArgs());
             clone.setQueryTypes(analyzed.getQueryTypes());
             clone.setRelations(analyzed.getRelations());
-            clone.setQueryDsType(analyzed.getQueryDsType());
+            clone.setDsType(analyzed.getDsType());
             clone.setColumnList(analyzed.getColumnList());
             clone.setUsingValueProcess(analyzed.isUsingValueProcess());
             clone.setHasRewrite(analyzed.isHasRewrite());
@@ -436,7 +434,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, false));
 
             for (QueryRequest request : requests) {
-                this.auditService.prepareAudit(ctx.getLevels().dsDO().getId(), request);
+                this.auditService.prepareAudit(ctx.getLevels().dsDO().getId(), curUid, request);
             }
             String batchId = UUID.randomUUID().toString().replace("-", "");
             this.queryService.asyncExecuteQuery(curUid, sessionId, batchId, requests);
@@ -451,7 +449,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 for (QueryRequest request : requests) {
                     SqlExecNotifyDTO audit = new SqlExecNotifyDTO();
                     audit.setType(Type.SQL_END);
-                    audit.setSqlStatus(SqlStatus.ERROR);
+                    audit.setStatus(SqlStatus.ERROR);
                     audit.setQueryId(request.getQueryId());
                     audit.setSessionId(sessionId);
                     audit.setMessage(message);

@@ -9,7 +9,7 @@ import com.clougence.clouddm.sdk.execute.session.QueryRequest;
  */
 public interface AuditService {
 
-    void prepareAudit(Long dsId, QueryRequest request);
+    void prepareAudit(Long dsId, String auditUid, QueryRequest request);
 
     void recordAudit(SqlExecNotifyDTO audit, String wsn);
 }

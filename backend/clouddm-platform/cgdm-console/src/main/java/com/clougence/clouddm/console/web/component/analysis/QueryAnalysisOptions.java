@@ -31,14 +31,12 @@ public final class QueryAnalysisOptions {
     private final String                    currentUid;
     private final long                      dataSourceId;
     private final Map<UmiTypes, Object>     levels;
-    private final boolean                   deepParser;
 
     private QueryAnalysisOptions(Builder builder){
         this.skippedFeatures = Set.copyOf(builder.skippedFeatures);
         this.currentUid = builder.currentUid;
         this.dataSourceId = builder.dataSourceId;
         this.levels = builder.levels;
-        this.deepParser = builder.deepParser;
     }
 
     public static QueryAnalysisOptions defaults() {
@@ -59,7 +57,6 @@ public final class QueryAnalysisOptions {
         private String                          currentUid;
         private long                            dataSourceId;
         private Map<UmiTypes, Object>           levels;
-        private boolean                         deepParser;
 
         private Builder(){
         }
@@ -76,11 +73,6 @@ public final class QueryAnalysisOptions {
 
         public Builder levels(Map<UmiTypes, Object> levels) {
             this.levels = levels;
-            return this;
-        }
-
-        public Builder deepParser(boolean deepParser) {
-            this.deepParser = deepParser;
             return this;
         }
 

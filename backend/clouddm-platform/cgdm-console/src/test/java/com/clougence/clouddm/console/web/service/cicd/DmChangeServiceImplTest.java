@@ -138,7 +138,7 @@ public class DmChangeServiceImplTest {
         DmChangeDO change = new DmChangeDO();
         change.setId(23L);
         change.setCurrentStep(ChangeStep.FINISH);
-        when(changeMapper.queryChangeById("owner", 23L)).thenReturn(change);
+        when(changeMapper.queryChangeById(23L)).thenReturn(change);
 
         changeService.continueExecTask("owner", 23L, 12L);
 

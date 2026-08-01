@@ -60,7 +60,7 @@ public class SqlAuditRServiceProvider extends AbstractBasicProvider implements S
             this.auditService.recordAudit(audit, identity.getWorkerSeqNumber());
 
             if (audit.getType() == Type.SQL_END &&           //
-                audit.getSqlStatus() == SqlStatus.SUCCESS && //
+                audit.getStatus() == SqlStatus.SUCCESS && //
                 StringUtils.isNotBlank(audit.getQueryId())) {
                 this.callBackService.onSuccess(audit.getQueryId());
             }

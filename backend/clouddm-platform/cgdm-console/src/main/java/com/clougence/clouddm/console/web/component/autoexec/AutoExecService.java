@@ -15,13 +15,13 @@
  */
 package com.clougence.clouddm.console.web.component.autoexec;
 
-import java.util.List;
+import java.util.stream.Stream;
 
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
+import com.clougence.clouddm.console.web.component.autoexec.model.AutoExecJobCreateRequest;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
 import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.util.PageObj;
@@ -29,7 +29,14 @@ import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 
 public interface AutoExecService {
 
-    // true == jobFinish
+    long createJob(AutoExecJobCreateRequest request, Stream<SplitScript> scripts);
+
+    void startJob(long jobId, String operatorUid);
+
+    void dispatchJob(Long jobId);
+
+    void stopJob(Long jobId, DmAuthUserDO user);
+
     boolean skipTask(String bizId, SQLJobBizType type, long taskId, String uid);
 
     void continueTask(String bizId, SQLJobBizType type, long taskId);
@@ -43,6 +50,4 @@ public interface AutoExecService {
     DmAutoExecJobVO queryAutoExecJob(String bizId, SQLJobBizType type, boolean canOperate);
 
     DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj page);
-
-    void createJob(String ownerUid, String execUser, DmAutoExecConfigFO config, DsLevels dsLevels, SQLJobBizType bizType, String bizId, List<SplitScript> scripts);
 }

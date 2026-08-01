@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecManager;
+import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -56,7 +56,7 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
     @Resource
     private ConsoleConfig               config;
     @Resource
-    private AutoExecManager             autoExecManager;
+    private AutoExecService             autoExecService;
 
     private ThreadPoolExecutor          threadPoolExecutor;
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
@@ -119,7 +119,7 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
             }
             threadPoolExecutor.execute(() -> {
                 try {
-                    autoExecManager.dispatchJob(id);
+                    autoExecService.dispatchJob(id);
                 } finally {
                     this.taskInQueueSet.remove(id);
                 }

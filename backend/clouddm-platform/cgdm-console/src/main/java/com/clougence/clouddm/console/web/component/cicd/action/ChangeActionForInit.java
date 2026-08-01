@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ChangeActionForInit extends AbstractChangeAction {
 
     private boolean checkChange(String ownerUid, long changeId) {
-        DmChangeDO changeDO = changeFlowDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmChangeDO changeDO = changeFlowDal.changeMapper().queryChangeById(changeId);
         DmChangeFlowDO flowDO = changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, changeDO.getRefFlowId());
 
         if (flowDO == null || flowDO.getChangeFlowStatus() != ChangeFlowStatus.NORMAL) {
@@ -72,7 +72,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
         if (!super.doCommonAction(change)) {
             return;
         } else {
-            change = changeFlowDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
+            change = changeFlowDal.changeMapper().queryChangeById(change.getId());
         }
 
         DmChangeFlowDO flowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
@@ -90,7 +90,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
         }
 
         // save sql snapshot
-        change = changeFlowDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId()); // Update version
+        change = changeFlowDal.changeMapper().queryChangeById(change.getId()); // Update version
         this.initSqlItem(change, checkoutPath, gitOpsFlowDO);
 
         // diff sql

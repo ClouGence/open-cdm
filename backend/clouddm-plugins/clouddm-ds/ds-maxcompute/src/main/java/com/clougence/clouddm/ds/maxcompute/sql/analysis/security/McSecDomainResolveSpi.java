@@ -74,12 +74,7 @@ public class McSecDomainResolveSpi implements SecDomainResolveSpi, McSecDomainOp
             try (StringReader reader = new StringReader(s.getScript())) {
                 DslHelper.doVisitor(dslProvider(), reader, (lexer, parser) -> this.parserVisitor(builder, parser));
             }
-            List<RuleDomain> build;
-            //            if (ctxInfo.isDeepParser()) {
-            //                build = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());
-            //            } else {
-            build = builder.build();
-            //            }
+            List<RuleDomain> build = builder.build();
             for (RuleDomain domain : build) {
                 domain.setDsType(dsType);
                 domain.setSplitScript(ss);

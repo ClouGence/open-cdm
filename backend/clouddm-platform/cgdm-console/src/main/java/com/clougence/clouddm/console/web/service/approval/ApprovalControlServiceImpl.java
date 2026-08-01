@@ -17,8 +17,13 @@ package com.clougence.clouddm.console.web.service.approval;
 
 import static com.clougence.clouddm.console.web.util.RdpTimeUtil.getDateTimeOfTimestamp;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,17 +32,17 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
+import com.clougence.clouddm.console.web.component.analysis.QueryRuleAnalysisOptions;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
+import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
-import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckContext;
+import com.clougence.clouddm.console.web.component.autoexec.model.AutoExecJobCreateRequest;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
-import com.clougence.clouddm.console.web.component.detectrule.SecRulesEngine;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmConfirmActionType;
@@ -45,7 +50,6 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpLabelKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.model.fo.security.ListMyAuthTicketFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
@@ -53,6 +57,8 @@ import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamTicketDesVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.*;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
+import com.clougence.clouddm.console.web.service.upload.impl.SqlFilePreviewReader;
+import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
@@ -66,6 +72,7 @@ import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
 import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
+import com.clougence.clouddm.platform.dal.model.system.DmSysAttachmentDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
@@ -77,10 +84,7 @@ import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
-import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.model.EnvTicketMO;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -122,119 +126,314 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Resource
     private NamingDao                   namingDao;
     @Resource
-    private ApprovalFlowService         approvalFlowService;
-    @Resource
     private DmAuthServiceForManage      authServiceForManage;
     @Resource
-    private SecRulesEngine              ruleCheckService;
-    @Resource
-    private RdpDsEnvService             rdpDsEnvService;
-    @Resource
     private DmEnvParamService           dmEnvParamService;
-    @Resource
-    private ApprovalProviderServiceImpl approvalService;
     @Resource
     private AutoExecService             autoExecService;
     @Resource
     private AsyncTaskWithResultService  asyncTaskWithResultService;
+    @Resource
+    private ApprovalFlowService         approvalFlowService;
+    @Resource
+    private ApprovalService             approvalService;
+    @Resource
+    private ApprovalProviderServiceImpl approvalProviderService;
 
-    @Transactional(rollbackFor = Throwable.class)
+    //
+    // ticket list
+    //
+
     @Override
-    public DmTicketResultVO createSqlTicket(String puid, String uid, DmAddTicketFO fo) {
-        DsLevels dsLevels = this.dmDsConfigService.parseLevels(fo.getDbLevels());
-        DmDsDO dsDO = dsLevels.dsDO();
-        DataSourceType dsType = dsDO.getDataSourceType();
-        DmSysEnvDO envDO = this.systemDal.envMapper().queryByEnvID(puid, dsDO.getDsEnvId());
+    public DmPageVO<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo) {
+        IPage<DmApprovalDO> tickets;
+        switch (fo.getTicketListType()) {
+            case SELF_CREATE: {
+                tickets = getUserCreatedTicketsByPage(fo, puid);
+                break;
+            }
+            case WAIT_SELF_PROCESS: {
+                tickets = getCanConfirmTicketsByPage(fo);
+                break;
+            }
+            case ALL: {
+                tickets = getAllTicketsByPage(fo, puid);
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported list type " + fo.getTicketListType());
+        }
+        return convertAndFillExtraInfo(tickets);
+    }
 
-        // check approval
-        DmEnvParamTicketDesVO ticketConfig = this.dmEnvParamService.querySqlTicketInfoParam(puid, dsDO.getDsEnvId());
-        if (ticketConfig == null || !ticketConfig.isOpenTicket() || StringUtils.isBlank(ticketConfig.getType())) {
-            String title = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TYPE_SQL_TITLE.name());
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), title));
-        }
-        if (ticketConfig.isDelete()) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name()));
-        }
-        ApprovalType approvalType = ApprovalType.valueOf(ticketConfig.getType());
-        if (approvalType != ApprovalType.Internal) {
-            DmApprovalTemplateDO templateDO = this.approvalService.checkApprovalAndReturnTemplate(puid, approvalType, ticketConfig.getTemplateId(), null);
-            ticketConfig.setTemplateName(templateDO.getTemplateName());// update form cache.
-        }
-
-        // rule check
-        Map<UmiTypes, Object> levelsParam = dsLevels.levelsParam();
-        SecRulesCheckContext checkContext = SecRulesCheckContext.builder()
-            .basicCodeLine(1)
-            .basicCodeColumn(0)
-            .dsId(dsDO.getId())
-            .currentUID(uid)
-            .currentCatalog((String) levelsParam.get(UmiTypes.Catalog))
-            .currentSchema((String) levelsParam.get(UmiTypes.Schema))
-            .requester(Requester.TICKET)
-            .unsupportedLevel(WarnLevel.FAILURE)
+    private IPage<DmApprovalDO> getUserCreatedTicketsByPage(RdpListTicketFO fo, String puid) {
+        Page<?> page = PageUtils.startPage(fo.getPage());
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(fo.getUid());
+        ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
+            .ticketStatus(fo.getTicketStatus())
+            .uids(Collections.singletonList(String.valueOf(userDO.getUid())))
+            .ticketTitleName(fo.getTicketTitleName())
+            .ticketId(fo.getTicketId())
+            .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
+            .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
             .build();
-        SecRulesCheckResult checkResult = this.ruleCheckService.doQueryCheck(puid, uid, fo.getRawSql(), checkContext);
-        DmTicketResultVO result = this.convertToRuleCheckResult(checkResult);
+        return this.approvalDal.approvalMapper().listTicketByConditionAndPage(page, queryParams, puid);
+    }
 
-        // check force
-        ApprovalMO mo = new ApprovalMO();
-        if (!fo.isForce()) {
-            if (result.isFailure() || result.isConfirm()) {
-                return result;
+    private IPage<DmApprovalDO> getCanConfirmTicketsByPage(RdpListTicketFO fo) {
+        Page<?> page = PageUtils.startPage(fo.getPage());
+        ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
+            .ticketStatus(fo.getTicketStatus())
+            .ticketTitleName(fo.getTicketTitleName())
+            .ticketId(fo.getTicketId())
+            .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
+            .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
+            .approvalPersonUid(fo.getUid())
+            .build();
+        return this.approvalDal.approvalMapper().listConfirmTicketByConditionAndPage(page, queryParams);
+    }
+
+    private IPage<DmApprovalDO> getAllTicketsByPage(RdpListTicketFO fo, String puid) {
+        Page<?> page = PageUtils.startPage(fo.getPage());
+        ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
+            .ticketStatus(fo.getTicketStatus())
+            .ticketTitleName(fo.getTicketTitleName())
+            .ticketId(fo.getTicketId())
+            .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
+            .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
+            .build();
+
+        return this.approvalDal.approvalMapper().listTicketByConditionAndPage(page, queryParams, puid);
+    }
+
+    private DmPageVO<RdpTicketBasicVO> convertAndFillExtraInfo(IPage<DmApprovalDO> tickets) {
+        DmPageVO<RdpTicketBasicVO> results = new DmPageVO<>(tickets);
+        List<DmApprovalDO> records = tickets.getRecords();
+        if (CollectionUtils.isEmpty(records)) {
+            return results;
+        }
+
+        List<String> uids = records.stream().map(DmApprovalDO::getOwnerUid).collect(Collectors.toCollection(ArrayList::new));
+        List<DmAuthUserDO> users = this.authDal.userMapper().listByUids(uids);
+        Map<String, DmAuthUserDO> userMap = users.stream().collect(Collectors.toMap(DmAuthUserDO::getUid, u -> u));
+        Map<Long, DmAuthUserDO> ticketUserMap = new HashMap<>();
+        for (DmApprovalDO ticketDO : records) {
+            ticketUserMap.put(ticketDO.getId(), userMap.get(ticketDO.getOwnerUid()));
+        }
+
+        Set<Long> dsIds = records.stream().map(DmApprovalDO::getBindDsId).collect(Collectors.toSet());
+        List<DmDsDO> dsList = this.datasourceDal.dsMapper().listByIdsIncludeDeleted(dsIds);
+        Map<Long, DmDsDO> ticketDsMap = new HashMap<>();
+        for (DmDsDO ds : dsList) {
+            ticketDsMap.put(ds.getId(), ds);
+        }
+
+        Collection<Long> envIds = dsList.stream().map(DmDsDO::getDsEnvId).collect(Collectors.toSet());
+        if (!envIds.isEmpty()) {
+            List<DmSysEnvDO> envs = this.systemDal.envMapper().selectBatchIds(envIds);
+            Map<Long, DmSysEnvDO> envMap = new HashMap<>();
+            for (DmSysEnvDO env : envs) {
+                envMap.put(env.getId(), env);
+            }
+            ticketDsMap.forEach((key, dsDo) -> dsDo.setDsEnvDO(envMap.get(dsDo.getDsEnvId())));
+        }
+
+        List<RdpTicketBasicVO> vos = new ArrayList<>();
+        for (DmApprovalDO tdo : records) {
+            RdpTicketBasicVO t;
+            if (tdo.getApproBiz() == ApprovalBiz.DM_QUERY || tdo.getApproBiz() == ApprovalBiz.DM_CHANGE) {
+                t = RdpTicketBasicVO.generateVO(tdo, ticketDsMap.get(tdo.getBindDsId()).getDataSourceType().getTypeName(), ticketUserMap.get(tdo.getId()));
+            } else {
+                t = RdpTicketBasicVO.generateVO(tdo, tdo.getApproBiz().name(), ticketUserMap.get(tdo.getId()));
+            }
+            vos.add(t);
+        }
+
+        vos.sort((o1, o2) -> -o1.getGmtCreate().compareTo(o2.getGmtCreate()));
+
+        results.setRecords(vos);
+        return results;
+    }
+
+    @Override
+    public RdpTicketBaseInfoVO queryTicketBaseInfo(String puid, String uid, RdpQueryTicketDetailFO fo) {
+        DmApprovalDO cachedTicketDO = this.approvalDal.approvalMapper().queryById(fo.getTicketId());
+        if (cachedTicketDO != null && //
+            fo.isRefreshCache() &&//
+            cachedTicketDO.getApproType() != ApprovalType.Internal &&//
+            cachedTicketDO.getTicketStatus() == ApprovalStatus.WAIT_APPROVAL) {
+
+            CgFuture<Boolean> cgFuture = this.asyncTaskWithResultService.submitTask(//
+                    TaskType.getKey(TaskType.APPROVAL_LAST_STATUS, cachedTicketDO.getId()),//
+                    () -> refreshCache(cachedTicketDO));
+
+            try {
+                cgFuture.get(2, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (Exception e) {
+                log.info("call " + cachedTicketDO.getApproType() + " api is running");
+            }
+        }
+
+        //
+        DmApprovalDO approvalDO = checkTicket(fo.getTicketId(), puid);
+        RdpTicketBaseInfoVO vo = new RdpTicketBaseInfoVO();
+        vo.setId(approvalDO.getId());
+        vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getGmtCreate()));
+        vo.setGmtModified(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getGmtModified()));
+        vo.setDataSourceId(approvalDO.getBindDsId());
+        if (approvalDO.getBindDsId() != null) {
+            DmDsDO dsDO = this.datasourceDal.dsMapper().queryDsIdentityById(approvalDO.getBindDsId());
+            if (dsDO != null) {
+                vo.setDataSourceType(dsDO.getDataSourceType());
+            }
+        }
+        vo.setTargetInfo(approvalDO.getTargetInfo());
+        vo.setApproType(approvalDO.getApproType());
+        vo.setApproBiz(approvalDO.getApproBiz());
+        vo.setApproIdentity(approvalDO.getApproIdentity());
+        vo.setApproTemplateName(approvalDO.getApproTemplateName());
+        vo.setDescription(approvalDO.getDescription());
+        vo.setStatusMessage(approvalDO.getStatusMessage());
+        vo.setTicketTitle(approvalDO.getTicketTitle());
+        vo.setDsEnvName(approvalDO.getEnvName());
+        ApprovalStatus ticketStatus = approvalDO.getTicketStatus();
+        vo.setTicketStatus(ticketStatus);
+
+        List<DmApprovalProcessDO> processDOS = this.approvalDal.processMapper().listByTicketId(approvalDO.getId());
+        List<RdpTicketProcessVO> processVOS = processDOS.stream().map(RdpConvertUtils::convertToTicketProcessVO).collect(Collectors.toList());
+        List<DmApprovalPersonDO> persons = this.approvalDal.personMapper().queryByTicketBzId(approvalDO.getBizId());
+
+        List<String> approvalPersonList = new ArrayList<>();
+        persons.forEach(person -> approvalPersonList.add(person.getPersonUid()));
+
+        //
+        boolean isPrimary = uid.equals(puid);
+        boolean isOwn = uid.equals(approvalDO.getOwnerUid());
+        switch (ticketStatus) {
+            case PRE_INIT:
+            case WAIT_CONFIRM:
+            case WAIT_APPROVAL: {
+                if (isPrimary || isOwn) {
+                    vo.setCanClose(true);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        if (ticketStatus == ApprovalStatus.WAIT_CONFIRM) {
+            if (approvalPersonList.contains(uid) || isPrimary) {
+                vo.setCanExecute(true);
+            }
+        }
+        if (approvalDO.getApproType() == ApprovalType.Internal && ticketStatus == ApprovalStatus.WAIT_APPROVAL) {
+            if (approvalPersonList.contains(uid) || isPrimary) {
+                vo.setCanApproval(true);
+            }
+        }
+
+        vo.setFinishTime(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getFinishTime()));
+        vo.setTicketProcessVOList(processVOS);
+        DmAuthUserDO userByUid = this.authDal.userMapper().queryByUid(approvalDO.getOwnerUid());
+        if (userByUid == null) {
+            vo.setUserName(approvalDO.getOwnerUid() + "(" + DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()) + ")");
+        } else {
+            vo.setUserName(userByUid.getUsername());
+        }
+
+        vo.setApproComment(approvalDO.getApproComment());
+        if (approvalDO.getApproType() != ApprovalType.Internal) {
+            List<DmApprovalProcessActivityDO> activities = this.approvalDal.activityMapper().queryByTicketId(approvalDO.getId());
+            for (RdpTicketProcessVO processVO : vo.getTicketProcessVOList()) {
+                Long ticketProcessId = processVO.getTicketProcessId();
+                List<RdpTicketActivityVO> activityVOS = new ArrayList<>();
+                if (processVO.getTicketProcessStatus() == ApprovalProcessStatus.FAIL) {
+                    continue;
+                }
+                for (DmApprovalProcessActivityDO activity : activities) {
+                    if (activity.getProcessId().equals(ticketProcessId)) {
+                        activityVOS.addAll(RdpConvertUtils.convertToTicketActivityVO(processVO.getTicketProcessStatus(), activity));
+                    }
+                }
+                if (!activityVOS.isEmpty()) {
+                    activityVOS.sort((a, b) -> {
+                        if (a.getFinishTime() == null && b.getFinishTime() != null) {
+                            return 1;
+                        } else if (a.getFinishTime() != null) {
+                            if (b.getFinishTime() == null) {
+                                return -1;
+                            }
+                            return a.getFinishTime().compareTo(b.getFinishTime());
+                        } else if (a.getStartTime() != null && b.getStartTime() != null) {
+                            return a.getStartTime().compareTo(b.getStartTime());
+                        } else {
+                            return 0;
+                        }
+                    });
+                    processVO.setActivityList(activityVOS);
+                    processVO.setHasActivity(true);
+                }
+            }
+            String approvalUrl = approvalDO.getApprovalUrl();
+            if (StringUtils.isNotEmpty(approvalUrl)) {
+                ApprovalUrl urlDTO = JsonUtils.toObj(approvalUrl, ApprovalUrl.class);
+                vo.setPcUrl(urlDTO.getPcUrl());
+                vo.setMobileUrl(urlDTO.getMobileUrl());
             }
         } else {
-            result = new DmTicketResultVO();
+            vo.setApproTypeName(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
         }
 
-        // query env bind param
-        String targetInfo = "/" + dsLevels.dsDO().getInstanceId();
-        if (dsLevels.levelsDef().contains(UmiTypes.Catalog)) {
-            targetInfo += String.format("/%s/%s", levelsParam.get(UmiTypes.Catalog), levelsParam.get(UmiTypes.Schema));
-        } else {
-            targetInfo += String.format("/%s", levelsParam.get(UmiTypes.Schema));
-        }
-
-        // RDP ticket ins
-        String bizId = this.namingDao.genApprovalBizId();
-        DmApprovalDO ticket = new DmApprovalDO();
-        ticket.setBizId(bizId);
-        ticket.setOwnerUid(uid);
-        ticket.setPrimaryUid(puid);
-        ticket.setBindDsId(dsDO.getId());
-        ticket.setTargetInfo(targetInfo);
-        ticket.setDescription(fo.getDescription());
-        ticket.setTicketTitle(fo.getTicketTitle());
-        ticket.setTicketStatus(ApprovalStatus.PRE_INIT);
-        ticket.setApproBiz(ApprovalBiz.DM_QUERY);
-        ticket.setStatusMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_STATUS_WAIT_EXPLAIN.name()));
-        ticket.setApproType(ApprovalType.valueOf(ticketConfig.getType()));
-        ticket.setApproTemplateIdentity(ticketConfig.getTemplateId());
-        ticket.setApproTemplateName(ticketConfig.getTemplateName());
-        ticket.setEnvName(envDO.getEnvName());
-
-        ticket.setRawSql(fo.getRawSql());
-        ticket.setExpectedAffectedRows(fo.getExpectedAffectedRows());
-        ticket.setTicketInfo(JsonUtils.toJson(mo));
-        ticket.setLevels(dsLevels.dbLevels());
-        if (StringUtils.isNotBlank(fo.getRollBackSql())) {
-            ticket.setRollBackSql(fo.getRollBackSql());
-        }
-        ticket.setCheckedInfo(JsonUtils.toJson(result.getCheckedVOS()));
-
-        if (ticket.getApproType() == ApprovalType.Internal) {
-            DmApprovalPersonDO primary = new DmApprovalPersonDO();
-            primary.setPersonUid(puid);
-            primary.setTicketBzId(bizId);
-            this.approvalDal.personMapper().insert(primary);
-        }
-
-        this.approvalDal.approvalMapper().insert(ticket);
-
-        this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DM_QUERY, mo.getMessage() == null);
-
-        result.setTicketId(ticket.getId());
-        return result;
+        return vo;
     }
+
+    @Override
+    public DmQueryTicketVO queryTicketDetail(String puid, DmQueryTicketDetailFO fo) {
+        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId(), puid);
+        if (ticketDO.getApproBiz() == null) {
+            return null;
+        }
+        switch (ticketDO.getApproBiz()) {
+            case DM_QUERY:
+            case DM_CHANGE:
+                break;
+            default:
+                return null;
+        }
+
+        DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryByBizIdWithoutRawSql(ticketDO.getBizId());
+        if (approvalDO == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_BAD_DATA_NOT_SYNC_ERROR.name()));
+        }
+
+        // key is ticket id
+        DmQueryTicketVO vo = new DmQueryTicketVO();
+        vo.setContentType(approvalDO.getContentType());
+        if (approvalDO.getContentType() == SqlContentType.ATTACHMENT) {
+            DmSysAttachmentDO attachment = this.systemDal.attachmentMapper().selectConfirmedByApprovalId(approvalDO.getId());
+            if (attachment != null) {
+                vo.setAttachmentId(attachment.getId());
+                vo.setAttachmentFileName(attachment.getFileName());
+                vo.setAttachmentFileSize(attachment.getFileSize());
+            }
+        }
+        vo.setRollBackSql(approvalDO.getRollBackSql());
+        vo.setTotalCount(approvalDO.getTotalCount());
+        vo.setExpectedAffectedRows(approvalDO.getExpectedAffectedRows());
+        vo.setBehaviors(approvalDO.getBehaviors());
+        if (StringUtils.isNotEmpty(approvalDO.getTicketInfo())) {
+            ApprovalMO ticketInfo = JsonUtils.toObj(approvalDO.getTicketInfo(), ApprovalMO.class);
+            String message = ticketInfo.getMessage();
+            vo.setTicketMessage(message);
+            vo.setAutoExec(ticketInfo.isAutoExec());
+        }
+        vo.setCheckedList(JsonUtils.toListUseType(approvalDO.getCheckedInfo(), CheckedVO.class));
+        return vo;
+    }
+
+    //
+    // auth Ticket
+    //
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -358,31 +557,141 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         return applyAuths;
     }
 
-    private static final RuleLevel[] CHECK_LEVELS_FAILURE = new RuleLevel[] { RuleLevel.FAILURE };
+    //
+    // Sql Ticket
+    //
 
-    private DmTicketResultVO convertToRuleCheckResult(SecRulesCheckResult result) {
-        DmTicketResultVO vo = new DmTicketResultVO();
-        vo.setConfirm(!result.isAllSuccess());
-        vo.setFailure(result.hasAnyTarget(CHECK_LEVELS_FAILURE));
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public DmTicketResultVO createSqlTicket(String puid, String uid, DmAddTicketFO fo) {
+        DsLevels dsLevels = this.dmDsConfigService.parseLevels(fo.getDbLevels());
+        DmDsDO dsDO = dsLevels.dsDO();
+        DmSysEnvDO envDO = this.systemDal.envMapper().queryByEnvID(puid, dsDO.getDsEnvId());
 
-        List<CheckedVO> checkedVOS = new ArrayList<>();
-        Map<String, RuleLevel> checked = result.getChecked();
-        Map<String, String> descMap = result.getMessageMap();
-        Map<String, Set<Integer>> scriptMap = result.getScriptMap();
-
-        for (String key : checked.keySet()) {
-            CheckedVO checkedVO = new CheckedVO();
-            RuleLevel ruleLevel = checked.get(key);
-            checkedVO.setName(key);
-            checkedVO.setRuleLevel(ruleLevel);
-            checkedVO.setDesc(descMap.get(key));
-            if (CollectionUtils.isNotEmpty(scriptMap.get(key))) {
-                checkedVO.setLines(scriptMap.get(key).stream().sorted().collect(Collectors.toList()));
-            }
-            checkedVOS.add(checkedVO);
+        // check approval
+        DmEnvParamTicketDesVO ticketConfig = this.dmEnvParamService.querySqlTicketInfoParam(puid, dsDO.getDsEnvId());
+        if (ticketConfig == null || !ticketConfig.isOpenTicket() || StringUtils.isBlank(ticketConfig.getType())) {
+            String title = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TYPE_SQL_TITLE.name());
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), title));
         }
-        vo.setCheckedVOS(checkedVOS);
+        if (ticketConfig.isDelete()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name()));
+        }
+        ApprovalType approvalType = ApprovalType.valueOf(ticketConfig.getType());
+        if (approvalType != ApprovalType.Internal) {
+            DmApprovalTemplateDO templateDO = this.approvalProviderService.checkApprovalAndReturnTemplate(puid, approvalType, ticketConfig.getTemplateId(), null);
+            ticketConfig.setTemplateName(templateDO.getTemplateName());// update form cache.
+        }
 
+        Map<UmiTypes, Object> levelsParam = dsLevels.levelsParam();
+        SqlContentType contentType = fo.getContentType();
+        DmTicketResultVO result = switch (contentType) {
+            case INLINE -> {
+                if (StringUtils.isBlank(fo.getRawSql())) {
+                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_REQUIRED_ERROR.name()));
+                }
+                QueryRuleAnalysisOptions options = QueryRuleAnalysisOptions.builder()
+                    .ownerUid(puid)
+                    .currentUid(uid)
+                    .dataSourceId(dsDO.getId())
+                    .levels(levelsParam)
+                    .requester(Requester.TICKET)
+                    .unsupportedLevel(WarnLevel.FAILURE)
+                    .build();
+                DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
+                SecRulesCheckResult checkResult = new SecRulesCheckResult();
+                try (StringReader reader = new StringReader(fo.getRawSql()); Stream<SecRulesCheckResult> results = this.queryAnalysisService.analysisRulesStream(//
+                        dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
+                    results.forEachOrdered(checkResult::merge);
+                }
+                yield DmConvertUtils.convertToRuleCheckResult(checkResult);
+            }
+            case ATTACHMENT -> {
+                if (fo.getAttachmentId() == null) {
+                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_FILE_NOT_FOUND_ERROR.name()));
+                }
+                yield new DmTicketResultVO();
+            }
+        };
+
+        // check force
+        ApprovalMO mo = new ApprovalMO();
+        if (!fo.isForce()) {
+            if (result.isFailure() || result.isConfirm()) {
+                return result;
+            }
+        } else {
+            result = new DmTicketResultVO();
+        }
+
+        // query env bind param
+        String targetInfo = "/" + dsLevels.dsDO().getInstanceId();
+        if (dsLevels.levelsDef().contains(UmiTypes.Catalog)) {
+            targetInfo += String.format("/%s/%s", levelsParam.get(UmiTypes.Catalog), levelsParam.get(UmiTypes.Schema));
+        } else {
+            targetInfo += String.format("/%s", levelsParam.get(UmiTypes.Schema));
+        }
+
+        // RDP ticket ins
+        String bizId = this.namingDao.genApprovalBizId();
+        DmApprovalDO ticket = new DmApprovalDO();
+        ticket.setBizId(bizId);
+        ticket.setOwnerUid(uid);
+        ticket.setPrimaryUid(puid);
+        ticket.setBindDsId(dsDO.getId());
+        ticket.setTargetInfo(targetInfo);
+        ticket.setDescription(fo.getDescription());
+        ticket.setTicketTitle(fo.getTicketTitle());
+        ticket.setTicketStatus(ApprovalStatus.PRE_INIT);
+        ticket.setApproBiz(ApprovalBiz.DM_QUERY);
+        ticket.setStatusMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_STATUS_WAIT_EXPLAIN.name()));
+        ticket.setApproType(ApprovalType.valueOf(ticketConfig.getType()));
+        ticket.setApproTemplateIdentity(ticketConfig.getTemplateId());
+        ticket.setApproTemplateName(ticketConfig.getTemplateName());
+        ticket.setEnvName(envDO.getEnvName());
+
+        ticket.setContentType(contentType);
+        switch (contentType) {
+            case INLINE -> ticket.setRawSql(fo.getRawSql());
+            case ATTACHMENT -> ticket.setRawSql(null);
+        }
+        ticket.setExpectedAffectedRows(fo.getAffectedRows());
+        ticket.setTicketInfo(JsonUtils.toJson(mo));
+        ticket.setLevels(dsLevels.dbLevels());
+        if (StringUtils.isNotBlank(fo.getRollBackSql())) {
+            ticket.setRollBackSql(fo.getRollBackSql());
+        }
+        ticket.setCheckedInfo(JsonUtils.toJson(result.getCheckedVOS()));
+
+        if (ticket.getApproType() == ApprovalType.Internal) {
+            DmApprovalPersonDO primary = new DmApprovalPersonDO();
+            primary.setPersonUid(puid);
+            primary.setTicketBzId(bizId);
+            this.approvalDal.personMapper().insert(primary);
+        }
+
+        this.approvalDal.approvalMapper().insert(ticket);
+        if (contentType == SqlContentType.ATTACHMENT) {
+            this.approvalService.checkSqlFile(fo.getAttachmentId(), uid);
+            this.approvalService.confirmSqlFile(ticket.getId(), fo.getAttachmentId(), uid);
+        }
+
+        this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DM_QUERY, mo.getMessage() == null);
+
+        result.setTicketId(ticket.getId());
+        return result;
+    }
+
+    @Override
+    public DmApprovalSqlPreviewVO previewSqlFile(long approvalId, int startLine, int lineCount) {
+        var preview = this.approvalService.consumeSqlFile(approvalId, file -> {
+            return SqlFilePreviewReader.read(file, startLine, lineCount);
+        });
+        DmApprovalSqlPreviewVO vo = new DmApprovalSqlPreviewVO();
+        vo.setStartLine(preview.startLine());
+        vo.setTotalLines(preview.totalLines());
+        vo.setContent(preview.content());
+        vo.setEof(preview.eof());
         return vo;
     }
 
@@ -391,7 +700,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     public void confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo) {
         DmApprovalDO rdpTicketDO = this.checkTicket(ticketId, puid);
         ApprovalStatus actionStatus = statusFromConfirmAction(fo.getConfirmActionType(), fo.getAutoExecConfig().getAutoExecType());
-
         checkJobOperationEnable(rdpTicketDO, fo.getConfirmUid());
 
         if (rdpTicketDO.getTicketStatus() != ApprovalStatus.WAIT_CONFIRM) {
@@ -437,15 +745,16 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             } else {
                 info = JsonUtils.toObj(ticketInfo, ApprovalMO.class);
             }
+
             info.setAutoExec(true);
             this.approvalDal.approvalMapper().updateTicketInfo(dmTicketDO.getId(), JsonUtils.toJson(info));
-            createAutoExecJob(fo, rdpTicketDO, dmTicketDO, confirmUser);
+            createExecJob(fo, rdpTicketDO, dmTicketDO, confirmUser.getUid());
             this.approvalDal.processMapper().updateContextById(processDO.getId(), JsonUtils.toJson(info));
         }
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, actionStatus, fo.getComment());
     }
 
-    private void createAutoExecJob(DmConfirmTicketFO fo, DmApprovalDO rdpTicket, DmApprovalDO dmTicket, DmAuthUserDO confirmUser) {
+    private void createExecJob(DmConfirmTicketFO fo, DmApprovalDO rdpTicket, DmApprovalDO dmTicket, String operatorUid) {
         DsCacheEntry dsCacheEntry = objectCacheDao.queryByDsId(rdpTicket.getBindDsId());
         Long dsEnvId = dsCacheEntry.getEnvId();
 
@@ -459,286 +768,41 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             String[] split = rdpTicket.getTargetInfo().split("/");
             levels.addAll(Arrays.asList(split).subList(1, split.length));
         }
+
         DsLevels dsLevels = dmDsConfigService.parseLevels(levels);
-
-        List<SplitScript> scripts;
         DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromExists(rdpTicket.getBindDsId());
-        try {
-            scripts = this.queryAnalysisService.analysisSplit(dsConfig, dmTicket.getRawSql(), null, 1, 0);
-        } catch (Exception e) {
-            log.warn("can not parse sql");
-            SplitScript splitScript = new SplitScript();
-            splitScript.setScript(dmTicket.getRawSql());
-            splitScript.setType(Collections.singleton(SplitQueryType.UNKNOWN));
-            scripts = Collections.singletonList(splitScript);
-        }
-
-        this.autoExecService.createJob(rdpTicket.getPrimaryUid(), confirmUser.getUid(), fo.getAutoExecConfig(), dsLevels, SQLJobBizType.TICKET, rdpTicket.getBizId(), scripts);
-    }
-
-    @Override
-    public DmQueryTicketVO queryQueryTicketDetail(String puid, DmQueryTicketDetailFO fo) {
-        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId(), puid);
-        if (ticketDO.getApproBiz() == null) {
-            return null;
-        }
-        switch (ticketDO.getApproBiz()) {
-            case DM_QUERY:
-            case DM_CHANGE:
-                break;
-            default:
-                return null;
-        }
-
-        DmApprovalDO dmTicketDO = this.approvalDal.approvalMapper().queryByBizId(ticketDO.getBizId());
-        if (dmTicketDO == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_BAD_DATA_NOT_SYNC_ERROR.name()));
-        }
-
-        // key is ticket id
-        DmQueryTicketVO vo = new DmQueryTicketVO();
-        vo.setRawSql(dmTicketDO.getRawSql());
-        vo.setRollBackSql(dmTicketDO.getRollBackSql());
-        vo.setTotalCount(dmTicketDO.getTotalCount());
-        vo.setExpectedAffectedRows(dmTicketDO.getExpectedAffectedRows());
-        vo.setBehaviors(dmTicketDO.getBehaviors());
-        if (StringUtils.isNotEmpty(dmTicketDO.getTicketInfo())) {
-            ApprovalMO ticketInfo = JsonUtils.toObj(dmTicketDO.getTicketInfo(), ApprovalMO.class);
-            String message = ticketInfo.getMessage();
-            vo.setTicketMessage(message);
-            vo.setAutoExec(ticketInfo.isAutoExec());
-        }
-        vo.setCheckedList(JsonUtils.toListUseType(dmTicketDO.getCheckedInfo(), CheckedVO.class));
-        return vo;
+        DmAutoExecConfigFO config = fo.getAutoExecConfig();
+        AutoExecJobCreateRequest request = AutoExecJobCreateRequest.builder()//
+            .dsLevels(dsLevels)
+            .bizType(SQLJobBizType.TICKET)
+            .bizId(rdpTicket.getBizId())
+            .execType(config.getAutoExecType())
+            .transactional(config.isEnableTransactional())
+            .errorStrategy(config.getErrorStrategy())
+            .retryWaitTime(config.getRetryWaitTime())
+            .retryCount(config.getRetryCount())
+            .execTime(config.getExecTime())
+            .build();
+        long jobId = this.approvalService.consumeSqlFile(dmTicket.getId(), sqlFile -> {
+            try (Reader reader = Files.newBufferedReader(sqlFile, StandardCharsets.UTF_8);
+                    Stream<SplitScript> scripts = this.queryAnalysisService.analysisSplitStream(dsConfig, reader, null, 1, 0)) {
+                return this.autoExecService.createJob(request, scripts);
+            }
+        });
+        this.autoExecService.startJob(jobId, operatorUid);
     }
 
     @Override
     public DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String puid, String uid, DmQueryTaskListFO fo) {
         DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId(), puid);
-        return this.autoExecService
-            .queryAutoExecTaskList(ticketDO.getBizId(), SQLJobBizType.TICKET, checkOperationEnableWithResult(ticketDO, uid), fo.getTaskStatus(), fo.getPage());
+        return this.autoExecService.queryAutoExecTaskList(//
+                ticketDO.getBizId(), SQLJobBizType.TICKET, checkOperationEnableWithResult(ticketDO, uid), fo.getTaskStatus(), fo.getPage());
     }
 
     @Override
     public DmAutoExecJobVO queryExecJobInfo(String puid, String uid, long ticketId) {
         DmApprovalDO ticketDO = this.checkTicket(ticketId, puid);
         return this.autoExecService.queryAutoExecJob(ticketDO.getBizId(), SQLJobBizType.TICKET, checkOperationEnableWithResult(ticketDO, uid));
-    }
-
-    @Override
-    public DmPageVO<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo) {
-        Page<?> page = PageUtils.startPage(fo.getPage());
-        ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
-            .ticketStatus(fo.getTicketStatus())
-            .ticketTitleName(fo.getTicketTitleName())
-            .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
-            .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
-            .uids(Collections.singletonList(fo.getUid()))
-            .build();
-        IPage<DmApprovalDO> tickets = this.approvalDal.approvalMapper().listAuthTicketByConditionAndPage(page, queryParams);
-        return convertAndFillExtraInfo(tickets);
-    }
-
-    @Override
-    public DmPageVO<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo) {
-        IPage<DmApprovalDO> tickets;
-        switch (fo.getTicketListType()) {
-            case SELF_CREATE: {
-                tickets = getUserCreatedTicketsByPage(fo, puid);
-                break;
-            }
-            case WAIT_SELF_PROCESS: {
-                tickets = getCanConfirmTicketsByPage(fo);
-                break;
-            }
-            case ALL: {
-                tickets = getAllTicketsByPage(fo, puid);
-                break;
-            }
-            default:
-                throw new IllegalArgumentException("Unsupported list type " + fo.getTicketListType());
-        }
-        return convertAndFillExtraInfo(tickets);
-    }
-
-    @Override
-    public RdpTicketBaseInfoVO queryTicketBaseInfo(String puid, String uid, RdpQueryTicketDetailFO fo) {
-        updateStatusFromThirdPartyIfNecessary(fo);
-        DmApprovalDO approvalDO = checkTicket(fo.getTicketId(), puid);
-
-        boolean isPrimary = uid.equals(puid);
-        boolean isOwn = uid.equals(approvalDO.getOwnerUid());
-
-        RdpTicketBaseInfoVO vo = new RdpTicketBaseInfoVO();
-        vo.setId(approvalDO.getId());
-        vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getGmtCreate()));
-        vo.setGmtModified(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getGmtModified()));
-        vo.setDataSourceId(approvalDO.getBindDsId());
-        if (approvalDO.getBindDsId() != null) {
-            DmDsDO dsDO = this.datasourceDal.dsMapper().queryDsIdentityById(approvalDO.getBindDsId());
-            if (dsDO != null) {
-                vo.setDataSourceType(dsDO.getDataSourceType());
-            }
-        }
-        vo.setTargetInfo(approvalDO.getTargetInfo());
-        vo.setApproType(approvalDO.getApproType());
-        vo.setApproBiz(approvalDO.getApproBiz());
-        vo.setApproIdentity(approvalDO.getApproIdentity());
-        vo.setApproTemplateName(approvalDO.getApproTemplateName());
-        vo.setDescription(approvalDO.getDescription());
-        vo.setStatusMessage(approvalDO.getStatusMessage());
-        vo.setTicketTitle(approvalDO.getTicketTitle());
-        vo.setDsEnvName(approvalDO.getEnvName());
-        ApprovalStatus ticketStatus = approvalDO.getTicketStatus();
-        vo.setTicketStatus(ticketStatus);
-
-        List<DmApprovalProcessDO> processDOS = this.approvalDal.processMapper().listByTicketId(approvalDO.getId());
-        List<RdpTicketProcessVO> processVOS = processDOS.stream().map(RdpConvertUtils::convertToTicketProcessVO).collect(Collectors.toList());
-        List<DmApprovalPersonDO> persons = this.approvalDal.personMapper().queryByTicketBzId(approvalDO.getBizId());
-
-        List<String> approvalPersonList = new ArrayList<>();
-        persons.forEach(person -> approvalPersonList.add(person.getPersonUid()));
-
-        switch (ticketStatus) {
-            case PRE_INIT:
-            case WAIT_CONFIRM:
-            case WAIT_APPROVAL: {
-                if (isPrimary || isOwn) {
-                    vo.setCanClose(true);
-                }
-                break;
-            }
-            default:
-                break;
-        }
-
-        if (ticketStatus == ApprovalStatus.WAIT_CONFIRM) {
-            if (approvalPersonList.contains(uid) || isPrimary) {
-                vo.setCanExecute(true);
-            }
-        }
-
-        if (approvalDO.getApproType() == ApprovalType.Internal && ticketStatus == ApprovalStatus.WAIT_APPROVAL) {
-            if (approvalPersonList.contains(uid) || isPrimary) {
-                vo.setCanApproval(true);
-            }
-        }
-
-        vo.setFinishTime(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getFinishTime()));
-        vo.setTicketProcessVOList(processVOS);
-        DmAuthUserDO userByUid = this.authDal.userMapper().queryByUid(approvalDO.getOwnerUid());
-        if (userByUid == null) {
-            vo.setUserName(approvalDO.getOwnerUid() + "(" + DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()) + ")");
-        } else {
-            vo.setUserName(userByUid.getUsername());
-        }
-
-        vo.setApproComment(approvalDO.getApproComment());
-        thirdPartyApprovalHandle(vo, approvalDO);
-
-        return vo;
-    }
-
-    private void updateStatusFromThirdPartyIfNecessary(RdpQueryTicketDetailFO fo) {
-        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(fo.getTicketId());
-        if (ticketDO == null) {
-            return;
-        }
-        if (fo.isRefreshCache() && ticketDO.getApproType() != ApprovalType.Internal && ticketDO.getTicketStatus() == ApprovalStatus.WAIT_APPROVAL) {
-            CgFuture<Boolean> cgFuture = asyncTaskWithResultService.submitTask(TaskType.getKey(TaskType.APPROVAL_LAST_STATUS, ticketDO.getId()), () -> refreshCache(ticketDO));
-            try {
-                cgFuture.get(2, java.util.concurrent.TimeUnit.SECONDS);
-            } catch (Exception e) {
-                log.info("call " + ticketDO.getApproType() + " api is running");
-            }
-        }
-    }
-
-    @Transactional
-    public boolean refreshCache(DmApprovalDO ticketDO) {
-        if (StringUtils.isEmpty(ticketDO.getApproIdentity())) {
-            return false;
-        }
-        try {
-            approvalService.refreshApprovalStatus(ticketDO.getId());
-        } catch (ThirdPartyApiException e) {
-            if (e.getErrorType() != ThirdPartyApiErrorType.CONNECTION_ERROR) {
-                this.approvalFlowService.failTicket(ticketDO.getId(), DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), ticketDO.getPrimaryUid());
-            }
-            return false;
-        }
-
-        return true;
-    }
-
-    private void thirdPartyApprovalHandle(RdpTicketBaseInfoVO dmTicketDetailVO, DmApprovalDO ticketDO) {
-        if (ticketDO.getApproType() != ApprovalType.Internal) {
-            List<DmApprovalProcessActivityDO> activities = this.approvalDal.activityMapper().queryByTicketId(ticketDO.getId());
-
-            for (RdpTicketProcessVO vo : dmTicketDetailVO.getTicketProcessVOList()) {
-                Long ticketProcessId = vo.getTicketProcessId();
-                List<RdpTicketActivityVO> list = new ArrayList<>();
-                if (vo.getTicketProcessStatus() == ApprovalProcessStatus.FAIL) {
-                    continue;
-                }
-                for (DmApprovalProcessActivityDO activity : activities) {
-                    if (activity.getProcessId().equals(ticketProcessId)) {
-                        list.addAll(RdpConvertUtils.convertToTicketActivityVO(vo.getTicketProcessStatus(), activity));
-                    }
-                }
-                if (!list.isEmpty()) {
-                    list.sort((a, b) -> {
-                        if (a.getFinishTime() == null && b.getFinishTime() != null) {
-                            return 1;
-                        } else if (a.getFinishTime() != null) {
-                            if (b.getFinishTime() == null) {
-                                return -1;
-                            }
-                            return a.getFinishTime().compareTo(b.getFinishTime());
-                        } else if (a.getStartTime() != null && b.getStartTime() != null) {
-                            return a.getStartTime().compareTo(b.getStartTime());
-                        } else {
-                            return 0;
-                        }
-                    });
-                    vo.setActivityList(list);
-                    vo.setHasActivity(true);
-                }
-            }
-            String approvalUrl = ticketDO.getApprovalUrl();
-            if (StringUtils.isNotEmpty(approvalUrl)) {
-                ApprovalUrl urlDTO = JsonUtils.toObj(approvalUrl, ApprovalUrl.class);
-                dmTicketDetailVO.setPcUrl(urlDTO.getPcUrl());
-                dmTicketDetailVO.setMobileUrl(urlDTO.getMobileUrl());
-            }
-        } else {
-            dmTicketDetailVO.setApproTypeName(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
-        }
-    }
-
-    @Override
-    public List<RdpApproTemplateVO> listTemplates(String ownerUid, ApprovalType approvalType) {
-        return this.approvalService.listTemplates(ownerUid, approvalType);
-    }
-
-    @Override
-    public List<RdpApproTemplateVO> refreshTemplates(String ownerUid, ApprovalType approvalType) {
-        return this.approvalService.refreshTemplates(ownerUid, approvalType);
-    }
-
-    @Override
-    public List<Map<String, Object>> getTicketTypes(String ownerUid) {
-        return this.approvalService.getTicketTypes(ownerUid);
-    }
-
-    @Override
-    public void addTemplateByUrl(String ownerUid, ApprovalType approvalType, String templateUrl) {
-        this.approvalService.addTemplateByUrl(ownerUid, approvalType, templateUrl);
-    }
-
-    @Override
-    public void removeTemplateById(String ownerUid, ApprovalType approvalType, String templateId) {
-        this.approvalService.removeTemplateById(ownerUid, approvalType, templateId);
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -804,131 +868,89 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
     @Override
     public List<DmBizLogVO> queryExecLog(String ownerUid, DmQueryExecLogFO fo) {
-        DmExecAutoJobDO jobDO = checkJob(ownerUid, fo.getJobId());
-        List<DmMonBizLogDO> dmBizLogDOS;
+        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().selectById(fo.getJobId());
+        if (jobDO == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_EXISTS_ERROR_MESSAGE.name()));
+        }
+        if (jobDO.getDependOnBizType() != SQLJobBizType.TICKET) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_BELONG_CURRENT_TEAM.name()));
+        }
+        DmApprovalDO approval = this.approvalDal.approvalMapper().queryByBizIdWithoutRawSql(jobDO.getDependOnBizId());
+        if (approval == null || !Objects.equals(approval.getPrimaryUid(), ownerUid)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_BELONG_CURRENT_TEAM.name()));
+        }
+
+        List<DmMonBizLogDO> logDOS;
         if (fo.getDependBizType() == LogDependBizType.AUTO_EXEC_JOB) {
-            dmBizLogDOS = this.monitorDal.bizLogMapper().queryListByBizId(jobDO.getBizId());
+            logDOS = this.monitorDal.bizLogMapper().queryListByBizId(jobDO.getBizId());
         } else {
             if (fo.getTaskId() == null) {
                 throw new ErrorMessageException("taskId must not null");
             }
             DmExecAutoTaskDO execTaskDO = executionDal.autoTaskMapper().selectById(fo.getTaskId());
-            dmBizLogDOS = this.monitorDal.bizLogMapper().queryListByBizId(execTaskDO.getBizId());
+            logDOS = this.monitorDal.bizLogMapper().queryListByBizId(execTaskDO.getBizId());
         }
-        return dmBizLogDOS.stream().map((dmBizLogDO -> {
+
+        return logDOS.stream().map((b -> {
             DmBizLogVO vo = new DmBizLogVO();
-            vo.setContent(dmBizLogDO.getContent());
-            vo.setId(dmBizLogDO.getId());
-            vo.setLogLevel(dmBizLogDO.getLogLevel());
-            vo.setDependOnBizType(dmBizLogDO.getDependOnBizType());
-            vo.setTime(DateFormatType.s_yyyyMMdd_HHmmss.format(dmBizLogDO.getGmtCreate()));
+            vo.setContent(b.getContent());
+            vo.setId(b.getId());
+            vo.setLogLevel(b.getLogLevel());
+            vo.setDependOnBizType(b.getDependOnBizType());
+            vo.setTime(DateFormatType.s_yyyyMMdd_HHmmss.format(b.getGmtCreate()));
             return vo;
         })).collect(Collectors.toList());
     }
 
-    private DmPageVO<RdpTicketBasicVO> convertAndFillExtraInfo(IPage<DmApprovalDO> tickets) {
-        DmPageVO<RdpTicketBasicVO> results = new DmPageVO<>(tickets);
-        List<DmApprovalDO> records = tickets.getRecords();
-        if (CollectionUtils.isEmpty(records)) {
-            return results;
+    //
+    // ThirdParty support
+    //
+
+    @Transactional
+    public boolean refreshCache(DmApprovalDO ticketDO) {
+        if (StringUtils.isEmpty(ticketDO.getApproIdentity())) {
+            return false;
         }
-
-        Map<Long, DmAuthUserDO> ticketUserMap = genTicketUserMap(records);
-        Map<Long, DmDsDO> ticketDsMap = genTicketDsMap(records);
-
-        this.rdpDsEnvService.fillDsEnvInfo(new ArrayList<>(ticketDsMap.values()));
-        List<RdpTicketBasicVO> vos = new ArrayList<>();
-
-        for (DmApprovalDO ticketDO : records) {
-            RdpTicketBasicVO t;
-            if (ticketDO.getApproBiz() == ApprovalBiz.DM_QUERY || ticketDO.getApproBiz() == ApprovalBiz.DM_CHANGE) {
-                t = RdpTicketBasicVO.generateVO(ticketDO, ticketDsMap.get(ticketDO.getBindDsId()).getDataSourceType().getTypeName(), ticketUserMap.get(ticketDO.getId()));
-            } else {
-                t = RdpTicketBasicVO.generateVO(ticketDO, ticketDO.getApproBiz().name(), ticketUserMap.get(ticketDO.getId()));
+        try {
+            approvalProviderService.refreshApprovalStatus(ticketDO.getId());
+        } catch (ThirdPartyApiException e) {
+            if (e.getErrorType() != ThirdPartyApiErrorType.CONNECTION_ERROR) {
+                this.approvalFlowService.failTicket(ticketDO.getId(), DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), ticketDO.getPrimaryUid());
             }
-            vos.add(t);
-        }
-        vos.sort((o1, o2) -> -o1.getGmtCreate().compareTo(o2.getGmtCreate()));
-
-        results.setRecords(vos);
-        return results;
-    }
-
-    private IPage<DmApprovalDO> getCanConfirmTicketsByPage(RdpListTicketFO fo) {
-        Page<?> page = PageUtils.startPage(fo.getPage());
-        ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
-            .ticketStatus(fo.getTicketStatus())
-            .ticketTitleName(fo.getTicketTitleName())
-            .ticketId(fo.getTicketId())
-            .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
-            .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
-            .approvalPersonUid(fo.getUid())
-            .build();
-        return this.approvalDal.approvalMapper().listConfirmTicketByConditionAndPage(page, queryParams);
-    }
-
-    private Map<Long, DmAuthUserDO> genTicketUserMap(List<DmApprovalDO> tickets) {
-        List<String> uids = tickets.stream().map(DmApprovalDO::getOwnerUid).collect(Collectors.toCollection(ArrayList::new));
-        List<DmAuthUserDO> users = this.authDal.userMapper().listByUids(uids);
-        Map<String, DmAuthUserDO> userMap = users.stream().collect(Collectors.toMap(DmAuthUserDO::getUid, u -> u));
-
-        Map<Long, DmAuthUserDO> ticketUserMap = new HashMap<>();
-        for (DmApprovalDO ticketDO : tickets) {
-            String uid = ticketDO.getOwnerUid();
-            ticketUserMap.put(ticketDO.getId(), userMap.get(uid));
-        }
-        return ticketUserMap;
-    }
-
-    private Map<Long, DmDsDO> genTicketDsMap(List<DmApprovalDO> tickets) {
-        Set<Long> dsIds = tickets.stream().map(DmApprovalDO::getBindDsId).collect(Collectors.toSet());
-        List<DmDsDO> dsList = this.datasourceDal.dsMapper().listByIdsIncludeDeleted(dsIds);
-        Map<Long, DmDsDO> result = new HashMap<>();
-        for (DmDsDO ds : dsList) {
-            result.put(ds.getId(), ds);
+            return false;
         }
 
-        Collection<Long> envIds = dsList.stream().map(DmDsDO::getDsEnvId).collect(Collectors.toSet());
-        if (!envIds.isEmpty()) {
-            List<DmSysEnvDO> envs = this.systemDal.envMapper().selectBatchIds(envIds);
-            Map<Long, DmSysEnvDO> envMap = new HashMap<>();
-            for (DmSysEnvDO env : envs) {
-                envMap.put(env.getId(), env);
-            }
-            result.forEach((key, dsDo) -> dsDo.setDsEnvDO(envMap.get(dsDo.getDsEnvId())));
-        }
-        for (DmDsDO ds : dsList) {
-            result.put(ds.getId(), ds);
-        }
-        return result;
+        return true;
     }
 
-    private IPage<DmApprovalDO> getUserCreatedTicketsByPage(RdpListTicketFO fo, String puid) {
-        Page<?> page = PageUtils.startPage(fo.getPage());
-        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(fo.getUid());
-        ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
-            .ticketStatus(fo.getTicketStatus())
-            .uids(Collections.singletonList(String.valueOf(userDO.getUid())))
-            .ticketTitleName(fo.getTicketTitleName())
-            .ticketId(fo.getTicketId())
-            .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
-            .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
-            .build();
-        return this.approvalDal.approvalMapper().listTicketByConditionAndPage(page, queryParams, puid);
+    @Override
+    public List<RdpApproTemplateVO> listTemplates(String ownerUid, ApprovalType approvalType) {
+        return this.approvalProviderService.listTemplates(ownerUid, approvalType);
     }
 
-    private IPage<DmApprovalDO> getAllTicketsByPage(RdpListTicketFO fo, String puid) {
-        Page<?> page = PageUtils.startPage(fo.getPage());
-        ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
-            .ticketStatus(fo.getTicketStatus())
-            .ticketTitleName(fo.getTicketTitleName())
-            .ticketId(fo.getTicketId())
-            .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
-            .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
-            .build();
-
-        return this.approvalDal.approvalMapper().listTicketByConditionAndPage(page, queryParams, puid);
+    @Override
+    public List<RdpApproTemplateVO> refreshTemplates(String ownerUid, ApprovalType approvalType) {
+        return this.approvalProviderService.refreshTemplates(ownerUid, approvalType);
     }
+
+    @Override
+    public List<Map<String, Object>> getTicketTypes(String ownerUid) {
+        return this.approvalProviderService.getTicketTypes(ownerUid);
+    }
+
+    @Override
+    public void addTemplateByUrl(String ownerUid, ApprovalType approvalType, String templateUrl) {
+        this.approvalProviderService.addTemplateByUrl(ownerUid, approvalType, templateUrl);
+    }
+
+    @Override
+    public void removeTemplateById(String ownerUid, ApprovalType approvalType, String templateId) {
+        this.approvalProviderService.removeTemplateById(ownerUid, approvalType, templateId);
+    }
+
+    //
+    // utils
+    //
 
     private void checkJobOperationEnable(DmApprovalDO ticketDO, String uid) {
         if (!checkOperationEnableWithResult(ticketDO, uid)) {
@@ -993,14 +1015,4 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         return ticketDO;
     }
 
-    private DmExecAutoJobDO checkJob(String puid, Long jobId) {
-        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().selectById(jobId);
-        if (jobDO == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_EXISTS_ERROR_MESSAGE.name()));
-        }
-        if (!jobDO.getPrimaryUid().equals(puid)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_BELONG_CURRENT_TEAM.name()));
-        }
-        return jobDO;
-    }
 }

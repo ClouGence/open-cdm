@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.clougence.clouddm.console.web.component.file.PluginResourceManager;
 import com.clougence.clouddm.console.web.component.file.mode.PluginResourceData;
+import com.clougence.clouddm.console.web.component.file.resource.PluginResourceManager;
 import com.clougence.clouddm.console.web.component.file.resource.PluginResourceModel;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.sdk.resource.ResourceRequest;

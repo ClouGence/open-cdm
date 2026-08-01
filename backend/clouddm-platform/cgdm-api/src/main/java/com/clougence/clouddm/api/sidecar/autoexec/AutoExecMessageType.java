@@ -29,6 +29,7 @@ public enum AutoExecMessageType {
     JOB_FINISH,
     JOB_FAILED,
     JOB_PAUSE,
+    JOB_PREPARE_FAILED,
     CREATE_SESSION_FAILED,
     QUERY_ID
 }

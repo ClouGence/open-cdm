@@ -34,6 +34,7 @@ import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
+import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRangeItem;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
@@ -68,6 +69,8 @@ import com.clougence.clouddm.console.web.model.vo.faker.DmAsyncTaskVO;
 import com.clougence.clouddm.console.web.model.vo.openapi.DmApiDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigDetailVO;
 import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigListVO;
+import com.clougence.clouddm.console.web.model.vo.ticket.CheckedVO;
+import com.clougence.clouddm.console.web.model.vo.ticket.DmTicketResultVO;
 import com.clougence.clouddm.console.web.service.browse.model.ActionInfo;
 import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
 import com.clougence.clouddm.console.web.service.browse.model.GenerateSqlDataAuthEnum;
@@ -103,6 +106,7 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.LanguageResult;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRange;
+import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
@@ -144,6 +148,33 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * @author mode create time is 2021/1/30
  **/
 public class DmConvertUtils {
+
+    private static final RuleLevel[] CHECK_LEVELS_FAILURE = new RuleLevel[] { RuleLevel.FAILURE };
+
+    public static DmTicketResultVO convertToRuleCheckResult(SecRulesCheckResult result) {
+        DmTicketResultVO vo = new DmTicketResultVO();
+        vo.setConfirm(!result.isAllSuccess());
+        vo.setFailure(result.hasAnyTarget(CHECK_LEVELS_FAILURE));
+
+        List<CheckedVO> checkedVOS = new ArrayList<>();
+        Map<String, RuleLevel> checked = result.getChecked();
+        Map<String, String> descMap = result.getMessageMap();
+        Map<String, Set<Integer>> scriptMap = result.getScriptMap();
+
+        for (String key : checked.keySet()) {
+            CheckedVO checkedVO = new CheckedVO();
+            checkedVO.setName(key);
+            checkedVO.setRuleLevel(checked.get(key));
+            checkedVO.setHitCount(result.getHitCountMap().getOrDefault(key, 0L));
+            checkedVO.setDesc(descMap.get(key));
+            if (CollectionUtils.isNotEmpty(scriptMap.get(key))) {
+                checkedVO.setLines(scriptMap.get(key).stream().sorted().collect(Collectors.toList()));
+            }
+            checkedVOS.add(checkedVO);
+        }
+        vo.setCheckedVOS(checkedVOS);
+        return vo;
+    }
 
     public static SqlAuditVO convertToSqlAuditVO(DmExecSqlAuditDO auditDO) {
         SqlAuditVO vo = new SqlAuditVO();

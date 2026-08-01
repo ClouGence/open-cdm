@@ -295,6 +295,9 @@
             <div v-if="rule.lines && rule.lines.length" class="rule-lines">
               <span class="lines-label">{{ $t('wei-zhi-0') }}:</span>
               <span v-for="line in rule.lines" :key="line" class="lines-content">{{ line }}</span>
+              <span v-if="rule.hitCount > rule.lines.length" class="lines-content">
+                {{ $t('ticket-rule-location-total', { count: rule.hitCount }) }}
+              </span>
             </div>
           </div>
           <div class="rule-desc">{{ rule.desc }}</div>
@@ -312,7 +315,7 @@
             </Button>
             <span v-if="ticketDetail.ticketMessage" class="parse-error-msgContent">*{{ ticketDetail.ticketMessage }}</span>
           </div>
-          <div v-if="ticketDetail.sqlContentType === 'ATTACHMENT'" class="ticket-attachment-meta">
+          <div v-if="ticketDetail.contentType === 'ATTACHMENT'" class="ticket-attachment-meta">
             <Icon type="ios-document-outline" />
             <span>{{ ticketDetail.attachmentFileName }}</span>
             <span>{{ formatFileSize(ticketDetail.attachmentFileSize || 0) }}</span>
@@ -1153,7 +1156,7 @@ export default {
               }
               this.ticketDetail.ticketMessage = resQuery.data?.ticketMessage || '';
               this.ticketDetail.rollBackSql = resQuery.data?.rollBackSql || '';
-              this.ticketDetail.sqlContentType = resQuery.data?.sqlContentType || 'INLINE';
+              this.ticketDetail.contentType = resQuery.data?.contentType || 'INLINE';
               this.ticketDetail.attachmentId = resQuery.data?.attachmentId;
               this.ticketDetail.attachmentFileName = resQuery.data?.attachmentFileName || '';
               this.ticketDetail.attachmentFileSize = resQuery.data?.attachmentFileSize || 0;

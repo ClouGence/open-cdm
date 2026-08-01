@@ -10,6 +10,7 @@
         <result column="exec_order" property="execOrder"/>
         <result column="exec_sql" property="execSql"/>
         <result column="biz_id" property="bizId"/>
+        <result column="query_id" property="queryId"/>
         <result column="status" property="status"/>
         <result column="affect_row" property="affectRow"/>
         <result column="exec_count" property="execCount"/>
@@ -27,10 +28,35 @@
         status,
         affect_row,
         biz_id,
+        query_id,
         exec_count,
         gmt_last_start,
         gmt_last_end
     </sql>
+    <insert id="batchInsert">
+        insert into dm_exec_auto_task (
+            auto_exec_job_id,
+            exec_order,
+            exec_sql,
+            status,
+            biz_id,
+            query_id
+        ) values
+        <foreach collection="tasks" item="task" separator=",">
+            (
+                #{task.autoExecJobId},
+                #{task.execOrder},
+                #{task.execSql},
+                #{task.status},
+                #{task.bizId},
+                #{task.queryId}
+            )
+        </foreach>
+    </insert>
+    <delete id="deleteByJobId">
+        delete from dm_exec_auto_task
+        where auto_exec_job_id = #{jobId}
+    </delete>
     <update id="updateStatusByTaskId">
         update dm_exec_auto_task
         set status = #{status}
@@ -61,7 +87,7 @@
     <update id="taskSkip">
         update dm_exec_auto_task
         set status = 'CANCELED'
-        where auto_exec_job_id = #{jobId} and id = #{taskId}
+        where query_id = #{queryId}
     </update>
     <delete id="cancelAllWaitTask">
         update dm_exec_auto_task
@@ -69,11 +95,27 @@
         where auto_exec_job_id = #{jobId} and status in ('WAIT_EXEC','EXECUTING')
     </delete>
 
-    <select id="queryNeedExecTaskList" resultMap="taskDO">
+    <select id="queryNeedExecTaskIdsBatch" resultType="java.lang.Long">
+        select id
+        from dm_exec_auto_task
+        where auto_exec_job_id = #{jobId}
+          and status in ('WAIT_EXEC','FAILED','ROLLBACK')
+          and exec_order <![CDATA[ > ]]> #{afterExecOrder}
+        order by exec_order
+        limit #{batchSize}
+    </select>
+
+    <select id="queryNeedExecTasksByIds" resultMap="taskDO">
         select
             <include refid="sqlTask"/>
         from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId} and status in ('WAIT_EXEC','FAILED','ROLLBACK')
+        where auto_exec_job_id = #{jobId}
+          and status in ('WAIT_EXEC','FAILED','ROLLBACK')
+          and id in
+          <foreach collection="taskIds" item="taskId" separator="," open="(" close=")">
+              #{taskId}
+          </foreach>
+        order by exec_order
     </select>
 
     <select id="queryByBizId"  resultMap="taskDO">
@@ -81,6 +123,12 @@
         <include refid="sqlTask"/>
         from dm_exec_auto_task
         where biz_id = #{bizId}
+    </select>
+    <select id="queryByQueryId" resultMap="taskDO">
+        select
+            <include refid="sqlTask"/>
+        from dm_exec_auto_task
+        where query_id = #{queryId}
     </select>
     <select id="queryListByJobId" resultMap="taskDO">
         select
@@ -110,5 +158,10 @@
         from dm_exec_auto_task
         where auto_exec_job_id = #{jobId} and status in ('WAIT_EXEC','FAILED','ROLLBACK')
     </select>
-
+    <select id="queryNeedExecTaskMaxOrder" resultType="java.lang.Integer">
+        select
+            coalesce(max(exec_order), 0)
+        from dm_exec_auto_task
+        where auto_exec_job_id = #{jobId} and status in ('WAIT_EXEC','FAILED','ROLLBACK')
+    </select>
 </mapper>

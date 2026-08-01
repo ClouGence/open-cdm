@@ -15,11 +15,13 @@
  */
 package com.clougence.clouddm.console.web.component.autoexec;
 
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.api.console.autoexec.AutoExecTaskPackageInfo;
 
-public interface AutoExecManager {
+public interface AutoExecJobPackageService {
 
-    void dispatchJob(Long jobId);
+    AutoExecTaskPackageInfo create(long jobId);
 
-    void stopJob(Long jobId, DmAuthUserDO user);
+    byte[] read(long jobId, long attachmentId, long offset, int length);
+
+    void delete(long attachmentId);
 }

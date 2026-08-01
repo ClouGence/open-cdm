@@ -34,6 +34,7 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.*;
 import com.clougence.clouddm.sdk.execute.session.MessageLevel;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.worker.component.report.ReportUtils;
+import com.clougence.utils.HostUtil;
 import com.clougence.utils.ThreadUtils;
 
 import jakarta.annotation.Resource;
@@ -56,19 +57,6 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
             this.workerIdentity = ReportUtils.getIdentity();
         }
         return this.workerIdentity;
-    }
-
-    @Override
-    public void finishForAutoExec(String queryId, String sessionId, String message, Long affectLine, SqlStatus result) {
-        SqlExecNotifyDTO dto = new SqlExecNotifyDTO();
-        dto.setQueryId(queryId);
-        dto.setSessionId(sessionId);
-        dto.setMessage(message);
-        dto.setSqlStatus(result);
-        dto.setLine(affectLine);
-        dto.setTime(new Date());
-        dto.setType(Type.SQL_END);
-        this.queue.add(dto);
     }
 
     @Override
@@ -99,12 +87,13 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
     }
 
     @Override
-    public void finishForConsoleQuery(QueryRequest query, Result result) {
+    public void finishForQuery(QueryRequest query, Result result, boolean waitConfirm) {
+        SqlStatus successStatus = waitConfirm ? SqlStatus.WAIT_CONFIRM : SqlStatus.SUCCESS;
         switch (result.getResultType()) {
             case Phase: {
                 if (result instanceof ResultPhase) {
                     if (((ResultPhase) result).getPhaseType() == ResultPhaseType.After) {
-                        this.addToQueue(query, result, SqlStatus.SUCCESS, 0);
+                        this.addToQueue(query, result, successStatus, 0);
                     }
                 }
                 break;
@@ -118,14 +107,14 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
                 if (resultMessage.getLevel() == MessageLevel.Error) {
                     addToQueue(query, result, SqlStatus.FAILURE, 0);
                 } else if (resultMessage.getLevel() == MessageLevel.Info) {
-                    addToQueue(query, result, SqlStatus.SUCCESS, 0);
+                    addToQueue(query, result, successStatus, 0);
                 }
                 break;
             }
             case ResultCount: {
                 ResultCount resultCount = (ResultCount) result;
                 // create table .... count = -1
-                addToQueue(query, result, SqlStatus.SUCCESS, Math.max(0, resultCount.getUpdateCount()));
+                addToQueue(query, result, successStatus, Math.max(0, resultCount.getUpdateCount()));
                 break;
             }
         }
@@ -136,34 +125,23 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
         dto.setSessionId(result.getSessionId());
         dto.setQueryId(query.getQueryId());
         dto.setMessage(result.getMessage());
-        dto.setSqlStatus(sqlStatus);
-        dto.setLine(affectLine);
+        dto.setStatus(sqlStatus);
+        dto.setAffectLine(affectLine);
         dto.setTime(new Date());
         dto.setType(Type.SQL_END);
         this.queue.add(dto);
     }
 
     @Override
-    public void beginForConsoleQuery(QueryRequest query, String sessionId) {
+    public void beginForQuery(QueryRequest query, String sessionId) {
         SqlExecNotifyDTO dto = new SqlExecNotifyDTO();
         dto.setTime(new Date());
         dto.setSessionId(sessionId);
         dto.setQueryId(query.getQueryId());
+        dto.setClientIp(HostUtil.getHostIp());
         dto.setType(Type.SQL_START);
-        dto.setSqlStatus(SqlStatus.RUNNING);
+        dto.setStatus(SqlStatus.RUNNING);
         this.queue.add(dto);
-    }
-
-    @Override
-    public void beginForAutoExec(String queryId, String sessionId) {
-        SqlExecNotifyDTO dto = new SqlExecNotifyDTO();
-        dto.setQueryId(queryId);
-        dto.setTime(new Date());
-        dto.setSessionId(sessionId);
-        dto.setSqlStatus(SqlStatus.RUNNING);
-        dto.setType(Type.SQL_START);
-        this.queue.add(dto);
-
     }
 
     @Override

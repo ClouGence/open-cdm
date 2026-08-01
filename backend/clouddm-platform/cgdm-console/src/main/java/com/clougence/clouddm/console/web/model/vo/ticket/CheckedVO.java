@@ -32,5 +32,6 @@ public class CheckedVO {
     private String        name;
     private String        desc;
     private RuleLevel     ruleLevel;
+    private long          hitCount;
     private List<Integer> lines;
 }

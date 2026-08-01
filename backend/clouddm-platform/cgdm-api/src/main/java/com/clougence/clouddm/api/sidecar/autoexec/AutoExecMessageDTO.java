@@ -31,7 +31,6 @@ public class AutoExecMessageDTO {
     private Date                time       = new Date();
 
     private Long                jobId;
-    private Long                taskId;
 
     // task
     private long                affectLine = 0;
@@ -39,39 +38,40 @@ public class AutoExecMessageDTO {
 
     // job
     private String              queryId;
+    private Long                attachmentId;
 
     private String              message;
 
-    public static AutoExecMessageDTO taskStartMessage(Long taskId) {
+    public static AutoExecMessageDTO taskStartMessage(String queryId) {
         AutoExecMessageDTO dto = new AutoExecMessageDTO();
         dto.setType(AutoExecMessageType.TASK_START);
-        dto.setTaskId(taskId);
+        dto.setQueryId(queryId);
         return dto;
     }
 
-    public static AutoExecMessageDTO taskFailMessage(Long taskId, String message, int execCount) {
+    public static AutoExecMessageDTO taskFailMessage(String queryId, String message, int execCount) {
         AutoExecMessageDTO dto = new AutoExecMessageDTO();
         dto.setType(AutoExecMessageType.TASK_FAILED);
-        dto.setTaskId(taskId);
+        dto.setQueryId(queryId);
         dto.setMessage(message);
         dto.setExecCount(execCount);
         return dto;
     }
 
-    public static AutoExecMessageDTO taskFinishMessage(Long taskId, Long affectLine, int execCount) {
+    public static AutoExecMessageDTO taskFinishMessage(String queryId, Long affectLine, int execCount) {
         AutoExecMessageDTO dto = new AutoExecMessageDTO();
         dto.setType(AutoExecMessageType.TASK_FINISH);
-        dto.setTaskId(taskId);
+        dto.setQueryId(queryId);
         dto.setAffectLine(affectLine);
         dto.setExecCount(execCount);
         return dto;
     }
 
-    public static AutoExecMessageDTO taskWaitConfirmMessage(Long taskId, Long affectLine, int execCount) {
+    public static AutoExecMessageDTO taskWaitConfirmMessage(String queryId, Long affectLine, int execCount) {
         AutoExecMessageDTO dto = new AutoExecMessageDTO();
         dto.setType(AutoExecMessageType.TASK_WAIT_CONFIRM);
         dto.setAffectLine(affectLine);
-        dto.setTaskId(taskId);
+        dto.setQueryId(queryId);
         dto.setExecCount(execCount);
         return dto;
     }
@@ -90,18 +90,19 @@ public class AutoExecMessageDTO {
         return dto;
     }
 
-    public static AutoExecMessageDTO taskSkipMessage(Long jobId, Long taskId) {
+    public static AutoExecMessageDTO taskSkipMessage(Long jobId, String queryId) {
         AutoExecMessageDTO dto = new AutoExecMessageDTO();
         dto.setType(AutoExecMessageType.TASK_SKIP);
         dto.setJobId(jobId);
-        dto.setTaskId(taskId);
+        dto.setQueryId(queryId);
         return dto;
     }
 
-    public static AutoExecMessageDTO jobFinishMessage(Long jobId) {
+    public static AutoExecMessageDTO jobFinishMessage(Long jobId, long attachmentId) {
         AutoExecMessageDTO dto = new AutoExecMessageDTO();
         dto.setType(AutoExecMessageType.JOB_FINISH);
         dto.setJobId(jobId);
+        dto.setAttachmentId(attachmentId);
         return dto;
     }
 
@@ -112,10 +113,10 @@ public class AutoExecMessageDTO {
         return dto;
     }
 
-    public static AutoExecMessageDTO jobFailedMessage(Long jobId, Long taskId) {
+    public static AutoExecMessageDTO jobFailedMessage(Long jobId, String queryId) {
         AutoExecMessageDTO dto = new AutoExecMessageDTO();
         dto.setType(AutoExecMessageType.JOB_FAILED);
-        dto.setTaskId(taskId);
+        dto.setQueryId(queryId);
         dto.setJobId(jobId);
         return dto;
     }
@@ -123,6 +124,14 @@ public class AutoExecMessageDTO {
     public static AutoExecMessageDTO createSessionFailed(Long jobId, String message) {
         AutoExecMessageDTO dto = new AutoExecMessageDTO();
         dto.setType(AutoExecMessageType.CREATE_SESSION_FAILED);
+        dto.setMessage(message);
+        dto.setJobId(jobId);
+        return dto;
+    }
+
+    public static AutoExecMessageDTO jobPrepareFailed(Long jobId, String message) {
+        AutoExecMessageDTO dto = new AutoExecMessageDTO();
+        dto.setType(AutoExecMessageType.JOB_PREPARE_FAILED);
         dto.setMessage(message);
         dto.setJobId(jobId);
         return dto;
@@ -136,11 +145,11 @@ public class AutoExecMessageDTO {
         return dto;
     }
 
-    public static AutoExecMessageDTO taskRetryMessage(Long taskId) {
+    public static AutoExecMessageDTO taskRetryMessage(String queryId) {
         AutoExecMessageDTO dto = new AutoExecMessageDTO();
         dto.setType(AutoExecMessageType.TASK_RETRY);
 
-        dto.setTaskId(taskId);
+        dto.setQueryId(queryId);
         return dto;
     }
 }

@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.approval.schedule;
+package com.clougence.clouddm.api.console.autoexec;
 
-import com.clougence.rdp.service.enumeration.RSocketSendType;
+import lombok.Getter;
+import lombok.Setter;
 
-public class RemoteInvokeTimeoutException extends RuntimeException {
-    public RemoteInvokeTimeoutException(RSocketSendType sendType, Long clusterId, String workerIp, long passTime, String message, String requestId){
-        super(message);
-    }
+@Getter
+@Setter
+public class AutoExecTaskPackageInfo {
+
+    private long   attachmentId;
+    private long   fileSize;
+    private String md5;
 }

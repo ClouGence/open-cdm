@@ -263,9 +263,9 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
         try {
             ps = this.createStatement(conn, query);
 
-            int queryTimeoutMs = query.getResultConf().getQueryTimeoutSec() * 1000;
-            if (queryTimeoutMs > 0) {
-                ps.setQueryTimeout(queryTimeoutMs);
+            int queryTimeoutSec = query.getResultConf().getQueryTimeoutSec();
+            if (queryTimeoutSec > 0) {
+                ps.setQueryTimeout(queryTimeoutSec);
             }
 
             this.applyArgs(query, ps);

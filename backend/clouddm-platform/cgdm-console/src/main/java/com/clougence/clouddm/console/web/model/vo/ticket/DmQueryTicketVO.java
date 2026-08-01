@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.model.vo.ticket;
 import java.util.List;
 
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
+import com.clougence.clouddm.platform.dal.model.approval.SqlContentType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +32,10 @@ public class DmQueryTicketVO {
     private String                 gmtCreate;
     private String                 gmtModified;
     private Long                   dataSourceId;
-    private String                 rawSql;
+    private SqlContentType         contentType;
+    private Long                   attachmentId;
+    private String                 attachmentFileName;
+    private Long                   attachmentFileSize;
     private List<ApprovalBehavior> behaviors;
     private Integer                totalCount;
     private String                 description;

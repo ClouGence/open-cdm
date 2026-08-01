@@ -15,9 +15,7 @@
  */
 package com.clougence.clouddm.api.sidecar.autoexec;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.clougence.clouddm.api.console.autoexec.AutoExecTaskPackageInfo;
 import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 
@@ -28,16 +26,13 @@ import lombok.Setter;
 @Setter
 public class AutoExecJobDTO {
 
-    private Long                  jobId;
-    private boolean               enableTransactional;
-    private ErrorStrategy         errorStrategy;
+    private Long                    jobId;
+    private Long                    dsId;
+    private SessionContextDTO       contextDTO;
+    private AutoExecTaskPackageInfo taskPackage;
+    private boolean                 enableTransactional;
+    private ErrorStrategy           errorStrategy;
+    private Long                    retryWaitTime;
+    private Long                    retryCount;
 
-    private Long                  retryWaitTime;
-    private Long                  retryCount;
-
-    private List<AutoExecTaskDTO> taskList = new ArrayList<>();
-
-    private SessionContextDTO     contextDTO;
-
-    private Long                  dsId;
 }

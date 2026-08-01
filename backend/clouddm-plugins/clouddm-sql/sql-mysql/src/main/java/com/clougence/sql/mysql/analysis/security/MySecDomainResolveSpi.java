@@ -76,7 +76,7 @@ public class MySecDomainResolveSpi implements SecDomainResolveSpi, MySecDomainOp
                 DslHelper.doVisitor(dslProvider(), reader, (lexer, parser) -> this.parserVisitor(builder, parser));
             }
             List<RuleDomain> build;
-            if (ctxInfo.isDeepParser()) {
+            if (ctxInfo != null) {
                 build = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());
             } else {
                 build = builder.build();

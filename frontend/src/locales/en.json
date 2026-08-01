@@ -4179,5 +4179,6 @@
   "ticket-sql-select-file": "Select or drop a .sql file",
   "ticket-sql-upload-limit": "Up to {size} MB, UTF-8 encoding required",
   "ticket-sql-confirm-upload": "Confirm upload",
-  "ticket-sql-only-sql": "Only .sql files are supported"
+  "ticket-sql-only-sql": "Only .sql files are supported",
+  "ticket-rule-location-total": "{count} locations in total"
 }
