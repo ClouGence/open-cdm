@@ -34,6 +34,14 @@ export default {
     fitViewport: {
       type: Boolean,
       default: false
+    },
+    virtualScrollMode: {
+      type: Boolean,
+      default: false
+    },
+    lineNumberStart: {
+      type: Number,
+      default: 1
     }
   },
   watch: {
@@ -44,6 +52,12 @@ export default {
     },
     dsType() {
       this.applyLanguage();
+    },
+    virtualScrollMode(newVal) {
+      this.updateScrollbarMode(newVal);
+    },
+    lineNumberStart() {
+      this.updateLineNumberStart();
     }
   },
   data() {
@@ -78,6 +92,9 @@ export default {
         targetHeight = this.maxHeight;
       }
       if (this.fitViewport && this.viewportHeight) {
+        if (this.virtualScrollMode) {
+          return this.viewportHeight;
+        }
         return Math.min(targetHeight, this.viewportHeight);
       }
       return targetHeight;
@@ -106,11 +123,13 @@ export default {
               minimap: {
                 enabled: false
               },
+              lineNumbers: this.lineNumberOption(),
               scrollbar: {
-                vertical: 'auto',
+                vertical: this.virtualScrollMode ? 'hidden' : 'auto',
                 verticalScrollbarSize: 5,
                 horizontalScrollbarSize: 8,
-                alwaysConsumeMouseWheel: true
+                handleMouseWheel: !this.virtualScrollMode,
+                alwaysConsumeMouseWheel: !this.virtualScrollMode
               },
               overviewRulerLanes: 0,
               hideCursorInOverviewRuler: true,
@@ -135,6 +154,12 @@ export default {
       const editorTop = this.$el.getBoundingClientRect().top;
       const minimumHeight = 5 * DEFAULT_LINE_HEIGHT;
       this.viewportHeight = Math.max(minimumHeight, viewportHeight - editorTop - 20);
+      this.$nextTick(() => {
+        if (this.monacoEditor) {
+          this.monacoEditor.layout();
+          this.$emit('viewport-line-count-change', this.getVisibleLineCount());
+        }
+      });
     },
     resolveLanguage() {
       return resolveSqlEditorLanguage(monaco, this.dsType, this.getDsSettings(), this.language);
@@ -144,6 +169,38 @@ export default {
     },
     getDsSettings() {
       return this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};
+    },
+    updateScrollbarMode(virtualScrollMode) {
+      this.monacoEditor?.updateOptions({
+        scrollbar: {
+          vertical: virtualScrollMode ? 'hidden' : 'auto',
+          verticalScrollbarSize: 5,
+          horizontalScrollbarSize: 8,
+          handleMouseWheel: !virtualScrollMode,
+          alwaysConsumeMouseWheel: !virtualScrollMode
+        }
+      });
+    },
+    updateLineNumberStart() {
+      this.monacoEditor?.updateOptions({
+        lineNumbers: this.lineNumberOption()
+      });
+    },
+    lineNumberOption() {
+      const start = Math.max(1, Number(this.lineNumberStart) || 1);
+      return start === 1 ? 'on' : (lineNumber) => String(start + lineNumber - 1);
+    },
+    getVisibleLineCount() {
+      if (!this.monacoEditor) {
+        const editorHeight = this.$refs.readOnlyEditor?.clientHeight || (this.fitViewport ? this.viewportHeight : 0);
+        if (editorHeight > 0) {
+          return Math.max(1, Math.floor(editorHeight / DEFAULT_LINE_HEIGHT));
+        }
+        return 25;
+      }
+      const layout = this.monacoEditor.getLayoutInfo();
+      const lineHeight = this.monacoEditor.getOption(monaco.editor.EditorOption.lineHeight);
+      return Math.max(1, Math.floor(layout.height / lineHeight));
     }
   },
   beforeUnmount() {
