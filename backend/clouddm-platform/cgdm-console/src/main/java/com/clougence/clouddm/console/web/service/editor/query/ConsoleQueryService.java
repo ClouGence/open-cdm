@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.editor.query;
 
+import java.io.StringReader;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -64,6 +65,7 @@ import com.clougence.clouddm.platform.dal.model.execution.FileStatus;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.echo.*;
+import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
@@ -303,8 +305,13 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             .levels(ctx.getLevels().levelsParam())
             .deepParser(false)
             .build();
-        List<QueryRequest> requests = this.analysisService.analysisRequests(ctx.getDsConfig(), queryDTO.getQueryString(),//
-                queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn(), options);
+        List<QueryRequest> requests;
+        try (StringReader reader = new StringReader(queryDTO.getQueryString())) {
+            int codeLine = queryDTO.getBasicCodeLine();
+            int codeColumn = queryDTO.getBasicCodeColumn();
+            List<QueryArg> queryArgs = queryDTO.getQueryArgs();
+            requests = this.analysisService.analysisRequests(ctx.getDsConfig(), reader, queryArgs, codeLine, codeColumn, options);
+        }
 
         //
         SessionSpi sessionSpi = ctx.getSessionSpi();
@@ -319,9 +326,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             temp.getResultConf().setReceiveMode(queryDTO.getReceiveMode() == null ? ReceiveMode.PAGE_FULL : queryDTO.getReceiveMode());
         }
 
-        if (temp.getVariables() == null) {
-            temp.setVariables(new HashMap<>());
-        }
         temp.setUseExplain(isExplain);
 
         for (int i = 0; i < requests.size(); i++) {

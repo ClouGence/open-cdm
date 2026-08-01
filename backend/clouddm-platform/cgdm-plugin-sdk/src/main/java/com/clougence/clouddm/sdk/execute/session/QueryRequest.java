@@ -48,9 +48,6 @@ public class QueryRequest implements Cloneable {
     private boolean                   usingValueProcess;
     private Map<String, ColumnConfig> columnList;
 
-    // for env, see  ExecuteVariables
-    private Map<String, String>       variables;
-
     // for execute config
     private boolean                   useCallable = false;
     private boolean                   useExplain  = false;
@@ -82,10 +79,6 @@ public class QueryRequest implements Cloneable {
         req.requester = this.requester;
         req.requestTime = this.requestTime;
         req.usingValueProcess = this.usingValueProcess;
-
-        if (this.variables != null) {
-            req.setVariables(new HashMap<>(this.variables));
-        }
 
         req.useCallable = this.useCallable;
         req.resultConf = this.resultConf == null ? null : this.resultConf.clone();

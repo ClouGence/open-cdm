@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
-import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.result.ColumnConfig;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
@@ -59,12 +58,12 @@ public class SecValueProcessServiceProvider implements ValueProcessService {
     @Override
     @SneakyThrows
     public void begin(QueryRequest query, Map<String, ColMetaData> rowMeta, Map<String, Object> flash) {
-        String dsId = query.getVariables().get(ExecuteVariables.DS_ID);
-        if (StringUtils.isBlank(dsId)) {
-            throw new IllegalArgumentException("process Value failed, the variable DS_ID is required.");
+        Long dsId = query.getDsId();
+        if (dsId == null) {
+            throw new IllegalArgumentException("process Value failed, dataSourceId is required.");
         }
 
-        SensitiveConfig conf = configService.fetchSensitiveConfigByDs(Long.parseLong(dsId));
+        SensitiveConfig conf = configService.fetchSensitiveConfigByDs(dsId);
         //        SensitiveConfig conf = (SensitiveConfig) this.cacheService.getObjectIfAbsent("ValueProcess-cache-key-" + dsId, s -> {
         //            return configService.fetchSensitiveConfigByDs(Long.parseLong(dsId));
         //        });
@@ -208,10 +207,6 @@ public class SecValueProcessServiceProvider implements ValueProcessService {
         domain.setDsId(conf.getDsId());
         domain.setDsName(conf.getDsName());
         domain.setDsType(conf.getDsType());
-        Map<String, String> variables = query.getVariables();
-        domain.setUserName(variables.get(ExecuteVariables.USER_NAME));
-        domain.setUserRole(variables.get(ExecuteVariables.ROLE_NAME));
-
         CheckerData checkerData = new CheckerData(query.getQueryBody(), domain);
         checkerData.setDsLevelsDef(typesList);
         checkerData.setCurrentCatalog(catalog); // default, domain.catalog is first
