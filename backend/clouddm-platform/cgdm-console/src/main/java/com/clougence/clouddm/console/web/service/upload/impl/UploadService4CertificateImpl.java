@@ -66,7 +66,7 @@ public class UploadService4CertificateImpl extends AbstractUploadService impleme
         try {
             staging = this.createStagingFile(".cert");
             long fileSize = this.copyWithLimit(file.getInputStream(), staging, maxSize, UploadService4CertificateImpl::fileTooLarge);
-            long attachmentId = this.localFileService.store(staging, fileName, uid, SysAttachmentType.CERTIFICATE_FILE);
+            long attachmentId = this.localFileService.addAsEditing(uid, staging, fileName, SysAttachmentType.CERTIFICATE_FILE);
             staging = null;
 
             ConsoleUploadVO vo = new ConsoleUploadVO();
@@ -111,7 +111,7 @@ public class UploadService4CertificateImpl extends AbstractUploadService impleme
         }
         try {
             long attachmentId = Long.parseLong(attachmentIdValue);
-            return this.localFileService.consumeEditing(attachmentId, uid, path -> {
+            return this.localFileService.consumeEditing(uid, attachmentId, path -> {
                 String storedFormat = fileFormat(path, format);
                 String data = Base64.getEncoder().encodeToString(Files.readAllBytes(path));
                 if (StringUtils.isBlank(data)) {
@@ -146,8 +146,8 @@ public class UploadService4CertificateImpl extends AbstractUploadService impleme
         }
 
         try {
-            this.localFileService.consumeEditing(attachmentId, uid, path -> null);
-            this.localFileService.delete(attachmentId);
+            this.localFileService.consumeEditing(uid, attachmentId, path -> null);
+            this.localFileService.deleteRecord(attachmentId);
         } catch (Exception e) {
             log.warn("delete temporary certificate failed, attachmentId: {}", attachmentId, e);
         }

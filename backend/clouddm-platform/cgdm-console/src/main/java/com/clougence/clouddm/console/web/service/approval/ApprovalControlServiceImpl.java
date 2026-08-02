@@ -276,7 +276,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
 
         //
-        DmApprovalDO approvalDO = checkTicket(fo.getTicketId(), puid);
+        DmApprovalDO approvalDO = checkTicket(fo.getTicketId());
         RdpTicketBaseInfoVO vo = new RdpTicketBaseInfoVO();
         vo.setId(approvalDO.getId());
         vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getGmtCreate()));
@@ -390,7 +390,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
     @Override
     public DmQueryTicketVO queryTicketDetail(String puid, DmQueryTicketDetailFO fo) {
-        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId(), puid);
+        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
         if (ticketDO.getApproBiz() == null) {
             return null;
         }
@@ -699,7 +699,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo) {
-        DmApprovalDO rdpTicketDO = this.checkTicket(ticketId, puid);
+        DmApprovalDO rdpTicketDO = this.checkTicket(ticketId);
         ApprovalStatus actionStatus = statusFromConfirmAction(fo.getConfirmActionType(), fo.getAutoExecConfig().getAutoExecType());
         checkJobOperationEnable(rdpTicketDO, fo.getConfirmUid());
 
@@ -796,21 +796,21 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
     @Override
     public DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String puid, String uid, DmQueryTaskListFO fo) {
-        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId(), puid);
+        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
         return this.autoExecService.queryAutoExecTaskList(//
                 ticketDO.getBizId(), SQLJobBizType.TICKET, checkOperationEnableWithResult(ticketDO, uid), fo.getTaskStatus(), fo.getPage());
     }
 
     @Override
     public DmAutoExecJobVO queryExecJobInfo(String puid, String uid, long ticketId) {
-        DmApprovalDO ticketDO = this.checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = this.checkTicket(ticketId);
         return this.autoExecService.queryAutoExecJob(ticketDO.getBizId(), SQLJobBizType.TICKET, checkOperationEnableWithResult(ticketDO, uid));
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void retryJob(String puid, String uid, long ticketId) {
-        DmApprovalDO ticketDO = this.checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = this.checkTicket(ticketId);
         checkJobOperationEnable(ticketDO, uid);
 
         this.autoExecService.retryJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
@@ -822,7 +822,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void skipTask(String puid, String uid, DmQueryAutoExecFO fo) {
-        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId(), puid);
+        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
         checkJobOperationEnable(ticketDO, uid);
         boolean jobFinish = this.autoExecService.skipTask(ticketDO.getBizId(), SQLJobBizType.TICKET, fo.getTaskId());
 
@@ -834,7 +834,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
     @Override
     public void canceledSkipTask(String puid, String uid, DmQueryAutoExecFO fo) {
-        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId(), puid);
+        DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
         checkJobOperationEnable(ticketDO, uid);
         this.autoExecService.continueTask(ticketDO.getBizId(), SQLJobBizType.TICKET, fo.getTaskId());
     }
@@ -842,7 +842,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void endAutoExecJob(String puid, String uid, long ticketId) {
-        DmApprovalDO ticketDO = this.checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = this.checkTicket(ticketId);
         checkJobOperationEnable(ticketDO, uid);
 
         this.autoExecService.endJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
@@ -863,24 +863,17 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
     @Override
     public void stopJob(String puid, String uid, long ticketId) {
-        DmApprovalDO ticketDO = this.checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = this.checkTicket(ticketId);
         checkJobOperationEnable(ticketDO, uid);
 
         this.autoExecService.stopJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
     }
 
     @Override
-    public List<DmBizLogVO> queryExecLog(String ownerUid, DmQueryExecLogFO fo) {
+    public List<DmBizLogVO> queryExecLog(DmQueryExecLogFO fo) {
         DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().selectById(fo.getJobId());
         if (jobDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_EXISTS_ERROR_MESSAGE.name()));
-        }
-        if (jobDO.getDependOnBizType() != SQLJobBizType.TICKET) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_BELONG_CURRENT_TEAM.name()));
-        }
-        DmApprovalDO approval = this.approvalDal.approvalMapper().queryByBizIdWithoutRawSql(jobDO.getDependOnBizId());
-        if (approval == null || !Objects.equals(approval.getPrimaryUid(), ownerUid)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NOT_BELONG_CURRENT_TEAM.name()));
         }
 
         List<DmMonBizLogDO> logDOS;
@@ -1006,13 +999,10 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         };
     }
 
-    private DmApprovalDO checkTicket(long ticketId, String puid) {
+    private DmApprovalDO checkTicket(long ticketId) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
         if (ticketDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
-        }
-        if (!ticketDO.getPrimaryUid().equals(puid)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_BELONG_CURRENT_TEAM.name()));
         }
 
         return ticketDO;

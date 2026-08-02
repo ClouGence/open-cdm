@@ -39,43 +39,43 @@ public interface DmChangeService {
 
     DmPageVO<ChangeVO> queryChangeByFlowAndQuery(String ownerUid, long flowId, ChangeListFO fo);
 
-    DmChangeDO queryChangeById(String ownerUid, long changeId);
+    DmChangeDO queryChangeById(long changeId);
 
-    ChangeBodyVO fetchChangeBodyByChangeId(String ownerUid, long changeId);
+    ChangeBodyVO fetchChangeBodyByChangeId(long changeId);
 
-    List<DmChangeItemDO> fetchChangeCheckByChangeId(String ownerUid, long changeId);
+    List<DmChangeItemDO> fetchChangeCheckByChangeId(long changeId);
 
-    ChangeTicketInfoResult fetchChangeApprovalByChangeId(String ownerUid, long changeId);
+    ChangeTicketInfoResult fetchChangeApprovalByChangeId(long changeId);
 
-    ChangeExecuteInfo fetchChangeExecuteByChangeId(String ownerUid, long changeId);
+    ChangeExecuteInfo fetchChangeExecuteByChangeId(long changeId);
 
-    void skipCheck(String ownerUid, String userUid, long changeId);
+    void skipCheck(String userUid, long changeId);
 
-    void confirmExec(String ownerUid, String userUid, long changeId, DmAutoExecConfigFO fo);
+    void confirmExec(String userUid, long changeId, DmAutoExecConfigFO fo);
 
-    DmAutoExecJobVO queryExecJobInfo(String ownerUid, long changeId);
+    DmAutoExecJobVO queryExecJobInfo(long changeId);
 
-    DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String ownerUid, ChangeExecTaskListFO fo);
+    DmPageVO<DmAutoExecTaskVO> queryExecTaskList(ChangeExecTaskListFO fo);
 
-    List<DmBizLogVO> queryExecLog(String ownerUid, ChangeExecLogFO fo);
+    List<DmBizLogVO> queryExecLog(ChangeExecLogFO fo);
 
-    void pauseExecJob(String ownerUid, String curUid, long changeId);
+    void pauseExecJob(String curUid, long changeId);
 
-    void startExecJob(String ownerUid, String curUid, long changeId);
+    void startExecJob(String curUid, long changeId);
 
-    void retryExecJob(String ownerUid, String curUid, long changeId);
+    void retryExecJob(String curUid, long changeId);
 
-    void abortExecJob(String ownerUid, String curUid, long changeId);
+    void abortExecJob(String curUid, long changeId);
 
-    void skipExecTask(String ownerUid, String curUid, long changeId, long taskId);
+    void skipExecTask(String curUid, long changeId, long taskId);
 
-    void continueExecTask(String ownerUid, long changeId, long taskId);
+    void continueExecTask(long changeId, long taskId);
 
-    void retryChange(String ownerUid, String curUid, long changeId);
+    void retryChange(String curUid, long changeId);
 
-    void restartChange(String ownerUid, String curUid, long changeId);
+    void restartChange(String curUid, long changeId);
 
-    void closeChange(String ownerUid, String curUid, long changeId);
+    void closeChange(String curUid, long changeId);
 
     void verifyFlow(String ownerUid, long flowId);
 

@@ -140,7 +140,7 @@ public class DmChangeServiceImplTest {
         change.setCurrentStep(ChangeStep.FINISH);
         when(changeMapper.queryChangeById(23L)).thenReturn(change);
 
-        changeService.continueExecTask("owner", "operator", 23L, 12L);
+        changeService.continueExecTask(23L, 12L);
 
         verify(autoExecService).continueTask("23", SQLJobBizType.CHANGE, 12L);
     }

@@ -53,7 +53,7 @@ public class UploadService4SqlFileImpl extends AbstractUploadService implements 
             long fileSize = this.copyWithLimit(file.getInputStream(), staging, maxBytes, () -> fileTooLarge(maxMegaByte));
             validateUtf8(staging);
 
-            long attachmentId = this.localFileService.store(staging, fileName, uid, SysAttachmentType.SQL_FILE);
+            long attachmentId = this.localFileService.addAsEditing(uid, staging, fileName, SysAttachmentType.SQL_FILE);
             staging = null;
 
             SqlFileUploadVO vo = new SqlFileUploadVO();
@@ -77,7 +77,7 @@ public class UploadService4SqlFileImpl extends AbstractUploadService implements 
 
     @Override
     public SqlFilePreviewVO preview(String uid, long attachmentId, int startLine, int lineCount) {
-        SqlFilePreviewData preview = this.localFileService.consumeEditing(attachmentId, uid, file -> {
+        SqlFilePreviewData preview = this.localFileService.consumeEditing(uid, attachmentId, file -> {
             return SqlFilePreviewReader.read(file, startLine, lineCount);
         });
         SqlFilePreviewVO vo = new SqlFilePreviewVO();

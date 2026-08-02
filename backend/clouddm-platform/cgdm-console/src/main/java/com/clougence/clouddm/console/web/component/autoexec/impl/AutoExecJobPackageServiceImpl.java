@@ -32,6 +32,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.console.autoexec.AutoExecTaskPackageInfo;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
@@ -104,8 +105,12 @@ public class AutoExecJobPackageServiceImpl implements AutoExecJobPackageService 
             .build();
 
         String packageFileName = jobId + ".tasks.zip";
-        Path writingFile = this.localFileService.createTemporaryFile(packageFileName + ".tmp");
+        Path writingFile = Path.of(GlobalConfUtils.getTempDataHome(), "exec", packageFileName + ".tmp");
         try {
+            Files.createDirectories(writingFile.getParent());
+            Files.deleteIfExists(writingFile);
+            Files.createFile(writingFile);
+
             int maxExecOrder = this.execDal.autoTaskMapper().queryNeedExecTaskMaxOrder(jobId);
             int fileNameWidth = Math.max(1, String.valueOf(maxExecOrder).length());
             MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -170,7 +175,7 @@ public class AutoExecJobPackageServiceImpl implements AutoExecJobPackageService 
 
             String md5 = HexFormat.of().formatHex(digest.digest());
             long fileSize = Files.size(writingFile);
-            long attachmentId = this.localFileService.store(writingFile, packageFileName, job.getUid(), SysAttachmentType.SQL_FILE_TASK);
+            long attachmentId = this.localFileService.addAsEditing(job.getUid(), writingFile, packageFileName, SysAttachmentType.SQL_FILE_TASK);
             AutoExecTaskPackageInfo info = new AutoExecTaskPackageInfo();
             info.setAttachmentId(attachmentId);
             info.setFileSize(fileSize);
@@ -192,11 +197,11 @@ public class AutoExecJobPackageServiceImpl implements AutoExecJobPackageService 
             throw new IllegalArgumentException("Invalid auto execution task package read range.");
         }
         DmExecAutoJobDO job = requireJob(jobId);
-        return this.localFileService.consumeEditing(attachmentId, job.getUid(), packageFile -> {
+        return this.localFileService.consumeEditing(job.getUid(), attachmentId, packageFile -> {
             try (FileChannel channel = FileChannel.open(packageFile, StandardOpenOption.READ)) {
                 long fileSize = channel.size();
                 if (offset >= fileSize) {
-                    this.localFileService.renew(attachmentId, job.getUid());
+                    this.localFileService.renewEditing(job.getUid(), attachmentId);
                     return new byte[0];
                 }
 
@@ -215,7 +220,7 @@ public class AutoExecJobPackageServiceImpl implements AutoExecJobPackageService 
                     buffer.flip();
                     buffer.get(result);
                 }
-                this.localFileService.renew(attachmentId, job.getUid());
+                this.localFileService.renewEditing(job.getUid(), attachmentId);
                 return result;
             }
         });
@@ -223,7 +228,7 @@ public class AutoExecJobPackageServiceImpl implements AutoExecJobPackageService 
 
     @Override
     public void delete(long attachmentId) {
-        this.localFileService.delete(attachmentId);
+        this.localFileService.deleteRecord(attachmentId);
     }
 
     private DmExecAutoJobDO requireJob(long jobId) {

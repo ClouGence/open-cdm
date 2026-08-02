@@ -75,7 +75,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void closeTicket(long ticketId, String statusMessage, String puid, String uid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = checkTicket(ticketId);
         ApprovalStatus ticketStatus = ticketDO.getTicketStatus();
         if (ticketStatus == ApprovalStatus.WAIT_EXEC || ticketStatus == ApprovalStatus.EXEC_FAIL || ticketStatus == ApprovalStatus.EXEC_PAUSE) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
@@ -99,7 +99,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void closeTicket(long ticketId, String statusMessage, String puid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = checkTicket(ticketId);
         checkInProgress(ticketDO);
         this.cancelAllProcess(ticketId);
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.CLOSED, statusMessage);
@@ -109,7 +109,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void failTicket(long ticketId, String statusMessage, String puid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = checkTicket(ticketId);
         checkInProgress(ticketDO);
 
         this.failedAllProcess(ticketId);
@@ -120,7 +120,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void execFailTicket(long ticketId, String statusMessage, String puid) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = checkTicket(ticketId);
         checkInProgress(ticketDO);
 
         this.failedAllProcess(ticketId);
@@ -131,7 +131,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void cancelTicket(String puid, long ticketId, String statusMessage) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = checkTicket(ticketId);
 
         checkInProgress(ticketDO);
         this.cancelAllProcess(ticketId);
@@ -142,7 +142,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void approvalTicket(String puid, String uid, RdpApprovalFO fo) {
-        DmApprovalDO ticketDO = checkTicket(fo.getTicketId(), puid);
+        DmApprovalDO ticketDO = checkTicket(fo.getTicketId());
         if (ticketDO.getTicketStatus() != ApprovalStatus.WAIT_APPROVAL) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
         }
@@ -200,7 +200,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
 
     @Override
     public void retryTicket(String puid, long ticketId) {
-        DmApprovalDO ticketDO = checkTicket(ticketId, puid);
+        DmApprovalDO ticketDO = checkTicket(ticketId);
 
         if (ticketDO.getTicketStatus() != ApprovalStatus.EXEC_FAIL) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RETRY_STATUS_DISCONTENT_ERROR.name()));
@@ -379,13 +379,10 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         }
     }
 
-    private DmApprovalDO checkTicket(long ticketId, String puid) {
+    private DmApprovalDO checkTicket(long ticketId) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
         if (ticketDO == null || ticketDO.getDeleted()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
-        }
-        if (!ticketDO.getPrimaryUid().equals(puid)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_BELONG_CURRENT_TEAM.name()));
         }
 
         return ticketDO;

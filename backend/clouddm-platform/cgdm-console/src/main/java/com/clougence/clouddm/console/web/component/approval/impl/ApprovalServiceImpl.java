@@ -50,7 +50,7 @@ public class ApprovalServiceImpl implements ApprovalService {
         }
 
         if (attachment.getAttachmentStatus() == SysAttachmentStatus.EDITING) {
-            this.localFileService.renew(attachmentId, ownerUid);
+            this.localFileService.renewEditing(ownerUid, attachmentId);
         }
     }
 
@@ -61,7 +61,7 @@ public class ApprovalServiceImpl implements ApprovalService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_NOT_FOUND_ERROR.name()));
         }
         String date = new SimpleDateFormat("yyyyMMdd").format(approval.getGmtCreate());
-        Path cacheFile = Paths.get(GlobalConfUtils.getTempDataHome(), "approval", date, approval.getBizId() + ".sql");
+        Path cacheFile = Paths.get(GlobalConfUtils.getTempDataHome(), "sqlfile", date, "approval-" + approval.getBizId() + ".sql");
 
         if (approval.getContentType() == SqlContentType.ATTACHMENT) {
             DmSysAttachmentDO attachment = this.systemDal.attachmentMapper().selectConfirmedByApprovalId(approvalId);
@@ -89,9 +89,9 @@ public class ApprovalServiceImpl implements ApprovalService {
 
         try {
             Files.createDirectories(target.getParent());
-            Path writingDirectory = Paths.get(GlobalConfUtils.getTempDataHome(), "approval", ".writing");
+            Path writingDirectory = Paths.get(GlobalConfUtils.getTempDataHome(), "sqlfile", ".writing");
             Files.createDirectories(writingDirectory);
-            Path staging = Files.createTempFile(writingDirectory, approval.getBizId() + ".sql.writing-", "");
+            Path staging = Files.createTempFile(writingDirectory, "approval-" + approval.getBizId() + ".sql.writing-", "");
             try {
                 Files.writeString(staging, approval.getRawSql(), StandardCharsets.UTF_8);
                 try {
@@ -111,6 +111,6 @@ public class ApprovalServiceImpl implements ApprovalService {
 
     @Override
     public void confirmSqlFile(long approvalId, long attachmentId, String userUID) {
-        this.localFileService.lock(attachmentId, approvalId, userUID);
+        this.localFileService.lockEditing(userUID, attachmentId, approvalId);
     }
 }

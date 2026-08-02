@@ -69,7 +69,7 @@ public interface ApprovalControlService {
 
     DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String puid, String uid, DmQueryTaskListFO fo);
 
-    List<DmBizLogVO> queryExecLog(String puid, DmQueryExecLogFO fo);
+    List<DmBizLogVO> queryExecLog(DmQueryExecLogFO fo);
 
     List<RdpApproTemplateVO> listTemplates(String ownerUid, ApprovalType approvalType);
 

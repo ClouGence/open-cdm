@@ -356,8 +356,7 @@ public class ApprovalController {
     @RequestAuth(RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/autoExecLog", method = RequestMethod.POST)
     public ResWebData<?> queryExecLog(@Valid @RequestBody DmQueryExecLogFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        List<DmBizLogVO> result = this.approvalControlService.queryExecLog(puid, fo);
+        List<DmBizLogVO> result = this.approvalControlService.queryExecLog(fo);
         return ResWebDataUtils.buildSuccess(result);
     }
 

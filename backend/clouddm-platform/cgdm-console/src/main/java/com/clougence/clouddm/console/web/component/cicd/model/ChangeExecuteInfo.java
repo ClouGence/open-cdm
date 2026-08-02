@@ -31,6 +31,7 @@ public class ChangeExecuteInfo {
     private Long          retryWaitTime;
     private Long          retryCount;
     private Long          execTime;
+    private String        operatorUid;
 
     private boolean       snapshot;
 }
