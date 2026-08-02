@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo.ticket;
+package com.clougence.clouddm.console.web.component.approval.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
@@ -22,16 +23,13 @@ import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author mode
- */
 @Getter
 @Setter
-public class CheckedVO {
+public class TicketRuleCheckResult {
 
     private String        name;
     private String        desc;
     private RuleLevel     ruleLevel;
     private long          hitCount;
-    private List<Integer> lines;
+    private List<Integer> lines = new ArrayList<>();
 }

@@ -38,6 +38,7 @@ import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.console.web.constants.DmConfirmActionType;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -53,7 +54,18 @@ import com.clougence.clouddm.console.web.model.vo.ticket.*;
 import com.clougence.clouddm.console.web.service.approval.ApprovalControlService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.browse.BrowseService;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
+import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
@@ -82,6 +94,12 @@ public class ApprovalController {
     private DmDsConfigService      dmDsConfigService;
     @Resource
     private ObjectCacheDao         objectCacheDao;
+    @Resource
+    private AuthDal                authDal;
+    @Resource
+    private ExecutionDal           executionDal;
+    @Resource
+    private MonitorDal             monitorDal;
 
     //
     // control
@@ -106,6 +124,12 @@ public class ApprovalController {
         fo.setConfirmUid(uid);
 
         this.approvalControlService.confirmTicket(puid, fo.getTicketId(), fo);
+        if (fo.getConfirmActionType() == DmConfirmActionType.CONFIRM && fo.getAutoExecConfig().getAutoExecType() != AutoExecType.MANUAL_EXEC) {
+            DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
+            DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
+            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CREATE_MESSAGE.name(), user.getUsername(), user.getUid());
+            this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId()));
+        }
         return ResWebDataUtils.buildSuccess();
     }
 
@@ -155,7 +179,11 @@ public class ApprovalController {
     public ResWebData<?> retryAutoExecJob(@Valid @RequestBody DmTicketFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
+        DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
         this.approvalControlService.retryJob(puid, uid, fo.getTicketId());
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
+        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_RETRY_JOB_MESSAGE.name(), user.getUsername(), user.getUid());
+        this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId()));
         return ResWebDataUtils.buildSuccess();
     }
 
@@ -164,8 +192,18 @@ public class ApprovalController {
     public ResWebData<?> skipAutoExecTask(@Valid @RequestBody DmQueryAutoExecFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
+        DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
+        DmExecAutoTaskDO task = this.executionDal.autoTaskMapper().selectById(fo.getTaskId());
 
         this.approvalControlService.skipTask(puid, uid, fo);
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
+        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_CONSOLE_SKIP.name(), user.getUsername(), user.getUid(), task.getExecOrder());
+        this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_TASK, task.getBizId()));
+        DmExecAutoJobDO currentJob = this.executionDal.autoJobMapper().selectById(job.getId());
+        if (currentJob.getStatus() == AutoExecJobStatus.FINISH) {
+            String finishMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_FINISH_MESSAGE.name());
+            this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, finishMessage, LogDependBizType.AUTO_EXEC_JOB, job.getBizId()));
+        }
         return ResWebDataUtils.buildSuccess();
     }
 
@@ -174,8 +212,12 @@ public class ApprovalController {
     public ResWebData<?> continueAutoExecTask(@Valid @RequestBody DmQueryAutoExecFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
+        DmExecAutoTaskDO task = this.executionDal.autoTaskMapper().selectById(fo.getTaskId());
 
         this.approvalControlService.canceledSkipTask(puid, uid, fo);
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
+        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_CONSOLE_CONTINUE.name(), user.getUsername(), user.getUid(), task.getExecOrder());
+        this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_TASK, task.getBizId()));
         return ResWebDataUtils.buildSuccess();
     }
 
@@ -184,8 +226,14 @@ public class ApprovalController {
     public ResWebData<?> stopAutoExecJob(@Valid @RequestBody DmTicketFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
+        DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
+        boolean directPause = job.getStatus() == AutoExecJobStatus.INIT || job.getStatus() == AutoExecJobStatus.PACKAGING;
 
         this.approvalControlService.stopJob(puid, uid, fo.getTicketId());
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
+        String messageKey = directPause ? I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_DIRECT_PAUSE_MESSAGE.name() : I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_PAUSE_MESSAGE.name();
+        String message = DmI18nUtils.getMessage(messageKey, user.getUsername(), user.getUid());
+        this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId()));
         return ResWebDataUtils.buildSuccess();
     }
 
@@ -194,8 +242,12 @@ public class ApprovalController {
     public ResWebData<?> endAutoExecJob(@Valid @RequestBody DmTicketFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
+        DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
 
         this.approvalControlService.endAutoExecJob(puid, uid, fo.getTicketId());
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
+        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_TERMINATION_MESSAGE.name(), user.getUsername(), user.getUid());
+        this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId()));
         return ResWebDataUtils.buildSuccess();
     }
 
@@ -362,6 +414,11 @@ public class ApprovalController {
 
         this.approvalControlService.removeTemplateById(puid, fo.getApprovalType(), fo.getTemplateId());
         return ResWebDataUtils.buildSuccess("ok.");
+    }
+
+    private DmExecAutoJobDO queryAutoExecJob(String puid, String uid, long ticketId) {
+        DmAutoExecJobVO job = this.approvalControlService.queryExecJobInfo(puid, uid, ticketId);
+        return this.executionDal.autoJobMapper().selectById(job.getId());
     }
 
     private void checkLevels(DmAddTicketFO fo) {

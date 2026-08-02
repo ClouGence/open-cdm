@@ -48,14 +48,13 @@ import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
 import com.clougence.clouddm.console.web.util.CallUtils;
 import com.clougence.clouddm.console.web.util.DmTeamUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
-import com.clougence.clouddm.platform.dal.access.*;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.*;
-import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
-import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
-import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.dal.util.PageObj;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
@@ -79,8 +78,6 @@ public class AutoExecServiceImpl implements AutoExecService {
     @Resource
     private SystemDal                  systemDal;
     @Resource
-    private MonitorDal                 monitorDal;
-    @Resource
     private ExecutionDal               execDal;
     @Resource
     private DataSourceDal              dsDal;
@@ -90,8 +87,6 @@ public class AutoExecServiceImpl implements AutoExecService {
     private AutoExecRService           execRService;
     @Resource
     private DmDsConfigService          configService;
-    @Resource
-    private AuthDal                    authDal;
     @Resource
     private AutoExecHelperService      execHelperService;
     @Resource
@@ -198,11 +193,6 @@ public class AutoExecServiceImpl implements AutoExecService {
             throw new IllegalStateException("Auto execution job is not ready to start, jobId: " + jobId);
         }
 
-        DmAuthUserDO operator = this.authDal.userMapper().queryByUid(operatorUid);
-        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CREATE_MESSAGE.name(), operator.getUsername(), operator.getUid());
-        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        monitorDal.bizLogMapper().insert(logDO);
-
         this.execHelperService.getHelper(job.getDependOnBizType()).execStart(job.getDependOnBizType(), job.getBizId());
     }
 
@@ -232,22 +222,12 @@ public class AutoExecServiceImpl implements AutoExecService {
 
             DsCacheEntry dsCacheEntry = cacheDao.queryByDsId(jobDO.getDataSourceId());
             if (dsCacheEntry.getClusterId() == null) {
-                DmMonBizLogDO errorLog = new DmMonBizLogDO(Loglevel.INFO,
-                    DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_DATASOURCE_ERROR_MESSAGE.name()),
-                    LogDependBizType.AUTO_EXEC_JOB,
-                    jobDO.getBizId());
-                monitorDal.bizLogMapper().insert(errorLog);
                 execDal.autoJobMapper().updateJobStatus(jobDO.getId(), AutoExecJobStatus.FAILED);
                 return null;
             }
 
             RSocketSendDTO sendDTO = buildRSocketSendDTO(dsCacheEntry.getClusterId());
             AutoExecJobDTO autoExecJob = prepareJobData(jobDO, taskPackage);
-            DmMonBizLogDO startLog = new DmMonBizLogDO(Loglevel.INFO,
-                DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_START_MESSAGE.name(), sendDTO.getWorkerIP()),
-                LogDependBizType.AUTO_EXEC_JOB,
-                jobDO.getBizId());
-            monitorDal.bizLogMapper().insert(startLog);
 
             jobDO.setStatus(AutoExecJobStatus.WAIT_EXEC);
             jobDO.setLastReportTime(new Date());
@@ -313,7 +293,7 @@ public class AutoExecServiceImpl implements AutoExecService {
     }
 
     @Override
-    public boolean skipTask(String bizId, SQLJobBizType type, long taskId, String uid) {
+    public boolean skipTask(String bizId, SQLJobBizType type, long taskId) {
         DmExecAutoJobDO job = requireJob(bizId, type);
         if (job.getStatus() != AutoExecJobStatus.PAUSE && job.getStatus() != AutoExecJobStatus.FAILED) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
@@ -329,20 +309,9 @@ public class AutoExecServiceImpl implements AutoExecService {
 
         execDal.autoTaskMapper().updateStatusByTaskId(execTaskDO.getId(), AutoExecTaskStatus.CANCELED);
 
-        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
-        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_CONSOLE_SKIP.name(), user.getUsername(), user.getUid(), execTaskDO.getExecOrder());
-        DmMonBizLogDO jobDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        DmMonBizLogDO taskLog = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_TASK, execTaskDO.getBizId());
-        this.monitorDal.bizLogMapper().insert(jobDO);
-        this.monitorDal.bizLogMapper().insert(taskLog);
-
         int count = this.execDal.autoTaskMapper().queryNeedExecTaskCount(job.getId());
         if (count == 0) {
             this.execDal.autoJobMapper().finishJob(job.getId());
-            String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_FINISH_MESSAGE.name());
-            DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, msg, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-            this.monitorDal.bizLogMapper().insert(logDO);
-
             this.execHelperService.getHelper(type).execCompleted(job.getDependOnBizType(), job.getBizId());
             return true;
         }
@@ -409,15 +378,14 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void stopJob(String bizId, SQLJobBizType type, String uid) {
+    public void stopJob(String bizId, SQLJobBizType type) {
         DmExecAutoJobDO job = requireJob(bizId, type);
-        DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
-        this.stopJob(job.getId(), user);
+        this.stopJob(job.getId());
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void endJob(String bizId, SQLJobBizType type, String uid) {
+    public void endJob(String bizId, SQLJobBizType type) {
         DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBiz(bizId, type);
         if (job == null || job.getStatus() == AutoExecJobStatus.TERMINATION) {
             return;
@@ -429,17 +397,12 @@ public class AutoExecServiceImpl implements AutoExecService {
         job.setStatus(AutoExecJobStatus.TERMINATION);
         execDal.autoJobMapper().updateById(job);
         execDal.autoTaskMapper().cancelAllWaitTask(job.getId());
-
-        DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
-        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_TERMINATION_MESSAGE.name(), user.getUsername(), user.getUid());
-        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        this.monitorDal.bizLogMapper().insert(logDO);
         this.execHelperService.getHelper(type).execAbort(job.getDependOnBizType(), job.getBizId());
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void retryJob(String bizId, SQLJobBizType type, String uid) {
+    public void retryJob(String bizId, SQLJobBizType type) {
         DmExecAutoJobDO job = requireJob(bizId, type);
         if (job.getStatus() != AutoExecJobStatus.FAILED && job.getStatus() != AutoExecJobStatus.PAUSE) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_RETRY_JOB_ERROR_MESSAGE.name()));
@@ -451,11 +414,6 @@ public class AutoExecServiceImpl implements AutoExecService {
             return;
         }
         execDal.autoTaskMapper().retryTask(job.getId());
-        DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
-
-        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_RETRY_JOB_MESSAGE.name(), user.getUsername(), user.getUid());
-        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        this.monitorDal.bizLogMapper().insert(logDO);
     }
 
     @Override
@@ -499,18 +457,13 @@ public class AutoExecServiceImpl implements AutoExecService {
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public void stopJob(Long jobId, DmAuthUserDO user) {
+    private void stopJob(Long jobId) {
         DmExecAutoJobDO job = execDal.autoJobMapper().queryByIdForUpdate(jobId);
 
         AutoExecJobStatus status = job.getStatus();
         if (status == AutoExecJobStatus.INIT || status == AutoExecJobStatus.PACKAGING) {
             job.setStatus(AutoExecJobStatus.PAUSE);
             this.execDal.autoJobMapper().updateById(job);
-
-            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_DIRECT_PAUSE_MESSAGE.name(), user.getUsername(), user.getUid());
-            DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-            this.monitorDal.bizLogMapper().insert(logDO);
             return;
         }
 
@@ -527,10 +480,6 @@ public class AutoExecServiceImpl implements AutoExecService {
 
         job.setStatus(AutoExecJobStatus.PAUSING);
         this.execDal.autoJobMapper().updateById(job);
-
-        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_PAUSE_MESSAGE.name(), user.getUsername(), user.getUid());
-        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        this.monitorDal.bizLogMapper().insert(logDO);
     }
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {

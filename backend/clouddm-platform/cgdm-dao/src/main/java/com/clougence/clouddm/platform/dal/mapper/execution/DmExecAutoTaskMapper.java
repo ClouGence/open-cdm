@@ -41,8 +41,6 @@ public interface DmExecAutoTaskMapper extends BaseMapper<DmExecAutoTaskDO> {
 
     int taskSkip(@Param("queryId") String queryId);
 
-    List<DmExecAutoTaskDO> queryGroupTaskListByStatus(@Param("jobId") Long jobId, @Param("status") AutoExecTaskStatus status);
-
     DmExecAutoTaskDO queryByBizId(@Param("bizId") String bizId);
 
     DmExecAutoTaskDO queryByQueryId(@Param("queryId") String queryId);

@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo.ticket;
+package com.clougence.clouddm.console.web.component.approval;
 
-import java.util.List;
-
-import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
-
-import lombok.Getter;
-import lombok.Setter;
+import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 
 /**
- * @Author: Ekko
- * @Date: 2024-06-05 10:21
+ * Handles one kind of analysis during approval pre-initialization.
+ *
+ * @author clougence
  */
-@Getter
-@Setter
-public class DmTicketResultVO {
+public interface PreInitHandler {
 
-    private Long                        ticketId;
-    private List<TicketRuleCheckResult> checkedVOS;
-    private boolean                     confirm;
-    private boolean                     failure;
+    boolean supports(PreInitContext context);
+
+    void handle(QueryRequest request, PreInitContext context);
 }

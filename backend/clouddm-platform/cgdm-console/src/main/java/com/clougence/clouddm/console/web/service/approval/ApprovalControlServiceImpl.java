@@ -39,6 +39,7 @@ import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.component.autoexec.model.AutoExecJobCreateRequest;
@@ -403,7 +404,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
         DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryByBizIdWithoutRawSql(ticketDO.getBizId());
         if (approvalDO == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_BAD_DATA_NOT_SYNC_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_NOT_FOUND_ERROR.name()));
         }
 
         // key is ticket id
@@ -427,7 +428,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             vo.setTicketMessage(message);
             vo.setAutoExec(ticketInfo.isAutoExec());
         }
-        vo.setCheckedList(JsonUtils.toListUseType(approvalDO.getCheckedInfo(), CheckedVO.class));
+        vo.setCheckedList(JsonUtils.toListUseType(approvalDO.getCheckedInfo(), TicketRuleCheckResult.class));
         return vo;
     }
 
@@ -789,6 +790,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                 return this.autoExecService.createJob(request, scripts);
             }
         });
+
         this.autoExecService.startJob(jobId, operatorUid);
     }
 
@@ -811,7 +813,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmApprovalDO ticketDO = this.checkTicket(ticketId, puid);
         checkJobOperationEnable(ticketDO, uid);
 
-        this.autoExecService.retryJob(ticketDO.getBizId(), SQLJobBizType.TICKET, uid);
+        this.autoExecService.retryJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
 
         approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_EXEC, null);
         approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.INIT);
@@ -822,7 +824,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     public void skipTask(String puid, String uid, DmQueryAutoExecFO fo) {
         DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId(), puid);
         checkJobOperationEnable(ticketDO, uid);
-        boolean jobFinish = this.autoExecService.skipTask(ticketDO.getBizId(), SQLJobBizType.TICKET, fo.getTaskId(), uid);
+        boolean jobFinish = this.autoExecService.skipTask(ticketDO.getBizId(), SQLJobBizType.TICKET, fo.getTaskId());
+
         if (jobFinish) {
             approvalDal.approvalMapper().updateStatusByEnum(fo.getTicketId(), ApprovalStatus.FINISHED, null);
             approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(fo.getTicketId(), ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH);
@@ -842,7 +845,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmApprovalDO ticketDO = this.checkTicket(ticketId, puid);
         checkJobOperationEnable(ticketDO, uid);
 
-        this.autoExecService.endJob(ticketDO.getBizId(), SQLJobBizType.TICKET, uid);
+        this.autoExecService.endJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketDO.getId(), ApprovalStatus.CLOSED, null);
 
         DmApprovalProcessDO rdpTicketProcessDO = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXECUTION);
@@ -863,7 +866,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmApprovalDO ticketDO = this.checkTicket(ticketId, puid);
         checkJobOperationEnable(ticketDO, uid);
 
-        this.autoExecService.stopJob(ticketDO.getBizId(), SQLJobBizType.TICKET, uid);
+        this.autoExecService.stopJob(ticketDO.getBizId(), SQLJobBizType.TICKET);
     }
 
     @Override

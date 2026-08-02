@@ -15,15 +15,20 @@
  */
 package com.clougence.clouddm.worker.component.notify;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.console.sqlaudit.SqlAuditRService;
 import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
@@ -35,6 +40,7 @@ import com.clougence.clouddm.sdk.execute.session.MessageLevel;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.worker.component.report.ReportUtils;
 import com.clougence.utils.HostUtil;
+import com.clougence.utils.JsonUtils;
 import com.clougence.utils.ThreadUtils;
 
 import jakarta.annotation.Resource;
@@ -44,13 +50,20 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, UnifiedPostConstruct {
 
-    private Thread                          thread;
-    private BlockingDeque<SqlExecNotifyDTO> queue;
-    private final AtomicBoolean             running = new AtomicBoolean();
+    private static final int       REPORT_BATCH_SIZE = 50;
+
+    private Thread                 thread;
+    private final Object           cacheLock         = new Object();
+    private FileChannel            cacheChannel;
+    private Path                   offsetFile;
+    private long                   confirmedOffset;
+    private List<SqlExecNotifyDTO> pendingReport     = Collections.emptyList();
+    private long                   pendingReportEndOffset;
+    private final AtomicBoolean    running           = new AtomicBoolean();
 
     @Resource
-    private SqlAuditRService                auditRService;
-    private WorkerIdentity                  workerIdentity;
+    private SqlAuditRService       auditRService;
+    private WorkerIdentity         workerIdentity;
 
     private WorkerIdentity identity() throws Exception {
         if (this.workerIdentity == null) {
@@ -65,7 +78,7 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
         sqlExecNotifyDTO.setSessionId(sessionId);
         sqlExecNotifyDTO.setType(Type.COMMIT);
         sqlExecNotifyDTO.setTime(new Date());
-        this.queue.add(sqlExecNotifyDTO);
+        this.cache(sqlExecNotifyDTO);
     }
 
     @Override
@@ -74,7 +87,7 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
         sqlExecNotifyDTO.setSessionId(sessionId);
         sqlExecNotifyDTO.setType(Type.ROLLBACK);
         sqlExecNotifyDTO.setTime(new Date());
-        this.queue.add(sqlExecNotifyDTO);
+        this.cache(sqlExecNotifyDTO);
     }
 
     @Override
@@ -83,7 +96,7 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
         sqlExecNotifyDTO.setSessionId(sessionId);
         sqlExecNotifyDTO.setType(Type.START_TRANSACTION);
         sqlExecNotifyDTO.setTime(new Date());
-        this.queue.add(sqlExecNotifyDTO);
+        this.cache(sqlExecNotifyDTO);
     }
 
     @Override
@@ -93,7 +106,7 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
             case Phase: {
                 if (result instanceof ResultPhase) {
                     if (((ResultPhase) result).getPhaseType() == ResultPhaseType.After) {
-                        this.addToQueue(query, result, successStatus, 0);
+                        this.cacheQueryResult(query, result, successStatus, 0);
                     }
                 }
                 break;
@@ -105,22 +118,22 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
                     return;
                 }
                 if (resultMessage.getLevel() == MessageLevel.Error) {
-                    addToQueue(query, result, SqlStatus.FAILURE, 0);
+                    cacheQueryResult(query, result, SqlStatus.FAILURE, 0);
                 } else if (resultMessage.getLevel() == MessageLevel.Info) {
-                    addToQueue(query, result, successStatus, 0);
+                    cacheQueryResult(query, result, successStatus, 0);
                 }
                 break;
             }
             case ResultCount: {
                 ResultCount resultCount = (ResultCount) result;
                 // create table .... count = -1
-                addToQueue(query, result, successStatus, Math.max(0, resultCount.getUpdateCount()));
+                cacheQueryResult(query, result, successStatus, Math.max(0, resultCount.getUpdateCount()));
                 break;
             }
         }
     }
 
-    private void addToQueue(QueryRequest query, Result result, SqlStatus sqlStatus, long affectLine) {
+    private void cacheQueryResult(QueryRequest query, Result result, SqlStatus sqlStatus, long affectLine) {
         SqlExecNotifyDTO dto = new SqlExecNotifyDTO();
         dto.setSessionId(result.getSessionId());
         dto.setQueryId(query.getQueryId());
@@ -129,7 +142,7 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
         dto.setAffectLine(affectLine);
         dto.setTime(new Date());
         dto.setType(Type.SQL_END);
-        this.queue.add(dto);
+        this.cache(dto);
     }
 
     @Override
@@ -141,13 +154,18 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
         dto.setClientIp(HostUtil.getHostIp());
         dto.setType(Type.SQL_START);
         dto.setStatus(SqlStatus.RUNNING);
-        this.queue.add(dto);
+        this.cache(dto);
     }
 
     @Override
     public void init() throws Exception {
         if (this.running.compareAndSet(false, true)) {
-            this.queue = new LinkedBlockingDeque<>();
+            Path cacheDirectory = Paths.get(GlobalConfUtils.getAppDataHome(), "sql-audit");
+            Files.createDirectories(cacheDirectory);
+            Path cacheFile = cacheDirectory.resolve("notify.cache");
+            this.offsetFile = cacheDirectory.resolve("notify.offset");
+            this.cacheChannel = FileChannel.open(cacheFile, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+            this.recoverCache();
             this.thread = ThreadUtils.daemonThread(this::loopSchedule);
             this.thread.setName("Sql Notify Thread");
             this.thread.start();
@@ -164,50 +182,175 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
     }
 
     protected void loopSchedule() {
+        try {
+            while (true) {
+                try {
+                    doReport();
+                    if (!this.running.get()) {
+                        log.warn("[SQL RECODE TASK] thread exit, (" + Thread.currentThread().getName() + ")");
+                        return;
+                    }
+                    ThreadUtils.sleep(1000);
+                } catch (Throwable e) {
+                    log.error("[Sql RECODE TASK] error " + e.getMessage(), e);
+                    ThreadUtils.sleep(5000);
+                }
+            }
+        } finally {
+            synchronized (this.cacheLock) {
+                if (this.cacheChannel != null) {
+                    try {
+                        this.cacheChannel.force(false);
+                        this.cacheChannel.close();
+                    } catch (IOException e) {
+                        log.warn("close SQL audit cache failed", e);
+                    }
+                }
+            }
+        }
+    }
+
+    private void doReport() throws Exception {
         while (true) {
-            try {
-                doReport();
-                if (!this.running.get()) {
-                    log.warn("[SQL RECODE TASK] thread exit, (" + Thread.currentThread().getName() + ")");
+            if (this.pendingReport.isEmpty()) {
+                this.loadPendingReport();
+                if (this.pendingReport.isEmpty()) {
                     return;
                 }
-                ThreadUtils.sleep(1000);
-            } catch (Throwable e) {
-                log.error("[Sql RECODE TASK] error " + e.getMessage(), e);
-                ThreadUtils.sleep(5000);
             }
+            this.auditRService.reportSqlAudit(identity(), new Date(), this.pendingReport);
+            this.confirmPendingReport();
         }
     }
 
-    private void doReport() {
-        while (true) {
-            List<SqlExecNotifyDTO> drain = this.drain(50);
-            if (drain.isEmpty()) {
-                return;
-            }
+    private void cache(SqlExecNotifyDTO dto) {
+        byte[] data = JsonUtils.toJson(dto).getBytes(StandardCharsets.UTF_8);
+        synchronized (this.cacheLock) {
             try {
-                this.auditRService.reportSqlAudit(identity(), new Date(), drain);
-            } catch (Throwable e) {
-                log.error(e.getMessage(), e);
-                for (int i = drain.size() - 1; i >= 0; i--) {
-                    this.queue.addFirst(drain.get(i));
+                this.cacheChannel.position(this.cacheChannel.size());
+                ByteBuffer length = ByteBuffer.allocate(Integer.BYTES);
+                length.putInt(data.length).flip();
+                while (length.hasRemaining()) {
+                    this.cacheChannel.write(length);
                 }
-                return;
+                ByteBuffer content = ByteBuffer.wrap(data);
+                while (content.hasRemaining()) {
+                    this.cacheChannel.write(content);
+                }
+                this.cacheChannel.force(false);
+            } catch (IOException e) {
+                throw new IllegalStateException("cache SQL audit event failed", e);
             }
         }
     }
 
-    private List<SqlExecNotifyDTO> drain(int count) {
-        int added = 0;
-        List<SqlExecNotifyDTO> list = new LinkedList<>();
-        while (added < count) {
-            SqlExecNotifyDTO dto = this.queue.poll();
-            if (dto == null) {
+    private void loadPendingReport() throws IOException {
+        synchronized (this.cacheLock) {
+            long position = this.confirmedOffset;
+            long fileSize = this.cacheChannel.size();
+            List<SqlExecNotifyDTO> batch = new LinkedList<>();
+            while (batch.size() < REPORT_BATCH_SIZE && position + Integer.BYTES <= fileSize) {
+                ByteBuffer length = ByteBuffer.allocate(Integer.BYTES);
+                if (!readFully(this.cacheChannel, length, position)) {
+                    break;
+                }
+                length.flip();
+                int dataLength = length.getInt();
+                long nextPosition = position + Integer.BYTES + dataLength;
+                if (dataLength < 0 || nextPosition > fileSize) {
+                    break;
+                }
+                ByteBuffer content = ByteBuffer.allocate(dataLength);
+                if (!readFully(this.cacheChannel, content, position + Integer.BYTES)) {
+                    break;
+                }
+                batch.add(JsonUtils.toObj(new String(content.array(), StandardCharsets.UTF_8), SqlExecNotifyDTO.class));
+                position = nextPosition;
+            }
+            this.pendingReport = batch;
+            this.pendingReportEndOffset = position;
+        }
+    }
+
+    private void confirmPendingReport() throws IOException {
+        synchronized (this.cacheLock) {
+            this.confirmedOffset = this.pendingReportEndOffset;
+            this.writeConfirmedOffset();
+            this.pendingReport = Collections.emptyList();
+            this.pendingReportEndOffset = 0;
+
+            if (this.confirmedOffset == this.cacheChannel.size()) {
+                this.cacheChannel.truncate(0);
+                this.cacheChannel.position(0);
+                this.confirmedOffset = 0;
+                this.writeConfirmedOffset();
+            }
+        }
+    }
+
+    private void recoverCache() throws IOException {
+        long fileSize = this.cacheChannel.size();
+        long validLength = 0;
+        while (validLength + Integer.BYTES <= fileSize) {
+            ByteBuffer length = ByteBuffer.allocate(Integer.BYTES);
+            if (!readFully(this.cacheChannel, length, validLength)) {
                 break;
             }
-            list.add(dto);
-            ++added;
+            length.flip();
+            int dataLength = length.getInt();
+            long nextPosition = validLength + Integer.BYTES + dataLength;
+            if (dataLength < 0 || nextPosition > fileSize) {
+                break;
+            }
+            validLength = nextPosition;
         }
-        return list;
+        if (validLength != fileSize) {
+            this.cacheChannel.truncate(validLength);
+            fileSize = validLength;
+        }
+
+        this.confirmedOffset = 0;
+        if (Files.isRegularFile(this.offsetFile)) {
+            try {
+                this.confirmedOffset = Long.parseLong(Files.readString(this.offsetFile, StandardCharsets.UTF_8).trim());
+            } catch (Exception e) {
+                log.warn("read SQL audit cache offset failed, report from beginning", e);
+            }
+        }
+        if (this.confirmedOffset < 0 || this.confirmedOffset > fileSize) {
+            this.confirmedOffset = 0;
+        }
+        this.writeConfirmedOffset();
+    }
+
+    private void writeConfirmedOffset() throws IOException {
+        Path writingFile = this.offsetFile.resolveSibling(this.offsetFile.getFileName() + ".tmp");
+        byte[] offsetBytes = Long.toString(this.confirmedOffset).getBytes(StandardCharsets.UTF_8);
+        try (FileChannel channel = FileChannel.open(writingFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+            ByteBuffer content = ByteBuffer.wrap(offsetBytes);
+            while (content.hasRemaining()) {
+                channel.write(content);
+            }
+            channel.force(false);
+        }
+        try {
+            Files.move(writingFile, this.offsetFile, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(writingFile, this.offsetFile, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    private static boolean readFully(FileChannel channel, ByteBuffer buffer, long position) throws IOException {
+        while (buffer.hasRemaining()) {
+            int read = channel.read(buffer, position);
+            if (read < 0) {
+                return false;
+            }
+            if (read == 0) {
+                continue;
+            }
+            position += read;
+        }
+        return true;
     }
 }

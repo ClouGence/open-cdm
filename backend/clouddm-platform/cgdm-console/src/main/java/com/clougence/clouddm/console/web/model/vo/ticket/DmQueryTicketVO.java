@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.model.vo.ticket;
 
 import java.util.List;
 
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
 import com.clougence.clouddm.platform.dal.model.approval.SqlContentType;
 
@@ -45,5 +46,5 @@ public class DmQueryTicketVO {
     private String                 rollBackSql;
     private String                 ticketMessage;
     private boolean                autoExec;
-    private List<CheckedVO>        checkedList;
+    private List<TicketRuleCheckResult> checkedList;
 }

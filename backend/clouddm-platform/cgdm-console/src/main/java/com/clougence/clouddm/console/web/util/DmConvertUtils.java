@@ -32,6 +32,7 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
@@ -69,7 +70,6 @@ import com.clougence.clouddm.console.web.model.vo.faker.DmAsyncTaskVO;
 import com.clougence.clouddm.console.web.model.vo.openapi.DmApiDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigDetailVO;
 import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigListVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.CheckedVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmTicketResultVO;
 import com.clougence.clouddm.console.web.service.browse.model.ActionInfo;
 import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
@@ -151,28 +151,31 @@ public class DmConvertUtils {
 
     private static final RuleLevel[] CHECK_LEVELS_FAILURE = new RuleLevel[] { RuleLevel.FAILURE };
 
+    public static List<TicketRuleCheckResult> convertToTicketRuleCheckResults(SecRulesCheckResult result) {
+        Objects.requireNonNull(result, "result");
+
+        List<TicketRuleCheckResult> checkedResults = new ArrayList<>();
+        result.getChecked().forEach((name, level) -> {
+            TicketRuleCheckResult checked = new TicketRuleCheckResult();
+            checked.setName(name);
+            checked.setRuleLevel(level);
+            checked.setHitCount(result.getHitCountMap().getOrDefault(name, 0L));
+            checked.setDesc(result.getMessageMap().get(name));
+            Set<Integer> lines = result.getScriptMap().get(name);
+            if (lines != null && !lines.isEmpty()) {
+                checked.setLines(lines.stream().sorted().toList());
+            }
+            checkedResults.add(checked);
+        });
+        return checkedResults;
+    }
+
     public static DmTicketResultVO convertToRuleCheckResult(SecRulesCheckResult result) {
         DmTicketResultVO vo = new DmTicketResultVO();
         vo.setConfirm(!result.isAllSuccess());
         vo.setFailure(result.hasAnyTarget(CHECK_LEVELS_FAILURE));
 
-        List<CheckedVO> checkedVOS = new ArrayList<>();
-        Map<String, RuleLevel> checked = result.getChecked();
-        Map<String, String> descMap = result.getMessageMap();
-        Map<String, Set<Integer>> scriptMap = result.getScriptMap();
-
-        for (String key : checked.keySet()) {
-            CheckedVO checkedVO = new CheckedVO();
-            checkedVO.setName(key);
-            checkedVO.setRuleLevel(checked.get(key));
-            checkedVO.setHitCount(result.getHitCountMap().getOrDefault(key, 0L));
-            checkedVO.setDesc(descMap.get(key));
-            if (CollectionUtils.isNotEmpty(scriptMap.get(key))) {
-                checkedVO.setLines(scriptMap.get(key).stream().sorted().collect(Collectors.toList()));
-            }
-            checkedVOS.add(checkedVO);
-        }
-        vo.setCheckedVOS(checkedVOS);
+        vo.setCheckedVOS(convertToTicketRuleCheckResults(result));
         return vo;
     }
 

@@ -111,10 +111,6 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
                     taskWaitConfirm(message);
                     break;
                 }
-                case TASK_RETRY: {
-                    taskRetry(message);
-                    break;
-                }
                 // job
                 case JOB_FAILED: {
                     jobFailed(message);
@@ -170,8 +166,6 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
             return;
         }
 
-        this.taskLogByBizId(Loglevel.WARING, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_ERROR_SKIP_MESSAGE.name()), taskDO.getBizId());
-
         String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TRANSACTION_SKIP_MESSAGE.name(), taskDO.getExecOrder(), taskDO.getExecSql());
         this.jobLog(Loglevel.WARING, msg, dto.getJobId());
     }
@@ -191,10 +185,6 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         int updateCount = this.execDal.autoTaskMapper().transactionRollback(message.getJobId());
         if (updateCount == 0) {
             return;
-        }
-        List<DmExecAutoTaskDO> taskList = this.execDal.autoTaskMapper().queryGroupTaskListByStatus(message.getJobId(), AutoExecTaskStatus.WAIT_CONFIRM);
-        for (DmExecAutoTaskDO execTaskDO : taskList) {
-            this.taskLogByBizId(Loglevel.WARING, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_ROLLBACK_MESSAGE.name()), execTaskDO.getBizId());
         }
         this.jobLog(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_GROUP_ROLLBACK_MESSAGE.name()), message.getJobId());
     }
@@ -253,13 +243,6 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         this.execHelperService.getHelper(jobDO.getDependOnBizType()).execFailed(jobDO.getDependOnBizType(), jobDO.getBizId());
     }
 
-    private void taskRetry(AutoExecMessageDTO message) {
-        DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().queryByQueryId(message.getQueryId());
-        if (taskDO != null) {
-            taskLogByBizId(Loglevel.WARING, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_RETRY_MESSAGE.name()), taskDO.getBizId());
-        }
-    }
-
     private void taskWaitConfirm(AutoExecMessageDTO message) {
         DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().queryByQueryId(message.getQueryId());
         if (taskDO == null || taskDO.getStatus() == AutoExecTaskStatus.WAIT_CONFIRM) {
@@ -270,7 +253,6 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setAffectRow(message.getAffectLine());
         taskDO.setGmtLastEnd(message.getTime());
         execDal.autoTaskMapper().updateById(taskDO);
-        taskLogByBizId(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_FINISH_MESSAGE.name()), taskDO.getBizId());
     }
 
     private void taskFinish(AutoExecMessageDTO dto) {
@@ -283,7 +265,6 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setAffectRow(dto.getAffectLine());
         taskDO.setGmtLastEnd(dto.getTime());
         execDal.autoTaskMapper().updateById(taskDO);
-        taskLogByBizId(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_FINISH_MESSAGE.name()), taskDO.getBizId());
     }
 
     private void taskFailed(AutoExecMessageDTO message) {
@@ -296,7 +277,6 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setAffectRow(0L);
         taskDO.setGmtLastEnd(message.getTime());
         execDal.autoTaskMapper().updateById(taskDO);
-        taskLogByBizId(Loglevel.ERROR, message.getMessage(), taskDO.getBizId());
     }
 
     private void taskStart(AutoExecMessageDTO message) {
@@ -308,12 +288,6 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setStatus(AutoExecTaskStatus.EXECUTING);
         taskDO.setGmtLastStart(message.getTime());
         execDal.autoTaskMapper().updateById(taskDO);
-        taskLogByBizId(Loglevel.INFO, DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_START_MESSAGE.name()), taskDO.getBizId());
-    }
-
-    private void taskLogByBizId(Loglevel logLevel, String message, String bizId) {
-        DmMonBizLogDO logDO = new DmMonBizLogDO(logLevel, message, LogDependBizType.AUTO_EXEC_TASK, bizId);
-        monitorDal.bizLogMapper().insert(logDO);
     }
 
     private void jobLog(Loglevel logLevel, String message, Long jobId) {

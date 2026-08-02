@@ -146,12 +146,6 @@
         where auto_exec_job_id = #{jobId}
             and status = #{status}
     </select>
-    <select id="queryGroupTaskListByStatus" resultMap="taskDO">
-        select
-            <include refid="sqlTask"/>
-        from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId} and status = #{status}
-    </select>
     <select id="queryNeedExecTaskCount" resultType="java.lang.Integer">
         select
             count(1)

@@ -21,7 +21,6 @@ import com.clougence.clouddm.console.web.component.autoexec.model.AutoExecJobCre
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
 import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.util.PageObj;
@@ -35,17 +34,15 @@ public interface AutoExecService {
 
     void dispatchJob(Long jobId);
 
-    void stopJob(Long jobId, DmAuthUserDO user);
-
-    boolean skipTask(String bizId, SQLJobBizType type, long taskId, String uid);
+    boolean skipTask(String bizId, SQLJobBizType type, long taskId);
 
     void continueTask(String bizId, SQLJobBizType type, long taskId);
 
-    void retryJob(String bizId, SQLJobBizType type, String uid);
+    void retryJob(String bizId, SQLJobBizType type);
 
-    void endJob(String bizId, SQLJobBizType type, String uid);
+    void endJob(String bizId, SQLJobBizType type);
 
-    void stopJob(String bizId, SQLJobBizType type, String uid);
+    void stopJob(String bizId, SQLJobBizType type);
 
     DmAutoExecJobVO queryAutoExecJob(String bizId, SQLJobBizType type, boolean canOperate);
 

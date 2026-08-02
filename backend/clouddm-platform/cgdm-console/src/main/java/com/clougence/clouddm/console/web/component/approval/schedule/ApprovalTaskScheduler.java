@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class ApprovalTaskSchedule {
+public class ApprovalTaskScheduler {
     @Resource
     private ConsoleConfig               config;
     @Resource
@@ -54,7 +54,7 @@ public class ApprovalTaskSchedule {
     @Resource
     private ApprovalFlowService         approvalFlowService;
     @Resource
-    private ApprovalTaskScheduleProcess scheduleProcess;
+    private ApprovalTaskProcessor       taskProcessor;
     @Resource
     private DmDsWebService              dsService;
     @Resource
@@ -95,50 +95,52 @@ public class ApprovalTaskSchedule {
     }
 
     private void doSchedule() {
+        List<Long> ticketList = this.approvalDal.approvalMapper().listUnFinishTicketIdList();
 
-        do {
-            List<Long> doList = this.approvalDal.approvalMapper().listUnFinishTicketIdList();
+        // there is nothing to do.
+        if (ticketList.isEmpty()) {
+            ThreadUtils.sleep(5, TimeUnit.SECONDS);
+            return;
+        }
 
-            // there is nothing to do.
-            if (doList.isEmpty()) {
-                ThreadUtils.sleep(5, TimeUnit.SECONDS);
-                return;
+        int submitted = 0;
+        for (Long tickId : ticketList) {
+            if (submitApproval(tickId)) {
+                submitted++;
             }
-
-            log.info("[Rdp TicketTask] have " + doList.size() + " task to submit.");
-
-            // schedule task
-            for (Long id : doList) {
-                submitTask(id);
-            }
-        } while (true);
-    }
-
-    private void submitTask(Long id) {
-        try {
-            // is running or on queue， avoid repeat ticket task
-            if (!this.taskInQueueSet.add(id)) {
-                return;
-            }
-            this.approvalDal.approvalMapper().updateModified(id);
-            this.threadPoolExecutor.submit(() -> {
-                try {
-                    run(id);
-                } finally {
-                    this.taskInQueueSet.remove(id);
-                }
-            });
-        } catch (RejectedExecutionException e) {
-            // queue full
-            this.taskInQueueSet.remove(id);
+        }
+        if (submitted > 0) {
+            log.info("[Rdp TicketTask] submitted " + submitted + " task.");
         }
     }
 
-    private void run(Long ticketId) {
-        DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryById(ticketId);
+    private boolean submitApproval(Long approvalId) {
+        try {
+            // is running or on queue， avoid repeat ticket task
+            if (!this.taskInQueueSet.add(approvalId)) {
+                return false;
+            }
+            this.approvalDal.approvalMapper().updateModified(approvalId);
+            this.threadPoolExecutor.submit(() -> {
+                try {
+                    runApproval(approvalId);
+                } finally {
+                    this.taskInQueueSet.remove(approvalId);
+                }
+            });
+            return true;
+        } catch (RejectedExecutionException e) {
+            // queue full
+            this.taskInQueueSet.remove(approvalId);
+            return false;
+        }
+    }
+
+    private void runApproval(Long approvalId) {
+        DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryById(approvalId);
         String puid = approvalDO.getPrimaryUid();
         String uid = approvalDO.getOwnerUid();
-        DmApprovalDO afterCheck = this.processCheck(approvalDO, puid);
+        DmApprovalDO afterCheck = this.approvalCheck(approvalDO, puid);
         if (afterCheck == null) {
             //            this.finishTask(FINISH_MSG);
             return;
@@ -149,29 +151,24 @@ public class ApprovalTaskSchedule {
         switch (afterCheck.getTicketStatus()) {
             case PRE_INIT: {
                 try {
-                    this.scheduleProcess.processPreInit(afterCheck);
+                    this.taskProcessor.processPreInit(afterCheck);
                     // this.delayTask(2, TimeUnit.SECONDS);
                 } catch (Exception e) {
-                    boolean isRpcTimeout = e instanceof RemoteInvokeTimeoutException;
-                    if (isRpcTimeout) {
-                        // rsocket error need retry ignore
-                    } else {
-                        Throwable rootException = ExceptionUtils.getRootCause(e);
-                        log.error("processExplain failed msg:" + rootException.getMessage(), rootException);
-                        String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name()) + rootException.getMessage();
-                        this.approvalFlowService.execFailTicket(afterCheck.getId(), message, puid);
-                        // this.finishTask(FINISH_MSG);
-                    }
+                    Throwable rootException = ExceptionUtils.getRootCause(e);
+                    log.error("processExplain failed msg:" + rootException.getMessage(), rootException);
+                    String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name()) + rootException.getMessage();
+                    this.approvalFlowService.execFailTicket(afterCheck.getId(), message, puid);
+                    // this.finishTask(FINISH_MSG);
                 }
                 break;
             }
             case WAIT_APPROVAL: {
                 try {
-                    this.scheduleProcess.processWaitApproval(afterCheck);
-                    this.scheduleProcess.processApprovalPerson(puid, uid, afterCheck);
+                    this.taskProcessor.processWaitApproval(afterCheck);
+                    this.taskProcessor.processApprovalPerson(puid, uid, afterCheck);
                 } catch (ThirdPartyApiException e) {
                     if (e.getErrorType() == ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS) {
-                        this.approvalFlowService.failTicket(ticketId, DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), approvalDO.getPrimaryUid());
+                        this.approvalFlowService.failTicket(approvalId, DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), approvalDO.getPrimaryUid());
                         this.approvalDal.templateMapper().deleteByPrimaryUid(approvalDO.getPrimaryUid(), approvalDO.getApproType());
                     } else {
                         this.approvalFlowService.failTicket(approvalDO.getId(), DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), puid);
@@ -186,28 +183,28 @@ public class ApprovalTaskSchedule {
             }
             case WAIT_EXEC: {
                 try {
-                    this.scheduleProcess.processWaitExec(afterCheck);
+                    this.taskProcessor.processWaitExec(afterCheck);
                 } catch (Exception e) {
                     log.error("processWaitApproval failed msg:" + e.getMessage(), e);
                 }
                 break;
             }
             case WAIT_CONFIRM: {
-                this.scheduleProcess.processWaitConfirm(afterCheck);
+                this.taskProcessor.processWaitConfirm(afterCheck);
                 break;
             }
             case RUNNING:
             case EXEC_PAUSE:
             case FAILED: {
-                this.scheduleProcess.processRunningCheck(afterCheck);
+                this.taskProcessor.processRunningCheck(afterCheck);
                 break;
             }
             case REJECTED: {
-                this.scheduleProcess.processReject(afterCheck);
+                this.taskProcessor.processReject(afterCheck);
                 break;
             }
             case CANCELED: {
-                this.scheduleProcess.processCanceled(afterCheck);
+                this.taskProcessor.processCanceled(afterCheck);
                 break;
             }
             case EXEC_FAIL:
@@ -222,7 +219,8 @@ public class ApprovalTaskSchedule {
         }
     }
 
-    private DmApprovalDO processCheck(DmApprovalDO ticketDO, String puid) {
+    //
+    private DmApprovalDO approvalCheck(DmApprovalDO ticketDO, String puid) {
         DmDsDO dataSourceDO = this.dsService.queryById(ticketDO.getBindDsId());
         if ((dataSourceDO == null || dataSourceDO.getLifeCycleState() == LifeCycleState.DELETED) && ticketDO.getApproBiz() != ApprovalBiz.DATA_SOURCE_AUTH) {
             // ds is deleted
@@ -245,5 +243,4 @@ public class ApprovalTaskSchedule {
 
         return ticketDO;
     }
-
 }

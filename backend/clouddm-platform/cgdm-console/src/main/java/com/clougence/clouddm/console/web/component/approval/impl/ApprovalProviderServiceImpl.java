@@ -25,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
-import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
@@ -45,11 +45,16 @@ import com.clougence.clouddm.sdk.approval.*;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
+import com.clougence.clouddm.sdk.service.approval.ApprovalIdentity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import jakarta.annotation.Resource;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -58,7 +63,7 @@ import lombok.extern.slf4j.Slf4j;
 */
 @Slf4j
 @Service
-public class ApprovalProviderServiceImpl {
+public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
     @Resource
     private SystemDal                               systemDal;
     @Resource
@@ -78,6 +83,68 @@ public class ApprovalProviderServiceImpl {
                 throw new IllegalStateException("ApprovalHandler about " + type + " already exists");
             }
         }
+    }
+
+    @Override
+    @SneakyThrows
+    public void refreshTicket(ApprovalIdentity callback) {
+        DmApprovalDO approvalDO = approvalDal.approvalMapper().queryByApproIdentity(callback.getApproIdentity(), callback.getProviderType(), callback.getOwnerUid());
+        if (approvalDO == null) {
+            log.error("Callback event not find ticket for approval instance: {} and type: {} and puid: {}", //
+                    callback.getApproIdentity(), callback.getProviderType(), callback.getOwnerUid());
+            return;
+        }
+        this.refreshApprovalStatus(approvalDO.getId());
+    }
+
+    @Override
+    @SneakyThrows
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public void updateActivity(ApprovalActivity activity) {
+        DmApprovalDO approvalDO = approvalDal.approvalMapper().queryByApproIdentity(activity.getApprovalIdentity(), activity.getPlatform(), activity.getPuid());
+        // avoid receive another callback
+        if (approvalDO == null) {
+            log.error("Callback event not find ticket for approval instance: {} and type: {} and puid: {}", //
+                    activity.getApprovalIdentity(), activity.getPlatform(), activity.getPuid());
+            return;
+        }
+        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(approvalDO.getId(), ApprovalStage.APPROVAL);
+        DmApprovalProcessActivityDO activityDO = this.approvalDal.activityMapper().queryByProcessIdAndActivityIdForUpdate(processDO.getId(), activity.getActivityId());
+
+        String context = activityDO.getContext();
+        List<ApprovalActivity> list;
+        if (StringUtils.isEmpty(context)) {
+            list = new ArrayList<>();
+        } else {
+            list = JsonUtils.toList(context, new TypeReference<>() {});
+        }
+
+        ApprovalActivity originTask = null;
+        for (ApprovalActivity approvalTask : list) {
+            if (approvalTask.getTaskId().equals(activity.getTaskId())) {
+                originTask = approvalTask;
+                break;
+            }
+        }
+        if (originTask == null && activity.getStatus() != ApprovalActivityStatus.CLOSE) {
+            if (StringUtils.isEmpty(activity.getUserName())) {
+                ApprovalProviderSpi service = PluginManager.findSpi(ApprovalProviderSpi.class, approvalDO.getApproType().name());
+                ApprovalUserInfo userInfo = service.getUserDetailByUid(approvalDO.getPrimaryUid(), activity.getUserId());
+                activity.setUserName(userInfo.getUsername());
+            }
+            list.add(activity);
+        } else if (ApprovalActivityStatus.canUpdate(originTask.getStatus(), activity.getStatus())) {
+            if (activity.getStatus() == ApprovalActivityStatus.CLOSE) {
+                list.remove(originTask);
+            } else {
+                originTask.setStatus(activity.getStatus());
+                originTask.setRemark(activity.getRemark());
+                originTask.setFinishTime(activity.getFinishTime());
+            }
+        }
+
+        String json = JsonUtils.toJson(list);
+        approvalDal.activityMapper().updateContext(processDO.getId(), activityDO.getActivityId(), json);
     }
 
     public List<Map<String, Object>> getTicketTypes(String ownerUid) {
