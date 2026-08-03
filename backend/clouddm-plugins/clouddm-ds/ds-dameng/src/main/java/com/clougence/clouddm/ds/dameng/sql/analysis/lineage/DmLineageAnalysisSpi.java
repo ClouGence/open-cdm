@@ -24,7 +24,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.parser.DmDslProvider;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;

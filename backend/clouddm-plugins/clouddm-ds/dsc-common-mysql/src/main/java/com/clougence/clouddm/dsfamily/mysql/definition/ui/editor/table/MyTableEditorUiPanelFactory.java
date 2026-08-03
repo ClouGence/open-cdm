@@ -15,7 +15,10 @@
  */
 package com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table;
 
-import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.*;
+import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.boolValueDef;
+import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.fieldOptionDef;
+import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.optionDef;
+import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.strValueDef;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -64,7 +67,7 @@ public class MyTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFacto
             .addField(UiPanelField.builder()
                 .field(FIELD_TABLE_ENGINE)
                 .type(UiPanelFieldType.Options)
-                .readOnly(false)
+                .readOnly(readOnly)
                 .defaultValue(strValueDef("InnoDB"))
                 .options(engineOptions)
                 .titleI18N(MyDsI18nKeys.EDITOR_TABLEINFO_ENGINE_TITLE)
@@ -83,8 +86,8 @@ public class MyTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFacto
             .addField(UiPanelField.builder()
                 .field(FIELD_TABLE_CHARACTER_SET)
                 .type(UiPanelFieldType.Options)
-                .readOnly(false)
-                .options(fetchCharacterSet(FIELD_TABLE_COLLATION, false, con))
+                .readOnly(readOnly)
+                .options(fetchCharacterSet(FIELD_TABLE_COLLATION, readOnly, con))
                 .titleI18N(MyDsI18nKeys.EDITOR_COMM_CHARACTER_SET_TITLE)
                 .descI18N(MyDsI18nKeys.EDITOR_COMM_CHARACTER_SET_DESC)
                 .build());

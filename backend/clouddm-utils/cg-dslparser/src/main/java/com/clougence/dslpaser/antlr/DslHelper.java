@@ -34,12 +34,8 @@ import com.clougence.utils.StringUtils;
 
 public final class DslHelper {
 
-    public static StatementSet parserDsl(DslProvider provider, Reader queryReader) {
-        return parserDsl(provider, toCharStream(queryReader));
-    }
-
-    private static StatementSet parserDsl(DslProvider provider, CharStream source) {
-        Lexer lexer = provider.createLexer(source);
+    public static StatementSet parserDsl(DslProvider provider, Reader reader) {
+        Lexer lexer = provider.createLexer(toCharStream(reader));
         lexer.removeErrorListeners();
         lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
 
@@ -49,8 +45,8 @@ public final class DslHelper {
         return provider.doParser(lexer, parser);
     }
 
-    public static List<AstSplitScript> splitDsl(DslProvider provider, Reader queryReader) {
-        return splitDsl(provider, toCharStream(queryReader));
+    public static List<AstSplitScript> splitDsl(DslProvider provider, Reader reader) {
+        return splitDsl(provider, toCharStream(reader));
     }
 
     private static List<AstSplitScript> splitDsl(DslProvider provider, CharStream source) {
@@ -65,10 +61,12 @@ public final class DslHelper {
         return provider.doSplit(lexer, parser);
     }
 
-    public static List<AstSplitScript> splitDsl(DslProvider provider, Reader queryReader, CodeLocation base) {
-        return splitDsl(provider, readText(queryReader), base);
+    @Deprecated
+    public static List<AstSplitScript> splitDsl(DslProvider provider, Reader reader, CodeLocation base) {
+        return splitDsl(provider, readText(reader), base);
     }
 
+    @Deprecated
     private static String readText(Reader reader) {
         try {
             StringBuilder query = new StringBuilder();
@@ -83,6 +81,7 @@ public final class DslHelper {
         }
     }
 
+    @Deprecated
     private static List<AstSplitScript> splitDsl(DslProvider provider, String queryString, CodeLocation base) {
         // offset for line and column numbers
         int lineNumber = Math.max(1, base == null ? 1 : base.getLineNumber());

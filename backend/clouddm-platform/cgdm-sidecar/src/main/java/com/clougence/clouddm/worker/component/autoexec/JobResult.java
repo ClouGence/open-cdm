@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-<<<<<<<< HEAD:tests/ds-test/src/test/java/com/clougence/clouddm/ds/lineage/SingleDataSourceLineageTextTest.java
-package com.clougence.clouddm.ds.lineage;
-
-public abstract class SingleDataSourceLineageTextTest extends LineageTextTest {
-========
 package com.clougence.clouddm.worker.component.autoexec;
 
 public enum JobResult {
     SUCCESS,
     FAILED,
     PAUSED
->>>>>>>> feat/sql_engine_optimization:backend/clouddm-platform/cgdm-sidecar/src/main/java/com/clougence/clouddm/worker/component/autoexec/JobResult.java
 }

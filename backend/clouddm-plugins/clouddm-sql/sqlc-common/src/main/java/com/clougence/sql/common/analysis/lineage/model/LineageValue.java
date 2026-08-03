@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-<<<<<<<< HEAD:backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/component/analysis/QueryAnalysisFeature.java
-package com.clougence.clouddm.console.web.component.analysis;
-
-public enum QueryAnalysisFeature {
-
-    REWRITE,
-    LINEAGE,
-    MASKING,
-========
 package com.clougence.sql.common.analysis.lineage.model;
 
 public interface LineageValue {
->>>>>>>> feat/sql_engine_optimization:backend/clouddm-plugins/clouddm-sql/sqlc-common/src/main/java/com/clougence/sql/common/analysis/lineage/model/LineageValue.java
 }

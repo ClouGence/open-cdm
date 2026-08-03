@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-<<<<<<<< HEAD:backend/clouddm-plugins/clouddm-sql/sqlc-common/src/main/java/com/clougence/sql/common/analysis/lineage/model/LineageSubqueryValue.java
-package com.clougence.sql.common.analysis.lineage.model;
-
-public record LineageSubqueryValue(LineageQuery query) implements LineageValue {
-========
 package com.clougence.sql.common.analysis.lineage.resolve;
 
 public record LineageTableName(String catalog, String schema, String table) {
->>>>>>>> feat/sql_engine_optimization:backend/clouddm-plugins/clouddm-sql/sqlc-common/src/main/java/com/clougence/sql/common/analysis/lineage/resolve/LineageTableName.java
 }

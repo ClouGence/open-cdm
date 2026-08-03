@@ -16,7 +16,6 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.utils.StringUtils;
 
 public class HanaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 

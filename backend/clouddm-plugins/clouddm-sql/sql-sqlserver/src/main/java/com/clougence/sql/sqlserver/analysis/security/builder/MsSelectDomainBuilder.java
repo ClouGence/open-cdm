@@ -18,17 +18,16 @@ package com.clougence.sql.sqlserver.analysis.security.builder;
 import java.util.List;
 import java.util.Stack;
 
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbUpdateDomain;
-import com.clougence.sql.common.analysis.secrules.builder.UpdateBuilder;
+import com.clougence.sql.common.analysis.secrules.builder.SelectDomainBuilder;
 import com.clougence.sql.common.analysis.secrules.builder.mode.WithSelectDomain;
-import com.clougence.sql.sqlserver.analysis.security.domain.MsUpdateDomain;
+import com.clougence.sql.sqlserver.analysis.security.domain.MsSelectDomain;
 
-public class MsUpdateBuilder extends UpdateBuilder {
+public class MsSelectDomainBuilder extends SelectDomainBuilder<MsSelectDomain> {
 
-    public MsUpdateBuilder(Stack<List<WithSelectDomain>> selectStack){
+    public MsSelectDomainBuilder(Stack<List<WithSelectDomain>> selectStack){
         super(selectStack);
     }
 
     @Override
-    protected RdbUpdateDomain getRdbUpdateDomain() { return new MsUpdateDomain(); }
+    protected MsSelectDomain getSelectDomain() { return new MsSelectDomain(); }
 }

@@ -15,7 +15,6 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.utils.StringUtils;
 
 public class DmBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     @Override

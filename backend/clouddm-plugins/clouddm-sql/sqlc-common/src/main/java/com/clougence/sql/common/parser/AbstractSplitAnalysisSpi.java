@@ -103,7 +103,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         }
     }
 
-    @Override
+    @Deprecated
     public List<SplitScript> splitScript(Reader reader, List<QueryArg> args, int baseLine, int baseColumn) {
         try {
             return lightweightSplit(CharStreams.fromReader(new NonClosingReader(reader)), baseLine, baseColumn);

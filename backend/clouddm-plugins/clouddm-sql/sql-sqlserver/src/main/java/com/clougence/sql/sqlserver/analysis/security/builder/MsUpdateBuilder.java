@@ -31,7 +31,4 @@ public class MsUpdateBuilder extends UpdateBuilder {
 
     @Override
     protected RdbUpdateDomain getRdbUpdateDomain() { return new MsUpdateDomain(); }
-
-    @Override
-    protected MsSelectDomain getSelectDomain() { return new MsSelectDomain(); }
 }
