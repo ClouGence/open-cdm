@@ -53,6 +53,11 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SecQueryType> {
     }
 
     @Override
+    public SecQueryType visitDefinestmt(DefinestmtContext ctx) {
+        return SecQueryType.CREATE_OBJECT;
+    }
+
+    @Override
     public SecQueryType visitTruncatestmt(TruncatestmtContext ctx) {
         return SecQueryType.TRUNCATE;
     }
