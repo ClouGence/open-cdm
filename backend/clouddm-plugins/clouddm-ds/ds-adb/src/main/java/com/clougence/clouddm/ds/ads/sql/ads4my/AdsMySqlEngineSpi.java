@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.ads.sql.ads4my;
 
 import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.behavior.AdsMyBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.lineage.AdsMyLineageAnalysisSpi;
 import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.security.AdsMySecDomainResolveSpi;
 import com.clougence.clouddm.ds.ads.sql.ads4my.editor.rewrite.AdbRewriteSpi;
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.AdsMyDslProvider;
@@ -45,7 +44,7 @@ public class AdsMySqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new AdsMySplitAnalysisSpi();
         this.secDomainResolveSpi = new AdsMySecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new AdsMyBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new AdsMyLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new AdbRewriteSpi();
     }
 

@@ -21,6 +21,9 @@ import com.clougence.clouddm.sdk.Spi;
 
 public interface LineageAnalysisSpi extends Spi {
 
+    /** Lineage analyzer used when a SQL engine does not currently expose lineage analysis. */
+    LineageAnalysisSpi EMPTY = (sql, context) -> List.of();
+
     /**
      * Analyzes every result column in the query.
      *

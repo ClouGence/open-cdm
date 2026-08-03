@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.starrocks.sql;
 
 import com.clougence.clouddm.ds.starrocks.sql.analysis.behavior.SrBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.starrocks.sql.analysis.lineage.SrLineageAnalysisSpi;
 import com.clougence.clouddm.ds.starrocks.sql.analysis.security.SrSecDomainResolveSpi;
 import com.clougence.clouddm.ds.starrocks.sql.editor.rewrite.SrRewriteSpi;
 import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
@@ -45,7 +44,7 @@ public class SrSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new SrSplitAnalysisSpi();
         this.secDomainResolveSpi = new SrSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new SrBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new SrLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new SrRewriteSpi();
     }
 

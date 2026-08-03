@@ -43,7 +43,7 @@ public class MsSqlSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new MsSqlSplitAnalysisSpi();
         this.secDomainResolveSpi = new MsSqlSecDomainResolveSpi();
         this.behaviorAnalysisSpi = new MsBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = null;
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = null;
     }
 

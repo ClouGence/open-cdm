@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.dameng.sql;
 
 import com.clougence.clouddm.ds.dameng.sql.analysis.behavior.DmBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.dameng.sql.analysis.lineage.DmLineageAnalysisSpi;
 import com.clougence.clouddm.ds.dameng.sql.analysis.security.DmSecDomainResolveSpi;
 import com.clougence.clouddm.ds.dameng.sql.parser.DmDslProvider;
 import com.clougence.clouddm.ds.dameng.sql.parser.DmSplitAnalysisSpi;
@@ -42,7 +41,7 @@ public class DmSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new DmSplitAnalysisSpi();
         this.secDomainResolveSpi = new DmSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new DmBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new DmLineageAnalysisSpi();
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
     }
 
     @Override

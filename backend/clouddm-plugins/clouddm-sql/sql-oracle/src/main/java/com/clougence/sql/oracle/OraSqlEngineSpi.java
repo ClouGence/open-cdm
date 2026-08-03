@@ -25,7 +25,6 @@ import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.oracle.analysis.behavior.OraBehaviorAnalysisSpi;
-import com.clougence.sql.oracle.analysis.lineage.OraLineageAnalysisSpi;
 import com.clougence.sql.oracle.analysis.security.OraSecDomainResolveSpi;
 import com.clougence.sql.oracle.parser.OraDslProvider;
 import com.clougence.sql.oracle.parser.OraSplitAnalysisSpi;
@@ -44,7 +43,7 @@ public class OraSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new OraSplitAnalysisSpi();
         this.secDomainResolveSpi = new OraSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new OraBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new OraLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = null;
     }
 

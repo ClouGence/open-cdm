@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.oceanbase.sql.ob4ora;
 
 import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.analysis.behavior.ObOraBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.analysis.lineage.ObForOraLineageAnalysisSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.analysis.security.ObForOraSecDomainResolveSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.parser.ObForOraSplitAnalysisSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.parser.ObOraDslProvider;
@@ -44,7 +43,7 @@ public class ObOraSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new ObForOraSplitAnalysisSpi();
         this.secDomainResolveSpi = new ObForOraSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new ObOraBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new ObForOraLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = null;
     }
 
