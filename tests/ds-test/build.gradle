@@ -62,13 +62,20 @@ dependencies {
 test {
     useJUnitPlatform()
 
-    def parserTestParallelism = providers.gradleProperty('parserTestParallelism').getOrElse('16')
-    if (!['8', '16'].contains(parserTestParallelism)) {
-        throw new GradleException('parserTestParallelism must be 8 or 16')
+    def availableProcessors = Runtime.runtime.availableProcessors()
+    def fixedParallelism = providers.gradleProperty('parserTestParallelism').orNull
+    if (fixedParallelism != null && fixedParallelism.toInteger() < 1) {
+        throw new GradleException('parserTestParallelism must be greater than 0')
     }
-    def parserTestForkEvery = providers.gradleProperty('parserTestForkEvery').getOrElse('12').toLong()
-    if (parserTestForkEvery < 1) {
-        throw new GradleException('parserTestForkEvery must be greater than 0')
+    def parallelismFactor = providers.gradleProperty('parserTestParallelismFactor').getOrElse('1.0')
+    if (parallelismFactor.toDouble() <= 0) {
+        throw new GradleException('parserTestParallelismFactor must be greater than 0')
+    }
+    def defaultMaxHeapMb = Math.max(512, Math.min(4096, availableProcessors * 64))
+    maxHeapSize = providers.gradleProperty('parserTestMaxHeapSize').getOrElse("${defaultMaxHeapMb}m")
+    def parserTestForkEvery = providers.gradleProperty('parserTestForkEvery').getOrElse('0').toLong()
+    if (parserTestForkEvery < 0) {
+        throw new GradleException('parserTestForkEvery must be greater than or equal to 0')
     }
     def progressInterval = providers.gradleProperty('testProgressInterval').getOrElse('100').toInteger()
     def heartbeatSeconds = providers.gradleProperty('testProgressHeartbeatSeconds').getOrElse('30').toInteger()
@@ -80,11 +87,22 @@ test {
     }
 
     systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
-    systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'fixed'
-    systemProperty 'junit.jupiter.execution.parallel.config.fixed.parallelism', parserTestParallelism
-    systemProperty 'junit.jupiter.execution.parallel.config.fixed.max-pool-size', parserTestParallelism
-    // Parser runtimes keep thread-local and grammar caches. Recycle the worker before
-    // those caches and JUnit's dynamic-test descriptors make later classes progressively slower.
+    if (fixedParallelism == null) {
+        // JUnit derives the ForkJoinPool target parallelism from the processors
+        // visible to this JVM, including container CPU limits.
+        systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'dynamic'
+        systemProperty 'junit.jupiter.execution.parallel.config.dynamic.factor', parallelismFactor
+        systemProperty 'junit.jupiter.execution.parallel.config.dynamic.max-pool-size-factor', parallelismFactor
+    } else {
+        systemProperty 'junit.jupiter.execution.parallel.config.strategy', 'fixed'
+        systemProperty 'junit.jupiter.execution.parallel.config.fixed.parallelism', fixedParallelism
+        systemProperty 'junit.jupiter.execution.parallel.config.fixed.max-pool-size', fixedParallelism
+    }
+    // Keep one Gradle test worker. JUnit's work-stealing pool owns case-level
+    // concurrency inside that process.
+    maxParallelForks = 1
+    // Keep the same worker for the whole suite by default so parser caches stay warm.
+    // Set parserTestForkEvery only when a constrained runner needs periodic recycling.
     forkEvery = parserTestForkEvery
 
     def startedCount = new java.util.concurrent.atomic.AtomicLong()
@@ -98,7 +116,7 @@ test {
         if (descriptor.parent == null) {
             startNanos.set(System.nanoTime())
             logger.lifecycle("[s-test] started: JUnit dynamic cases are registered during execution; " +
-                "progress shows completed, started, and currently running counts.")
+                    "progress shows completed, started, and currently running counts.")
 
             def threadFactory = { Runnable runnable ->
                 Thread thread = new Thread(runnable, 's-test-progress')
@@ -112,7 +130,7 @@ test {
                 long completed = completedCount.get()
                 long elapsedSeconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos.get())
                 logger.lifecycle("[s-test] heartbeat: ${completed} completed, ${started} started, " +
-                    "${Math.max(0L, started - completed)} running, ${elapsedSeconds}s elapsed")
+                        "${Math.max(0L, started - completed)} running, ${elapsedSeconds}s elapsed")
             } as Runnable, heartbeatSeconds, heartbeatSeconds, java.util.concurrent.TimeUnit.SECONDS)
         }
     }
@@ -130,11 +148,11 @@ test {
         }
 
         if (completed == 1 || completed % progressInterval == 0 ||
-            result.resultType == org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE) {
+                result.resultType == org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE) {
             long started = startedCount.get()
             logger.lifecycle("[s-test] progress: ${completed} completed, ${started} started, " +
-                "${Math.max(0L, started - completed)} running, ${failedCount.get()} failed, " +
-                "${skippedCount.get()} skipped; latest: ${descriptor.className}.${descriptor.name}")
+                    "${Math.max(0L, started - completed)} running, ${failedCount.get()} failed, " +
+                    "${skippedCount.get()} skipped; latest: ${descriptor.className}.${descriptor.name}")
         }
     }
 
@@ -146,7 +164,7 @@ test {
             }
             long elapsedSeconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startNanos.get())
             logger.lifecycle("[s-test] finished: ${result.testCount} total, ${result.successfulTestCount} passed, " +
-                "${result.failedTestCount} failed, ${result.skippedTestCount} skipped, ${elapsedSeconds}s elapsed")
+                    "${result.failedTestCount} failed, ${result.skippedTestCount} skipped, ${elapsedSeconds}s elapsed")
         }
     }
 }

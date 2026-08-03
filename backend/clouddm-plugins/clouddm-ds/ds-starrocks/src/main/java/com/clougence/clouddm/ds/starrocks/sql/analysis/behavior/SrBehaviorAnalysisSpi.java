@@ -6,7 +6,7 @@
  */
 package com.clougence.clouddm.ds.starrocks.sql.analysis.behavior;
 
-import java.util.Collections;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
@@ -15,17 +15,13 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.utils.StringUtils;
 
 public class SrBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
-        }
+    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         SrBehaviorParserVisitor[] holder = new SrBehaviorParserVisitor[1];
-        DslHelper.doVisitor(SrDslProvider.INSTANCE, query, (lexer, parser) -> {
+        DslHelper.doVisitor(SrDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
             holder[0] = new SrBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
             return holder[0];
         });

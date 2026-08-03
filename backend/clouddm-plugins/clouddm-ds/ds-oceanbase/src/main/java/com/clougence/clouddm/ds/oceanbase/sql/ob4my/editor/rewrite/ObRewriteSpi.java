@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.oceanbase.sql.ob4my.editor.rewrite;
 
+import java.io.Reader;
 import java.util.List;
 
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -34,8 +35,8 @@ import com.clougence.dslpaser.parse.AstSplitScript;
 public class ObRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(ObMyDslProvider.INSTANCE, request.getQueryBody());
+    public String rewriterQuery(Reader queryReader, QueryRequest request, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(ObMyDslProvider.INSTANCE, queryReader);
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 

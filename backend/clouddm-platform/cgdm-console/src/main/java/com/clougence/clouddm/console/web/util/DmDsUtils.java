@@ -27,11 +27,8 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
-import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultLimit;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
@@ -179,19 +176,14 @@ public class DmDsUtils {
         return spi.createSessionContext(dsConfig, params);
     }
 
-    public static QueryRequest createRequestCtx(DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam, SessionContextDTO sessionCtx, String uid, String clientIp,
-                                                boolean formConsole) {
-        Map<String, Object> params = new HashMap<>();
-        params.put(SessionSpi.PARAMS_DEFAULT_DB, StringUtils.toString(levelsParam.get(UmiTypes.Catalog)));
-        params.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, StringUtils.toString(levelsParam.get(UmiTypes.Schema)));
-
+    public static QueryRequest createRequestCtx(DataSourceConfig dsConfig) {
         SessionSpi spi = DS_SESSION_SPI_CACHE.get(dsConfig.getDataSourceType());
         if (spi == null) {
             spi = PluginManager.findSessionSpi(dsConfig.getDataSourceType());
             DS_SESSION_SPI_CACHE.put(dsConfig.getDataSourceType(), spi);
         }
 
-        return spi.createQueryRequest(sessionCtx, dsConfig, params, uid, clientIp, formConsole);
+        return spi.createQueryRequest(dsConfig);
     }
 
     public static ResultLimit fetchResultLimit(Map<String, String> configMap, Requester requester) {
@@ -214,14 +206,12 @@ public class DmDsUtils {
         return limit;
     }
 
-    public static void fillRequestVariables(List<QueryRequest> queryList, long dsId, String curUser) {
+    public static void fillRequestConfig(List<QueryRequest> queryList, long dsId) {
         if (CollectionUtils.isEmpty(queryList)) {
             return;
         }
 
-        UserCacheEntry userCache = ownerCacheService.queryByUid(curUser);
         DsCacheEntry dsCache = ownerCacheService.queryByDsId(dsId);
-        EnvCacheEntry envCache = ownerCacheService.queryByEnvId(dsCache.getEnvId());
         Map<String, String> configMap = consoleService.fetchSettingsMap(Arrays.asList(//
                 RootUserConfig.Fields.defaultColumnDisplayChars, //
                 RootUserConfig.Fields.onlineMaxRecordCount,      //
@@ -231,17 +221,7 @@ public class DmDsUtils {
         );
 
         queryList.forEach(query -> {
-            if (query.getVariables() == null) {
-                query.setVariables(new HashMap<>());
-            }
-
-            query.getVariables().put(ExecuteVariables.DS_ID, String.valueOf(dsCache.getDsNumId()));
-            query.getVariables().put(ExecuteVariables.DS_NAME, dsCache.getDsInstId());
-            query.getVariables().put(ExecuteVariables.ENV_ID, String.valueOf(envCache.getEnvNumId()));
-            query.getVariables().put(ExecuteVariables.ENV_NAME, envCache.getEnvName());
-            query.getVariables().put(ExecuteVariables.USER_NAME, userCache.getUserName());
-            query.getVariables().put(ExecuteVariables.ROLE_NAME, userCache.getRoleName());
-
+            query.setDsId(dsCache.getDsNumId());
             ResultLimit limit = fetchResultLimit(configMap, query.getRequester());
             query.getResultConf().setQueryTimeoutSec(limit.getQueryTimeoutSec());
             query.getResultConf().setFetchRecordCountLimit(limit.getFetchRecordCountLimit());

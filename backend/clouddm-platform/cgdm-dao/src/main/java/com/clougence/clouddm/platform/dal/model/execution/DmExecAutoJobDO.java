@@ -20,9 +20,6 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
-import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,31 +30,26 @@ import lombok.Setter;
 public class DmExecAutoJobDO {
 
     @TableId(type = IdType.AUTO)
-    private Long              id;
-
+    private Long                   id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date              gmtCreate;
-
+    private Date                   gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date              gmtModified;
-    private Long              dataSourceId;
-    private String            uid;
-    private String            bizId;
-    private SQLJobBizType     dependOnBizType;
-    private String            dependOnBizId;
-    private AutoExecJobStatus status;
-    private Date              lastReportTime;
-    private String            workerSeqNumber;
-    private AutoExecType    execType;
-    private Date              endTime;
-    private Date              scheduleTime;
-    private String            queryId;
-    private String            primaryUid;
-    private Boolean           normal;
-
+    private Date                   gmtModified;
+    private Long                   dataSourceId;
+    private String                 uid;
+    private String                 bizId;
+    private SQLJobBizType          dependOnBizType;
+    private String                 dependOnBizId;
+    private AutoExecJobStatus      status;
+    private Date                   lastReportTime;
+    private String                 workerSeqNumber;
+    private AutoExecType           execType;
+    private Date                   endTime;
+    private Date                   scheduleTime;
+    private String                 queryId;
+    private Boolean                normal;
     @TableField(value = "levels", typeHandler = JacksonTypeHandler.class)
-    private List<String>      levels;
-
+    private List<String>           levels;
     @TableField(typeHandler = JacksonTypeHandler.class)
     private RsExecAutoJobConfigObj config;
 }

@@ -15,8 +15,6 @@
  */
 package com.clougence.clouddm.worker.component.session;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
@@ -34,7 +32,6 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.ResultPhase;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultPhaseType;
 import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.PhaseBuild;
-import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.worker.component.notify.SidecarSqlNotifyService;
 import com.clougence.clouddm.worker.component.session.result.BatchBuild;
@@ -97,7 +94,7 @@ public class SessionAgent implements Session {
             case Phase: {
                 if (!(res instanceof ResultPhaseOfBatch)) {
                     if (((ResultPhase) res).getPhaseType() == ResultPhaseType.After) {
-                        this.notifyService.finishForConsoleQuery(query, res);
+                        this.notifyService.finishForQuery(query, res, !this.session.isAutoCommit());
                     }
                 }
                 break;
@@ -109,14 +106,14 @@ public class SessionAgent implements Session {
                     return;
                 }
                 if (resultMessage.getLevel() == MessageLevel.Error) {
-                    this.notifyService.finishForConsoleQuery(query, res);
+                    this.notifyService.finishForQuery(query, res, !this.session.isAutoCommit());
                 } else if (resultMessage.getLevel() == MessageLevel.Info) {
-                    this.notifyService.finishForConsoleQuery(query, res);
+                    this.notifyService.finishForQuery(query, res, !this.session.isAutoCommit());
                 }
                 break;
             }
             case ResultCount: {
-                this.notifyService.finishForConsoleQuery(query, res);
+                this.notifyService.finishForQuery(query, res, !this.session.isAutoCommit());
                 break;
             }
         }
@@ -299,7 +296,7 @@ public class SessionAgent implements Session {
         long time = System.currentTimeMillis();
         QueryRequest request = batch.pollRequest();
         this.queryPhase(request, ResultPhaseType.Before, 0);
-        this.ss.getNotifyService().beginForConsoleQuery(request, this.session.getSessionId());
+        this.ss.getNotifyService().beginForQuery(request, this.session.getSessionId());
 
         try {
             this.statusMap.setCurBatchId(request.getBatchId());
@@ -331,7 +328,7 @@ public class SessionAgent implements Session {
             this.batchPhase(batch.getBatchId(), ResultPhaseType.After, cost);
         }
 
-        // use ResultListenerKey.AUDIT_LISTENER to this.ss.getNotifyService().finishForConsoleQuery(request, this.session.getSessionId());
+        // use ResultListenerKey.AUDIT_LISTENER to finish the query audit.
         this.asyncExecQuery();
     }
 
@@ -352,7 +349,7 @@ public class SessionAgent implements Session {
             this.batchPhase(batch.getBatchId(), ResultPhaseType.After, cost);
         }
 
-        // use ResultListenerKey.AUDIT_LISTENER to this.ss.getNotifyService().finishForConsoleQuery(request, this.session.getSessionId());
+        // use ResultListenerKey.AUDIT_LISTENER to finish the query audit.
         this.asyncExecQuery();
     }
 
@@ -360,19 +357,12 @@ public class SessionAgent implements Session {
     //
     //
 
-    @Deprecated
-    public long getUpdateCount(PreparedStatement ps) throws SQLException {
-        if (this.session instanceof DefaultRdbSession) {
-            DefaultRdbSession rdbSession = (DefaultRdbSession) session;
-            return rdbSession.getUpdateCount(ps);
-        } else {
-            return ps.getLargeUpdateCount();
-        }
-    }
-
     @Override
     public void close() throws Exception {
         this.cancel();
+        if (this.session.hasUnCommitted()) {
+            this.notifyService.rollbackSession(this.session.getSessionId());
+        }
         this.resultBuilder.finished();
         this.session.close();
 
@@ -407,6 +397,7 @@ public class SessionAgent implements Session {
         try {
             this.checkExecuting();
             this.session.commit();
+            this.notifyService.confirmSession(this.session.getSessionId());
         } finally {
             this.updateStatus();
         }
@@ -416,6 +407,7 @@ public class SessionAgent implements Session {
         try {
             this.checkExecuting();
             this.session.rollback();
+            this.notifyService.rollbackSession(this.session.getSessionId());
         } finally {
             this.updateStatus();
         }
@@ -424,7 +416,14 @@ public class SessionAgent implements Session {
     public void setAutoCommit(boolean autoCommit) {
         try {
             this.checkExecuting();
+            boolean originalAutoCommit = this.session.isAutoCommit();
+            boolean hasUnCommitted = this.session.hasUnCommitted();
             this.session.setAutoCommit(autoCommit);
+            if (originalAutoCommit && !autoCommit) {
+                this.notifyService.startTransaction(this.session.getSessionId());
+            } else if (!originalAutoCommit && autoCommit && hasUnCommitted) {
+                this.notifyService.confirmSession(this.session.getSessionId());
+            }
         } finally {
             this.updateStatus();
         }

@@ -394,7 +394,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
             DsLevels levels = DmDsUtils.createLevels(dsDO, dsSetting, contextDTO.getRdbCatalog(), contextDTO.getRdbSchema());
             sessionId = this.dmQueryService.createSession(uid, levels, contextDTO);
             for (String script : generateSql) {
-                QueryRequest requestDTO = sessionSpi.createQueryRequest(contextDTO, dsConfig, params, uid, clientIp, true);
+                QueryRequest requestDTO = sessionSpi.createQueryRequest(dsConfig);
                 requestDTO.setQueryBody(script);
                 requestDTO.setQueryArgs(Collections.emptyList());
                 requestDTO.setRequester(Requester.CONSOLE);

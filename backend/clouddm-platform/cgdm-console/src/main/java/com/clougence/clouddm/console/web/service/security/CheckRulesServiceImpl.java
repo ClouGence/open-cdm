@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.security;
 
+import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -677,8 +678,8 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_SCRIPT_EMPTY_ERROR.name()));
         }
 
-        try {
-            StatementSet statementSet = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, scriptContent);
+        try (StringReader reader = new StringReader(scriptContent)) {
+            StatementSet statementSet = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, reader);
             long codeLines = statementSet.getStatements().stream().filter(s -> {
                 return !s.getClass().getSimpleName().equals("DefineStatement");
             }).count();

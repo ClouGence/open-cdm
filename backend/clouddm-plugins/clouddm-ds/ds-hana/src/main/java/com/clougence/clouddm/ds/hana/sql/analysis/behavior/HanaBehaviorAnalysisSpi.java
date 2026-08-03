@@ -6,6 +6,7 @@
  */
 package com.clougence.clouddm.ds.hana.sql.analysis.behavior;
 
+import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +27,8 @@ public class HanaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     }
 
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
-        }
-        return splitAnalysisSpi.splitScript(query, Collections.emptyList(), baseLine, baseColumn).stream().map(script -> {
+    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        return splitAnalysisSpi.splitScript(queryReader, Collections.emptyList(), baseLine, baseColumn).stream().map(script -> {
             StatementBehavior behavior = new StatementBehavior();
             behavior.setStatementType(script.getType().stream().findFirst().orElse(SplitQueryType.UNKNOWN));
             return behavior;

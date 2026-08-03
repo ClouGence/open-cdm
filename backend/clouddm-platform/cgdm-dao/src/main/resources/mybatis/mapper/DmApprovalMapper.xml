@@ -31,6 +31,7 @@
         <result column="explain_sql_data" property="explainSqlData"/>
         <result column="risk_sql_count" property="riskSqlCount"/>
         <result column="raw_sql" property="rawSql"/>
+        <result column="content_type" property="contentType"/>
         <result column="total_count" property="totalCount"/>
         <result column="expected_affected_rows" property="expectedAffectedRows"/>
         <result column="expected_exec_time" property="expectedExecTime"/>
@@ -71,6 +72,7 @@
         explain_sql_data,
         risk_sql_count,
         raw_sql,
+        content_type,
         total_count,
         expected_affected_rows,
         expected_exec_time,
@@ -129,12 +131,37 @@
     <update id="updateAnalysis">
         update dm_approval
         set behaviors = #{behaviors,jdbcType=LONGVARCHAR,typeHandler=com.clougence.clouddm.platform.dal.handler.json.ApprovalBehaviorListTypeHandler}
+        <if test="checkedInfo != null">
+            , checked_info = #{checkedInfo}
+        </if>
         where id = #{ticketId}
     </update>
 
     <select id="queryByBizId" resultMap="DmApprovalDO">
         select
             <include refid="all_ticket_col"/>
+        from
+            dm_approval
+        <where>
+            biz_id = #{bizId}
+        and
+            deleted = false
+        </where>
+    </select>
+
+    <select id="queryByBizIdWithoutRawSql" resultMap="DmApprovalDO">
+        select
+            id,
+            biz_id,
+            owner_uid,
+            primary_uid,
+            content_type,
+            total_count,
+            expected_affected_rows,
+            roll_back_sql,
+            ticket_info,
+            checked_info,
+            behaviors
         from
             dm_approval
         <where>
@@ -206,6 +233,7 @@
         a.explain_sql_data,
         a.risk_sql_count,
         a.raw_sql,
+        a.content_type,
         a.total_count,
         a.expected_affected_rows,
         a.expected_exec_time,

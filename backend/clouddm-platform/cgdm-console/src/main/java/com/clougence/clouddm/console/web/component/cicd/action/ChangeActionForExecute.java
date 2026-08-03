@@ -15,26 +15,31 @@
  */
 package com.clougence.clouddm.console.web.component.cicd.action;
 
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
+import com.clougence.clouddm.console.web.component.autoexec.model.AutoExecJobCreateRequest;
+import com.clougence.clouddm.console.web.component.cicd.ChangeSqlService;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
 import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -54,13 +59,15 @@ public class ChangeActionForExecute extends AbstractChangeAction {
     private DmDsConfigService    dmDsConfigService;
     @Resource
     private QueryAnalysisService queryAnalysisService;
+    @Resource
+    private ChangeSqlService      changeSqlService;
 
     @Override
     public void doAction(DmChangeDO change) {
         if (!super.doCommonAction(change)) {
             return;
         } else {
-            change = changeFlowDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
+            change = changeFlowDal.changeMapper().queryChangeById(change.getId());
         }
 
         // message i18n
@@ -126,37 +133,35 @@ public class ChangeActionForExecute extends AbstractChangeAction {
     }
 
     private void doStartExecuteJob(Locale locale, DmChangeDO change, DmChangeFlowDO gitOpsFlowDO, ChangeExecuteInfo config) {
-        // change sql
-        List<DmChangeItemDO> diffChange = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
-        String changeSql = diffChange.isEmpty() ? "" : diffChange.get(0).getContent();
-
-        DmAutoExecConfigFO fo = new DmAutoExecConfigFO();
-        fo.setAutoExecType(config.getExecType());
-        fo.setEnableTransactional(config.isTransactional());
-        fo.setErrorStrategy(config.getErrorStrategy());
-        fo.setRetryWaitTime(config.getRetryWaitTime());
-        fo.setRetryCount(config.getRetryCount());
-        fo.setExecTime(config.getExecTime());
-
-        DmChangeFlowDO flowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(gitOpsFlowDO.getDsPath());
+        AutoExecJobCreateRequest request = AutoExecJobCreateRequest.builder()//
+            .dsLevels(dsLevels)
+            .bizType(SQLJobBizType.CHANGE)
+            .bizId(String.valueOf(change.getId()))
+            .execType(config.getExecType())
+            .transactional(config.isTransactional())
+            .errorStrategy(config.getErrorStrategy())
+            .retryWaitTime(config.getRetryWaitTime())
+            .retryCount(config.getRetryCount())
+            .execTime(config.getExecTime())
+            .build();
 
-        List<SplitScript> scripts;
-        try {
-            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsLevels.dsDO().getId());
-            scripts = this.queryAnalysisService.analysisSplit(dsConfig, changeSql, Collections.emptyList(), 1, 0);
-        } catch (Exception e) {
-            log.warn("can not parse sql");
-            SplitScript splitScript = new SplitScript();
-            splitScript.setScript(changeSql);
-            splitScript.setType(Collections.singleton(SplitQueryType.UNKNOWN));
-            scripts = Collections.singletonList(splitScript);
-        }
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsLevels.dsDO().getId());
 
         try {
-            this.autoExecService.createJob(flowDO.getOwnerUid(), flowDO.getFlowManagerUid(), fo, dsLevels, SQLJobBizType.CHANGE, String.valueOf(change.getId()), scripts);
+            long jobId = this.changeSqlService.consumeSqlFile(change.getId(), sqlFile -> {
+                try (Reader reader = Files.newBufferedReader(sqlFile, StandardCharsets.UTF_8);
+                     Stream<SplitScript> scripts = this.queryAnalysisService.analysisSplitStream(dsConfig, reader, Collections.emptyList(), 1, 0)) {
+                    return this.autoExecService.createJob(request, scripts);
+                }
+            });
+            String operatorUid = config.getOperatorUid();
+            if (StringUtils.isBlank(operatorUid)) {
+                operatorUid = AuthDal.ROOT_USER_UID;
+            }
+            this.autoExecService.startJob(jobId, operatorUid);
         } catch (Exception e) {
-            change = changeFlowDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
+            change = changeFlowDal.changeMapper().queryChangeById(change.getId());
             String changeMessageStr = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_EXECUTE_JOB_ERROR.name(), locale, change.getChangeName(), e.getMessage());
             int res = changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.FAILED, changeMessageStr);
             this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, changeMessageStr);

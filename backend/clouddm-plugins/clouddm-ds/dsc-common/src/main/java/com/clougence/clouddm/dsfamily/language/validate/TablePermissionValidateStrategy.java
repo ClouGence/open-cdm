@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.dsfamily.language.validate;
 
+import java.io.StringReader;
 import java.util.*;
 
 import com.clougence.clouddm.sdk.language.validate.Diagnostic;
@@ -81,7 +82,10 @@ public class TablePermissionValidateStrategy implements ValidateStrategy {
             Map<UmiTypes, Object> levelsParam = context.getRequest().getLevelsParam();
             int lineNumber = state.getRange().getStartPosition().getLineNumber();
             int columnNumber = state.getRange().getStartPosition().getColumnNumber();
-            List<StatementBehavior> behaviors = behaviorAnalysisSpi.analysisBehavior(state.getSqlText(), levelsParam, lineNumber, columnNumber);
+            List<StatementBehavior> behaviors;
+            try (StringReader reader = new StringReader(state.getSqlText())) {
+                behaviors = behaviorAnalysisSpi.analysisBehavior(reader, levelsParam, lineNumber, columnNumber);
+            }
             if (behaviors == null) {
                 continue;
             }

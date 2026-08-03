@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeApprovalInfo;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
@@ -33,7 +34,6 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.model.vo.ticket.CheckedVO;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
@@ -73,7 +73,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         if (!super.doCommonAction(change)) {
             return;
         } else {
-            change = changeFlowDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
+            change = changeFlowDal.changeMapper().queryChangeById(change.getId());
         }
 
         // message i18n
@@ -171,8 +171,8 @@ public class ChangeActionForApproval extends AbstractChangeAction {
             }
         }
 
-        //  ChangeCheckMO to CheckedVO
-        Map<String, CheckedVO> checkMap = new LinkedHashMap<>();
+        // ChangeCheckMO to TicketRuleCheckResult
+        Map<String, TicketRuleCheckResult> checkMap = new LinkedHashMap<>();
         List<DmChangeItemDO> checks = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.CHECKS);
         for (DmChangeItemDO item : checks) {
             ChangeCheckMO useType = JsonUtils.toObjUseType(item.getContent(), ChangeCheckMO.class);
@@ -181,11 +181,11 @@ public class ChangeActionForApproval extends AbstractChangeAction {
                 String ruleName = checkItem.getRuleName();
                 WarnLevel level = checkItem.getLevel();
 
-                CheckedVO vo;
+                TicketRuleCheckResult vo;
                 if (checkMap.containsKey(ruleName)) {
                     vo = checkMap.get(ruleName);
                 } else {
-                    vo = new CheckedVO();
+                    vo = new TicketRuleCheckResult();
                     vo.setName(ruleName);
                     vo.setDesc(specName);
                     vo.setRuleLevel(level.getRuleLevel());

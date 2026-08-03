@@ -26,7 +26,9 @@ public interface ExecJobRService {
 
     boolean startJob(WorkerIdentity identity, Long jobId);
 
-    void reportExecMessage(WorkerIdentity identity, List<AutoExecMessageDTO> messages);
+    byte[] readPackage(WorkerIdentity identity, Long jobId, long attachmentId, long offset, int length);
+
+    void reportMessage(WorkerIdentity identity, List<AutoExecMessageDTO> messages);
 
     void reportActiveJobs(WorkerIdentity identity, List<Long> jobIdList);
 

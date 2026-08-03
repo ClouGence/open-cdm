@@ -5,6 +5,7 @@
  */
 package com.clougence.sql.iso.sql92.analysis.security;
 
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +27,9 @@ public class Sql92SecDomainResolveSpi implements SecDomainResolveSpi {
     }
 
     @Override
-    public List<RuleDomain> resolveDomain(DataSourceType dsType, CodeInfo codeInfo, ContextInfo ctxInfo) {
+    public List<RuleDomain> resolveDomain(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
         List<RuleDomain> domainList = new ArrayList<>();
-        List<AstSplitScript> scripts = DslHelper.splitDsl(Sql92DslProvider.INSTANCE, codeInfo.getQuery());
+        List<AstSplitScript> scripts = DslHelper.splitDsl(Sql92DslProvider.INSTANCE, queryReader);
         for (AstSplitScript s : scripts) {
             SplitScript ss = new SplitScript();
             ss.setScript(s.getScript());

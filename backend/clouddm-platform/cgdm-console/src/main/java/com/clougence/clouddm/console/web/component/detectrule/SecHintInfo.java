@@ -31,5 +31,6 @@ public class SecHintInfo {
     private String        ruleName;
     private String        message;
     private RuleLevel     level;
+    private long          hitCount;
     private Object        result;
 }

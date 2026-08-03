@@ -17,7 +17,9 @@ package com.clougence.clouddm.console.web.model.vo.ticket;
 
 import java.util.List;
 
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
+import com.clougence.clouddm.platform.dal.model.approval.SqlContentType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +33,10 @@ public class DmQueryTicketVO {
     private String                 gmtCreate;
     private String                 gmtModified;
     private Long                   dataSourceId;
-    private String                 rawSql;
+    private SqlContentType         contentType;
+    private Long                   attachmentId;
+    private String                 attachmentFileName;
+    private Long                   attachmentFileSize;
     private List<ApprovalBehavior> behaviors;
     private Integer                totalCount;
     private String                 description;
@@ -41,5 +46,5 @@ public class DmQueryTicketVO {
     private String                 rollBackSql;
     private String                 ticketMessage;
     private boolean                autoExec;
-    private List<CheckedVO>        checkedList;
+    private List<TicketRuleCheckResult> checkedList;
 }

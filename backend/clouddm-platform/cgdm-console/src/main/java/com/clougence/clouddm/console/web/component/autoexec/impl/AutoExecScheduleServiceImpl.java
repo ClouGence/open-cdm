@@ -26,19 +26,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecManager;
+import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.MonitorDal;
-import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
-import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
-import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
-import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
-import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
-import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -50,13 +41,11 @@ import lombok.extern.slf4j.Slf4j;
 public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWorkerRegisterNotify {
 
     @Resource
-    private MonitorDal                  monitorDal;
-    @Resource
     private ExecutionDal                executionDal;
     @Resource
     private ConsoleConfig               config;
     @Resource
-    private AutoExecManager             autoExecManager;
+    private AutoExecService             autoExecService;
 
     private ThreadPoolExecutor          threadPoolExecutor;
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
@@ -119,7 +108,7 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
             }
             threadPoolExecutor.execute(() -> {
                 try {
-                    autoExecManager.dispatchJob(id);
+                    autoExecService.dispatchJob(id);
                 } finally {
                     this.taskInQueueSet.remove(id);
                 }
@@ -134,18 +123,6 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void notifyRegister(String wsn) {
-        List<DmExecAutoJobDO> jobList = this.executionDal.autoJobMapper().queryErrorJob(wsn);
-        for (DmExecAutoJobDO jobDO : jobList) {
-            DmExecAutoTaskDO execTaskDO = this.executionDal.autoTaskMapper().queryOneByJobIdAndStatus(jobDO.getId(), AutoExecTaskStatus.EXECUTING);
-            if (execTaskDO == null) {
-                continue;
-            }
-
-            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_PAUSE_BY_WORKER_RESTART.name(), execTaskDO.getExecOrder());
-            DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.ERROR, message, LogDependBizType.AUTO_EXEC_JOB, jobDO.getBizId());
-            this.monitorDal.bizLogMapper().insert(logDO);
-        }
-
         this.executionDal.autoJobMapper().updateWorkerErrorJob(wsn);
         this.executionDal.autoJobMapper().updateWorkerWaitExecuteJob(wsn);
     }

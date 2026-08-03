@@ -15,6 +15,8 @@
  */
 package com.clougence.sql.db2.analysis.security;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,11 +57,11 @@ public class Db2SecDomainResolveSpi implements SecDomainResolveSpi, Db2SecDomain
     }
 
     @Override
-    public List<RuleDomain> resolveDomain(DataSourceType dsType, CodeInfo codeInfo, ContextInfo ctxInfo) {
+    public List<RuleDomain> resolveDomain(DataSourceType dsType, Reader queryReader, CodeInfo codeInfo, ContextInfo ctxInfo) {
         com.clougence.dslpaser.ast.location.CodeLocation dslBase = //
                 new com.clougence.dslpaser.ast.location.CodeLocation(codeInfo.getBaseLine(), codeInfo.getBaseColumn());
         List<RuleDomain> domainList = new ArrayList<>();
-        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), codeInfo.getQuery(), dslBase);
+        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), queryReader, dslBase);
         for (AstSplitScript s : scripts) {
             SplitScript ss = new SplitScript();
             ss.setScript(s.getScript());
@@ -69,9 +71,11 @@ public class Db2SecDomainResolveSpi implements SecDomainResolveSpi, Db2SecDomain
             ss.setBodyEndCodeColumn(s.getEndCodeColumn());
 
             Db2BuildFactory builder = new Db2BuildFactory(this.metaService);
-            DslHelper.doVisitor(dslProvider(), s.getScript(), (lexer, parser) -> this.parserVisitor(builder, parser));
+            try (StringReader reader = new StringReader(s.getScript())) {
+                DslHelper.doVisitor(dslProvider(), reader, (lexer, parser) -> this.parserVisitor(builder, parser));
+            }
             List<RuleDomain> build;
-            if (ctxInfo == null || !ctxInfo.isDeepParser()) {
+            if (ctxInfo == null) {
                 build = builder.build();
             } else {
                 build = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());

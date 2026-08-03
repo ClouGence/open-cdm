@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.dsfamily.language.validate;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -53,9 +54,9 @@ public class ValidateContext {
             return new ValidateContext(request, List.of(), null);
         }
 
-        try {
+        try (StringReader reader = new StringReader(sqlText)) {
             List<ValidateStatementState> statementStates = new ArrayList<>();
-            for (AstSplitScript splitScript : DslHelper.splitDsl(dslProvider, sqlText, new CodeLocation(1, 0))) {
+            for (AstSplitScript splitScript : DslHelper.splitDsl(dslProvider, reader, new CodeLocation(1, 0))) {
                 statementStates.add(new ValidateStatementState(splitScript));
             }
             return new ValidateContext(request, statementStates, null);

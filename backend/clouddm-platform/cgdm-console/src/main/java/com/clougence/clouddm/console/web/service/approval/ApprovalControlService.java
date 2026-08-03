@@ -18,7 +18,6 @@ package com.clougence.clouddm.console.web.service.approval;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.console.web.model.fo.security.ListMyAuthTicketFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
@@ -40,6 +39,8 @@ public interface ApprovalControlService {
 
     void confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo);
 
+    void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo);
+
     void retryJob(String puid, String uid, long ticketId);
 
     void skipTask(String puid, String uid, DmQueryAutoExecFO fo);
@@ -50,19 +51,17 @@ public interface ApprovalControlService {
 
     void endAutoExecJob(String puid, String uid, long ticketId);
 
-    void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo);
-
     //
     // query
     //
 
     DmPageVO<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo);
 
-    DmPageVO<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo);
-
     RdpTicketBaseInfoVO queryTicketBaseInfo(String puid, String uid, RdpQueryTicketDetailFO fo);
 
-    DmQueryTicketVO queryQueryTicketDetail(String puid, DmQueryTicketDetailFO fo);
+    DmQueryTicketVO queryTicketDetail(String puid, DmQueryTicketDetailFO fo);
+
+    DmApprovalSqlPreviewVO previewSqlFile(long approvalId, int startLine, int lineCount);
 
     RdpAuthTicketDetailVO queryAuthTicketDetail(String ownerUid, String uid, long ticketId);
 
@@ -70,7 +69,7 @@ public interface ApprovalControlService {
 
     DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String puid, String uid, DmQueryTaskListFO fo);
 
-    List<DmBizLogVO> queryExecLog(String puid, DmQueryExecLogFO fo);
+    List<DmBizLogVO> queryExecLog(DmQueryExecLogFO fo);
 
     List<RdpApproTemplateVO> listTemplates(String ownerUid, ApprovalType approvalType);
 

@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.cicd.action;
 
+import java.io.StringReader;
 import java.util.*;
 
 import org.springframework.stereotype.Service;
@@ -61,7 +62,7 @@ public class ChangeActionForCheck extends AbstractChangeAction {
         if (!super.doCommonAction(change)) {
             return;
         } else {
-            change = changeFlowDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
+            change = changeFlowDal.changeMapper().queryChangeById(change.getId());
         }
 
         String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());
@@ -117,8 +118,8 @@ public class ChangeActionForCheck extends AbstractChangeAction {
         WarnLevel maxLevel = WarnLevel.PASS;
         this.changeFlowDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.CHECKS);
         List<SplitScript> splits;
-        try {
-            splits = analysisSpi.splitScript(diffResult, Collections.emptyList(), 0, 0);
+        try (StringReader reader = new StringReader(diffResult)) {
+            splits = analysisSpi.splitScript(reader, Collections.emptyList(), 0, 0);
         } catch (Exception e) {
             log.error("changeAction[" + change.getId() + "] check review sql failed, " + e.getMessage(), e);
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_SQL_PARSER_ERROR.name(), locale, change.getChangeName(), dsType.name());

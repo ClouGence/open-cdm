@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.detectrule.impl;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +87,6 @@ public class SecRulesEngineImpl implements SecRulesEngine {
                 .cuid(currentUid)
                 .dsId(context.getDsId())
                 .levelsParam(levelsParam)
-                .deepParser(true)
                 .dataSourceConfig(dsConfig)
                 .build();
 
@@ -96,8 +96,10 @@ public class SecRulesEngineImpl implements SecRulesEngine {
                 return resultOK();
             }
 
-            CodeInfo codeInfo = CodeInfo.builder().baseLine(context.getBasicCodeLine()).baseColumn(context.getBasicCodeColumn()).query(querySql).build();
-            domainList = resolveSpi.resolveDomain(dsType, codeInfo, ctxInfo);
+            CodeInfo codeInfo = CodeInfo.builder().baseLine(context.getBasicCodeLine()).baseColumn(context.getBasicCodeColumn()).build();
+            try (StringReader reader = new StringReader(querySql)) {
+                domainList = resolveSpi.resolveDomain(dsType, reader, codeInfo, ctxInfo);
+            }
             if (CollectionUtils.isEmpty(domainList)) {
                 return this.resultUnsupported(context.getUnsupportedLevel(), querySql);
             }

@@ -285,7 +285,7 @@ public class QueryServiceImpl implements QueryService {
         // exec query
         try {
             RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
-            DmDsUtils.fillRequestVariables(queryRequest, sessionDO.getDatasourceId(), curUid);
+            DmDsUtils.fillRequestConfig(queryRequest, sessionDO.getDatasourceId());
             AsyncWaitResult result = this.sessionRService.asyncExecuteQuery(sendDTO, sessionId, batchId, queryRequest);
             if (!result.isSuccess()) {
                 throw new ErrorMessageException(result.getMessage());
@@ -313,7 +313,7 @@ public class QueryServiceImpl implements QueryService {
         try {
             List<QueryRequest> queryList = Collections.singletonList(queryRequest);
 
-            DmDsUtils.fillRequestVariables(queryList, sessionDO.getDatasourceId(), curUid);
+            DmDsUtils.fillRequestConfig(queryList, sessionDO.getDatasourceId());
             String batchId = "sync-" + System.currentTimeMillis();
             AsyncWaitResult result = this.sessionRService.asyncExecuteQuery(sendDTO, sessionId, batchId, queryList);
             if (!result.isSuccess()) {

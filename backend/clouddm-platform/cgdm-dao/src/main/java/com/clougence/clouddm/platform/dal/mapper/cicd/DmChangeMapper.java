@@ -18,6 +18,8 @@ package com.clougence.clouddm.platform.dal.mapper.cicd;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -26,7 +28,7 @@ import com.clougence.clouddm.platform.dal.model.cicd.*;
 public interface DmChangeMapper extends BaseMapper<DmChangeDO> {
     IPage<DmChangeDO> listChangeByConditionAndPage(Page<?> page, ArgChangeQueryObj param);
 
-    DmChangeDO queryChangeById(String ownerUid, long changeId);
+    DmChangeDO queryChangeById(@Param("changeId") long changeId);
 
     int countUnfinishedChangeByFlowId(String ownerUid, long flowId);
 

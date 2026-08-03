@@ -19,8 +19,8 @@ import java.io.IOException;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.component.file.PluginResourceManager;
 import com.clougence.clouddm.console.web.component.file.mode.PluginResourceData;
+import com.clougence.clouddm.console.web.component.file.resource.PluginResourceManager;
 import com.clougence.clouddm.console.web.component.file.resource.PluginResourceModel;
 import com.clougence.clouddm.sdk.resource.ResourceRequest;
 

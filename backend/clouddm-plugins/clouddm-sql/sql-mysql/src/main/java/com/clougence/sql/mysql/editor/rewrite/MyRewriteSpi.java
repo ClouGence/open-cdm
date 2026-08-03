@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.mysql.editor.rewrite;
 
+import java.io.Reader;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -46,8 +47,8 @@ public class MyRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), request.getQueryBody());
+    public String rewriterQuery(Reader queryReader, QueryRequest request, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), queryReader);
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 

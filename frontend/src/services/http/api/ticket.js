@@ -29,6 +29,9 @@ export const ticketApi = {
   // dm
   dmTicketRequestUserDsAuth: '/api/entry/approval/requestuserdsauth',
   dmTicketCreate: '/api/entry/approval/create',
+  dmTicketUploadSqlFile: '/api/entry/resource/sqlfile/upload',
+  dmTicketPreviewSqlFile: '/api/entry/resource/sqlfile/preview',
+  dmTicketPreviewApprovalSql: '/api/entry/approval/previewSqlFile',
   dmTicketQueryDetail: '/api/entry/approval/querydetail',
   dmTicketCancel: '/api/entry/approval/cancel',
   dmTicketConfirm: '/api/entry/approval/confirm',

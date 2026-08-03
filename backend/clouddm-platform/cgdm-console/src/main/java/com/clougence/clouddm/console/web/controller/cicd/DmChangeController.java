@@ -95,7 +95,7 @@ public class DmChangeController {
     public ResWebData<?> changeDetail(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        DmChangeDO changeDO = this.dmChangeService.queryChangeById(puid, fo.getChangeId());
+        DmChangeDO changeDO = this.dmChangeService.queryChangeById(fo.getChangeId());
         if (changeDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
@@ -114,22 +114,18 @@ public class DmChangeController {
     @RequestAuth(DM_CICD_FLOW_READ)
     @RequestMapping(value = "/changeBody", method = RequestMethod.POST)
     public ResWebData<?> changeBody(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        DmChangeDO changeDO = this.dmChangeService.queryChangeById(puid, fo.getChangeId());
+        DmChangeDO changeDO = this.dmChangeService.queryChangeById(fo.getChangeId());
         if (changeDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
-        ChangeBodyVO vo = this.dmChangeService.fetchChangeBodyByChangeId(puid, fo.getChangeId());
+        ChangeBodyVO vo = this.dmChangeService.fetchChangeBodyByChangeId(fo.getChangeId());
         return ResWebDataUtils.buildSuccess(vo);
     }
 
     @RequestAuth(DM_CICD_FLOW_READ)
     @RequestMapping(value = "/changeChecks", method = RequestMethod.POST)
     public ResWebData<?> changeChecks(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        DmChangeDO changeDO = this.dmChangeService.queryChangeById(puid, fo.getChangeId());
+        DmChangeDO changeDO = this.dmChangeService.queryChangeById(fo.getChangeId());
         if (changeDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
@@ -137,7 +133,7 @@ public class DmChangeController {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_STEP_NO_BODY_ERROR.name()));
         }
 
-        List<DmChangeItemDO> changeList = this.dmChangeService.fetchChangeCheckByChangeId(puid, fo.getChangeId());
+        List<DmChangeItemDO> changeList = this.dmChangeService.fetchChangeCheckByChangeId(fo.getChangeId());
         List<ChangeCheckMO> checkList = new ArrayList<>();
 
         for (DmChangeItemDO item : changeList) {
@@ -150,9 +146,7 @@ public class DmChangeController {
     @RequestAuth(DM_CICD_FLOW_READ)
     @RequestMapping(value = "/changeApproval", method = RequestMethod.POST)
     public ResWebData<?> changeApproval(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        DmChangeDO changeDO = this.dmChangeService.queryChangeById(puid, fo.getChangeId());
+        DmChangeDO changeDO = this.dmChangeService.queryChangeById(fo.getChangeId());
         if (changeDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
@@ -164,16 +158,14 @@ public class DmChangeController {
                 break;
         }
 
-        ChangeTicketInfoResult result = this.dmChangeService.fetchChangeApprovalByChangeId(puid, fo.getChangeId());
+        ChangeTicketInfoResult result = this.dmChangeService.fetchChangeApprovalByChangeId(fo.getChangeId());
         return ResWebDataUtils.buildSuccess(result);
     }
 
     @RequestAuth(DM_CICD_FLOW_READ)
     @RequestMapping(value = "/changeExecute", method = RequestMethod.POST)
     public ResWebData<?> changeExecute(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        DmChangeDO changeDO = this.dmChangeService.queryChangeById(puid, fo.getChangeId());
+        DmChangeDO changeDO = this.dmChangeService.queryChangeById(fo.getChangeId());
         if (changeDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
@@ -186,136 +178,116 @@ public class DmChangeController {
                 break;
         }
 
-        ChangeExecuteInfo result = this.dmChangeService.fetchChangeExecuteByChangeId(puid, fo.getChangeId());
+        ChangeExecuteInfo result = this.dmChangeService.fetchChangeExecuteByChangeId(fo.getChangeId());
         return ResWebDataUtils.buildSuccess(result);
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/skipChecks", method = RequestMethod.POST)
     public ResWebData<?> skipChecks(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.dmChangeService.skipCheck(puid, uid, fo.getChangeId());
+        this.dmChangeService.skipCheck(uid, fo.getChangeId());
         return ResWebDataUtils.buildSuccess(true);
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/confirmExec", method = RequestMethod.POST)
     public ResWebData<?> confirmExec(HttpServletRequest request, @Valid @RequestBody ChangeConfirmExecRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.dmChangeService.confirmExec(puid, uid, fo.getChangeId(), fo.getConfig());
+        this.dmChangeService.confirmExec(uid, fo.getChangeId(), fo.getConfig());
         return ResWebDataUtils.buildSuccess(true);
     }
 
     @RequestAuth(DM_CICD_FLOW_READ)
     @RequestMapping(value = "/changeExecJobInfo", method = RequestMethod.POST)
     public ResWebData<?> changeExecJobInfo(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        DmAutoExecJobVO vo = this.dmChangeService.queryExecJobInfo(puid, fo.getChangeId());
+        DmAutoExecJobVO vo = this.dmChangeService.queryExecJobInfo(fo.getChangeId());
         return ResWebDataUtils.buildSuccess(vo);
     }
 
     @RequestAuth(DM_CICD_FLOW_READ)
     @RequestMapping(value = "/changeExecTaskList", method = RequestMethod.POST)
     public ResWebData<?> changeExecTaskList(HttpServletRequest request, @Valid @RequestBody ChangeExecTaskListFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        DmPageVO<DmAutoExecTaskVO> vo = this.dmChangeService.queryExecTaskList(puid, fo);
+        DmPageVO<DmAutoExecTaskVO> vo = this.dmChangeService.queryExecTaskList(fo);
         return ResWebDataUtils.buildSuccess(vo);
     }
 
     @RequestAuth(DM_CICD_FLOW_READ)
     @RequestMapping(value = "/changeExecLog", method = RequestMethod.POST)
     public ResWebData<?> changeExecJobLog(HttpServletRequest request, @Valid @RequestBody ChangeExecLogFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        List<DmBizLogVO> vo = this.dmChangeService.queryExecLog(puid, fo);
+        List<DmBizLogVO> vo = this.dmChangeService.queryExecLog(fo);
         return ResWebDataUtils.buildSuccess(vo);
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeExecJobPause", method = RequestMethod.POST)
     public ResWebData<?> changeExecJobPause(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.dmChangeService.pauseExecJob(puid, uid, fo.getChangeId());
+        this.dmChangeService.pauseExecJob(uid, fo.getChangeId());
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeExecJobStart", method = RequestMethod.POST)
     public ResWebData<?> changeExecJobStart(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.dmChangeService.startExecJob(puid, uid, fo.getChangeId());
+        this.dmChangeService.startExecJob(uid, fo.getChangeId());
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeExecJobRetry", method = RequestMethod.POST)
     public ResWebData<?> changeExecJobRetry(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.dmChangeService.retryExecJob(puid, uid, fo.getChangeId());
+        this.dmChangeService.retryExecJob(uid, fo.getChangeId());
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeExecJobAbort", method = RequestMethod.POST)
     public ResWebData<?> changeExecJobAbort(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.dmChangeService.abortExecJob(puid, uid, fo.getChangeId());
+        this.dmChangeService.abortExecJob(uid, fo.getChangeId());
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeExecTaskSkip", method = RequestMethod.POST)
     public ResWebData<?> skipAutoExecTask(HttpServletRequest request, @Valid @RequestBody ChangeExecTaskFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.dmChangeService.skipExecTask(puid, uid, fo.getChangeId(), fo.getTaskId());
+        this.dmChangeService.skipExecTask(uid, fo.getChangeId(), fo.getTaskId());
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeExecTaskContinue", method = RequestMethod.POST)
     public ResWebData<?> continueAutoExecTask(HttpServletRequest request, @Valid @RequestBody ChangeExecTaskFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        this.dmChangeService.continueExecTask(puid, fo.getChangeId(), fo.getTaskId());
+        this.dmChangeService.continueExecTask(fo.getChangeId(), fo.getTaskId());
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeRetry", method = RequestMethod.POST)
     public ResWebData<?> changeRetry(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.dmChangeService.retryChange(puid, uid, fo.getChangeId());
+        this.dmChangeService.retryChange(uid, fo.getChangeId());
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(level = HIGH, value = DM_CICD_FLOW_OPERATE)
     @RequestMapping(value = "/changeClose", method = RequestMethod.POST)
     public ResWebData<?> changeClose(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.dmChangeService.closeChange(puid, uid, fo.getChangeId());
+        this.dmChangeService.closeChange(uid, fo.getChangeId());
         return ResWebDataUtils.buildSuccess();
     }
 }

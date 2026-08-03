@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.postgres.editor.rewrite;
 
+import java.io.Reader;
 import java.util.List;
 
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -45,8 +46,8 @@ public class PgRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, request.getQueryBody());
+    public String rewriterQuery(Reader queryReader, QueryRequest request, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, queryReader);
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 

@@ -163,7 +163,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
             this.actionMap.get(step).doAction(change);
         } catch (Throwable e) {
             log.error("changeAction[" + change.getId() + "] " + step + " failed " + e.getMessage(), e);
-            DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
+            DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(change.getId());
             this.changeFlowDal.changeMapper().increTryTimes(change.getId(), changeDO.getVersion(), e.getMessage());
 
             int maxFailedTimes = maxFailedTimes(change.getOwnerUid());

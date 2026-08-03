@@ -16,7 +16,6 @@
 package com.clougence.clouddm.sdk.execute.resultset.echo;
 
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -37,7 +36,6 @@ public class Result {
     private String                        sessionId;
     private String                        queryId;
     private String                        querySql;
-    private Map<String, String>           variables;
     // for status
     private boolean                       success;
     private String                        message;

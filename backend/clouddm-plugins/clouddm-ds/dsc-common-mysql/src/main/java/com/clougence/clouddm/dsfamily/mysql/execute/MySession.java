@@ -69,7 +69,6 @@ public class MySession extends DefaultRdbSession {
     //            try {
     //                QueryRequest tmp = query.clone();
     //
-    //                List<AstSplitScript> scripts = DslHelper.splitDsl(MySqlDslProvider.INSTANCE, tmp.getQueryBody());
     //                Parser parser = scripts.get(0).getParser();
     //                ParseTree astTree = scripts.get(0).getAstTree();
     //

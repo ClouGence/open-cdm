@@ -83,6 +83,7 @@
         UPDATE dm_exec_sql_audit
         SET status = 'RUNNING',
             session_id = #{sessionId},
+            client_ip = #{clientIp},
             work_seq_number = #{workSeqNumber},
             operate_time = #{operateTime},
             affect_line = 0,

@@ -41,7 +41,7 @@
         select
         <include refid="dmChangeDO_select"/>
         from dm_change
-        where owner_uid = #{ownerUid} and id = #{changeId}
+        where id = #{changeId}
     </select>
     <select id="countUnfinishedChangeByFlowId" resultType="int">
         select count(*)
@@ -112,4 +112,3 @@
         where id = #{changeId}
     </update>
 </mapper>
-

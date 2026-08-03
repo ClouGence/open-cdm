@@ -51,7 +51,10 @@ public class SqlAuditRServiceProvider extends AbstractBasicProvider implements S
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void reportSqlAudit(WorkerIdentity identity, Date sendTime, List<SqlExecNotifyDTO> audits) {
-        if (!this.checkAccessKey(identity) || CollectionUtils.isEmpty(audits)) {
+        if (!this.checkAccessKey(identity)) {
+            throw new IllegalStateException("Worker authentication failed.");
+        }
+        if (CollectionUtils.isEmpty(audits)) {
             return;
         }
 
@@ -60,7 +63,7 @@ public class SqlAuditRServiceProvider extends AbstractBasicProvider implements S
             this.auditService.recordAudit(audit, identity.getWorkerSeqNumber());
 
             if (audit.getType() == Type.SQL_END &&           //
-                audit.getSqlStatus() == SqlStatus.SUCCESS && //
+                audit.getStatus() == SqlStatus.SUCCESS && //
                 StringUtils.isNotBlank(audit.getQueryId())) {
                 this.callBackService.onSuccess(audit.getQueryId());
             }

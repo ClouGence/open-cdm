@@ -6,7 +6,11 @@
  */
 package com.clougence.clouddm.ds.polardb.sql.porx.analysis.behavior;
 
-import java.util.*;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -21,16 +25,12 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
-import com.clougence.utils.StringUtils;
 
 public class PorXBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
-        }
+    public List<StatementBehavior> analysisBehavior(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         PorXBehaviorParserVisitor[] holder = new PorXBehaviorParserVisitor[1];
-        DslHelper.doVisitor(PolarXDslProvider.INSTANCE, query, (lexer, parser) -> {
+        DslHelper.doVisitor(PolarXDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
             holder[0] = new PorXBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
             return holder[0];
         });

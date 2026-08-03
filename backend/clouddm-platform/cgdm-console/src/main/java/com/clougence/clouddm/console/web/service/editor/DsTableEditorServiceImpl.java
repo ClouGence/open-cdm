@@ -222,7 +222,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
         String sessionId = "";
         try {
             SessionContextDTO contextDTO = DmDsUtils.createSessionCtx(dsConfig, levelsParam);
-            QueryRequest queryDTO = DmDsUtils.createRequestCtx(dsConfig, levelsParam, contextDTO, uid, clientIp, true);
+            QueryRequest queryDTO = DmDsUtils.createRequestCtx(dsConfig);
 
             sessionId = this.queryService.createSession(uid, levels, contextDTO);
             List<ResultSetDTO> dtos = new ArrayList<>();

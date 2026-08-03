@@ -182,7 +182,7 @@ public class ChangeApprovalHandler implements ApprovalHandler {
             return;
         }
 
-        DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(info.getChangeOwnerUid(), info.getChangeId());
+        DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(info.getChangeId());
         List<DmChangeItemDO> changeItems = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(info.getChangeOwnerUid(), info.getChangeId(), ChangeItemType.TICKET);
         DmChangeItemDO item = changeItems.isEmpty() ? null : changeItems.get(0);
         if (item == null || StringUtils.isBlank(item.getContent())) {
@@ -239,7 +239,7 @@ public class ChangeApprovalHandler implements ApprovalHandler {
             throw new IllegalArgumentException("ticket info is null");
         }
 
-        DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(info.getChangeOwnerUid(), info.getChangeId());
+        DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(info.getChangeId());
         DmChangeFlowDO flowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(changeDO.getOwnerUid(), changeDO.getRefFlowId());
         DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(ticketDO.getOwnerUid());
 

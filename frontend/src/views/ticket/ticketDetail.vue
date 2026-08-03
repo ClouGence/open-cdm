@@ -295,6 +295,9 @@
             <div v-if="rule.lines && rule.lines.length" class="rule-lines">
               <span class="lines-label">{{ $t('wei-zhi-0') }}:</span>
               <span v-for="line in rule.lines" :key="line" class="lines-content">{{ line }}</span>
+              <span v-if="rule.hitCount > rule.lines.length" class="lines-content">
+                {{ $t('ticket-rule-location-total', { count: rule.hitCount }) }}
+              </span>
             </div>
           </div>
           <div class="rule-desc">{{ rule.desc }}</div>
@@ -304,15 +307,47 @@
 
     <Card class="ticket-content" v-if="this.ticketType === 'DM_QUERY' || this.ticketType === 'DM_CHANGE'" :padding="0">
       <template #title>
-        <div style="display: flex; align-items: center">
-          <div>{{ $t('gong-dan-nei-rong') }}</div>
-          <Button type="link" @click="handleShowRollbackSqlModal" v-if="ticketDetail.rollBackSql" style="margin-left: 10px">
-            {{ $t('cha-kan-hui-gun-sql') }}
-          </Button>
-          <span v-if="ticketDetail.ticketMessage" class="parse-error-msgContent">*{{ ticketDetail.ticketMessage }}</span>
+        <div class="ticket-content-title">
+          <div class="ticket-content-title-main">
+            <div>{{ $t('gong-dan-nei-rong') }}</div>
+            <Button type="link" @click="handleShowRollbackSqlModal" v-if="ticketDetail.rollBackSql" style="margin-left: 10px">
+              {{ $t('cha-kan-hui-gun-sql') }}
+            </Button>
+            <span v-if="ticketDetail.ticketMessage" class="parse-error-msgContent">*{{ ticketDetail.ticketMessage }}</span>
+          </div>
+          <div v-if="ticketDetail.contentType === 'ATTACHMENT'" class="ticket-attachment-meta">
+            <Icon type="ios-document-outline" />
+            <span>{{ ticketDetail.attachmentFileName }}</span>
+            <span>{{ formatFileSize(ticketDetail.attachmentFileSize || 0) }}</span>
+            <span>{{ $t('ticket-sql-readonly') }}</span>
+          </div>
         </div>
       </template>
-      <read-only-editor :text="ticketDetail.rawSql" key="raw" :border="0" :ds-type="ticketDetail.dataSourceType" fit-viewport />
+      <div class="ticket-sql-preview" @wheel="handleSqlPreviewWheel">
+        <read-only-editor
+          ref="sqlPreviewEditor"
+          :text="sqlPreview"
+          key="raw"
+          :border="0"
+          :ds-type="ticketDetail.dataSourceType"
+          fit-viewport
+          virtual-scroll-mode
+          :line-number-start="sqlPreviewStartLine"
+          @viewport-line-count-change="handleSqlPreviewViewportChange"
+        />
+        <input
+          v-if="ticketSqlContentInitialized"
+          v-model.number="sqlPreviewStartLine"
+          class="ticket-virtual-scrollbar"
+          type="range"
+          min="1"
+          :max="sqlPreviewMaxStartLine"
+          step="1"
+          :aria-label="$t('ticket-sql-virtual-scrollbar')"
+          aria-orientation="vertical"
+          @input="scheduleSqlPreview"
+        />
+      </div>
     </Card>
     <Card class="ticket-content" v-if="ticketType === 'DATA_SOURCE_AUTH'">
       <template #title>
@@ -639,6 +674,13 @@ export default {
       preStartIds: [],
       ticketId: 0,
       ticketDetail: {},
+      sqlPreview: '',
+      sqlPreviewStartLine: 1,
+      sqlPreviewTotalLines: 1,
+      sqlPreviewLineCount: 25,
+      sqlPreviewTimer: null,
+      sqlPreviewRequestSequence: 0,
+      ticketSqlContentInitialized: false,
       ticketAutoRefreshActive: false,
       ticketAutoRefreshTimer: null,
       TICKET_STATUS,
@@ -706,6 +748,10 @@ export default {
   },
   beforeUnmount() {
     this.stopTicketAutoRefresh();
+    if (this.sqlPreviewTimer) {
+      window.clearTimeout(this.sqlPreviewTimer);
+    }
+    this.sqlPreviewRequestSequence++;
   },
   computed: {
     ...mapState(['userInfo', 'myAuth']),
@@ -724,11 +770,65 @@ export default {
     },
     hasError() {
       return this.noPassedRuleList.some((rule) => rule.ruleLevel !== 'SUGGEST');
+    },
+    sqlPreviewMaxStartLine() {
+      return Math.max(1, this.sqlPreviewTotalLines - this.sqlPreviewLineCount + 1);
     }
   },
   methods: {
     isCk,
     isMongoDB,
+    async loadSqlPreview() {
+      this.sqlPreviewLineCount = this.$refs.sqlPreviewEditor?.getVisibleLineCount() || 25;
+      const requestSequence = ++this.sqlPreviewRequestSequence;
+      const res = await this.$services.dmTicketPreviewApprovalSql({
+        data: {
+          ticketId: this.ticketId,
+          startLine: this.sqlPreviewStartLine,
+          lineCount: this.sqlPreviewLineCount
+        }
+      });
+      if (res.success && requestSequence === this.sqlPreviewRequestSequence) {
+        this.sqlPreview = res.data?.content || '';
+        this.sqlPreviewStartLine = res.data?.startLine || 1;
+        this.sqlPreviewTotalLines = res.data?.totalLines || 1;
+      }
+    },
+    scheduleSqlPreview() {
+      if (this.sqlPreviewTimer) {
+        window.clearTimeout(this.sqlPreviewTimer);
+      }
+      this.sqlPreviewTimer = window.setTimeout(() => {
+        this.sqlPreviewTimer = null;
+        this.loadSqlPreview();
+      }, 120);
+    },
+    handleSqlPreviewViewportChange(lineCount) {
+      if (!this.ticketSqlContentInitialized || !lineCount || lineCount === this.sqlPreviewLineCount) {
+        return;
+      }
+      this.sqlPreviewLineCount = lineCount;
+      this.scheduleSqlPreview();
+    },
+    handleSqlPreviewWheel(event) {
+      if (!this.ticketSqlContentInitialized) {
+        return;
+      }
+      event.preventDefault();
+      const step = Math.max(1, Math.floor(this.sqlPreviewLineCount / 3));
+      const delta = event.deltaY > 0 ? step : -step;
+      this.sqlPreviewStartLine = Math.max(1, Math.min(this.sqlPreviewMaxStartLine, this.sqlPreviewStartLine + delta));
+      this.scheduleSqlPreview();
+    },
+    formatFileSize(size) {
+      if (size < 1024) {
+        return `${size} B`;
+      }
+      if (size < 1024 * 1024) {
+        return `${(size / 1024).toFixed(1)} KB`;
+      }
+      return `${(size / 1024 / 1024).toFixed(1)} MB`;
+    },
     stopTicketAutoRefresh() {
       this.ticketAutoRefreshActive = false;
       if (this.ticketAutoRefreshTimer) {
@@ -1042,17 +1142,31 @@ export default {
             break;
           case 'DM_QUERY':
           case 'DM_CHANGE':
-            const resQuery = await this.$services.dmTicketQueryQueryTicketDetail({ data: { ticketId: this.ticketId } });
+            const initializeSqlContent = !this.ticketSqlContentInitialized;
+            const resQuery = await this.$services.dmTicketQueryQueryTicketDetail({
+              data: {
+                ticketId: this.ticketId
+              }
+            });
             if (resQuery.success) {
               this.autoExec = resQuery.data.autoExec;
               if (resQuery.data?.autoExec) {
                 await this.queryAutoExecJobInfo();
                 await this.queryAutoExecTaskList();
               }
-              this.ticketDetail.rollBackSql = resQuery.data?.rollBackSql || '';
               this.ticketDetail.ticketMessage = resQuery.data?.ticketMessage || '';
-              this.ticketDetail.rawSql = resQuery.data?.rawSql || '';
-              this.noPassedRuleList = resQuery.data.checkedList || [];
+              this.ticketDetail.rollBackSql = resQuery.data?.rollBackSql || '';
+              this.ticketDetail.contentType = resQuery.data?.contentType || 'INLINE';
+              this.ticketDetail.attachmentId = resQuery.data?.attachmentId;
+              this.ticketDetail.attachmentFileName = resQuery.data?.attachmentFileName || '';
+              this.ticketDetail.attachmentFileSize = resQuery.data?.attachmentFileSize || 0;
+              if (initializeSqlContent) {
+                this.sqlPreviewStartLine = 1;
+                this.sqlPreviewTotalLines = 1;
+                await this.$nextTick();
+                await this.loadSqlPreview();
+                this.ticketSqlContentInitialized = true;
+              }
               this.noPassedRuleList = resQuery.data.checkedList || [];
             }
             break;
@@ -1271,6 +1385,83 @@ export default {
     }
     :deep(.ivu-table-wrapper-with-border) {
       border: 0;
+    }
+
+    .ticket-content-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .ticket-content-title-main,
+    .ticket-attachment-meta {
+      display: flex;
+      align-items: center;
+    }
+
+    .ticket-attachment-meta {
+      gap: 8px;
+      margin-left: 16px;
+      color: @icon-color;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .ticket-sql-preview {
+      position: relative;
+      padding-right: 18px;
+    }
+
+    .ticket-virtual-scrollbar {
+      position: absolute;
+      z-index: 3;
+      top: 8px;
+      right: 3px;
+      width: 14px;
+      height: calc(100% - 16px);
+      margin: 0;
+      writing-mode: vertical-lr;
+      direction: ltr;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+
+      &::-webkit-slider-runnable-track {
+        width: 10px;
+        height: 100%;
+        background: transparent;
+      }
+
+      &::-webkit-slider-thumb {
+        width: 10px;
+        height: 20px;
+        border: 0;
+        border-radius: 0;
+        appearance: none;
+        background: rgba(100, 100, 100, 0.45);
+      }
+
+      &::-moz-range-track {
+        width: 10px;
+        background: transparent;
+      }
+
+      &::-moz-range-thumb {
+        width: 10px;
+        height: 20px;
+        border: 0;
+        border-radius: 0;
+        background: rgba(100, 100, 100, 0.45);
+      }
+
+      &:hover::-webkit-slider-thumb {
+        background: rgba(100, 100, 100, 0.7);
+      }
+
+      &:hover::-moz-range-thumb {
+        background: rgba(100, 100, 100, 0.7);
+      }
     }
   }
 

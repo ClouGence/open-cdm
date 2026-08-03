@@ -2,6 +2,7 @@ package com.clougence.clouddm.ds.rules;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +71,8 @@ public final class RuleTextTest {
     }
 
     static void assertCase(String resourcePath, TestCase testCase, DataSourceType dataSourceType, SecDomainResolveSpi resolveSpi, ContextInfo contextInfo) {
-        try {
-            List<RuleDomain> domains = resolveSpi.resolveDomain(dataSourceType, codeInfo(testCase.sql), contextInfo);
+        try (StringReader reader = new StringReader(testCase.sql)) {
+            List<RuleDomain> domains = resolveSpi.resolveDomain(dataSourceType, reader, codeInfo(), contextInfo);
             boolean actual = runRuleScript(testCase.rule, DomainHelper.create(domains), testCase.vars);
             Assert.assertEquals(testCase.caseId(), testCase.expect, actual);
         } catch (Exception e) {
@@ -206,8 +207,8 @@ public final class RuleTextTest {
         return (boolean) returnData.unwrap();
     }
 
-    private static CodeInfo codeInfo(String sql) {
-        return CodeInfo.builder().query(sql).baseLine(1).baseColumn(0).build();
+    private static CodeInfo codeInfo() {
+        return CodeInfo.builder().baseLine(1).baseColumn(0).build();
     }
 
     static class TestCase extends TextTestCase {

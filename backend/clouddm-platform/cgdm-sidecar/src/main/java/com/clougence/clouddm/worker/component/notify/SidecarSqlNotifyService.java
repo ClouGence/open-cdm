@@ -15,36 +15,18 @@
  */
 package com.clougence.clouddm.worker.component.notify;
 
-import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 
 public interface SidecarSqlNotifyService {
 
-    /* ---------------------------------------------------------------------------------- */
-    /*  SQL Audit (AutoExec)  */
-    /* ---------------------------------------------------------------------------------- */
+    void beginForQuery(QueryRequest query, String sessionId);
 
-    void beginForAutoExec(String queryId, String sessionId);
+    void finishForQuery(QueryRequest query, Result result, boolean waitConfirm);
 
-    void finishForAutoExec(String queryId, String sessionId, String message, Long affectLine, SqlStatus result);
+    void startTransaction(String sessionId);
 
     void confirmSession(String sessionId);
 
     void rollbackSession(String sessionId);
-
-    void startTransaction(String sessionId);
-
-    /* ---------------------------------------------------------------------------------- */
-    /*  SQL Audit (ConsoleQuery) */
-    /* ---------------------------------------------------------------------------------- */
-
-    void beginForConsoleQuery(QueryRequest query, String sessionId);
-
-    void finishForConsoleQuery(QueryRequest query, Result result);
-
-    /* ---------------------------------------------------------------------------------- */
-    /*  File Audit  */
-    /* ---------------------------------------------------------------------------------- */
-
 }
