@@ -47,6 +47,7 @@ public class MySqlDsFactory implements DsFactory<Connection> {
             return entry.getValue() == null || //
                    (StringUtils.isBlank(String.valueOf(entry.getValue())) && !StringUtils.equals("trustCertificateKeyStorePassword", String.valueOf(entry.getKey())));
         });
+        props.putIfAbsent("tinyInt1isBit", "false");
 
         String id = dsConfig.getProperty(DsConfigKeys.ID.getConfigKey());
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());

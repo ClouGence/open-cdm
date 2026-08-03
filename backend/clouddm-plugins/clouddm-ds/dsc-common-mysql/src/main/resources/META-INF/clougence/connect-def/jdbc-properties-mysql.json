@@ -472,7 +472,7 @@
   },
   {
     "name": "tinyInt1isBit",
-    "default": "true",
+    "default": "false",
     "version": "3.0.16",
     "description_i18n": "CG_JDBC_PARAMS_MYSQL_tinyInt1isBit"
   },
