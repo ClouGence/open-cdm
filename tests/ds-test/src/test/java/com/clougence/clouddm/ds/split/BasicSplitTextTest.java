@@ -35,12 +35,10 @@ public abstract class BasicSplitTextTest {
     }
 
     protected Stream<DynamicTest> dynamicTests() {
-        return fixtures()
-            .filter(this::accepts)
-            .map(fixture -> DynamicTest.dynamicTest(fixture.resourcePath, () -> {
-                SplitFixture splitFixture = loadFixtureUnchecked(fixture.resourcePath);
-                verifyFixture(splitFixture, splitAnalysisSpi(fixture), verifyAllTypes());
-            }));
+        return fixtures().filter(this::accepts).map(fixture -> DynamicTest.dynamicTest(fixture.resourcePath, () -> {
+            SplitFixture splitFixture = loadFixtureUnchecked(fixture.resourcePath);
+            verifyFixture(splitFixture, splitAnalysisSpi(fixture), verifyAllTypes());
+        }));
     }
 
     protected boolean verifyAllTypes() {
@@ -56,8 +54,9 @@ public abstract class BasicSplitTextTest {
     }
 
     protected void splitRejectedCase(String resourcePath, String datasource, String rejectedSql) throws Exception {
-        try (StringReader reader = new StringReader(rejectedSql)) {
-            splitAnalysisSpi(new Fixture(resourcePath, datasource)).splitScript(reader, null, 0, 0);
+        try (StringReader reader = new StringReader(rejectedSql);
+                Stream<SplitScript> scripts = splitAnalysisSpi(new Fixture(resourcePath, datasource)).splitScriptStream(reader, null, 0, 0)) {
+            scripts.toList();
         }
     }
 
@@ -67,8 +66,7 @@ public abstract class BasicSplitTextTest {
                 SplitFixture fixture = loadFixtureUnchecked(resourcePath);
                 Stream<Executable> validations = fixture.cases().stream().map(splitCase -> {
                     String rejectedSql = fixture.expected().get(splitCase.splitIndex()).script();
-                    return () -> Assertions.assertThrows(RuntimeException.class, () -> splitRejectedCase(resourcePath, datasource, rejectedSql),
-                            splitCase.displayName());
+                    return () -> Assertions.assertThrows(RuntimeException.class, () -> splitRejectedCase(resourcePath, datasource, rejectedSql), splitCase.displayName());
                 });
                 Assertions.assertAll(resourcePath, validations);
             });
@@ -87,8 +85,8 @@ public abstract class BasicSplitTextTest {
 
     static void verifyFixture(SplitFixture fixture, SplitAnalysisSpi spi, boolean verifyAllTypes) {
         List<SplitScript> scripts;
-        try (StringReader reader = new StringReader(fixture.inputSql())) {
-            scripts = spi.splitScript(reader, null, 0, 0);
+        try (StringReader reader = new StringReader(fixture.inputSql()); Stream<SplitScript> stream = spi.splitScriptStream(reader, null, 0, 0)) {
+            scripts = stream.toList();
         }
         scripts.forEach(BasicSplitTextTest::verifySplitTree);
         List<ExpectedSplit> expected = fixture.expected();

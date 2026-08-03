@@ -36,8 +36,8 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.console.autoexec.AutoExecTaskPackageInfo;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.analysis.AnalysisQueryOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecJobPackageService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
@@ -100,7 +100,8 @@ public class AutoExecJobPackageServiceImpl implements AutoExecJobPackageService 
         levels.add(dsDO.getDsEnvId().toString());
         levels.add(dsDO.getId().toString());
         levels.addAll(job.getLevels());
-        QueryAnalysisOptions options = QueryAnalysisOptions.builder()
+
+        AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(job.getUid())
             .dataSourceId(dsDO.getId())
             .levels(this.configService.parseLevels(levels).levelsParam())

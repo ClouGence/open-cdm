@@ -27,6 +27,7 @@ export const cicdApi = {
   dmCicdChangeList: '/api/entry/cicd/change/changeList',
   dmCicdChangeDetail: '/api/entry/cicd/change/changeDetail',
   dmCicdChangeBody: '/api/entry/cicd/change/changeBody',
+  dmCicdChangeSqlPreview: '/api/entry/cicd/change/changeSqlPreview',
   dmCicdChangeChecks: '/api/entry/cicd/change/changeChecks',
   dmCicdChangeClose: '/api/entry/cicd/change/changeClose',
   dmCicdChangeApproval: '/api/entry/cicd/change/changeApproval',

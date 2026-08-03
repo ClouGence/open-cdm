@@ -15,7 +15,11 @@
  */
 package com.clougence.clouddm.console.web.component.cicd.action;
 
-import java.util.*;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +28,13 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
+import com.clougence.clouddm.console.web.component.cicd.ChangeSqlService;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeApprovalInfo;
-import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
-import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckMO;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeTicketInfo;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.console.web.component.file.LocalFileService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -40,9 +44,9 @@ import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.approval.*;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO;
+import com.clougence.clouddm.platform.dal.model.system.SysAttachmentType;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.rdp.service.model.EnvTicketMO;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -67,6 +71,10 @@ public class ChangeActionForApproval extends AbstractChangeAction {
     private DmDsConfigService   dmDsConfigService;
     @Resource
     private ApprovalFlowService approvalFlowService;
+    @Resource
+    private ChangeSqlService    changeSqlService;
+    @Resource
+    private LocalFileService    localFileService;
 
     @Override
     public void doAction(DmChangeDO change) {
@@ -92,16 +100,15 @@ public class ChangeActionForApproval extends AbstractChangeAction {
             changeFlowDal.changeMapper().updateFlowWalkedAppend(change.getId(), change, approveOpt);
         }
 
-        // change sql
-        List<DmChangeItemDO> diffChange = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
-        String sqlChange = diffChange.isEmpty() ? "" : diffChange.get(0).getContent();
-
         // create ticket
         DmApprovalDO ticket;
         try {
             DmChangeFlowDO gitOpsFlowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
             DsLevels dsLevels = this.dmDsConfigService.parseLevels(gitOpsFlowDO.getDsPath());
-            ticket = createTicket(change, dsLevels, sqlChange, locale);
+            DmChangeDO currentChange = change;
+            ticket = this.changeSqlService.consumeSqlFile(change.getId(), sqlFile -> {
+                return this.createApproval(currentChange, dsLevels, sqlFile, locale);
+            });
         } catch (Exception e) {
             String message = null;
             if (e instanceof ErrorMessageException) {
@@ -148,7 +155,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    public DmApprovalDO createTicket(DmChangeDO change, DsLevels dsLevels, String sqlContent, Locale locale) {
+    public DmApprovalDO createApproval(DmChangeDO change, DsLevels dsLevels, Path sqlFile, Locale locale) {
         DmChangeFlowDO flowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
         DmDsDO dsDO = dsLevels.dsDO();
         DmSysEnvDO envDO = this.systemDal.envMapper().queryByEnvID(change.getOwnerUid(), Long.valueOf(dsLevels.envId()));
@@ -171,31 +178,9 @@ public class ChangeActionForApproval extends AbstractChangeAction {
             }
         }
 
-        // ChangeCheckMO to TicketRuleCheckResult
-        Map<String, TicketRuleCheckResult> checkMap = new LinkedHashMap<>();
-        List<DmChangeItemDO> checks = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.CHECKS);
-        for (DmChangeItemDO item : checks) {
-            ChangeCheckMO useType = JsonUtils.toObjUseType(item.getContent(), ChangeCheckMO.class);
-            for (ChangeCheckItemMO checkItem : useType.getCheckList()) {
-                String specName = checkItem.getSpecName();
-                String ruleName = checkItem.getRuleName();
-                WarnLevel level = checkItem.getLevel();
-
-                TicketRuleCheckResult vo;
-                if (checkMap.containsKey(ruleName)) {
-                    vo = checkMap.get(ruleName);
-                } else {
-                    vo = new TicketRuleCheckResult();
-                    vo.setName(ruleName);
-                    vo.setDesc(specName);
-                    vo.setRuleLevel(level.getRuleLevel());
-                    vo.setLines(new ArrayList<>());
-                    checkMap.put(ruleName, vo);
-                }
-
-                vo.getLines().add(useType.getStartCodeLine());
-            }
-        }
+        // checkedResults
+        DmChangeItemDO summary = this.changeFlowDal.changeItemMapper().queryChangeItemByName(change.getOwnerUid(), change.getId(), ChangeItemType.CHECK_SUMMARY, "rule-summary");
+        List<TicketRuleCheckResult> checkedResults = summary == null ? Collections.emptyList() : JsonUtils.toListUseType(summary.getContent(), TicketRuleCheckResult.class);
 
         // create Ticket
         String bizId = this.namingDao.genApprovalBizId();
@@ -214,8 +199,9 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setEnvName(envDO.getEnvName());
         ticket.setApproTemplateName(approvalInfo.getTemplateName());
         ticket.setApproTemplateIdentity(approvalInfo.getTemplateId());
-
-        ticket.setRawSql(sqlContent);
+        ticket.setRawSql(null);
+        ticket.setContentType(SqlContentType.ATTACHMENT);
+        ticket.setFeatures(List.of(ApprovalFeature.values()));
         ticket.setTotalCount(0);
         ticket.setExpectedAffectedRows(0L);
         ApprovalMO ticketInfo = new ApprovalMO();
@@ -224,7 +210,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setTicketInfo(JsonUtils.toJson(ticketInfo));
         ticket.setLevels(dsLevels.dbLevels());
         ticket.setRollBackSql("");
-        ticket.setCheckedInfo(JsonUtils.toJson(checkMap.values()));
+        ticket.setCheckedInfo(JsonUtils.toJson(checkedResults));
 
         //
         if (approvalInfo.getApprovalType() == ApprovalType.Internal) {
@@ -235,6 +221,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         }
 
         this.approvalDal.approvalMapper().insert(ticket);
+        this.localFileService.addAsLocked(change.getOwnerUid(), sqlFile, "cicd-" + change.getId() + ".sql", SysAttachmentType.SQL_FILE, ticket.getId());
         this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DM_CHANGE, true);
         return ticket;
     }

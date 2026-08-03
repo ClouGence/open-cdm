@@ -15,7 +15,9 @@
  */
 package com.clougence.clouddm.sdk.sql.analysis.lineage;
 
+import java.io.Reader;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.Spi;
 
@@ -24,12 +26,9 @@ public interface LineageAnalysisSpi extends Spi {
     /** Lineage analyzer used when a SQL engine does not currently expose lineage analysis. */
     LineageAnalysisSpi EMPTY = (sql, context) -> List.of();
 
-    /**
-     * Analyzes every result column in the query.
-     *
-     * <p>The returned list follows the order in which result columns appear in the SQL select list. This order must
-     * not be used to match columns against an actual result set; consumers must match them by
-     * {@link LineageColumn#column()}.</p>
-     */
-    List<LineageColumn> analyze(String sql, LineageContext context);
+    List<LineageColumn> analyze(Reader sqlReader, LineageContext context);
+
+    default Stream<LineageColumn> analyzeStream(Reader sqlReader, LineageContext context) {
+        return analyze(sqlReader, context).stream();
+    }
 }

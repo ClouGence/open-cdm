@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.lineage.mysql;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -120,7 +121,12 @@ public abstract class MySqlLineageTextTest {
     private void assertExpected(LineageCase testCase, CorpusMetaService metaService, LineageAnalysisSpi analysisSpi) throws JsonProcessingException {
         JsonNode expected = JSON.readTree(testCase.expectation());
         try {
-            List<LineageColumn> columns = metaService.withSql(testCase.sql(), () -> analysisSpi.analyze(testCase.sql(), lineageContext()));
+            List<LineageColumn> columns = metaService.withSql(testCase.sql(), () -> {
+                try (StringReader reader = new StringReader(testCase.sql());
+                        Stream<LineageColumn> stream = analysisSpi.analyzeStream(reader, lineageContext())) {
+                    return stream.toList();
+                }
+            });
             if (recordingExpectations()) {
                 record(testCase, expectJson(columns));
                 return;

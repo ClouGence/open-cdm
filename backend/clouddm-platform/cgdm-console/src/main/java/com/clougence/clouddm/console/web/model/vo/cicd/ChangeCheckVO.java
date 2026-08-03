@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.sql.analysis.security;
+package com.clougence.clouddm.console.web.model.vo.cicd;
 
-import lombok.Builder;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
+import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckMO;
+
 import lombok.Getter;
+import lombok.Setter;
 
-/** @author mode 2020-01-20 21:04
- * @since 1.1.3
- */
-@Builder
 @Getter
-public class CodeInfo {
+@Setter
+public class ChangeCheckVO {
 
-    private int    baseLine;
-    private int    baseColumn;
+    private List<TicketRuleCheckResult> summaryList = new ArrayList<>();
+    private List<ChangeCheckMO>         detailList  = new ArrayList<>();
 }

@@ -32,11 +32,31 @@
         order by content_index asc
     </select>
 
+    <select id="queryItemByFlowIdAndName" resultMap="dmChangeFlowItemDO">
+        select
+        <include refid="dmChangeFlowItemDO_select"/>
+        from dm_change_flow_item
+        where owner_uid = #{ownerUid}
+          and ref_flow_id = #{flowId}
+          and content_name = #{contentName}
+        limit 1
+    </select>
+
     <delete id="deleteItemByFlowId">
         delete
         from dm_change_flow_item
         where owner_uid = #{ownerUid}
           and ref_flow_id = #{flowId}
     </delete>
-</mapper>
 
+    <insert id="insertFromChangeItems">
+        insert into dm_change_flow_item
+            (gmt_create, gmt_modified, owner_uid, ref_flow_id, content_name, content_index, content)
+        select CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, owner_uid, #{flowId}, content_name, content_index, content
+        from dm_change_item
+        where owner_uid = #{ownerUid}
+          and ref_change_id = #{changeId}
+          and ref_change_item_type = 'SQL'
+        order by content_index asc
+    </insert>
+</mapper>

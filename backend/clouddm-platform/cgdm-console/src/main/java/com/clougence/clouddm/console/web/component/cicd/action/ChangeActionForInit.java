@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.cicd.CicdSqlFileUtils;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
+import com.clougence.clouddm.console.web.component.file.LocalFileService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
@@ -43,11 +44,15 @@ import com.github.difflib.patch.AbstractDelta;
 import com.github.difflib.patch.DeltaType;
 import com.github.difflib.patch.Patch;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class ChangeActionForInit extends AbstractChangeAction {
+
+    @Resource
+    private LocalFileService localFileService;
 
     private boolean checkChange(String ownerUid, long changeId) {
         DmChangeDO changeDO = changeFlowDal.changeMapper().queryChangeById(changeId);
@@ -199,6 +204,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
 
     private void initDiffSql(Locale locale, DmChangeDO change) throws IOException {
         int res = this.changeFlowDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
+        this.localFileService.invalidateCache(CicdSqlFileUtils.cacheFile(change));
 
         // current content.
         List<DmChangeFlowItemDO> itemList = this.changeFlowDal.flowItemMapper().queryItemByFlowId(change.getOwnerUid(), change.getRefFlowId());

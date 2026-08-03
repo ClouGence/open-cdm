@@ -33,9 +33,9 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPhaseOfBatch;
 import com.clougence.clouddm.api.sidecar.session.execute.StatusDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.analysis.AnalysisQueryOptions;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.model.QueryRelationAuthResult;
@@ -43,6 +43,7 @@ import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckContext;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
+import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckSession;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesEngine;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
@@ -309,7 +310,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private static final RuleLevel[] CHECK_LEVELS_NORMAL = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET, RuleLevel.SUGGEST };
 
     private List<QueryRequest> prepareQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, boolean isExplain) {
-        QueryAnalysisOptions options = QueryAnalysisOptions.builder()
+        AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(queryDTO.getCurrentUserId())
             .dataSourceId(ctx.getLevels().dsDO().getId())
             .levels(ctx.getLevels().levelsParam())
@@ -872,7 +873,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
     private SecRulesCheckResult rulesCheck(WsQueryFO fo, QueryCtx ctx, SqlParserParameters parameters) {
         try {
-            String curOwnerUid = fo.getPrimaryUserId();
             DmDsDO dsDO = ctx.getLevels().dsDO();
 
             SecRulesCheckContext ruleCtx = SecRulesCheckContext.builder()//
@@ -886,7 +886,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 .requester(Requester.CONSOLE)
                 .unsupportedLevel(WarnLevel.PASS)
                 .build();
-            return this.ruleCheckService.doQueryCheck(curOwnerUid, fo.getCurrentUserId(), fo.getQueryString(), ruleCtx);
+            SecRulesCheckSession session = this.ruleCheckService.openQueryCheck(fo.getCurrentUserId(), ctx.getDsConfig(), ruleCtx);
+            return session.applyCheck(fo.getQueryString(), fo.getBasicCodeLine(), fo.getBasicCodeColumn());
         } catch (Throwable e) {
             SecRulesCheckResult error = new SecRulesCheckResult();
             String unsupportedName = DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_EXCEPTION_NAME_MESSAGE.name());

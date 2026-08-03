@@ -177,7 +177,7 @@ MySQL 只能作为 SQL 语料和方言工具的参考：
 
 ### StatementBehavior
 
-`BehaviorAnalysisSpi.analysisBehavior(...)` 对 query 中的每条语句返回一个 `StatementBehavior`，并保持源码顺序。
+`BehaviorAnalysisSpi.analysisBehaviorStream(...)` 对 query 中的每条语句流式返回一个 `StatementBehavior`，并保持源码顺序。
 
 `StatementBehavior`：
 
@@ -700,7 +700,7 @@ levels:
 - `UmiTypes.Catalog = <catalog>`；
 - `UmiTypes.Schema = <schema>`。
 
-测试框架必须逐 testcase 读取并传给 `BehaviorAnalysisSpi.analysisBehavior(...)`，禁止由方言测试类
+测试框架必须逐 testcase 读取并传给 `BehaviorAnalysisSpi.analysisBehaviorStream(...)`，禁止由方言测试类
 暗中统一注入默认 catalog/schema。SQL 显式限定的层级覆盖对应的上下文层级；SQL 未限定的对象才使用
 `levels` 补全路径。这样审计者可以直接判断 `objectPath` 中哪些层级来自 SQL，哪些来自执行上下文。
 
@@ -992,7 +992,10 @@ BEGIN/END、局部变量和 split 子级不是行为对象。
 ```java
 String query = "SELECT * FROM db1.t1 a\n"
         + "JOIN db2.t2 b ON a.id = b.id;";
-List<StatementBehavior> behaviors = spi.analysisBehavior(query, levels, 10, 8);
+try (StringReader reader = new StringReader(query);
+        Stream<StatementBehavior> stream = spi.analysisBehaviorStream(reader, levels, 10, 8)) {
+    List<StatementBehavior> behaviors = stream.toList();
+}
 ```
 
 第一个对象位于 query 第一行，列坐标叠加 8；第二个对象位于后续行，只叠加行偏移。测试必须直接断言 BehaviorObject 四个整数，不能只比较 codeLine。

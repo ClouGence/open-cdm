@@ -27,6 +27,52 @@
         where owner_uid = #{ownerUid} and ref_change_id = #{refChangeId} and ref_change_item_type = #{itemType}
         order by content_index asc
     </select>
+    <select id="queryChangeItemByName" resultMap="dmChangeItemDO">
+        select
+        <include refid="dmChangeItemDO_select"/>
+        from dm_change_item
+        where owner_uid = #{ownerUid}
+          and ref_change_id = #{refChangeId}
+          and ref_change_item_type = #{itemType}
+          and content_name = #{contentName}
+        limit 1
+    </select>
+    <select id="queryChangedItemMeta" resultMap="dmChangeItemDO">
+        select current_item.id,
+               current_item.owner_uid,
+               current_item.ref_flow_id,
+               current_item.ref_change_id,
+               current_item.ref_change_item_type,
+               current_item.content_name,
+               current_item.content_index
+        from dm_change_item current_item
+        left join dm_change_flow_item baseline
+          on baseline.owner_uid = current_item.owner_uid
+         and baseline.ref_flow_id = #{flowId}
+         and baseline.content_name = current_item.content_name
+        where current_item.owner_uid = #{ownerUid}
+          and current_item.ref_change_id = #{changeId}
+          and current_item.ref_change_item_type = 'SQL'
+          and (baseline.id is null or not (baseline.content &lt;=&gt; current_item.content))
+        union all
+        select baseline.id,
+               baseline.owner_uid,
+               baseline.ref_flow_id,
+               #{changeId},
+               'SQL',
+               baseline.content_name,
+               baseline.content_index
+        from dm_change_flow_item baseline
+        left join dm_change_item current_item
+          on current_item.owner_uid = baseline.owner_uid
+         and current_item.ref_change_id = #{changeId}
+         and current_item.ref_change_item_type = 'SQL'
+         and current_item.content_name = baseline.content_name
+        where baseline.owner_uid = #{ownerUid}
+          and baseline.ref_flow_id = #{flowId}
+          and current_item.id is null
+        order by content_index asc
+    </select>
     <delete id="deleteByChangeItemType">
         delete
         from dm_change_item
@@ -41,4 +87,3 @@
           and ref_change_id = #{refChangeId}
     </delete>
 </mapper>
-

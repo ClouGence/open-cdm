@@ -6,23 +6,17 @@
  */
 package com.clougence.clouddm.console.web.component.cicd.impl;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.text.SimpleDateFormat;
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.component.cicd.CicdSqlFileUtils;
 import com.clougence.clouddm.console.web.component.cicd.ChangeSqlService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeItemType;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeItemDO;
-import com.clougence.utils.StringUtils;
 import com.clougence.utils.function.EFunction;
 
 import jakarta.annotation.Resource;
@@ -42,8 +36,7 @@ public class ChangeSqlServiceImpl implements ChangeSqlService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
 
-        String date = new SimpleDateFormat("yyyyMMdd").format(change.getGmtCreate());
-        Path sqlFile = Paths.get(GlobalConfUtils.getTempDataHome(), "sqlfile", date, "cicd-" + changeId + ".sql");
+        Path sqlFile = CicdSqlFileUtils.cacheFile(change);
         if (!Files.isRegularFile(sqlFile)) {
             sqlFile = this.prepareSqlFile(change, sqlFile);
         }
@@ -58,19 +51,14 @@ public class ChangeSqlServiceImpl implements ChangeSqlService {
     }
 
     private Path prepareSqlFile(DmChangeDO change, Path target) {
-        List<DmChangeItemDO> items = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
-        String content = items.isEmpty() ? null : items.get(0).getContent();
-        if (StringUtils.isBlank(content)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_STEP_NO_BODY_ERROR.name()));
-        }
-
         try {
             Files.createDirectories(target.getParent());
-            Path writingDirectory = Paths.get(GlobalConfUtils.getTempDataHome(), "sqlfile", ".writing");
-            Files.createDirectories(writingDirectory);
-            Path staging = Files.createTempFile(writingDirectory, "cicd-" + change.getId() + ".sql.writing-", "");
+            Path staging = target.resolveSibling(target.getFileName() + ".tmp");
             try {
-                Files.writeString(staging, content, StandardCharsets.UTF_8);
+                try (var output = Files.newOutputStream(staging, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                    this.changeFlowDal.readChangeItemContent(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW, output);
+                }
+
                 try {
                     Files.move(staging, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
                 } catch (AtomicMoveNotSupportedException e) {

@@ -5,6 +5,14 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
+              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
+                <Option value="operation" :label="$t('cao-zuo-shen-ji')">
+                  <span>{{ $t('cao-zuo-shen-ji') }}</span>
+                </Option>
+                <Option value="sql" :label="$t('nav-ri-zhi-shen-ji')">
+                  <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
+                </Option>
+              </Select>
               <span class="log-time-range-label">{{ $t('cao-zuo-shi-jian') }}</span>
               <a-range-picker
                 v-model:value="timeRange"
@@ -197,6 +205,7 @@ export default {
   data() {
     return {
       resourceType: Mapping.resourceType,
+      auditLogType: 'operation',
       searchType: 'user',
       refreshLoading: false,
       showAuditDetail: false,
@@ -388,6 +397,14 @@ export default {
         e.preventDefault();
         this.handleRefresh();
       }
+    },
+
+    handleChangeAuditLogType(value) {
+      if (value === 'sql') {
+        this.$router.push('/manager/logs/sql');
+        return;
+      }
+      this.auditLogType = 'operation';
     },
 
     getLogDetail(detail) {

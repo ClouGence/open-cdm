@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo.cicd;
+package com.clougence.clouddm.platform.dal.model.approval;
 
-import java.util.List;
+/**
+ * Optional features enabled for an approval.
+ */
+public enum ApprovalFeature {
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class ChangeBodyVO {
-
-    private String                 changeBody;
-    private List<ChangeBodyItemVO> itemList;
+    /** Analyze and initialize the approval before it enters approval processing. */
+    PRE_INIT
 }

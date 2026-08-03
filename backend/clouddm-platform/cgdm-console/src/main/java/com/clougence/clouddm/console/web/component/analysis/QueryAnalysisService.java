@@ -34,8 +34,8 @@ public interface QueryAnalysisService {
                                             int baseCodeLine, int baseCodeColumn);
 
     Stream<QueryRequest> analysisRequestsStream(DataSourceConfig dsConfig, Reader reader, List<QueryArg> queryArgs,//
-                                                int baseCodeLine, int baseCodeColumn, QueryAnalysisOptions options);
+                                                int baseCodeLine, int baseCodeColumn, AnalysisQueryOptions options);
 
     Stream<SecRulesCheckResult> analysisRulesStream(DataSourceConfig dsConfig, Reader reader, List<QueryArg> queryArgs,//
-                                                    int baseCodeLine, int baseCodeColumn, QueryRuleAnalysisOptions options);
+                                                    int baseCodeLine, int baseCodeColumn, AnalysisRuleOptions options);
 }

@@ -20,14 +20,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
+import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
@@ -81,7 +86,9 @@ public class ApprovalTaskProcessor {
     @Resource
     private ImSenderService                         imSenderService;
     @Resource
-    private ApprovalPreInitService                  approvalPreInitService;
+    private ApprovalPreInitService                  preInitService;
+    @Resource
+    private PlatformTransactionManager              txManager;
     private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers;
 
     public ApprovalTaskProcessor(List<ApprovalHandler> handlers){
@@ -96,7 +103,28 @@ public class ApprovalTaskProcessor {
 
     // PRE_INIT -> WAIT_APPROVAL
     public void processPreInit(DmApprovalDO approvalDO) {
-        this.approvalPreInitService.process(approvalDO);
+        PreInitContext context = null;
+        if (approvalDO.hasFeature(ApprovalFeature.PRE_INIT)) {
+            context = this.preInitService.process(approvalDO);
+        }
+
+        this.completePreInit(approvalDO, context);
+    }
+
+    private void completePreInit(DmApprovalDO approvalDO, PreInitContext context) {
+        TransactionTemplate transaction = new TransactionTemplate(this.txManager);
+        transaction.executeWithoutResult(status -> {
+            if (context != null) {
+                this.approvalDal.approvalMapper().updateAnalysis(//
+                        approvalDO.getId(), context.getBehaviors(), JsonUtils.toJson(context.getRuleCheckResults()));
+            }
+            DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(approvalDO.getId(), ApprovalStage.EXPLAIN);
+            if (processDO != null) {
+                this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, null);
+            }
+            this.approvalDal.approvalMapper().updateStatusByEnum(//
+                    approvalDO.getId(), ApprovalStatus.WAIT_APPROVAL, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
+        });
     }
 
     // WAIT_APPROVAL -> [WAIT_APPROVAL \ WAIT_CONFIRM \ REJECTED]

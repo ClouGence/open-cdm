@@ -125,8 +125,9 @@ public abstract class BasicMySqlLineageTextTest {
         JsonNode expected = JSON.readTree(testCase.expectation());
         try {
             List<LineageColumn> columns = metaService.withSql(testCase.sql(), () -> {
-                try (StringReader reader = new StringReader(testCase.sql())) {
-                    return analysisSpi.analyze(reader, lineageContext());
+                try (StringReader reader = new StringReader(testCase.sql());
+                        Stream<LineageColumn> stream = analysisSpi.analyzeStream(reader, lineageContext())) {
+                    return stream.toList();
                 }
             });
             if (recordingExpectations()) {

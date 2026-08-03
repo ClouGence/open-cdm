@@ -16,13 +16,11 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.analysis.AnalysisQueryOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.PreInitHandler;
@@ -32,14 +30,11 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -51,8 +46,6 @@ import jakarta.annotation.Resource;
 public class ApprovalPreInitService {
 
     @Resource
-    private ApprovalDal                approvalDal;
-    @Resource
     private DataSourceDal              dataSourceDal;
     @Resource
     private DmDsConfigService          dmDsConfigService;
@@ -62,23 +55,17 @@ public class ApprovalPreInitService {
     private ApprovalService            approvalService;
     @Resource
     private RuleCheckPreInitHandler    ruleCheckPreInitHandler;
-    @Resource
-    private PlatformTransactionManager transactionManager;
     private final List<PreInitHandler> preInitHandlers;
 
     public ApprovalPreInitService(List<PreInitHandler> preInitHandlers){
         this.preInitHandlers = List.copyOf(preInitHandlers);
     }
 
-    public void process(DmApprovalDO approvalDO) {
-        boolean sqlApproval = approvalDO.getApproBiz() == ApprovalBiz.DM_QUERY ||//
-                              approvalDO.getApproBiz() == ApprovalBiz.DM_CHANGE;
-
-        PreInitContext context = sqlApproval ? this.analyzeSqlApproval(approvalDO) : null;
-        this.completePreInit(approvalDO, context);
+    public PreInitContext process(DmApprovalDO approvalDO) {
+        return this.analyze(approvalDO);
     }
 
-    private PreInitContext analyzeSqlApproval(DmApprovalDO approvalDO) {
+    private PreInitContext analyze(DmApprovalDO approvalDO) {
         DmDsDO dsDO = this.dataSourceDal.dsMapper().selectById(approvalDO.getBindDsId());
         if (dsDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
@@ -95,9 +82,7 @@ public class ApprovalPreInitService {
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(levels);
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
         PreInitContext context = new PreInitContext(approvalDO);
-        if (approvalDO.getApproBiz() == ApprovalBiz.DM_QUERY) {
-            this.ruleCheckPreInitHandler.handle(dsConfig, dsLevels, context);
-        }
+        this.ruleCheckPreInitHandler.handle(dsConfig, dsLevels, context);
 
         this.dispatchPreInitHandlers(dsConfig, dsLevels, context);
         return context;
@@ -105,37 +90,20 @@ public class ApprovalPreInitService {
 
     private void dispatchPreInitHandlers(DataSourceConfig dsConfig, DsLevels dsLevels, PreInitContext context) {
         DmApprovalDO approvalDO = context.getApproval();
-        QueryAnalysisOptions requestOptions = QueryAnalysisOptions.builder()
+        AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(approvalDO.getOwnerUid())
             .dataSourceId(approvalDO.getBindDsId())
             .levels(dsLevels.levelsParam())
             .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
             .build();
+
         List<PreInitHandler> handlers = this.preInitHandlers.stream().filter(handler -> handler.supports(context)).toList();
         this.approvalService.consumeSqlFile(approvalDO.getId(), sql -> {
             try (Reader reader = Files.newBufferedReader(sql, StandardCharsets.UTF_8);
-                    Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(dsConfig, reader, Collections.emptyList(), 1, 0, requestOptions)) {
-                requests.forEachOrdered(request -> handlers.forEach(handler -> handler.handle(request, context)));
+                    Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
+                requests.forEachOrdered(r -> handlers.forEach(h -> h.handle(r, context)));
                 return null;
             }
-        });
-    }
-
-    private void completePreInit(DmApprovalDO approvalDO, PreInitContext context) {
-        long approvalId = approvalDO.getId();
-        String checkedInfo = context != null && approvalDO.getApproBiz() == ApprovalBiz.DM_QUERY ? JsonUtils.toJson(context.getRuleCheckResults()) : null;
-        TransactionTemplate transaction = new TransactionTemplate(this.transactionManager);
-        transaction.executeWithoutResult(status -> {
-            if (context != null) {
-                this.approvalDal.approvalMapper().updateAnalysis(approvalId, context.getBehaviors(), checkedInfo);
-            }
-
-            DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(approvalId, ApprovalStage.EXPLAIN);
-            if (processDO != null) {
-                this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, null);
-            }
-            this.approvalDal.approvalMapper()
-                .updateStatusByEnum(approvalId, ApprovalStatus.WAIT_APPROVAL, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
         });
     }
 }

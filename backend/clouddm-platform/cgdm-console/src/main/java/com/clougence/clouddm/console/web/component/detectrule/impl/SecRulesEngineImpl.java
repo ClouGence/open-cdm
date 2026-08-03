@@ -15,11 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.detectrule.impl;
 
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import org.springframework.stereotype.Service;
 
@@ -27,19 +23,18 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.console.web.component.detectrule.*;
+import com.clougence.clouddm.console.web.component.detectrule.impl.SecRulesCheckSession4Batch.PreparedRule;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
-import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.service.secrules.*;
+import com.clougence.clouddm.sdk.service.secrules.CheckerRule;
+import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
@@ -65,128 +60,75 @@ public class SecRulesEngineImpl implements SecRulesEngine {
     private DmDsConfigService configService;
 
     @Override
-    public SecRulesCheckResult doQueryCheck(String ownerUid, String currentUid, String querySql, SecRulesCheckContext context) {
+    public SecRulesCheckSession openQueryCheck(String currentUid, DataSourceConfig dsConfig, SecRulesCheckContext context) {
         if (!PluginManager.hasFeature(DsFeatureIDs.FUNC_RULE_CHECK_SUPPORT)) {
             log.warn("rule sec plugin is not init. or not exist.");
-            return resultOK();
+            return SecRulesCheckSession4Disabled.getInstance();
+        }
+
+        DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(context.getDsId());
+        return this.openQueryCheck(dsCache.getOwnerUid(), currentUid, dsConfig, context, dsCache);
+    }
+
+    private SecRulesCheckSession openQueryCheck(String ownerUid, String currentUid, DataSourceConfig dsConfig, SecRulesCheckContext context, DsCacheEntry dsCache) {
+        if (!PluginManager.hasFeature(DsFeatureIDs.FUNC_RULE_CHECK_SUPPORT)) {
+            log.warn("rule sec plugin is not init. or not exist.");
+            return SecRulesCheckSession4Disabled.getInstance();
         }
 
         SecCheckerRules rules = this.secRulesService.fetchCheckerRules(ownerUid, context.getDsId());
         if (!rules.isValid() || CollectionUtils.isEmpty(rules.getQueryRuleList())) {
-            return resultOK();
+            return SecRulesCheckSession4Disabled.getInstance();
         }
 
         DataSourceType dsType = rules.getDsType();
-        DataSourceConfig dsConfig = configService.fetchDsConfigFromExists(context.getDsId());
-        List<RuleDomain> domainList;
-        DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(context.getDsId());
-        try {
-            Map<UmiTypes, Object> levelsParam = CollectionUtils.asMap(UmiTypes.Catalog, context.getCurrentCatalog(), UmiTypes.Schema, context.getCurrentSchema());
-            ContextInfo ctxInfo = ContextInfo.builder()
-                .puid(ownerUid)
-                .cuid(currentUid)
-                .dsId(context.getDsId())
-                .levelsParam(levelsParam)
-                .dataSourceConfig(dsConfig)
-                .build();
+        Map<UmiTypes, Object> levelsParam = CollectionUtils.asMap(UmiTypes.Catalog, context.getCurrentCatalog(), UmiTypes.Schema, context.getCurrentSchema());
+        ContextInfo contextInfo = ContextInfo.builder().puid(ownerUid).cuid(currentUid).dsId(context.getDsId()).levelsParam(levelsParam).dataSourceConfig(dsConfig).build();
 
-            SqlEngineSpi sqlEngine = configService.fetchSqlEngineSpi(context.getDsId());
-            SecDomainResolveSpi resolveSpi = sqlEngine == null ? null : sqlEngine.secDomainResolveSpi(context.getSqlParameters());
-            if (resolveSpi == null) {
-                return resultOK();
-            }
-
-            CodeInfo codeInfo = CodeInfo.builder().baseLine(context.getBasicCodeLine()).baseColumn(context.getBasicCodeColumn()).build();
-            try (StringReader reader = new StringReader(querySql)) {
-                domainList = resolveSpi.resolveDomain(dsType, reader, codeInfo, ctxInfo);
-            }
-            if (CollectionUtils.isEmpty(domainList)) {
-                return this.resultUnsupported(context.getUnsupportedLevel(), querySql);
-            }
-        } catch (UnsupportedOperationException e) {
-            return this.resultUnsupported(context.getUnsupportedLevel(), querySql);
+        SqlEngineSpi sqlEngine = this.configService.fetchSqlEngineSpi(dsConfig);
+        SecDomainResolveSpi resolveSpi = sqlEngine == null ? null : sqlEngine.secDomainResolveSpi(context.getSqlParameters());
+        if (resolveSpi == null) {
+            return SecRulesCheckSession4Disabled.getInstance();
         }
 
-        // variables
+        List<PreparedRule> preparedRules = new ArrayList<>(rules.getQueryRuleList().size());
+        for (CheckerRule checkerRule : rules.getQueryRuleList()) {
+            if (checkerRule.getLevel() != RuleLevel.PASS) {
+                preparedRules
+                    .add(new PreparedRule(checkerRule, DmConvertUtils.tryRuleI18nMessage(checkerRule.getRuleName()), DmConvertUtils.tryRuleI18nMessage(checkerRule.getRuleDesc())));
+            }
+        }
+
+        List<PreparedRule> genericRules = new ArrayList<>();
+        Map<TargetType, List<PreparedRule>> rulesByTarget = new EnumMap<>(TargetType.class);
+        for (TargetType targetType : TargetType.values()) {
+            rulesByTarget.put(targetType, new ArrayList<>());
+        }
+        for (PreparedRule preparedRule : preparedRules) {
+            TargetType target = preparedRule.checkerRule().getTarget();
+            if (target == null) {
+                genericRules.add(preparedRule);
+                rulesByTarget.values().forEach(r -> r.add(preparedRule));
+            } else {
+                rulesByTarget.get(target).add(preparedRule);
+            }
+        }
+        rulesByTarget.replaceAll((target, r) -> List.copyOf(r));
+
         UserCacheEntry userCache = this.objectCacheDao.queryByUid(context.getCurrentUID());
         EnvCacheEntry envCache = this.objectCacheDao.queryByEnvId(dsCache.getEnvId());
-
-        // doCheck
         DsBrowseSpi browseSpi = PluginManager.findDsBrowseSpi(dsType);
-        SecRulesCheckResult result = new SecRulesCheckResult();
-        result.setSpecName(rules.getDsUseSpecName());
-        for (RuleDomain ruleDomain : domainList) {
-            List<CheckerRule> checkerRules = rules.getQueryRuleList().stream().filter(r -> {
-                return r.getTarget() == null || ruleDomain.getSqlTarget() == r.getTarget();
-            }).collect(Collectors.toList());
-            if (checkerRules.isEmpty()) {
-                continue;
-            }
-
-            CheckerData checkerDomain = new CheckerData(querySql, ruleDomain);
-            checkerDomain.setDsLevelsDef(browseSpi.getLevels());
-            checkerDomain.setCurrentCatalog(context.getCurrentCatalog());
-            checkerDomain.setCurrentSchema(context.getCurrentSchema());
-            checkerDomain.setStartLine(ruleDomain.getSplitScript().getBodyStartCodeLine());
-            checkerDomain.setStartColumn(ruleDomain.getSplitScript().getBodyStartCodeColumn());
-            checkerDomain.getDomain().setEnvId(dsCache.getEnvId());
-            checkerDomain.getDomain().setEnvName(envCache.getEnvName());
-            checkerDomain.getDomain().setDsId(dsCache.getDsNumId());
-            checkerDomain.getDomain().setDsName(dsCache.getDsInstId());
-            checkerDomain.getDomain().setDsType(dsCache.getDsType());
-            checkerDomain.getDomain().setUserName(userCache.getUserName());
-            checkerDomain.getDomain().setUserRole(userCache.getRoleName());
-            checkerDomain.getDomain().setPrimaryUid(userCache.getParentUid());
-
-            this.doCheckDomain(checkerDomain, context, checkerRules, result);
-        }
-        return result;
-    }
-
-    private void doCheckDomain(CheckerData checkerDomain, SecRulesCheckContext context, List<CheckerRule> rules, SecRulesCheckResult result) {
-        CheckerOptions options = new CheckerOptions();
-        options.setDsType(checkerDomain.getDomain().getDsType());
-        options.setRequester(context.getRequester());
-
-        for (CheckerRule checker : rules) {
-            // skip level is pass
-            if (checker.getLevel() == RuleLevel.PASS) {
-                continue;
-            }
-
-            //
-            options.setParameters(checker.getParameters());
-
-            SecResult res = this.secRulesService.checkerSpi().doChecker(checker, checkerDomain, options);
-            boolean successful = res.isSuccessful();
-
-            String nameI18n = DmConvertUtils.tryRuleI18nMessage(checker.getRuleName());
-            String descI18n = DmConvertUtils.tryRuleI18nMessage(checker.getRuleDesc());
-
-            result.addLogger(checker.getRuleName(), res.getLogger());
-            if (!successful) {
-                Map<String, String> messageParams = new HashMap<>();
-                messageParams.putAll(options.getParameters());
-                messageParams.putAll(res.getOutParams());
-                String message = DmConvertUtils.resolveMessageArgs(descI18n, messageParams);
-                result.addResult(nameI18n, checker.getLevel(), res.getResult(), message, checkerDomain.getDomain().getSplitScript());
-            }
-        }
-    }
-
-    private SecRulesCheckResult resultOK() {
-        return new SecRulesCheckResult();
-    }
-
-    private SecRulesCheckResult resultUnsupported(WarnLevel level, String querySql) {
-        if (level == WarnLevel.PASS) {
-            return SecRulesCheckResult.EMPTY;
-        }
-
-        String unsupportedName = DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_UNSUPPORTED_NAME_MESSAGE.name());
-        String unsupportedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_UNSUPPORTED_MSG_MESSAGE.name());
-        SecRulesCheckResult result = new SecRulesCheckResult();
-        result.addResult(unsupportedName, level.getRuleLevel(), null, unsupportedMsg);
-        return result;
+        return new SecRulesCheckSession4Batch(dsType,
+            rules.getDsUseSpecName(),
+            resolveSpi,
+            contextInfo,
+            dsCache,
+            userCache,
+            envCache,
+            browseSpi,
+            this.secRulesService.checkerSpi(),
+            context,
+            List.copyOf(genericRules),
+            Collections.unmodifiableMap(rulesByTarget));
     }
 }

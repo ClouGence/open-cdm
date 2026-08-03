@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.component.cicd.action;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -71,17 +70,7 @@ public class ChangeActionForFinish extends AbstractChangeAction {
 
     private void storeToDevOps(Locale locale, DmChangeDO change) {
         this.changeFlowDal.flowItemMapper().deleteItemByFlowId(change.getOwnerUid(), change.getRefFlowId());
-        List<DmChangeItemDO> itemList = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.SQL);
-        for (DmChangeItemDO item : itemList) {
-            DmChangeFlowItemDO itemDO = new DmChangeFlowItemDO();
-            itemDO.setOwnerUid(change.getOwnerUid());
-            itemDO.setRefFlowId(change.getRefFlowId());
-            itemDO.setRefFlowId(change.getRefFlowId());
-            itemDO.setContentName(item.getContentName());
-            itemDO.setContentIndex(item.getContentIndex());
-            itemDO.setContent(item.getContent());
-            this.changeFlowDal.flowItemMapper().insert(itemDO);
-        }
+        this.changeFlowDal.flowItemMapper().insertFromChangeItems(change.getOwnerUid(), change.getId(), change.getRefFlowId());
 
         String messageStr = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_UPDATE_SQL_BASE_LINE_MESSAGE.name(), locale, change.getChangeName());
         this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, messageStr);
@@ -98,20 +87,7 @@ public class ChangeActionForFinish extends AbstractChangeAction {
             return;
         }
 
-        //
-        List<DmChangeItemDO> diffChange = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
-        String changeSql = diffChange.isEmpty() ? "" : diffChange.get(0).getContent();
-
-        DmChangeVersionDO versionDO = new DmChangeVersionDO();
-        versionDO.setOwnerUid(change.getOwnerUid());
-        versionDO.setRefFlowId(change.getRefFlowId());
-        versionDO.setRefChangeId(change.getId());
-        versionDO.setRefFlowId(change.getRefFlowId());
-        versionDO.setVersion(new Date());
-        versionDO.setCommitId(change.getLastCommitId());
-        versionDO.setContent(changeSql);
-        versionDO.setType(ChangeVersionType.Change);
-        this.changeFlowDal.versionMapper().insert(versionDO);
+        this.changeFlowDal.versionMapper().insertReviewSnapshot(change.getOwnerUid(), change.getRefFlowId(), change.getId(), change.getLastCommitId());
 
         String messageStr = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_CREATE_SNAPSHOT_MESSAGE.name(), locale, change.getChangeName());
         this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, messageStr);

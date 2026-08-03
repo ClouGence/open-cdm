@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.behavior;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,8 +113,9 @@ public final class BehaviorTextTest {
 
         List<StatementBehavior> actual;
         try {
-            try (StringReader reader = new StringReader(testCase.sql)) {
-                actual = spi.analysisBehavior(reader, testCase.levels, baseLine, baseColumn);
+            try (StringReader reader = new StringReader(testCase.sql);
+                    Stream<StatementBehavior> stream = spi.analysisBehaviorStream(reader, testCase.levels, baseLine, baseColumn)) {
+                actual = stream.toList();
             }
         } catch (Exception e) {
             failures.add(prefix(testCase) + " unexpected exception: " + e.getClass().getName() + ": " + e.getMessage());

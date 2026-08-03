@@ -32,8 +32,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.analysis.AnalysisRuleOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
-import com.clougence.clouddm.console.web.component.analysis.QueryRuleAnalysisOptions;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
@@ -472,6 +472,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         ticket.setTicketTitle(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TITLE_AUTH.name(), user.getUsername()));
         ticket.setTicketStatus(ApprovalStatus.WAIT_APPROVAL);
         ticket.setApproBiz(ApprovalBiz.DATA_SOURCE_AUTH);
+        ticket.setFeatures(Collections.emptyList());
 
         DmSysEnvParamDO paramDO = this.systemDal.envParamMapper().queryByParamKey(ownerUid, EnvParamKeys.AUTH_TICKET_INFO, envId);
         if (paramDO != null) {
@@ -591,10 +592,10 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                 if (StringUtils.isBlank(fo.getRawSql())) {
                     throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_REQUIRED_ERROR.name()));
                 }
-                QueryRuleAnalysisOptions options = QueryRuleAnalysisOptions.builder()
-                    .ownerUid(puid)
+
+                AnalysisRuleOptions options = AnalysisRuleOptions.builder()
                     .currentUid(uid)
-                    .dataSourceId(dsDO.getId())
+                    .dsId(dsDO.getId())
                     .levels(levelsParam)
                     .requester(Requester.TICKET)
                     .unsupportedLevel(WarnLevel.FAILURE)
@@ -652,6 +653,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         ticket.setEnvName(envDO.getEnvName());
 
         ticket.setContentType(contentType);
+        ticket.setFeatures(List.of(ApprovalFeature.values()));
         switch (contentType) {
             case INLINE -> ticket.setRawSql(fo.getRawSql());
             case ATTACHMENT -> ticket.setRawSql(null);

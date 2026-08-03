@@ -74,9 +74,15 @@ public class DmApprovalDO {
     private String                 ticketInfo;
     @TableField(value = "levels", typeHandler = JacksonTypeHandler.class)
     private List<String>           levels;
+    @TableField(value = "features", typeHandler = JacksonTypeHandler.class)
+    private List<ApprovalFeature>  features;
     private String                 checkedInfo;
     @TableField(value = "behaviors", typeHandler = ApprovalBehaviorListTypeHandler.class)
     private List<ApprovalBehavior> behaviors;
+
+    public boolean hasFeature(ApprovalFeature feature) {
+        return CollectionUtils.isNotEmpty(this.features) && this.features.contains(feature);
+    }
 
     public String getLevelPath() {
         if (CollectionUtils.isEmpty(this.levels)) {

@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.sdk.sql.editor.rewrite;
 
+import java.io.Reader;
+
 import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 
@@ -24,5 +26,5 @@ import com.clougence.clouddm.sdk.execute.session.QueryRequest;
  */
 public interface RewriteSpi extends Spi {
 
-    String rewriterQuery(QueryRequest request, RewriteContext context);
+    String rewriterQuery(Reader queryReader, QueryRequest request, RewriteContext context);
 }

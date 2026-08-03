@@ -13,11 +13,7 @@ import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HexFormat;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -120,6 +116,27 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
                     }
                 }
 
+                Path sqlFileDirectory = sqlFileCacheDir();
+                if (Files.isDirectory(sqlFileDirectory)) {
+                    try (var paths = Files.walk(sqlFileDirectory)) {
+                        paths.sorted(Comparator.reverseOrder()).forEach(path -> {
+                            try {
+                                if (Files.isRegularFile(path)) {
+                                    if (Files.getLastModifiedTime(path).toMillis() <= before.getTime()) {
+                                        Files.deleteIfExists(path);
+                                    }
+                                } else if (!sqlFileDirectory.equals(path)) {
+                                    Files.deleteIfExists(path);
+                                }
+                            } catch (DirectoryNotEmptyException ignored) {
+                                // Keep directories that still contain live cache files.
+                            } catch (IOException e) {
+                                log.warn("delete expired SQL file cache failed: {}", path, e);
+                            }
+                        });
+                    }
+                }
+
             } catch (Throwable e) {
                 log.error("clean expired local files failed", e);
             }
@@ -130,6 +147,20 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
     public void stop() {
         if (this.cleanExecutor != null) {
             this.cleanExecutor.shutdown();
+        }
+    }
+
+    @Override
+    public void invalidateCache(Path cacheFile) {
+        Path cacheDirectory = sqlFileCacheDir();
+        Path localFile = cacheFile.toAbsolutePath().normalize();
+        if (cacheDirectory.equals(localFile) || !localFile.startsWith(cacheDirectory)) {
+            throw new IllegalArgumentException("cache file must be under the CloudDM SQL file cache directory");
+        }
+        try {
+            Files.deleteIfExists(localFile);
+        } catch (IOException e) {
+            throw new IllegalStateException("invalidate local file cache failed: " + localFile, e);
         }
     }
 
@@ -188,6 +219,50 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
             log.error("store local file failed: {}", source, e);
             I18nDmMsgKeys messageKey = attachmentType == SysAttachmentType.CERTIFICATE_FILE ? I18nDmMsgKeys.CONSOLE_UPLOAD_CERT_SAVE_FAILED_ERROR : I18nDmMsgKeys.TICKET_SQL_FILE_SAVE_FAILED_ERROR;
             throw new ErrorMessageException(DmI18nUtils.getMessage(messageKey.name(), e.getMessage()));
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public long addAsLocked(String userUid, Path sourceFile, String fileName, SysAttachmentType attachmentType, long approvalId) {
+        if (StringUtils.isBlank(userUid)) {
+            throw new IllegalArgumentException("userUid cannot be blank");
+        }
+        if (attachmentType == null) {
+            throw new IllegalArgumentException("attachmentType cannot be null");
+        }
+        Path temporaryDirectory = Paths.get(GlobalConfUtils.getTempDataHome()).toAbsolutePath().normalize();
+        Path source = sourceFile.toAbsolutePath().normalize();
+        if (!source.startsWith(temporaryDirectory) || !Files.isRegularFile(source)) {
+            throw new IllegalArgumentException("source file must be under the CloudDM temporary directory");
+        }
+
+        try {
+            long fileSize = Files.size(source);
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            try (InputStream input = new DigestInputStream(Files.newInputStream(source), digest)) {
+                input.transferTo(OutputStream.nullOutputStream());
+            }
+
+            DmSysAttachmentDO attachment = new DmSysAttachmentDO();
+            attachment.setOwnerUid(userUid);
+            attachment.setApprovalId(approvalId);
+            attachment.setAttachmentType(attachmentType);
+            attachment.setAttachmentStatus(SysAttachmentStatus.CONFIRMED);
+            attachment.setFileName(fileName);
+            attachment.setFileSize(fileSize);
+            attachment.setFileHash(HexFormat.of().formatHex(digest.digest()));
+            this.systemDal.attachmentMapper().insert(attachment);
+            try (InputStream input = Files.newInputStream(source)) {
+                this.systemDal.writeAttachment(attachment.getId(), input, fileSize);
+            }
+            return attachment.getId();
+        } catch (Exception e) {
+            if (e instanceof ErrorMessageException error) {
+                throw error;
+            }
+            log.error("store locked local file failed: {}", source, e);
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_FILE_SAVE_FAILED_ERROR.name(), e.getMessage()));
         }
     }
 
@@ -358,6 +433,10 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
 
     private static Path execDir() {
         return Paths.get(GlobalConfUtils.getTempDataHome(), "exec");
+    }
+
+    private static Path sqlFileCacheDir() {
+        return Paths.get(GlobalConfUtils.getTempDataHome(), "sqlfile").toAbsolutePath().normalize();
     }
 
     private static Path uploadFile(DmSysAttachmentDO attachment) {

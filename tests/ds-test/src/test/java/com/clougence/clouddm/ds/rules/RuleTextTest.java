@@ -71,8 +71,9 @@ public final class RuleTextTest {
     }
 
     static void assertCase(String resourcePath, TestCase testCase, DataSourceType dataSourceType, SecDomainResolveSpi resolveSpi, ContextInfo contextInfo) {
-        try (StringReader reader = new StringReader(testCase.sql)) {
-            List<RuleDomain> domains = resolveSpi.resolveDomain(dataSourceType, reader, codeInfo(), contextInfo);
+        try (StringReader reader = new StringReader(testCase.sql);
+                Stream<RuleDomain> stream = resolveSpi.resolveDomainStream(dataSourceType, reader, codeInfo(), contextInfo)) {
+            List<RuleDomain> domains = stream.toList();
             boolean actual = runRuleScript(testCase.rule, DomainHelper.create(domains), testCase.vars);
             Assert.assertEquals(testCase.caseId(), testCase.expect, actual);
         } catch (Exception e) {

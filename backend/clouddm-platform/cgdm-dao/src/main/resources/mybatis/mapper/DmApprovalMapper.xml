@@ -39,6 +39,8 @@
         <result column="ticket_info" property="ticketInfo"/>
         <result column="levels" property="levels"
                 typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="features" property="features"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="checked_info" property="checkedInfo"/>
         <result column="behaviors" property="behaviors"
                 typeHandler="com.clougence.clouddm.platform.dal.handler.json.ApprovalBehaviorListTypeHandler"/>
@@ -79,6 +81,7 @@
         roll_back_sql,
         ticket_info,
         levels,
+        features,
         checked_info,
         behaviors
     </sql>
@@ -160,6 +163,7 @@
             expected_affected_rows,
             roll_back_sql,
             ticket_info,
+            features,
             checked_info,
             behaviors
         from
@@ -240,6 +244,7 @@
         a.roll_back_sql,
         a.ticket_info,
         a.levels,
+        a.features,
         a.checked_info,
         a.behaviors
         from

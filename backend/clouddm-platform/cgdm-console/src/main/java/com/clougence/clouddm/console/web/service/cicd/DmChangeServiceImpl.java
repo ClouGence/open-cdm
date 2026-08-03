@@ -203,7 +203,7 @@ public class DmChangeServiceImpl implements DmChangeService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
 
-        return this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), changeId, ChangeItemType.CHECKS);
+        return this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), changeId, ChangeItemType.CHECKS_DETAIL);
     }
 
     @Override

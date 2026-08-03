@@ -93,8 +93,9 @@ public final class SecDomainTextTest {
         }
 
         List<RuleDomain> domains;
-        try (StringReader reader = new StringReader(testCase.sql)) {
-            domains = flatten(resolveSpi.resolveDomain(dataSourceType, reader, codeInfo(), contextInfo(testCase, contextInfo)));
+        try (StringReader reader = new StringReader(testCase.sql);
+                Stream<RuleDomain> stream = resolveSpi.resolveDomainStream(dataSourceType, reader, codeInfo(), contextInfo(testCase, contextInfo))) {
+            domains = flatten(stream.toList());
         } catch (Exception e) {
             if (expected.has("exception")) {
                 assertExpectedException(testCase, expected.get("exception"), e, failures);

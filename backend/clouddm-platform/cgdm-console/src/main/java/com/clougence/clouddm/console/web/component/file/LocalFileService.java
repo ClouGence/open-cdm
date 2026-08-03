@@ -12,7 +12,12 @@ import com.clougence.clouddm.platform.dal.model.system.SysAttachmentType;
 import com.clougence.utils.function.EFunction;
 
 public interface LocalFileService {
+
     <T> T consumeLocked(long fileId, Path cacheFile, EFunction<Path, T, Exception> visitor);
+
+    long addAsLocked(String userUid, Path sourceFile, String fileName, SysAttachmentType attachmentType, long approvalId);
+
+    //
 
     <T> T consumeEditing(String userUid, long fileId, EFunction<Path, T, Exception> visitor);
 
@@ -27,4 +32,6 @@ public interface LocalFileService {
     boolean exists(long fileId);
 
     void deleteRecord(long fileId);
+
+    void invalidateCache(Path cacheFile);
 }

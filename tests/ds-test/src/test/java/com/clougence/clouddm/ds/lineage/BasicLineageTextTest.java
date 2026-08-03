@@ -118,8 +118,9 @@ public abstract class BasicLineageTextTest {
 
         List<LineageColumn> items;
         try {
-            try (StringReader reader = new StringReader(testCase.sql)) {
-                items = analysisSpi.analyze(reader, lineageContext(context));
+            try (StringReader reader = new StringReader(testCase.sql);
+                    Stream<LineageColumn> stream = analysisSpi.analyzeStream(reader, lineageContext(context))) {
+                items = stream.toList();
             }
         } catch (Exception e) {
             if (expected.has("exception")) {

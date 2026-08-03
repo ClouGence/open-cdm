@@ -15,20 +15,21 @@
  */
 package com.clougence.clouddm.console.web.component.cicd.action;
 
-import java.io.StringReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.component.cicd.ChangeSqlService;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckMO;
-import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
-import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckContext;
-import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
-import com.clougence.clouddm.console.web.component.detectrule.SecRulesEngine;
+import com.clougence.clouddm.console.web.component.detectrule.*;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -52,10 +53,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ChangeActionForCheck extends AbstractChangeAction {
 
+    private static final int  MAX_CHECK_DETAILS = 50;
+
     @Resource
     private SecRulesEngine    ruleCheckService;
     @Resource
     private DmDsConfigService dmDsConfigService;
+    @Resource
+    private ChangeSqlService  changeSqlService;
 
     @Override
     public void doAction(DmChangeDO change) {
@@ -82,9 +87,7 @@ public class ChangeActionForCheck extends AbstractChangeAction {
 
         // check
         try {
-            List<DmChangeItemDO> diffChange = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
-            String sqlChange = diffChange.isEmpty() ? "" : diffChange.get(0).getContent();
-            this.checkSql(locale, flowDO, change, sqlChange);
+            this.checkSql(locale, flowDO, change);
         } catch (Throwable e) {
             log.error("changeAction[" + change.getId() + "] sql check failed," + e.getMessage(), e);
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_CHECK_SQL_ERROR.name(), locale, change.getChangeName(), e.getMessage());
@@ -93,7 +96,7 @@ public class ChangeActionForCheck extends AbstractChangeAction {
         }
     }
 
-    private void checkSql(Locale locale, DmChangeFlowDO flowDO, DmChangeDO change, String diffResult) {
+    private void checkSql(Locale locale, DmChangeFlowDO flowDO, DmChangeDO change) {
         DmChangeFlowDO gitOpsFlowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
 
         // context
@@ -115,70 +118,70 @@ public class ChangeActionForCheck extends AbstractChangeAction {
         }
 
         // check
-        WarnLevel maxLevel = WarnLevel.PASS;
-        this.changeFlowDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.CHECKS);
-        List<SplitScript> splits;
-        try (StringReader reader = new StringReader(diffResult)) {
-            splits = analysisSpi.splitScript(reader, Collections.emptyList(), 0, 0);
-        } catch (Exception e) {
-            log.error("changeAction[" + change.getId() + "] check review sql failed, " + e.getMessage(), e);
-            String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_SQL_PARSER_ERROR.name(), locale, change.getChangeName(), dsType.name());
-            this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, errorMsg);
-            changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.FAILED, errorMsg);
-            return;
-        }
+        this.changeFlowDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.CHECKS_DETAIL);
+        this.changeFlowDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.CHECK_SUMMARY);
+        SecRulesCheckContext ruleContext = SecRulesCheckContext.builder()
+            .dsId(dsLevels.dsDO().getId())
+            .currentUID(ownerUid)
+            .currentCatalog((String) levelsParam.get(UmiTypes.Catalog))
+            .currentSchema((String) levelsParam.get(UmiTypes.Schema))
+            .requester(Requester.CHANGE)
+            .unsupportedLevel(WarnLevel.FAILURE)
+            .sqlParameters(sqlParameters)
+            .build();
 
-        for (int i = 0; i < splits.size(); i++) {
-            SplitScript splitScript = splits.get(i);
-            String trimSql = splitScript.getScript().trim();
-
-            // do check
-            SecRulesCheckContext ruleCtx = SecRulesCheckContext.builder()
-                .basicCodeLine(splitScript.getBodyStartCodeLine())
-                .basicCodeColumn(splitScript.getBodyStartCodeColumn())
-                .dsId(dsLevels.dsDO().getId())
-                .currentUID(ownerUid)
-                .currentCatalog((String) levelsParam.get(UmiTypes.Catalog))
-                .currentSchema((String) levelsParam.get(UmiTypes.Schema))
-                .requester(Requester.CHANGE)
-                .unsupportedLevel(WarnLevel.FAILURE)
-                .sqlParameters(sqlParameters)
-                .build();
-            SecRulesCheckResult result = this.ruleCheckService.doQueryCheck(ownerUid, flowDO.getFlowManagerUid(), trimSql, ruleCtx);
-            if (result.isAllSuccess()) {
-                continue;
+        SecRulesCheckSession session = this.ruleCheckService.openQueryCheck(flowDO.getFlowManagerUid(), dsConfig, ruleContext);
+        WarnLevel maxLevel = this.changeSqlService.consumeSqlFile(change.getId(), sqlFile -> {
+            if (!session.isEnabled()) {
+                return WarnLevel.PASS;
             }
 
-            // convert to DmChangeItemDO
-            ChangeCheckMO checkMO = new ChangeCheckMO();
-            checkMO.setContent(splitScript.getScript());
-            checkMO.setStartCodeLine(splitScript.getBodyStartCodeLine());
-            checkMO.setStartCodeColumn(splitScript.getBodyStartCodeColumn());
-            checkMO.setEndCodeLine(splitScript.getBodyEndCodeLine());
-            checkMO.setEndCodeColumn(splitScript.getBodyEndCodeColumn());
-            checkMO.setLevel(WarnLevel.PASS);
-            checkMO.setCheckList(new ArrayList<>());
-            for (SecHintInfo info : result.toSecHintList()) {
-                ChangeCheckItemMO itemMO = DmConvertUtils.convertToChangeCheckItemMO(info);
-                checkMO.getCheckList().add(itemMO);
+            SecRulesCheckResult summary = new SecRulesCheckResult();
+            WarnLevel currentMaxLevel = WarnLevel.PASS;
+            int index = 0;
+            int detailCount = 0;
+            try (Reader reader = Files.newBufferedReader(sqlFile, StandardCharsets.UTF_8);
+                    Stream<SplitScript> scripts = analysisSpi.splitScriptStream(reader, Collections.emptyList(), 0, 0)) {
+                Iterator<SplitScript> iterator = scripts.iterator();
+                while (iterator.hasNext()) {
+                    SplitScript splitScript = iterator.next();
+                    String trimSql = splitScript.getScript().trim();
+                    SecRulesCheckResult result = session.applyCheck(trimSql, splitScript.getBodyStartCodeLine(), splitScript.getBodyStartCodeColumn());
+                    if (result.isAllSuccess()) {
+                        index++;
+                        continue;
+                    }
 
-                if (itemMO.getLevel().getLevel() <= checkMO.getLevel().getLevel()) {
-                    checkMO.setLevel(itemMO.getLevel());
+                    summary.merge(result);
+                    ChangeCheckMO checkMO = this.convertToChangeCheck(splitScript, result);
+                    currentMaxLevel = checkMaxWarnLevel(currentMaxLevel, checkMO);
+                    if (detailCount < MAX_CHECK_DETAILS) {
+                        DmChangeItemDO itemDO = new DmChangeItemDO();
+                        itemDO.setOwnerUid(change.getOwnerUid());
+                        itemDO.setRefFlowId(change.getRefFlowId());
+                        itemDO.setRefChangeId(change.getId());
+                        itemDO.setChangeItemType(ChangeItemType.CHECKS_DETAIL);
+                        itemDO.setContent(JsonUtils.toJson(checkMO));
+                        itemDO.setContentIndex(index);
+                        itemDO.setContentName(trimSql);
+                        this.changeFlowDal.changeItemMapper().insert(itemDO);
+                        detailCount++;
+                    }
+                    index++;
                 }
             }
 
-            DmChangeItemDO itemDO = new DmChangeItemDO();
-            itemDO.setOwnerUid(change.getOwnerUid());
-            itemDO.setRefFlowId(change.getRefFlowId());
-            itemDO.setRefChangeId(change.getId());
-            itemDO.setChangeItemType(ChangeItemType.CHECKS);
-            itemDO.setContent(JsonUtils.toJson(checkMO));
-            itemDO.setContentIndex(i);
-            itemDO.setContentName(trimSql);
-            this.changeFlowDal.changeItemMapper().insert(itemDO);
-
-            maxLevel = checkMaxWarnLevel(maxLevel, checkMO);
-        }
+            DmChangeItemDO summaryItem = new DmChangeItemDO();
+            summaryItem.setOwnerUid(change.getOwnerUid());
+            summaryItem.setRefFlowId(change.getRefFlowId());
+            summaryItem.setRefChangeId(change.getId());
+            summaryItem.setChangeItemType(ChangeItemType.CHECK_SUMMARY);
+            summaryItem.setContent(JsonUtils.toJson(DmConvertUtils.convertToTicketRuleCheckResults(summary)));
+            summaryItem.setContentIndex(0);
+            summaryItem.setContentName("rule-summary");
+            this.changeFlowDal.changeItemMapper().insert(summaryItem);
+            return currentMaxLevel;
+        });
 
         // pause or not.
         boolean isPause = false;
@@ -209,5 +212,24 @@ public class ChangeActionForCheck extends AbstractChangeAction {
         } else {
             return curLevel;
         }
+    }
+
+    private ChangeCheckMO convertToChangeCheck(SplitScript ss, SecRulesCheckResult result) {
+        ChangeCheckMO checkMO = new ChangeCheckMO();
+        checkMO.setContent(ss.getScript());
+        checkMO.setStartCodeLine(ss.getBodyStartCodeLine());
+        checkMO.setStartCodeColumn(ss.getBodyStartCodeColumn());
+        checkMO.setEndCodeLine(ss.getBodyEndCodeLine());
+        checkMO.setEndCodeColumn(ss.getBodyEndCodeColumn());
+        checkMO.setLevel(WarnLevel.PASS);
+        checkMO.setCheckList(new ArrayList<>());
+        for (SecHintInfo info : result.toSecHintList()) {
+            ChangeCheckItemMO itemMO = DmConvertUtils.convertToChangeCheckItemMO(info);
+            checkMO.getCheckList().add(itemMO);
+            if (itemMO.getLevel().getLevel() <= checkMO.getLevel().getLevel()) {
+                checkMO.setLevel(itemMO.getLevel());
+            }
+        }
+        return checkMO;
     }
 }

@@ -21,7 +21,8 @@ package com.clougence.clouddm.platform.dal.model.cicd;
 public enum ChangeItemType {
     SQL,
     REVIEW,
-    CHECKS,
+    CHECKS_DETAIL,
+    CHECK_SUMMARY,
     TICKET,
     EXECUTE,
 }

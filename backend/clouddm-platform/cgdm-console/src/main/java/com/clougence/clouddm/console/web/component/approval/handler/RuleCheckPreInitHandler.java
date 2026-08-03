@@ -15,8 +15,8 @@ import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.analysis.AnalysisRuleOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
-import com.clougence.clouddm.console.web.component.analysis.QueryRuleAnalysisOptions;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
@@ -40,17 +40,17 @@ public class RuleCheckPreInitHandler {
 
     public void handle(DataSourceConfig dsConfig, DsLevels dsLevels, PreInitContext context) {
         DmApprovalDO approvalDO = context.getApproval();
-        QueryRuleAnalysisOptions ruleOptions = QueryRuleAnalysisOptions.builder()
-            .ownerUid(approvalDO.getPrimaryUid())
+        AnalysisRuleOptions options = AnalysisRuleOptions.builder()
             .currentUid(approvalDO.getOwnerUid())
-            .dataSourceId(approvalDO.getBindDsId())
+            .dsId(approvalDO.getBindDsId())
             .levels(dsLevels.levelsParam())
             .requester(Requester.TICKET)
             .unsupportedLevel(WarnLevel.FAILURE)
             .build();
+
         this.approvalService.consumeSqlFile(approvalDO.getId(), sql -> {
             try (Reader reader = Files.newBufferedReader(sql, StandardCharsets.UTF_8);
-                    Stream<SecRulesCheckResult> results = this.queryAnalysisService.analysisRulesStream(dsConfig, reader, Collections.emptyList(), 1, 0, ruleOptions)) {
+                    Stream<SecRulesCheckResult> results = this.queryAnalysisService.analysisRulesStream(dsConfig, reader, Collections.emptyList(), 1, 0, options)) {
                 results.forEachOrdered(context::addRuleCheckResult);
                 return null;
             }

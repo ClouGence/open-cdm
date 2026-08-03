@@ -25,23 +25,21 @@ import com.clougence.schema.umi.struts.UmiTypes;
 import lombok.Getter;
 
 @Getter
-public final class QueryAnalysisOptions {
+public final class AnalysisQueryOptions {
 
     private final Set<QueryAnalysisFeature> skippedFeatures;
     private final String                    currentUid;
-    private final long                      dataSourceId;
+    private final long                      dsId;
     private final Map<UmiTypes, Object>     levels;
-    private final boolean                   deepParser;
 
-    private QueryAnalysisOptions(Builder builder){
+    private AnalysisQueryOptions(Builder builder){
         this.skippedFeatures = Set.copyOf(builder.skippedFeatures);
         this.currentUid = builder.currentUid;
-        this.dataSourceId = builder.dataSourceId;
+        this.dsId = builder.dataSourceId;
         this.levels = builder.levels;
-        this.deepParser = builder.deepParser;
     }
 
-    public static QueryAnalysisOptions defaults() {
+    public static AnalysisQueryOptions defaults() {
         return builder().build();
     }
 
@@ -59,7 +57,6 @@ public final class QueryAnalysisOptions {
         private String                          currentUid;
         private long                            dataSourceId;
         private Map<UmiTypes, Object>           levels;
-        private boolean                         deepParser;
 
         private Builder(){
         }
@@ -79,19 +76,14 @@ public final class QueryAnalysisOptions {
             return this;
         }
 
-        public Builder deepParser(boolean deepParser) {
-            this.deepParser = deepParser;
-            return this;
-        }
-
         public Builder skip(QueryAnalysisFeature first, QueryAnalysisFeature... others) {
             this.skippedFeatures.add(first);
             this.skippedFeatures.addAll(Arrays.asList(others));
             return this;
         }
 
-        public QueryAnalysisOptions build() {
-            return new QueryAnalysisOptions(this);
+        public AnalysisQueryOptions build() {
+            return new AnalysisQueryOptions(this);
         }
     }
 }

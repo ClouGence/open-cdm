@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.sql.analysis.security;
+package com.clougence.clouddm.console.web.component.detectrule;
 
-import lombok.Builder;
-import lombok.Getter;
-
-/** @author mode 2020-01-20 21:04
- * @since 1.1.3
+/**
+ * Reusable rule-checking context for a sequence of SQL statements.
+ * @author clougence
  */
-@Builder
-@Getter
-public class CodeInfo {
+public interface SecRulesCheckSession {
 
-    private int    baseLine;
-    private int    baseColumn;
+    boolean isEnabled();
+
+    SecRulesCheckResult applyCheck(String querySql, int baseCodeLine, int baseCodeColumn);
 }

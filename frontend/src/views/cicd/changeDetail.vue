@@ -155,12 +155,33 @@
           <div class="tab-item-wrap">
             <div v-if="currentTab === 'sql-change'" class="tab-item">
               <div v-if="isNotChangeReady" style="height: 100%">
-                <div v-if="subTab === 'result'" style="height: 100%">
-                  <read-only-editor :text="rowSql" key="raw" v-if="rowSql.length" :ds-type="changeInfo?.dsType" />
-                  <CCEmptyContent v-else :content="changeInfo?.remark ? changeInfo?.remark : $t('wu-bian-geng-nei-rong')" />
+                <div v-if="subTab === 'result'" class="change-sql-preview" @wheel="handleSqlPreviewWheel">
+                  <read-only-editor
+                    ref="changeSqlPreviewEditor"
+                    :text="rowSql"
+                    key="raw"
+                    v-if="rowSql.length"
+                    :ds-type="changeInfo?.dsType"
+                    virtual-scroll-mode
+                    :line-number-start="sqlPreviewStartLine"
+                    @viewport-line-count-change="handleSqlPreviewViewportChange"
+                  />
+                  <input
+                    v-if="sqlPreviewInitialized"
+                    v-model.number="sqlPreviewStartLine"
+                    class="change-virtual-scrollbar"
+                    type="range"
+                    min="1"
+                    :max="sqlPreviewMaxStartLine"
+                    step="1"
+                    :aria-label="$t('ticket-sql-virtual-scrollbar')"
+                    aria-orientation="vertical"
+                    @input="scheduleSqlPreview"
+                  />
+                  <CCEmptyContent v-if="!rowSql.length" :content="changeInfo?.remark ? changeInfo?.remark : $t('wu-bian-geng-nei-rong')" />
                 </div>
                 <div v-if="subTab === 'diff'" style="height: 100%">
-                  <Collapse v-model="activeNames" accordion v-if="changeBody.length">
+                  <Collapse v-model="activeNames" accordion v-if="changeBody.length" @on-change="handleDiffPanelChange">
                     <Panel v-for="(item, index) in changeBody" :key="index" :name="index.toString()">
                       {{ item.contentName }}
                       <template #content>
@@ -181,33 +202,58 @@
               <CCEmptyContent v-else loading :content="$t('bian-geng-nei-rong-fen-xi-zhong')" />
             </div>
             <div v-if="currentTab === 'sql-audit'" class="tab-item">
-              <Collapse v-model="curCollapse" v-if="checkedSql?.length" simple>
-                <Panel v-for="(item, index) in checkedSql" :key="index">
-                  <span class="collapse-text-ellipsis">{{ item.content }}</span>
-                  <Button type="text" class="collapse-btn" @click.stop="getSqlDetail(item?.content)">
-                    {{ $t('cha-kan') }}
-                  </Button>
-                  <template #content>
-                    <div>
-                      <Table
-                        :columns="sqlReviewTableColumns"
-                        :data="item.checkList"
-                        :loading="loading"
-                        :locale="{ emptyText: $t('zan-wu-shu-ju') }"
-                        size="small"
-                        border
-                        stripe
-                      >
-                        <template #level="{ row }">
-                          <Tag :color="ERROR_LEVEL_COLOR_MAP[row?.level]">
-                            {{ ERROR_LEVEL_MAP[row?.level] }}
-                          </Tag>
-                        </template>
-                      </Table>
+              <div v-if="checkSummary?.length || checkedSql?.length" class="change-check-results">
+                <section class="change-check-summary">
+                  <div class="change-check-section-title">{{ $t('gui-ze-xiao-yan-jie-guo') }}</div>
+                  <template v-if="checkSummary?.length">
+                    <div v-for="(rule, index) in checkSummary" :key="index" class="change-check-rule">
+                      <div class="change-check-rule-header">
+                        <Tag :color="ERROR_LEVEL_COLOR_MAP[rule.ruleLevel]">{{ ERROR_LEVEL_MAP[rule.ruleLevel] }}</Tag>
+                        <strong>{{ rule.name }}</strong>
+                        <span v-if="rule.lines?.length" class="change-check-lines">
+                          {{ $t('wei-zhi-0') }}：
+                          <span v-for="line in rule.lines" :key="line">{{ line }}</span>
+                          <span v-if="rule.hitCount > rule.lines.length">{{ $t('ticket-rule-location-total', { count: rule.hitCount }) }}</span>
+                        </span>
+                      </div>
+                      <div class="change-check-rule-desc">{{ rule.desc }}</div>
                     </div>
                   </template>
-                </Panel>
-              </Collapse>
+                  <div v-else class="change-check-summary-empty">{{ $t('zan-wu-shu-ju') }}</div>
+                </section>
+
+                <section v-if="checkedSql?.length" class="change-check-details">
+                  <div class="change-check-details-header">
+                    <div class="change-check-section-title">{{ $t('sql-ming-xi') }}</div>
+                    <span class="change-check-limit-tip">{{ $t('cicd-check-detail-limit-tip', { count: checkMaxDetails }) }}</span>
+                  </div>
+                  <Collapse v-model="curCollapse" simple>
+                    <Panel v-for="(item, index) in checkedSql" :key="index">
+                      <span class="collapse-text-ellipsis">{{ item.content }}</span>
+                      <Button type="text" class="collapse-btn" @click.stop="getSqlDetail(item?.content)">
+                        {{ $t('cha-kan') }}
+                      </Button>
+                      <template #content>
+                        <Table
+                          :columns="sqlReviewTableColumns"
+                          :data="item.checkList"
+                          :loading="loading"
+                          :locale="{ emptyText: $t('zan-wu-shu-ju') }"
+                          size="small"
+                          border
+                          stripe
+                        >
+                          <template #level="{ row }">
+                            <Tag :color="ERROR_LEVEL_COLOR_MAP[row?.level]">
+                              {{ ERROR_LEVEL_MAP[row?.level] }}
+                            </Tag>
+                          </template>
+                        </Table>
+                      </template>
+                    </Panel>
+                  </Collapse>
+                </section>
+              </div>
               <div v-else class="empty-div">
                 <CCEmptyContent v-if="isReadyStatus" loading :content="$t('bian-geng-nei-rong-fen-xi-zhong')" />
                 <CCEmptyContent v-else-if="!isReadyStatus && !isErrorCheck" :content="$t('dang-qian-mei-you-yi-chang-sql')" />
@@ -449,10 +495,32 @@
           )
         }}
       </Alert>
-      <read-only-editor :text="rowSql" key="raw" :max-height="600" :ds-type="changeInfo?.dsType" />
+      <div class="change-finish-sql-preview" @wheel="handleSqlPreviewWheel">
+        <read-only-editor
+          ref="finishSqlPreviewEditor"
+          :text="rowSql"
+          key="finish-raw"
+          :max-height="600"
+          :ds-type="changeInfo?.dsType"
+          virtual-scroll-mode
+          :line-number-start="sqlPreviewStartLine"
+          @viewport-line-count-change="handleSqlPreviewViewportChange"
+        />
+        <input
+          v-if="sqlPreviewInitialized"
+          v-model.number="sqlPreviewStartLine"
+          class="change-virtual-scrollbar"
+          type="range"
+          min="1"
+          :max="sqlPreviewMaxStartLine"
+          step="1"
+          :aria-label="$t('ticket-sql-virtual-scrollbar')"
+          aria-orientation="vertical"
+          @input="scheduleSqlPreview"
+        />
+      </div>
       <template #footer>
         <div>
-          <Button @click="copySql">{{ $t('fu-zhi-sql') }}</Button>
           <Button type="primary" @click="confirmFinishTicket">{{ $t('que-ren-jie-shu') }}</Button>
         </div>
       </template>
@@ -466,7 +534,6 @@ import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
-import { handleCopy } from '@/utils/clipboard';
 import CCEmptyContent from '@/components/widgets/CCEmptyContent';
 import AppPageTabs from '@/components/layout/AppPageTabs';
 import ChangeBodyDiff from './changeBodyDiff';
@@ -606,6 +673,9 @@ export default {
     subTabLabel() {
       return this.subTab === 'diff' ? this.$t('bian-geng-diff') : this.$t('bian-geng-jie-guo');
     },
+    sqlPreviewMaxStartLine() {
+      return Math.max(1, this.sqlPreviewTotalLines - this.sqlPreviewLineCount + 1);
+    },
     isBtnOnlyRead() {
       return this.changeInfo.locked;
     },
@@ -675,7 +745,14 @@ export default {
       allSql: '',
       changeInfo: {},
       rowSql: '',
+      sqlPreviewStartLine: 1,
+      sqlPreviewTotalLines: 1,
+      sqlPreviewLineCount: 30,
+      sqlPreviewInitialized: false,
+      sqlPreviewTimer: null,
       checkedSql: [],
+      checkSummary: [],
+      checkMaxDetails: 50,
       changeBody: [],
       currentTab: '',
       subTab: 'result',
@@ -791,7 +868,7 @@ export default {
       await this.getDetail();
       this.moveToCurrentTab();
       if (this.currentTab === 'sql-change' && this.isNotChangeReady) {
-        this.getRowSql();
+        this.loadSqlPreview();
       }
       if (this.currentTab === 'sql-audit' && this.isNotCheckReady) {
         this.getCheckedSql();
@@ -830,17 +907,68 @@ export default {
         }
       });
     },
-    async getRowSql() {
-      this.loading = true;
-      const res = await this.$services.dmCicdChangeBody({
+    async loadSqlPreview() {
+      const editor = this.$refs.finishSqlPreviewEditor || this.$refs.changeSqlPreviewEditor;
+      this.sqlPreviewLineCount = Math.min(200, editor?.getVisibleLineCount() || this.sqlPreviewLineCount);
+      const res = await this.$services.dmCicdChangeSqlPreview({
         data: {
-          changeId: this.changeId
+          changeId: this.changeId,
+          startLine: this.sqlPreviewStartLine,
+          lineCount: this.sqlPreviewLineCount
         }
       });
-
-      this.loading = false;
-      this.changeBody = res.data?.itemList || [];
-      this.rowSql = res.data?.changeBody || '';
+      if (res.success) {
+        this.sqlPreviewStartLine = res.data?.startLine || 1;
+        this.sqlPreviewTotalLines = res.data?.totalLines || 1;
+        this.rowSql = res.data?.content || '';
+        if (res.data?.itemList) {
+          this.changeBody = res.data.itemList;
+        }
+        this.sqlPreviewInitialized = true;
+      }
+    },
+    async handleDiffPanelChange(name) {
+      const selected = Array.isArray(name) ? name[0] : name;
+      if (selected === undefined || selected === null || selected === '') {
+        return;
+      }
+      const index = Number(selected);
+      const item = this.changeBody[index];
+      if (!item || item.loaded) {
+        return;
+      }
+      const res = await this.$services.dmCicdChangeSqlPreview({
+        data: {
+          changeId: this.changeId,
+          contentName: item.contentName,
+          startLine: 1,
+          lineCount: 1
+        }
+      });
+      if (res.success && res.data?.itemList?.length) {
+        this.changeBody.splice(index, 1, { ...res.data.itemList[0], loaded: true });
+      }
+    },
+    scheduleSqlPreview() {
+      clearTimeout(this.sqlPreviewTimer);
+      this.sqlPreviewTimer = setTimeout(() => this.loadSqlPreview(), 120);
+    },
+    handleSqlPreviewViewportChange(lineCount) {
+      if (!lineCount || lineCount === this.sqlPreviewLineCount) {
+        return;
+      }
+      this.sqlPreviewLineCount = lineCount;
+      this.scheduleSqlPreview();
+    },
+    handleSqlPreviewWheel(event) {
+      if (!this.sqlPreviewInitialized) {
+        return;
+      }
+      event.preventDefault();
+      const step = Math.max(1, Math.floor(this.sqlPreviewLineCount / 3));
+      const delta = event.deltaY > 0 ? step : -step;
+      this.sqlPreviewStartLine = Math.max(1, Math.min(this.sqlPreviewMaxStartLine, this.sqlPreviewStartLine + delta));
+      this.scheduleSqlPreview();
     },
     async getApproval() {
       const res = await this.$services.dmCicdChangeApproval({
@@ -862,7 +990,14 @@ export default {
       });
 
       this.loading = false;
-      this.checkedSql = res.data || [];
+      if (Array.isArray(res.data)) {
+        this.checkedSql = res.data;
+        this.checkSummary = [];
+        this.checkMaxDetails = 50;
+      } else {
+        this.checkedSql = res.data?.detailList || [];
+        this.checkSummary = res.data?.summaryList || [];
+      }
     },
 
     async getExecuteState() {
@@ -932,7 +1067,7 @@ export default {
     async tabClick(name) {
       await this.getDetail();
       if (name === 'sql-change' && !this.isReadyStatus) {
-        this.getRowSql();
+        this.loadSqlPreview();
       }
       if (name === 'sql-audit' && !this.isReadyStatus) {
         this.getCheckedSql();
@@ -950,8 +1085,9 @@ export default {
       }
     },
     async handleFinishTicket() {
-      await this.getRowSql();
       this.showFinishTicket = true;
+      await this.$nextTick();
+      await this.loadSqlPreview();
     },
     async confirmFinishTicket() {
       const data = { ...this.confirmInfo };
@@ -965,10 +1101,6 @@ export default {
         this.init();
         this.queryAutoExecJobInfo();
       }
-    },
-    copySql() {
-      handleCopy(this.rowSql);
-      this.$Message.success(this.$t('fu-zhi-cheng-gong'));
     },
     async handleConfirmTicketByNow() {
       const data = { ...this.confirmInfo };
@@ -1223,6 +1355,9 @@ export default {
     },
     handleDropdownClick(name) {
       this.subTab = name;
+      if (name === 'result' || !this.changeBody.length) {
+        this.loadSqlPreview();
+      }
     }
   }
 };
@@ -1775,6 +1910,135 @@ export default {
 
 .collapse-btn {
   float: right;
+}
+
+.change-check-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.change-check-summary,
+.change-check-details {
+  border: 1px solid #e8eaec;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.change-check-section-title {
+  color: #17233d;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.change-check-summary > .change-check-section-title,
+.change-check-details-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e8eaec;
+}
+
+.change-check-rule {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.change-check-rule-header,
+.change-check-lines,
+.change-check-details-header {
+  display: flex;
+  align-items: center;
+}
+
+.change-check-rule-header {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.change-check-lines {
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #808695;
+}
+
+.change-check-rule-desc {
+  margin-top: 8px;
+  color: #515a6e;
+}
+
+.change-check-summary-empty {
+  padding: 28px 16px;
+  color: #808695;
+  text-align: center;
+}
+
+.change-check-details-header {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.change-check-limit-tip {
+  color: #808695;
+  font-size: 13px;
+}
+
+.change-sql-preview {
+  position: relative;
+  height: 100%;
+  padding-right: 18px;
+}
+
+.change-finish-sql-preview {
+  position: relative;
+  min-height: 300px;
+  padding-right: 18px;
+}
+
+.change-virtual-scrollbar {
+  position: absolute;
+  z-index: 3;
+  top: 8px;
+  right: 3px;
+  width: 14px;
+  height: calc(100% - 16px);
+  margin: 0;
+  writing-mode: vertical-lr;
+  direction: ltr;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+
+  &::-webkit-slider-runnable-track {
+    width: 10px;
+    height: 100%;
+    background: transparent;
+  }
+
+  &::-webkit-slider-thumb {
+    width: 10px;
+    height: 20px;
+    border: 0;
+    border-radius: 0;
+    appearance: none;
+    background: rgba(100, 100, 100, 0.45);
+  }
+
+  &::-moz-range-track {
+    width: 10px;
+    height: 100%;
+    background: transparent;
+  }
+
+  &::-moz-range-thumb {
+    width: 10px;
+    height: 20px;
+    border: 0;
+    border-radius: 0;
+    background: rgba(100, 100, 100, 0.45);
+  }
 }
 
 .red-text {

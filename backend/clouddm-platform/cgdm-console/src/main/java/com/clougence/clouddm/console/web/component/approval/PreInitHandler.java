@@ -13,29 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-<<<<<<<< HEAD:backend/clouddm-platform/cgdm-plugin-sdk/src/main/java/com/clougence/clouddm/sdk/sql/analysis/lineage/LineageContext.java
-package com.clougence.clouddm.sdk.sql.analysis.lineage;
-
-import java.util.Map;
-
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.schema.umi.struts.UmiTypes;
-
-import lombok.Builder;
-import lombok.Getter;
-
-/** @author mode 2020-01-20 21:04
- * @since 1.1.3
- */
-@Builder
-@Getter
-public class LineageContext {
-    private long                  dsId;
-    private DataSourceConfig      dsConfig;
-    private String                userUID;
-    private Map<UmiTypes, Object> levelsParam;
-
-========
 package com.clougence.clouddm.console.web.component.approval;
 
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
@@ -51,5 +28,4 @@ public interface PreInitHandler {
     boolean supports(PreInitContext context);
 
     void handle(QueryRequest request, PreInitContext context);
->>>>>>>> feat/sql_engine_optimization:backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/component/approval/PreInitHandler.java
 }

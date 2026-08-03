@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckMO;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeTicketInfoResult;
@@ -40,6 +41,7 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.cicd.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
+import com.clougence.clouddm.console.web.model.vo.cicd.ChangeCheckVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeSqlPreviewVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
@@ -50,10 +52,7 @@ import com.clougence.clouddm.console.web.service.cicd.DmScmService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeStep;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeItemDO;
+import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.utils.CollectionUtils;
@@ -134,12 +133,18 @@ public class DmChangeController {
 
         List<DmChangeItemDO> changeList = this.dmChangeService.fetchChangeCheckByChangeId(fo.getChangeId());
         List<ChangeCheckMO> checkList = new ArrayList<>();
-
         for (DmChangeItemDO item : changeList) {
             checkList.add(JsonUtils.toObj(item.getContent(), ChangeCheckMO.class));
         }
 
-        return ResWebDataUtils.buildSuccess(checkList);
+        DmChangeItemDO summary = this.changeFlowDal.changeItemMapper().queryChangeItemByName(//
+                changeDO.getOwnerUid(), changeDO.getId(), ChangeItemType.CHECK_SUMMARY, "rule-summary");
+        ChangeCheckVO result = new ChangeCheckVO();
+        result.setDetailList(checkList);
+        if (summary != null) {
+            result.setSummaryList(JsonUtils.toListUseType(summary.getContent(), TicketRuleCheckResult.class));
+        }
+        return ResWebDataUtils.buildSuccess(result);
     }
 
     @RequestAuth(DM_CICD_FLOW_READ)
