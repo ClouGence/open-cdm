@@ -40,7 +40,7 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.cicd.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
-import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyVO;
+import com.clougence.clouddm.console.web.model.vo.cicd.ChangeSqlPreviewVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
@@ -112,13 +112,12 @@ public class DmChangeController {
     }
 
     @RequestAuth(DM_CICD_FLOW_READ)
-    @RequestMapping(value = "/changeBody", method = RequestMethod.POST)
-    public ResWebData<?> changeBody(HttpServletRequest request, @Valid @RequestBody ChangeRequestFO fo) {
-        DmChangeDO changeDO = this.dmChangeService.queryChangeById(fo.getChangeId());
-        if (changeDO == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
+    @RequestMapping(value = "/changeSqlPreview", method = RequestMethod.POST)
+    public ResWebData<?> changeSqlPreview(@RequestBody ChangeSqlPreviewFO fo) {
+        if (fo.getStartLine() < 1 || fo.getLineCount() < 1 || fo.getLineCount() > 1000) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_PREVIEW_RANGE_INVALID_ERROR.name()));
         }
-        ChangeBodyVO vo = this.dmChangeService.fetchChangeBodyByChangeId(fo.getChangeId());
+        ChangeSqlPreviewVO vo = this.dmChangeService.previewChangeSql(fo.getChangeId(), fo.getStartLine(), fo.getLineCount(), fo.getContentName());
         return ResWebDataUtils.buildSuccess(vo);
     }
 

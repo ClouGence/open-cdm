@@ -26,7 +26,7 @@ import com.clougence.clouddm.console.web.model.fo.cicd.ChangeListFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
-import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyVO;
+import com.clougence.clouddm.console.web.model.vo.cicd.ChangeSqlPreviewVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
@@ -41,7 +41,7 @@ public interface DmChangeService {
 
     DmChangeDO queryChangeById(long changeId);
 
-    ChangeBodyVO fetchChangeBodyByChangeId(long changeId);
+    ChangeSqlPreviewVO previewChangeSql(long changeId, int startLine, int lineCount, String contentName);
 
     List<DmChangeItemDO> fetchChangeCheckByChangeId(long changeId);
 

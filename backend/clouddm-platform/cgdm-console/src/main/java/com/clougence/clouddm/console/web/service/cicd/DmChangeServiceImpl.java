@@ -28,6 +28,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
+import com.clougence.clouddm.console.web.component.cicd.ChangeSqlService;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
@@ -43,14 +44,14 @@ import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyItemVO;
-import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyVO;
+import com.clougence.clouddm.console.web.model.vo.cicd.ChangeSqlPreviewVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
 import com.clougence.clouddm.console.web.service.cicd.domain.ChangeTriggerContext;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggest;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggestType;
-import com.clougence.clouddm.console.web.service.cicd.domain.Item;
+import com.clougence.clouddm.console.web.service.upload.impl.SqlFilePreviewReader;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
@@ -98,6 +99,8 @@ public class DmChangeServiceImpl implements DmChangeService {
     private AutoExecService     autoExecService;
     @Resource
     private ApprovalFlowService approvalFlowService;
+    @Resource
+    private ChangeSqlService    changeSqlService;
 
     @Override
     public DmPageVO<ChangeVO> queryChangeByFlowAndQuery(String ownerUid, long flowId, ChangeListFO fo) {
@@ -158,50 +161,38 @@ public class DmChangeServiceImpl implements DmChangeService {
     }
 
     @Override
-    public ChangeBodyVO fetchChangeBodyByChangeId(long changeId) {
+    public ChangeSqlPreviewVO previewChangeSql(long changeId, int startLine, int lineCount, String contentName) {
         DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(changeId);
-
-        // current content, map by name
-        List<DmChangeFlowItemDO> versionedList = this.changeFlowDal.flowItemMapper().queryItemByFlowId(change.getOwnerUid(), change.getRefFlowId());
-        List<DmChangeItemDO> changeList = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.SQL);
-
-        Map<String, DmChangeFlowItemDO> versionedByName = new HashMap<>();
-        Map<String, DmChangeItemDO> changeByName = new HashMap<>();
-        for (DmChangeFlowItemDO item : versionedList) {
-            versionedByName.put(item.getContentName(), item);
-        }
-        for (DmChangeItemDO item : changeList) {
-            changeByName.put(item.getContentName(), item);
+        if (change == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_NOT_EXIST_ERROR.name()));
         }
 
-        // all item names, keep order.
-        List<Item> allItem = new ArrayList<>();
-        versionedList.forEach(i -> allItem.add(new Item(i)));
-        changeList.forEach(i -> allItem.add(new Item(i)));
-        Set<String> itemNames = new LinkedHashSet<>();
-        itemNames.addAll(allItem.stream().sorted(Comparator.comparingInt(Item::getIndex)).map(Item::getName).collect(Collectors.toList()));
+        if (StringUtils.isNotBlank(contentName)) {
+            DmChangeFlowItemDO baseline = this.changeFlowDal.flowItemMapper().queryItemByFlowIdAndName(change.getOwnerUid(), change.getRefFlowId(), contentName);
+            DmChangeItemDO current = this.changeFlowDal.changeItemMapper().queryChangeItemByName(change.getOwnerUid(), changeId, ChangeItemType.SQL, contentName);
+            ChangeBodyItemVO item = new ChangeBodyItemVO();
+            item.setContentName(contentName);
+            item.setOldBody(baseline == null ? null : baseline.getContent());
+            item.setNewBody(current == null ? null : current.getContent());
+            ChangeSqlPreviewVO vo = new ChangeSqlPreviewVO();
+            vo.setItemList(Collections.singletonList(item));
+            return vo;
+        }
 
-        //
-        List<ChangeBodyItemVO> bodyItemList = itemNames.stream().map(name -> {
-            ChangeBodyItemVO vo = new ChangeBodyItemVO();
-            vo.setContentName(name);
-
-            if (versionedByName.containsKey(name)) {
-                vo.setOldBody(versionedByName.get(name).getContent());
-            }
-            if (changeByName.containsKey(name)) {
-                vo.setNewBody(changeByName.get(name).getContent());
-            }
-
-            return StringUtils.equals(vo.getNewBody(), vo.getOldBody()) ? null : vo;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
-
-        // find diff result
-        List<DmChangeItemDO> diffChange = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
-        String sqlChange = diffChange.isEmpty() ? "" : diffChange.get(0).getContent();
-        ChangeBodyVO vo = new ChangeBodyVO();
-        vo.setChangeBody(sqlChange);
-        vo.setItemList(bodyItemList);
+        var preview = this.changeSqlService.consumeSqlFile(changeId, f -> SqlFilePreviewReader.read(f, startLine, lineCount));
+        ChangeSqlPreviewVO vo = new ChangeSqlPreviewVO();
+        vo.setStartLine(preview.startLine());
+        vo.setTotalLines(preview.totalLines());
+        vo.setContent(preview.content());
+        vo.setEof(preview.eof());
+        if (startLine == 1) {
+            List<ChangeBodyItemVO> items = this.changeFlowDal.changeItemMapper().queryChangedItemMeta(change.getOwnerUid(), change.getRefFlowId(), changeId).stream().map(item -> {
+                ChangeBodyItemVO itemVO = new ChangeBodyItemVO();
+                itemVO.setContentName(item.getContentName());
+                return itemVO;
+            }).toList();
+            vo.setItemList(items);
+        }
         return vo;
     }
 

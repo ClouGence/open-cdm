@@ -189,15 +189,15 @@ public class DmDsUtils {
     public static ResultLimit fetchResultLimit(Map<String, String> configMap, Requester requester) {
         ResultLimit limit = new ResultLimit();
         if (requester.isOnline()) {
-            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxRecordCount), 1000));
-            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxResultSetMegaByte), 60) * MB_SIZE);
-            limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxColumnMegaByte), 1) * MB_SIZE);
+            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxRecordCount), 3000));
+            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxResultSetMegaByte), 200) * MB_SIZE);
+            limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxColumnMegaByte), 4) * MB_SIZE);
             limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxElementMegaByte), 1) * MB_SIZE);
             limit.setFetchPageSize(30);
             limit.setQueryTimeoutSec(30);// default 30 seconds for console
         } else {
-            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxRecordCount), -1));
-            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxResultSetMegaByte), 1024) * MB_SIZE);
+            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxRecordCount), 3000));
+            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxResultSetMegaByte), 200) * MB_SIZE);
             limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxColumnMegaByte), 4) * MB_SIZE);
             limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxElementMegaByte), 1) * MB_SIZE);
             limit.setFetchPageSize(-1);
@@ -229,7 +229,7 @@ public class DmDsUtils {
             query.getResultConf().setFetchColumnBytesLimit(limit.getFetchColumnBytesLimit());
             query.getResultConf().setFetchElementBytesLimit(limit.getFetchElementBytesLimit());
             query.getResultConf().setFetchPageSize(limit.getFetchPageSize());
-            query.getResultConf().setDisplayChars(safeGetConfSize(configMap.get(RootUserConfig.Fields.defaultColumnDisplayChars), 250));
+            query.getResultConf().setDisplayChars(safeGetConfSize(configMap.get(RootUserConfig.Fields.defaultColumnDisplayChars), 256));
             query.getResultConf().setDataFormat(WellKnowFormat.WKF_DATE10);
             query.getResultConf().setTimeFormat(WellKnowFormat.WKF_TIME24_S9);
             query.getResultConf().setDataTimeFormat(WellKnowFormat.WKF_DATE_TIME24_S9);
