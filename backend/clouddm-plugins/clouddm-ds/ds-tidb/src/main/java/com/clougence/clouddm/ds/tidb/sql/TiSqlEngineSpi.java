@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.tidb.sql;
 
 import com.clougence.clouddm.ds.tidb.sql.analysis.behavior.TiBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.tidb.sql.analysis.lineage.TiLineageAnalysisSpi;
 import com.clougence.clouddm.ds.tidb.sql.analysis.security.TiSecDomainResolveSpi;
 import com.clougence.clouddm.ds.tidb.sql.editor.rewrite.TiRewriteSpi;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBDslProvider;
@@ -45,7 +44,7 @@ public class TiSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new TiSplitAnalysisSpi();
         this.secDomainResolveSpi = new TiSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new TiBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new TiLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new TiRewriteSpi();
     }
 

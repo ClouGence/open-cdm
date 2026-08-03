@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.gauss.sql;
 
 import com.clougence.clouddm.ds.gauss.sql.analysis.behavior.GaussBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.gauss.sql.analysis.lineage.GaussLineageAnalysisSpi;
 import com.clougence.clouddm.ds.gauss.sql.analysis.security.GaussSecDomainResolveSpi;
 import com.clougence.clouddm.ds.gauss.sql.editor.rewrite.GaussRewriteSpi;
 import com.clougence.clouddm.ds.gauss.sql.parser.GaussDslProvider;
@@ -45,7 +44,7 @@ public class GaussSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new GaussSplitAnalysisSpi();
         this.secDomainResolveSpi = new GaussSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new GaussBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new GaussLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new GaussRewriteSpi();
     }
 

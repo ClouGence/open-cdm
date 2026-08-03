@@ -42,7 +42,7 @@ public class Db2SqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new Db2SplitAnalysisSpi();
         this.secDomainResolveSpi = new Db2SecDomainResolveSpi();
         this.behaviorAnalysisSpi = new Db2BehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = null;
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = null;
     }
 

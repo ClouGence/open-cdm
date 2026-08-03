@@ -43,7 +43,7 @@ public class RedisSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new RedisSplitAnalysisSpi();
         this.secDomainResolveSpi = new RedisSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new RedisBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = null;
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = null;
     }
 

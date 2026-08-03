@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.polardb.sql.porx;
 
 import com.clougence.clouddm.ds.polardb.sql.porx.analysis.behavior.PorXBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.polardb.sql.porx.analysis.lineage.PorXLineageAnalysisSpi;
 import com.clougence.clouddm.ds.polardb.sql.porx.analysis.security.PorXSecDomainResolveSpi;
 import com.clougence.clouddm.ds.polardb.sql.porx.editor.rewrite.PorXRewriteSpi;
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
@@ -45,7 +44,7 @@ public class PorXSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new PorXSplitAnalysisSpi();
         this.secDomainResolveSpi = new PorXSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new PorXBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new PorXLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new PorXRewriteSpi();
     }
 

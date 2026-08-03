@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.oceanbase.sql.ob4my;
 
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.behavior.ObMyBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.lineage.ObLineageAnalysisSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.security.ObSecDomainResolveSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.editor.rewrite.ObRewriteSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.parser.ObMyDslProvider;
@@ -45,7 +44,7 @@ public class ObSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new ObSplitAnalysisSpi();
         this.secDomainResolveSpi = new ObSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new ObMyBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new ObLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new ObRewriteSpi();
     }
 

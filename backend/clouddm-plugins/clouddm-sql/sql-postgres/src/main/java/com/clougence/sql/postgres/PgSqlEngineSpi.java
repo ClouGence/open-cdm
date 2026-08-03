@@ -29,7 +29,6 @@ import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.postgres.analysis.behavior.PgBehaviorAnalysisSpi;
-import com.clougence.sql.postgres.analysis.lineage.PgLineageAnalysisSpi;
 import com.clougence.sql.postgres.analysis.security.PgSecDomainResolveSpi;
 import com.clougence.sql.postgres.editor.rewrite.PgRewriteSpi;
 import com.clougence.sql.postgres.parser.PgDslProvider;
@@ -44,7 +43,6 @@ public class PgSqlEngineSpi implements SqlEngineSpi {
     private final Map<String, SplitAnalysisSpi>    splitCache     = new ConcurrentHashMap<>();
     private final Map<String, SecDomainResolveSpi> secDomainCache = new ConcurrentHashMap<>();
     private final Map<String, BehaviorAnalysisSpi> behaviorCache  = new ConcurrentHashMap<>();
-    private final Map<String, LineageAnalysisSpi>  lineageCache   = new ConcurrentHashMap<>();
     private final Map<String, RewriteSpi>          rewriteCache   = new ConcurrentHashMap<>();
     private final Map<String, DslProvider>         dslCache       = new ConcurrentHashMap<>();
 
@@ -95,9 +93,7 @@ public class PgSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
-        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
-        String key = parserKey(parserParameters);
-        return lineageCache.computeIfAbsent(key, value -> new PgLineageAnalysisSpi(metaService, resolveVersion(parserParameters)));
+        return LineageAnalysisSpi.EMPTY;
     }
 
     @Override

@@ -44,7 +44,7 @@ public class MongoSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new MongoSplitAnalysisSpi();
         this.secDomainResolveSpi = new MongoSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new MongoBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = null;
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new MongoRewriteSpi();
     }
 

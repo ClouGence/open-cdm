@@ -15,7 +15,6 @@ import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.iso.sql2003.analysis.behavior.Sql2003BehaviorAnalysisSpi;
-import com.clougence.sql.iso.sql2003.analysis.lineage.Sql2003LineageAnalysisSpi;
 import com.clougence.sql.iso.sql2003.analysis.security.Sql2003SecDomainResolveSpi;
 import com.clougence.sql.iso.sql2003.parser.Sql2003DslProvider;
 import com.clougence.sql.iso.sql2003.parser.Sql2003SplitAnalysisSpi;
@@ -33,7 +32,7 @@ public class Sql2003SqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new Sql2003SplitAnalysisSpi();
         this.secDomainResolveSpi = new Sql2003SecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new Sql2003BehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new Sql2003LineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = null;
     }
 
