@@ -23,7 +23,7 @@ dependencies {
     api 'io.rsocket:rsocket-core:1.0.4'
     api "com.squareup.okhttp3:okhttp:${OKHTTP_VERSION}"
     api "org.springframework.boot:spring-boot-starter-rsocket:${SPRINGBOOT_VERSION}"
-    api 'com.google.guava:guava:28.1-jre'
+    api "com.google.guava:guava:${GUAVA_VERSION}"
 }
 
 test {
