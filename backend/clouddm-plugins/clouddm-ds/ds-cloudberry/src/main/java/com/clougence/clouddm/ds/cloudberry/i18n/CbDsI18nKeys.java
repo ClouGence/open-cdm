@@ -21,8 +21,7 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/cb-ui-editor-table")
 public interface CbDsI18nKeys extends PgDsI18nKeys {
 
-    String PLUGIN_NAME_CLOUDBERRY                      = "PLUGIN_NAME_CLOUDBERRY";
-
+    String PLUGIN_NAME_CLOUDBERRY                    = "PLUGIN_NAME_CLOUDBERRY";
 
     String EDITOR_TABLEINFO_DISTRIBUTED_TYPE_TITLE   = "UI_EDITOR_TABLEINFO_DISTRIBUTED_TYPE_TITLE";
     String EDITOR_TABLEINFO_DISTRIBUTED_TYPE_DESC    = "UI_EDITOR_TABLEINFO_DISTRIBUTED_TYPE_DESC";

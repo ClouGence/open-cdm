@@ -15,9 +15,9 @@
  */
 package com.clougence.clouddm.ds.cloudberry.definition.ui.ddl;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.ddl.PgFamilyConvertTableDDLSpi;
 import com.clougence.clouddm.sdk.ui.ddl.DDLType;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public class CbConvertTableDDLSpi extends PgFamilyConvertTableDDLSpi {
 

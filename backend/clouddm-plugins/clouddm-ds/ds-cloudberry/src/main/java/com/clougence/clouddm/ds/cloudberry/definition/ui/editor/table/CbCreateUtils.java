@@ -33,6 +33,53 @@ import com.clougence.utils.StringUtils;
 
 public class CbCreateUtils extends PgCreateUtils {
 
+    private static void buildTableWithOption(StringBuilder sqlBuild, Map<String, String> attrMap) {
+        boolean hasParam = false;
+        String fill = attrMap.get(FILL_FACTOR.getCodeKey());
+        String append = attrMap.get(APPEND_OPTIMIZED.getCodeKey());
+        String block = attrMap.get(BLOCK_SIZE.getCodeKey());
+        String orientation = attrMap.get(ORIENTATION.getCodeKey());
+        String check = attrMap.get(CHECK_SUM.getCodeKey());
+        String type = attrMap.get(COMPRESS_TYPE.getCodeKey());
+        String level = attrMap.get(COMPRESS_LEVEL.getCodeKey());
+
+        List<String> option = new ArrayList<>();
+
+        if (StringUtils.isNotBlank(fill)) {
+            option.add("FILLFACTOR=" + fill);
+            hasParam = true;
+        }
+        if (StringUtils.isNotBlank(append)) {
+            option.add("APPENDOPTIMIZED=" + append);
+            hasParam = true;
+        }
+        if (StringUtils.isNotBlank(block)) {
+            option.add("BLOCKSIZE=" + block);
+            hasParam = true;
+        }
+        if (StringUtils.isNotBlank(orientation)) {
+            option.add("ORIENTATION=" + orientation);
+            hasParam = true;
+        }
+        if (StringUtils.isNotBlank(check)) {
+            option.add("CHECKSUM=" + check);
+            hasParam = true;
+        }
+        if (StringUtils.isNotBlank(type)) {
+            option.add("COMPRESSTYPE=" + type);
+            hasParam = true;
+        }
+        if (StringUtils.isNotBlank(level)) {
+            option.add("COMPRESSLEVEL=" + level);
+            hasParam = true;
+        }
+        if (hasParam) {
+            sqlBuild.append("WITH (appendonly=true, ");
+            sqlBuild.append(String.join(",", option));
+            sqlBuild.append(")\n");
+        }
+    }
+
     @Override
     public List<String> buildCreate(TriggerContext buildContext, String catalog, String schema, String table, ETable eTable) {
         boolean useDelimited = buildContext.isUseDelimited();
@@ -170,52 +217,5 @@ public class CbCreateUtils extends PgCreateUtils {
         }
         sqlBuild.append(";");
         return sqlBuild.toString();
-    }
-
-    private static void buildTableWithOption(StringBuilder sqlBuild, Map<String, String> attrMap) {
-        boolean hasParam = false;
-        String fill = attrMap.get(FILL_FACTOR.getCodeKey());
-        String append = attrMap.get(APPEND_OPTIMIZED.getCodeKey());
-        String block = attrMap.get(BLOCK_SIZE.getCodeKey());
-        String orientation = attrMap.get(ORIENTATION.getCodeKey());
-        String check = attrMap.get(CHECK_SUM.getCodeKey());
-        String type = attrMap.get(COMPRESS_TYPE.getCodeKey());
-        String level = attrMap.get(COMPRESS_LEVEL.getCodeKey());
-
-        List<String> option = new ArrayList<>();
-
-        if (StringUtils.isNotBlank(fill)) {
-            option.add("FILLFACTOR=" + fill);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(append)) {
-            option.add("APPENDOPTIMIZED=" + append);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(block)) {
-            option.add("BLOCKSIZE=" + block);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(orientation)) {
-            option.add("ORIENTATION=" + orientation);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(check)) {
-            option.add("CHECKSUM=" + check);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(type)) {
-            option.add("COMPRESSTYPE=" + type);
-            hasParam = true;
-        }
-        if (StringUtils.isNotBlank(level)) {
-            option.add("COMPRESSLEVEL=" + level);
-            hasParam = true;
-        }
-        if (hasParam) {
-            sqlBuild.append("WITH (appendonly=true, ");
-            sqlBuild.append(String.join(",", option));
-            sqlBuild.append(")\n");
-        }
     }
 }
