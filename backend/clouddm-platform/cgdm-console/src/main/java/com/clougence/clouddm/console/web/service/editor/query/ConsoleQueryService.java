@@ -18,6 +18,8 @@ package com.clougence.clouddm.console.web.service.editor.query;
 import java.io.StringReader;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -94,6 +96,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryApi {
+    private static final int     MAX_QUERY_INPUT_LENGTH = 2 * 1024 * 1024;
 
     @Resource
     private ExecutionDal         executionDal;
@@ -246,6 +249,13 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
             return;
         }
+        String queryString = queryDTO.getQueryString();
+        if (queryString.length() > MAX_QUERY_INPUT_LENGTH) {
+            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SQL_TOO_LARGE_ERROR.name(), MAX_QUERY_INPUT_LENGTH);
+            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+            return;
+        }
 
         // 4.2. check quota
         if (!this.queryEditorService.hasMoreSessionQuota(curUid)) {
@@ -304,12 +314,13 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             .dataSourceId(ctx.getLevels().dsDO().getId())
             .levels(ctx.getLevels().levelsParam())
             .build();
+        int codeLine = queryDTO.getBasicCodeLine();
+        int codeColumn = queryDTO.getBasicCodeColumn();
+        List<QueryArg> queryArgs = queryDTO.getQueryArgs();
         List<QueryRequest> requests;
-        try (StringReader reader = new StringReader(queryDTO.getQueryString())) {
-            int codeLine = queryDTO.getBasicCodeLine();
-            int codeColumn = queryDTO.getBasicCodeColumn();
-            List<QueryArg> queryArgs = queryDTO.getQueryArgs();
-            requests = this.analysisService.analysisRequests(ctx.getDsConfig(), reader, queryArgs, codeLine, codeColumn, options);
+        try (StringReader reader = new StringReader(queryDTO.getQueryString());
+                Stream<QueryRequest> analyzed = this.analysisService.analysisRequestsStream(ctx.getDsConfig(), reader, queryArgs, codeLine, codeColumn, options)) {
+            requests = analyzed.collect(Collectors.toCollection(ArrayList::new));
         }
 
         //
@@ -1278,5 +1289,4 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         Long configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineResultCacheTimeoutSec, Long.class);
         return configValue == null || configValue > 0;
     }
-
 }

@@ -15,9 +15,12 @@
  */
 package com.clougence.clouddm.console.web.component.analysis;
 
+import java.io.Reader;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -28,9 +31,12 @@ import com.clougence.clouddm.sdk.sql.parser.SplitScript;
  */
 public interface QueryAnalysisService {
 
-    List<SplitScript> analysisSplit(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs,//
-                                    int baseCodeLine, int baseCodeColumn);
+    Stream<SplitScript> analysisSplitStream(DataSourceConfig dsConfig, Reader reader, List<QueryArg> queryArgs,//
+                                            int baseCodeLine, int baseCodeColumn);
 
-    List<QueryRequest> analysisRequests(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs,//
-                                        int baseCodeLine, int baseCodeColumn, QueryAnalysisOptions options);
+    Stream<QueryRequest> analysisRequestsStream(DataSourceConfig dsConfig, Reader reader, List<QueryArg> queryArgs,//
+                                                int baseCodeLine, int baseCodeColumn, QueryAnalysisOptions options);
+
+    Stream<SecRulesCheckResult> analysisRulesStream(DataSourceConfig dsConfig, Reader reader, List<QueryArg> queryArgs,//
+                                                    int baseCodeLine, int baseCodeColumn, QueryRuleAnalysisOptions options);
 }
